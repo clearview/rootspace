@@ -1,0 +1,3 @@
+.test-root {
+  @apply px-4 py-2 rounded font-semibold bg-orange-200 text-black;
+}
