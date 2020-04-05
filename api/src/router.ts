@@ -3,6 +3,7 @@ import { UsersCtrl } from './controllers/UsersCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { SpacesCtrl } from './controllers/SpacesCtrl'
 import passport from './passport'
+import auth from './middleware/auth'
 import { mapRoute } from './utils'
 
 const router = express.Router()
@@ -19,10 +20,16 @@ router.get('/auth/google/callback',
 )
 
 
-router.get('/spaces', passport.authenticate('jwt', {session: false}), mapRoute(SpacesCtrl, 'listAll'))
-router.get('/spaces/:id', mapRoute(SpacesCtrl, 'view'))
-router.post('/spaces', mapRoute(SpacesCtrl, 'create'))
-router.patch('/spaces/:id', mapRoute(SpacesCtrl, 'update'))
-router.delete('/spaces/:id', mapRoute(SpacesCtrl, 'delete'))
+router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
+router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
+router.post('/spaces', auth, mapRoute(SpacesCtrl, 'create'))
+router.patch('/spaces/:id', auth, mapRoute(SpacesCtrl, 'update'))
+router.delete('/spaces/:id', auth, mapRoute(SpacesCtrl, 'delete'))
+
+router.get('/links', auth, mapRoute(LinksCtrl, 'listAll'))
+router.get('/links/:id', auth, mapRoute(LinksCtrl, 'view'))
+router.post('/links', auth, mapRoute(LinksCtrl, 'create'))
+router.patch('/links/:id', auth, mapRoute(LinksCtrl, 'update'))
+router.delete('/links/:id', auth, mapRoute(LinksCtrl, 'delete'))
 
 export default router

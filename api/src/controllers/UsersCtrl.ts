@@ -3,6 +3,7 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import jwt from 'jsonwebtoken'
+import { config } from 'node-config-ts'
 
 export class UsersCtrl extends BaseCtrl {
 
@@ -16,7 +17,7 @@ export class UsersCtrl extends BaseCtrl {
 
   public async authGoogleCallback (req: Request, res: Response) {
     const user = req.user
-    const token = jwt.sign({ id: user }, '666')
+    const token = jwt.sign({ id: user }, config.jwtSecretKey)
     res.send({ token: token })
   }
 }

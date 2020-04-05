@@ -39,7 +39,7 @@ let jwtOptions: StrategyOptions = {
 }
 
 passport.use(new JwtStrategy(jwtOptions, async function(payload, done) {
-  const user = await getCustomRepository(UserRepository).find(payload.id)
+  const user = await getCustomRepository(UserRepository).findOne(payload.id)
   if (user) {
     return done(null, user)
   }

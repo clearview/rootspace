@@ -5,6 +5,14 @@ import * as bodyParser from 'body-parser'
 import router from './router'
 import passport from './passport'
 
+declare global {
+  namespace Express {
+      interface User {
+          id: number,
+          name: string
+      }
+  }
+}
 
 export default class Server {
 

@@ -8,11 +8,11 @@ export class Link {
 
     @Column('integer')
     @Index()
-    user_id: string
+    user_id: number
 
     @Column('integer')
     @Index()
-    space_id: string
+    space_id: number
 
     @Column('varchar', { length: 100 })
     title: string
@@ -23,7 +23,7 @@ export class Link {
     @Column('varchar', { length: 150 })
     value: string
 
-    @Column('json')
+    @Column('json', { nullable: true })
     config: object
 
     @CreateDateColumn()
