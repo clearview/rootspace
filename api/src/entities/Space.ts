@@ -13,7 +13,7 @@ export class Space {
     @Column('varchar', { length: 100 })
     title: string
 
-    @Column('json')
+    @Column('json', { nullable: true })
     settings: object
 
     @CreateDateColumn()
