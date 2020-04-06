@@ -1,7 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
 
-@Entity('spaces')
-export class Space {
+@Entity('invites')
+export class Invite {
 
     @PrimaryGeneratedColumn()
     id: number
@@ -10,11 +10,16 @@ export class Space {
     @Index()
     user_id: string
 
-    @Column('varchar', { length: 100 })
-    title: string
+    @Column('integer')
+    @Index()
+    space_id: string
 
-    @Column('json')
-    settings: object
+    @Column('varchar', { length: 100 })
+    @Index()
+    email: string
+
+    @Column('boolean', { default: false })
+    accepted: boolean
 
     @CreateDateColumn()
     created: string
