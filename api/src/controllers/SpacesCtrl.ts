@@ -18,7 +18,7 @@ export class SpacesCtrl extends BaseCtrl {
   public async create(req: Request, res: Response) {
     const data: object = {
       title: req.body.title,
-      user_id: 1
+      userId: req.user.id
     }
     const space =  getCustomRepository(SpaceRepository).create(data)
     const newSpace = await getCustomRepository(SpaceRepository).save(space)

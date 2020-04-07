@@ -8,11 +8,11 @@ export class Invite {
 
     @Column('integer')
     @Index()
-    user_id: string
+    userId: string
 
     @Column('integer')
     @Index()
-    space_id: string
+    spaceId: string
 
     @Column('varchar', { length: 100 })
     @Index()
@@ -20,6 +20,9 @@ export class Invite {
 
     @Column('boolean', { default: false })
     accepted: boolean
+
+    @Column('timestamp', { nullable: true })
+    acceptedDate: boolean
 
     @CreateDateColumn()
     created: string

@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import { UserToSpace } from './UserToSpace'
 
 @Entity('users')
 export class User {
@@ -17,7 +18,7 @@ export class User {
     password: string
 
     @Column('varchar')
-    auth_provider: string
+    authProvider: string
 
     @Column('boolean')
     active: boolean
@@ -27,5 +28,8 @@ export class User {
 
     @UpdateDateColumn()
     updated: string
+
+    @OneToMany(type => UserToSpace, userToSpace => userToSpace.user)
+    public postToCategories!: UserToSpace[]
 
 }

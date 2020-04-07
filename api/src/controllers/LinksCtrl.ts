@@ -17,7 +17,7 @@ export class LinksCtrl extends BaseCtrl {
 
   public async create(req: Request, res: Response) {
     const validatetData: object = {
-      user_id: req.user.id
+      userId: req.user.id
     }
     const data = Object.assign(req.body, validatetData)
     const space =  getCustomRepository(LinkRepository).create(data)

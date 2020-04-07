@@ -8,11 +8,11 @@ export class Link {
 
     @Column('integer')
     @Index()
-    user_id: number
+    userId: number
 
     @Column('integer')
     @Index()
-    space_id: number
+    spaceId: number
 
     @Column('varchar', { length: 100 })
     title: string

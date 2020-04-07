@@ -22,7 +22,7 @@ passport.use(new GoogleStrategy({
         name: profile.displayName,
         email: profile.emails[0].value,
         password: '666',
-        auth_provider: 'google',
+        authProvider: 'google',
         active: true
       })
       const newUser = await userRepository.save(user)

@@ -11,11 +11,11 @@ export class Space {
 
     @Column('integer')
     @Index()
-    user_id: number
+    userId: number
 
     @Column('integer')
     @Index()
-    space_id: number
+    spaceId: number
 
     @CreateDateColumn()
     created: string
