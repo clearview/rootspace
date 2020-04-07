@@ -6,12 +6,15 @@ import { SpaceRepository } from '../repositories/SpaceRepository'
 export class SpacesCtrl extends BaseCtrl {
 
   public async view(req: Request, res: Response) {
-    const space = await getCustomRepository(SpaceRepository).findOne(Number(req.params.id))
+    const space = await getCustomRepository(SpaceRepository).findOne({
+      id: Number(req.params.id),
+      userId: req.user.id
+    })
     res.send(space)
   }
 
   public async listAll(req: Request, res: Response) {
-    const spaces = await getCustomRepository(SpaceRepository).find()
+    const spaces = await getCustomRepository(SpaceRepository).find({ userId: req.user.id })
     res.send(spaces)
   }
 
@@ -27,14 +30,20 @@ export class SpacesCtrl extends BaseCtrl {
 
   public async update(req: Request, res: Response) {
     const space = await getCustomRepository(SpaceRepository).update(
-      Number(req.params.id),
+      {
+        id: Number(req.params.id),
+        userId: req.user.id
+      },
       req.body
     )
     return this.view(req, res)
   }
 
   public async delete(req: Request, res: Response) {
-    const space = await getCustomRepository(SpaceRepository).delete({ id: Number(req.params.id) })
+    const space = await getCustomRepository(SpaceRepository).delete({
+      id: Number(req.params.id),
+      userId: req.user.id
+    })
     res.send({ deleted: true })
   }
 }
