@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import {Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateColumn, UpdateDateColumn} from 'typeorm'
 
 @Entity('invites')
 export class Invite {
@@ -17,6 +17,11 @@ export class Invite {
     @Column('varchar', { length: 100 })
     @Index()
     email: string
+
+    @Column()
+    @Generated('uuid')
+    @Index()
+    token: string
 
     @Column('boolean', { default: false })
     accepted: boolean

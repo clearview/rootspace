@@ -9,7 +9,7 @@ export class Space {
 
     @Column('integer')
     @Index()
-    userId: string
+    userId: number
 
     @Column('varchar', { length: 100 })
     title: string
