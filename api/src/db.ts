@@ -1,6 +1,6 @@
 import "reflect-metadata"
-import {createConnection, Connection} from 'typeorm'
-import {config} from 'node-config-ts'
+import { createConnection } from 'typeorm'
+import { config } from 'node-config-ts'
 
 export default async function init () {
   const connection = await createConnection({
