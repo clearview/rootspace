@@ -2,14 +2,17 @@ import { Request, Response } from "express";
 import { getCustomRepository } from "typeorm";
 import { BaseCtrl } from "./BaseCtrl";
 import { SpaceRepository } from "../repositories/SpaceRepository";
+import { SpaceService } from "../services/SpaceService";
 import { InviteService } from "../services/InviteService";
 
 export class SpacesCtrl extends BaseCtrl {
+  private spaceService: SpaceService;
   private inviteService: InviteService;
 
   constructor() {
     super();
     this.inviteService = new InviteService();
+    this.spaceService = new SpaceService();
   }
 
   public async view(req: Request, res: Response) {
@@ -32,12 +35,11 @@ export class SpacesCtrl extends BaseCtrl {
       title: req.body.title,
       userId: req.user.id,
     };
-    const space = getCustomRepository(SpaceRepository).create(data);
-    const newSpace = await getCustomRepository(SpaceRepository).save(space);
 
-    this.inviteService.createfromArray(req.body.invites, newSpace.id);
+    const space = await this.spaceService.create(data);
+    res.send(space);
 
-    res.send(newSpace);
+    this.inviteService.createfromArray(req.body.invites, space.id);
   }
 
   public async update(req: Request, res: Response) {

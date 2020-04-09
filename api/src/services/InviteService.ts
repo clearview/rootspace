@@ -23,7 +23,6 @@ export class InviteService {
     const user = await this.userService.getByEmail(email);
 
     let invite = new Invite();
-
     invite.email = email;
     invite.spaceId = spaceId;
     invite.userId = user ? user.id : null;
