@@ -54,6 +54,8 @@
           </span>
           Sign In with Google
         </button>
+
+        <p class="w-full mt-16 mb-5 text-center">Don't have an account yet? <a class="signup">Sign Up</a></p>
       </div>
     </div>
   </div>
@@ -84,7 +86,8 @@ export default Vue.extend({
   background-position: top 150px right;
   height: calc(100vh - 100px);
 }
-.forgot-password {
+.forgot-password,
+.signup {
   @apply font-semibold text-primary;
 }
 .text-horizontal-line {
