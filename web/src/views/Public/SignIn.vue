@@ -1,24 +1,17 @@
 <template>
   <div id="signinup-page">
-    <header class="header">
-      <img
-        srcset="@/assets/images/logo-inverse.png, @/assets/images/logo-inverse@2x.png 2x"
-        src="@/assets/images/logo-inverse.png"
-        alt="Root Logo"
-        class="object-contain"
-      />
-      <h1 class="pl-2">RootApp</h1>
-    </header>
+    <root-header></root-header>
 
     <div id="signinup-content">
       <div class="max-w-xs mx-auto p-4 mt-10">
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
-        <div class="alert alert-danger invisible">
+
+        <div class="alert alert-danger hidden">
           <v-icon name="warning" size="2em" />Your email is icorect. Please try again
         </div>
 
-        <form>
+        <form class="mt-10">
           <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="username">Email</label>
             <input
@@ -69,11 +62,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import VIcon from '@/components/icons/Index.vue'
+import RootHeader from '@/components/RootHeader.vue'
 
 export default Vue.extend({
   name: 'Signin',
   components: {
-    VIcon
+    VIcon,
+    RootHeader
   }
 })
 </script>
@@ -88,14 +83,6 @@ export default Vue.extend({
   background-image: url("~@/assets/images/root-bg.png");
   background-position: top 150px right;
   height: calc(100vh - 100px);
-}
-.header {
-  @apply flex justify-center border-b-2 p-2;
-  border-color: theme("colors.secondary.default");
-
-  h1 {
-    @apply text-2xl;
-  }
 }
 .forgot-password {
   @apply font-semibold text-primary;
