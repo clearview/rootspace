@@ -1,4 +1,3 @@
-import { config } from "node-config-ts";
 import { SendGridClient } from "./SendGridClient";
 
 export class MailService {

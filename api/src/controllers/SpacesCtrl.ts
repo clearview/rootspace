@@ -39,7 +39,7 @@ export class SpacesCtrl extends BaseCtrl {
     const space = await this.spaceService.create(data);
     res.send(space);
 
-    this.inviteService.createfromArray(req.body.invites, space.id);
+    this.inviteService.createfromArray(req.body.invites, space);
   }
 
   public async update(req: Request, res: Response) {

@@ -2,11 +2,11 @@ import { getCustomRepository } from "typeorm";
 import { UserRepository } from "../repositories/UserRepository";
 
 export class UserService {
-  getByEmail = (email: string) => {
+  getByEmail(email: string) {
     return this.getUserRepository().getByEmail(email);
-  };
+  }
 
-  private getUserRepository = () => {
+  private getUserRepository() {
     return getCustomRepository(UserRepository);
-  };
+  }
 }
