@@ -3,9 +3,7 @@
   @apply border rounded border-gray-400;
   @apply outline-none !important;
 
-  &.input-primary {
-    @apply border-primary;
-  }
+  transition: .4s;
 
   &.input-success {
     @apply border-success;
@@ -18,10 +16,6 @@
 
 .input:focus {
   box-shadow: 0 0 0 3px rgba(theme('colors.gray.400'), 0.5);
-
-  &.input-primary {
-    box-shadow: 0 0 0 3px rgba(theme('colors.primary.default'), 0.5);
-  }
 
   &.input-success {
     box-shadow: 0 0 0 3px rgba(theme('colors.success.default'), 0.5);

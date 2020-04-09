@@ -3,7 +3,7 @@
 /* AppIcon */
 
 body {
-  @apply font-primary text-sm;
+  @apply font-primary text-sm text-gray-900;
 }
 
 h1 {

@@ -6,6 +6,8 @@
   @apply font-bold leading-none;
   @apply outline-none !important;
 
+  transition: .4s;
+
   &.btn-primary {
     @apply bg-primary text-primary-invert border-primary;
   }
