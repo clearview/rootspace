@@ -35,6 +35,8 @@ import IconSettings from './IconSettings.vue'
 import IconTrash from './IconTrash.vue'
 import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
+import IconWarning from './IconWarning.vue'
+import IconGoogle from './IconGoogle.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -58,7 +60,9 @@ export default Vue.extend({
     IconSettings,
     IconTrash,
     IconUp,
-    IconUser
+    IconUser,
+    IconWarning,
+    IconGoogle
   },
   props: {
     name: {

@@ -1,5 +1,5 @@
 .btn {
-  @apply flex flex-row items-center;
+  /* @apply flex flex-row items-center; */
   @apply py-3 px-16 mx-1;
   @apply border rounded border-solid;
   @apply bg-white text-gray-900 border-gray-400;
