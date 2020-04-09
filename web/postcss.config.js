@@ -3,6 +3,7 @@ module.exports = {
     require('postcss-import'),
     require('tailwindcss'),
     require('postcss-nested'),
+    require('postcss-hexrgba'),
     require('autoprefixer')
   ]
 }

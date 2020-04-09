@@ -1,9 +1,14 @@
 <template>
-  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" :width="size" :height="size" viewBox="0 0 32 32">
-    <title>close</title>
-    <g :fill="color">
-      <component :is="`icon-${name}`"/>
-    </g>
+  <svg
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    :width="size"
+    :height="size"
+    viewBox="0 0 32 32"
+    class="fill-current"
+  >
+    <title>{{ name }}</title>
+    <component :is="`icon-${name}`" />
   </svg>
 </template>
 
@@ -32,7 +37,7 @@ import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
 
 export default Vue.extend({
-  name: 'IndexOfIcons',
+  name: 'Icon',
   components: {
     IconAdd,
     IconClose,
@@ -63,10 +68,6 @@ export default Vue.extend({
     size: {
       type: [String, Number],
       default: 32
-    },
-    color: {
-      type: String,
-      default: '#aab1c5'
     }
   }
 })

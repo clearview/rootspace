@@ -2,7 +2,7 @@ module.exports = {
   theme: {
     colors: {
       transparent: 'transparent',
-      grey: {
+      gray: {
         100: '#DEE2EE',
         400: '#AAB1C5',
         800: '#6D7384',
@@ -20,18 +20,21 @@ module.exports = {
         default: '#D83750',
         invert: '#FFFFFF'
       },
-      success: {
+      secondary: {
+        default: '#DEE2EE',
+        invert: '#000000'
+      },
+      danger: {
         default: '#FF5A5A',
         invert: '#FFFFFF'
       },
-      error: {
+      success: {
         default: '#37D88B',
         invert: '#FFFFFF'
       }
     },
     fontFamily: {
-      primary: 'SF Pro Display',
-      icon: 'App Icon'
+      primary: 'SF Pro Display'
     },
     extend: {}
   },

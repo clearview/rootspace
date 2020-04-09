@@ -8469,6 +8469,13 @@ postcss-functions@^3.0.0:
     postcss "^6.0.9"
     postcss-value-parser "^3.3.0"
 
+postcss-hexrgba@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/postcss-hexrgba/-/postcss-hexrgba-2.0.0.tgz#1bdae7640047470b6935d8b0e5369f4acc987eb5"
+  integrity sha512-qZmURatbgathSg00kCAKG4h6iUwKnRbhMMWNN6V5u4NTKjuTplxi+CrhbHvQ8BNulTA4B51/RIWnNIoulJIDlg==
+  dependencies:
+    postcss "^7.0.14"
+
 postcss-import@^12.0.1:
   version "12.0.1"
   resolved "https://registry.yarnpkg.com/postcss-import/-/postcss-import-12.0.1.tgz#cf8c7ab0b5ccab5649024536e565f841928b7153"
