@@ -4,7 +4,7 @@
 
     <div id="signinup-content">
       <div class="max-w-xs mx-auto p-4 mt-10">
-        <h2 class="text-center">Sign In</h2>
+        <h2 class="text-center">Sign Up</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
         <div class="alert alert-danger hidden">
@@ -13,18 +13,30 @@
 
         <form class="mt-10">
           <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="username">Email</label>
+            <label class="block text-gray-800 text-sm" for="fullname">Full Name</label>
             <input
               class="input w-full leading-tight mx-0"
-              id="username"
+              id="fullname"
               type="text"
-              placeholder="Username"
+              placeholder="Enter your full name"
+            />
+            <span class="icon">
+              <v-icon name="user" size="1.5em" />
+            </span>
+          </div>
+          <div class="form-group mb-2">
+            <label class="block text-gray-800 text-sm" for="email">Email</label>
+            <input
+              class="input w-full leading-tight mx-0"
+              id="email"
+              type="text"
+              placeholder="Enter your email"
             />
             <span class="icon">
               <v-icon name="email" size="1.5em" />
             </span>
           </div>
-          <div class="form-group">
+          <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="password">Password</label>
             <input
               class="input w-full leading-tight mx-0"
@@ -36,10 +48,20 @@
               <v-icon name="password" size="1.5em" />
             </span>
           </div>
+          <div class="form-group mb-5">
+            <label class="block text-gray-800 text-sm" for="password">Repeat Password</label>
+            <input
+              class="input w-full leading-tight mx-0"
+              id="password"
+              type="password"
+              placeholder="******************"
+            />
+            <span class="icon">
+              <v-icon name="password" size="1.5em" />
+            </span>
+          </div>
 
-          <a class="forgot-password float-right mb-8">Forgot Password?</a>
-
-          <button class="btn btn-primary w-full mx-0" type="button" disabled>Sign In</button>
+          <button class="btn btn-primary w-full mx-0" type="button" disabled>Sign Up</button>
         </form>
 
         <div class="my-10">
@@ -52,12 +74,12 @@
           <span class="float-left">
             <v-icon name="google" size="1.1em" />
           </span>
-          Sign In with Google
+          Sign Up with Google
         </button>
 
         <p class="w-full mt-16 mb-5 text-center">
-          Don't have an account yet?
-          <a class="signup">Sign Up</a>
+          Already have an account?
+          <a class="signin">Sign In</a>
         </p>
       </div>
     </div>
@@ -89,8 +111,7 @@ export default Vue.extend({
   background-position: top 150px right;
   height: calc(100vh - 100px);
 }
-.forgot-password,
-.signup {
+.signin {
   @apply font-semibold text-primary;
 }
 .text-horizontal-line {
