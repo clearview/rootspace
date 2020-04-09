@@ -1,3 +1,4 @@
 @import 'tailwindcss/components';
 
+@import './alert';
 @import './btn';
