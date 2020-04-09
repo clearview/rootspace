@@ -1,8 +1,15 @@
 {
-  "postgres": "postgresql://ihti@localhost:5432/root",
+  "postgres": "@@POSTGRES",
   "jwtSecretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
   "google": {
     "clientID": "@@GOOGLE_CLIENT_ID",
     "clientSecret": "@@GOOGLE_CLIENT_SECRET"
+  },
+  "mail": {
+    "client": "@@MAIL_CLIENT",
+    "from": "root@clearview.team",
+    "sendgrid": {
+      "api_key": "@@SEND_GRID_API_KEY"
+    }
   }
 }

@@ -11,6 +11,10 @@
     "tslint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'"
   },
   "dependencies": {
+    "@sendgrid/mail": "^7.0.0",
+    "@types/nodemailer": "^6.4.0",
+    "@types/nodemailer-direct-transport": "^1.0.31",
+    "@types/nodemailer-smtp-transport": "^2.7.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "compress": "^0.99.0",
@@ -22,6 +26,8 @@
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
     "node-config-ts": "^3.0.4",
+    "nodemailer": "^6.4.6",
+    "nodemailer-sendgrid": "^1.0.3",
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.0",
