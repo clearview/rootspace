@@ -1,3 +1,16 @@
-label {
-  color: theme('colors.gray.800')
+form {
+  .form-group {
+    position: relative;
+
+      .icon {
+        position: absolute;
+        top: calc(50%);
+        right: 8px;
+        color: theme('colors.gray.800');
+      }
+  }
+
+  label {
+    color: theme('colors.gray.800');
+  }
 }
