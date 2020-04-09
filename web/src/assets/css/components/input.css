@@ -1,0 +1,33 @@
+.input {
+  @apply py-2 px-3 mx-1 my-2;
+  @apply border rounded border-gray-400;
+  @apply outline-none !important;
+
+  &.input-primary {
+    @apply border-primary;
+  }
+
+  &.input-success {
+    @apply border-success;
+  }
+
+  &.input-danger {
+    @apply border-danger;
+  }
+}
+
+.input:focus {
+  box-shadow: 0 0 0 3px rgba(theme('colors.gray.400'), 0.5);
+
+  &.input-primary {
+    box-shadow: 0 0 0 3px rgba(theme('colors.primary.default'), 0.5);
+  }
+
+  &.input-success {
+    box-shadow: 0 0 0 3px rgba(theme('colors.success.default'), 0.5);
+  }
+
+  &.input-danger {
+    box-shadow: 0 0 0 3px rgba(theme('colors.danger.default'), 0.5);
+  }
+}
