@@ -47,8 +47,6 @@ export class InviteService {
       ? await this.getInviteUserEmailTemaplte(invite, space)
       : await this.getInviteEmailTemplate(invite, space);
 
-    console.log(content);
-
     try {
       await this.mailSerivce.sendMail(invite.email, subject, content);
     } catch (error) {
@@ -77,11 +75,11 @@ export class InviteService {
     });
   }
 
-  private generateInvitationUrl(invite: Invite) {
+  private generateInvitationUrl(invite: Invite): string {
     return "[Invite URL]";
   }
 
-  private getSignUpUrl() {
+  private getSignUpUrl(): string {
     return "[SignUp URL]";
   }
 
