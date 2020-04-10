@@ -1,6 +1,6 @@
 .btn {
-  @apply flex flex-row justify-center;
-  @apply py-3 px-16 mx-1;
+  @apply flex flex-row items-center justify-center;
+  @apply py-3 px-16;
   @apply border rounded border-solid;
   @apply bg-white text-gray-900 border-gray-400;
   @apply font-bold leading-none;
@@ -18,6 +18,17 @@
 
   &.btn-danger {
     @apply bg-danger text-danger-invert border-danger;
+  }
+
+  &.btn-mute {
+    @apply bg-gray-100 text-gray-900 border-gray-100;
+  }
+
+
+  &.btn-icon {
+    @apply p-2;
+
+    font-size: 22px;
   }
 }
 
@@ -37,6 +48,28 @@
 
   &.btn-danger {
     background-color: rgba(theme('colors.danger.default'), 0.5);
+  }
+
+  &.btn-mute {
+    background-color: rgba(theme('colors.gray.100'), 0.5);
+  }
+}
+
+
+.btn-group {
+  @apply flex flex-row;
+
+  .btn {
+    @apply rounded-none;
+    @apply m-0;
+  }
+
+  .btn:first-child {
+    @apply rounded-l;
+  }
+
+  .btn:last-child {
+    @apply rounded-r;
   }
 }
 
