@@ -1,0 +1,5 @@
+@import 'tailwindcss/components';
+
+@import './alert';
+@import './btn';
+@import './input';

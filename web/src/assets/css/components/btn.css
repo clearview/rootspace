@@ -1,0 +1,39 @@
+.btn {
+  @apply flex flex-row items-center;
+  @apply py-3 px-16 mx-1;
+  @apply border rounded border-solid;
+  @apply bg-white text-gray-900 border-gray-400;
+  @apply font-bold leading-none;
+  @apply outline-none !important;
+
+  transition: .4s;
+
+  &.btn-primary {
+    @apply bg-primary text-primary-invert border-primary;
+  }
+
+  &.btn-success {
+    @apply bg-success text-success-invert border-success;
+  }
+
+  &.btn-danger {
+    @apply bg-danger text-danger-invert border-danger;
+  }
+}
+
+.btn:hover {
+  background-color: rgba(theme('colors.gray.400'), 0.5);
+  border-color: transparent;
+
+  &.btn-primary {
+    background-color: rgba(theme('colors.primary.default'), 0.5);
+  }
+
+  &.btn-success {
+    background-color: rgba(theme('colors.success.default'), 0.5);
+  }
+
+  &.btn-danger {
+    background-color: rgba(theme('colors.danger.default'), 0.5);
+  }
+}
