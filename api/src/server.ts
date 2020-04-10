@@ -1,4 +1,3 @@
-require('dotenv').config()
 import db from './db'
 import express, { Application } from 'express'
 import * as bodyParser from 'body-parser'
@@ -7,24 +6,22 @@ import passport from './passport'
 
 declare global {
   namespace Express {
-      interface User {
-          id: number,
-          name: string,
-          email: string
-      }
+    interface User {
+      id: number
+      name: string
+      email: string
+    }
   }
 }
 
 export default class Server {
-
   app: Application
 
-  constructor () {
+  constructor() {
     this.app = express()
   }
 
-  async bootstrap () {
-
+  async bootstrap() {
     await db()
 
     this.app.use(bodyParser.json())
@@ -32,11 +29,9 @@ export default class Server {
     this.app.use(router)
   }
 
-  listen () {
-    this.app.listen(3000, () =>
-      console.log('🚀 Server ready at: http://localhost:3000')
-    )
+  listen() {
+    this.app.listen(3000, () => {
+      //
+    })
   }
 }
-
-
