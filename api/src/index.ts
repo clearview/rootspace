@@ -1,6 +1,7 @@
+import 'dotenv/config'
 import Server from './server'
 
-async function main () {
+async function main() {
   const server = new Server()
   await server.bootstrap()
   server.listen()

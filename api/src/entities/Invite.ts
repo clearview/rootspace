@@ -6,13 +6,13 @@ export class Invite {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column('integer')
+    @Column('integer', { nullable: true })
     @Index()
-    userId: string
+    userId: number
 
     @Column('integer')
     @Index()
-    spaceId: string
+    spaceId: number
 
     @Column('varchar', { length: 100 })
     @Index()

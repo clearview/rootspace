@@ -8,17 +8,23 @@ import { mapRoute } from './utils'
 
 const router = express.Router()
 
-router.get('/', async (req, res) => { res.send({ Root: 'app' }) })
+router.get('/', async (req, res) => {
+  res.send({ Root: 'app' })
+})
 
 router.get('/auth', mapRoute(UsersCtrl, 'auth'))
-router.get('/auth/google', 
-  passport.authenticate('google', { session: false, scope: ['openid profile email '] })
+router.get(
+  '/auth/google',
+  passport.authenticate('google', {
+    session: false,
+    scope: ['openid profile email ']
+  })
 )
-router.get('/auth/google/callback', 
+router.get(
+  '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
-
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
