@@ -8,7 +8,7 @@
   "private": true,
   "scripts": {
     "dev": "tsc src/index.ts",
-    "tslint": "tslint -c tslint.json 'src/**/*.ts'"
+    "tslint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
