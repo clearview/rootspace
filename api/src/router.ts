@@ -25,6 +25,7 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
+router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
