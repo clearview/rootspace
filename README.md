@@ -11,4 +11,5 @@
 - `cd ./api`
 - `yarn`
 - `yarn global add nodemon`
+- create `.env` file from `.env.example`
 - `nodemon`
