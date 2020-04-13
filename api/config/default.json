@@ -4,7 +4,8 @@
   "jwtSecretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
   "google": {
     "clientID": "@@GOOGLE_CLIENT_ID",
-    "clientSecret": "@@GOOGLE_CLIENT_SECRET"
+    "clientSecret": "@@GOOGLE_CLIENT_SECRET",
+    "callbackURL": "/auth/google/callback"
   },
   "mail": {
     "client": "@@MAIL_CLIENT",
