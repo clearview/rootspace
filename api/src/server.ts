@@ -32,7 +32,7 @@ export default class Server {
 
   listen() {
     this.app.listen(config.port, () => {
-      //
+      console.log(`🚀 Server ready at: http://localhost:${config.port}`) // tslint:disable-line
     })
   }
 }
