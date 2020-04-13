@@ -7,7 +7,7 @@ import store from './store'
 import Vuelidate from 'vuelidate'
 import PortalVue from 'portal-vue'
 
-import '@/assets/css/index.css'
+// import '@/assets/css/index.css'
 
 Vue.config.productionTip = false
 
