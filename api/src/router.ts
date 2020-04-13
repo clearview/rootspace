@@ -3,7 +3,7 @@ import { UsersCtrl } from './controllers/UsersCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { SpacesCtrl } from './controllers/SpacesCtrl'
 import passport from './passport'
-import auth from './middleware/auth'
+import auth from './middleware/AuthMiddleware'
 import { mapRoute } from './utils'
 
 const router = express.Router()

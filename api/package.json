@@ -8,6 +8,7 @@
   "private": true,
   "scripts": {
     "dev": "tsc src/index.ts",
+    "build": "tsc --project tsconfig.json",
     "tslint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'"
   },
   "dependencies": {
