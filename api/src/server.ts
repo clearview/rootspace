@@ -3,6 +3,7 @@ import express, { Application } from 'express'
 import * as bodyParser from 'body-parser'
 import router from './router'
 import passport from './passport'
+import { config } from 'node-config-ts'
 
 declare global {
   namespace Express {
@@ -30,7 +31,7 @@ export default class Server {
   }
 
   listen() {
-    this.app.listen(3000, () => {
+    this.app.listen(config.port, () => {
       //
     })
   }

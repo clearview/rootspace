@@ -1,4 +1,5 @@
 {
+  "port": 3001,
   "postgres": "@@POSTGRES",
   "jwtSecretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
   "google": {
