@@ -23,6 +23,14 @@ export class User {
   @Column('boolean')
   active: boolean
 
+  @Column('boolean', { default: false })
+  confirmed: boolean
+
+  @Column()
+  @Generated('uuid')
+  @Index()
+  confirmationToken: string
+
   @CreateDateColumn()
   created: string
 

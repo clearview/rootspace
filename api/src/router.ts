@@ -26,6 +26,7 @@ router.get(
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
+router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
