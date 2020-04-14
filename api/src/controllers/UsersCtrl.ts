@@ -3,6 +3,8 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { config } from 'node-config-ts'
 import { UserRepository } from '../repositories/UserRepository'
+import { SpaceRepository } from '../repositories/SpaceRepository'
+import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import jwt from 'jsonwebtoken'
 
 export class UsersCtrl extends BaseCtrl {
@@ -22,6 +24,7 @@ export class UsersCtrl extends BaseCtrl {
 
   public async whoami(req: Request, res: Response) {
     const user = await getCustomRepository(UserRepository).findOne(req.user.id)
-    res.send(user)
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
+    res.send({ user, spaces })
   }
 }

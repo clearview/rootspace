@@ -3,36 +3,36 @@ import {Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateColu
 @Entity('invites')
 export class Invite {
 
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Column('integer', { nullable: true })
-    @Index()
-    userId: number
+  @Column('integer', { nullable: true })
+  @Index()
+  userId: number
 
-    @Column('integer')
-    @Index()
-    spaceId: number
+  @Column('integer')
+  @Index()
+  spaceId: number
 
-    @Column('varchar', { length: 100 })
-    @Index()
-    email: string
+  @Column('varchar', { length: 100 })
+  @Index()
+  email: string
 
-    @Column()
-    @Generated('uuid')
-    @Index()
-    token: string
+  @Column()
+  @Generated('uuid')
+  @Index()
+  token: string
 
-    @Column('boolean', { default: false })
-    accepted: boolean
+  @Column('boolean', { default: false })
+  accepted: boolean
 
-    @Column('timestamp', { nullable: true })
-    acceptedDate: boolean
+  @Column('timestamp', { nullable: true })
+  acceptedDate: boolean
 
-    @CreateDateColumn()
-    created: string
+  @CreateDateColumn()
+  created: string
 
-    @UpdateDateColumn()
-    updated: string
+  @UpdateDateColumn()
+  updated: string
 
 }

@@ -4,26 +4,29 @@ import { UserToSpace } from './UserToSpace'
 @Entity('spaces')
 export class Space {
 
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Column('integer')
-    @Index()
-    userId: number
+  @Column('integer')
+  @Index()
+  userId: number
 
-    @Column('varchar', { length: 100 })
-    title: string
+  @Column('varchar', { length: 100 })
+  title: string
 
-    @Column('json', { nullable: true })
-    settings: object
+  @Column('json', { nullable: true })
+  settings: object
 
-    @CreateDateColumn()
-    created: string
+  @Column('boolean', { default: true })
+  active: boolean
 
-    @UpdateDateColumn()
-    updated: string
+  @CreateDateColumn()
+  created: string
 
-    @OneToMany(type => UserToSpace, userToSpace => userToSpace.space)
-    public userToSpace!: UserToSpace[]
+  @UpdateDateColumn()
+  updated: string
+
+  @OneToMany(type => UserToSpace, space => space.space)
+  public users!: UserToSpace[]
 
 }

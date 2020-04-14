@@ -1,16 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Index,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany
-} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 
 @Entity('users')
 export class User {
+
   @PrimaryGeneratedColumn()
   id: number
 
@@ -36,9 +29,7 @@ export class User {
   @UpdateDateColumn()
   updated: string
 
-  @OneToMany(
-    type => UserToSpace,
-    userToSpace => userToSpace.user
-  )
-  public postToCategories!: UserToSpace[]
+  @OneToMany(type => UserToSpace, space => space.user)
+  public spaces!: UserToSpace[]
+
 }

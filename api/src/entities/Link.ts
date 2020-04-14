@@ -3,33 +3,33 @@ import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateD
 @Entity('links')
 export class Link {
 
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number
 
-    @Column('integer')
-    @Index()
-    userId: number
+  @Column('integer')
+  @Index()
+  userId: number
 
-    @Column('integer')
-    @Index()
-    spaceId: number
+  @Column('integer')
+  @Index()
+  spaceId: number
 
-    @Column('varchar', { length: 100 })
-    title: string
+  @Column('varchar', { length: 100 })
+  title: string
 
-    @Column('varchar', { length: 20 })
-    type: string
+  @Column('varchar', { length: 20 })
+  type: string
 
-    @Column('varchar', { length: 150 })
-    value: string
+  @Column('varchar', { length: 150 })
+  value: string
 
-    @Column('json', { nullable: true })
-    config: object
+  @Column('json', { nullable: true })
+  config: object
 
-    @CreateDateColumn()
-    created: string
+  @CreateDateColumn()
+  created: string
 
-    @UpdateDateColumn()
-    updated: string
+  @UpdateDateColumn()
+  updated: string
 
 }

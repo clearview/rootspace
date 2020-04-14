@@ -2,25 +2,33 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, CreateDateCol
 import { User } from './User'
 import { Space } from './Space'
 
-
-@Entity()
+@Entity('users_spaces')
 export class UserToSpace {
 
-    @PrimaryGeneratedColumn()
-    public id!: number
+  @PrimaryGeneratedColumn()
+  public id!: number
 
-    @Column()
-    @Index()
-    public userId!: number
+  @Column()
+  @Index()
+  public userId!: number
 
-    @Column()
-    @Index()
-    public spaceId!: number
+  @Column()
+  @Index()
+  public spaceId!: number
 
-    @ManyToOne(type => User, user => user.id)
-    public user!: User
+  @Column('boolean', { default: true })
+  active: boolean
 
-    @ManyToOne(type => Space, space => space.id)
-    public space!: Space
+  @CreateDateColumn()
+  created: string
+
+  @UpdateDateColumn()
+  updated: string
+
+  @ManyToOne(type => User, user => user.spaces)
+  public user!: User
+
+  @ManyToOne(type => Space, space => space.users)
+  public space!: Space
 
 }
