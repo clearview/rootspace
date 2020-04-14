@@ -74,7 +74,7 @@
           <span class="mr-1">
             <v-icon name="google" size="1.1em" />
           </span>
-          Sign Up with Google
+          Sign up with Google
         </button>
 
         <p class="w-full mt-16 mb-5 text-center">

@@ -55,7 +55,7 @@
           <span class="mr-1">
             <v-icon name="google" size="1.1em" viewbox="25"/>
           </span>
-          Sign In with Google
+          Sign in with Google
         </button>
 
         <p class="w-full mt-16 mb-5 text-center">
@@ -92,7 +92,8 @@ export default Vue.extend({
     },
     authWithGoogle () {
       const API: string = process.env.VUE_APP_API_URL
-      this.popupWindow(`${API}/auth/google`, 'Sign In', window, 400, 600)
+      // this.popupWindow(`${API}/auth/google`, 'Sign In', window, 400, 600)
+      location.href = `${API}/auth/google`
     }
   }
 })
