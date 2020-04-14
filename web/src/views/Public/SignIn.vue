@@ -8,7 +8,10 @@
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
         <div class="alert alert-danger hidden">
-          <v-icon name="warning" size="2em" />Your email is icorect. Please try again
+          <span class="mr-1">
+            <v-icon name="warning" size="1.3em" viewbox="20"/>
+          </span>
+          Your email is icorect. Please try again
         </div>
 
         <form class="mt-10">
@@ -48,16 +51,16 @@
           </p>
         </div>
 
-        <button class="btn w-full mx-0" type="button">
-          <span class="float-left">
-            <v-icon name="google" size="1.1em" />
+        <button class="btn w-full mx-0" type="button" v-on:click="authWithGoogle()">
+          <span class="mr-1">
+            <v-icon name="google" size="1.1em" viewbox="25"/>
           </span>
           Sign In with Google
         </button>
 
         <p class="w-full mt-16 mb-5 text-center">
           Don't have an account yet?
-          <a class="signup">Sign Up</a>
+          <router-link :to="{ name: 'SignUp'}" class="signup">Sign Up</router-link>
         </p>
       </div>
     </div>
@@ -69,11 +72,28 @@ import Vue from 'vue'
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 
+// import AuthService from '@/services/auth'
+import { mapState } from 'vuex'
+
 export default Vue.extend({
   name: 'Signin',
   components: {
     VIcon,
     RootHeader
+  },
+  computed: mapState('auth', ['token']),
+  methods: {
+    // eslint-disable-next-line
+    popupWindow (url: string, title: string, win: any, w: number, h: number) {
+      const y = win.top.outerHeight / 2 + win.top.screenY - (h / 2)
+      const x = win.top.outerWidth / 2 + win.top.screenX - (w / 2)
+
+      return win.open(url, title, `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`)
+    },
+    authWithGoogle () {
+      const API: string = process.env.VUE_APP_API_URL
+      this.popupWindow(`${API}/auth/google`, 'Sign In', window, 400, 600)
+    }
   }
 })
 </script>

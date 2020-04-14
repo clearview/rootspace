@@ -27,6 +27,11 @@ const routes: Array<RouteConfig> = [
     path: '/signup',
     name: 'SignUp',
     component: () => import(/* webpackChunkName: "signup" */ '../views/Public/SignUp.vue')
+  },
+  {
+    path: '/auth/google/callback',
+    name: 'GoogleCallback',
+    component: () => import(/* webpackChunkName: "google-callback" */ '../views/Public/GoogleCallback.vue')
   }
 ]
 

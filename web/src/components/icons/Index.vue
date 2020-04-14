@@ -4,7 +4,7 @@
     xmlns="http://www.w3.org/2000/svg"
     :width="size"
     :height="size"
-    viewBox="0 0 32 32"
+    :viewBox="theViewBox"
     class="fill-current"
   >
     <title>{{ name }}</title>
@@ -72,6 +72,15 @@ export default Vue.extend({
     size: {
       type: [String, Number],
       default: 32
+    },
+    viewbox: {
+      type: [String, Number],
+      default: 32
+    }
+  },
+  computed: {
+    theViewBox () {
+      return `0 0 ${this.viewbox} ${this.viewbox}`
     }
   }
 })

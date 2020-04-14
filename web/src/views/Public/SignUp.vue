@@ -71,7 +71,7 @@
         </div>
 
         <button class="btn w-full mx-0" type="button">
-          <span class="float-left">
+          <span class="mr-1">
             <v-icon name="google" size="1.1em" />
           </span>
           Sign Up with Google
@@ -79,7 +79,7 @@
 
         <p class="w-full mt-16 mb-5 text-center">
           Already have an account?
-          <a class="signin">Sign In</a>
+          <router-link :to="{ name: 'SignIn'}" class="signin">Sign In</router-link>
         </p>
       </div>
     </div>
