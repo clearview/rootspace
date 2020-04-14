@@ -2,5 +2,6 @@
 
 @import './alert';
 @import './btn';
-@import './input';
 @import './form';
+@import './input';
+@import './modal';

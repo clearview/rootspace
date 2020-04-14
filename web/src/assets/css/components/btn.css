@@ -6,7 +6,11 @@
   @apply font-bold leading-none;
   @apply outline-none !important;
 
-  transition: .4s;
+  transition: 300ms;
+
+  & ~ & {
+    @apply ml-2;
+  }
 
   &.btn-primary {
     @apply bg-primary text-primary-invert border-primary;
@@ -24,11 +28,12 @@
     @apply bg-gray-100 text-gray-900 border-gray-100;
   }
 
-
   &.btn-icon {
-    @apply p-2;
+    @apply border-none p-1;
+  }
 
-    font-size: 22px;
+  &.btn-small {
+    @apply py-2 px-8;
   }
 }
 
