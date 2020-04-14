@@ -7,7 +7,7 @@ export class SpaceRepository extends Repository<Space> {
 
   getByUserId(userId: number) {
     return this.createQueryBuilder('spaces')
-      .select(['spaces.id', 'spaces.title'])
+      .select(['spaces.id', 'spaces.title', 'spaces.settings'])
       .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.spaceId = spaces.id')
       .where('userToSpace.userId = :userId AND spaces.active = true', { userId })
       .getMany()

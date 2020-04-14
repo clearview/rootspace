@@ -16,11 +16,19 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   public async view(req: Request, res: Response) {
+    if (req.params.id === 'my') {
+      return this.my(req, res)
+    }
     const space = await getCustomRepository(SpaceRepository).findOne({
       id: Number(req.params.id),
       userId: req.user.id
     })
     res.send(space)
+  }
+
+  public async my(req: Request, res: Response) {
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(req.user.id)
+    res.send(spaces)
   }
 
   public async listAll(req: Request, res: Response) {
