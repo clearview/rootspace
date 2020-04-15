@@ -12,14 +12,6 @@ router.get('/', async (req, res) => {
   res.send({ Root: 'app' })
 })
 
-router.get('/auth', async (req, res, next) => {
-  const callback = mapRoute(UsersCtrl, 'auth')
-
-  passport.authenticate('local', async (err, user) => {
-    callback(err, user, req, res, next)
-  })(req, res, next)
-})
-
 router.get(
   '/auth/google',
   passport.authenticate('google', {
@@ -32,6 +24,7 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
+router.get('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/user/confirm', mapRoute(UsersCtrl, 'confirm'))

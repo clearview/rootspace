@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { config } from 'node-config-ts'
-import { BaseCtrl } from './BaseCtrl'
+import jwt from 'jsonwebtoken'
+import passport from '../passport'
 import { getCustomRepository } from 'typeorm'
+import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserService } from '../services/UserService'
-import jwt from 'jsonwebtoken'
-import { User } from '../entities/User'
-import { HttpError } from '../errors/HttpError'
+import { ResponseError } from '../errors/ResponseError'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -36,31 +36,25 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async auth(
-    err: Error,
-    user: User,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      if (err || !user) {
-        if (!err) {
-          err = new HttpError(400, 'An Error occurred')
+  public async auth(req: Request, res: Response, next: NextFunction) {
+    return passport.authenticate(
+      'local',
+      { session: false },
+      (err, user, info) => {
+        if (err || !user) {
+          const responseError = err
+            ? ResponseError.fromError(err)
+            : new ResponseError(info.message, 401)
+
+          return next(responseError)
         }
-        return next(err)
-      }
-      req.login(user, { session: false }, async error => {
-        if (error) return next(error)
 
         const body = { id: user.id, email: user.email }
         const token = jwt.sign({ user: body }, config.jwtSecretKey)
 
         return res.json({ token })
-      })
-    } catch (error) {
-      return next(new HttpError(400, error.message))
-    }
+      }
+    )(req, res)
   }
 
   public async authGoogleCallback(req: Request, res: Response) {

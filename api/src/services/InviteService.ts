@@ -1,6 +1,5 @@
 import path from 'path'
 import pug from 'pug'
-
 import { getCustomRepository } from 'typeorm'
 import { InviteRepository } from '../repositories/InviteRepository'
 import { Invite } from '../entities/Invite'

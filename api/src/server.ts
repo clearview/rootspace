@@ -7,7 +7,7 @@ import passport from './passport'
 import { config } from 'node-config-ts'
 import {
   validationErrorHandler,
-  httpErrorHandler
+  responseErrorHandler
 } from './middleware/ErrorMiddleware'
 
 declare global {
@@ -35,7 +35,7 @@ export default class Server {
     this.app.use(passport.initialize())
     this.app.use(router)
     this.app.use(validationErrorHandler)
-    this.app.use(httpErrorHandler)
+    this.app.use(responseErrorHandler)
   }
 
   listen() {

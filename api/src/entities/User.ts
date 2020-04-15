@@ -14,7 +14,7 @@ export class User {
   @Index({ unique: true })
   email: string
 
-  @Column('varchar', { })
+  @Column('varchar', { select: false })
   password: string
 
   @Column('varchar')

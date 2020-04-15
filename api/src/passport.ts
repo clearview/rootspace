@@ -2,9 +2,8 @@ import { config } from 'node-config-ts'
 import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
-import { hashPassword } from './utils'
+import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { HttpError } from './errors/HttpError'
 
 import {
   Strategy as JwtStrategy,
@@ -56,24 +55,29 @@ passport.use(
     async (email, password, done) => {
       try {
         const userService = new UserService()
-        const user = await userService.getUserByEmail(email)
+        const user = await userService.getUserByEmail(email, true)
 
         if (!user) {
-          return done(new HttpError(401, 'User not found'), false)
+          return done(null, false, { message: 'User not found' })
         }
 
-        const hash = await hashPassword(password)
+        bcrypt.compare(password, user.password, (err, res) => {
+          if (err) {
+            return done(err)
+          }
 
-        if (hash !== user.password) {
-          //return done(new HttpError(401, 'Wrong Password'), false)
-        }
+          if (res !== true) {
+            return done(null, false, { message: 'Wrong Password' })
+          }
 
-        if (user.confirmed === false) {
-          return done(new HttpError(401, 'User not confirmed'), false)
-        }
-        return done(null, user)
-      } catch (error) {
-        return done(new HttpError(500, error.message))
+          if (user.confirmed !== true) {
+            return done(null, false, { message: 'User not confirmed' })
+          }
+
+          return done(null, user)
+        })
+      } catch (err) {
+        return done(err)
       }
     }
   )

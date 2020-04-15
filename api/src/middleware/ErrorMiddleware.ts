@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { HttpError } from '../errors/HttpError'
-import { ValidationError } from '../errors/ValidationError'
+import { ErrorNames, ErrorNamesArray } from '../errors/ErrorNames'
 
 export function validationErrorHandler(
   err: any,
@@ -8,22 +7,22 @@ export function validationErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === ValidationError.ErrorName) {
+  if (err.name === ErrorNames.validationError) {
     return res
       .status(err.code)
-      .send({ message: err.message, errorBag: err.errorBag })
+      .send({ error: err.name, message: err.message, errorBag: err.errorBag })
   }
   next(err)
 }
 
-export function httpErrorHandler(
+export function responseErrorHandler(
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === HttpError.ErrorName) {
-    return res.status(err.code).send({ message: err.message })
+  if (ErrorNamesArray.includes(err.name)) {
+    return res.status(err.code).send({ error: err.name, message: err.message })
   }
   next(err)
 }

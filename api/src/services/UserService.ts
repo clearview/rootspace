@@ -6,9 +6,23 @@ import { hashPassword } from '../utils'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { UserSignupValidator } from '../validation/user/UserSignupValidator'
-import { HttpError } from '../errors/HttpError'
+import { ResponseError } from '../errors/ResponseError'
 import { ValidationError } from '../errors/ValidationError'
 import { MailService } from './mail/MailService'
+
+interface SignupProvider {
+  name: string
+  email: string
+  password: string
+  confirm_password: string
+}
+
+interface Mujo {
+  name: string
+  email: string
+  password: string
+  confirm_password: string
+}
 
 export class UserService {
   static mailTemplatesDir =
@@ -20,8 +34,12 @@ export class UserService {
     this.mailSerivce = new MailService()
   }
 
-  getUserByEmail(email: string) {
-    return this.getUserRepository().getByEmail(email)
+  getUserRepository() {
+    return getCustomRepository(UserRepository)
+  }
+
+  getUserByEmail(email: string, selectPassword = false) {
+    return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
   getUserByConfirmationToken(token: string) {
@@ -30,18 +48,18 @@ export class UserService {
 
   async confirm(token: string): Promise<User> {
     const user = await this.getUserByConfirmationToken(token).catch(err => {
-      throw new HttpError(400, 'Invalid confirmation token')
+      throw new ResponseError('Invalid confirmation token')
     })
 
     user.confirmed = true
     return await this.getUserRepository().save(user)
   }
 
-  async signup(data: any): Promise<User> {
+  async signup(data: SignupProvider): Promise<User> {
     const validator = new UserSignupValidator()
 
     await validator.validate(data).catch(errors => {
-      throw new ValidationError(400, 'Can not create user', errors)
+      throw new ValidationError('Error creating user', errors)
     })
 
     const password = await hashPassword(data.password)
@@ -58,7 +76,7 @@ export class UserService {
     user = await this.getUserRepository()
       .save(user)
       .catch(error => {
-        throw new HttpError(500, 'Error creating user')
+        throw new ResponseError('Error creating user', 500)
       })
 
     this.sendConfirmationEmail(user)
@@ -85,9 +103,5 @@ export class UserService {
     } catch (error) {
       //
     }
-  }
-
-  private getUserRepository() {
-    return getCustomRepository(UserRepository)
   }
 }
