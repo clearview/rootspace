@@ -12,11 +12,11 @@
     </div>
 
     <div class="flex flex-1 mx-5">
-      <search-field @input="search"/>
+      <v-searchbar @input="search"/>
     </div>
 
     <div class="flex flex-none">
-      <lock-button v-model="lock"/>
+      <button-lock v-model="lock"/>
     </div>
   </div>
 </template>
@@ -24,8 +24,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import LockButton from '@/components/LockButton.vue'
-import SearchField from '@/components/SearchField.vue'
+import ButtonLock from '@/components/ButtonLock.vue'
+import VSearchbar from '@/components/Searchbar.vue'
 
 interface ComponentData {
   lock: boolean;
@@ -34,8 +34,8 @@ interface ComponentData {
 export default Vue.extend({
   name: 'NavigationHeader',
   components: {
-    LockButton,
-    SearchField
+    ButtonLock,
+    VSearchbar
   },
   data (): ComponentData {
     return {
