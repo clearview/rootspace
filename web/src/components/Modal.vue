@@ -6,7 +6,7 @@
     <div class="modal">
       <div
         class="modal-background"
-        @click="close"
+        @click="cancel"
       />
 
       <div class="modal-inner">
@@ -15,7 +15,7 @@
             <div class="modal-title">{{ title }}</div>
             <button
               class="btn btn-icon rounded-full"
-              @click="close"
+              @click="cancel"
             >
               <v-icon name="close" />
             </button>
@@ -28,9 +28,14 @@
           <div class="modal-footer">
             <button
               class="btn btn-small"
-              @click="close"
-            >Cancel</button>
-            <button class="btn btn-small btn-primary">Save</button>
+              @click="cancel"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-small btn-primary"
+              @click="confirm"
+            >Save</button>
           </div>
         </slot>
       </div>
@@ -55,11 +60,20 @@ export default Vue.extend({
     },
     title: {
       type: String
+    },
+    noheader: {
+      type: Boolean
+    },
+    nofooter: {
+      type: Boolean
     }
   },
   methods: {
-    close (): void {
-      this.$emit('close')
+    cancel (): void {
+      this.$emit('cancel')
+    },
+    confirm (): void {
+      this.$emit('confirm')
     }
   }
 })

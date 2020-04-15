@@ -24,7 +24,7 @@ interface ComponentData {
 }
 
 export default Vue.extend({
-  name: 'SearchField',
+  name: 'Searchbar',
   components: {
     VIcon
   },

@@ -23,6 +23,7 @@
 .modal-header {
   @apply flex flex-row items-center justify-between;
   @apply pt-8;
+  @apply text-base;
 }
 
 .modal-body {

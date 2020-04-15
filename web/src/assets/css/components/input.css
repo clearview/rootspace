@@ -1,8 +1,11 @@
 .input {
-  @apply py-2 px-3 mx-1 my-2;
-  @apply border rounded border-gray-400;
-  @apply outline-none !important;
+  @apply flex flex-1;
 
+  @apply py-2 px-3 my-2;
+
+  @apply border rounded border-gray-400;
+
+  @apply outline-none !important;
   transition: .4s;
 
   &.input-success {
@@ -28,21 +31,25 @@
 
 .input-group {
   @apply flex flex-wrap items-stretch w-full relative;
-  @apply border rounded border-gray-400;
 
+  @apply border rounded border-gray-400;
   transition: .4s;
 
   .input-group-component {
     @apply py-2 px-3;
+
     @apply border-0;
+
     @apply outline-none !important;
+
     @apply text-gray-400;
 
     &.button {
       @apply rounded-r-sm;
-      @apply border-l;
-      @apply text-gray-400;
 
+      @apply border-l;
+
+      @apply text-gray-400;
       width: 80px;
 
       &:hover:enabled,
@@ -57,10 +64,14 @@
   }
 
   &.error {
-    border-color: theme('colors.danger.default')
+    border-color: theme('colors.danger.default');
   }
 
   input.input-group-component {
     @apply px-0;
   }
+}
+
+.field-disabled .input {
+  @apply border-gray-100;
 }

@@ -3,6 +3,7 @@
     <input
       type="checkbox"
       v-model="payload"
+      :disabled="disabled"
     >
     <span class="slider"/>
   </label>
@@ -12,9 +13,12 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'SwitchButton',
+  name: 'ButtonSwitch',
   props: {
     value: {
+      type: Boolean
+    },
+    disabled: {
       type: Boolean
     }
   },

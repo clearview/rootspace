@@ -19,7 +19,7 @@ import Vue from 'vue'
 import VIcon from '@/components/icons/Index.vue'
 
 export default Vue.extend({
-  name: 'LockButton',
+  name: 'ButtonLock',
   components: {
     VIcon
   },
