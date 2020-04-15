@@ -26,7 +26,7 @@ export class UserSignupValidator {
         }*/
 
         const userService = new UserService()
-        const user = await userService.getByEmail(fieldValue)
+        const user = await userService.getUserByEmail(fieldValue)
 
         if (user) {
           return false

@@ -1,6 +1,11 @@
 import { config } from 'node-config-ts'
 import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
+import passportLocal from 'passport-local'
+import { hashPassword } from './utils'
+import { UserService } from './services/UserService'
+import { HttpError } from './errors/HttpError'
+
 import {
   Strategy as JwtStrategy,
   ExtractJwt,
@@ -10,6 +15,7 @@ import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
+const LocalStrategy = passportLocal.Strategy
 
 passport.use(
   new GoogleStrategy(
@@ -37,6 +43,38 @@ passport.use(
       }
 
       return done(null, existingUser.id)
+    }
+  )
+)
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password'
+    },
+    async (email, password, done) => {
+      try {
+        const userService = new UserService()
+        const user = await userService.getUserByEmail(email)
+
+        if (!user) {
+          return done(new HttpError(401, 'User not found'), false)
+        }
+
+        const hash = await hashPassword(password)
+
+        if (hash !== user.password) {
+          //return done(new HttpError(401, 'Wrong Password'), false)
+        }
+
+        if (user.confirmed === false) {
+          return done(new HttpError(401, 'User not confirmed'), false)
+        }
+        return done(null, user)
+      } catch (error) {
+        return done(new HttpError(500, error.message))
+      }
     }
   )
 )

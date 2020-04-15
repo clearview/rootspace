@@ -8,4 +8,10 @@ export class UserRepository extends Repository<User> {
       where: { email }
     })
   }
+
+  getByConfirmationToken(confirmationToken: string) {
+    return this.findOne({
+      where: { confirmationToken }
+    })
+  }
 }

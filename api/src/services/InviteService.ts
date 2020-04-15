@@ -27,7 +27,7 @@ export class InviteService {
   }
 
   async createWithEmail(email: string, space: Space) {
-    const user = await this.userService.getByEmail(email)
+    const user = await this.userService.getUserByEmail(email)
 
     let invite = new Invite()
     invite.email = email
