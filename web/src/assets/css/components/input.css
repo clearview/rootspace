@@ -25,3 +25,38 @@
     box-shadow: 0 0 0 3px rgba(theme('colors.danger.default'), 0.5);
   }
 }
+
+.input-group {
+  @apply flex flex-wrap items-stretch w-full relative;
+  @apply border rounded border-gray-400;
+
+  transition: .4s;
+
+  .input-group-component {
+    @apply py-2 px-3;
+    @apply border-0;
+    @apply outline-none !important;
+    @apply text-gray-400;
+
+    &.button {
+      @apply rounded-r-sm;
+      @apply border-l;
+      @apply text-gray-400;
+
+      width: 80px;
+
+      &:hover:enabled,
+      &.filled {
+        @apply bg-success text-white;
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  input.input-group-component {
+    @apply px-0;
+  }
+}

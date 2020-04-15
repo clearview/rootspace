@@ -73,7 +73,6 @@ import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 
 // import AuthService from '@/services/auth'
-import { mapState } from 'vuex'
 
 export default Vue.extend({
   name: 'Signin',
@@ -81,7 +80,6 @@ export default Vue.extend({
     VIcon,
     RootHeader
   },
-  computed: mapState('auth', ['token']),
   methods: {
     // eslint-disable-next-line
     popupWindow (url: string, title: string, win: any, w: number, h: number) {

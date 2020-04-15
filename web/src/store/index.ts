@@ -10,6 +10,7 @@ Vue.use(Vuex)
 export interface State {
   auth: {
     token: null;
+    user: null;
   };
 }
 
@@ -17,11 +18,13 @@ const vuexCookie = new VuexPersist<State>({
   key: 'root_state',
   reducer: (state) => ({
     auth: {
-      token: state.auth.token
+      token: state.auth.token,
+      user: state.auth.user
     }
   }),
   filter: ({ type }) => (
-    type === 'auth/setToken'
+    type === 'auth/setToken' ||
+    type === 'auth/setUser'
   ),
   restoreState: (key) => Cookies.getJSON(key),
   saveState: (key, state) => {
