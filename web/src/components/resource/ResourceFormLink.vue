@@ -3,13 +3,17 @@
     class="form"
     @submit.prevent="submit"
   >
-    <v-field label="Section" class="mt-0">
-      <input
-        type="text"
-        class="input"
-        placeholder="Section"
+    <v-field
+      label="Section"
+      class="mt-0"
+    >
+      <v-select
+        class="select"
+        placeholder="Select section"
         v-model="payload.sectionId"
-      >
+        :options="sections"
+        :reduce="item => item.key"
+      />
     </v-field>
 
     <hr class="my-4 border-gray-100" />
@@ -59,12 +63,19 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import VSelect from 'vue-select'
+
+import { required } from 'vuelidate/lib/validators'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
+  sections: {
+    key: number;
+    label: string;
+  }[];
   payload: Resource.Link;
 }
 
@@ -73,10 +84,32 @@ export default Vue.extend({
   components: {
     ButtonSwitch,
     VField,
-    VIcon
+    VIcon,
+    VSelect
+  },
+  validations: {
+    payload: {
+      sectionId: { required },
+      title: { required },
+      value: { required }
+    }
   },
   data (): ComponentData {
     return {
+      sections: [
+        {
+          key: 1,
+          label: 'Section 1'
+        },
+        {
+          key: 2,
+          label: 'Section 2'
+        },
+        {
+          key: 3,
+          label: 'Section 3'
+        }
+      ],
       payload: {
         spaceId: null,
         sectionId: null,
@@ -91,7 +124,11 @@ export default Vue.extend({
   },
   methods: {
     submit (): void {
-      this.$emit('submit', this.payload)
+      this.$v.payload.$touch()
+
+      if (!this.$v.payload.$invalid) {
+        this.$emit('submit', this.payload)
+      }
     }
   }
 })
