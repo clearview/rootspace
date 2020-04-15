@@ -5,12 +5,7 @@ module.exports = {
       title: 'Root'
     }
   },
-  css: {
-    loaderOptions: {
-      scss: {
-        prependData: '@import "@/scss/main.scss";'
-      }
-    },
-    extract: true
-  }
+  devServer: {
+    port: process.env.VUE_APP_PORT || 3000
+ }
 }
