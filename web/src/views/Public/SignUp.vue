@@ -8,7 +8,7 @@
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
         <div class="alert alert-danger hidden">
-          <v-icon name="warning" size="2em" />Your email is icorect. Please try again
+          <v-icon name="warning" size="2em" />Your email is incorect. Please try again
         </div>
 
         <form class="mt-10">

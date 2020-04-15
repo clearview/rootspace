@@ -11,7 +11,7 @@
           <span class="mr-1">
             <v-icon name="warning" size="1.3em" viewbox="20"/>
           </span>
-          Your email is icorect. Please try again
+          Your email is incorect. Please try again
         </div>
 
         <form class="mt-10">
