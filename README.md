@@ -14,5 +14,9 @@
 - create `.env` file from `.env.example`
 - `nodemon`
 
+#### API docs
+
+https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
+
 #### Debug
 - Set `logging: true` in `db.ts` to see in console all SQL queries sent to PostgreSQL server
