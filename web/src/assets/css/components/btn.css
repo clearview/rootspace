@@ -1,5 +1,5 @@
 .btn {
-  @apply flex flex-row items-center;
+  @apply flex flex-row justify-center;
   @apply py-3 px-16 mx-1;
   @apply border rounded border-solid;
   @apply bg-white text-gray-900 border-gray-400;
@@ -21,7 +21,9 @@
   }
 }
 
-.btn:hover {
+.btn:hover,
+.btn:disabled,
+.btn[disabled] {
   background-color: rgba(theme('colors.gray.400'), 0.5);
   border-color: transparent;
 
@@ -36,4 +38,9 @@
   &.btn-danger {
     background-color: rgba(theme('colors.danger.default'), 0.5);
   }
+}
+
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
 }

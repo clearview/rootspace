@@ -4,7 +4,7 @@
     xmlns="http://www.w3.org/2000/svg"
     :width="size"
     :height="size"
-    viewBox="0 0 32 32"
+    :viewBox="theViewBox"
     class="fill-current"
   >
     <title>{{ name }}</title>
@@ -35,6 +35,8 @@ import IconSettings from './IconSettings.vue'
 import IconTrash from './IconTrash.vue'
 import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
+import IconWarning from './IconWarning.vue'
+import IconGoogle from './IconGoogle.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -58,7 +60,9 @@ export default Vue.extend({
     IconSettings,
     IconTrash,
     IconUp,
-    IconUser
+    IconUser,
+    IconWarning,
+    IconGoogle
   },
   props: {
     name: {
@@ -68,6 +72,15 @@ export default Vue.extend({
     size: {
       type: [String, Number],
       default: 32
+    },
+    viewbox: {
+      type: [String, Number],
+      default: 32
+    }
+  },
+  computed: {
+    theViewBox () {
+      return `0 0 ${this.viewbox} ${this.viewbox}`
     }
   }
 })
