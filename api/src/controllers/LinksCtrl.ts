@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { LinkRepository } from '../repositories/LinkRepository'
+import { Link } from '../entities/Link'
 
 export class LinksCtrl extends BaseCtrl {
 
@@ -11,7 +12,7 @@ export class LinksCtrl extends BaseCtrl {
   }
 
   public async listAll(req: Request, res: Response) {
-    const spaces = await getCustomRepository(LinkRepository).find()
+    const spaces = await getTreeRepository(Link).findTrees()
     res.send(spaces)
   }
 
@@ -20,6 +21,12 @@ export class LinksCtrl extends BaseCtrl {
       userId: req.user.id
     }
     const data = Object.assign(req.body, validData)
+
+    if (data.parent) {
+      const parent = await getCustomRepository(LinkRepository).findOne(Number(data.parent))
+      data.parent = parent
+    }
+
     const space =  getCustomRepository(LinkRepository).create(data)
     const newSpace = await getCustomRepository(LinkRepository).save(space)
     res.send(newSpace)

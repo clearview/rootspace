@@ -1,10 +1,17 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, Tree, TreeParent, TreeChildren } from 'typeorm'
 
 @Entity('links')
+@Tree('nested-set')
 export class Link {
 
   @PrimaryGeneratedColumn()
   id: number
+
+  @TreeChildren()
+  children: Link[]
+
+  @TreeParent()
+  parent: Link
 
   @Column('integer')
   @Index()
