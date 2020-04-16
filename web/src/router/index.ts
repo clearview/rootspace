@@ -32,6 +32,11 @@ const routes: Array<RouteConfig> = [
     path: '/auth/google/callback',
     name: 'GoogleCallback',
     component: () => import(/* webpackChunkName: "google-callback" */ '../views/Public/GoogleCallback.vue')
+  },
+  {
+    path: '/create-workspace',
+    name: 'CreateWorkspace',
+    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/Public/CreateWorkspace.vue')
   }
 ]
 
