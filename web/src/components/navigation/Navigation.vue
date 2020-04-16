@@ -20,6 +20,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import { LinkResource } from '@/types/resource'
+
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
@@ -35,7 +37,7 @@ export default Vue.extend({
     search (keyword: string): void {
       console.log(`Search: ${keyword}`)
     },
-    addLink (payload: Resource.Link): void {
+    addLink (payload: LinkResource): void {
       console.log('Add link', payload)
     },
     openLink (link: string): void {

@@ -67,6 +67,8 @@ import VSelect from 'vue-select'
 
 import { required } from 'vuelidate/lib/validators'
 
+import { LinkResource } from '@/types/resource'
+
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
@@ -76,7 +78,7 @@ type ComponentData = {
     key: number;
     label: string;
   }[];
-  payload: Resource.Link;
+  payload: LinkResource;
 }
 
 export default Vue.extend({

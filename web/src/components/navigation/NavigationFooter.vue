@@ -50,6 +50,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
+import { LinkResource } from '@/types/resource'
+
 import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
 import VIcon from '@/components/icons/Index.vue'
 import VModal from '@/components/Modal.vue'
@@ -75,7 +77,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    add (payload: Resource.Link): void {
+    add (payload: LinkResource): void {
       this.$emit('add', payload)
     }
   }

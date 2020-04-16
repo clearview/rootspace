@@ -10,17 +10,4 @@ declare global {
       [elem: string]: any;
     }
   }
-
-  namespace Resource {
-    interface Link {
-      spaceId: number | null;
-      sectionId: number | null;
-      title: string;
-      type: string;
-      value: string;
-      config?: {
-        alwaysOpen: boolean;
-      };
-    }
-  }
 }
