@@ -5,7 +5,7 @@
     :width="size"
     :height="size"
     :viewBox="_viewbox"
-    class="fill-current"
+    class="fill-current stroke-current"
   >
     <title>{{ name }}</title>
     <component :is="`icon-${name}`" />
@@ -75,7 +75,7 @@ export default Vue.extend({
     },
     size: {
       type: [String, Number],
-      default: 32
+      default: '1em'
     },
     viewbox: {
       type: [String, Number],
