@@ -89,6 +89,12 @@ export default Vue.extend({
     VIcon,
     VSelect
   },
+  props: {
+    space: {
+      type: Number,
+      default: 0
+    }
+  },
   validations: {
     payload: {
       sectionId: { required },
@@ -113,7 +119,7 @@ export default Vue.extend({
         }
       ],
       payload: {
-        spaceId: null,
+        spaceId: this.space,
         sectionId: null,
         title: '',
         type: 'link',

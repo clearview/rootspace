@@ -37,8 +37,8 @@ export default Vue.extend({
     search (keyword: string): void {
       console.log(`Search: ${keyword}`)
     },
-    addLink (payload: LinkResource): void {
-      console.log('Add link', payload)
+    addLink (data: LinkResource): void {
+      this.$emit('addLink', data)
     },
     openLink (link: string): void {
       console.log(`Open link: ${link}`)

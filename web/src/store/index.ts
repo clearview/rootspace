@@ -9,12 +9,14 @@ import cookie from './plugins/cookie'
 
 // Modules
 import auth from './modules/auth'
+import link from './modules/link'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store<RootState>({
   modules: {
-    auth
+    auth,
+    link
   },
   plugins: [
     cookie.plugin
