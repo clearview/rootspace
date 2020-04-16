@@ -4,22 +4,21 @@
 
     <div id="create-workspace-content">
       <div class="max-w-xs mx-auto p-4 mt-10">
-        <h2 class="text-center">Welcome Adnan!</h2>
+        <h2 class="text-center">Welcome {{ user.name }}!</h2>
         <p class="text-center mb-2 text-gray-800">Create your own workspace in few steps...</p>
 
-        <small>
-          {{ user }}
-        </small>
-
         <div class="avatar">
-          <img
-            src="@/assets/logo@2x.png"
-            alt="Root Logo"
-            class="mx-auto"
-          />
+          <img src="@/assets/logo@2x.png" alt="Root Logo" class="mx-auto" />
         </div>
 
-        <form class="mt-10">
+        <div class="alert alert-danger" v-if="isEmailError">
+          <span class="mr-1">
+            <v-icon name="warning" size="1.3em" viewbox="20"/>
+          </span>
+          Your email format is wrong!
+        </div>
+
+        <form class="mt-2" @submit.prevent="submit">
           <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="workspacename">Workspace Name</label>
             <input
@@ -27,48 +26,57 @@
               id="workspacename"
               type="text"
               placeholder="My Workspace"
+              v-model="workspace.title"
             />
           </div>
           <div class="form-group">
             <label class="block text-gray-800 text-sm" for="team">Team</label>
-
-            <div class="input-group mb-4">
+            <div class="input-group mb-4" :class="{ error: isEmailError }">
               <div class="flex -mr-px">
                 <span class="input-group-component flex items-center">
-                  <v-icon name="plus" size="1.3em" viewbox="32"/>
+                  <v-icon name="plus" size="1.3em" viewbox="32" />
                 </span>
               </div>
-              <input type="text" class="input-group-component flex-grow w-px flex-1 border h- px-3 relative" >
+              <input
+                type="email"
+                class="input-group-component flex-grow w-px flex-1 border h- px-3 relative text-inherit"
+                v-model="invitation"
+                v-on:keyup.enter="addInvitationList(invitation)"
+              />
               <div class="flex">
-                <button class="button input-group-component flex items-center justify-center">Send</button>
+                <button
+                  type="button"
+                  class="button input-group-component flex items-center justify-center"
+                  :class="{ filled: invitation !== '' }"
+                  v-on:click="addInvitationList(invitation)"
+                >Send</button>
               </div>
             </div>
           </div>
 
-          <div class="list-invitation">
-            <div class="invitation flex items-center">
-              <img class="w-10 h-10 rounded-full mr-4" src="@/assets/logo@2x.png" alt="Avatar of John Doe">
+          <div class="list-invitation" v-if="workspace.invitations.length > 0">
+            <div
+              class="invitation flex items-center"
+              v-for="(invitation, index) in workspace.invitations"
+              :key="index"
+            >
               <div class="flex-grow text-sm">
-                <p class="leading-none text-gray-800">John Doe</p>
-                <p class="text-gray-400">johndoe@clearview.team</p>
+                <p class="text-gray-800">{{ invitation }}</p>
               </div>
-              <span class="close-icon">
-                <v-icon name="close" size="1.3em" viewbox="32"/>
-              </span>
-            </div>
-            <div class="invitation flex items-center">
-              <img class="w-10 h-10 rounded-full mr-4" src="@/assets/logo@2x.png" alt="Avatar of John Doe">
-              <div class="flex-grow text-sm">
-                <p class="leading-none text-gray-800">Adnan</p>
-                <p class="text-gray-400">adnan@clearview.team</p>
-              </div>
-              <span class="close-icon">
-                <v-icon name="close" size="1.3em" viewbox="32"/>
+              <span class="close-icon" v-on:click="deleteInvitation(index)">
+                <v-icon name="close" size=".9em" viewbox="32" />
               </span>
             </div>
           </div>
+          {{ workspace }}
 
-          <button class="btn btn-primary w-full mx-0" type="button" disabled>Create</button>
+          <button
+            type="submit"
+            class="btn btn-primary w-full mx-0"
+            :disabled="$v.workspace.$invalid"
+          >
+            Create
+          </button>
         </form>
       </div>
     </div>
@@ -77,18 +85,98 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
+import { mapState } from 'vuex'
+import WorkspaceService from '@/services/workspace'
+
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 
-import { mapState } from 'vuex'
+
+type ComponentData = {
+  workspace: {
+    title: string;
+    invitations: Array<string>;
+  };
+  invitation: string;
+  isEmailError: boolean;
+}
 
 export default Vue.extend({
   name: 'CreateWorkspace',
+  mixins: [validationMixin],
   components: {
     VIcon,
     RootHeader
   },
-  computed: mapState('auth', ['token', 'user'])
+  data (): ComponentData {
+    return {
+      workspace: {
+        title: '',
+        invitations: []
+      },
+      invitation: '',
+      isEmailError: false
+    }
+  },
+  computed: mapState('auth', ['user']),
+  watch: {
+    invitation (newVal: string, oldVal: string) {
+      console.log(newVal, oldVal)
+      if (this.isEmailValid(newVal)) {
+        this.isEmailError = false
+      }
+    }
+  },
+  validations: {
+    workspace: {
+      title: {
+        required
+      }
+    }
+  },
+  methods: {
+    addInvitationList (email: string): void {
+      if (!this.isEmailValid(email) || email === '') {
+        this.isEmailError = true
+        console.log('email is not valid')
+      } else {
+        this.isEmailError = false
+        console.log('email', email)
+        this.invitation = ''
+        this.workspace.invitations.push(email)
+      }
+    },
+    deleteInvitation (index: number): void {
+      this.workspace.invitations.splice(index, 1)
+    },
+    isEmailValid (email: string): boolean {
+      if (email === '') return true
+
+      const reg = /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/
+
+      return reg.test(email)
+    },
+    submit (): void {
+      this.$v.workspace.$touch()
+
+      if (this.$v.workspace.$invalid) {
+        return
+      }
+
+      console.log(this.workspace)
+      this.$emit('submit', this.createWorkspace())
+    },
+    async createWorkspace (): void {
+      const data = await WorkspaceService.create(this.workspace)
+      console.log(data)
+
+      if (data.status === 200) {
+        this.$router.push({ name: 'Home' })
+      }
+    }
+  }
 })
 </script>
 
@@ -104,14 +192,14 @@ export default Vue.extend({
   height: calc(100vh - 100px);
 }
 .avatar {
-  @apply mt-10;
+  @apply my-10;
 
   img {
     height: 64px;
   }
 }
 .list-invitation {
-  @apply py-3 border-t border-b border-gray-100 text-gray-400 mb-5;
+  @apply border-t border-b border-gray-100 text-gray-400 mb-5;
 
   .invitation {
     @apply py-2;

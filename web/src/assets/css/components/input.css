@@ -56,6 +56,10 @@
     }
   }
 
+  &.error {
+    border-color: theme('colors.danger.default')
+  }
+
   input.input-group-component {
     @apply px-0;
   }
