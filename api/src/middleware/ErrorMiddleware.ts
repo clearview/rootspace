@@ -9,7 +9,7 @@ export function validationErrorHandler(
 ) {
   if (err.name === errNames.validationFailed) {
     return res
-      .status(err.code)
+      .status(err.statusCode)
       .send({ error: err.name, message: err.message, errorBag: err.errorBag })
   }
   next(err)
@@ -22,7 +22,7 @@ export function responseErrorHandler(
   next: NextFunction
 ) {
   if (errNamesArray.includes(err.name)) {
-    return res.status(err.code).send({ error: err.name, message: err.message })
+    return res.status(err.statusCode).send({ error: err.name, message: err.message })
   }
   next(err)
 }

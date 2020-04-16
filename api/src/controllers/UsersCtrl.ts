@@ -8,9 +8,8 @@ import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserService } from '../services/UserService'
-import { ResponseError } from '../errors/ResponseError'
+import { HttpError } from '../errors/HttpError'
 import { errNames, errNamesArray } from '../errors/errNames'
-import { isString } from 'util'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -46,7 +45,7 @@ export class UsersCtrl extends BaseCtrl {
         if (err || !user) {
           err =
             err ??
-            new ResponseError(
+            new HttpError(
               info ? info.message : 'Authentication faield',
               401,
               errNames.authenticationFailed

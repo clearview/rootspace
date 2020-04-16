@@ -1,5 +1,5 @@
 interface ErrNamesProvider {
-  responseError: string
+  httpError: string
   internalError: string
   validationFailed: string
   entityCreateFailed: string
@@ -11,7 +11,7 @@ interface ErrNamesProvider {
 }
 
 export const errNames: ErrNamesProvider = {
-  responseError: 'responseError',
+  httpError: 'responseError',
   internalError: 'internalError',
   validationFailed: 'validationFailed',
   entityCreateFailed: 'entityCreateFailed',

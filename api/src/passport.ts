@@ -4,7 +4,7 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { ResponseError } from './errors/ResponseError'
+import { HttpError } from './errors/HttpError'
 import { errNames } from './errors/errNames'
 
 import {
@@ -61,14 +61,14 @@ passport.use(
 
         if (!user) {
           return done(
-            new ResponseError('User not found', 401, errNames.entityNotFound)
+            new HttpError('User not found', 401, errNames.entityNotFound)
           )
         }
 
         bcrypt.compare(password, user.password, (err, res) => {
           if (err) {
             return done(
-              ResponseError.fromError(
+              HttpError.fromError(
                 err,
                 'Internal error',
                 500,
@@ -79,14 +79,14 @@ passport.use(
 
           if (res !== true) {
             return done(
-              new ResponseError('Wrong Password', 401, errNames.wrongPassword),
+              new HttpError('Wrong Password', 401, errNames.wrongPassword),
               user
             )
           }
 
           if (user.confirmed !== true) {
             return done(
-              new ResponseError(
+              new HttpError(
                 'User not confirmed',
                 401,
                 errNames.userNotConfirmed
@@ -97,7 +97,7 @@ passport.use(
           return done(null, user)
         })
       } catch (err) {
-        return done(ResponseError.fromError(err, err.message, 401))
+        return done(HttpError.fromError(err, err.message, 401))
       }
     }
   )

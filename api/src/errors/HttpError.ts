@@ -1,18 +1,17 @@
 import { errNames } from './errNames'
 
-export class ResponseError extends Error {
-  code: number
-  message: string
+export class HttpError extends Error {
+  statusCode: number
   origin: Error
 
   constructor(
     message: string,
-    code = 400,
-    name = errNames.responseError,
+    statusCode = 400,
+    name = errNames.httpError,
     origin = null
   ) {
     super(message)
-    this.code = code
+    this.statusCode = statusCode
     this.name = name
     this.origin = origin
   }
@@ -20,9 +19,9 @@ export class ResponseError extends Error {
   static fromError(
     err: Error,
     message = 'Internal error',
-    code = 500,
+    statusCode = 500,
     name = errNames.internalError
   ) {
-    return new ResponseError(message, code, name, err)
+    return new HttpError(message, statusCode, name, err)
   }
 }
