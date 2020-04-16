@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { ErrorNames, ErrorNamesArray } from '../errors/ErrorNames'
+import { errNames, errNamesArray } from '../errors/errNames'
 
 export function validationErrorHandler(
   err: any,
@@ -7,7 +7,7 @@ export function validationErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === ErrorNames.validationError) {
+  if (err.name === errNames.validationFailed) {
     return res
       .status(err.code)
       .send({ error: err.name, message: err.message, errorBag: err.errorBag })
@@ -21,7 +21,7 @@ export function responseErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (ErrorNamesArray.includes(err.name)) {
+  if (errNamesArray.includes(err.name)) {
     return res.status(err.code).send({ error: err.name, message: err.message })
   }
   next(err)

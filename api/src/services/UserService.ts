@@ -8,16 +8,10 @@ import { User } from '../entities/User'
 import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 import { ResponseError } from '../errors/ResponseError'
 import { ValidationError } from '../errors/ValidationError'
+import { errNames } from '../errors/errNames'
 import { MailService } from './mail/MailService'
 
 interface SignupProvider {
-  name: string
-  email: string
-  password: string
-  confirm_password: string
-}
-
-interface Mujo {
   name: string
   email: string
   password: string
@@ -59,7 +53,7 @@ export class UserService {
     const validator = new UserSignupValidator()
 
     await validator.validate(data).catch(errors => {
-      throw new ValidationError('Error creating user', errors)
+      throw new ValidationError('User validation error', errors)
     })
 
     const password = await hashPassword(data.password)
@@ -75,8 +69,13 @@ export class UserService {
 
     user = await this.getUserRepository()
       .save(user)
-      .catch(error => {
-        throw new ResponseError('Error creating user', 500)
+      .catch(err => {
+        throw ResponseError.fromError(
+          err,
+          'Error creating user',
+          400,
+          errNames.entityCreateFailed
+        )
       })
 
     this.sendConfirmationEmail(user)

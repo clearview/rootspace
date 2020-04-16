@@ -9,6 +9,8 @@ import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserService } from '../services/UserService'
 import { ResponseError } from '../errors/ResponseError'
+import { errNames, errNamesArray } from '../errors/errNames'
+import { isString } from 'util'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -42,11 +44,15 @@ export class UsersCtrl extends BaseCtrl {
       { session: false },
       (err, user, info) => {
         if (err || !user) {
-          const responseError = err
-            ? ResponseError.fromError(err)
-            : new ResponseError(info.message, 401)
+          err =
+            err ??
+            new ResponseError(
+              info ? info.message : 'Authentication faield',
+              401,
+              errNames.authenticationFailed
+            )
 
-          return next(responseError)
+          return next(err)
         }
 
         const body = { id: user.id, email: user.email }

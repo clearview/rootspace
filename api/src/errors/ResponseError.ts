@@ -1,4 +1,4 @@
-import { ErrorNames } from './ErrorNames'
+import { errNames } from './errNames'
 
 export class ResponseError extends Error {
   code: number
@@ -8,7 +8,7 @@ export class ResponseError extends Error {
   constructor(
     message: string,
     code = 400,
-    name = ErrorNames.responseError,
+    name = errNames.responseError,
     origin = null
   ) {
     super(message)
@@ -21,7 +21,7 @@ export class ResponseError extends Error {
     err: Error,
     message = 'Internal error',
     code = 500,
-    name = ErrorNames.responseError
+    name = errNames.internalError
   ) {
     return new ResponseError(message, code, name, err)
   }
