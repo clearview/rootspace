@@ -12,9 +12,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapActions } from 'vuex'
-
-import WorkspaceService from '@/services/workspace'
+import { mapState, mapActions } from 'vuex'
 
 import RootHeader from '@/components/RootHeader.vue'
 
@@ -23,6 +21,7 @@ export default Vue.extend({
   components: {
     RootHeader
   },
+  computed: mapState('auth', ['spaces']),
   created () {
     this.submit()
   },
@@ -31,9 +30,7 @@ export default Vue.extend({
       try {
         await this.withGoogle(this.$route.query)
 
-        const userWorkspace = await this.getWorkspaceCurrentUser()
-
-        if (userWorkspace && userWorkspace.length > 0) {
+        if (this.spaces && this.spaces.length > 0) {
           this.$router.push({ name: 'Home' })
           return
         }
@@ -42,11 +39,6 @@ export default Vue.extend({
       } catch (err) {
         console.log(err)
       }
-    },
-    async getWorkspaceCurrentUser () {
-      const data = await WorkspaceService.get()
-
-      return data
     },
 
     ...mapActions({

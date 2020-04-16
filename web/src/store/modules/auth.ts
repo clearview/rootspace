@@ -3,7 +3,8 @@ import AuthService from '@/services/auth'
 
 const state = {
   token: null,
-  user: null
+  user: null,
+  spaces: null
 }
 
 const mutations = {
@@ -12,6 +13,9 @@ const mutations = {
   },
   setUser (state: any, user: null) {
     state.user = user
+  },
+  setSpaces (state: any, spaces: null) {
+    state.spaces = spaces
   }
 }
 
@@ -21,12 +25,8 @@ const actions = {
     commit('setToken', token)
 
     const userRes = await AuthService.whoami()
-    const user = {
-      id: userRes.id,
-      name: userRes.name,
-      email: userRes.email
-    }
-    commit('setUser', user)
+    commit('setUser', userRes.user)
+    commit('setSpaces', userRes.spaces)
   }
 }
 
