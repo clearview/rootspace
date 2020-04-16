@@ -21,10 +21,6 @@ export class UserSignupValidator {
       async validate(data, field, args, config) {
         const fieldValue = getValue(data, field)
 
-        /*if (skippable(fieldValue, field, config)) {
-          return true
-        }*/
-
         const userService = new UserService()
         const user = await userService.getUserByEmail(fieldValue)
 
