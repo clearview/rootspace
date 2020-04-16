@@ -5,7 +5,7 @@ import { getCustomRepository } from 'typeorm'
 import { hashPassword } from '../utils'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
-import { ISignupProvider } from '../types/UserProviders'
+import { ISignupProvider } from '../types/user'
 import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 import { HttpError } from '../errors/HttpError'
 import { ValidationError } from '../errors/ValidationError'
@@ -30,16 +30,29 @@ export class UserService {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
-  getUserByConfirmationToken(token: string) {
-    return this.getUserRepository().getByConfirmationToken(token)
+  getUserByToken(token: string, userId: number) {
+    return this.getUserRepository().getByToken(token, userId)
   }
 
-  async confirm(token: string): Promise<User> {
-    const user = await this.getUserByConfirmationToken(token).catch(err => {
-      throw new HttpError('Invalid confirmation token')
+  async confirmEmail(token: string, userId: number): Promise<User> {
+    const user = await this.getUserByToken(token, userId).catch(err => {
+      throw HttpError.fromError(
+        err,
+        'Internal error',
+        500,
+        errNames.internalError
+      )
     })
 
-    user.confirmed = true
+    if (!user) {
+      throw new HttpError(
+        'Invalid confirmatio token',
+        400,
+        errNames.entityNotFound
+      )
+    }
+
+    user.emailConfirmed = true
     return await this.getUserRepository().save(user)
   }
 
@@ -79,12 +92,12 @@ export class UserService {
   }
 
   async sendConfirmationEmail(user: User) {
-    const subject = 'Confirm your registration on Root'
+    const subject = 'Root, email confirmation'
     const confirmUrl =
-      config.webDomain + '/user/confirm/' + user.confirmationToken
+      config.domain + '/user/confirm/email/' + user.token + '/' + user.id
 
     const content = pug.renderFile(
-      UserService.mailTemplatesDir + 'confirm.pug',
+      UserService.mailTemplatesDir + 'confirmEmail.pug',
       {
         user,
         confirmUrl

@@ -28,9 +28,12 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async confirm(req: Request, res: Response, next: NextFunction) {
+  public async confirmEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await this.userService.confirm(req.body.token)
+      const user = await this.userService.confirmEmail(
+        req.body.token,
+        req.body.userId
+      )
       res.send(user)
     } catch (err) {
       next(err)
@@ -54,9 +57,7 @@ export class UsersCtrl extends BaseCtrl {
           return next(err)
         }
 
-        const body = { id: user.id, email: user.email }
-        const token = jwt.sign({ user: body }, config.jwtSecretKey)
-
+        const token = jwt.sign({ id: user.id }, config.jwtSecretKey)
         return res.json({ token })
       }
     )(req, res)
@@ -70,7 +71,9 @@ export class UsersCtrl extends BaseCtrl {
 
   public async whoami(req: Request, res: Response) {
     const user = await getCustomRepository(UserRepository).findOne(req.user.id)
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(
+      user.id
+    )
     res.send({ user, spaces })
   }
 }

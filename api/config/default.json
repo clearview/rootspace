@@ -14,5 +14,5 @@
       "api_key": "@@SENDGRID_API_KEY"
     }
   },
-  "webDomain": "@@WEB_DOMAIN"
+  "domain": "@@DOMAIN"
 }

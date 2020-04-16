@@ -27,7 +27,7 @@ router.get(
 router.get('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
-router.patch('/user/confirm', mapRoute(UsersCtrl, 'confirm'))
+router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))

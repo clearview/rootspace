@@ -32,12 +32,12 @@ export class User {
   active: boolean
 
   @Column('boolean', { default: false })
-  confirmed: boolean
+  emailConfirmed: boolean
 
   @Column()
   @Generated('uuid')
   @Index()
-  confirmationToken: string
+  token: string
 
   @CreateDateColumn()
   created: string

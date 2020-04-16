@@ -5,7 +5,6 @@ export interface ISignupProvider {
   confirm_password: string
 }
 
-export interface ILoginProvider {
-  email: string
-  password: string
+export interface IAuthPayload {
+  id: number
 }

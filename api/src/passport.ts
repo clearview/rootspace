@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
 import { HttpError } from './errors/HttpError'
 import { errNames } from './errors/errNames'
+import { IAuthPayload } from './types/user'
 
 import {
   Strategy as JwtStrategy,
@@ -14,6 +15,7 @@ import {
 } from 'passport-jwt'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
+import { isNumber } from 'util'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -84,10 +86,10 @@ passport.use(
             )
           }
 
-          if (user.confirmed !== true) {
+          if (user.emailConfirmed !== true) {
             return done(
               new HttpError(
-                'User not confirmed',
+                'Email not confirmed',
                 401,
                 errNames.userNotConfirmed
               )
@@ -110,7 +112,13 @@ const jwtOptions: StrategyOptions = {
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
-    const user = await getCustomRepository(UserRepository).findOne(payload.id)
+    const userId = payload.id
+
+    if (!isNumber(userId)) {
+      return done(null, false, { message: 'Invalid payload' })
+    }
+
+    const user = await getCustomRepository(UserRepository).findOne(userId)
     if (user) {
       return done(null, user)
     }

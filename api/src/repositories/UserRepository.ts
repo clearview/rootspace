@@ -16,9 +16,9 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
-  getByConfirmationToken(confirmationToken: string) {
+  getByToken(token: string, id: number) {
     return this.findOne({
-      where: { confirmationToken }
+      where: { token, id }
     })
   }
 }
