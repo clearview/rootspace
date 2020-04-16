@@ -1,28 +1,47 @@
 import { Request, Response, NextFunction } from 'express'
-import { errNames, errNamesArray } from '../errors/errNames'
+import { clientError, clientErrorArray } from '../errors/httpErrors'
 
-export function validationErrorHandler(
+export function httpValidationErrorHandler(
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === errNames.validationFailed) {
-    return res
-      .status(err.statusCode)
-      .send({ error: err.name, message: err.message, errorBag: err.errorBag })
+  if (err.name === clientError.validationFailed) {
+    return res.status(err.statusCode).send({
+      error: {
+        name: err.name,
+        message: err.message,
+      },
+    })
   }
+
   next(err)
 }
 
-export function responseErrorHandler(
+export function httpClientErrorHandler(
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  if (errNamesArray.includes(err.name)) {
-    return res.status(err.statusCode).send({ error: err.name, message: err.message })
+  if (clientErrorArray.includes(err.name)) {
+    return res.status(err.statusCode).send({
+      error: {
+        name: err.name,
+        message: err.message,
+      },
+    })
   }
+
+  next(err)
+}
+
+export function errorHandler(
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   next(err)
 }

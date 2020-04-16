@@ -4,14 +4,13 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { HttpError } from './errors/HttpError'
-import { errNames } from './errors/errNames'
-import { IAuthPayload } from './types/user'
+import { HttpClientError } from './errors/HttpClientError'
+import { clientError } from './errors/httpErrors'
 
 import {
   Strategy as JwtStrategy,
   ExtractJwt,
-  StrategyOptions
+  StrategyOptions,
 } from 'passport-jwt'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
@@ -25,13 +24,13 @@ passport.use(
     {
       clientID: config.google.clientID,
       clientSecret: config.google.clientSecret,
-      callbackURL: config.google.callbackURL
+      callbackURL: config.google.callbackURL,
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const userRepository = getCustomRepository(UserRepository)
 
       const existingUser = await userRepository.findOne({
-        email: profile.emails[0].value
+        email: profile.emails[0].value,
       })
       if (!existingUser) {
         const user = await userRepository.create({
@@ -39,7 +38,7 @@ passport.use(
           email: profile.emails[0].value,
           password: '666',
           authProvider: 'google',
-          active: true
+          active: true,
         })
         const newUser = await userRepository.save(user)
         return done(null, newUser.id)
@@ -54,7 +53,7 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: 'email',
-      passwordField: 'password'
+      passwordField: 'password',
     },
     async (email, password, done) => {
       try {
@@ -63,35 +62,27 @@ passport.use(
 
         if (!user) {
           return done(
-            new HttpError('User not found', 401, errNames.entityNotFound)
+            new HttpClientError('User not found', clientError.entityNotFound)
           )
         }
 
         bcrypt.compare(password, user.password, (err, res) => {
           if (err) {
-            return done(
-              HttpError.fromError(
-                err,
-                'Internal error',
-                500,
-                errNames.internalError
-              )
-            )
+            return done(err)
           }
 
           if (res !== true) {
             return done(
-              new HttpError('Wrong Password', 401, errNames.wrongPassword),
+              new HttpClientError('Wrong Password', clientError.wrongPassword),
               user
             )
           }
 
           if (user.emailConfirmed !== true) {
             return done(
-              new HttpError(
+              new HttpClientError(
                 'Email not confirmed',
-                401,
-                errNames.userNotConfirmed
+                clientError.userNotConfirmed
               )
             )
           }
@@ -99,7 +90,7 @@ passport.use(
           return done(null, user)
         })
       } catch (err) {
-        return done(HttpError.fromError(err, err.message, 401))
+        return done(err)
       }
     }
   )
@@ -107,7 +98,7 @@ passport.use(
 
 const jwtOptions: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwtSecretKey
+  secretOrKey: config.jwtSecretKey,
 }
 
 passport.use(
