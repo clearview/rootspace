@@ -21,7 +21,7 @@
     <div class="flex mt-4">
       <button
         class="btn btn-primary flex-grow"
-        @click="linkForm.isVisible = true"
+        @click="$emit('add')"
       >
         <v-icon
           name="plus"
@@ -30,56 +30,18 @@
         Add New Link
       </button>
     </div>
-
-    <v-modal
-      title="Add Link"
-      :visible="linkForm.isVisible"
-      @cancel="linkForm.isVisible = false"
-      @confirm="() => $refs.linkForm.submit()"
-    >
-      <div class="modal-body">
-        <resource-form-link
-          @submit="add"
-          ref="linkForm"
-        />
-      </div>
-    </v-modal>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
-import { LinkResource } from '@/types/resource'
-
-import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
 import VIcon from '@/components/icons/Index.vue'
-import VModal from '@/components/Modal.vue'
-
-type ComponentData = {
-  linkForm: {
-    isVisible: boolean;
-  };
-}
 
 export default Vue.extend({
   name: 'NavigationFooter',
   components: {
-    ResourceFormLink,
-    VIcon,
-    VModal
-  },
-  data (): ComponentData {
-    return {
-      linkForm: {
-        isVisible: false
-      }
-    }
-  },
-  methods: {
-    add (payload: LinkResource): void {
-      this.$emit('add', payload)
-    }
+    VIcon
   }
 })
 </script>

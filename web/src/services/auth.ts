@@ -11,7 +11,7 @@ async function googleCallback (params: object) {
 }
 
 async function whoami () {
-  const { data } = await axios.get('whoami')
+  const { data } = await api.get('whoami')
 
   if (data.status === 'error') {
     throw new Error(data.msg)

@@ -12,8 +12,23 @@
 
     <navigation-footer
       class="nav-footer"
-      @add="addLink"
+      @add="linkForm.isVisible = true"
     />
+
+    <v-modal
+      title="Add Link"
+      :visible="linkForm.isVisible"
+      :loading="linkForm.isLoading"
+      @cancel="linkForm.isVisible = false"
+      @confirm="() => $refs.linkForm.submit()"
+    >
+      <div class="modal-body">
+        <resource-form-link
+          @submit="addLink"
+          ref="linkForm"
+        />
+      </div>
+    </v-modal>
   </div>
 </template>
 
@@ -25,20 +40,54 @@ import { LinkResource } from '@/types/resource'
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
+import VModal from '@/components/Modal.vue'
+import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
+
+type ComponentData = {
+  linkForm: {
+    isVisible: boolean;
+    isLoading: boolean;
+    alert: {
+      message: string;
+    } | null;
+  };
+}
 
 export default Vue.extend({
   name: 'Navigation',
   components: {
     NavigationHeader,
     NavigationItems,
-    NavigationFooter
+    NavigationFooter,
+    VModal,
+    ResourceFormLink
+  },
+  data (): ComponentData {
+    return {
+      linkForm: {
+        isVisible: false,
+        isLoading: false,
+        alert: null
+      }
+    }
   },
   methods: {
     search (keyword: string): void {
       console.log(`Search: ${keyword}`)
     },
-    addLink (data: LinkResource): void {
-      this.$emit('addLink', data)
+    async addLink (data: LinkResource) {
+      this.linkForm.isLoading = true
+
+      try {
+        await this.$store.dispatch('link/create', data)
+      } catch (e) {
+        this.linkForm.alert = {
+          message: e.message
+        }
+      }
+
+      this.linkForm.isLoading = false
+      this.linkForm.isVisible = false
     },
     openLink (link: string): void {
       console.log(`Open link: ${link}`)
