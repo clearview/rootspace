@@ -1,11 +1,24 @@
-import { EntityRepository, Repository, Entity } from 'typeorm'
+import { EntityRepository, Repository } from 'typeorm'
 import { User } from '../entities/User'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  getByEmail(email: string) {
+  getByEmail(email: string, selectPassword = false) {
+    const queryBuilder = this.createQueryBuilder()
+
+    if (selectPassword === true) {
+      queryBuilder.addSelect('User.password', 'User_password')
+    }
+
+    return queryBuilder
+      .where('User.email = :email')
+      .setParameter('email', email)
+      .getOne()
+  }
+
+  getByToken(token: string, id: number) {
     return this.findOne({
-      where: { email }
+      where: { token, id }
     })
   }
 }

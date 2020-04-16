@@ -13,5 +13,6 @@
     "sendgrid": {
       "api_key": "@@SENDGRID_API_KEY"
     }
-  }
+  },
+  "domain": "@@DOMAIN"
 }

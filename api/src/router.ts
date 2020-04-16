@@ -12,7 +12,6 @@ router.get('/', async (req, res) => {
   res.send({ Root: 'app' })
 })
 
-router.get('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get(
   '/auth/google',
   passport.authenticate('google', {
@@ -25,7 +24,10 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
+router.get('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
+router.post('/signup', mapRoute(UsersCtrl, 'signup'))
+router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
