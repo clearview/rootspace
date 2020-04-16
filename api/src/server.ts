@@ -5,6 +5,10 @@ import cors from 'cors'
 import router from './router'
 import passport from './passport'
 import { config } from 'node-config-ts'
+import {
+  validationErrorHandler,
+  responseErrorHandler
+} from './middleware/ErrorMiddleware'
 
 declare global {
   namespace Express {
@@ -30,6 +34,8 @@ export default class Server {
     this.app.use(cors())
     this.app.use(passport.initialize())
     this.app.use(router)
+    this.app.use(validationErrorHandler)
+    this.app.use(responseErrorHandler)
   }
 
   listen() {

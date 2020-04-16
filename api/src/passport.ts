@@ -1,6 +1,13 @@
 import { config } from 'node-config-ts'
 import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
+import passportLocal from 'passport-local'
+import bcrypt from 'bcryptjs'
+import { UserService } from './services/UserService'
+import { HttpError } from './errors/HttpError'
+import { errNames } from './errors/errNames'
+import { IAuthPayload } from './types/user'
+
 import {
   Strategy as JwtStrategy,
   ExtractJwt,
@@ -8,8 +15,10 @@ import {
 } from 'passport-jwt'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
+import { isNumber } from 'util'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
+const LocalStrategy = passportLocal.Strategy
 
 passport.use(
   new GoogleStrategy(
@@ -41,6 +50,61 @@ passport.use(
   )
 )
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password'
+    },
+    async (email, password, done) => {
+      try {
+        const userService = new UserService()
+        const user = await userService.getUserByEmail(email, true)
+
+        if (!user) {
+          return done(
+            new HttpError('User not found', 401, errNames.entityNotFound)
+          )
+        }
+
+        bcrypt.compare(password, user.password, (err, res) => {
+          if (err) {
+            return done(
+              HttpError.fromError(
+                err,
+                'Internal error',
+                500,
+                errNames.internalError
+              )
+            )
+          }
+
+          if (res !== true) {
+            return done(
+              new HttpError('Wrong Password', 401, errNames.wrongPassword),
+              user
+            )
+          }
+
+          if (user.emailConfirmed !== true) {
+            return done(
+              new HttpError(
+                'Email not confirmed',
+                401,
+                errNames.userNotConfirmed
+              )
+            )
+          }
+
+          return done(null, user)
+        })
+      } catch (err) {
+        return done(HttpError.fromError(err, err.message, 401))
+      }
+    }
+  )
+)
+
 const jwtOptions: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: config.jwtSecretKey
@@ -48,7 +112,13 @@ const jwtOptions: StrategyOptions = {
 
 passport.use(
   new JwtStrategy(jwtOptions, async (payload, done) => {
-    const user = await getCustomRepository(UserRepository).findOne(payload.id)
+    const userId = payload.id
+
+    if (!isNumber(userId)) {
+      return done(null, false, { message: 'Invalid payload' })
+    }
+
+    const user = await getCustomRepository(UserRepository).findOne(userId)
     if (user) {
       return done(null, user)
     }

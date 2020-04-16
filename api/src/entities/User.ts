@@ -1,9 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Generated
+} from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 
 @Entity('users')
 export class User {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -23,13 +31,23 @@ export class User {
   @Column('boolean')
   active: boolean
 
+  @Column('boolean', { default: false })
+  emailConfirmed: boolean
+
+  @Column()
+  @Generated('uuid')
+  @Index()
+  token: string
+
   @CreateDateColumn()
   created: string
 
   @UpdateDateColumn()
   updated: string
 
-  @OneToMany(type => UserToSpace, space => space.user)
+  @OneToMany(
+    type => UserToSpace,
+    space => space.user
+  )
   public spaces!: UserToSpace[]
-
 }

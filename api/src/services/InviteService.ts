@@ -1,6 +1,5 @@
 import path from 'path'
 import pug from 'pug'
-
 import { getCustomRepository } from 'typeorm'
 import { InviteRepository } from '../repositories/InviteRepository'
 import { Invite } from '../entities/Invite'
@@ -27,7 +26,7 @@ export class InviteService {
   }
 
   async createWithEmail(email: string, space: Space) {
-    const user = await this.userService.getByEmail(email)
+    const user = await this.userService.getUserByEmail(email)
 
     let invite = new Invite()
     invite.email = email
