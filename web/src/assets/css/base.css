@@ -31,5 +31,5 @@ h6 {
 }
 
 .text-inherit {
-  color: inherit;
+  color: inherit !important;
 }

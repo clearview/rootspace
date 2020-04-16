@@ -14,6 +14,17 @@ async function create (payload: object) {
   }
 }
 
+async function get () {
+  const { data } = await axios.get('spaces/my')
+
+  if (data.status === 'error') {
+    throw new Error(data.msg)
+  }
+
+  return data
+}
+
 export default {
-  create
+  create,
+  get
 }

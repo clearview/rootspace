@@ -88,6 +88,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 

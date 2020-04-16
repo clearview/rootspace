@@ -18,7 +18,9 @@
           Your email format is wrong!
         </div>
 
-        <form class="mt-2" @submit.prevent="submit">
+        <p v-if="isLoading">Creating Workspace...</p>
+
+        <form class="mt-2">
           <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="workspacename">Workspace Name</label>
             <input
@@ -54,26 +56,26 @@
             </div>
           </div>
 
-          <div class="list-invitation" v-if="workspace.invitations.length > 0">
+          <div class="list-invitation" v-if="workspace.invites.length > 0">
             <div
               class="invitation flex items-center"
-              v-for="(invitation, index) in workspace.invitations"
+              v-for="(invitation, index) in workspace.invites"
               :key="index"
             >
               <div class="flex-grow text-sm">
-                <p class="text-gray-800">{{ invitation }}</p>
+                <p class="text-gray-900">{{ invitation }}</p>
               </div>
               <span class="close-icon" v-on:click="deleteInvitation(index)">
                 <v-icon name="close" size=".9em" viewbox="32" />
               </span>
             </div>
           </div>
-          {{ workspace }}
 
           <button
-            type="submit"
+            type="button"
             class="btn btn-primary w-full mx-0"
             :disabled="$v.workspace.$invalid"
+            v-on:click="submit()"
           >
             Create
           </button>
@@ -88,6 +90,7 @@ import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import { mapState } from 'vuex'
+
 import WorkspaceService from '@/services/workspace'
 
 import VIcon from '@/components/icons/Index.vue'
@@ -97,10 +100,11 @@ import RootHeader from '@/components/RootHeader.vue'
 type ComponentData = {
   workspace: {
     title: string;
-    invitations: Array<string>;
+    invites: Array<string>;
   };
   invitation: string;
   isEmailError: boolean;
+  isLoading: boolean;
 }
 
 export default Vue.extend({
@@ -114,16 +118,16 @@ export default Vue.extend({
     return {
       workspace: {
         title: '',
-        invitations: []
+        invites: []
       },
       invitation: '',
-      isEmailError: false
+      isEmailError: false,
+      isLoading: false
     }
   },
   computed: mapState('auth', ['user']),
   watch: {
     invitation (newVal: string, oldVal: string) {
-      console.log(newVal, oldVal)
       if (this.isEmailValid(newVal)) {
         this.isEmailError = false
       }
@@ -140,16 +144,14 @@ export default Vue.extend({
     addInvitationList (email: string): void {
       if (!this.isEmailValid(email) || email === '') {
         this.isEmailError = true
-        console.log('email is not valid')
       } else {
         this.isEmailError = false
-        console.log('email', email)
         this.invitation = ''
-        this.workspace.invitations.push(email)
+        this.workspace.invites.push(email)
       }
     },
     deleteInvitation (index: number): void {
-      this.workspace.invitations.splice(index, 1)
+      this.workspace.invites.splice(index, 1)
     },
     isEmailValid (email: string): boolean {
       if (email === '') return true
@@ -165,14 +167,18 @@ export default Vue.extend({
         return
       }
 
-      console.log(this.workspace)
       this.$emit('submit', this.createWorkspace())
     },
-    async createWorkspace (): void {
+    async createWorkspace () {
+      this.isLoading = true
       const data = await WorkspaceService.create(this.workspace)
-      console.log(data)
 
       if (data.status === 200) {
+        this.isLoading = false
+        this.workspace = {
+          title: '',
+          invites: []
+        }
         this.$router.push({ name: 'Home' })
       }
     }

@@ -12,9 +12,11 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapActions } from 'vuex'
+
+import WorkspaceService from '@/services/workspace'
 
 import RootHeader from '@/components/RootHeader.vue'
-import { mapActions } from 'vuex'
 
 export default Vue.extend({
   name: 'GoogleCallback',
@@ -29,9 +31,24 @@ export default Vue.extend({
       try {
         await this.withGoogle(this.$route.query)
 
+        const userWorkspace = await this.getWorkspaceCurrentUser()
+
+        if (userWorkspace && userWorkspace.length > 0) {
+          this.$router.push({ name: 'Home' })
+          return
+        }
+
         this.$router.push({ name: 'CreateWorkspace' })
       } catch (err) {
         console.log(err)
+      }
+    },
+    async getWorkspaceCurrentUser () {
+      this.isLoading = true
+      const data = await WorkspaceService.get()
+
+      if (data.status === 200) {
+        return data
       }
     },
 
