@@ -44,12 +44,9 @@ export default Vue.extend({
       }
     },
     async getWorkspaceCurrentUser () {
-      this.isLoading = true
       const data = await WorkspaceService.get()
 
-      if (data.status === 200) {
-        return data
-      }
+      return data
     },
 
     ...mapActions({

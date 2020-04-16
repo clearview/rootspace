@@ -18,15 +18,14 @@ const mutations = {
 const actions = {
   async withGoogle ({ commit }: { commit: any}, params: object) {
     const { token } = await AuthService.googleCallback(params)
-    const userRes = await AuthService.whoami()
+    commit('setToken', token)
 
+    const userRes = await AuthService.whoami()
     const user = {
       id: userRes.id,
       name: userRes.name,
       email: userRes.email
     }
-
-    commit('setToken', token)
     commit('setUser', user)
   }
 }
