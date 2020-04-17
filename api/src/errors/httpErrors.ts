@@ -1,6 +1,5 @@
-interface ErrNamesProvider {
-  httpError: string
-  internalError: string
+interface IClientError {
+  invalidRequest: string
   validationFailed: string
   entityCreateFailed: string
   entityUpdateFailed: string
@@ -8,18 +7,19 @@ interface ErrNamesProvider {
   authenticationFailed: string
   userNotConfirmed: string
   wrongPassword: string
+  invalidToken: string
 }
 
-export const errNames: ErrNamesProvider = {
-  httpError: 'responseError',
-  internalError: 'internalError',
+export const clientError: IClientError = {
+  invalidRequest: 'invalidRequest',
   validationFailed: 'validationFailed',
   entityCreateFailed: 'entityCreateFailed',
   entityUpdateFailed: 'entityUpdateFailed',
   entityNotFound: 'entityNotFound',
   authenticationFailed: 'authenticationFailed',
   userNotConfirmed: 'userNotConfirmed',
-  wrongPassword: 'wrongPassword'
+  wrongPassword: 'wrongPassword',
+  invalidToken: 'invalidToken'
 }
 
-export const errNamesArray: string[] = Object.keys(errNames)
+export const clientErrorArray: string[] = Object.keys(clientError)

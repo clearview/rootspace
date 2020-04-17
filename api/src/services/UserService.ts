@@ -7,9 +7,9 @@ import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
 import { UserSignupValidator } from '../validation/user/UserSignupValidator'
-import { HttpError } from '../errors/HttpError'
-import { ValidationError } from '../errors/ValidationError'
-import { errNames } from '../errors/errNames'
+import { HttpClientError } from '../errors/HttpClientError'
+import { HttpValidationError } from '../errors/HttpValidationError'
+import { clientError } from '../errors/httpErrors'
 import { MailService } from './mail/MailService'
 
 export class UserService {
@@ -35,20 +35,14 @@ export class UserService {
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {
-    const user = await this.getUserByToken(token, userId).catch(err => {
-      throw HttpError.fromError(
-        err,
-        'Internal error',
-        500,
-        errNames.internalError
-      )
+    const user = await this.getUserByToken(token, userId).catch((err) => {
+      throw err
     })
 
     if (!user) {
-      throw new HttpError(
+      throw new HttpClientError(
         'Invalid confirmatio token',
-        400,
-        errNames.entityNotFound
+        clientError.invalidToken
       )
     }
 
@@ -59,8 +53,8 @@ export class UserService {
   async signup(data: ISignupProvider): Promise<User> {
     const validator = new UserSignupValidator()
 
-    await validator.validate(data).catch(errors => {
-      throw new ValidationError('User validation error', errors)
+    await validator.validate(data).catch((errors) => {
+      throw new HttpValidationError('User validation error', errors)
     })
 
     const password = await hashPassword(data.password)
@@ -76,13 +70,8 @@ export class UserService {
 
     user = await this.getUserRepository()
       .save(user)
-      .catch(err => {
-        throw HttpError.fromError(
-          err,
-          'Error creating user',
-          400,
-          errNames.entityCreateFailed
-        )
+      .catch((err) => {
+        throw err
       })
 
     this.sendConfirmationEmail(user)
@@ -100,7 +89,7 @@ export class UserService {
       UserService.mailTemplatesDir + 'confirmEmail.pug',
       {
         user,
-        confirmUrl
+        confirmUrl,
       }
     )
 

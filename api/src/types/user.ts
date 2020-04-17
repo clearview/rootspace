@@ -4,7 +4,3 @@ export interface ISignupProvider {
   password: string
   confirm_password: string
 }
-
-export interface IAuthPayload {
-  id: number
-}
