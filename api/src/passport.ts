@@ -24,7 +24,7 @@ passport.use(
     {
       clientID: config.google.clientID,
       clientSecret: config.google.clientSecret,
-      callbackURL: config.google.callbackURL,
+      callbackURL: `${config.appURL}${config.google.callbackPath}`,
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const userRepository = getCustomRepository(UserRepository)

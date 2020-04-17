@@ -5,7 +5,7 @@
   "google": {
     "clientID": "@@GOOGLE_CLIENT_ID",
     "clientSecret": "@@GOOGLE_CLIENT_SECRET",
-    "callbackURL": "@@GOOGLE_CALLBACK_URL"
+    "callbackPath": "@@GOOGLE_CALLBACK_PATH"
   },
   "mail": {
     "client": "@@MAIL_CLIENT",
@@ -14,5 +14,6 @@
       "api_key": "@@SENDGRID_API_KEY"
     }
   },
-  "domain": "@@DOMAIN"
+  "appURL": "@@APP_URL",
+  "emailConfirmationPath": "@@EMAIL_CONFIRMATION_PATH"
 }
