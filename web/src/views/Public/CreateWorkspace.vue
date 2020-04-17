@@ -126,7 +126,7 @@ export default Vue.extend({
   },
   computed: mapState('auth', ['user']),
   watch: {
-    invitation (newVal: string, oldVal: string) {
+    invitation (newVal: string) {
       if (this.isEmailValid(newVal)) {
         this.isEmailError = false
       }
