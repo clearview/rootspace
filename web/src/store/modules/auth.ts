@@ -2,6 +2,7 @@ import { Module } from 'vuex'
 import { RootState, AuthState } from '@/types/state'
 
 import AuthService from '@/services/auth'
+import UserService from '@/services/user'
 
 const AuthModule: Module<AuthState, RootState> = {
   namespaced: true,
@@ -30,7 +31,15 @@ const AuthModule: Module<AuthState, RootState> = {
       const { token } = await AuthService.googleCallback(params)
       commit('setToken', token)
 
-      const userRes = await AuthService.whoami()
+      const userRes = await UserService.whoami()
+      commit('setUser', userRes.user)
+      commit('setSpaces', userRes.spaces)
+    },
+    async withEmail ({ commit }, params) {
+      const res = await AuthService.localSignin(params)
+      commit('setToken', res.data.token)
+
+      const userRes = await UserService.whoami()
       commit('setUser', userRes.user)
       commit('setSpaces', userRes.spaces)
     }

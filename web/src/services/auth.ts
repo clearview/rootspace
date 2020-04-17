@@ -10,17 +10,21 @@ async function googleCallback (params: object) {
   return data
 }
 
-async function whoami () {
-  const { data } = await api.get('whoami')
+async function localSignin (payload: object) {
+  try {
+    const res = await api.post('auth', payload)
 
-  if (data.status === 'error') {
-    throw new Error(data.msg)
+    return res
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.body.msg)
+    }
+
+    throw error
   }
-
-  return data
 }
 
 export default {
   googleCallback,
-  whoami
+  localSignin
 }

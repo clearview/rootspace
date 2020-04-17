@@ -14,6 +14,8 @@
           Your email is incorect. Please try again
         </div>
 
+        <p v-if="isLoading">Login...</p>
+
         <form class="mt-10">
           <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="username">Email</label>
@@ -22,6 +24,7 @@
               id="username"
               type="text"
               placeholder="Username"
+              v-model.trim="$v.signin.email.$model"
             />
             <span class="icon">
               <v-icon name="email" size="1.5em" />
@@ -34,6 +37,7 @@
               id="password"
               type="password"
               placeholder="******************"
+              v-model.trim="$v.signin.password.$model"
             />
             <span class="icon">
               <v-icon name="lock" size="1.5em" />
@@ -42,7 +46,14 @@
 
           <a class="forgot-password float-right mb-8">Forgot Password?</a>
 
-          <button class="btn btn-primary w-full mx-0" type="button" disabled>Sign In</button>
+          <button
+            class="btn btn-primary w-full mx-0"
+            type="button"
+            :disabled="$v.signin.$invalid"
+            v-on:click="submit()"
+          >
+            Sign In
+          </button>
         </form>
 
         <div class="my-10">
@@ -69,29 +80,81 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState, mapActions } from 'vuex'
+import { validationMixin } from 'vuelidate'
+import { required, minLength } from 'vuelidate/lib/validators'
 
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 
+type ComponentData = {
+  signin: {
+    email: string;
+    password: string;
+  };
+  isLoading: boolean;
+}
+
 export default Vue.extend({
   name: 'Signin',
+  mixins: [validationMixin],
   components: {
     VIcon,
     RootHeader
   },
+  data (): ComponentData {
+    return {
+      signin: {
+        email: '',
+        password: ''
+      },
+      isLoading: false
+    }
+  },
+  computed: mapState('auth', ['spaces']),
+  validations: {
+    signin: {
+      email: { required },
+      password: {
+        required,
+        minLength: minLength(6)
+      }
+    }
+  },
   methods: {
-    // eslint-disable-next-line
-    popupWindow (url: string, title: string, win: any, w: number, h: number) {
-      const y = win.top.outerHeight / 2 + win.top.screenY - (h / 2)
-      const x = win.top.outerWidth / 2 + win.top.screenX - (w / 2)
-
-      return win.open(url, title, `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`)
-    },
     authWithGoogle () {
       const API: string = process.env.VUE_APP_API_URL
-      // this.popupWindow(`${API}/auth/google`, 'Sign In', window, 400, 600)
       location.href = `${API}/auth/google`
-    }
+    },
+    submit (): void {
+      this.$v.signin.$touch()
+
+      if (this.$v.signin.$invalid) {
+        return
+      }
+
+      this.$emit('submit', this.userSignup())
+    },
+    async userSignup () {
+      try {
+        this.isLoading = true
+        await this.withEmail(this.signin)
+
+        this.isLoading = false
+        if (this.spaces && this.spaces.length > 0) {
+          this.$router.push({ name: 'Main' })
+          return
+        }
+
+        this.$router.push({ name: 'CreateWorkspace' })
+      } catch (err) {
+        console.log(err)
+      }
+    },
+
+    ...mapActions({
+      withEmail: 'auth/withEmail'
+    })
   }
 })
 </script>
