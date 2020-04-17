@@ -1,7 +1,7 @@
-import axios from 'axios'
+import api from '@/utils/api'
 
 async function googleCallback (params: object) {
-  const { data } = await axios.get('auth/google/callback', { params })
+  const { data } = await api.get('auth/google/callback', { params })
 
   if (data.status === 'error') {
     throw new Error(data.msg)
@@ -11,7 +11,7 @@ async function googleCallback (params: object) {
 }
 
 async function whoami () {
-  const { data } = await axios.get('whoami')
+  const { data } = await api.get('whoami')
 
   if (data.status === 'error') {
     throw new Error(data.msg)

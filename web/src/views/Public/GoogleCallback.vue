@@ -31,7 +31,7 @@ export default Vue.extend({
         await this.withGoogle(this.$route.query)
 
         if (this.spaces && this.spaces.length > 0) {
-          this.$router.push({ name: 'Home' })
+          this.$router.push({ name: 'Main' })
           return
         }
 

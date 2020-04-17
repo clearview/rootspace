@@ -96,7 +96,6 @@ import WorkspaceService from '@/services/workspace'
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
 
-
 type ComponentData = {
   workspace: {
     title: string;
@@ -179,7 +178,7 @@ export default Vue.extend({
           title: '',
           invites: []
         }
-        this.$router.push({ name: 'Home' })
+        this.$router.push({ name: 'Main' })
       }
     }
   }

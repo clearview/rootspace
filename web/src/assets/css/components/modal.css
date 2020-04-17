@@ -1,0 +1,37 @@
+.modal {
+  @apply fixed top-0 left-0;
+  @apply w-full h-full;
+  @apply flex items-center justify-center;
+}
+
+.modal-background {
+  @apply absolute w-full h-full;
+
+  background-color: rgba(theme("colors.gray.900"), 0.5);
+}
+
+.modal-inner {
+  @apply absolute bg-white rounded;
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+  @apply px-12;
+}
+
+.modal-header {
+  @apply flex flex-row items-center justify-between;
+  @apply pt-8;
+  @apply text-base;
+}
+
+.modal-body {
+  @apply py-8;
+}
+
+.modal-footer {
+  @apply flex flex-row justify-end items-end;
+  @apply border-t border-gray-100;
+  @apply py-4;
+}
