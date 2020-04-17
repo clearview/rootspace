@@ -15,13 +15,13 @@ export interface LinkFetchParams {
 
 export default class LinkService {
   static async fetch (params: LinkFetchParams) {
-    const res = await api.get(`links`, { params })
+    const res = await api.get('links', { params })
 
     return res.data
   }
 
   static async create (body: LinkResource) {
-    const res = await api.post(`links`, body)
+    const res = await api.post('links', body)
 
     return res.data
   }
