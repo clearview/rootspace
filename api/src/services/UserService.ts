@@ -82,8 +82,8 @@ export class UserService {
 
   async sendConfirmationEmail(user: User) {
     const subject = 'Root, email confirmation'
-    const appUrl = `${config.appURL}${config.emailConfirmationPath}`
-    const confirmUrl = `${appUrl}${user.token}/${user.id}`
+    const confirmationURL = config.appDomain + config.emailConfirmationPath
+    const confirmUrl = `${confirmationURL}${user.token}/${user.id}`
 
     const content = pug.renderFile(
       UserService.mailTemplatesDir + 'confirmEmail.pug',
