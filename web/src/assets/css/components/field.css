@@ -1,0 +1,28 @@
+.field {
+  @apply flex flex-col;
+  @apply my-3;
+
+  &.field-inline {
+    @apply flex-row justify-between mt-6;
+  }
+
+  &.field-border {
+    @apply border rounded border-gray-100;
+    @apply py-2 px-3;
+  }
+
+  &.field-disabled {
+    label,
+    input {
+      @apply pointer-events-none !important;
+    }
+
+    .field-label {
+      @apply text-gray-400;
+    }
+  }
+}
+
+.field-label {
+  @apply text-gray-800;
+}

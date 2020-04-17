@@ -9,7 +9,7 @@
 
         <div class="alert alert-danger hidden">
           <span class="mr-1">
-            <v-icon name="warning" size="1.3em" viewbox="20"/>
+            <v-icon name="warning" size="1.3em" />
           </span>
           Your email is incorect. Please try again
         </div>
@@ -36,7 +36,7 @@
               placeholder="******************"
             />
             <span class="icon">
-              <v-icon name="password" size="1.5em" />
+              <v-icon name="lock" size="1.5em" />
             </span>
           </div>
 
@@ -53,7 +53,7 @@
 
         <button class="btn w-full mx-0" type="button" v-on:click="authWithGoogle()">
           <span class="mr-1">
-            <v-icon name="google" size="1.1em" viewbox="25"/>
+            <v-icon name="google" size="1.1em" />
           </span>
           Sign in with Google
         </button>

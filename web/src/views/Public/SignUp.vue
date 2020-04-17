@@ -45,7 +45,7 @@
               placeholder="******************"
             />
             <span class="icon">
-              <v-icon name="password" size="1.5em" />
+              <v-icon name="lock" size="1.5em" />
             </span>
           </div>
           <div class="form-group mb-5">
@@ -57,7 +57,7 @@
               placeholder="******************"
             />
             <span class="icon">
-              <v-icon name="password" size="1.5em" />
+              <v-icon name="lock" size="1.5em" />
             </span>
           </div>
 

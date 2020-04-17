@@ -1,8 +1,8 @@
-import axios from 'axios'
+import api from '@/utils/api'
 
 async function create (payload: object) {
   try {
-    const res = await axios.post('spaces', payload)
+    const res = await api.post('spaces', payload)
 
     return res
   } catch (error) {
@@ -15,7 +15,7 @@ async function create (payload: object) {
 }
 
 async function get () {
-  const { data } = await axios.get('spaces/my')
+  const { data } = await api.get('spaces/my')
 
   if (data.status === 'error') {
     throw new Error(data.msg)

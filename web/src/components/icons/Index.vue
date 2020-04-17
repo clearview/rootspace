@@ -4,8 +4,8 @@
     xmlns="http://www.w3.org/2000/svg"
     :width="size"
     :height="size"
-    :viewBox="theViewBox"
-    class="fill-current"
+    :viewBox="_viewbox"
+    class="fill-current stroke-current"
   >
     <title>{{ name }}</title>
     <component :is="`icon-${name}`" />
@@ -26,13 +26,14 @@ import IconFolder from './IconFolder.vue'
 import IconLeft from './IconLeft.vue'
 import IconLink from './IconLink.vue'
 import IconLinkEdit from './IconLinkEdit.vue'
-import IconPassword from './IconPassword.vue'
+import IconLock from './IconLock.vue'
 import IconPlus from './IconPlus.vue'
 import IconRandom from './IconRandom.vue'
 import IconRight from './IconRight.vue'
 import IconSearch from './IconSearch.vue'
 import IconSettings from './IconSettings.vue'
 import IconTrash from './IconTrash.vue'
+import IconUnlock from './IconUnlock.vue'
 import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
 import IconWarning from './IconWarning.vue'
@@ -53,13 +54,14 @@ export default Vue.extend({
     IconLeft,
     IconLink,
     IconLinkEdit,
-    IconPassword,
+    IconLock,
     IconPlus,
     IconRandom,
     IconRight,
     IconSearch,
     IconSettings,
     IconTrash,
+    IconUnlock,
     IconUp,
     IconUser,
     IconWarning,
@@ -73,7 +75,7 @@ export default Vue.extend({
     },
     size: {
       type: [String, Number],
-      default: 32
+      default: '1em'
     },
     viewbox: {
       type: [String, Number],
@@ -81,7 +83,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    theViewBox () {
+    _viewbox () {
       return `0 0 ${this.viewbox} ${this.viewbox}`
     }
   }

@@ -1,42 +1,24 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import VuexPersist from 'vuex-persist'
-import Cookies from 'js-cookie'
 
+// Types
+import { RootState } from '@/types/state'
+
+// Plugins
+import cookie from './plugins/cookie'
+
+// Modules
 import auth from './modules/auth'
+import link from './modules/link'
 
 Vue.use(Vuex)
 
-export interface State {
-  auth: {
-    token: null;
-    user: null;
-  };
-}
-
-const vuexCookie = new VuexPersist<State>({
-  key: 'root_state',
-  reducer: (state) => ({
-    auth: {
-      token: state.auth.token,
-      user: state.auth.user
-    }
-  }),
-  filter: ({ type }) => (
-    type === 'auth/setToken' ||
-    type === 'auth/setUser'
-  ),
-  restoreState: (key) => Cookies.getJSON(key),
-  saveState: (key, state) => {
-    Cookies.set(key, state, {
-      expires: 30
-    })
-  }
-})
-
-export default new Vuex.Store({
+export default new Vuex.Store<RootState>({
   modules: {
-    auth
+    auth,
+    link
   },
-  plugins: [vuexCookie.plugin]
+  plugins: [
+    cookie.plugin
+  ]
 })
