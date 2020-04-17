@@ -1,8 +1,8 @@
 import { LinkResource } from './resource'
 
 export interface RootState {
-  auth: AuthState,
-  link: LinkState
+  auth: AuthState;
+  link: LinkState;
 }
 
 export interface AuthState {
