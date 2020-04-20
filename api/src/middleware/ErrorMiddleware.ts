@@ -1,5 +1,6 @@
+import { config } from 'node-config-ts'
 import { Request, Response, NextFunction } from 'express'
-import { clientError, clientErrorArray } from '../errors/httpErrors'
+import { ClientErrName, ClientErrNameArray } from '../errors/httpErrorProperty'
 
 export function httpValidationErrorHandler(
   err: any,
@@ -7,11 +8,13 @@ export function httpValidationErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === clientError.validationFailed) {
+  if (err.name === ClientErrName.ValidationFailed) {
     return res.status(err.statusCode).send({
       error: {
         name: err.name,
         message: err.message,
+        fields: err.fields,
+        stack: config.env === 'dev' ? err.stack.split('\n') : null,
       },
     })
   }
@@ -25,11 +28,12 @@ export function httpClientErrorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (clientErrorArray.includes(err.name)) {
+  if (ClientErrNameArray.includes(err.name)) {
     return res.status(err.statusCode).send({
       error: {
         name: err.name,
         message: err.message,
+        stack: config.env === 'dev' ? err.stack.split('\n') : null,
       },
     })
   }
@@ -43,5 +47,14 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  if (err instanceof Error) {
+    return res.status(500).send({
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: config.env === 'dev' ? err.stack.split('\n') : null,
+      },
+    })
+  }
   next(err)
 }
