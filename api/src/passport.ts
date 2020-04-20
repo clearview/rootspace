@@ -4,8 +4,8 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { HttpClientError } from './errors/HttpClientError'
-import { clientError } from './errors/httpErrors'
+import { ClientErrName, ClientStatusCode } from './errors/httpErrorProperty'
+import { clientError } from './errors/httpError'
 
 import {
   Strategy as JwtStrategy,
@@ -62,7 +62,7 @@ passport.use(
 
         if (!user) {
           return done(
-            new HttpClientError('User not found', clientError.entityNotFound)
+            clientError('User not found', ClientErrName.EntityNotFound)
           )
         }
 
@@ -73,16 +73,17 @@ passport.use(
 
           if (res !== true) {
             return done(
-              new HttpClientError('Wrong Password', clientError.wrongPassword),
+              clientError('Wrong Password', ClientErrName.WrongPassword),
               user
             )
           }
 
           if (user.emailConfirmed !== true) {
             return done(
-              new HttpClientError(
+              clientError(
                 'Email not confirmed',
-                clientError.userNotConfirmed
+                ClientErrName.UserNotConfirmed,
+                ClientStatusCode.Forbidden
               )
             )
           }

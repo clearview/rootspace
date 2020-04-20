@@ -1,11 +1,15 @@
-import { clientError } from './httpErrors'
+import { ClientErrName, ClientStatusCode } from './httpErrorProperty'
 import { HttpClientError } from './HttpClientError'
 
 export class HttpValidationError extends HttpClientError {
-  errorBag: any[]
+  fields: any[]
 
-  constructor(message: string, errorBag: any[], statusCode = 400) {
-    super(message, clientError.validationFailed, statusCode)
-    this.errorBag = errorBag
+  constructor(
+    message: string,
+    fields: any[],
+    statusCode: ClientStatusCode = ClientStatusCode.BadRequest
+  ) {
+    super(message, ClientErrName.ValidationFailed, statusCode)
+    this.fields = fields
   }
 }

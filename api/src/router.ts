@@ -24,7 +24,7 @@ router.get(
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
-router.get('/auth', mapRoute(UsersCtrl, 'auth'))
+router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
