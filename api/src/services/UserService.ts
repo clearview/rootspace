@@ -7,9 +7,8 @@ import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
 import { UserSignupValidator } from '../validation/user/UserSignupValidator'
-import { HttpClientError } from '../errors/HttpClientError'
-import { HttpValidationError } from '../errors/HttpValidationError'
-import { clientError } from '../errors/httpErrors'
+import { clientError, validationFailed } from '../errors/httpError'
+import { ClientErrName } from '../errors/httpErrorProperty'
 import { MailService } from './mail/MailService'
 
 export class UserService {
@@ -40,10 +39,7 @@ export class UserService {
     })
 
     if (!user) {
-      throw new HttpClientError(
-        'Invalid confirmation token',
-        clientError.invalidToken
-      )
+      throw clientError('Invalid confirmatio token', ClientErrName.InvalidToken)
     }
 
     user.emailConfirmed = true
@@ -53,8 +49,8 @@ export class UserService {
   async signup(data: ISignupProvider): Promise<User> {
     const validator = new UserSignupValidator()
 
-    await validator.validate(data).catch((errors) => {
-      throw new HttpValidationError('User validation error', errors)
+    await validator.validate(data).catch((err) => {
+      throw validationFailed('Error crating user', err)
     })
 
     const password = await hashPassword(data.password)
