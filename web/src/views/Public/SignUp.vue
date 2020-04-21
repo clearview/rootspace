@@ -7,86 +7,25 @@
         <h2 class="text-center">Sign Up</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <div class="alert alert-danger hidden">
-          <span class="mr-1">
-            <v-icon name="warning" size="1.3em" />
-          </span>
-          Your email is incorect. Please try again
+        <div class="alert alert-danger signup-alert" v-if="showErrorMessage">
+          <div>
+            <div class="message">
+              <span class="mr-1">
+                <v-icon name="warning" size="1.5em" />
+              </span>
+              <p>{{ errorMessage.message }}:</p>
+            </div>
+
+            <ul v-if="formatErrorMessage">
+              <li v-for="(message, index) in formatErrorMessage" :key="index">{{ message }}</li>
+            </ul>
+          </div>
         </div>
 
-        <p v-if="isLoading">Creating Account...</p>
-
-        <form class="mt-10">
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="fullname">Full Name</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="fullname"
-              type="text"
-              placeholder="Enter your full name"
-              v-model.trim="$v.signup.name.$model"
-            />
-            <span class="icon">
-              <v-icon name="user" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="email">Email</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="email"
-              type="text"
-              placeholder="Enter your email"
-              v-model.trim="$v.signup.email.$model"
-            />
-            <span class="icon">
-              <v-icon name="email" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="password">Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-              v-model.trim="$v.signup.password.$model"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
-          <div class="error-group">
-            <div class="error" v-if="$v.signup.password.$dirty && !$v.signup.password.required">Password is required.</div>
-            <div class="error" v-if="$v.signup.password.$dirty && !$v.signup.password.minLength">Password must have at least {{ $v.signup.password.$params.minLength.min }} letters.</div>
-          </div>
-
-          <div class="form-group mb-5">
-            <label class="block text-gray-800 text-sm" for="password">Repeat Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-              v-model.trim="$v.signup.password_confirmation.$model"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
-          <div class="error-group">
-            <div class="error" v-if="!$v.signup.password_confirmation.sameAsPassword">Passwords must be identical.</div>
-          </div>
-
-          <button
-            class="btn btn-primary w-full mx-0"
-            type="button"
-            :disabled="$v.signup.$invalid"
-            v-on:click="submit()"
-          >
-            Sign Up
-          </button>
-        </form>
+        <resource-form-signup
+          @submit="userSignup"
+          ref="signup"
+        />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -107,89 +46,97 @@
         </p>
       </div>
     </div>
+
+    <v-loading :loading="isLoading">
+      <p>Creating RootApp Account ...</p>
+    </v-loading>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { validationMixin } from 'vuelidate'
-import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+import { mapState } from 'vuex'
 
 import UserService from '@/services/user'
+import { SignupResource } from '@/types/resource'
 
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
+import VLoading from '@/components/Loading.vue'
+import ResourceFormSignup from '@/components/resource/ResourceFormSignup.vue'
 
 type ComponentData = {
-  signup: {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string; // eslint-disable-line
-  };
   isLoading: boolean;
+}
+
+type TheField = {
+  message: string;
+  validation: string;
+  field: string;
 }
 
 export default Vue.extend({
   name: 'Signin',
-  mixins: [validationMixin],
   components: {
     VIcon,
-    RootHeader
+    RootHeader,
+    VLoading,
+    ResourceFormSignup
   },
   data (): ComponentData {
     return {
-      signup: {
-        name: '',
-        email: '',
-        password: '',
-        password_confirmation: '' // eslint-disable-line
-      },
       isLoading: false
     }
   },
-  validations: {
-    signup: {
-      name: { required },
-      email: { required, email },
-      password: {
-        required,
-        minLength: minLength(6)
-      },
-      password_confirmation: { // eslint-disable-line
-        required,
-        minLength: minLength(6),
-        sameAsPassword: sameAs('password')
+  computed: {
+    formatErrorMessage () {
+      const messages: Array<string> = []
+
+      if (this.errorMessage) {
+        const fields = this.errorMessage.fields
+        fields.forEach((thefield: TheField) => {
+          if (thefield.field === 'email' && thefield.validation === 'unique') {
+            messages.push('Email is already exist')
+          }
+          if (thefield.validation === 'required') {
+            switch (thefield.field) {
+              case 'name':
+                messages.push('Name is required')
+                break
+              case 'email':
+                messages.push('Email is required')
+                break
+              case 'password':
+                messages.push('Password is required')
+                break
+              case 'password_confirmation':
+                messages.push('Password Confirmation is required')
+                break
+            }
+          }
+        })
       }
-    }
+
+      return messages
+    },
+
+    ...mapState('error', ['showErrorMessage', 'errorMessage'])
   },
   methods: {
     authWithGoogle () {
       const API: string = process.env.VUE_APP_API_URL
       location.href = `${API}/auth/google`
     },
-    submit (): void {
-      this.$v.signup.$touch()
+    async userSignup (data: SignupResource) {
+      try {
+        this.isLoading = true
+        await UserService.signup(data)
 
-      if (this.$v.signup.$invalid) {
-        return
-      }
-
-      this.$emit('submit', this.userSignup())
-    },
-    async userSignup () {
-      this.isLoading = true
-      const data = await UserService.signup(this.signup)
-
-      if (data.status === 200) {
         this.isLoading = false
-        this.signup = {
-          name: '',
-          email: '',
-          password: '',
-          password_confirmation: '' // eslint-disable-line
-        }
         this.$router.push({ name: 'SignUpSuccess' })
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
       }
     }
   }
@@ -220,6 +167,19 @@ export default Vue.extend({
   span {
     background: #fff;
     padding: 0 10px;
+  }
+}
+.signup-alert {
+  line-height: 1.5;
+
+  .message {
+    @apply flex flex-row;
+  }
+
+  ul {
+    @apply list-disc;
+
+    margin: 0 1rem 0.3rem 2.8rem;
   }
 }
 </style>

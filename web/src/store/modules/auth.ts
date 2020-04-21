@@ -35,7 +35,9 @@ const AuthModule: Module<AuthState, RootState> = {
     async withEmail ({ commit }, params) {
       const res = await AuthService.localSignin(params)
 
-      commit('setToken', res.data.token)
+      if (res) {
+        commit('setToken', res.data.token)
+      }
     },
     async whoami ({ dispatch, commit }, payload) {
       await dispatch(payload.action, payload.params)

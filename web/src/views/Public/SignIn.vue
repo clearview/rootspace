@@ -7,42 +7,63 @@
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <div class="alert alert-danger hidden">
+        <div class="alert alert-danger" v-if="showErrorMessage">
           <span class="mr-1">
-            <v-icon name="warning" size="1.3em" />
+            <v-icon name="warning" size="1.5em" />
           </span>
-          Your email is incorect. Please try again
+          {{ errorMessage.message }}
         </div>
 
-        <p v-if="isLoading">Login...</p>
-
         <form class="mt-10">
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="username">Email</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="username"
-              type="text"
-              placeholder="Username"
-              v-model.trim="$v.signin.email.$model"
-            />
-            <span class="icon">
-              <v-icon name="email" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group">
-            <label class="block text-gray-800 text-sm" for="password">Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-              v-model.trim="$v.signin.password.$model"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
+          <v-field label="Username" name="username">
+            <div class="form-group">
+              <input
+                class="input w-full leading-tight mx-0"
+                id="username"
+                type="text"
+                placeholder="Username"
+                v-model.trim="$v.signin.email.$model"
+              />
+              <span class="icon">
+                <v-icon name="email" size="1.5em" />
+              </span>
+            </div>
+            <div class="error-group">
+              <div
+                class="error"
+                v-if="$v.signin.email.$dirty && !$v.signin.email.required"
+              >Email is required.</div>
+              <div
+                class="error"
+                v-if="$v.signin.email.$dirty && !$v.signin.email.email"
+              >Email format is not valid.</div>
+            </div>
+          </v-field>
+
+          <v-field label="Password" name="password">
+            <div class="form-group">
+              <input
+                class="input w-full leading-tight mx-0"
+                id="password"
+                type="password"
+                placeholder="******"
+                v-model.trim="$v.signin.password.$model"
+              />
+              <span class="icon">
+                <v-icon name="lock" size="1.5em" />
+              </span>
+            </div>
+            <div class="error-group">
+              <div
+                class="error"
+                v-if="$v.signin.password.$dirty && !$v.signin.password.required"
+              >Password is required.</div>
+              <div
+                class="error"
+                v-if="$v.signin.password.$dirty && !$v.signin.password.minLength"
+              >Password must have at least {{ $v.signin.password.$params.minLength.min }} letters.</div>
+            </div>
+          </v-field>
 
           <a class="forgot-password float-right mb-8">Forgot Password?</a>
 
@@ -75,6 +96,10 @@
         </p>
       </div>
     </div>
+
+    <v-loading :loading="isLoading">
+      <p>Login to RootApp...</p>
+    </v-loading>
   </div>
 </template>
 
@@ -82,10 +107,12 @@
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
 import { validationMixin } from 'vuelidate'
-import { required, minLength } from 'vuelidate/lib/validators'
+import { required, email, minLength } from 'vuelidate/lib/validators'
 
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
+import VField from '@/components/Field.vue'
+import VLoading from '@/components/Loading.vue'
 
 type ComponentData = {
   signin: {
@@ -100,7 +127,9 @@ export default Vue.extend({
   mixins: [validationMixin],
   components: {
     VIcon,
-    RootHeader
+    RootHeader,
+    VLoading,
+    VField
   },
   data (): ComponentData {
     return {
@@ -111,10 +140,13 @@ export default Vue.extend({
       isLoading: false
     }
   },
-  computed: mapState('auth', ['spaces']),
+  computed: {
+    ...mapState('auth', ['spaces']),
+    ...mapState('error', ['showErrorMessage', 'errorMessage'])
+  },
   validations: {
     signin: {
-      email: { required },
+      email: { required, email },
       password: {
         required,
         minLength: minLength(6)
@@ -152,11 +184,12 @@ export default Vue.extend({
         this.$router.push({ name: 'CreateWorkspace' })
       } catch (err) {
         console.log(err)
+        this.isLoading = false
       }
     },
 
     ...mapActions({
-      withEmail: 'auth/withEmail'
+      whoami: 'auth/whoami'
     })
   }
 })

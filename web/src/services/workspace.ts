@@ -7,7 +7,7 @@ async function create (payload: object) {
     return res
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.body.msg)
+      throw new Error(error.response)
     }
 
     throw error
@@ -18,7 +18,7 @@ async function get () {
   const { data } = await api.get('spaces/my')
 
   if (data.status === 'error') {
-    throw new Error(data.msg)
+    throw new Error(data)
   }
 
   return data

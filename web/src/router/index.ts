@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
+import store from '@/store'
 import Main from '@/views/Main.vue'
 
 Vue.use(VueRouter)
@@ -45,6 +46,13 @@ const routes: Array<RouteConfig> = [
 const router = new VueRouter({
   routes,
   mode: 'history'
+})
+
+router.beforeEach((to, from, next) => {
+  console.log(to, from, next)
+  store.commit('error/setError', null)
+
+  next()
 })
 
 export default router
