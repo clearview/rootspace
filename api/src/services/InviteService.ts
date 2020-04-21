@@ -49,23 +49,16 @@ export class InviteService {
       throw clientError('Invite not found', ClientErrName.EntityNotFound)
     }
 
-    if (invite.accepted) {
-      throw clientError(
-        'This invite is no longer active',
-        ClientErrName.InvalidRequest
-      )
-    }
-
     const user = invite.userId
       ? await this.userService.getUserById(invite.userId)
       : await this.userService.getUserByEmail(invite.email)
 
-    if (!user) {
+    if (!user || user.id !== authUserId) {
       throw clientError('Invalid request')
     }
 
-    if (user.id !== authUserId) {
-      throw clientError('Invalid request')
+    if (invite.accepted) {
+      throw clientError('This invite is no longer active')
     }
 
     const space = await this.spaceSerivce.getSpaceById(invite.spaceId)
