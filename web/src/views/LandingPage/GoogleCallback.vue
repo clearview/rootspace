@@ -45,7 +45,6 @@ export default Vue.extend({
     },
 
     ...mapActions({
-      withGoogle: 'auth/withGoogle',
       whoami: 'auth/whoami'
     })
   }
