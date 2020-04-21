@@ -4,7 +4,7 @@ import { HttpValidationError } from './HttpValidationError'
 
 export function clientError(
   message: string,
-  name: ClientErrName,
+  name: ClientErrName = ClientErrName.InvalidRequest,
   statusCode: ClientStatusCode = ClientStatusCode.BadRequest
 ) {
   return new HttpClientError(message, name, statusCode)

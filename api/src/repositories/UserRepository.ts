@@ -3,7 +3,7 @@ import { User } from '../entities/User'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  getByEmail(email: string, selectPassword = false) {
+  getByEmail(email: string, selectPassword = false): Promise<User | undefined> {
     const queryBuilder = this.createQueryBuilder()
 
     if (selectPassword === true) {
@@ -16,9 +16,9 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
-  getByToken(token: string, id: number) {
+  getByToken(token: string, id: number): Promise<User | undefined> {
     return this.findOne({
-      where: { token, id }
+      where: { token, id },
     })
   }
 }

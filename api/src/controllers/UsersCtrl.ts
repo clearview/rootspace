@@ -6,13 +6,12 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserService } from '../services/UserService'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
 
-  public constructor() {
+  constructor() {
     super()
     this.userService = new UserService()
   }

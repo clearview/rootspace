@@ -25,11 +25,18 @@ export class UserService {
     return getCustomRepository(UserRepository)
   }
 
-  getUserByEmail(email: string, selectPassword = false) {
+  getUserById(id: number): Promise<User | undefined> {
+    return this.getUserRepository().findOne(id)
+  }
+
+  getUserByEmail(
+    email: string,
+    selectPassword = false
+  ): Promise<User | undefined> {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
-  getUserByToken(token: string, userId: number) {
+  getUserByToken(token: string, userId: number): Promise<User | undefined> {
     return this.getUserRepository().getByToken(token, userId)
   }
 
@@ -78,8 +85,8 @@ export class UserService {
 
   async sendConfirmationEmail(user: User) {
     const subject = 'Root, email confirmation'
-    const confirmationURL = config.appDomain + config.emailConfirmationPath
-    const confirmUrl = `${confirmationURL}${user.token}/${user.id}`
+    const confirmationURL = config.domain + config.domainEmailConfirmationPath
+    const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
 
     const content = pug.renderFile(
       UserService.mailTemplatesDir + 'confirmEmail.pug',

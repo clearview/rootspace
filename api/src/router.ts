@@ -2,6 +2,7 @@ import express from 'express'
 import { UsersCtrl } from './controllers/UsersCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { SpacesCtrl } from './controllers/SpacesCtrl'
+import { InviteCtrl } from './controllers/InviteCtrl'
 import passport from './passport'
 import auth from './middleware/AuthMiddleware'
 import { mapRoute } from './utils'
@@ -16,7 +17,7 @@ router.get(
   '/auth/google',
   passport.authenticate('google', {
     session: false,
-    scope: ['openid profile email ']
+    scope: ['openid profile email '],
   })
 )
 router.get(
@@ -28,6 +29,8 @@ router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
+
+router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
