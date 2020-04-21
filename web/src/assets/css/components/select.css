@@ -45,10 +45,19 @@
 
   .vs__actions {
     @apply flex flex-row items-center;
+    @apply text-gray-400;
   }
 
   .vs__clear {
     @apply border-none pr-1;
+
+    svg {
+      @apply fill-current;
+    }
+  }
+
+  .vs__open-indicator {
+    @apply fill-current;
   }
 
   /* Modifier */

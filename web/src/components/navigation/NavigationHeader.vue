@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="nav-header">
     <div class="flex flex-none">
       <img
         srcset="
