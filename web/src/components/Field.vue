@@ -7,6 +7,7 @@
     <label
       class="field-label"
       v-text="label"
+      :for="name"
     />
     <slot />
   </div>
@@ -19,6 +20,10 @@ export default Vue.extend({
   name: 'Field',
   props: {
     label: {
+      type: String
+    },
+    name: {
+      default: '',
       type: String
     },
     inline: {
