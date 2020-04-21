@@ -6,7 +6,6 @@ import { SpaceService } from '../services/SpaceService'
 import { InviteService } from '../services/InviteService'
 import { ISpaceProvider } from '../types/space'
 import { SpaceValidator } from '../validation/space/SpaceValidator'
-import { validationFailed } from '../errors/httpError'
 
 export class SpacesCtrl extends BaseCtrl {
   private spaceService: SpaceService
@@ -50,16 +49,10 @@ export class SpacesCtrl extends BaseCtrl {
     }
 
     const validator = new SpaceValidator()
-
-    try {
-      await validator.validate(data)
-    } catch (errors) {
-      next(validationFailed('Validation failed', errors))
-    }
-
     let space = null
 
     try {
+      await validator.validate(data)
       space = await this.spaceService.create(data)
       res.send(space)
     } catch (err) {

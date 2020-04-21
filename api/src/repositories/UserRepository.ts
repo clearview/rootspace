@@ -15,10 +15,4 @@ export class UserRepository extends Repository<User> {
       .setParameter('email', email)
       .getOne()
   }
-
-  getByToken(token: string, id: number): Promise<User | undefined> {
-    return this.findOne({
-      where: { token, id },
-    })
-  }
 }

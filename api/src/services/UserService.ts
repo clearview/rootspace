@@ -6,7 +6,6 @@ import { hashPassword } from '../utils'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
-import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 import { clientError, validationFailed } from '../errors/httpError'
 import { ClientErrName } from '../errors/httpErrorProperty'
 import { MailService } from './mail/MailService'
@@ -36,12 +35,15 @@ export class UserService {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
-  getUserByToken(token: string, userId: number): Promise<User | undefined> {
-    return this.getUserRepository().getByToken(token, userId)
+  getUserByTokenAndId(
+    token: string,
+    userId: number
+  ): Promise<User | undefined> {
+    return this.getUserRepository().findOne(userId, { where: { token } })
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {
-    const user = await this.getUserByToken(token, userId).catch((err) => {
+    const user = await this.getUserByTokenAndId(token, userId).catch((err) => {
       throw err
     })
 
@@ -54,12 +56,6 @@ export class UserService {
   }
 
   async signup(data: ISignupProvider): Promise<User> {
-    const validator = new UserSignupValidator()
-
-    await validator.validate(data).catch((err) => {
-      throw validationFailed('Error crating user', err)
-    })
-
     const password = await hashPassword(data.password)
 
     let user = new User()
@@ -69,13 +65,7 @@ export class UserService {
     user.authProvider = 'local'
     user.active = false
 
-    user = this.getUserRepository().create(user)
-
-    user = await this.getUserRepository()
-      .save(user)
-      .catch((err) => {
-        throw err
-      })
+    user = await this.getUserRepository().save(user)
 
     this.sendConfirmationEmail(user)
 

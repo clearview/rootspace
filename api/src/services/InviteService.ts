@@ -35,8 +35,15 @@ export class InviteService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
+  getInviteByTokenAndId(
+    token: string,
+    id: number
+  ): Promise<Invite | undefined> {
+    return this.getInviteRepository().findOne(id, { where: { token } })
+  }
+
   async accept(token: string, id: number, authUserId: number) {
-    const invite = await this.getInviteRepository().getByToken(token, id)
+    const invite = await this.getInviteByTokenAndId(token, id)
 
     if (!invite) {
       throw clientError('Invite not found', ClientErrName.EntityNotFound)

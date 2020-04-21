@@ -7,6 +7,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserService } from '../services/UserService'
+import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -17,7 +18,10 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   public async signup(req: Request, res: Response, next: NextFunction) {
+    const validator = new UserSignupValidator()
+
     try {
+      await validator.validate(req.body)
       const user = await this.userService.signup(req.body)
       res.send(user)
     } catch (err) {
