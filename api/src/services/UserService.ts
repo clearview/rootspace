@@ -6,7 +6,7 @@ import { hashPassword } from '../utils'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
-import { clientError, validationFailed } from '../errors/httpError'
+import { clientError } from '../errors/httpError'
 import { ClientErrName } from '../errors/httpErrorProperty'
 import { MailService } from './mail/MailService'
 
