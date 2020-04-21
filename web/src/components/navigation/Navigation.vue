@@ -1,31 +1,20 @@
 <template>
   <div class="nav">
-    <navigation-header
-      class="nav-header"
-      @search="search"
-    />
-
-    <navigation-items
-      class="nav-items"
-      @open="openLink"
-    />
-
-    <navigation-footer
-      class="nav-footer"
-      @add="linkForm.isVisible = true"
-    />
+    <navigation-header @search="search" />
+    <navigation-section />
+    <navigation-footer @add="modal.link.isVisible = true" />
 
     <v-modal
       title="Add Link"
-      :visible="linkForm.isVisible"
-      :loading="linkForm.isLoading"
-      @cancel="linkForm.isVisible = false"
-      @confirm="() => $refs.linkForm.submit()"
+      :visible="modal.link.isVisible"
+      :loading="modal.link.isLoading"
+      @cancel="modal.link.isVisible = false"
+      @confirm="() => $refs.link.submit()"
     >
       <div class="modal-body">
         <resource-form-link
           @submit="addLink"
-          ref="linkForm"
+          ref="link"
         />
       </div>
     </v-modal>
@@ -38,18 +27,20 @@ import Vue from 'vue'
 import { LinkResource } from '@/types/resource'
 
 import NavigationHeader from './NavigationHeader.vue'
-import NavigationItems from './NavigationItems.vue'
+import NavigationSection from './NavigationSection.vue'
 import NavigationFooter from './NavigationFooter.vue'
-import VModal from '@/components/Modal.vue'
 import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
+import VModal from '@/components/Modal.vue'
 
 type ComponentData = {
-  linkForm: {
-    isVisible: boolean;
-    isLoading: boolean;
-    alert: {
-      message: string;
-    } | null;
+  modal: {
+    link: {
+      isVisible: boolean;
+      isLoading: boolean;
+      alert: {
+        message: string;
+      } | null;
+    };
   };
 }
 
@@ -57,17 +48,19 @@ export default Vue.extend({
   name: 'Navigation',
   components: {
     NavigationHeader,
-    NavigationItems,
+    NavigationSection,
     NavigationFooter,
-    VModal,
-    ResourceFormLink
+    ResourceFormLink,
+    VModal
   },
   data (): ComponentData {
     return {
-      linkForm: {
-        isVisible: false,
-        isLoading: false,
-        alert: null
+      modal: {
+        link: {
+          isVisible: false,
+          isLoading: false,
+          alert: null
+        }
       }
     }
   },
@@ -76,39 +69,19 @@ export default Vue.extend({
       console.log(`Search: ${keyword}`)
     },
     async addLink (data: LinkResource) {
-      this.linkForm.isLoading = true
+      this.modal.link.isLoading = true
 
       try {
         await this.$store.dispatch('link/create', data)
       } catch (e) {
-        this.linkForm.alert = {
+        this.modal.link.alert = {
           message: e.message
         }
       }
 
-      this.linkForm.isLoading = false
-      this.linkForm.isVisible = false
-    },
-    openLink (link: string): void {
-      console.log(`Open link: ${link}`)
+      this.modal.link.isLoading = false
+      this.modal.link.isVisible = false
     }
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.nav {
-  @apply flex flex-col min-h-screen p-4;
-  @apply border-r border-gray-100;
-
-  width: 282px;
-}
-
-.nav-header {
-  @apply flex flex-row items-center mb-4;
-}
-
-.nav-items {
-  @apply flex-1;
-}
-</style>
