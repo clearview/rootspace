@@ -9,37 +9,58 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Main',
-    component: Main
+    component: Main,
+    meta: {
+      guard: true
+    }
   },
   {
     path: '/signin',
     name: 'SignIn',
-    component: () => import(/* webpackChunkName: "signin" */ '../views/Public/SignIn.vue')
+    component: () => import(/* webpackChunkName: "signin" */ '../views/Public/SignIn.vue'),
+    meta: {
+      guard: false
+    }
   },
   {
     path: '/signup',
     name: 'SignUp',
-    component: () => import(/* webpackChunkName: "signup" */ '../views/Public/SignUp.vue')
+    component: () => import(/* webpackChunkName: "signup" */ '../views/Public/SignUp.vue'),
+    meta: {
+      guard: false
+    }
   },
   {
     path: '/signup-success',
     name: 'SignUpSuccess',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue')
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue'),
+    meta: {
+      guard: false
+    }
   },
   {
     path: '/confirm-email/:token/:id',
     name: 'ConfirmEmail',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/ConfirmEmail.vue')
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/ConfirmEmail.vue'),
+    meta: {
+      guard: false
+    }
   },
   {
     path: '/auth/google/callback',
     name: 'GoogleCallback',
-    component: () => import(/* webpackChunkName: "google-callback" */ '../views/LandingPage/GoogleCallback.vue')
+    component: () => import(/* webpackChunkName: "google-callback" */ '../views/LandingPage/GoogleCallback.vue'),
+    meta: {
+      guard: false
+    }
   },
   {
     path: '/create-workspace',
     name: 'CreateWorkspace',
-    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue')
+    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue'),
+    meta: {
+      guard: true
+    }
   }
 ]
 
@@ -49,10 +70,15 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log(to, from, next)
   store.commit('error/setError', null)
 
-  next()
+  const requiresAuth = to.matched.some((record) => record.meta.guard)
+  const isTokenSet = (store.state.auth.token !== null)
+  if (requiresAuth && !isTokenSet) {
+    return next('/signin')
+  }
+
+  return next()
 })
 
 export default router
