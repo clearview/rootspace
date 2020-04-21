@@ -1,0 +1,26 @@
+.nav {
+  @apply flex flex-col h-screen p-4;
+  @apply border-r border-gray-100;
+
+  width: 282px;
+}
+
+.nav-header {
+  @apply flex flex-row items-center mb-4;
+}
+
+.nav-footer {
+  .btn-icon {
+    @apply p-2;
+
+    font-size: 22px;
+  }
+}
+
+.nav-section {
+  @apply flex-1 overflow-scroll;
+}
+
+.nav-section-title {
+  @apply font-bold;
+}

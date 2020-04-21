@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="nav-footer">
     <div class="flex flex-row mt-4">
       <button class="btn btn-mute flex-grow px-2 mr-2">
         My Workspace
@@ -45,11 +45,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.btn-icon {
-  @apply p-2;
-
-  font-size: 22px;
-}
-</style>

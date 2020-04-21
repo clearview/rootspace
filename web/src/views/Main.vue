@@ -2,7 +2,7 @@
   <div class="flex flex-row">
     <v-navigation />
 
-    <div class="content">Content</div>
+    <div class="content"></div>
   </div>
 </template>
 
@@ -15,6 +15,11 @@ export default Vue.extend({
   name: 'Main',
   components: {
     VNavigation
+  },
+  computed: {
+    activeLink () {
+      return this.$store.state.link.active
+    }
   }
 })
 </script>
