@@ -28,7 +28,10 @@ export default Vue.extend({
   methods: {
     async submit () {
       try {
-        await this.withGoogle(this.$route.query)
+        await this.whoami({
+          action: 'withGoogle',
+          params: this.$route.query
+        })
 
         if (this.spaces && this.spaces.length > 0) {
           this.$router.push({ name: 'Main' })
@@ -42,7 +45,8 @@ export default Vue.extend({
     },
 
     ...mapActions({
-      withGoogle: 'auth/withGoogle'
+      withGoogle: 'auth/withGoogle',
+      whoami: 'auth/whoami'
     })
   }
 })

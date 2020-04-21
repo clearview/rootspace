@@ -138,7 +138,10 @@ export default Vue.extend({
     async userSignup () {
       try {
         this.isLoading = true
-        await this.withEmail(this.signin)
+        await this.whoami({
+          action: 'withEmail',
+          params: this.signin
+        })
 
         this.isLoading = false
         if (this.spaces && this.spaces.length > 0) {
