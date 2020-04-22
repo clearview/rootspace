@@ -1,13 +1,12 @@
 import { config } from 'node-config-ts'
 import pug from 'pug'
 import path from 'path'
-import { getCustomRepository } from 'typeorm'
 import { hashPassword } from '../utils'
+import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
-import { UserSignupValidator } from '../validation/user/UserSignupValidator'
-import { clientError, validationFailed } from '../errors/httpError'
+import { clientError } from '../errors/httpError'
 import { ClientErrName } from '../errors/httpErrorProperty'
 import { MailService } from './mail/MailService'
 
@@ -25,16 +24,26 @@ export class UserService {
     return getCustomRepository(UserRepository)
   }
 
-  getUserByEmail(email: string, selectPassword = false) {
+  getUserById(id: number): Promise<User | undefined> {
+    return this.getUserRepository().findOne(id)
+  }
+
+  getUserByEmail(
+    email: string,
+    selectPassword = false
+  ): Promise<User | undefined> {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
-  getUserByToken(token: string, userId: number) {
-    return this.getUserRepository().getByToken(token, userId)
+  getUserByTokenAndId(
+    token: string,
+    userId: number
+  ): Promise<User | undefined> {
+    return this.getUserRepository().findOne(userId, { where: { token } })
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {
-    const user = await this.getUserByToken(token, userId).catch((err) => {
+    const user = await this.getUserByTokenAndId(token, userId).catch((err) => {
       throw err
     })
 
@@ -47,12 +56,6 @@ export class UserService {
   }
 
   async signup(data: ISignupProvider): Promise<User> {
-    const validator = new UserSignupValidator()
-
-    await validator.validate(data).catch((err) => {
-      throw validationFailed('Error crating user', err)
-    })
-
     const password = await hashPassword(data.password)
 
     let user = new User()
@@ -62,13 +65,7 @@ export class UserService {
     user.authProvider = 'local'
     user.active = false
 
-    user = this.getUserRepository().create(user)
-
-    user = await this.getUserRepository()
-      .save(user)
-      .catch((err) => {
-        throw err
-      })
+    user = await this.getUserRepository().save(user)
 
     this.sendConfirmationEmail(user)
 
@@ -76,10 +73,10 @@ export class UserService {
     return user
   }
 
-  async sendConfirmationEmail(user: User) {
+  private async sendConfirmationEmail(user: User) {
     const subject = 'Root, email confirmation'
-    const confirmationURL = config.appDomain + config.emailConfirmationPath
-    const confirmUrl = `${confirmationURL}${user.token}/${user.id}`
+    const confirmationURL = config.domain + config.domainEmailConfirmationPath
+    const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
 
     const content = pug.renderFile(
       UserService.mailTemplatesDir + 'confirmEmail.pug',
