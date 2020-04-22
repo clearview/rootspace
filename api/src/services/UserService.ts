@@ -1,8 +1,8 @@
 import { config } from 'node-config-ts'
 import pug from 'pug'
 import path from 'path'
-import { getCustomRepository } from 'typeorm'
 import { hashPassword } from '../utils'
+import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../entities/User'
 import { ISignupProvider } from '../types/user'
@@ -73,7 +73,7 @@ export class UserService {
     return user
   }
 
-  async sendConfirmationEmail(user: User) {
+  private async sendConfirmationEmail(user: User) {
     const subject = 'Root, email confirmation'
     const confirmationURL = config.domain + config.domainEmailConfirmationPath
     const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`

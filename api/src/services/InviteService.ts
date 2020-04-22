@@ -71,11 +71,15 @@ export class InviteService {
       )
     }
 
-    const userToSpace = new UserToSpace()
-    userToSpace.userId = user.id
-    userToSpace.spaceId = space.id
+    const userInSpace = await this.spaceSerivce.isUserInSpace(user.id, space.id)
 
-    await this.getUserToSpaceRepository().save(userToSpace)
+    if (!userInSpace) {
+      const userToSpace = new UserToSpace()
+      userToSpace.userId = user.id
+      userToSpace.spaceId = space.id
+
+      await this.getUserToSpaceRepository().save(userToSpace)
+    }
 
     invite.accepted = true
     invite.acceptedDate = new Date(Date.now())
@@ -84,6 +88,8 @@ export class InviteService {
   }
 
   async createfromArray(invites: string[], space: Space) {
+    invites = Array.from(new Set(invites))
+
     for (const email of invites) {
       this.createWithEmail(email, space)
     }

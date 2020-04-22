@@ -17,6 +17,19 @@ export class SpaceService {
     return this.getSpaceRepository().findOne(id)
   }
 
+  async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
+    const space = await this.getSpaceRepository().getByIdAndUserId(
+      spaceId,
+      userId
+    )
+
+    if (space && space !== undefined) {
+      return true
+    }
+
+    return false
+  }
+
   async create(data: ISpaceProvider): Promise<Space> {
     try {
       let space = this.getSpaceRepository().create(data)
