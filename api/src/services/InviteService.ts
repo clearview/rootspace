@@ -87,11 +87,13 @@ export class InviteService {
     return await this.getInviteRepository().save(invite)
   }
 
-  async createfromArray(invites: string[], space: Space) {
+  createfromArray(invites: string[], space: Space) {
     invites = Array.from(new Set(invites))
 
     for (const email of invites) {
-      this.createWithEmail(email, space)
+      this.createWithEmail(email, space).catch((err) => {
+        // log error
+      })
     }
   }
 
@@ -103,7 +105,6 @@ export class InviteService {
     invite.spaceId = space.id
     invite.userId = user ? user.id : null
 
-    invite = this.getInviteRepository().create(invite)
     invite = await this.getInviteRepository().save(invite)
 
     this.sendInvitationEmail(invite, space)

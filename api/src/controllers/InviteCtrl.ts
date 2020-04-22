@@ -12,9 +12,8 @@ export class InviteCtrl extends BaseCtrl {
   }
 
   async accept(req: Request, res: Response, next: NextFunction) {
-    const validator = new InviteAcceptValidator()
-
     try {
+      const validator = new InviteAcceptValidator()
       await validator.validate(req.body)
       await this.inviteService.accept(req.body.token, req.body.id, req.user.id)
       res.send({ message: 'Invite accepted' })

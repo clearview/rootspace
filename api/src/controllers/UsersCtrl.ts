@@ -17,10 +17,9 @@ export class UsersCtrl extends BaseCtrl {
     this.userService = new UserService()
   }
 
-  public async signup(req: Request, res: Response, next: NextFunction) {
-    const validator = new UserSignupValidator()
-
+  async signup(req: Request, res: Response, next: NextFunction) {
     try {
+      const validator = new UserSignupValidator()
       await validator.validate(req.body)
       const user = await this.userService.signup(req.body)
       res.send(user)
@@ -29,7 +28,7 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async confirmEmail(req: Request, res: Response, next: NextFunction) {
+  async confirmEmail(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await this.userService.confirmEmail(
         req.body.token,
@@ -41,7 +40,7 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async auth(req: Request, res: Response, next: NextFunction) {
+  async auth(req: Request, res: Response, next: NextFunction) {
     return passport.authenticate(
       'local',
       { session: false },

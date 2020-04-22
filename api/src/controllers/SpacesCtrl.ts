@@ -6,6 +6,7 @@ import { SpaceService } from '../services/SpaceService'
 import { InviteService } from '../services/InviteService'
 import { ISpaceProvider } from '../types/space'
 import { SpaceValidator } from '../validation/space/SpaceValidator'
+import { Space } from '../entities/Space'
 
 export class SpacesCtrl extends BaseCtrl {
   private spaceService: SpaceService
@@ -43,16 +44,17 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    const data: ISpaceProvider = {
-      title: req.body.title,
-      userId: req.user.id,
-    }
-
-    const validator = new SpaceValidator()
-    let space = null
+    let space: Space
 
     try {
+      const data: ISpaceProvider = {
+        title: req.body.title,
+        userId: req.user.id,
+      }
+
+      const validator = new SpaceValidator()
       await validator.validate(data)
+
       space = await this.spaceService.create(data)
       res.send(space)
     } catch (err) {
