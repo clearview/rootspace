@@ -6,19 +6,21 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserService } from '../services/UserService'
+import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
 
-  public constructor() {
+  constructor() {
     super()
     this.userService = new UserService()
   }
 
-  public async signup(req: Request, res: Response, next: NextFunction) {
+  async signup(req: Request, res: Response, next: NextFunction) {
     try {
+      const validator = new UserSignupValidator()
+      await validator.validate(req.body)
       const user = await this.userService.signup(req.body)
       res.send(user)
     } catch (err) {
@@ -26,7 +28,7 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async confirmEmail(req: Request, res: Response, next: NextFunction) {
+  async confirmEmail(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await this.userService.confirmEmail(
         req.body.token,
@@ -38,7 +40,7 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
-  public async auth(req: Request, res: Response, next: NextFunction) {
+  async auth(req: Request, res: Response, next: NextFunction) {
     return passport.authenticate(
       'local',
       { session: false },

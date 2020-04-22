@@ -15,6 +15,8 @@
       "api_key": "@@SENDGRID_API_KEY"
     }
   },
-  "appDomain": "@@APP_DOMAIN",
-  "emailConfirmationPath": "@@EMAIL_CONFIRMATION_PATH"
+  "domain": "@@DOMAIN",
+  "domainSignupPath": "@@DOMAIN_SIGNUP_PATH",
+  "domainEmailConfirmationPath": "@@DOMAIN_EMAIL_CONFIRMATION_PATH",
+  "domainInviteAcceptPath": "@@DOMAIN_INVITE_ACCEPT_PATH"
 }

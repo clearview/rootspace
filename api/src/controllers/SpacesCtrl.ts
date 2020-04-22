@@ -1,9 +1,12 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { SpaceService } from '../services/SpaceService'
 import { InviteService } from '../services/InviteService'
+import { ISpaceProvider } from '../types/space'
+import { SpaceValidator } from '../validation/space/SpaceValidator'
+import { Space } from '../entities/Space'
 
 export class SpacesCtrl extends BaseCtrl {
   private spaceService: SpaceService
@@ -21,40 +24,53 @@ export class SpacesCtrl extends BaseCtrl {
     }
     const space = await getCustomRepository(SpaceRepository).findOne({
       id: Number(req.params.id),
-      userId: req.user.id
+      userId: req.user.id,
     })
     res.send(space)
   }
 
   public async my(req: Request, res: Response) {
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(req.user.id)
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(
+      req.user.id
+    )
     res.send(spaces)
   }
 
   public async listAll(req: Request, res: Response) {
     const spaces = await getCustomRepository(SpaceRepository).find({
-      userId: req.user.id
+      userId: req.user.id,
     })
     res.send(spaces)
   }
 
-  public async create(req: Request, res: Response) {
-    const data: object = {
-      title: req.body.title,
-      userId: req.user.id
+  async create(req: Request, res: Response, next: NextFunction) {
+    let space: Space
+
+    try {
+      const data: ISpaceProvider = {
+        title: req.body.title,
+        userId: req.user.id,
+      }
+
+      const validator = new SpaceValidator()
+      await validator.validate(data)
+
+      space = await this.spaceService.create(data)
+      res.send(space)
+    } catch (err) {
+      next(err)
     }
 
-    const space = await this.spaceService.create(data)
-    res.send(space)
-
-    this.inviteService.createfromArray(req.body.invites, space)
+    if (req.body.invites) {
+      this.inviteService.createfromArray(req.body.invites, space)
+    }
   }
 
   public async update(req: Request, res: Response) {
     const space = await getCustomRepository(SpaceRepository).update(
       {
         id: Number(req.params.id),
-        userId: req.user.id
+        userId: req.user.id,
       },
       req.body
     )
@@ -64,7 +80,7 @@ export class SpacesCtrl extends BaseCtrl {
   public async delete(req: Request, res: Response) {
     const space = await getCustomRepository(SpaceRepository).delete({
       id: Number(req.params.id),
-      userId: req.user.id
+      userId: req.user.id,
     })
     res.send({ deleted: true })
   }

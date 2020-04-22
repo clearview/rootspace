@@ -27,7 +27,7 @@ export class Invite {
   accepted: boolean
 
   @Column('timestamp', { nullable: true })
-  acceptedDate: boolean
+  acceptedDate: Date
 
   @CreateDateColumn()
   created: string

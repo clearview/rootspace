@@ -2,6 +2,7 @@ import { getConnection } from 'typeorm'
 import { validateAll, extend } from 'indicative/validator'
 import { getValue, skippable } from 'indicative-utils'
 import { Schema, ParsedRule } from 'indicative-parser'
+import { validationFailed } from '../errors/httpError'
 
 declare module 'indicative-rules' {
   interface ValidationRulesContract {
@@ -48,7 +49,11 @@ export abstract class BaseValidator {
 
   abstract rules(): Schema
 
-  validate(input: any) {
-    return validateAll(input, this.rules())
+  async validate(input: any) {
+    try {
+      await validateAll(input, this.rules())
+    } catch (errors) {
+      throw validationFailed('Validation failed', errors)
+    }
   }
 }
