@@ -7,62 +7,9 @@
         <h2 class="text-center">Sign Up</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <div class="alert alert-danger hidden">
-          <v-icon name="warning" size="2em" />Your email is incorect. Please try again
-        </div>
+        <v-alert />
 
-        <form class="mt-10">
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="fullname">Full Name</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="fullname"
-              type="text"
-              placeholder="Enter your full name"
-            />
-            <span class="icon">
-              <v-icon name="user" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="email">Email</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="email"
-              type="text"
-              placeholder="Enter your email"
-            />
-            <span class="icon">
-              <v-icon name="email" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="password">Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group mb-5">
-            <label class="block text-gray-800 text-sm" for="password">Repeat Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
-
-          <button class="btn btn-primary w-full mx-0" type="button" disabled>Sign Up</button>
-        </form>
+        <resource-form-signup @submit="userSignup" ref="signup" />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -70,12 +17,7 @@
           </p>
         </div>
 
-        <button class="btn w-full mx-0" type="button">
-          <span class="mr-1">
-            <v-icon name="google" size="1.1em" />
-          </span>
-          Sign up with Google
-        </button>
+        <google-signin text="Sign Up"/>
 
         <p class="w-full mt-16 mb-5 text-center">
           Already have an account?
@@ -83,20 +25,56 @@
         </p>
       </div>
     </div>
+
+    <v-loading :loading="isLoading">
+      <p>Creating RootApp Account ...</p>
+    </v-loading>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
+import UserService from '@/services/user'
+import { SignupResource } from '@/types/resource'
+
+import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
+import VLoading from '@/components/Loading.vue'
+import ResourceFormSignup from '@/components/resource/ResourceFormSignup.vue'
+import GoogleSignin from '@/components/GoogleSignin.vue'
+
+type ComponentData = {
+  isLoading: boolean;
+}
 
 export default Vue.extend({
   name: 'Signin',
   components: {
-    VIcon,
-    RootHeader
+    VAlert,
+    RootHeader,
+    VLoading,
+    ResourceFormSignup,
+    GoogleSignin
+  },
+  data (): ComponentData {
+    return {
+      isLoading: false
+    }
+  },
+  methods: {
+    async userSignup (data: SignupResource) {
+      try {
+        this.isLoading = true
+        await UserService.signup(data)
+
+        this.isLoading = false
+        this.$router.push({ name: 'SignUpSuccess' })
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+      }
+    }
   }
 })
 </script>

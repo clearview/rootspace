@@ -4,7 +4,7 @@ form {
 
       .icon {
         position: absolute;
-        top: calc(50%);
+        top: calc(30%);
         right: 8px;
         color: theme('colors.gray.800');
       }
@@ -12,5 +12,13 @@ form {
 
   label {
     color: theme('colors.gray.800');
+  }
+
+  .error-group {
+    @apply ml-2;
+
+    font-size: 0.75rem;
+    line-height: 1;
+    color: theme('colors.primary.default');
   }
 }

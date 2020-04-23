@@ -18,8 +18,6 @@
           Your email format is wrong!
         </div>
 
-        <p v-if="isLoading">Creating Workspace...</p>
-
         <form class="mt-2">
           <div class="form-group mb-2">
             <label class="block text-gray-800 text-sm" for="workspacename">Workspace Name</label>
@@ -82,6 +80,9 @@
         </form>
       </div>
     </div>
+    <v-loading :loading="isLoading">
+      <p>Creating Workspace...</p>
+    </v-loading>
   </div>
 </template>
 
@@ -95,6 +96,7 @@ import WorkspaceService from '@/services/workspace'
 
 import VIcon from '@/components/icons/Index.vue'
 import RootHeader from '@/components/RootHeader.vue'
+import VLoading from '@/components/Loading.vue'
 
 type ComponentData = {
   workspace: {
@@ -111,7 +113,8 @@ export default Vue.extend({
   mixins: [validationMixin],
   components: {
     VIcon,
-    RootHeader
+    RootHeader,
+    VLoading
   },
   data (): ComponentData {
     return {

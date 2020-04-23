@@ -39,6 +39,7 @@ import IconUser from './IconUser.vue'
 import IconWarning from './IconWarning.vue'
 import IconGoogle from './IconGoogle.vue'
 import IconWorkspace from './IconWorkspace.vue'
+import IconLoading from './IconLoading.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -66,7 +67,8 @@ export default Vue.extend({
     IconUser,
     IconWarning,
     IconGoogle,
-    IconWorkspace
+    IconWorkspace,
+    IconLoading
   },
   props: {
     name: {

@@ -8,12 +8,14 @@ const vuexCookie = new VuexPersist<RootState>({
   reducer: (state) => ({
     auth: {
       token: state.auth.token,
-      user: state.auth.user
+      user: state.auth.user,
+      spaces: state.auth.spaces
     }
   }),
   filter: ({ type }) => (
     type === 'auth/setToken' ||
-    type === 'auth/setUser'
+    type === 'auth/setUser' ||
+    type === 'auth/setSpaces'
   ),
   restoreState: (key) => Cookies.getJSON(key),
   saveState: (key, state) => {
