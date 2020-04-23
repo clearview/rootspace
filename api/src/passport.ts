@@ -6,7 +6,6 @@ import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
 import { ClientErrName, ClientStatusCode } from './errors/httpErrorProperty'
 import { clientError } from './errors/httpError'
-
 import {
   Strategy as JwtStrategy,
   ExtractJwt,
