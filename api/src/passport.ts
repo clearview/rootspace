@@ -35,7 +35,8 @@ passport.use(
       })
       if (!existingUser) {
         const user = await userRepository.create({
-          name: profile.displayName,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
           email: profile.emails[0].value,
           password: '666',
           authProvider: 'google',

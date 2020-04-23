@@ -21,6 +21,7 @@ export class UsersCtrl extends BaseCtrl {
     try {
       const validator = new UserSignupValidator()
       await validator.validate(req.body)
+
       const user = await this.userService.signup(req.body)
       res.send(user)
     } catch (err) {
