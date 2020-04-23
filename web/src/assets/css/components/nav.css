@@ -1,8 +1,6 @@
 .nav {
-  @apply flex flex-col h-screen p-4;
-  @apply border-r border-gray-100;
-
-  width: 282px;
+  @apply flex flex-col;
+  @apply w-full h-full p-4;
 }
 
 .nav-header {
