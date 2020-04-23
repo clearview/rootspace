@@ -7,7 +7,7 @@
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <v-alert />
+        <v-alert :the-message="error" />
 
         <resource-form-signin @submit="userSignin" ref="signin" />
 
@@ -48,6 +48,7 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
   isLoading: boolean;
+  error: object;
 }
 
 export default Vue.extend({
@@ -62,12 +63,12 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
-      isLoading: false
+      isLoading: false,
+      error: {}
     }
   },
   computed: {
-    ...mapState('auth', ['spaces']),
-    ...mapState('error', ['showErrorMessage', 'errorMessage'])
+    ...mapState('auth', ['spaces'])
   },
   validations: {
     signin: {
@@ -95,7 +96,7 @@ export default Vue.extend({
 
         this.$router.push({ name: 'CreateWorkspace' })
       } catch (err) {
-        console.log(err)
+        this.error = err
         this.isLoading = false
       }
     },

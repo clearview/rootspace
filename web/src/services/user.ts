@@ -1,5 +1,4 @@
 import api from '@/utils/api'
-import store from '@/store'
 
 async function signup (payload: object) {
   try {
@@ -7,16 +6,17 @@ async function signup (payload: object) {
 
     return res
   } catch (error) {
+    let err = error
+
     if (error.response) {
-      const data = error.response.data
       const body = {
-        message: data.error.message,
-        fields: data.error.fields
+        message: error.response.data.error.message,
+        fields: error.response.data.error.fields
       }
-      store.commit('error/setError', body)
+      err = body
     }
 
-    throw error
+    throw err
   }
 }
 
@@ -28,11 +28,6 @@ async function confirmEmail (payload: object) {
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.body.msg)
-      // const data = error.response.data
-      // const body = {
-      //   message: data.error.message
-      // }
-      // store.commit('error/setError', body)
     }
 
     throw error
