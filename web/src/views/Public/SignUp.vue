@@ -7,7 +7,7 @@
         <h2 class="text-center">Sign Up</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <v-alert />
+        <v-alert :the-message="error" />
 
         <resource-form-signup @submit="userSignup" ref="signup" />
 
@@ -46,6 +46,7 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
   isLoading: boolean;
+  error: object;
 }
 
 export default Vue.extend({
@@ -59,7 +60,8 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
-      isLoading: false
+      isLoading: false,
+      error: {}
     }
   },
   methods: {
@@ -71,7 +73,7 @@ export default Vue.extend({
         this.isLoading = false
         this.$router.push({ name: 'SignUpSuccess' })
       } catch (err) {
-        console.log(err)
+        this.error = err
         this.isLoading = false
       }
     }
