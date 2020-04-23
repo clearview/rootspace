@@ -66,13 +66,24 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   store.commit('error/setError', null)
 
+  const userSpaces = store.state.auth.spaces
+  const isSpacesEmpty = (userSpaces && Object.keys(userSpaces).length === 0)
   const noAuth = to.matched.some(record => record.meta.noAuth)
   const isTokenSet = (store.state.auth.token !== null)
+
   if (!noAuth && !isTokenSet) {
     return next('/signin')
   }
 
   if (noAuth && isTokenSet) {
+    return next('/')
+  }
+
+  if (isSpacesEmpty && isTokenSet && to.name !== 'CreateWorkspace') {
+    return next('/create-workspace')
+  }
+
+  if (!isSpacesEmpty && isTokenSet && to.name === 'CreateWorkspace') {
     return next('/')
   }
 
