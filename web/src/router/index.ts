@@ -9,18 +9,14 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Main',
-    component: Main,
-    meta: {
-      guard: true
-    }
+    component: Main
   },
   {
     path: '/signin',
     name: 'SignIn',
     component: () => import(/* webpackChunkName: "signin" */ '../views/Public/SignIn.vue'),
     meta: {
-      guard: false,
-      onlyWhenLoggedOut: true
+      noAuth: true
     }
   },
   {
@@ -28,8 +24,7 @@ const routes: Array<RouteConfig> = [
     name: 'SignUp',
     component: () => import(/* webpackChunkName: "signup" */ '../views/Public/SignUp.vue'),
     meta: {
-      guard: false,
-      onlyWhenLoggedOut: true
+      noAuth: true
     }
   },
   {
@@ -37,8 +32,7 @@ const routes: Array<RouteConfig> = [
     name: 'SignUpSuccess',
     component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue'),
     meta: {
-      guard: false,
-      onlyWhenLoggedOut: true
+      noAuth: true
     }
   },
   {
@@ -46,8 +40,7 @@ const routes: Array<RouteConfig> = [
     name: 'ConfirmEmail',
     component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/ConfirmEmail.vue'),
     meta: {
-      guard: false,
-      onlyWhenLoggedOut: true
+      noAuth: true
     }
   },
   {
@@ -55,17 +48,13 @@ const routes: Array<RouteConfig> = [
     name: 'GoogleCallback',
     component: () => import(/* webpackChunkName: "google-callback" */ '../views/LandingPage/GoogleCallback.vue'),
     meta: {
-      guard: false,
-      onlyWhenLoggedOut: true
+      noAuth: true
     }
   },
   {
     path: '/create-workspace',
     name: 'CreateWorkspace',
-    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue'),
-    meta: {
-      guard: true
-    }
+    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue')
   }
 ]
 
@@ -77,14 +66,13 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   store.commit('error/setError', null)
 
-  const requiresAuth = to.matched.some(record => record.meta.guard)
-  const onlyWhenLoggedOut = to.matched.some(record => record.meta.onlyWhenLoggedOut)
+  const noAuth = to.matched.some(record => record.meta.noAuth)
   const isTokenSet = (store.state.auth.token !== null)
-  if (requiresAuth && !isTokenSet) {
+  if (!noAuth && !isTokenSet) {
     return next('/signin')
   }
 
-  if (isTokenSet && onlyWhenLoggedOut) {
+  if (noAuth && isTokenSet) {
     return next('/')
   }
 

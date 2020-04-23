@@ -62,11 +62,9 @@ export default Vue.extend({
       type: String
     },
     noheader: {
-      default: false,
       type: Boolean
     },
     nofooter: {
-      default: false,
       type: Boolean
     }
   },
