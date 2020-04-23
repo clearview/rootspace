@@ -17,7 +17,7 @@
           </p>
         </div>
 
-        <google-signin />
+        <google-signin text="Sign Up"/>
 
         <p class="w-full mt-16 mb-5 text-center">
           Already have an account?

@@ -3,7 +3,7 @@
     <span class="mr-1">
       <v-icon name="google" size="1.1em" />
     </span>
-    Sign up with Google
+    {{ text }} with Google
   </button>
 </template>
 
@@ -16,6 +16,11 @@ export default Vue.extend({
   name: 'ButtonLock',
   components: {
     VIcon
+  },
+  props: {
+    text: {
+      type: String
+    }
   },
   methods: {
     authWithGoogle () {
