@@ -7,75 +7,9 @@
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <div class="alert alert-danger" v-if="showErrorMessage">
-          <span class="mr-1">
-            <v-icon name="warning" size="1.5em" />
-          </span>
-          {{ errorMessage.message }}
-        </div>
+        <v-alert />
 
-        <form class="mt-10">
-          <v-field label="Username" name="username">
-            <div class="form-group">
-              <input
-                class="input w-full leading-tight mx-0"
-                id="username"
-                type="text"
-                placeholder="Username"
-                v-model.trim="$v.signin.email.$model"
-              />
-              <span class="icon">
-                <v-icon name="email" size="1.5em" />
-              </span>
-            </div>
-            <div class="error-group">
-              <div
-                class="error"
-                v-if="$v.signin.email.$dirty && !$v.signin.email.required"
-              >Email is required.</div>
-              <div
-                class="error"
-                v-if="$v.signin.email.$dirty && !$v.signin.email.email"
-              >Email format is not valid.</div>
-            </div>
-          </v-field>
-
-          <v-field label="Password" name="password">
-            <div class="form-group">
-              <input
-                class="input w-full leading-tight mx-0"
-                id="password"
-                type="password"
-                placeholder="******"
-                v-model.trim="$v.signin.password.$model"
-              />
-              <span class="icon">
-                <v-icon name="lock" size="1.5em" />
-              </span>
-            </div>
-            <div class="error-group">
-              <div
-                class="error"
-                v-if="$v.signin.password.$dirty && !$v.signin.password.required"
-              >Password is required.</div>
-              <div
-                class="error"
-                v-if="$v.signin.password.$dirty && !$v.signin.password.minLength"
-              >Password must have at least {{ $v.signin.password.$params.minLength.min }} letters.</div>
-            </div>
-          </v-field>
-
-          <a class="forgot-password float-right mb-8">Forgot Password?</a>
-
-          <button
-            class="btn btn-primary w-full mx-0"
-            type="button"
-            :disabled="$v.signin.$invalid"
-            v-on:click="submit()"
-          >
-            Sign In
-          </button>
-        </form>
+        <resource-form-signin @submit="userSignin" ref="signin" />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -83,12 +17,7 @@
           </p>
         </div>
 
-        <button class="btn w-full mx-0" type="button" v-on:click="authWithGoogle()">
-          <span class="mr-1">
-            <v-icon name="google" size="1.1em" />
-          </span>
-          Sign in with Google
-        </button>
+        <google-signin />
 
         <p class="w-full mt-16 mb-5 text-center">
           Don't have an account yet?
@@ -109,16 +38,15 @@ import { mapState, mapActions } from 'vuex'
 import { validationMixin } from 'vuelidate'
 import { required, email, minLength } from 'vuelidate/lib/validators'
 
-import VIcon from '@/components/icons/Index.vue'
+import { SigninResource } from '@/types/resource'
+
+import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
-import VField from '@/components/Field.vue'
 import VLoading from '@/components/Loading.vue'
+import ResourceFormSignin from '@/components/resource/ResourceFormSignin.vue'
+import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
-  signin: {
-    email: string;
-    password: string;
-  };
   isLoading: boolean;
 }
 
@@ -126,17 +54,14 @@ export default Vue.extend({
   name: 'Signin',
   mixins: [validationMixin],
   components: {
-    VIcon,
+    VAlert,
     RootHeader,
     VLoading,
-    VField
+    ResourceFormSignin,
+    GoogleSignin
   },
   data (): ComponentData {
     return {
-      signin: {
-        email: '',
-        password: ''
-      },
       isLoading: false
     }
   },
@@ -154,25 +79,12 @@ export default Vue.extend({
     }
   },
   methods: {
-    authWithGoogle () {
-      const API: string = process.env.VUE_APP_API_URL
-      location.href = `${API}/auth/google`
-    },
-    submit (): void {
-      this.$v.signin.$touch()
-
-      if (this.$v.signin.$invalid) {
-        return
-      }
-
-      this.$emit('submit', this.userSignup())
-    },
-    async userSignup () {
+    async userSignin (data: SigninResource) {
       try {
         this.isLoading = true
         await this.whoami({
           action: 'withEmail',
-          params: this.signin
+          params: data
         })
 
         this.isLoading = false

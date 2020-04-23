@@ -16,3 +16,8 @@ export interface SignupResource {
   password: string;
   password_confirmation: string; // eslint-disable-line
 }
+
+export interface SigninResource {
+  email: string;
+  password: string;
+}
