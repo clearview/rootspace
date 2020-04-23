@@ -1,11 +1,11 @@
 <template>
-  <div class="alert alert-danger signup-alert" v-if="showErrorMessage">
+  <div class="alert alert-danger signup-alert" v-if="showMessage">
     <div>
       <div class="message">
         <span class="mr-1">
           <v-icon name="warning" size="1.5em" />
         </span>
-        <p>{{ errorMessage.message }}.</p>
+        <p>{{ theMessage.message }}.</p>
       </div>
 
       <ul v-if="formatFieldMessages">
@@ -17,7 +17,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
 
@@ -28,14 +27,19 @@ type TheField = {
 }
 
 export default Vue.extend({
-  name: 'ButtonLock',
+  name: 'Alert',
   components: {
     VIcon
+  },
+  props: {
+    theMessage: {
+      type: Object
+    }
   },
   computed: {
     formatFieldMessages () {
       const messages: Array<string> = []
-      const fields = this.errorMessage.fields
+      const fields = this.theMessage.fields
 
       if (fields && fields.length > 0) {
         fields.forEach((thefield: TheField) => {
@@ -63,7 +67,9 @@ export default Vue.extend({
 
       return messages
     },
-    ...mapState('error', ['showErrorMessage', 'errorMessage'])
+    showMessage () {
+      return Object.keys(this.theMessage).length > 0
+    }
   }
 })
 </script>

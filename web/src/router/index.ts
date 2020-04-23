@@ -64,8 +64,6 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  store.commit('error/setError', null)
-
   const userSpaces = store.state.auth.spaces
   const isSpacesEmpty = (userSpaces && Object.keys(userSpaces).length === 0)
   const noAuth = to.matched.some(record => record.meta.noAuth)

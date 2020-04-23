@@ -1,5 +1,4 @@
 import api from '@/utils/api'
-import store from '@/store'
 
 async function googleCallback (params: object) {
   const { data } = await api.get('auth/google/callback', { params })
@@ -17,15 +16,16 @@ async function localSignin (payload: object) {
 
     return res
   } catch (error) {
+    let err = error
+
     if (error.response) {
-      const data = error.response.data
       const body = {
-        message: data.error.message
+        message: error.response.data.error.message
       }
-      store.commit('error/setError', body)
+      err = body
     }
 
-    throw error
+    throw err
   }
 }
 
