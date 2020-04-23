@@ -7,43 +7,9 @@
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <div class="alert alert-danger hidden">
-          <span class="mr-1">
-            <v-icon name="warning" size="1.3em" />
-          </span>
-          Your email is incorect. Please try again
-        </div>
+        <v-alert />
 
-        <form class="mt-10">
-          <div class="form-group mb-2">
-            <label class="block text-gray-800 text-sm" for="username">Email</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="username"
-              type="text"
-              placeholder="Username"
-            />
-            <span class="icon">
-              <v-icon name="email" size="1.5em" />
-            </span>
-          </div>
-          <div class="form-group">
-            <label class="block text-gray-800 text-sm" for="password">Password</label>
-            <input
-              class="input w-full leading-tight mx-0"
-              id="password"
-              type="password"
-              placeholder="******************"
-            />
-            <span class="icon">
-              <v-icon name="lock" size="1.5em" />
-            </span>
-          </div>
-
-          <a class="forgot-password float-right mb-8">Forgot Password?</a>
-
-          <button class="btn btn-primary w-full mx-0" type="button" disabled>Sign In</button>
-        </form>
+        <resource-form-signin @submit="userSignin" ref="signin" />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -51,12 +17,7 @@
           </p>
         </div>
 
-        <button class="btn w-full mx-0" type="button" v-on:click="authWithGoogle()">
-          <span class="mr-1">
-            <v-icon name="google" size="1.1em" />
-          </span>
-          Sign in with Google
-        </button>
+        <google-signin text="Sign In"/>
 
         <p class="w-full mt-16 mb-5 text-center">
           Don't have an account yet?
@@ -64,34 +25,84 @@
         </p>
       </div>
     </div>
+
+    <v-loading :loading="isLoading">
+      <p>Login to RootApp...</p>
+    </v-loading>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState, mapActions } from 'vuex'
+import { validationMixin } from 'vuelidate'
+import { required, email, minLength } from 'vuelidate/lib/validators'
 
-import VIcon from '@/components/icons/Index.vue'
+import { SigninResource } from '@/types/resource'
+
+import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
+import VLoading from '@/components/Loading.vue'
+import ResourceFormSignin from '@/components/resource/ResourceFormSignin.vue'
+import GoogleSignin from '@/components/GoogleSignin.vue'
+
+type ComponentData = {
+  isLoading: boolean;
+}
 
 export default Vue.extend({
   name: 'Signin',
+  mixins: [validationMixin],
   components: {
-    VIcon,
-    RootHeader
+    VAlert,
+    RootHeader,
+    VLoading,
+    ResourceFormSignin,
+    GoogleSignin
+  },
+  data (): ComponentData {
+    return {
+      isLoading: false
+    }
+  },
+  computed: {
+    ...mapState('auth', ['spaces']),
+    ...mapState('error', ['showErrorMessage', 'errorMessage'])
+  },
+  validations: {
+    signin: {
+      email: { required, email },
+      password: {
+        required,
+        minLength: minLength(6)
+      }
+    }
   },
   methods: {
-    // eslint-disable-next-line
-    popupWindow (url: string, title: string, win: any, w: number, h: number) {
-      const y = win.top.outerHeight / 2 + win.top.screenY - (h / 2)
-      const x = win.top.outerWidth / 2 + win.top.screenX - (w / 2)
+    async userSignin (data: SigninResource) {
+      try {
+        this.isLoading = true
+        await this.whoami({
+          action: 'withEmail',
+          params: data
+        })
 
-      return win.open(url, title, `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`)
+        this.isLoading = false
+        if (this.spaces && this.spaces.length > 0) {
+          this.$router.push({ name: 'Main' })
+          return
+        }
+
+        this.$router.push({ name: 'CreateWorkspace' })
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+      }
     },
-    authWithGoogle () {
-      const API: string = process.env.VUE_APP_API_URL
-      // this.popupWindow(`${API}/auth/google`, 'Sign In', window, 400, 600)
-      location.href = `${API}/auth/google`
-    }
+
+    ...mapActions({
+      whoami: 'auth/whoami'
+    })
   }
 })
 </script>

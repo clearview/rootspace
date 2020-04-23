@@ -10,7 +10,7 @@
       />
 
       <div class="modal-inner">
-        <slot name="header">
+        <slot name="header" v-if="!noheader">
           <div class="modal-header">
             <div class="modal-title">{{ title }}</div>
             <button
@@ -24,7 +24,7 @@
 
         <slot />
 
-        <slot name="footer">
+        <slot name="footer" v-if="!nofooter">
           <div class="modal-footer">
             <button
               class="btn btn-small"

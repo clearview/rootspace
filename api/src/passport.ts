@@ -18,13 +18,14 @@ import { isNumber } from 'util'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
+const googleCallbackURL = config.domain + config.google.callbackPath
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: config.google.clientID,
       clientSecret: config.google.clientSecret,
-      callbackURL: config.domain + config.google.callbackPath,
+      callbackURL: googleCallbackURL,
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const userRepository = getCustomRepository(UserRepository)
