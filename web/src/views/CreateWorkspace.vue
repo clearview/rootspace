@@ -90,7 +90,7 @@
 import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 import WorkspaceService from '@/services/workspace'
 
@@ -181,9 +181,20 @@ export default Vue.extend({
           title: '',
           invites: []
         }
+        const getUserSpace = data.data
+        const userSpace = [{
+          id: getUserSpace.id,
+          title: getUserSpace.title,
+          settings: getUserSpace.settings
+        }]
+        this.setSpaces(userSpace)
         this.$router.push({ name: 'Main' })
       }
-    }
+    },
+
+    ...mapMutations({
+      setSpaces: 'auth/setSpaces'
+    })
   }
 })
 </script>
