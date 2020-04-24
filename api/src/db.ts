@@ -7,7 +7,7 @@ export default async function init() {
     name: 'default',
     type: 'postgres',
     url: config.postgres,
-    logging: true,
+    logging: false,
     synchronize: true,
     entities: [`${__dirname}/entities/*{.ts,.js}`],
     migrations: [`${__dirname}/migrations/*{.ts,.js}`],
