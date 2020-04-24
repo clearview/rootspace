@@ -3,14 +3,14 @@
     class="mt-10"
     @submit.prevent="submit"
   >
-    <v-field label="Full Name" name="fullname">
+    <v-field label="First Name" name="firstname">
       <div class="form-group">
         <input
           class="input w-full leading-tight mx-0"
-          id="fullname"
+          id="firstName"
           type="text"
-          placeholder="Enter your full name"
-          v-model.trim="$v.payload.name.$model"
+          placeholder="Enter your first name"
+          v-model.trim="$v.payload.firstName.$model"
         />
         <span class="icon">
           <v-icon name="user" size="1.5em" />
@@ -19,8 +19,29 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.name.$dirty && !$v.payload.name.required"
-        >Full Name is required.</div>
+          v-if="$v.payload.firstName.$dirty && !$v.payload.firstName.required"
+        >First Name is required.</div>
+      </div>
+    </v-field>
+
+    <v-field label="Last Name" name="lastName">
+      <div class="form-group">
+        <input
+          class="input w-full leading-tight mx-0"
+          id="lastName"
+          type="text"
+          placeholder="Enter your last name"
+          v-model.trim="$v.payload.lastName.$model"
+        />
+        <span class="icon">
+          <v-icon name="user" size="1.5em" />
+        </span>
+      </div>
+      <div class="error-group">
+        <div
+          class="error"
+          v-if="$v.payload.lastName.$dirty && !$v.payload.lastName.required"
+        >Last Name is required.</div>
       </div>
     </v-field>
 
@@ -128,7 +149,8 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       payload: {
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         password: '',
         password_confirmation: '' // eslint-disable-line
@@ -137,7 +159,8 @@ export default Vue.extend({
   },
   validations: {
     payload: {
-      name: { required },
+      firstName: { required },
+      lastName: { required },
       email: { required, email },
       password: {
         required,

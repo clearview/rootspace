@@ -11,7 +11,8 @@ export interface LinkResource {
 }
 
 export interface SignupResource {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   password_confirmation: string; // eslint-disable-line
