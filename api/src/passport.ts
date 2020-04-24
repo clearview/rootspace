@@ -6,7 +6,6 @@ import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
 import { ClientErrName, ClientStatusCode } from './errors/httpErrorProperty'
 import { clientError } from './errors/httpError'
-
 import {
   Strategy as JwtStrategy,
   ExtractJwt,
@@ -35,7 +34,8 @@ passport.use(
       })
       if (!existingUser) {
         const user = await userRepository.create({
-          name: profile.displayName,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName,
           email: profile.emails[0].value,
           password: '666',
           authProvider: 'google',

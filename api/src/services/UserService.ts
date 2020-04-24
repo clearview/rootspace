@@ -51,7 +51,13 @@ export class UserService {
       throw clientError('Invalid confirmatio token', ClientErrName.InvalidToken)
     }
 
+    if(user.emailConfirmed){
+      throw clientError('Email alredy confirmed')
+    }
+
     user.emailConfirmed = true
+    user.active = true
+
     return await this.getUserRepository().save(user)
   }
 
@@ -59,7 +65,8 @@ export class UserService {
     const password = await hashPassword(data.password)
 
     let user = new User()
-    user.name = data.name
+    user.firstName = data.firstName,
+    user.lastName = data.lastName
     user.email = data.email
     user.password = String(password)
     user.authProvider = 'local'

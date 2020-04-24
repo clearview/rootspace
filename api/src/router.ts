@@ -20,11 +20,13 @@ router.get(
     scope: ['openid profile email '],
   })
 )
+
 router.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   mapRoute(UsersCtrl, 'authGoogleCallback')
 )
+
 router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))

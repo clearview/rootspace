@@ -1,6 +1,7 @@
 export interface ISignupProvider {
-  name: string
+  firstName: string
+  lastName: string
   email: string
   password: string
-  confirm_password: string
+  password_confirmation: string
 }

@@ -16,7 +16,10 @@ export class User {
   id: number
 
   @Column('varchar', { length: 100 })
-  name: string
+  firstName: string
+
+  @Column('varchar', { length: 100 })
+  lastName: string
 
   @Column('varchar', { length: 100 })
   @Index({ unique: true })
