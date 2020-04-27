@@ -45,6 +45,11 @@ const AuthModule: Module<AuthState, RootState> = {
 
       commit('setUser', userRes.user)
       commit('setSpaces', userRes.spaces)
+    },
+    async signout ({ commit }) {
+      commit('setToken', null)
+      commit('setUser', null)
+      commit('setSpaces', null)
     }
   }
 }

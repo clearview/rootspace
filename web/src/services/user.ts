@@ -34,6 +34,26 @@ async function confirmEmail (payload: object) {
   }
 }
 
+async function invitation (payload: object) {
+  try {
+    const res = await api.post('invites/accept', payload)
+
+    return res
+  } catch (error) {
+    let err = error
+
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message
+      }
+      err = body
+    }
+
+    throw err
+  }
+}
+
 async function whoami () {
   const { data } = await api.get('whoami')
 
@@ -47,5 +67,6 @@ async function whoami () {
 export default {
   signup,
   confirmEmail,
-  whoami
+  whoami,
+  invitation
 }

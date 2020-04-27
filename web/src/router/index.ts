@@ -44,6 +44,14 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
+    path: '/invitation/:token/:id',
+    name: 'Invitation',
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue'),
+    meta: {
+      noAuth: true
+    }
+  },
+  {
     path: '/auth/google/callback',
     name: 'GoogleCallback',
     component: () => import(/* webpackChunkName: "google-callback" */ '../views/LandingPage/GoogleCallback.vue'),
@@ -73,7 +81,11 @@ router.beforeEach((to, from, next) => {
     return next('/signin')
   }
 
-  if (noAuth && isTokenSet) {
+  if (to.name === 'Invitation') {
+    return next()
+  }
+
+  if (noAuth && isTokenSet && to.name !== 'Invitation') {
     return next('/')
   }
 

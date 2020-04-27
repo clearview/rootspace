@@ -4,7 +4,7 @@
 
     <div id="create-workspace-content">
       <div class="max-w-xs mx-auto p-4 mt-10">
-        <h2 class="text-center">Welcome {{ user.name }}!</h2>
+        <h2 class="text-center">Welcome {{ name }}!</h2>
         <p class="text-center mb-2 text-gray-800">Create your own workspace in few steps...</p>
 
         <div class="avatar">
@@ -81,7 +81,7 @@
       </div>
     </div>
     <v-loading :loading="isLoading">
-      <p>Creating Workspace...</p>
+      <p>{{ loadingMessage }}</p>
     </v-loading>
   </div>
 </template>
@@ -90,7 +90,7 @@
 import Vue from 'vue'
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 
 import WorkspaceService from '@/services/workspace'
 
@@ -106,6 +106,7 @@ type ComponentData = {
   invitation: string;
   isEmailError: boolean;
   isLoading: boolean;
+  loadingMessage: string;
 }
 
 export default Vue.extend({
@@ -124,10 +125,23 @@ export default Vue.extend({
       },
       invitation: '',
       isEmailError: false,
-      isLoading: false
+      isLoading: false,
+      loadingMessage: 'Creating Workspace...'
     }
   },
-  computed: mapState('auth', ['user']),
+  computed: {
+    name () {
+      console.log(this.user)
+      let name = ''
+      if (this.user) {
+        name = this.user.firstName + ' ' + this.user.lastName
+      }
+
+      return name
+    },
+
+    ...mapState('auth', ['user'])
+  },
   watch: {
     invitation (newVal: string) {
       if (this.isEmailValid(newVal)) {
@@ -172,10 +186,10 @@ export default Vue.extend({
       this.$emit('submit', this.createWorkspace())
     },
     async createWorkspace () {
-      this.isLoading = true
-      const data = await WorkspaceService.create(this.workspace)
+      try {
+        this.isLoading = true
+        const data = await WorkspaceService.create(this.workspace)
 
-      if (data.status === 200) {
         this.isLoading = false
         this.workspace = {
           title: '',
@@ -189,11 +203,20 @@ export default Vue.extend({
         }]
         this.setSpaces(userSpace)
         this.$router.push({ name: 'Main' })
+      } catch (err) {
+        if (err.code === 401) {
+          this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
+          this.signout()
+          this.$router.push({ name: 'SignIn' })
+        }
       }
     },
 
     ...mapMutations({
       setSpaces: 'auth/setSpaces'
+    }),
+    ...mapActions({
+      signout: 'auth/signout'
     })
   }
 })

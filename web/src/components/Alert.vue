@@ -37,7 +37,7 @@ export default Vue.extend({
   },
   props: {
     theMessage: {
-      type: Function as PropType<Message>
+      type: Object as PropType<Message>
     }
   },
   computed: {
