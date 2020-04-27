@@ -6,7 +6,6 @@ async function create (payload: object) {
 
     return res
   } catch (error) {
-    console.log(error)
     let err = error
     if (error.response) {
       const body = {
@@ -15,7 +14,6 @@ async function create (payload: object) {
       }
       err = body
     }
-    console.log(err)
     throw err
   }
 }

@@ -131,7 +131,6 @@ export default Vue.extend({
   },
   computed: {
     name () {
-      console.log(this.user)
       let name = ''
       if (this.user) {
         name = this.user.firstName + ' ' + this.user.lastName

@@ -58,7 +58,6 @@ export default Vue.extend({
 
         this.isLoading = true
         const data = await UserService.invitation(payload)
-        console.log(data)
 
         if (data.status === 200) {
           this.message = data.data.message
@@ -66,7 +65,6 @@ export default Vue.extend({
           this.isLoading = false
         }
       } catch (err) {
-        console.log(err.message)
         this.message = err.message
         this.code = err.code
         this.isLoading = false
