@@ -1,10 +1,14 @@
-import Vue from 'vue'
+/* eslint-disable import/no-duplicates */
 
 declare module '*.vue' {
+  import Vue from 'vue'
+
   export default Vue
 }
 
 declare module 'liquor-tree' {
+  import Vue from 'vue'
+
   export interface Node<T> {
     text: string;
     data: T;

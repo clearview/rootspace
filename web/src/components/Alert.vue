@@ -16,14 +16,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 
 import VIcon from '@/components/icons/Index.vue'
 
-type TheField = {
+type Field = {
   message: string;
   validation: string;
   field: string;
+}
+
+type Message = {
+  fields: Field[];
 }
 
 export default Vue.extend({
@@ -33,16 +37,16 @@ export default Vue.extend({
   },
   props: {
     theMessage: {
-      type: Object
+      type: Function as PropType<Message>
     }
   },
   computed: {
     formatFieldMessages () {
       const messages: Array<string> = []
-      const fields = this.theMessage.fields
+      const fields = (this.theMessage as Message).fields
 
       if (fields && fields.length > 0) {
-        fields.forEach((thefield: TheField) => {
+        fields.forEach((thefield: Field) => {
           if (thefield.field === 'email' && thefield.validation === 'unique') {
             messages.push('Email is already exist')
           }
