@@ -38,7 +38,10 @@ const routes: Array<RouteConfig> = [
   {
     path: '/confirm-email/:token/:id',
     name: 'ConfirmEmail',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/ConfirmEmail.vue')
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/ConfirmEmail.vue'),
+    meta: {
+      noAuth: true
+    }
   },
   {
     path: '/invitation/:token/:id',
