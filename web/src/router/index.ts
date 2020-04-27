@@ -85,7 +85,7 @@ router.beforeEach((to, from, next) => {
     return next()
   }
 
-  if (noAuth && isTokenSet && to.name !== 'Invitation') {
+  if (noAuth && isTokenSet) {
     return next('/')
   }
 
