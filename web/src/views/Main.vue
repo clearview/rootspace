@@ -1,30 +1,22 @@
 <template>
-  <split-pane
-    class="pane"
-    split="vertical"
-    :default-percent='20'
-    :min-percent='20'
-  >
-    <template #paneL>
-      <v-navigation />
-    </template>
-
-    <template #paneR>
-      <div class="content"></div>
-    </template>
-  </split-pane>
+  <multipane class="pane" layout="vertical">
+    <v-navigation />
+    <multipane-resizer></multipane-resizer>
+    <div class="content"></div>
+  </multipane>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import SplitPane from 'vue-splitpane'
+import { Multipane, MultipaneResizer } from 'vue-multipane'
 
 import VNavigation from '@/components/navigation/Navigation.vue'
 
 export default Vue.extend({
   name: 'Main',
   components: {
-    SplitPane,
+    Multipane,
+    MultipaneResizer,
     VNavigation
   },
   computed: {
@@ -36,13 +28,13 @@ export default Vue.extend({
 </script>
 
 <style lang="postcss" scoped>
-.pane {
-  & >>> .splitter-pane-resizer {
-    @apply bg-gray-100 opacity-100;
-  }
+.multipane-resizer {
+  @apply border-l border-gray-100;
+
+  height: 100vh;
 }
 
 .content {
-  @apply flex flex-col p-4;
+  @apply flex flex-col p-4 flex-grow;
 }
 </style>
