@@ -69,7 +69,6 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userSpaces = store.state.auth.spaces
   const noAuth = to.matched.some(record => record.meta.noAuth)
   const isTokenSet = (store.state.auth.token !== null)
 
