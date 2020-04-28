@@ -23,6 +23,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState } from 'vuex'
 
 import { LinkResource } from '@/types/resource'
 
@@ -62,6 +63,14 @@ export default Vue.extend({
           alert: null
         }
       }
+    }
+  },
+  computed: {
+    ...mapState('auth', ['spaces'])
+  },
+  created () {
+    if (this.spaces && this.spaces.length === 0) {
+      this.$router.push({ name: 'CreateWorkspace' })
     }
   },
   methods: {

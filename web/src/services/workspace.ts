@@ -6,11 +6,15 @@ async function create (payload: object) {
 
     return res
   } catch (error) {
+    let err = error
     if (error.response) {
-      throw new Error(error.response)
+      const body = {
+        code: error.response.status,
+        message: error.response.data
+      }
+      err = body
     }
-
-    throw error
+    throw err
   }
 }
 
