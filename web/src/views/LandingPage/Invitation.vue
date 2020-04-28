@@ -3,9 +3,13 @@
     <root-header></root-header>
 
     <div id="confirm-email-content" class="flex flex-col items-center justify-center">
-      <h5 v-if="isLoading">Activating your account...</h5>
-      <h5 v-if="!isLoading">Your account is active!</h5>
-      <h6 v-if="!isLoading">
+      <h5 v-if="isLoading">Checking your invitation...</h5>
+      <h5 v-if="!isLoading">{{ message }}!</h5> {{  }}
+      <h6 v-if="!isLoading && code !== 401">
+        <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
+        to going to the Root App
+      </h6>
+      <h6 v-if="!isLoading && code === 401">
         <router-link :to="{ name: 'SignIn'}" class="signin">click here</router-link>
         to login to the Root App
       </h6>
@@ -23,6 +27,8 @@ import RootHeader from '@/components/RootHeader.vue'
 
 type ComponentData = {
   isLoading: boolean;
+  message: string;
+  code: number;
 }
 
 export default Vue.extend({
@@ -32,7 +38,9 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
-      isLoading: false
+      isLoading: false,
+      message: '',
+      code: 0
     }
   },
   created () {
@@ -40,17 +48,25 @@ export default Vue.extend({
   },
   methods: {
     async submit () {
-      const { token } = this.$route.params
-      const { id } = this.$route.params
-      const payload = {
-        token: token,
-        userId: id
-      }
+      try {
+        const { token } = this.$route.params
+        const { id } = this.$route.params
+        const payload = {
+          token: token,
+          id: id
+        }
 
-      this.isLoading = true
-      const data = await UserService.confirmEmail(payload)
+        this.isLoading = true
+        const data = await UserService.invitation(payload)
 
-      if (data.status === 200) {
+        if (data.status === 200) {
+          this.message = data.data.message
+          this.code = data.status
+          this.isLoading = false
+        }
+      } catch (err) {
+        this.message = err.message
+        this.code = err.code
         this.isLoading = false
       }
     }
