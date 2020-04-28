@@ -60,6 +60,11 @@ const routes: Array<RouteConfig> = [
     path: '/create-workspace',
     name: 'CreateWorkspace',
     component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue')
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue')
   }
 ]
 

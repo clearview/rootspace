@@ -35,8 +35,6 @@
 <script lang="ts">
 import Vue from 'vue'
 import { mapState, mapActions } from 'vuex'
-import { validationMixin } from 'vuelidate'
-import { required, email, minLength } from 'vuelidate/lib/validators'
 
 import { SigninResource } from '@/types/resource'
 
@@ -53,7 +51,6 @@ type ComponentData = {
 
 export default Vue.extend({
   name: 'Signin',
-  mixins: [validationMixin],
   components: {
     VAlert,
     RootHeader,
@@ -69,15 +66,6 @@ export default Vue.extend({
   },
   computed: {
     ...mapState('auth', ['spaces'])
-  },
-  validations: {
-    signin: {
-      email: { required, email },
-      password: {
-        required,
-        minLength: minLength(6)
-      }
-    }
   },
   methods: {
     async userSignin (data: SigninResource) {
