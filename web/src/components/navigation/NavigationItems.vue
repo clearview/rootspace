@@ -1,7 +1,5 @@
 <template>
-  <div class="nav-section">
-    <div class="nav-section-title">Section 1</div>
-
+  <div class="nav-items">
     <v-tree
       :key="treeKey"
       :data="links"
@@ -77,9 +75,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.nav-section {
-  @apply flex-1;
-}
-</style>
