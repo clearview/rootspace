@@ -5,7 +5,8 @@ import Vuex from 'vuex'
 import { RootState } from '@/types/state'
 
 // Plugins
-import cookie from '@/store/plugins/cookie'
+import session from '@/store/plugins/session'
+import local from '@/store/plugins/local'
 
 // Modules
 import auth from '@/store/modules/auth'
@@ -19,6 +20,7 @@ export default new Vuex.Store<RootState>({
     link
   },
   plugins: [
-    cookie.plugin
+    session.plugin,
+    local.plugin
   ]
 })
