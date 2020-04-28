@@ -139,7 +139,12 @@ export default Vue.extend({
       return name
     },
 
-    ...mapState('auth', ['user'])
+    ...mapState('auth', ['user', 'spaces'])
+  },
+  created () {
+    if (this.spaces && this.spaces.length > 0) {
+      this.$router.push({ name: 'Main' })
+    }
   },
   watch: {
     invitation (newVal: string) {
