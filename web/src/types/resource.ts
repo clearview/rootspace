@@ -5,6 +5,7 @@ export interface LinkResource {
   title: string;
   type: string;
   value: string;
+  children: LinkResource[];
   config?: {
     alwaysOpen: boolean;
   };

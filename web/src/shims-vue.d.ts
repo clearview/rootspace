@@ -11,11 +11,11 @@ declare module 'liquor-tree' {
 
   export interface Node<T> {
     text: string;
-    data: T;
-    children: T;
-    isBatch: boolean;
-    isEditing: boolean;
-    states: States;
+    data?: T;
+    children?: Node<T>[];
+    isBatch?: boolean;
+    isEditing?: boolean;
+    states?: States;
   }
 
   export interface States {

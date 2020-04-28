@@ -1,8 +1,12 @@
 <template>
   <div class="nav">
     <navigation-header @search="search" />
-    <navigation-items />
-    <navigation-footer @add="modal.link.isVisible = true" />
+    <navigation-items :editable="editable" />
+    <navigation-footer
+      :editable="editable"
+      @add="modal.link.isVisible = true"
+      @edit="editable = !editable"
+    />
 
     <v-modal
       title="Add Link"
@@ -34,6 +38,7 @@ import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
 import VModal from '@/components/Modal.vue'
 
 type ComponentData = {
+  editable: boolean;
   modal: {
     link: {
       isVisible: boolean;
@@ -56,6 +61,7 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
+      editable: false,
       modal: {
         link: {
           isVisible: false,

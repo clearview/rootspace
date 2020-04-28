@@ -1,17 +1,29 @@
 import { Module } from 'vuex'
+import { Node } from 'liquor-tree'
+
 import { RootState, LinkState } from '@/types/state'
+import { LinkResource } from '@/types/resource'
 
 import LinkService from '@/services/link'
-import { LinkResource } from '@/types/resource'
+
+import { treeTransform } from '../helpers/treeTransform'
 
 const LinkModule: Module<LinkState, RootState> = {
   namespaced: true,
+
   state () {
     return {
       active: null,
       payload: []
     }
   },
+
+  getters: {
+    tree (state) {
+      return state.payload.map(treeTransform)
+    }
+  },
+
   mutations: {
     setActive (state, link) {
       state.active = link
@@ -29,6 +41,7 @@ const LinkModule: Module<LinkState, RootState> = {
       state.payload = state.payload.filter(item => item !== link)
     }
   },
+
   actions: {
     async fetch ({ commit }, params) {
       const res = await LinkService.fetch(params)

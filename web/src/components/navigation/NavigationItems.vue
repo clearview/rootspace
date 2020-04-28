@@ -2,7 +2,8 @@
   <div class="nav-items">
     <v-tree
       :key="treeKey"
-      :data="links"
+      :data="treeData"
+      :options="treeOptions"
       @node:selected="open"
       #default="{ node }"
     >
@@ -20,7 +21,7 @@ import VTree, { Node } from 'liquor-tree'
 
 import VIcon from '@/components/icons/Index.vue'
 
-import { LinkResource } from '../../types/resource'
+import { LinkResource } from '@/types/resource'
 
 type ComponentData = {
   treeKey: number;
@@ -33,6 +34,11 @@ export default Vue.extend({
     VTree,
     VIcon
   },
+  props: {
+    editable: {
+      type: Boolean
+    }
+  },
   data (): ComponentData {
     return {
       treeKey: 0,
@@ -40,13 +46,19 @@ export default Vue.extend({
     }
   },
   computed: {
-    links () {
-      return this.$store.state.link.payload.map(
-        (data: LinkResource) => ({
-          text: data.title,
-          data
-        })
-      )
+    treeData () {
+      return this.$store.getters['link/tree']
+    },
+    treeOptions () {
+      return {
+        dnd: this.editable,
+        editing: this.editable
+      }
+    }
+  },
+  watch: {
+    editable () {
+      this.treeKey += 1
     }
   },
   methods: {
@@ -59,7 +71,9 @@ export default Vue.extend({
       this.loading = false
     },
     open (item: Node<LinkResource>) {
-      window.open(item.data.value, '_blank')
+      if (item.data) {
+        window.open(item.data.value, '_blank')
+      }
     }
   },
   async created () {

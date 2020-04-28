@@ -13,8 +13,14 @@
         <button class="btn btn-mute btn-icon" @click="settingsPage()">
           <v-icon name="settings" />
         </button>
-        <button class="btn btn-mute btn-icon">
-          <v-icon name="edit" />
+        <button
+          class="btn btn-mute btn-icon"
+          @click="$emit('edit')"
+        >
+          <v-icon
+            name="edit"
+            :class="{ 'bg-white': editable }"
+          />
         </button>
       </div>
     </div>
@@ -42,6 +48,11 @@ export default Vue.extend({
   name: 'NavigationFooter',
   components: {
     VIcon
+  },
+  props: {
+    editable: {
+      type: Boolean
+    }
   },
   methods: {
     settingsPage () {
