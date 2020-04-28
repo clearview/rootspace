@@ -1,7 +1,14 @@
 import { validations } from 'indicative/validator'
 import { BaseValidator } from '../BaseValidator'
 
-export class UserSignupValidator extends BaseValidator {
+export class UserUpdateValidator extends BaseValidator {
+  private userId: number
+
+  constructor(userId: number) {
+    super()
+    this.userId = userId
+  }
+
   rules() {
     return {
       firstName: 'required',
@@ -9,10 +16,8 @@ export class UserSignupValidator extends BaseValidator {
       email: [
         validations.required(),
         validations.email(),
-        validations.dbUnique(['User', 'user', 'email']),
+        validations.dbUnique(['User', 'user', 'email', this.userId]),
       ],
-      password: 'required|min:6|confirmed',
-      password_confirmation: 'required|min:6',
     }
   }
 }
