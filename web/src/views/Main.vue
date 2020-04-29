@@ -1,40 +1,18 @@
 <template>
-  <multipane class="pane" layout="vertical">
-    <v-navigation />
-    <multipane-resizer></multipane-resizer>
-    <div class="content"></div>
-  </multipane>
+  <layout-main>
+    <!-- TODO: Put content here -->
+  </layout-main>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { Multipane, MultipaneResizer } from 'vue-multipane'
 
-import VNavigation from '@/components/navigation/Navigation.vue'
+import LayoutMain from '@/components/LayoutMain.vue'
 
 export default Vue.extend({
   name: 'Main',
   components: {
-    Multipane,
-    MultipaneResizer,
-    VNavigation
-  },
-  computed: {
-    activeLink () {
-      return this.$store.state.link.active
-    }
+    LayoutMain
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.multipane-resizer {
-  @apply border-l border-gray-100;
-
-  height: 100vh;
-}
-
-.content {
-  @apply flex flex-col p-4 flex-grow;
-}
-</style>
