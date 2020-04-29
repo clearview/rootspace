@@ -64,7 +64,7 @@ export abstract class BaseValidator {
 
   async validate(input: any) {
     try {
-      await validateAll(input, this.rules())
+      return await validateAll(input, this.rules())
     } catch (errors) {
       throw validationFailed('Validation failed', errors)
     }

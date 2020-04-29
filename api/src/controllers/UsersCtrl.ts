@@ -7,9 +7,11 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserService } from '../services/UserService'
-import { UserSignupValidator } from '../validation/user/UserSignupValidator'
-import { UserUpdateValidator } from '../validation/user/UserUpdateValidator'
-import { ChangePasswordValidator } from '../validation/user/ChangePasswordValidator'
+import {
+  validateUserSignup,
+  validateUserUpdate,
+  validateChangePassword,
+} from '../validation/user'
 import { IUserUpdateProvider, IChangePasswordProvider } from '../types/user'
 
 export class UsersCtrl extends BaseCtrl {
@@ -22,8 +24,7 @@ export class UsersCtrl extends BaseCtrl {
 
   async signup(req: Request, res: Response, next: NextFunction) {
     try {
-      const validator = new UserSignupValidator()
-      await validator.validate(req.body)
+      await validateUserSignup(req.body)
 
       const user = await this.userService.signup(req.body)
       res.send(user)
@@ -81,8 +82,7 @@ export class UsersCtrl extends BaseCtrl {
         email: req.body.email,
       }
 
-      const validator = new UserUpdateValidator(req.user.id)
-      await validator.validate(data)
+      await validateUserUpdate(data, req.user.id)
 
       const user = await this.userService.update(data, req.user.id)
       res.send(user)
@@ -99,8 +99,7 @@ export class UsersCtrl extends BaseCtrl {
         newPassword_confirmation: req.body.newPassword_confirmation,
       }
 
-      const validator = new ChangePasswordValidator()
-      await validator.validate(data)
+      await validateChangePassword(data)
 
       this.userService.changePassword(data, req.user.id, (err, user) => {
         if (err) {

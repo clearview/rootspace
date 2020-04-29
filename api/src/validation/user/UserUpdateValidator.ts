@@ -2,7 +2,7 @@ import { validations } from 'indicative/validator'
 import { BaseValidator } from '../BaseValidator'
 
 export class UserUpdateValidator extends BaseValidator {
-  private userId: number
+  userId: number
 
   constructor(userId: number) {
     super()
