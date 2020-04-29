@@ -54,6 +54,10 @@ const LinkModule: Module<LinkState, RootState> = {
       commit('pushPayload', res)
     },
 
+    async update (_, data: LinkResource) {
+      await LinkService.update(data.id, data)
+    },
+
     async destroy ({ commit }, data: LinkResource) {
       if (!data.id) {
         throw new Error('ID is not defined')

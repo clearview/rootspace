@@ -2,7 +2,7 @@ import api from '@/utils/api'
 
 import { LinkResource } from '@/types/resource'
 
-export interface LinkFetchParams {
+export interface FetchParams {
   limit: number;
   offset: number;
   filter: {
@@ -14,7 +14,7 @@ export interface LinkFetchParams {
 }
 
 export default class LinkService {
-  static async fetch (params: LinkFetchParams) {
+  static async fetch (params: FetchParams) {
     const res = await api.get('links', { params })
 
     return res.data

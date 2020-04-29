@@ -5,6 +5,8 @@
       :data="treeData"
       :options="treeOptions"
       @node:selected="open"
+      @node:editing:stop="update"
+      @node:dragging:finish="update"
       #default="{ node }"
     >
       <div class="flex flex-row items-center">
@@ -72,10 +74,19 @@ export default Vue.extend({
       this.treeKey += 1
       this.loading = false
     },
-    open (item: Node<LinkResource>) {
-      if (item.data) {
-        window.open(item.data.value, '_blank')
+    open ({ data }: Node<LinkResource>) {
+      if (this.editable) {
+        return
       }
+
+      window.open(data.value, '_blank')
+    },
+    async update ({ text, data, parent }: Node<LinkResource>) {
+      await this.$store.dispatch('link/update', {
+        id: data.id,
+        title: text,
+        parent: parent && parent.id
+      })
     }
   },
   async created () {
