@@ -153,7 +153,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { validationMixin } from 'vuelidate'
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
 import { SettingsResource } from '@/types/resource'
@@ -167,7 +166,6 @@ type ComponentData = {
 
 export default Vue.extend({
   name: 'ResourceFormSettings',
-  mixins: [validationMixin],
   components: {
     VField,
     VIcon

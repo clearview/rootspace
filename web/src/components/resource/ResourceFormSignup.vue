@@ -127,7 +127,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { validationMixin } from 'vuelidate'
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
 import { SignupResource } from '@/types/resource'
@@ -141,7 +140,6 @@ type ComponentData = {
 
 export default Vue.extend({
   name: 'ResourceFormSignup',
-  mixins: [validationMixin],
   components: {
     VField,
     VIcon

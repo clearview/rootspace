@@ -80,7 +80,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { validationMixin } from 'vuelidate'
 import { required, email } from 'vuelidate/lib/validators'
 
 import { WorkspaceResource } from '@/types/resource'
@@ -95,7 +94,6 @@ type ComponentData = {
 
 export default Vue.extend({
   name: 'ResourceFormWorkspace',
-  mixins: [validationMixin],
   components: {
     VField,
     VIcon
