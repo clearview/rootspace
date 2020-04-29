@@ -1,64 +1,60 @@
 <template>
-  <div class="flex flex-row">
-    <v-navigation />
+  <layout-main>
+    <div class="settings-container">
+      <h2 class="mb-5">Settings</h2>
 
-    <div class="content">
-      <div class="settings-container">
-        <h2 class="mb-5">Settings</h2>
+      <ul class="tab list-reset">
+        <li :class="{ active: (tab === 'account') }" v-on:click="swichTab('account')">
+          <a href="#">My Account</a>
+        </li>
+        <li :class="{ active: (tab === 'workspace') }" v-on:click="swichTab('workspace')">
+          <a href="#">Workspace</a>
+        </li>
+      </ul>
 
-        <ul class="tab list-reset">
-          <li :class="{ active: (tab === 'account') }" v-on:click="swichTab('account')">
-            <a href="#">My Account</a>
-          </li>
-          <li :class="{ active: (tab === 'workspace') }" v-on:click="swichTab('workspace')">
-            <a href="#">Workspace</a>
-          </li>
-        </ul>
-
-        <div class="settings-content">
-          <div class="settings-myaccount" v-if="(tab === 'account')">
-            <div class="col-left">
-              <div class="avatar">
-                <img class="rounded-full" src="@/assets/logo@2x.png" alt="Avatar Logo">
-                <div class="icon-edit">
-                  <v-icon
-                    name="edit"
-                    size="1.2em"
-                    viewbox="36"
-                  />
-                </div>
+      <div class="settings-content">
+        <div class="settings-myaccount" v-if="(tab === 'account')">
+          <div class="col-left">
+            <div class="avatar">
+              <img class="rounded-full" src="@/assets/logo@2x.png" alt="Avatar Logo">
+              <div class="icon-edit">
+                <v-icon
+                  name="edit"
+                  size="1.2em"
+                  viewbox="36"
+                />
               </div>
-            </div>
-            <div class="col-right">
-              <resource-form-settings @submit="save" ref="settings" />
             </div>
           </div>
+          <div class="col-right">
+            <resource-form-settings @submit="save" ref="settings" />
+          </div>
+        </div>
 
-          <div class="settings-workspace" v-if="(tab === 'workspace')">
-            <div class="col-center">
-              <v-alert :the-message="error" />
+        <div class="settings-workspace" v-if="(tab === 'workspace')">
+          <div class="col-center">
+            <v-alert :the-message="error" />
 
-              <div class="workspace-avatar">
-                <img src="@/assets/logo@2x.png" alt="Root Logo"/>
+            <div class="workspace-avatar">
+              <img src="@/assets/logo@2x.png" alt="Root Logo"/>
+            </div>
+
+            <resource-form-workspace @submit="createWorkspace" ref="workspace">
+              <div class="form-border">
+                <p>Mobile push notifications</p>
+                <button-switch v-model="mobileNotifications" />
               </div>
 
-              <resource-form-workspace @submit="createWorkspace" ref="workspace">
-                <div class="form-border">
-                  <p>Mobile push notifications</p>
-                  <button-switch v-model="mobileNotifications" />
-                </div>
-
-                <div class="form-border">
-                  <p>Email notifications</p>
-                  <button-switch v-model="emailNotifications" />
-                </div>
-              </resource-form-workspace>
-            </div>
+              <div class="form-border">
+                <p>Email notifications</p>
+                <button-switch v-model="emailNotifications" />
+              </div>
+            </resource-form-workspace>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </layout-main>
 </template>
 
 <script lang="ts">
@@ -69,9 +65,9 @@ import { SettingsResource } from '@/types/resource'
 import VIcon from '@/components/icons/Index.vue'
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-import VNavigation from '@/components/navigation/Navigation.vue'
 import ResourceFormSettings from '@/components/resource/ResourceFormSettings.vue'
 import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
+import LayoutMain from '@/components/LayoutMain.vue'
 
 type ComponentData = {
   tab: string;
@@ -84,11 +80,11 @@ export default Vue.extend({
   name: 'Settings',
   components: {
     VIcon,
-    VNavigation,
     ButtonSwitch,
     ResourceFormSettings,
     ResourceFormWorkspace,
-    VAlert
+    VAlert,
+    LayoutMain
   },
   data (): ComponentData {
     return {
@@ -117,13 +113,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
-.content {
-  @apply flex flex-col flex-grow p-4;
-
-  height: 100vh;
-  overflow: scroll;
-}
+<style lang="postcss" scoped>
 .settings-container {
   @apply max-w-2xl mx-auto p-4 mt-10;
 
