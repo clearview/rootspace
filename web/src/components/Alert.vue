@@ -78,7 +78,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .signup-alert {
   line-height: 1.5;
 

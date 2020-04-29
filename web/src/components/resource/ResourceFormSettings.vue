@@ -1,6 +1,5 @@
 <template>
   <form
-    class="mt-10"
     @submit.prevent="submit"
   >
     <v-field label="First Name" name="firstname">
@@ -70,7 +69,34 @@
       </div>
     </v-field>
 
-    <v-field label="Password" name="password">
+    <div class="divider"></div>
+
+    <v-field label="Old Password" name="oldpassword">
+      <div class="form-group">
+        <input
+          class="input w-full leading-tight mx-0"
+          id="oldpassword"
+          type="password"
+          placeholder="******"
+          v-model.trim="$v.payload.password.$model"
+        />
+        <span class="icon">
+          <v-icon name="lock" size="1.5em" />
+        </span>
+      </div>
+      <div class="error-group">
+        <div
+          class="error"
+          v-if="$v.payload.password.$dirty && !$v.payload.password.required"
+        >Password is required.</div>
+        <div
+          class="error"
+          v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
+        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.</div>
+      </div>
+    </v-field>
+
+    <v-field label="New Password" name="password">
       <div class="form-group">
         <input
           class="input w-full leading-tight mx-0"
@@ -95,7 +121,7 @@
       </div>
     </v-field>
 
-    <v-field label="Repeat Password" name="repeatpassword">
+    <v-field label="Repeat New Password" name="repeatpassword">
       <div class="form-group">
         <input
           class="input w-full leading-tight mx-0"
@@ -121,7 +147,7 @@
       type="button"
       :disabled="$v.payload.$invalid"
       @click="submit()"
-    >Sign Up</button>
+    >Save</button>
   </form>
 </template>
 
@@ -129,17 +155,17 @@
 import Vue from 'vue'
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
-import { SignupResource } from '@/types/resource'
+import { SettingsResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
-  payload: SignupResource;
+  payload: SettingsResource;
 }
 
 export default Vue.extend({
-  name: 'ResourceFormSignup',
+  name: 'ResourceFormSettings',
   components: {
     VField,
     VIcon
@@ -150,6 +176,7 @@ export default Vue.extend({
         firstName: '',
         lastName: '',
         email: '',
+        oldPassword: '',
         password: '',
         password_confirmation: '' // eslint-disable-line
       }
@@ -160,6 +187,10 @@ export default Vue.extend({
       firstName: { required },
       lastName: { required },
       email: { required, email },
+      oldPassword: {
+        required,
+        minLength: minLength(6)
+      },
       password: {
         required,
         minLength: minLength(6)
@@ -182,3 +213,10 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style lang="postcss" scoped>
+.divider {
+  @apply my-10 border-b-2;
+  border-color: theme("colors.secondary.default");
+}
+</style>

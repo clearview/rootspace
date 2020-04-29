@@ -1,5 +1,5 @@
 <template>
-  <button class="btn w-full mx-0" type="button" v-on:click="authWithGoogle()">
+  <button class="btn w-full mx-0" type="button" @click="authWithGoogle()">
     <span class="mr-1">
       <v-icon name="google" size="1.1em" />
     </span>

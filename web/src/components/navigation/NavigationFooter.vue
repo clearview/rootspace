@@ -10,7 +10,7 @@
       </button>
 
       <div class="btn-group">
-        <button class="btn btn-mute btn-icon">
+        <button class="btn btn-mute btn-icon" @click="settingsPage()">
           <v-icon name="settings" />
         </button>
         <button class="btn btn-mute btn-icon">
@@ -42,6 +42,11 @@ export default Vue.extend({
   name: 'NavigationFooter',
   components: {
     VIcon
+  },
+  methods: {
+    settingsPage () {
+      this.$router.push({ name: 'Settings' })
+    }
   }
 })
 </script>

@@ -18,7 +18,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 header {
   @apply flex justify-center border-b-2 p-2;
   border-color: theme("colors.secondary.default");

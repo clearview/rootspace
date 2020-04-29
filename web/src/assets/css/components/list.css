@@ -1,0 +1,19 @@
+.tab {
+  @apply flex border-b;
+
+  li {
+    a {
+      @apply inline-block py-2 px-4;
+    }
+
+    &.active {
+      @apply -mb-px;
+
+      a {
+        @apply font-semibold border-b-4;
+
+        border-color: theme('colors.primary.default');
+      }
+    }
+  }
+}
