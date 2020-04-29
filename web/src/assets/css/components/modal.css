@@ -2,6 +2,7 @@
   @apply fixed top-0 left-0;
   @apply w-full h-full;
   @apply flex items-center justify-center;
+  @apply z-10;
 }
 
 .modal-background {

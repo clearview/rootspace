@@ -24,3 +24,5 @@ declare module 'liquor-tree' {
 
   export default Vue
 }
+
+declare module 'vue-multipane'
