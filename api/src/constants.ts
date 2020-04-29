@@ -1,8 +1,13 @@
+export enum LinkType {
+  Link = 'link',
+  Doc = 'doc',
+}
+
 export const LINK_TYPE = {
   LINK: {
-    route: null
+    route: null,
   },
   DOC: {
-    route: '/docs/view/:id'
-  }
+    route: '/docs/view/:id',
+  },
 }

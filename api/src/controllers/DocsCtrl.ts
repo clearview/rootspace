@@ -1,22 +1,35 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
+import { DocService } from '../services/DocService'
 import { DocRepository } from '../repositories/DocRepository'
+import { validateDocCreate } from '../validation/doc'
 
 export class DocsCtrl extends BaseCtrl {
+  private docService: DocService
+
+  constructor() {
+    super()
+    this.docService = new DocService()
+  }
 
   public async view(req: Request, res: Response) {
-    const doc = await getCustomRepository(DocRepository).findOne(Number(req.params.id))
+    const doc = await getCustomRepository(DocRepository).findOne(
+      Number(req.params.id)
+    )
     res.send(doc)
   }
 
-  public async create(req: Request, res: Response) {
-    const validData: object = {
-      userId: req.user.id
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = req.body
+      await validateDocCreate(data)
+
+      const doc = await this.docService.create(data, req.user.id)
+      res.send(doc)
+    } catch (err) {
+      next(err)
     }
-    const data = Object.assign(req.body, validData)
-    const doc = await getCustomRepository(DocRepository).create(data)
-    res.send(doc)
   }
 
   public async update(req: Request, res: Response) {
@@ -28,7 +41,9 @@ export class DocsCtrl extends BaseCtrl {
   }
 
   public async delete(req: Request, res: Response) {
-    const doc = await getCustomRepository(DocRepository).delete({ id: Number(req.params.id) })
+    const doc = await getCustomRepository(DocRepository).delete({
+      id: Number(req.params.id),
+    })
     res.send({ deleted: true })
   }
 }
