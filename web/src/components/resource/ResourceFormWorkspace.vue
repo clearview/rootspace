@@ -137,7 +137,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .list-invitation {
   @apply border-t border-b border-gray-100 text-gray-400 mb-5;
 

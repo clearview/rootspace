@@ -34,5 +34,5 @@ export interface SettingsResource {
 
 export interface WorkspaceResource {
   title: string;
-  invites: Array<string>;
+  invites: string[];
 }

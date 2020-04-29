@@ -51,7 +51,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 #google-callback-page {
   @apply border-t-4;
   border-color: theme("colors.primary.default");

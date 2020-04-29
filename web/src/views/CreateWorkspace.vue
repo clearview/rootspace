@@ -110,7 +110,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 #create-workspace-page {
   @apply border-t-4;
   border-color: theme("colors.primary.default");

@@ -214,7 +214,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .divider {
   @apply my-10 border-b-2;
   border-color: theme("colors.secondary.default");
