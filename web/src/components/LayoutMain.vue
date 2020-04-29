@@ -44,6 +44,6 @@ export default Vue.extend({
 }
 
 .content {
-  @apply flex flex-col p-4 flex-grow;
+  @apply flex flex-col flex-grow p-4 h-screen overflow-scroll;
 }
 </style>
