@@ -7,7 +7,12 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserService } from '../services/UserService'
-import { UserSignupValidator } from '../validation/user/UserSignupValidator'
+import {
+  validateUserSignup,
+  validateUserUpdate,
+  validateChangePassword,
+} from '../validation/user'
+import { IUserUpdateProvider, IChangePasswordProvider } from '../types/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -19,8 +24,7 @@ export class UsersCtrl extends BaseCtrl {
 
   async signup(req: Request, res: Response, next: NextFunction) {
     try {
-      const validator = new UserSignupValidator()
-      await validator.validate(req.body)
+      await validateUserSignup(req.body)
 
       const user = await this.userService.signup(req.body)
       res.send(user)
@@ -56,17 +60,56 @@ export class UsersCtrl extends BaseCtrl {
     )(req, res)
   }
 
-  public async authGoogleCallback(req: Request, res: Response) {
+  async authGoogleCallback(req: Request, res: Response) {
     const user = req.user
     const token = jwt.sign({ id: user }, config.jwtSecretKey)
     res.send({ token })
   }
 
-  public async whoami(req: Request, res: Response) {
+  async whoami(req: Request, res: Response) {
     const user = await getCustomRepository(UserRepository).findOne(req.user.id)
     const spaces = await getCustomRepository(SpaceRepository).getByUserId(
       user.id
     )
     res.send({ user, spaces })
+  }
+
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data: IUserUpdateProvider = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+      }
+
+      await validateUserUpdate(data, req.user.id)
+
+      const user = await this.userService.update(data, req.user.id)
+      res.send(user)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  async changePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data: IChangePasswordProvider = {
+        password: req.body.password,
+        newPassword: req.body.newPassword,
+        newPassword_confirmation: req.body.newPassword_confirmation,
+      }
+
+      await validateChangePassword(data)
+
+      this.userService.changePassword(data, req.user.id, (err, user) => {
+        if (err) {
+          return next(err)
+        }
+
+        res.send(user)
+      })
+    } catch (err) {
+      next(err)
+    }
   }
 }

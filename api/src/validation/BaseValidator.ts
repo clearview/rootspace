@@ -6,17 +6,22 @@ import { validationFailed } from '../errors/httpError'
 
 declare module 'indicative-rules' {
   interface ValidationRulesContract {
-    unique([entity, alias, field]: [any, string, string]): ParsedRule
+    dbUnique([entity, alias, field, skipIdValue]: [
+      string,
+      string,
+      string,
+      number?
+    ]): ParsedRule
   }
 }
 
 export abstract class BaseValidator {
   constructor() {
-    this.unique()
+    this.dbUnique()
   }
 
-  protected unique() {
-    extend('unique', {
+  protected dbUnique() {
+    extend('dbUnique', {
       async: true,
 
       compile(args) {
@@ -25,15 +30,23 @@ export abstract class BaseValidator {
 
       async validate(data, field, args, config) {
         const fieldValue = getValue(data, field)
-
-        const [entity, alias, column] = args
+        const [entity, alias, column, skipIdValue] = args
 
         try {
-          const res = await getConnection()
+          const queryBuilder = getConnection()
             .getRepository(entity)
             .createQueryBuilder(alias)
-            .where(`${alias}.${column}=:value`, { value: fieldValue })
-            .getOne()
+            .where(`${alias}.${column} = :emailValue`, {
+              emailValue: fieldValue,
+            })
+
+          if (skipIdValue) {
+            queryBuilder.andWhere(`${alias}.id != :idValue`, {
+              idValue: skipIdValue,
+            })
+          }
+
+          const res = await queryBuilder.getOne()
 
           if (res) {
             return false
@@ -51,7 +64,7 @@ export abstract class BaseValidator {
 
   async validate(input: any) {
     try {
-      await validateAll(input, this.rules())
+      return await validateAll(input, this.rules())
     } catch (errors) {
       throw validationFailed('Validation failed', errors)
     }

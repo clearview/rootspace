@@ -5,3 +5,15 @@ export interface ISignupProvider {
   password: string
   password_confirmation: string
 }
+
+export interface IUserUpdateProvider {
+  firstName: string
+  lastName: string
+  email: string
+}
+
+export interface IChangePasswordProvider {
+  password: string
+  newPassword: string
+  newPassword_confirmation: string
+}
