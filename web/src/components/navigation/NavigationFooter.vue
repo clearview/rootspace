@@ -10,7 +10,7 @@
       </button>
 
       <div class="btn-group">
-        <button class="btn btn-mute btn-icon" v-on:click="settingsPage()">
+        <button class="btn btn-mute btn-icon" @click="settingsPage()">
           <v-icon name="settings" />
         </button>
         <button class="btn btn-mute btn-icon">

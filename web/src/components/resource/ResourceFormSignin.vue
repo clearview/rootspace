@@ -59,7 +59,7 @@
       class="btn btn-primary w-full mx-0"
       type="button"
       :disabled="$v.payload.$invalid"
-      v-on:click="submit()"
+      @click="submit()"
     >
       Sign In
     </button>

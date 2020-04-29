@@ -4,10 +4,10 @@
       <h2 class="mb-5">Settings</h2>
 
       <ul class="tab list-reset">
-        <li :class="{ active: (tab === 'account') }" v-on:click="swichTab('account')">
+        <li :class="{ active: (tab === 'account') }" @click="swichTab('account')">
           <a href="#">My Account</a>
         </li>
-        <li :class="{ active: (tab === 'workspace') }" v-on:click="swichTab('workspace')">
+        <li :class="{ active: (tab === 'workspace') }" @click="swichTab('workspace')">
           <a href="#">Workspace</a>
         </li>
       </ul>

@@ -31,7 +31,7 @@
           type="email"
           class="input-group-component flex-grow w-px flex-1 border h- px-3 relative text-inherit"
           v-model.trim="$v.invitation.$model"
-          v-on:keyup.enter="addInvitationList($v.invitation.$model)"
+          @keyup.enter="addInvitationList($v.invitation.$model)"
         />
         <div class="flex">
           <button
@@ -39,7 +39,7 @@
             class="button input-group-component flex items-center justify-center"
             :class="{ filled: !$v.invitation.$invalid }"
             :disabled="$v.invitation.$invalid"
-            v-on:click="addInvitationList($v.invitation.$model)"
+            @click="addInvitationList($v.invitation.$model)"
           >Add</button>
         </div>
       </div>
@@ -61,7 +61,7 @@
         <div class="flex-grow text-sm">
           <p class="text-gray-900">{{ invitation }}</p>
         </div>
-        <span class="close-icon" v-on:click="deleteInvitation(index)">
+        <span class="close-icon" @click="deleteInvitation(index)">
           <v-icon name="close" size=".9em" viewbox="32" />
         </span>
       </div>
@@ -73,7 +73,7 @@
       class="btn btn-primary w-full mx-0 mt-5"
       type="button"
       :disabled="$v.payload.$invalid"
-      v-on:click="submit()"
+      @click="submit()"
     >Create</button>
   </form>
 </template>

@@ -146,7 +146,7 @@
       class="btn btn-primary w-full mx-0 mt-5"
       type="button"
       :disabled="$v.payload.$invalid"
-      v-on:click="submit()"
+      @click="submit()"
     >Save</button>
   </form>
 </template>
