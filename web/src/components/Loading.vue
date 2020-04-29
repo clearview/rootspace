@@ -27,7 +27,7 @@ export default Vue.extend({
 })
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .modal-loading {
   @apply p-5;
 

@@ -33,7 +33,10 @@
   @apply flex flex-wrap items-stretch w-full relative;
 
   @apply border rounded border-gray-400;
+
   transition: .4s;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 
   .input-group-component {
     @apply py-2 px-3;
