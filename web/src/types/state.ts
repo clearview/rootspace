@@ -3,7 +3,7 @@ import { LinkResource } from './resource'
 export interface RootState {
   auth: AuthState;
   link: LinkState;
-  error: ErrorState;
+  nav: NavState;
 }
 
 export interface AuthState {
@@ -17,7 +17,6 @@ export interface LinkState {
   active: LinkResource | null;
 }
 
-export interface ErrorState {
-  showErrorMessage: boolean;
-  errorMessage: object | null;
+export interface NavState {
+  size: string | number;
 }
