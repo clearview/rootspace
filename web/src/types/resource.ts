@@ -1,5 +1,5 @@
 export interface LinkResource {
-  id?: number;
+  id: number;
   spaceId: number;
   sectionId: number | null;
   title: string;

@@ -78,7 +78,7 @@ type ComponentData = {
     key: number;
     label: string;
   }[];
-  payload: Omit<LinkResource, 'children'>;
+  payload: Omit<LinkResource, 'id' | 'children'>;
 }
 
 export default Vue.extend({

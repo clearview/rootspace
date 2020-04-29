@@ -9,8 +9,13 @@ export function treeTransform (data: LinkResource): Node<LinkResource> {
   const children = data.children
 
   return {
+    id: data.id,
     text: data.title,
-    children: children && children.map(treeTransform),
+    children: children.map(treeTransform),
+    isBatch: false,
+    isEditing: false,
+    parent: null,
+    states: {},
     data
   }
 }

@@ -9,13 +9,19 @@ declare module '*.vue' {
 declare module 'liquor-tree' {
   import Vue from 'vue'
 
-  export interface Node<T> {
+  export interface NodeData {
     text: string;
-    data?: T;
-    children?: Node<T>[];
-    isBatch?: boolean;
-    isEditing?: boolean;
-    states?: States;
+  }
+
+  export interface Node<T=NodeData> {
+    id: string | number;
+    text: string;
+    data: T;
+    children: Node<T>[];
+    isBatch: boolean;
+    isEditing: boolean;
+    parent: Node<T> | null;
+    states: States;
   }
 
   export interface States {
