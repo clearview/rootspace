@@ -1,5 +1,4 @@
 import { Module } from 'vuex'
-import { Node } from 'liquor-tree'
 
 import { RootState, LinkState } from '@/types/state'
 import { LinkResource } from '@/types/resource'

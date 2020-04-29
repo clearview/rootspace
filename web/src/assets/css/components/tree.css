@@ -1,0 +1,44 @@
+.tree {
+  .tree-root {
+    @apply p-0 !important;
+  }
+
+  .tree-node {
+    &.selected > .tree-content {
+      background-color: rgba(theme('colors.gray.100'), 0.5);
+    }
+
+    &:not(.selected) > .tree-content:hover {
+      background-color: rgba(theme('colors.gray.100'), 0.25);
+    }
+  }
+
+  .tree-arrow {
+    height: 20px;
+    margin-left: 20px;
+
+    &.has-child {
+      width: 20px;
+
+      &:after {
+        @apply border-gray-400;
+
+        top: calc(50%);
+        left: calc(50% - 4px);
+
+        height: 8px;
+        width: 8px;
+      }
+    }
+  }
+
+  .tree-anchor {
+    @apply m-0;
+  }
+
+  .tree-icon {
+    @apply text-gray-400;
+
+    padding-right: 6px;
+  }
+}

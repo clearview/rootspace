@@ -8,7 +8,9 @@
       #default="{ node }"
     >
       <div class="flex flex-row items-center">
-        <v-icon name="file" class="mr-1"/>
+        <span class="tree-icon">
+          <v-icon name="file" class="mr-1" size="20px"/>
+        </span>
         <span v-text="node.text" />
       </div>
     </v-tree>
