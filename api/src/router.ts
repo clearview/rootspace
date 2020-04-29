@@ -28,9 +28,12 @@ router.get(
 )
 
 router.post('/auth', mapRoute(UsersCtrl, 'auth'))
+
 router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
+router.patch('/user/update', auth, mapRoute(UsersCtrl, 'update'))
+router.patch('/user/password/change', auth, mapRoute(UsersCtrl, 'changePassword'))
 
 router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
 
