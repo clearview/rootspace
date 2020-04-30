@@ -10,16 +10,23 @@
       </button>
 
       <div class="btn-group">
-        <button class="btn btn-mute btn-icon" @click="settingsPage()">
-          <v-icon name="settings" />
+        <button
+          class="btn btn-mute btn-icon"
+          @click="settingsPage()"
+        >
+          <v-icon
+            name="settings"
+            class="icon"
+          />
         </button>
         <button
           class="btn btn-mute btn-icon"
+          :class="{ 'btn-active': editable }"
           @click="$emit('edit')"
         >
           <v-icon
             name="edit"
-            :class="{ 'bg-white': editable }"
+            class="icon"
           />
         </button>
       </div>
@@ -61,3 +68,11 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style lang="postcss" scoped>
+.btn-active {
+  .icon {
+    @apply bg-white text-primary;
+  }
+}
+</style>

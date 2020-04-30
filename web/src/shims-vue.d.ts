@@ -17,11 +17,21 @@ declare module 'liquor-tree' {
     id: string | number;
     text: string;
     data: T;
-    children: Node<T>[];
     isBatch: boolean;
     isEditing: boolean;
-    parent: Node<T> | null;
     states: States;
+    children: Node<T>[];
+    parent: Node<T>;
+    startEditing: () => void;
+    remove: () => void;
+  }
+
+  export interface NodeContent<T=NodeData> {
+    id: string | number;
+    text: string;
+    data?: T;
+    states?: States;
+    children?: NodeContent<T>[];
   }
 
   export interface States {

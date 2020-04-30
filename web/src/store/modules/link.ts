@@ -35,9 +35,6 @@ const LinkModule: Module<LinkState, RootState> = {
         ...state.payload,
         link
       ]
-    },
-    popPayload (state, link) {
-      state.payload = state.payload.filter(item => item !== link)
     }
   },
 
@@ -64,8 +61,6 @@ const LinkModule: Module<LinkState, RootState> = {
       }
 
       await LinkService.destroy(data.id)
-
-      commit('popPayload', data)
     }
   }
 }

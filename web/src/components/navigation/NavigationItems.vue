@@ -4,16 +4,45 @@
       :key="treeKey"
       :data="treeData"
       :options="treeOptions"
+      :class="{ 'tree__editable': editable }"
       @node:selected="open"
       @node:editing:stop="update"
       @node:dragging:finish="update"
       #default="{ node }"
     >
-      <div class="flex flex-row items-center">
+      <div class="tree-anchor-container">
         <span class="tree-icon">
-          <v-icon name="file" class="mr-1" size="20px"/>
+          <v-icon
+            name="file"
+            class="mr-1"
+            size="20px"
+          />
         </span>
         <span v-text="node.text" />
+
+        <template v-if="editable">
+          <div class="tree-dnd">
+            <v-icon
+              name="dots"
+              size="20px"
+            />
+          </div>
+
+          <div class="tree-action">
+            <button @click="edit(node)">
+              <v-icon
+                name="link-edit"
+                size="20px"
+              />
+            </button>
+            <button @click.stop="destroy(node)">
+              <v-icon
+                name="trash"
+                size="20px"
+              />
+            </button>
+          </div>
+        </template>
       </div>
     </v-tree>
   </div>
@@ -30,6 +59,9 @@ import { LinkResource } from '@/types/resource'
 type ComponentData = {
   treeKey: number;
   loading: boolean;
+  alert?: {
+    message: string;
+  };
 }
 
 export default Vue.extend({
@@ -46,7 +78,8 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       treeKey: 0,
-      loading: false
+      loading: false,
+      alert: undefined
     }
   },
   computed: {
@@ -55,8 +88,7 @@ export default Vue.extend({
     },
     treeOptions () {
       return {
-        dnd: this.editable,
-        editing: this.editable
+        dnd: this.editable
       }
     }
   },
@@ -81,12 +113,32 @@ export default Vue.extend({
 
       window.open(data.value, '_blank')
     },
+    edit (node: Node<LinkResource>) {
+      node.startEditing()
+    },
     async update ({ text, data, parent }: Node<LinkResource>) {
-      await this.$store.dispatch('link/update', {
-        id: data.id,
-        title: text,
-        parent: parent && parent.id
-      })
+      try {
+        await this.$store.dispatch('link/update', {
+          id: data.id,
+          title: text,
+          parent: parent && parent.id
+        })
+      } catch (err) {
+        this.alert = {
+          message: err.message
+        }
+      }
+    },
+    async destroy (node: Node<LinkResource>) {
+      try {
+        await this.$store.dispatch('link/destroy', node.data)
+
+        node.remove()
+      } catch (err) {
+        this.alert = {
+          message: err.message
+        }
+      }
     }
   },
   async created () {
