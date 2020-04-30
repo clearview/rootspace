@@ -1,0 +1,17 @@
+import { NodeContent } from 'liquor-tree'
+import { LinkResource } from '@/types/resource'
+
+/**
+ * Helper function to transform into tree format
+ * @param data
+ */
+export function treeTransform (data: LinkResource): NodeContent<LinkResource> {
+  const children = data.children || []
+
+  return {
+    id: data.id,
+    text: data.title,
+    children: children.map(treeTransform),
+    data
+  }
+}

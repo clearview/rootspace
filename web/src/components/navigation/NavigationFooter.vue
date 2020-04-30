@@ -10,11 +10,24 @@
       </button>
 
       <div class="btn-group">
-        <button class="btn btn-mute btn-icon" @click="settingsPage()">
-          <v-icon name="settings" />
+        <button
+          class="btn btn-mute btn-icon"
+          @click="settingsPage()"
+        >
+          <v-icon
+            name="settings"
+            class="icon"
+          />
         </button>
-        <button class="btn btn-mute btn-icon">
-          <v-icon name="edit" />
+        <button
+          class="btn btn-mute btn-icon"
+          :class="{ 'btn-active': editable }"
+          @click="$emit('edit')"
+        >
+          <v-icon
+            name="edit"
+            class="icon"
+          />
         </button>
       </div>
     </div>
@@ -43,6 +56,11 @@ export default Vue.extend({
   components: {
     VIcon
   },
+  props: {
+    editable: {
+      type: Boolean
+    }
+  },
   methods: {
     settingsPage () {
       this.$router.push({ name: 'Settings' })
@@ -50,3 +68,11 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style lang="postcss" scoped>
+.btn-active {
+  .icon {
+    @apply bg-white text-primary;
+  }
+}
+</style>
