@@ -35,6 +35,9 @@ const LinkModule: Module<LinkState, RootState> = {
         ...state.payload,
         link
       ]
+    },
+    removePayload (state, link) {
+      state.payload = state.payload.filter(item => item.id !== link.id)
     }
   },
 
@@ -61,6 +64,8 @@ const LinkModule: Module<LinkState, RootState> = {
       }
 
       await LinkService.destroy(data.id)
+
+      commit('removePayload', data)
     }
   }
 }

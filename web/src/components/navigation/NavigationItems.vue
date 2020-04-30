@@ -35,7 +35,10 @@
                 size="20px"
               />
             </button>
-            <button @click.stop="destroy(node)">
+            <button
+              v-if="node.children.length < 1"
+              @click.stop="destroy(node)"
+            >
               <v-icon
                 name="trash"
                 size="20px"
