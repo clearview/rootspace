@@ -8,7 +8,7 @@
     <input
       type="text"
       placeholder="Search"
-      class="w-full ml-2 outline-none"
+      class="w-full ml-2 outline-none bg-transparent"
       v-model="payload"
     >
   </form>

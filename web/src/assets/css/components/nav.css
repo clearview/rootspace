@@ -1,8 +1,10 @@
 .nav {
-  @apply flex flex-col h-screen p-4;
-
+  @apply h-screen p-4;
   width: 282px;
   min-width: 282px;
+
+  transition: 300ms;
+  overflow: hidden;
 }
 
 .nav-header {
@@ -12,11 +14,41 @@
 .nav-footer {
   .btn-icon {
     @apply p-2;
-
     font-size: 22px;
   }
 }
 
 .nav-items {
   @apply flex-1 overflow-scroll;
+}
+
+.nav-content,
+.nav-content--collapse {
+  @apply flex flex-col h-full;
+}
+
+.nav-content--collapse {
+  @apply hidden;
+}
+
+
+.nav.nav--collapse {
+  @apply p-2 items-center justify-between;
+  @apply bg-gray-900 text-white;
+
+  width: 52px !important;
+  min-width: 52px;
+
+  & ~ .multipane-resizer {
+    @apply hidden;
+  }
+
+  .nav-content {
+    @apply hidden;
+  }
+
+  .nav-content--collapse {
+    @apply flex flex-col items-center justify-between;
+    @apply py-2;
+  }
 }
