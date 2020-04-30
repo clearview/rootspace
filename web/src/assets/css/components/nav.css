@@ -17,10 +17,6 @@
   }
 }
 
-.nav-section {
+.nav-items {
   @apply flex-1 overflow-scroll;
-}
-
-.nav-section-title {
-  @apply font-bold;
 }
