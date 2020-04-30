@@ -1,5 +1,5 @@
 <template>
-  <form class="flex flex-row" @submit.prevent="submit">
+  <form class="flex flex-row flex-1" @submit.prevent="submit">
     <v-icon
       name="search"
       size="1.5em"
