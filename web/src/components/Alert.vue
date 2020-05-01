@@ -52,8 +52,11 @@ export default Vue.extend({
           }
           if (thefield.validation === 'required') {
             switch (thefield.field) {
-              case 'name':
-                messages.push('Name is required')
+              case 'firstName':
+                messages.push('First Name is required')
+                break
+              case 'lastName':
+                messages.push('Last Name is required')
                 break
               case 'email':
                 messages.push('Email is required')
