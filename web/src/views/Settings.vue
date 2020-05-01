@@ -124,8 +124,6 @@ export default Vue.extend({
         const [setting, password] = args
         this.isLoading = true
         this.loadingMessage = 'Update Account Settings...'
-        console.log('password', password)
-        console.log('setting', setting)
         const userUpdate = await UserService.update(setting)
 
         if (password.password !== '' && password.newPassword !== '') {
@@ -133,7 +131,6 @@ export default Vue.extend({
         }
 
         this.isLoading = false
-        console.log(userUpdate)
         const getUserData = userUpdate.data
         this.setUser(getUserData)
       } catch (err) {
@@ -158,7 +155,6 @@ export default Vue.extend({
         const workspaceUpdate = await WorkspaceService.update(id, payload)
 
         this.isLoading = false
-        console.log(workspaceUpdate)
       } catch (err) {
         if (err.code === 401) {
           this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
