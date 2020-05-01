@@ -152,7 +152,7 @@ export default Vue.extend({
         const payload = { // for temporary
           title: data.title
         }
-        const workspaceUpdate = await WorkspaceService.update(id, payload)
+        await WorkspaceService.update(id, payload)
 
         this.isLoading = false
       } catch (err) {
