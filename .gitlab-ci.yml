@@ -13,6 +13,6 @@ staging:
       - apt-get update -qy
       - apt-get install -y ruby-dev
       - gem install dpl
-      - dpl --provider=heroku --app=gitlab-ci-python-test-staging --api-key=$HEROKU_API_KEY
+      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
   only:
       - master
