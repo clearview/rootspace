@@ -11,6 +11,6 @@ staging:
   stage: staging
   script:
       - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/cv-root-staging.git
-      - git push heroku `git subtree split --prefix api master`:master --force
+      - git push heroku master --force
   only:
       - master
