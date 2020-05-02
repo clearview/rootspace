@@ -1,0 +1,15 @@
+image: node:12.16.2
+
+before_script:
+  - apt-get install git
+
+stages:
+  - staging
+
+staging:
+  type: deploy
+  stage: staging
+  script:
+      - git remote add heroku https://heroku:$HEROKU_API_KEY@git.heroku.com/cv-root-staging.git
+  only:
+      - master
