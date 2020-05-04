@@ -34,11 +34,23 @@ declare global {
 
 window.editor = window.editor || {}
 
+type ComponentData = {
+  documentChanged: boolean;
+}
+
 export default Vue.extend({
   name: 'DocumentEditor',
   props: {
     content: {
       type: Object
+    },
+    isChanged: {
+      type: Boolean
+    }
+  },
+  data (): ComponentData {
+    return {
+      documentChanged: false
     }
   },
   mounted () {

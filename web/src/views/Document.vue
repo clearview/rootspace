@@ -2,10 +2,9 @@
   <layout-main>
     <div id="editor-toolbar">
       <h1>Document Title</h1>
-      <button class="btn btn-primary" @click="save">Save</button>
     </div>
 
-    <editor id="editor" :content="value" />
+    <editor id="editor" :content="value" :is-changed="isChanged" />
   </layout-main>
 </template>
 
@@ -17,6 +16,7 @@ import Editor from '@/components/Editor.vue'
 
 type ComponentData = {
   value: object;
+  isChanged: boolean;
 }
 
 export default Vue.extend({
@@ -39,8 +39,19 @@ export default Vue.extend({
             }
           }
         ]
-      }
+      },
+      isChanged: false
     }
+  },
+  mounted () {
+    window.setInterval(() => {
+      if (this.isChanged) {
+        this.save()
+        console.log('changed')
+      } else {
+        console.log('not changed')
+      }
+    }, 3 * 1000)
   },
   methods: {
     save () {
