@@ -1,5 +1,5 @@
 <template>
-  <form class="flex flex-row" @submit.prevent="submit">
+  <form class="flex flex-row flex-1" @submit.prevent="submit">
     <v-icon
       name="search"
       size="1.5em"
@@ -8,7 +8,7 @@
     <input
       type="text"
       placeholder="Search"
-      class="w-full ml-2 outline-none"
+      class="w-full ml-2 outline-none bg-transparent"
       v-model="payload"
     >
   </form>
