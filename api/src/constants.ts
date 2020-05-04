@@ -1,13 +1,9 @@
-export enum LinkType {
-  Link = 'link',
-  Doc = 'doc',
+interface IDocAccess {
+  Owner: number
+  All: number
 }
 
-export const LINK_TYPE = {
-  LINK: {
-    route: null,
-  },
-  DOC: {
-    route: '/docs/view/:id',
-  },
+export const DocAccess: IDocAccess = {
+  Owner: 1,
+  All: 2,
 }

@@ -1,13 +1,18 @@
 import { getCustomRepository, getManager, getConnection } from 'typeorm'
-import { LinkType } from '../constants'
 import { DocRepository } from '../repositories/DocRepository'
 import { Doc } from '../entities/Doc'
 import { Link } from '../entities/Link'
-import { IDocCreateProvider } from '../types/doc'
+import { IDocCreateProvider, IDocUpdateProvider } from '../types/doc'
+import { clientError } from '../errors/httpError'
+import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
 
 export class DocService {
   getDocRepository(): DocRepository {
     return getCustomRepository(DocRepository)
+  }
+
+  getDocById(id: number): Promise<Doc> {
+    return this.getDocRepository().findOne(id)
   }
 
   async create(data: IDocCreateProvider, userId: number): Promise<Doc> {
@@ -26,7 +31,7 @@ export class DocService {
       link.userId = userId
       link.spaceId = data.spaceId
       link.title = data.title
-      link.type = LinkType.Doc
+      link.type = 'doc'
       link.value = String(doc.id)
 
       await queryRunner.manager.save(link)
@@ -39,5 +44,9 @@ export class DocService {
     }
 
     return doc
+  }
+
+  async update(data: IDocUpdateProvider, id: number): Promise<any> {
+    return await this.getDocRepository().update(id, data)
   }
 }

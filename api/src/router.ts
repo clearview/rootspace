@@ -55,6 +55,8 @@ router.post('/links', auth, mapRoute(LinksCtrl, 'create'))
 router.patch('/links/:id', auth, mapRoute(LinksCtrl, 'update'))
 router.delete('/links/:id', auth, mapRoute(LinksCtrl, 'delete'))
 
-router.post('/docs/create', auth, mapRoute(DocsCtrl, 'create'))
+router.get('/docs/:id', auth, mapRoute(DocsCtrl, 'view'))
+router.post('/docs', auth, mapRoute(DocsCtrl, 'create'))
+router.patch('/docs/:id', auth, mapRoute(DocsCtrl, 'update'))
 
 export default router
