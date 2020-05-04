@@ -4,10 +4,12 @@ import { BaseCtrl } from './BaseCtrl'
 import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkService } from '../services/LinkService'
-import { LinkType, getLinkContent } from '../lib/link'
+import { ContentMediator } from '../mediator/ContentMediator'
+import { LinkType } from '../constants'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
+  protected contentMediator: ContentMediator
 
   constructor() {
     super()
@@ -20,7 +22,7 @@ export class LinksCtrl extends BaseCtrl {
     const content = this.responseContent(link)
 
     if (link.type !== LinkType.Link) {
-      const linkContent = await getLinkContent(link)
+      const linkContent = await this.contentMediator.getLinkContent(link)
       content.includes(linkContent, link.type)
     }
 
