@@ -12,11 +12,24 @@
     </div>
 
     <div class="flex flex-1 mx-5">
-      <v-searchbar @input="search"/>
+      <v-searchbar @input="search" />
     </div>
 
     <div class="flex flex-none">
-      <button-lock v-model="lock"/>
+      <button
+        class="btn p-0 border-none"
+        @click="$emit('toggleCollapse')"
+      >
+        <v-icon
+          name="left"
+          size="2em"
+          viewbox="36"
+          :class="{
+            'text-primary': collapse,
+            'text-gray-400': !collapse
+          }"
+        />
+      </button>
     </div>
   </div>
 </template>
@@ -24,22 +37,18 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import ButtonLock from '@/components/ButtonLock.vue'
 import VSearchbar from '@/components/Searchbar.vue'
-
-interface ComponentData {
-  lock: boolean;
-}
+import VIcon from '@/components/icons/Index.vue'
 
 export default Vue.extend({
   name: 'NavigationHeader',
   components: {
-    ButtonLock,
-    VSearchbar
+    VSearchbar,
+    VIcon
   },
-  data (): ComponentData {
-    return {
-      lock: false
+  props: {
+    collapse: {
+      type: Boolean
     }
   },
   methods: {

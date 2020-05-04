@@ -1,12 +1,44 @@
 <template>
-  <div class="nav">
-    <navigation-header @search="search" />
-    <navigation-items :editable="editable" />
-    <navigation-footer
-      :editable="editable"
-      @add="modal.link.isVisible = true"
-      @edit="editable = !editable"
-    />
+  <div
+    class="nav"
+    :class="{ 'nav--collapse': collapse }"
+  >
+    <div class="nav-content">
+      <navigation-header
+        :collapse="collapse"
+        @search="search"
+        @toggleCollapse="toggleCollapse"
+      />
+      <navigation-items :editable="editable" />
+      <navigation-footer
+        :editable="editable"
+        @add="modal.link.isVisible = true"
+        @edit="editable = !editable"
+      />
+    </div>
+
+    <div class="nav-content--collapse">
+      <img
+        srcset="
+          @/assets/logo_2.png,
+          @/assets/logo_2@2x.png 2x
+        "
+        src="@/assets/logo_2.png"
+        alt="Root Logo"
+      />
+
+      <button
+        class="btn p-0 border-none bg-transparent"
+        @click="toggleCollapse"
+      >
+        <v-icon
+          name="right"
+          size="2em"
+          viewbox="36"
+          class="text-white"
+        />
+      </button>
+    </div>
 
     <v-modal
       title="Add Link"
@@ -16,7 +48,7 @@
       @confirm="() => $refs.link.submit()"
     >
       <div class="modal-body">
-        <resource-form-link
+        <form-link
           @submit="addLink"
           ref="link"
         />
@@ -31,11 +63,13 @@ import { mapState } from 'vuex'
 
 import { LinkResource } from '@/types/resource'
 
+import FormLink from '@/components/resource/ResourceFormLink.vue'
+import VIcon from '@/components/icons/Index.vue'
+import VModal from '@/components/Modal.vue'
+
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
-import ResourceFormLink from '@/components/resource/ResourceFormLink.vue'
-import VModal from '@/components/Modal.vue'
 
 type ComponentData = {
   editable: boolean;
@@ -43,9 +77,9 @@ type ComponentData = {
     link: {
       isVisible: boolean;
       isLoading: boolean;
-      alert: {
+      alert: null | {
         message: string;
-      } | null;
+      };
     };
   };
 }
@@ -56,7 +90,8 @@ export default Vue.extend({
     NavigationHeader,
     NavigationItems,
     NavigationFooter,
-    ResourceFormLink,
+    FormLink,
+    VIcon,
     VModal
   },
   data (): ComponentData {
@@ -72,7 +107,11 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState('auth', ['spaces'])
+    ...mapState('auth', ['spaces']),
+
+    collapse (): boolean {
+      return this.$store.state.nav.collapse
+    }
   },
   created () {
     if (this.spaces && this.spaces.length === 0) {
@@ -82,6 +121,9 @@ export default Vue.extend({
   methods: {
     search (keyword: string): void {
       console.log(`Search: ${keyword}`)
+    },
+    toggleCollapse () {
+      this.$store.commit('nav/setCollapse', !this.collapse)
     },
     async addLink (data: LinkResource) {
       this.modal.link.isLoading = true
