@@ -40,7 +40,7 @@ export default Vue.extend({
 .multipane-resizer {
   @apply border-l border-gray-100;
 
-  height: 100vh;
+  height: 100vh !important;
 }
 
 .content {
