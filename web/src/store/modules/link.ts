@@ -5,8 +5,6 @@ import { LinkResource } from '@/types/resource'
 
 import LinkService from '@/services/link'
 
-import { treeTransform } from '../helpers/treeTransform'
-
 const LinkModule: Module<LinkState, RootState> = {
   namespaced: true,
 
@@ -14,12 +12,6 @@ const LinkModule: Module<LinkState, RootState> = {
     return {
       active: null,
       payload: []
-    }
-  },
-
-  getters: {
-    tree (state) {
-      return state.payload.map(treeTransform)
     }
   },
 
