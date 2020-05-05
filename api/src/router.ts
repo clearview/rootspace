@@ -58,5 +58,6 @@ router.delete('/links/:id', auth, mapRoute(LinksCtrl, 'delete'))
 router.get('/docs/:id', auth, mapRoute(DocsCtrl, 'view'))
 router.post('/docs', auth, mapRoute(DocsCtrl, 'create'))
 router.patch('/docs/:id', auth, mapRoute(DocsCtrl, 'update'))
+router.delete('/docs/:id', auth, mapRoute(DocsCtrl, 'delete'))
 
 export default router

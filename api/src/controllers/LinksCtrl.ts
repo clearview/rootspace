@@ -1,28 +1,31 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
-import { LinkService } from '../services/LinkService'
-import { ContentMediator } from '../mediator/ContentMediator'
 import { LinkType } from '../constants'
+import { LinkCreateValue } from '../values/link/LinkCreateValue'
+import { LinkUpdateValue } from '../values/link/LinkUpdateValue'
+import { LinkService } from '../services/entities/LinkService'
+import { ContentManager } from '../services/ContentManager'
+import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
-  protected contentMediator: ContentMediator
+  protected contentManager: ContentManager
 
   constructor() {
     super()
     this.linkSrvice = new LinkService()
+    this.contentManager = new ContentManager()
   }
 
   public async view(req: Request, res: Response) {
     const link = await this.linkSrvice.getLinkById(Number(req.params.id))
-
     const content = this.responseContent(link)
 
     if (link.type !== LinkType.Link) {
-      const linkContent = await this.contentMediator.getLinkContent(link)
+      const linkContent = await this.contentManager.getLinkContent(link)
       content.includes(linkContent, link.type)
     }
 
@@ -36,30 +39,39 @@ export class LinksCtrl extends BaseCtrl {
     res.send(content)
   }
 
-  public async create(req: Request, res: Response) {
-    const validData: object = {
-      userId: req.user.id,
-    }
-    const data = Object.assign(req.body, validData)
+  public async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = req.body.data
+      await validateLinkCreate(data)
 
-    if (data.parent) {
-      const parent = await getCustomRepository(LinkRepository).findOne(
-        Number(data.parent)
+      const value = LinkCreateValue.fromObjectAndUserId(
+        data,
+        Number(req.user.id)
       )
-      data.parent = parent
-    }
 
-    const space = getCustomRepository(LinkRepository).create(data)
-    const newSpace = await getCustomRepository(LinkRepository).save(space)
-    res.send(newSpace)
+      const link = await this.linkSrvice.create(value)
+      const content = this.responseContent(link)
+
+      res.send(content)
+    } catch (err) {
+      next(err)
+    }
   }
 
-  public async update(req: Request, res: Response) {
-    const space = await getCustomRepository(LinkRepository).update(
-      Number(req.params.id),
-      req.body
-    )
-    return this.view(req, res)
+  public async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id)
+      const data = req.body.data
+
+      await validateLinkUpdate(data)
+
+      const value = LinkUpdateValue.fromObject(data)
+      const result = await this.linkSrvice.update(value, id)
+
+      res.send(result)
+    } catch (err) {
+      next(err)
+    }
   }
 
   public async delete(req: Request, res: Response) {

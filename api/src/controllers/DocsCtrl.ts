@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
-import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
-import { DocRepository } from '../repositories/DocRepository'
-import { DocService } from '../services/DocService'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
+import { DocCreateValue } from '../values/doc/DocCreateValue'
+import { DocUpdateValue } from '../values/doc/DocUpdateValue'
+import { DocService } from '../services/entities/DocService'
+import { clientError } from '../errors/httpError'
+import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -13,10 +15,20 @@ export class DocsCtrl extends BaseCtrl {
     this.docService = new DocService()
   }
 
-  async view(req: Request, res: Response) {
+  async view(req: Request, res: Response, next: NextFunction) {
     const doc = await this.docService.getDocById(Number(req.params.id))
-    const content = this.responseContent(doc)
 
+    if (!doc) {
+      return next(
+        clientError(
+          'Document not found',
+          ClientErrName.EntityNotFound,
+          ClientStatusCode.NotFound
+        )
+      )
+    }
+
+    const content = this.responseContent(doc)
     res.send(content)
   }
 
@@ -25,7 +37,12 @@ export class DocsCtrl extends BaseCtrl {
       const data = req.body.data
       await validateDocCreate(data)
 
-      const doc = await this.docService.create(data, req.user.id)
+      const value = DocCreateValue.fromObjectAndUserId(
+        data,
+        Number(req.user.id)
+      )
+
+      const doc = await this.docService.create(value)
       const content = this.responseContent(doc)
 
       res.send(content)
@@ -39,19 +56,19 @@ export class DocsCtrl extends BaseCtrl {
       const id = Number(req.params.id)
       const data = req.body.data
 
-      await validateDocUpdate(req.body.data)
+      await validateDocUpdate(data)
 
-      const updateResult = await this.docService.update(data, id)
-      res.send(updateResult)
+      const value = DocUpdateValue.fromObject(data)
+      const result = await this.docService.update(value, id)
+
+      res.send({ updated: result })
     } catch (err) {
       next(err)
     }
   }
 
   async delete(req: Request, res: Response) {
-    const doc = await getCustomRepository(DocRepository).delete({
-      id: Number(req.params.id),
-    })
-    res.send({ deleted: true })
+    const result = await this.docService.delete(Number(req.params.id))
+    res.send(result)
   }
 }

@@ -1,6 +1,6 @@
 import { Link } from '../../entities/Link'
 import { Doc } from '../../entities/Doc'
-import { DocService } from '../../services/DocService'
+import { DocService } from '../../services/entities/DocService'
 import { LinkContent, ILinkContent } from './LinkContent'
 
 export class LinkDoc extends LinkContent<Doc> implements ILinkContent<Doc> {

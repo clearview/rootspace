@@ -3,7 +3,7 @@ import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
-import { UserService } from './services/UserService'
+import { UserService } from './services/entities/UserService'
 import { ClientErrName, ClientStatusCode } from './errors/httpErrorProperty'
 import { clientError } from './errors/httpError'
 import {
