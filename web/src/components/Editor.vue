@@ -43,9 +43,6 @@ export default Vue.extend({
   props: {
     content: {
       type: Object
-    },
-    isChanged: {
-      type: Boolean
     }
   },
   data (): ComponentData {
@@ -134,6 +131,16 @@ export default Vue.extend({
             class: Checklist,
             inlineToolbar: true
           }
+        },
+        onChange: () => {
+          this.documentChanged = true
+          // console.log('Editor.js is ready to work!', this.documentChanged)
+          // console.log('Content', this.content)
+
+          window.editor.save().then((savedData: object) => {
+            // console.log('savedData', savedData)
+            this.$emit('update-editor', savedData, this.documentChanged)
+          })
         }
       })
     }

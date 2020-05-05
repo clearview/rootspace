@@ -1,11 +1,12 @@
 <template>
   <layout-main>
     <div class="document-container">
+      {{ title }}
       <div id="editor-toolbar">
         <h1 ref="title" contenteditable v-on="documentTitle" />
       </div>
 
-      <editor id="editor" :content="value" :is-changed="isChanged" />
+      <editor id="editor" :content="value" @update-editor="onUpdateEditor" />
     </div>
   </layout-main>
 </template>
@@ -49,7 +50,9 @@ export default Vue.extend({
   },
   computed: {
     documentTitle () {
-      return { ...this.$documentTitle, input: this.onInput }
+      return {
+        input: this.onInput()
+      }
     }
   },
   mounted () {
@@ -60,7 +63,7 @@ export default Vue.extend({
       } else {
         console.log('not changed')
       }
-    }, 3 * 1000)
+    }, 5 * 1000)
 
     this.$refs.title.innerText = this.title
   },
@@ -71,10 +74,16 @@ export default Vue.extend({
         this.value = savedData
       })
     },
-    onInput (e) {
+    onInput (e: object) {
       // this.$emit('input', e.target.innerText)
       // console.log(e.target.innerText)
       this.title = e.target.innerText
+    },
+    onUpdateEditor (...args: [object, boolean]) {
+      const [value, isChanged] = args
+      this.value = value
+      this.isChanged = isChanged
+      console.log('onUpdateEditor', this.value, this.isChanged)
     }
   }
 })
