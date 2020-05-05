@@ -1,9 +1,8 @@
 <template>
   <layout-main>
     <div class="document-container">
-      {{ title }}
       <div id="editor-toolbar">
-        <h1 ref="title" contenteditable v-on="documentTitle" />
+        <h1 ref="title" contenteditable v-text="title" @blur="onInput" />
       </div>
 
       <editor id="editor" :content="value" @update-editor="onUpdateEditor" />
@@ -48,13 +47,6 @@ export default Vue.extend({
       title: 'Document Title'
     }
   },
-  computed: {
-    documentTitle () {
-      return {
-        input: this.onInput()
-      }
-    }
-  },
   mounted () {
     window.setInterval(() => {
       if (this.isChanged) {
@@ -65,7 +57,7 @@ export default Vue.extend({
       }
     }, 5 * 1000)
 
-    this.$refs.title.innerText = this.title
+    // this.$refs.title.innerText = this.title
   },
   methods: {
     save () {
@@ -74,10 +66,11 @@ export default Vue.extend({
         this.value = savedData
       })
     },
-    onInput (e: object) {
+    onInput (evt: any) { // eslint-disable-line
       // this.$emit('input', e.target.innerText)
-      // console.log(e.target.innerText)
-      this.title = e.target.innerText
+      console.log(evt)
+      const src = evt.target.innerText
+      this.title = src
     },
     onUpdateEditor (...args: [object, boolean]) {
       const [value, isChanged] = args
