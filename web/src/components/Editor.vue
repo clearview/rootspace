@@ -140,3 +140,46 @@ export default Vue.extend({
   }
 })
 </script>
+
+<style lang="postcss">
+#codex-editor {
+  .ce-block--focused {
+    .ce-block__content {
+      .ce-header,
+      .cdx-list,
+      .ce-paragraph {
+        background-color: theme("colors.bluesky");
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .ce-header {
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .cdx-settings-button--active,
+  .ce-toolbox__button--active,
+  .ce-toolbox__button:hover,
+  .ce-toolbar__plus--active,
+  .ce-toolbar__plus:hover {
+    color: theme("colors.primary.default");
+  }
+
+  .tc-toolbar {
+    background-color: theme("colors.primary.default");
+  }
+
+  .tc-toolbar__plus svg circle {
+    fill: theme("colors.primary.default");
+  }
+
+  .ce-toolbox {
+    background: theme("colors.secondary.default");
+    width: 100%;
+    justify-content: center;
+    border-radius: 2px;
+  }
+}
+</style>

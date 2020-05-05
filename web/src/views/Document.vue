@@ -1,10 +1,12 @@
 <template>
   <layout-main>
-    <div id="editor-toolbar">
-      <h1>Document Title</h1>
-    </div>
+    <div class="document-container">
+      <div id="editor-toolbar">
+        <h1 ref="title" contenteditable v-on="documentTitle" />
+      </div>
 
-    <editor id="editor" :content="value" :is-changed="isChanged" />
+      <editor id="editor" :content="value" :is-changed="isChanged" />
+    </div>
   </layout-main>
 </template>
 
@@ -17,6 +19,7 @@ import Editor from '@/components/Editor.vue'
 type ComponentData = {
   value: object;
   isChanged: boolean;
+  title: string;
 }
 
 export default Vue.extend({
@@ -40,7 +43,13 @@ export default Vue.extend({
           }
         ]
       },
-      isChanged: false
+      isChanged: false,
+      title: 'Document Title'
+    }
+  },
+  computed: {
+    documentTitle () {
+      return { ...this.$documentTitle, input: this.onInput }
     }
   },
   mounted () {
@@ -52,6 +61,8 @@ export default Vue.extend({
         console.log('not changed')
       }
     }, 3 * 1000)
+
+    this.$refs.title.innerText = this.title
   },
   methods: {
     save () {
@@ -59,39 +70,39 @@ export default Vue.extend({
         console.log(savedData)
         this.value = savedData
       })
+    },
+    onInput (e) {
+      // this.$emit('input', e.target.innerText)
+      // console.log(e.target.innerText)
+      this.title = e.target.innerText
     }
   }
 })
 </script>
 
 <style lang="postcss" scoped>
-h1 {
-  @apply text-lg;
-}
+.document-container {
+  @apply max-w-2xl mx-auto p-0;
 
-#editor-toolbar {
-  @apply flex justify-between border-b-2 w-full p-0 px-2;
+  width: 43.8rem;
 
-  border-color: theme("colors.secondary.default");
-  position: absolute;
-  top: 0.5rem;
-  right: 0;
-  left: 0;
-  height: 40px;
+  h1 {
+    font-size: 2rem;
 
-  .btn {
-    padding: 0;
-    height: 30px;
-    width: 125px;
+    &:focus {
+      outline: none;
+    }
   }
-}
 
-#editor {
-  height: calc(100vh - 50px);
-  overflow: auto;
-  position: absolute;
-  top: 3rem;
-  right: 0;
-  left: 0;
+  #editor-toolbar {
+    @apply flex justify-between border-b-2 w-full p-0;
+
+    border-color: theme("colors.secondary.default");
+    padding-bottom: 1.5rem;
+  }
+
+  #editor {
+    padding-top: .5rem;
+  }
 }
 </style>
