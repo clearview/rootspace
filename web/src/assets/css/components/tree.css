@@ -1,87 +1,74 @@
-.tree {
-  .tree-root {
-    @apply p-0 !important;
-  }
+.tree-node-back {
+  @apply relative;
 
-  .tree-node {
-    &.selected > .tree-content {
-      background-color: rgba(theme('colors.gray.100'), 0.5);
-    }
+  border-radius: 4px;
 
-    &:not(.selected) > .tree-content:hover {
-      background-color: rgba(theme('colors.gray.100'), 0.25);
-    }
-  }
-
-  .tree-arrow {
-    position: relative;
-    height: 20px;
-    margin-left: 20px;
-
-    &.has-child {
-      width: 20px;
-
-      &:after {
-        @apply border-gray-400;
-
-        top: calc(50% - 1px);
-        left: calc(50% - 4px);
-
-        height: 8px;
-        width: 8px;
-      }
-    }
-  }
-
-  .tree-anchor {
-    @apply m-0;
-  }
-
-  .tree-anchor-container {
-    @apply flex flex-row items-center;
-  }
-
-  .tree-icon {
-    @apply text-gray-400;
-
-    padding-right: 6px;
-  }
-
-  .tree-action {
-    @apply flex flex-row items-center;
-    @apply absolute right-0 pr-1;
-    @apply text-gray-400;
-    @apply hidden;
-
-    button {
-      @apply outline-none;
-    }
-  }
-
-  .tree-dnd {
-    @apply absolute left-0;
-    @apply text-gray-400;
-    @apply hidden;
-  }
-
-  .tree-content {
-    padding: 0;
-    margin: 6px 0;
+  &:hover {
+    @apply bg-gray-100;
   }
 }
 
-.tree.tree__editable {
-  .tree-content:hover {
-    .tree-arrow.has-child {
-      margin-left: 20px;
-    }
+.tree-node-content {
+  @apply flex flex-row;
+  @apply cursor-pointer;
 
-    .tree-dnd {
-      @apply flex;
-    }
+  padding: 6px;
+}
 
-    .tree-action {
-      @apply flex;
-    }
+.tree-node-handle,
+.tree-node-arrow,
+.tree-node-icon,
+.tree-node-actions {
+  @apply flex items-center;
+  @apply text-gray-400;
+
+  margin-right: 6px;
+}
+
+.tree-node-handle {
+  @apply hidden;
+  @apply absolute left-0;
+  @apply cursor-pointer;
+
+  top: calc(50% - 0.5em);
+}
+
+.tree-node-arrow {
+  margin-left: 1em;
+
+  &.is-hidden {
+    visibility: hidden;
+  }
+}
+
+.tree-node-text {
+  @apply flex flex-1;
+  @apply leading-tight;
+
+  input {
+    @apply outline-none;
+
+    width: calc(100% - 2em - 6px);
+  }
+}
+
+.tree-node-actions {
+  @apply hidden;
+  @apply absolute right-0;
+}
+
+.tree-placeholder-node{
+  @apply bg-gray-100 opacity-25;
+
+  border-radius: 4px;
+  height: 28px;
+}
+
+.tree-node-content.is-editable {
+  @apply cursor-auto;
+
+  .tree-node-handle,
+  .tree-node-actions {
+    @apply block;
   }
 }
