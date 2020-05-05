@@ -35,9 +35,8 @@
           />
           <input
             v-show="path.join('.') === editPath"
-            v-model="node.title"
-            @blur="update(node, path)"
-            @keydown.enter="update(node, path)"
+            v-model.lazy="node.title"
+            @change="update(node, path)"
             @keydown.esc="editPath = null"
           />
         </div>
@@ -135,15 +134,14 @@ export default Vue.extend({
       const tree: Tree = this.$refs.tree as Tree
       const parent = tree.getNodeParentByPath(path)
 
+      this.editPath = null
+
       try {
         await this.$store.dispatch('link/update', {
           id: data.id,
           title: data.title,
-          parent: parent && parent.id
+          parent: (parent && parent.id) || null
         })
-        await this.$store.dispatch('link/fetch')
-
-        this.editPath = null
       } catch (err) {
         this.alert = {
           message: err.message
@@ -153,7 +151,6 @@ export default Vue.extend({
     async destroy (data: LinkResource) {
       try {
         await this.$store.dispatch('link/destroy', data)
-        await this.$store.dispatch('link/fetch')
       } catch (err) {
         this.alert = {
           message: err.message
@@ -165,7 +162,7 @@ export default Vue.extend({
     await this.fetch()
 
     this.$store.subscribe(mutation => {
-      const pattern = /(.*)Payload$/
+      const pattern = /(.*)Link$/
 
       if (pattern.test(mutation.type)) {
         this.treeKey += 1

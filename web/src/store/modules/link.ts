@@ -22,11 +22,25 @@ const LinkModule: Module<LinkState, RootState> = {
     setPayload (state, payload) {
       state.payload = payload
     },
-    pushPayload (state, link) {
+    addLink (state, link) {
       state.payload = [
         ...state.payload,
         link
       ]
+    },
+    updateLink (state, link) {
+      state.payload = state.payload.map(
+        item => (
+          item.id === link.id
+            ? link
+            : item
+        )
+      )
+    },
+    removeLink (state, link) {
+      state.payload = state.payload.filter(
+        item => item.id !== link.id
+      )
     }
   },
 
@@ -40,11 +54,13 @@ const LinkModule: Module<LinkState, RootState> = {
     async create ({ commit }, data: LinkResource) {
       const res = await LinkService.create(data)
 
-      commit('pushPayload', res)
+      commit('addLink', res)
     },
 
-    async update (_, data: LinkResource) {
-      await LinkService.update(data.id, data)
+    async update ({ commit }, data: LinkResource) {
+      const res = await LinkService.update(data.id, data)
+
+      commit('updateLink', res)
     },
 
     async destroy ({ commit }, data: LinkResource) {
@@ -54,7 +70,7 @@ const LinkModule: Module<LinkState, RootState> = {
 
       await LinkService.destroy(data.id)
 
-      commit('removePayload', data)
+      commit('removeLink', data)
     }
   }
 }
