@@ -1,26 +1,11 @@
 <template>
   <form
-    class="form"
+    class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
     <v-field
-      label="Section"
-      class="mt-0"
-    >
-      <v-select
-        class="select"
-        placeholder="Select section"
-        v-model="payload.sectionId"
-        :options="sections"
-        :reduce="item => item.key"
-      />
-    </v-field>
-
-    <hr class="my-4 border-gray-100" />
-
-    <v-field
+      v-if="!notitle"
       label="Title"
-      :disabled="!payload.sectionId"
     >
       <div class="flex flow-row items-center">
         <input
@@ -39,7 +24,6 @@
 
     <v-field
       label="Link"
-      :disabled="!payload.sectionId"
     >
       <input
         type="text"
@@ -54,16 +38,16 @@
       border
       label="Always open in new Tab"
       class="mb-0"
-      :disabled="!payload.sectionId"
     >
       <button-switch v-model="payload.config.alwaysOpen" />
     </v-field>
+
+    <button type="submit" class="hidden"/>
   </form>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import VSelect from 'vue-select'
 
 import { required } from 'vuelidate/lib/validators'
 
@@ -74,11 +58,7 @@ import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
-  sections: {
-    key: number;
-    label: string;
-  }[];
-  payload: Omit<LinkResource, 'id' | 'children'>;
+  payload: Omit<LinkResource, 'children'>;
 }
 
 export default Vue.extend({
@@ -86,46 +66,39 @@ export default Vue.extend({
   components: {
     ButtonSwitch,
     VField,
-    VIcon,
-    VSelect
+    VIcon
   },
   props: {
+    value: {
+      type: Object,
+      default: () => ({})
+    },
     space: {
       type: Number,
       default: 0
+    },
+    notitle: {
+      type: Boolean
     }
   },
   validations: {
     payload: {
-      sectionId: { required },
       title: { required },
       value: { required }
     }
   },
   data (): ComponentData {
     return {
-      sections: [
-        {
-          key: 1,
-          label: 'Section 1'
-        },
-        {
-          key: 2,
-          label: 'Section 2'
-        },
-        {
-          key: 3,
-          label: 'Section 3'
-        }
-      ],
       payload: {
-        spaceId: this.space,
-        sectionId: null,
-        title: '',
-        type: 'link',
-        value: '',
+        id: this.value.id || undefined,
+        spaceId: this.value.space || this.space,
+        title: this.value.title || '',
+        type: this.value.type || 'link',
+        value: this.value.value || '',
         config: {
-          alwaysOpen: false
+          alwaysOpen: false,
+
+          ...this.value.config
         }
       }
     }
@@ -141,9 +114,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.form {
-  width: 360px;
-}
-</style>

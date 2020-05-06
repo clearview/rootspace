@@ -5,8 +5,7 @@
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      :value="treeData"
-      :key="treeKey"
+      :value="value"
       @drop="update($event.dragNode, $event.targetPath)"
       #default="{ node, path }"
     >
@@ -16,7 +15,10 @@
         @click="open(node)"
       >
         <div class="tree-node-handle">
-          <v-icon name="dots" />
+          <v-icon
+            name="dots"
+            size="20px"
+          />
         </div>
         <div
           class="tree-node-arrow"
@@ -29,19 +31,19 @@
         </div>
         <div class="tree-node-text">
           <span
-            v-show="path.join('.') !== editPath"
+            v-show="!isSelected(path)"
             v-text="node.title"
-            @dblclick="editPath = path.join('.')"
+            @dblclick="select(path)"
           />
           <input
-            v-show="path.join('.') === editPath"
+            v-show="isSelected(path)"
             v-model.lazy="node.title"
             @change="update(node, path)"
-            @keydown.esc="editPath = null"
+            @keydown.esc="select(null)"
           />
         </div>
         <div class="tree-node-actions">
-          <button>
+          <button @click="update(node, path, true)">
             <v-icon name="link-edit" />
           </button>
           <button @click="destroy(node)">
@@ -55,6 +57,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import _ from 'lodash/fp'
 import { Tree, Draggable } from 'he-tree-vue'
 
 import VIcon from '@/components/icons/Index.vue'
@@ -62,12 +65,7 @@ import VIcon from '@/components/icons/Index.vue'
 import { LinkResource } from '@/types/resource'
 
 type ComponentData = {
-  treeKey: number;
-  loading: boolean;
-  editPath: null | string;
-  alert: null | {
-    message: string;
-  };
+  selected: string | null;
 }
 
 interface Tree extends Vue {
@@ -85,89 +83,56 @@ export default Vue.extend({
     VIcon
   },
   props: {
+    value: {
+      type: Array
+    },
     editable: {
       type: Boolean
     }
   },
   data (): ComponentData {
     return {
-      treeKey: 0,
-      loading: false,
-      editPath: null,
-      alert: null
+      selected: null
     }
   },
   computed: {
     treeData () {
       return this.$store.state.link.payload
-    },
-    treeOptions () {
-      return {
-        dnd: this.editable
-      }
-    }
-  },
-  watch: {
-    editable () {
-      this.treeKey += 1
     }
   },
   methods: {
     hasChildren (link: LinkResource) {
       return link.children && link.children.length > 0
     },
+    select (path: number[] | null) {
+      this.selected = !path ? path : path.join('.')
+    },
+    isSelected (path: number[]) {
+      return this.selected === path.join('.')
+    },
     open (data: LinkResource) {
-      if (this.editable) {
-        return
+      if (!this.editable) {
+        window.open(data.value, '_blank')
       }
-
-      window.open(data.value, '_blank')
     },
-    async fetch () {
-      this.loading = true
-
-      await this.$store.dispatch('link/fetch')
-
-      this.loading = false
-    },
-    async update (data: LinkResource, path: number[]) {
+    update (data: LinkResource, path: number[], modal = false) {
       const tree: Tree = this.$refs.tree as Tree
       const parent = tree.getNodeParentByPath(path)
 
-      this.editPath = null
-
-      try {
-        await this.$store.dispatch('link/update', {
-          id: data.id,
-          title: data.title,
-          parent: (parent && parent.id) || null
-        })
-      } catch (err) {
-        this.alert = {
-          message: err.message
-        }
+      const _data = {
+        ...data,
+        parent: (parent && parent.id) || null,
+        children: undefined,
+        created: undefined,
+        updated: undefined
       }
+
+      this.select(null)
+      this.$emit('update', _data, modal)
     },
-    async destroy (data: LinkResource) {
-      try {
-        await this.$store.dispatch('link/destroy', data)
-      } catch (err) {
-        this.alert = {
-          message: err.message
-        }
-      }
+    destroy (data: LinkResource) {
+      this.$emit('destroy', data)
     }
-  },
-  async created () {
-    await this.fetch()
-
-    this.$store.subscribe(mutation => {
-      const pattern = /(.*)Link$/
-
-      if (pattern.test(mutation.type)) {
-        this.treeKey += 1
-      }
-    })
   }
 })
 </script>

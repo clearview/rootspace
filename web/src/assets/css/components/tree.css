@@ -30,7 +30,7 @@
   @apply absolute left-0;
   @apply cursor-pointer;
 
-  top: calc(50% - 0.5em);
+  top: calc(50% - 10px);
 }
 
 .tree-node-arrow {
