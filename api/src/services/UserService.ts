@@ -2,18 +2,18 @@ import { config } from 'node-config-ts'
 import pug from 'pug'
 import path from 'path'
 import bcrypt from 'bcryptjs'
-import { hashPassword } from '../../utils'
+import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
-import { UserRepository } from '../../repositories/UserRepository'
-import { User } from '../../entities/User'
+import { UserRepository } from '../repositories/UserRepository'
+import { User } from '../entities/User'
 import {
   ISignupProvider,
   IUserUpdateProvider,
   IChangePasswordProvider,
-} from '../../types/user'
-import { clientError } from '../../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../../errors/httpErrorProperty'
-import { MailService } from '../mail/MailService'
+} from '../types/user'
+import { clientError } from '../errors/httpError'
+import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 
 export class UserService {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { InviteService } from '../services/entities/InviteService'
+import { InviteService } from '../services/InviteService'
 import { InviteAcceptValidator } from '../validation/invite/InviteAcceptValidator'
 
 export class InviteCtrl extends BaseCtrl {

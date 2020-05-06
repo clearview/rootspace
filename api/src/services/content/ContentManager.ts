@@ -1,8 +1,8 @@
-import { Doc } from '../entities/Doc'
-import { Link } from '../entities/Link'
-import { LinkCreateValue } from '../values/link/LinkCreateValue'
-import { LinkService } from './entities/LinkService'
-import { DocService } from './entities/DocService'
+import { Doc } from '../../entities/Doc'
+import { Link } from '../../entities/Link'
+import { LinkCreateValue } from '../../values/link'
+import { LinkService } from '../LinkService'
+import { DocService } from '../DocService'
 
 export class ContentManager {
   private services = {
@@ -40,24 +40,30 @@ export class ContentManager {
     return this.getDocService().getDocById(Number(link.value))
   }
 
+  linkDeleted(link: Link) {
+    this.getDocService().delete(Number(link.value))
+  }
+
   getDocLink(doc: Doc): Promise<Link> {
     return this.getLinkService().getLinkByValue(String(doc.id))
   }
 
   async docCreated(doc: Doc): Promise<boolean> {
-    const data = new LinkCreateValue(
-      doc.userId,
-      doc.spaceId,
-      doc.title,
-      'doc',
-      String(doc.id)
-    )
-
+    const data = LinkCreateValue.fromDoc(doc)
     await this.getLinkService().create(data)
+
     return true
   }
 
-  private getDocService() {
+  async docDeleted(doc: Doc) {
+    const link = await this.getLinkService().getLinkByValue(String(doc.id))
+
+    if (link) {
+      this.getLinkService().delete(link.id)
+    }
+  }
+
+  private getDocService(): DocService {
     if (!this.services.docService) {
       this.services.docService = DocService.getInstance()
     }
@@ -65,9 +71,9 @@ export class ContentManager {
     return this.services.docService
   }
 
-  private getLinkService() {
+  private getLinkService(): LinkService {
     if (!this.services.linkService) {
-      this.services.linkService = new LinkService()
+      this.services.linkService = LinkService.getInstance()
     }
 
     return this.services.linkService

@@ -1,10 +1,4 @@
-export interface IDocCreateObject {
-  userId: number
-  spaceId: number
-  title: string
-  content: string
-  access: number
-}
+import {IDocCreateObject} from './types'
 
 export class DocCreateValue {
   private readonly props: IDocCreateObject = {

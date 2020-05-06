@@ -6,7 +6,7 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../repositories/UserRepository'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { UserService } from '../services/entities/UserService'
+import { UserService } from '../services/UserService'
 import {
   validateUserSignup,
   validateUserUpdate,

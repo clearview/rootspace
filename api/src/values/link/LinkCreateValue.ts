@@ -1,11 +1,6 @@
-export interface ILinkCreateObject {
-  userId: number
-  spaceId: number
-  title: string
-  type: string
-  value: string
-  parent?: number
-}
+import { ILinkCreateObject } from './types'
+import { Doc } from '../../entities/Doc'
+import { LinkType } from '../../constants'
 
 export class LinkCreateValue {
   private readonly props: ILinkCreateObject = {
@@ -63,7 +58,7 @@ export class LinkCreateValue {
     return this.props
   }
 
-  static fromObject(data: ILinkCreateObject) {
+  static fromObject(data: ILinkCreateObject): LinkCreateValue {
     return new LinkCreateValue(
       data.userId,
       data.spaceId,
@@ -74,8 +69,21 @@ export class LinkCreateValue {
     )
   }
 
-  static fromObjectAndUserId(data: ILinkCreateObject, userId: number) {
+  static fromObjectAndUserId(
+    data: ILinkCreateObject,
+    userId: number
+  ): LinkCreateValue {
     Object.assign(data, { userId })
     return LinkCreateValue.fromObject(data)
+  }
+
+  static fromDoc(doc: Doc): LinkCreateValue {
+    return new LinkCreateValue(
+      doc.userId,
+      doc.spaceId,
+      doc.title,
+      LinkType.Doc,
+      String(doc.id)
+    )
   }
 }

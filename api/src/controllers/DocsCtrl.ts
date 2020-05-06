@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
-import { DocService } from '../services/entities/DocService'
+import { DocService } from '../services/DocService'
 import { clientError } from '../errors/httpError'
 import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
-import { ContentManager } from '../services/ContentManager'
+import { ContentManager } from '../services/content/ContentManager'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -48,7 +48,7 @@ export class DocsCtrl extends BaseCtrl {
       const resData = this.responseData(doc)
 
       const link = await this.contentManager.getDocLink(doc)
-      
+
       resData.includes(link, 'link')
 
       res.send(resData)

@@ -1,7 +1,4 @@
-export interface ILinkUpdateObject {
-  title?: string
-  value?: string
-}
+import { ILinkUpdateObject } from './types'
 
 export class LinkUpdateValue {
   private readonly props: ILinkUpdateObject = {

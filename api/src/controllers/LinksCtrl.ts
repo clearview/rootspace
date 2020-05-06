@@ -3,8 +3,8 @@ import { BaseCtrl } from './BaseCtrl'
 import { LinkType } from '../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
-import { LinkService } from '../services/entities/LinkService'
-import { ContentManager } from '../services/ContentManager'
+import { LinkService } from '../services/LinkService'
+import { ContentManager } from '../services/content/ContentManager'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -12,7 +12,7 @@ export class LinksCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.linkSrvice = new LinkService()
+    this.linkSrvice = LinkService.getInstance()
     this.contentManager = ContentManager.getInstance()
   }
 
@@ -70,8 +70,12 @@ export class LinksCtrl extends BaseCtrl {
     }
   }
 
-  public async delete(req: Request, res: Response) {
-    const result = await this.linkSrvice.delete(Number(req.params.id))
-    res.send(result)
+  public async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await this.linkSrvice.delete(Number(req.params.id))
+      res.send(result)
+    } catch (err) {
+      next(err)
+    }
   }
 }

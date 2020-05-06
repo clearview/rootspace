@@ -1,8 +1,8 @@
 import { getCustomRepository } from 'typeorm'
-import { SpaceRepository } from '../../repositories/SpaceRepository'
-import { UserToSpaceRepository } from '../../repositories/UserToSpaceRepository'
-import { Space } from '../../entities/Space'
-import { ISpaceProvider } from '../../types/space'
+import { SpaceRepository } from '../repositories/SpaceRepository'
+import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
+import { Space } from '../entities/Space'
+import { ISpaceProvider } from '../types/space'
 
 export class SpaceService {
   getSpaceRepository(): SpaceRepository {

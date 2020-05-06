@@ -1,8 +1,4 @@
-export interface IDocUpdateObject {
-  title?: string
-  content?: string
-  access?: number
-}
+import { IDocUpdateObject } from './types'
 
 export class DocUpdateValue {
   private readonly props: IDocUpdateObject = {
