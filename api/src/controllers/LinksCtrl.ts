@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
-import { LinkRepository } from '../repositories/LinkRepository'
-import { Link } from '../entities/Link'
 import { LinkType } from '../constants'
-import { LinkCreateValue } from '../values/link/LinkCreateValue'
-import { LinkUpdateValue } from '../values/link/LinkUpdateValue'
+import { LinkCreateValue, LinkUpdateValue } from '../values/link'
+import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/entities/LinkService'
 import { ContentManager } from '../services/ContentManager'
-import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -22,7 +18,7 @@ export class LinksCtrl extends BaseCtrl {
 
   public async view(req: Request, res: Response) {
     const link = await this.linkSrvice.getLinkById(Number(req.params.id))
-    const content = this.responseContent(link)
+    const content = this.responseData(link)
 
     if (link.type !== LinkType.Link) {
       const linkContent = await this.contentManager.getLinkContent(link)
@@ -33,10 +29,10 @@ export class LinksCtrl extends BaseCtrl {
   }
 
   public async listAll(req: Request, res: Response) {
-    const links = await getTreeRepository(Link).findTrees()
-    const content = this.responseContent(links)
+    const links = await this.linkSrvice.getAll()
+    const data = this.responseData(links)
 
-    res.send(content)
+    res.send(data)
   }
 
   public async create(req: Request, res: Response, next: NextFunction) {
@@ -50,9 +46,9 @@ export class LinksCtrl extends BaseCtrl {
       )
 
       const link = await this.linkSrvice.create(value)
-      const content = this.responseContent(link)
+      const resData = this.responseData(link)
 
-      res.send(content)
+      res.send(resData)
     } catch (err) {
       next(err)
     }
@@ -75,9 +71,7 @@ export class LinksCtrl extends BaseCtrl {
   }
 
   public async delete(req: Request, res: Response) {
-    const space = await getCustomRepository(LinkRepository).delete({
-      id: Number(req.params.id),
-    })
-    res.send({ deleted: true })
+    const result = await this.linkSrvice.delete(Number(req.params.id))
+    res.send(result)
   }
 }

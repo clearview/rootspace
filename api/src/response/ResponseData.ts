@@ -1,15 +1,15 @@
 import { isArray } from 'util'
 
-export class ResponseContent {
+export class ResponseData {
   protected data: object | object[]
   protected included: object
 
   constructor(data: object) {
-    this.data = this.createResponseData(data)
+    this.data = this.buildData(data)
   }
 
   includes(data: object | object, name: string) {
-    const include = { [name]: this.createResponseData(data) }
+    const include = { [name]: this.buildData(data) }
 
     if (this.included === undefined) {
       this.included = include
@@ -19,7 +19,7 @@ export class ResponseContent {
     Object.assign(this.included, include)
   }
 
-  protected createResponseData(data: object | object[]): object | object[] {
+  protected buildData(data: object | object[]): object | object[] {
     if (!isArray(data)) {
       return data
     }

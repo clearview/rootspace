@@ -1,23 +1,30 @@
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { LinkRepository } from '../../repositories/LinkRepository'
 import { Link } from '../../entities/Link'
-import { LinkCreateValue } from '../../values/link/LinkCreateValue'
-import { LinkUpdateValue } from '../../values/link/LinkUpdateValue'
+import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 
 export class LinkService {
   getLinkRepository(): LinkRepository {
     return getCustomRepository(LinkRepository)
   }
 
-  async getLinkById(id: number): Promise<Link> {
-    return await this.getLinkRepository().findOne(id)
+  getLinkTreeRepository() {
+    return getTreeRepository(Link)
   }
 
-  async getLinkByValue(value: string): Promise<Link> {
-    return await this.getLinkRepository().findOne({ where: { value } })
+  getLinkById(id: number): Promise<Link> {
+    return this.getLinkRepository().findOne(id)
   }
 
-  async create(data: LinkCreateValue) {
+  getLinkByValue(value: string): Promise<Link> {
+    return this.getLinkRepository().findOne({ where: { value } })
+  }
+
+  getAll() {
+    return this.getLinkTreeRepository().findTrees()
+  }
+
+  async create(data: LinkCreateValue): Promise<Link> {
     const link = this.getLinkRepository().create()
 
     link.userId = data.userId
@@ -34,7 +41,13 @@ export class LinkService {
     return this.getLinkRepository().save(link)
   }
 
-  async update(data: LinkUpdateValue, id: number) {
+  update(data: LinkUpdateValue, id: number) {
     return this.getLinkRepository().update(id, data.toObject())
+  }
+
+  delete(id: number) {
+    return this.getLinkRepository().delete({
+      id,
+    })
   }
 }

@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
-import { DocCreateValue } from '../values/doc/DocCreateValue'
-import { DocUpdateValue } from '../values/doc/DocUpdateValue'
+import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services/entities/DocService'
 import { clientError } from '../errors/httpError'
 import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
@@ -28,8 +27,8 @@ export class DocsCtrl extends BaseCtrl {
       )
     }
 
-    const content = this.responseContent(doc)
-    res.send(content)
+    const resData = this.responseData(doc)
+    res.send(resData)
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
@@ -43,9 +42,9 @@ export class DocsCtrl extends BaseCtrl {
       )
 
       const doc = await this.docService.create(value)
-      const content = this.responseContent(doc)
+      const resData = this.responseData(doc)
 
-      res.send(content)
+      res.send(resData)
     } catch (err) {
       next(err)
     }

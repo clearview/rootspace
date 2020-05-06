@@ -15,7 +15,7 @@ export class ContentManager {
     return getLinkContent(link)
   }
 
-  async docCreatedHandler(doc: Doc): Promise<boolean> {
+  async docCreated(doc: Doc): Promise<boolean> {
     const data = new LinkCreateValue(
       doc.userId,
       doc.spaceId,

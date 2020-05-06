@@ -1,7 +1,7 @@
-import { ResponseContent } from '../response/ResponseContent'
+import { ResponseData } from '../response/ResponseData'
 
 export class BaseCtrl {
-  protected responseContent(data: object | object[]) {
-    return new ResponseContent(data)
+  protected responseData(data: object | object[]) {
+    return new ResponseData(data)
   }
 }

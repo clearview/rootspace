@@ -1,8 +1,7 @@
 import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../repositories/DocRepository'
 import { Doc } from '../../entities/Doc'
-import { DocCreateValue } from '../../values/doc/DocCreateValue'
-import { DocUpdateValue } from '../../values/doc/DocUpdateValue'
+import { DocCreateValue, DocUpdateValue } from '../../values/doc'
 import { ContentManager } from '../ContentManager'
 
 export class DocService {
@@ -22,6 +21,8 @@ export class DocService {
 
   async create(data: DocCreateValue): Promise<Doc> {
     const doc = await this.getDocRepository().save(data.toObject())
+    this.contentManager.docCreated(doc)
+
     return doc
   }
 
