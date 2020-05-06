@@ -15,3 +15,7 @@ export function getLinkContent(link: Link): Promise<object | object[] | null> {
 
   return null
 }
+
+export function getContentLink<T>(content: T){
+  console.log(typeof content)
+}

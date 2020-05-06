@@ -5,13 +5,16 @@ import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services/entities/DocService'
 import { clientError } from '../errors/httpError'
 import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { ContentManager } from '../services/ContentManager'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
+  private contentManager: ContentManager
 
   constructor() {
     super()
-    this.docService = new DocService()
+    this.docService = DocService.getInstance()
+    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
@@ -43,6 +46,10 @@ export class DocsCtrl extends BaseCtrl {
 
       const doc = await this.docService.create(value)
       const resData = this.responseData(doc)
+
+      const link = await this.contentManager.getDocLink(doc)
+      
+      resData.includes(link, 'link')
 
       res.send(resData)
     } catch (err) {

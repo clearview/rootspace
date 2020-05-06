@@ -13,7 +13,7 @@ export class LinksCtrl extends BaseCtrl {
   constructor() {
     super()
     this.linkSrvice = new LinkService()
-    this.contentManager = new ContentManager()
+    this.contentManager = ContentManager.getInstance()
   }
 
   public async view(req: Request, res: Response) {

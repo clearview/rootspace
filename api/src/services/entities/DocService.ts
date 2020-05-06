@@ -5,10 +5,20 @@ import { DocCreateValue, DocUpdateValue } from '../../values/doc'
 import { ContentManager } from '../ContentManager'
 
 export class DocService {
-  protected contentManager: ContentManager
+  private contentManager: ContentManager
 
-  constructor() {
-    this.contentManager = new ContentManager()
+  private constructor() {
+    this.contentManager = ContentManager.getInstance()
+  }
+
+  private static instance: DocService
+
+  static getInstance() {
+    if (!DocService.instance) {
+      DocService.instance = new DocService()
+    }
+
+    return DocService.instance
   }
 
   getDocRepository(): DocRepository {
@@ -21,7 +31,7 @@ export class DocService {
 
   async create(data: DocCreateValue): Promise<Doc> {
     const doc = await this.getDocRepository().save(data.toObject())
-    this.contentManager.docCreated(doc)
+    await this.contentManager.docCreated(doc)
 
     return doc
   }
