@@ -18,7 +18,7 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.firstName.$dirty && !$v.payload.firstName.required"
+          v-if="$v.payload.firstName.$error && !$v.payload.firstName.required"
         >First Name is required.</div>
       </div>
     </v-field>
@@ -39,7 +39,7 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.lastName.$dirty && !$v.payload.lastName.required"
+          v-if="$v.payload.lastName.$error && !$v.payload.lastName.required"
         >Last Name is required.</div>
       </div>
     </v-field>
@@ -60,11 +60,11 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.required"
+          v-if="$v.payload.email.$error && !$v.payload.email.required"
         >Email is required.</div>
         <div
           class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.email"
+          v-if="$v.payload.email.$error && !$v.payload.email.email"
         >Email format is not valid.</div>
       </div>
     </v-field>
@@ -87,11 +87,11 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.password.password.$dirty && !$v.password.password.required"
+          v-if="$v.password.password.$error && !$v.password.password.required"
         >Password is required.</div>
         <div
           class="error"
-          v-if="$v.password.password.$dirty && !$v.password.password.minLength"
+          v-if="$v.password.password.$error && !$v.password.password.minLength"
         >Password must have at least {{ $v.password.password.$params.minLength.min }} letters.</div>
       </div>
     </v-field>
@@ -112,11 +112,12 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.password.newPassword.$dirty && !$v.password.newPassword.required"
+          v-if="$v.password.newPassword.$error && !$v.password.newPassword.required"
         >Password is required.</div>
+
         <div
           class="error"
-          v-if="$v.password.newPassword.$dirty && !$v.password.newPassword.minLength"
+          v-if="$v.password.newPassword.$error && !$v.password.newPassword.minLength"
         >Password must have at least {{ $v.password.newPassword.$params.minLength.min }} letters.</div>
       </div>
     </v-field>
@@ -224,6 +225,13 @@ export default Vue.extend({
 
       if (!this.$v.payload.$invalid) {
         this.$emit('submit', this.payload, this.password)
+
+        this.$v.password.$reset()
+        this.password = {
+          password: '',
+          newPassword: '',
+          newPassword_confirmation: '' // eslint-disable-line
+        }
       }
     }
   }
