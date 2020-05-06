@@ -52,3 +52,13 @@ export interface UserResource {
   created: string;
   updated: string;
 }
+
+export interface Editor {
+  editor: any;
+  documentChanged: boolean;
+}
+
+export interface RootEditor {
+  savedData: object;
+  onChange: any;
+}

@@ -2,7 +2,7 @@
   <layout-main>
     <div class="document-container">
       <div id="editor-toolbar">
-        <h1 ref="title" contenteditable v-text="title" @blur="onInput" />
+        <input type="text" v-model="title" class="title">
       </div>
 
       <editor id="editor" :content="value" @update-editor="onUpdateEditor" />
@@ -12,14 +12,15 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import config from '@/utils/config'
 
 import LayoutMain from '@/components/LayoutMain.vue'
 import Editor from '@/components/Editor.vue'
 
 type ComponentData = {
   value: object;
-  isChanged: boolean;
   title: string;
+  timer: undefined | number;
 }
 
 export default Vue.extend({
@@ -43,40 +44,23 @@ export default Vue.extend({
           }
         ]
       },
-      isChanged: false,
-      title: 'Document Title'
+      title: 'Document Title',
+      timer: undefined
     }
   },
-  mounted () {
-    window.setInterval(() => {
-      if (this.isChanged) {
-        this.save()
-        console.log('changed')
-      } else {
-        console.log('not changed')
-      }
-    }, 5 * 1000)
-
-    // this.$refs.title.innerText = this.title
+  watch: {
+    title () {
+      clearTimeout(this.timer)
+      this.timer = setTimeout(this.saveDocument, config.saveInterval * 1000)
+    }
   },
   methods: {
-    save () {
-      window.editor.save().then((savedData: object) => {
-        console.log(savedData)
-        this.value = savedData
-      })
-    },
-    onInput (evt: any) { // eslint-disable-line
-      // this.$emit('input', e.target.innerText)
-      console.log(evt)
-      const src = evt.target.innerText
-      this.title = src
-    },
-    onUpdateEditor (...args: [object, boolean]) {
-      const [value, isChanged] = args
+    onUpdateEditor (value: object) {
       this.value = value
-      this.isChanged = isChanged
-      console.log('onUpdateEditor', this.value, this.isChanged)
+      this.saveDocument()
+    },
+    saveDocument () {
+      console.log('saveDocument -- ', this.title, this.value)
     }
   }
 })
@@ -88,8 +72,9 @@ export default Vue.extend({
 
   width: 43.8rem;
 
-  h1 {
+  .title {
     font-size: 2rem;
+    width: 100%;
 
     &:focus {
       outline: none;

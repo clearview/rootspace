@@ -1,42 +1,15 @@
 <template>
   <div>
     <div class id="codex-editor" />
-
-    <div class="editor-body">
-      <pre>{{content}}</pre>
-    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import config from '@/utils/config'
 
-import EditorJS from '@editorjs/editorjs'
-import Header from '@editorjs/header'
-import List from '@editorjs/list'
-import Image from '@editorjs/image'
-import InlineCode from '@editorjs/inline-code'
-import Embed from '@editorjs/embed'
-import Quote from '@editorjs/quote'
-import Marker from '@editorjs/marker'
-import Code from '@editorjs/code'
-import LinkTool from '@editorjs/link'
-import Delimiter from '@editorjs/delimiter'
-import Raw from '@editorjs/raw'
-import Table from '@editorjs/table'
-import Warning from '@editorjs/warning'
-import Paragraph from '@editorjs/paragraph'
-import Checklist from '@editorjs/checklist'
-
-declare global {
-    interface Window { editor: any } // eslint-disable-line
-}
-
-window.editor = window.editor || {}
-
-type ComponentData = {
-  documentChanged: boolean;
-}
+import { rootEditor } from '@/utils/editor'
+import { Editor } from '@/types/resource'
 
 export default Vue.extend({
   name: 'DocumentEditor',
@@ -45,104 +18,39 @@ export default Vue.extend({
       type: Object
     }
   },
-  data (): ComponentData {
+  data (): Editor {
     return {
-      documentChanged: false
+      documentChanged: false,
+      editor: ''
     }
   },
   mounted () {
-    this.myEditor()
+    const params = {
+      savedData: this.content,
+      onChange: this.onChange
+    }
+    this.editor = rootEditor(params)
+
+    window.setInterval(() => {
+      if (this.documentChanged) {
+        this.saveEditor()
+        // console.log('changed')
+      }
+    }, config.saveInterval * 1000)
   },
   methods: {
-    myEditor () {
-      window.editor = new EditorJS({
-        holder: 'codex-editor',
-        autofocus: true,
-        data: this.content,
-        tools: {
-          header: {
-            class: Header,
-            inlineToolbar: ['link'],
-            config: {
-              placeholder: 'Header'
-            },
-            shortcut: 'CMD+SHIFT+H'
-          },
-          list: {
-            class: List,
-            inlineToolbar: true,
-            shortcut: 'CMD+SHIFT+L'
-          },
-          image: Image,
-          inlineCode: {
-            class: InlineCode,
-            shortcut: 'CMD+SHIFT+C'
-          },
-          embed: {
-            class: Embed,
-            config: {
-              services: {
-                youtube: true,
-                codepen: true,
-                instagram: true,
-                twitter: true
-              }
-            }
-          },
-          quote: {
-            class: Quote,
-            inlineToolbar: true,
-            config: {
-              quotePlaceholder: 'Enter a quote',
-              captionPlaceholder: 'Quote\'s author'
-            },
-            shortcut: 'CMD+SHIFT+O'
-          },
-          marker: {
-            class: Marker,
-            shortcut: 'CMD+SHIFT+M'
-          },
-          code: {
-            class: Code,
-            shortcut: 'CMD+SHIFT+C'
-          },
-          linkTool: LinkTool,
-          delimiter: Delimiter,
-          raw: Raw,
-          table: {
-            class: Table,
-            inlineToolbar: true,
-            shortcut: 'CMD+ALT+T'
-          },
-          warning: {
-            class: Warning,
-            inlineToolbar: true,
-            shortcut: 'CMD+SHIFT+W',
-            config: {
-              titlePlaceholder: 'Title',
-              messagePlaceholder: 'Message'
-            }
-          },
-          paragraph: {
-            class: Paragraph,
-            inlineToolbar: true
-          },
-          checklist: {
-            class: Checklist,
-            inlineToolbar: true
-          }
-        },
-        onChange: () => {
-          this.documentChanged = true
-          // console.log('Editor.js is ready to work!', this.documentChanged)
-          // console.log('Content', this.content)
-
-          window.editor.save().then((savedData: object) => {
-            // console.log('savedData', savedData)
-            this.$emit('update-editor', savedData, this.documentChanged)
-          })
-        }
+    saveEditor () {
+      this.editor.save().then((savedData: object) => {
+        this.$emit('update-editor', savedData, this.documentChanged)
+        // console.log('-- Save --')
       })
+    },
+    onChange () {
+      this.documentChanged = true
+      // console.log('++ Onchange ++')
+    },
+    test () {
+      console.log('++ Test ++')
     }
   }
 })
@@ -150,17 +58,6 @@ export default Vue.extend({
 
 <style lang="postcss">
 #codex-editor {
-  .ce-block--focused {
-    .ce-block__content {
-      .ce-header,
-      .cdx-list,
-      .ce-paragraph {
-        background-color: theme("colors.bluesky");
-        border-radius: 2px;
-      }
-    }
-  }
-
   .ce-header {
     padding: 0;
     margin-bottom: 0;
@@ -180,13 +77,6 @@ export default Vue.extend({
 
   .tc-toolbar__plus svg circle {
     fill: theme("colors.primary.default");
-  }
-
-  .ce-toolbox {
-    background: theme("colors.secondary.default");
-    width: 100%;
-    justify-content: center;
-    border-radius: 2px;
   }
 }
 </style>
