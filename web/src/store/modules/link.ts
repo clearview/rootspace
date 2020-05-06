@@ -21,26 +21,6 @@ const LinkModule: Module<LinkState, RootState> = {
     },
     setPayload (state, payload) {
       state.payload = payload
-    },
-    addLink (state, link) {
-      state.payload = [
-        ...state.payload,
-        link
-      ]
-    },
-    updateLink (state, link) {
-      state.payload = state.payload.map(
-        item => (
-          item.id === link.id
-            ? link
-            : item
-        )
-      )
-    },
-    removeLink (state, link) {
-      state.payload = state.payload.filter(
-        item => item.id !== link.id
-      )
     }
   },
 
@@ -51,26 +31,23 @@ const LinkModule: Module<LinkState, RootState> = {
       commit('setPayload', res)
     },
 
-    async create ({ commit }, data: LinkResource) {
-      const res = await LinkService.create(data)
-
-      commit('addLink', res)
+    async create ({ dispatch }, data: LinkResource) {
+      await LinkService.create(data)
+      await dispatch('fetch')
     },
 
-    async update ({ commit }, data: LinkResource) {
-      const res = await LinkService.update(data.id, data)
-
-      commit('updateLink', res)
+    async update ({ dispatch }, data: LinkResource) {
+      await LinkService.update(data.id, data)
+      await dispatch('fetch')
     },
 
-    async destroy ({ commit }, data: LinkResource) {
+    async destroy ({ dispatch }, data: LinkResource) {
       if (!data.id) {
         throw new Error('ID is not defined')
       }
 
       await LinkService.destroy(data.id)
-
-      commit('removeLink', data)
+      await dispatch('fetch')
     }
   }
 }

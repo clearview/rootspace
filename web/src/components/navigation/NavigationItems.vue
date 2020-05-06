@@ -57,7 +57,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import _ from 'lodash/fp'
 import { Tree, Draggable } from 'he-tree-vue'
 
 import VIcon from '@/components/icons/Index.vue'
