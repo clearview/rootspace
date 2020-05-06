@@ -54,11 +54,11 @@ export interface UserResource {
 }
 
 export interface Editor {
-  editor: any;
+  editor: any; // eslint-disable-line
   documentChanged: boolean;
 }
 
 export interface RootEditor {
   savedData: object;
-  onChange: any;
+  onChange: any; // eslint-disable-line
 }

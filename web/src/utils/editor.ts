@@ -17,7 +17,7 @@ import Checklist from '@editorjs/checklist'
 
 import { RootEditor } from '@/types/resource'
 
-export function rootEditor (params: RootEditor) { // eslint-disable-line
+export function rootEditor (params: RootEditor) {
   return new EditorJS({
     holder: 'codex-editor',
     autofocus: true,
@@ -97,6 +97,7 @@ export function rootEditor (params: RootEditor) { // eslint-disable-line
     },
     onChange: () => {
       params.onChange()
+      console.log('params.onChange()', typeof params.onChange())
       // console.log('++ Onchange EditorTS ++')
     }
   })
