@@ -17,7 +17,7 @@ export class Doc {
   @Column('varchar')
   title: string
 
-  @Column('text')
+  @Column('json')
   content: string
 
   @Column('integer')

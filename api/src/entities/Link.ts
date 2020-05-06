@@ -38,5 +38,4 @@ export class Link {
 
   @UpdateDateColumn()
   updated: string
-
 }
