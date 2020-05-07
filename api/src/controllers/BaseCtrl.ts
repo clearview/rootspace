@@ -1,8 +1,7 @@
-import {
-  getManager,
-  getCustomRepository,
-  getConnection,
-  Repository
-} from 'typeorm'
+import { ResponseData } from '../response/ResponseData'
 
-export class BaseCtrl {}
+export class BaseCtrl {
+  protected responseData(data: object | object[]) {
+    return new ResponseData(data)
+  }
+}
