@@ -27,24 +27,27 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async withGoogle ({ commit }, params) {
+    async withGoogle ({ commit, dispatch }, params) {
       const { token } = await AuthService.googleCallback(params)
 
       commit('setToken', token)
+
+      await dispatch('whoami')
     },
-    async withEmail ({ commit }, params) {
+    async withEmail ({ commit, dispatch }, params) {
       const res = await AuthService.localSignin(params)
 
       if (res) {
         commit('setToken', res.data.token)
       }
-    },
-    async whoami ({ dispatch, commit }, payload) {
-      await dispatch(payload.action, payload.params)
-      const userRes = await UserService.whoami()
 
-      commit('setUser', userRes.user)
-      commit('setSpaces', userRes.spaces)
+      await dispatch('whoami')
+    },
+    async whoami ({ commit }) {
+      const res = await UserService.whoami()
+
+      commit('setUser', res.user)
+      commit('setSpaces', res.spaces)
     },
     async signout ({ commit }) {
       commit('setToken', null)

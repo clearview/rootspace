@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 import RootHeader from '@/components/RootHeader.vue'
 
@@ -28,10 +28,7 @@ export default Vue.extend({
   methods: {
     async submit () {
       try {
-        await this.whoami({
-          action: 'withGoogle',
-          params: this.$route.query
-        })
+        await this.$store.dispatch('auth/withGoogle', this.$route.query)
 
         if (this.spaces && this.spaces.length > 0) {
           this.$router.push({ name: 'Main' })
@@ -42,11 +39,7 @@ export default Vue.extend({
       } catch (err) {
         console.log(err)
       }
-    },
-
-    ...mapActions({
-      whoami: 'auth/whoami'
-    })
+    }
   }
 })
 </script>

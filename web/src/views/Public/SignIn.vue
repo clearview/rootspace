@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 import { SigninResource } from '@/types/resource'
 
@@ -71,10 +71,7 @@ export default Vue.extend({
     async userSignin (data: SigninResource) {
       try {
         this.isLoading = true
-        await this.whoami({
-          action: 'withEmail',
-          params: data
-        })
+        await this.$store.dispatch('auth/withEmail', data)
 
         this.isLoading = false
         if (this.spaces && this.spaces.length > 0) {
@@ -87,11 +84,7 @@ export default Vue.extend({
         this.error = err
         this.isLoading = false
       }
-    },
-
-    ...mapActions({
-      whoami: 'auth/whoami'
-    })
+    }
   }
 })
 </script>
