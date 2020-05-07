@@ -72,7 +72,7 @@ export default Vue.extend({
 <style lang="postcss" scoped>
 .btn-active {
   .icon {
-    @apply bg-white text-primary;
+    @apply text-primary;
   }
 }
 </style>
