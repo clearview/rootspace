@@ -70,7 +70,7 @@ export default Vue.extend({
   },
   created () {
     if (this.spaces && this.spaces.length > 0) {
-      this.$router.push({ name: 'Main' })
+      this.$router.replace({ name: 'Main' })
     }
   },
   methods: {
