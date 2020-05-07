@@ -9,6 +9,7 @@ import Vue from 'vue'
 import config from '@/utils/config'
 
 import { rootEditor } from '@/utils/editor'
+
 import { Editor } from '@/types/resource'
 
 export default Vue.extend({
@@ -20,8 +21,7 @@ export default Vue.extend({
   },
   data (): Editor {
     return {
-      documentChanged: false,
-      editor: ''
+      documentChanged: false
     }
   },
   mounted () {
@@ -29,28 +29,21 @@ export default Vue.extend({
       savedData: this.content,
       onChange: this.onChange
     }
-    this.editor = rootEditor(params)
+    const editor = rootEditor(params)
 
     window.setInterval(() => {
       if (this.documentChanged) {
-        this.saveEditor()
-        // console.log('changed')
+        editor.save().then((savedData: object) => {
+          this.$emit('update-editor', savedData, this.documentChanged)
+          // console.log('-- Save --')
+        })
       }
     }, config.saveInterval * 1000)
   },
   methods: {
-    saveEditor () {
-      this.editor.save().then((savedData: object) => {
-        this.$emit('update-editor', savedData, this.documentChanged)
-        // console.log('-- Save --')
-      })
-    },
     onChange () {
       this.documentChanged = true
       // console.log('++ Onchange ++')
-    },
-    test () {
-      console.log('++ Test ++')
     }
   }
 })
