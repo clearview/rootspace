@@ -7,7 +7,6 @@ import { RootState } from '@/types/state'
 // Plugins
 import local from '@/store/plugins/local'
 import token from '@/store/plugins/token'
-import user from '@/store/plugins/user'
 
 // Modules
 import auth from '@/store/modules/auth'
@@ -24,7 +23,6 @@ export default new Vuex.Store<RootState>({
   },
   plugins: [
     local.plugin,
-    token.plugin,
-    user.plugin
+    token.plugin
   ]
 })
