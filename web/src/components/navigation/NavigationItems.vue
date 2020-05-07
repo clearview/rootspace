@@ -1,51 +1,55 @@
 <template>
   <div class="nav-items">
     <v-tree
-      :key="treeKey"
-      :data="treeData"
-      :options="treeOptions"
-      :class="{ 'tree__editable': editable }"
-      @node:selected="open"
-      @node:editing:stop="update"
-      @node:dragging:finish="update"
-      #default="{ node }"
+      ref="tree"
+      class="tree"
+      triggerClass="tree-node-handle"
+      :indent="16"
+      :value="value"
+      @drop="update($event.dragNode, $event.targetPath)"
+      #default="{ node, path }"
     >
-      <div class="tree-anchor-container">
-        <span class="tree-icon">
+      <div
+        class="tree-node-content"
+        :class="{ 'is-editable': editable }"
+        @click="open(node)"
+      >
+        <div class="tree-node-handle">
           <v-icon
-            name="file"
-            class="mr-1"
+            name="dots"
             size="20px"
           />
-        </span>
-        <span v-text="node.text" />
-
-        <template v-if="editable">
-          <div class="tree-dnd">
-            <v-icon
-              name="dots"
-              size="20px"
-            />
-          </div>
-
-          <div class="tree-action">
-            <button @click="edit(node)">
-              <v-icon
-                name="link-edit"
-                size="20px"
-              />
-            </button>
-            <button
-              v-if="node.children.length < 1"
-              @click.stop="destroy(node)"
-            >
-              <v-icon
-                name="trash"
-                size="20px"
-              />
-            </button>
-          </div>
-        </template>
+        </div>
+        <div
+          class="tree-node-arrow"
+          :class="{ 'is-hidden': !hasChildren(node) }"
+        >
+          <v-icon name="down" />
+        </div>
+        <div class="tree-node-icon">
+          <v-icon name="file" />
+        </div>
+        <div class="tree-node-text">
+          <span
+            v-show="!isSelected(path)"
+            v-text="node.title"
+            @dblclick="select(path)"
+          />
+          <input
+            v-show="isSelected(path)"
+            v-model.lazy="node.title"
+            @change="update(node, path)"
+            @keydown.esc="select(null)"
+          />
+        </div>
+        <div class="tree-node-actions">
+          <button @click="update(node, path, true)">
+            <v-icon name="link-edit" />
+          </button>
+          <button @click="destroy(node)">
+            <v-icon name="trash" />
+          </button>
+        </div>
       </div>
     </v-tree>
   </div>
@@ -53,107 +57,81 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import VTree, { Node } from 'liquor-tree'
+import { Tree, Draggable } from 'he-tree-vue'
 
 import VIcon from '@/components/icons/Index.vue'
 
 import { LinkResource } from '@/types/resource'
 
 type ComponentData = {
-  treeKey: number;
-  loading: boolean;
-  alert?: {
-    message: string;
-  };
+  selected: string | null;
 }
 
+interface Tree extends Vue {
+  getNodeParentByPath(path: number[]): LinkResource;
+}
+
+const VTree = Vue.extend(
+  Tree.mixPlugins([Draggable])
+)
+
 export default Vue.extend({
-  name: 'NavigationSection',
+  name: 'NavigationItems',
   components: {
     VTree,
     VIcon
   },
   props: {
+    value: {
+      type: Array
+    },
     editable: {
       type: Boolean
     }
   },
   data (): ComponentData {
     return {
-      treeKey: 0,
-      loading: false,
-      alert: undefined
+      selected: null
     }
   },
   computed: {
     treeData () {
-      return this.$store.getters['link/tree']
-    },
-    treeOptions () {
-      return {
-        dnd: this.editable
-      }
-    }
-  },
-  watch: {
-    editable () {
-      this.treeKey += 1
+      return this.$store.state.link.payload
     }
   },
   methods: {
-    async fetch () {
-      this.loading = true
-
-      await this.$store.dispatch('link/fetch')
-
-      this.treeKey += 1
-      this.loading = false
+    hasChildren (link: LinkResource) {
+      return link.children && link.children.length > 0
     },
-    open ({ data }: Node<LinkResource>) {
-      if (this.editable) {
-        return
-      }
-
-      window.open(data.value, '_blank')
+    select (path: number[] | null) {
+      this.selected = !path ? path : path.join('.')
     },
-    edit (node: Node<LinkResource>) {
-      node.startEditing()
+    isSelected (path: number[]) {
+      return this.selected === path.join('.')
     },
-    async update ({ text, data, parent }: Node<LinkResource>) {
-      try {
-        await this.$store.dispatch('link/update', {
-          id: data.id,
-          title: text,
-          parent: parent && parent.id
-        })
-      } catch (err) {
-        this.alert = {
-          message: err.message
-        }
+    open (data: LinkResource) {
+      if (!this.editable) {
+        window.open(data.value, '_blank')
       }
     },
-    async destroy (node: Node<LinkResource>) {
-      try {
-        await this.$store.dispatch('link/destroy', node.data)
+    update (data: LinkResource, path: number[], modal = false) {
+      const tree: Tree = this.$refs.tree as Tree
+      const parent = tree.getNodeParentByPath(path)
 
-        node.remove()
-      } catch (err) {
-        this.alert = {
-          message: err.message
-        }
+      const _data = {
+        ...data,
+        parent: (parent && parent.id) || null,
+        children: undefined,
+        created: undefined,
+        updated: undefined
       }
+
+      this.select(null)
+      this.$emit('update', _data, modal)
+    },
+    destroy (data: LinkResource) {
+      this.$emit('destroy', data)
     }
-  },
-  async created () {
-    await this.fetch()
-
-    this.$store.subscribe(mutation => {
-      const pattern = /(.*)Payload$/
-
-      if (pattern.test(mutation.type)) {
-        this.treeKey += 1
-      }
-    })
   }
 })
 </script>

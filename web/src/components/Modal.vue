@@ -10,7 +10,10 @@
       />
 
       <div class="modal-inner">
-        <slot name="header" v-if="!noheader">
+        <slot
+          name="header"
+          v-if="!noheader"
+        >
           <div class="modal-header">
             <div class="modal-title">{{ title }}</div>
             <button
@@ -24,18 +27,23 @@
 
         <slot />
 
-        <slot name="footer" v-if="!nofooter">
+        <slot
+          name="footer"
+          v-if="!nofooter"
+        >
           <div class="modal-footer">
             <button
               class="btn btn-small"
               @click="cancel"
             >
-              Cancel
+              {{ cancelText }}
             </button>
             <button
               class="btn btn-small btn-primary"
               @click="confirm"
-            >Save</button>
+            >
+              {{ confirmText }}
+            </button>
           </div>
         </slot>
       </div>
@@ -61,6 +69,14 @@ export default Vue.extend({
     title: {
       type: String
     },
+    confirmText: {
+      type: String,
+      default: 'Save'
+    },
+    cancelText: {
+      type: String,
+      default: 'Cancel'
+    },
     noheader: {
       type: Boolean
     },
@@ -69,10 +85,10 @@ export default Vue.extend({
     }
   },
   methods: {
-    cancel (): void {
+    cancel () {
       this.$emit('cancel')
     },
-    confirm (): void {
+    confirm () {
       this.$emit('confirm')
     }
   }

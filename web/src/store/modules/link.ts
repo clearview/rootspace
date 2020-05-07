@@ -5,8 +5,6 @@ import { LinkResource } from '@/types/resource'
 
 import LinkService from '@/services/link'
 
-import { treeTransform } from '../helpers/treeTransform'
-
 const LinkModule: Module<LinkState, RootState> = {
   namespaced: true,
 
@@ -17,27 +15,12 @@ const LinkModule: Module<LinkState, RootState> = {
     }
   },
 
-  getters: {
-    tree (state) {
-      return state.payload.map(treeTransform)
-    }
-  },
-
   mutations: {
     setActive (state, link) {
       state.active = link
     },
     setPayload (state, payload) {
       state.payload = payload
-    },
-    pushPayload (state, link) {
-      state.payload = [
-        ...state.payload,
-        link
-      ]
-    },
-    removePayload (state, link) {
-      state.payload = state.payload.filter(item => item.id !== link.id)
     }
   },
 
@@ -48,24 +31,23 @@ const LinkModule: Module<LinkState, RootState> = {
       commit('setPayload', res)
     },
 
-    async create ({ commit }, data: LinkResource) {
-      const res = await LinkService.create(data)
-
-      commit('pushPayload', res)
+    async create ({ dispatch }, data: LinkResource) {
+      await LinkService.create(data)
+      await dispatch('fetch')
     },
 
-    async update (_, data: LinkResource) {
+    async update ({ dispatch }, data: LinkResource) {
       await LinkService.update(data.id, data)
+      await dispatch('fetch')
     },
 
-    async destroy ({ commit }, data: LinkResource) {
+    async destroy ({ dispatch }, data: LinkResource) {
       if (!data.id) {
         throw new Error('ID is not defined')
       }
 
       await LinkService.destroy(data.id)
-
-      commit('removePayload', data)
+      await dispatch('fetch')
     }
   }
 }
