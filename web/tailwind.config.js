@@ -31,8 +31,7 @@ module.exports = {
       success: {
         default: '#37D88B',
         invert: '#FFFFFF'
-      },
-      bluesky: '#E4F2FE'
+      }
     },
     fontFamily: {
       primary: 'SF Pro Display'
