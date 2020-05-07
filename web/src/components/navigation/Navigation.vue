@@ -1,18 +1,23 @@
 <template>
   <div
     class="nav"
-    :class="{ 'nav--collapse': collapse }"
+    :class="{ 'nav--collapse': isCollapse }"
   >
     <div class="nav-content">
       <navigation-header
-        :collapse="collapse"
+        :collapse="isCollapse"
         @search="search"
         @toggleCollapse="toggleCollapse"
       />
-      <navigation-items :editable="editable" />
+      <navigation-items
+        :value="links"
+        :editable="editable"
+        @update="startUpdateLink"
+        @destroy="startDestroyLink"
+      />
       <navigation-footer
         :editable="editable"
-        @add="modal.link.isVisible = true"
+        @add="startAddLink"
         @edit="editable = !editable"
       />
     </div>
@@ -42,16 +47,46 @@
 
     <v-modal
       title="Add Link"
-      :visible="modal.link.isVisible"
-      :loading="modal.link.isLoading"
-      @cancel="modal.link.isVisible = false"
-      @confirm="() => $refs.link.submit()"
+      :visible="link.add.visible"
+      :loading="link.add.loading"
+      @cancel="link.add.visible = false"
+      @confirm="() => $refs.formLinkAdd.submit()"
     >
       <div class="modal-body">
         <form-link
           @submit="addLink"
-          ref="link"
+          ref="formLinkAdd"
         />
+      </div>
+    </v-modal>
+
+    <v-modal
+      title="Change Link"
+      :visible="link.update.visible"
+      :loading="link.update.loading"
+      @cancel="link.update.visible = false"
+      @confirm="() => $refs.formLinkUpdate.submit()"
+    >
+      <div class="modal-body">
+        <form-link
+          notitle
+          :value="link.update.data"
+          ref="formLinkUpdate"
+          @submit="updateLink"
+        />
+      </div>
+    </v-modal>
+
+    <v-modal
+      title="Delete Link"
+      :visible="link.destroy.visible"
+      :loading="link.destroy.loading"
+      confirmText="Yes"
+      @cancel="link.destroy.visible = false"
+      @confirm="destroyLink(link.destroy.data)"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this link?
       </div>
     </v-modal>
   </div>
@@ -59,7 +94,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import { LinkResource } from '@/types/resource'
 
@@ -71,15 +105,34 @@ import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
 
+type Alert = {
+  type: string;
+  message: string;
+}
+
 type ComponentData = {
   editable: boolean;
-  modal: {
-    link: {
-      isVisible: boolean;
-      isLoading: boolean;
-      alert: null | {
-        message: string;
-      };
+  link: {
+    fetch: {
+      loading: boolean;
+      alert: Alert | null;
+    };
+    add: {
+      visible: boolean;
+      loading: boolean;
+      alert: Alert | null;
+    };
+    update: {
+      visible: boolean;
+      loading: boolean;
+      data: LinkResource | null;
+      alert: Alert | null;
+    };
+    destroy: {
+      visible: boolean;
+      loading: boolean;
+      data: LinkResource | null;
+      alert: Alert | null;
     };
   };
 }
@@ -97,48 +150,132 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       editable: false,
-      modal: {
-        link: {
-          isVisible: false,
-          isLoading: false,
+      link: {
+        fetch: {
+          loading: false,
+          alert: null
+        },
+        add: {
+          visible: false,
+          loading: false,
+          alert: null
+        },
+        update: {
+          visible: false,
+          loading: false,
+          data: null,
+          alert: null
+        },
+        destroy: {
+          visible: false,
+          loading: false,
+          data: null,
           alert: null
         }
       }
     }
   },
   computed: {
-    ...mapState('auth', ['spaces']),
-
-    collapse (): boolean {
+    spaces () {
+      return this.$store.state.auth.spaces
+    },
+    links () {
+      return this.$store.state.link.payload
+    },
+    isCollapse () {
       return this.$store.state.nav.collapse
     }
   },
-  created () {
+  async created () {
     if (this.spaces && this.spaces.length === 0) {
       this.$router.push({ name: 'CreateWorkspace' })
     }
+
+    await this.fetchLink()
   },
   methods: {
     search (keyword: string): void {
       console.log(`Search: ${keyword}`)
     },
     toggleCollapse () {
-      this.$store.commit('nav/setCollapse', !this.collapse)
+      this.$store.commit('nav/setCollapse', !this.isCollapse)
+    },
+    startAddLink () {
+      this.link.add.visible = true
+    },
+    startUpdateLink (data: LinkResource, modal: boolean) {
+      this.link.update.data = data
+
+      if (modal) {
+        this.link.update.visible = true
+      } else {
+        this.updateLink(data)
+      }
+    },
+    startDestroyLink (data: LinkResource) {
+      this.link.destroy.visible = true
+      this.link.destroy.data = data
+    },
+    async fetchLink () {
+      this.link.fetch.loading = true
+
+      await this.$store.dispatch('link/fetch')
+
+      this.link.fetch.loading = false
     },
     async addLink (data: LinkResource) {
-      this.modal.link.isLoading = true
+      this.link.add.loading = true
 
       try {
         await this.$store.dispatch('link/create', data)
       } catch (e) {
-        this.modal.link.alert = {
+        this.link.add.alert = {
+          type: 'danger',
           message: e.message
         }
       }
 
-      this.modal.link.isLoading = false
-      this.modal.link.isVisible = false
+      this.link.add.loading = false
+      this.link.add.visible = false
+    },
+    async updateLink (data: LinkResource) {
+      this.link.update.loading = true
+
+      try {
+        await this.$store.dispatch('link/update', data)
+      } catch (err) {
+        this.link.update.alert = {
+          type: 'danger',
+          message: err.message
+        }
+      }
+
+      this.link.update.loading = false
+      this.link.update.visible = false
+      this.link.update.data = null
+    },
+    async destroyLink (data: LinkResource) {
+      this.link.destroy.loading = true
+
+      try {
+        await this.$store.dispatch('link/destroy', data)
+      } catch (err) {
+        this.link.destroy.alert = {
+          type: 'danger',
+          message: err.message
+        }
+      }
+
+      this.link.destroy.loading = false
+      this.link.destroy.visible = false
+      this.link.destroy.data = null
     }
   }
 })
 </script>
+
+<style lang="postcss" scoped>
+.modal-body {
+  width: 456px;
+}
+</style>
