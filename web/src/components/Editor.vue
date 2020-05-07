@@ -8,7 +8,7 @@
 import Vue from 'vue'
 import config from '@/utils/config'
 
-import { rootEditor } from '@/utils/editor'
+import { createEditor } from '@/utils/editor'
 
 import { Editor } from '@/types/resource'
 
@@ -29,7 +29,7 @@ export default Vue.extend({
       savedData: this.content,
       onChange: this.onChange
     }
-    const editor = rootEditor(params)
+    const editor = createEditor(params)
 
     window.setInterval(() => {
       if (this.documentChanged) {

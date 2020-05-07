@@ -18,7 +18,7 @@ import Checklist from '@editorjs/checklist'
 import { RootEditor } from '@/types/resource'
 import EditorJSTypes from '@editorjs/editorjs/types'
 
-export function rootEditor (params: RootEditor): EditorJSTypes {
+export function createEditor (params: RootEditor): EditorJSTypes {
   return new EditorJS({
     holder: 'codex-editor',
     autofocus: true,
