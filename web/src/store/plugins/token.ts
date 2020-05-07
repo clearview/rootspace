@@ -7,32 +7,32 @@ import { setAPIToken } from '@/utils/api'
 
 const name = 'root_session'
 
-function restore (store: Store<RootState>) {
-  const token = Cookie.get(name) || null
+function init (store: Store<RootState>) {
+  const persistedToken = Cookie.get(name) || null
 
-  store.commit('auth/setToken', token)
-
-  setAPIToken(token)
-}
-
-function save (token: string | null) {
-  if (token) {
-    Cookie.set(name, token)
-  } else {
-    Cookie.remove(name)
-  }
-
-  setAPIToken(token)
-}
-
-function plugin (store: Store<RootState>) {
-  restore(store)
+  store.commit('auth/setToken', persistedToken)
 
   store.subscribe((mutation, state) => {
     if (mutation.type === 'auth/setToken') {
-      save(state.auth.token)
+      const { token } = state.auth
+
+      if (token) {
+        Cookie.set(name, token)
+      } else {
+        Cookie.remove(name)
+      }
     }
   })
+}
+
+function plugin (store: Store<RootState>) {
+  store.subscribe(async (mutation, state) => {
+    if (mutation.type === 'auth/setToken') {
+      setAPIToken(state.auth.token)
+    }
+  })
+
+  init(store)
 }
 
 export default { plugin }

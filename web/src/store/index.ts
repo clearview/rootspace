@@ -5,7 +5,6 @@ import Vuex from 'vuex'
 import { RootState } from '@/types/state'
 
 // Plugins
-import session from '@/store/plugins/session'
 import local from '@/store/plugins/local'
 import token from '@/store/plugins/token'
 
@@ -23,7 +22,6 @@ export default new Vuex.Store<RootState>({
     nav
   },
   plugins: [
-    session.plugin,
     local.plugin,
     token.plugin
   ]
