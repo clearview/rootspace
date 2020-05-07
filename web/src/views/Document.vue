@@ -68,9 +68,9 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 .document-container {
-  @apply max-w-2xl mx-auto p-0;
+  @apply mx-auto p-0;
 
-  width: 43.8rem;
+  width: 40.5rem;
 
   .title {
     font-size: 2rem;
