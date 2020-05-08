@@ -28,7 +28,7 @@ const LinkModule: Module<LinkState, RootState> = {
     async fetch ({ commit }, params) {
       const res = await LinkService.fetch(params)
 
-      commit('setPayload', res)
+      commit('setPayload', res.data)
     },
 
     async create ({ dispatch }, data: LinkResource) {
