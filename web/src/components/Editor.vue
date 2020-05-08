@@ -24,12 +24,14 @@ export default Vue.extend({
       documentChanged: false
     }
   },
-  mounted () {
+  async mounted () {
     const params = {
       savedData: this.content,
       onChange: this.onChange
     }
     const editor = createEditor(params)
+
+    await editor.isReady
 
     window.setInterval(() => {
       if (this.documentChanged) {
@@ -50,7 +52,11 @@ export default Vue.extend({
 </script>
 
 <style lang="postcss">
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+
 #codex-editor {
+  font-family: 'Open Sans', sans-serif;
+
   .ce-header {
     padding: 0;
     margin-bottom: 0;

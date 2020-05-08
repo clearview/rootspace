@@ -1,3 +1,5 @@
+import { OutputData } from '@editorjs/editorjs/types/data-formats/output-data'
+
 export interface LinkResource {
   id: number;
   spaceId: number;
@@ -58,6 +60,19 @@ export interface Editor {
 }
 
 export interface RootEditor {
-  savedData: object;
+  savedData: OutputData;
   onChange: Function;
 }
+
+export interface DocumentResource {
+  spaceId: number;
+  title: string;
+  content: object;
+  access: number;
+}
+
+// export interface DocumentData {
+//   time?: number;
+//   blocks?: Array<OutputData>;
+//   version: string;
+// }

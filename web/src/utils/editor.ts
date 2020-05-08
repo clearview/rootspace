@@ -16,13 +16,12 @@ import Paragraph from '@editorjs/paragraph'
 import Checklist from '@editorjs/checklist'
 
 import { RootEditor } from '@/types/resource'
-import EditorJSTypes from '@editorjs/editorjs/types'
 
-export function createEditor (params: RootEditor): EditorJSTypes {
+export function createEditor (params: RootEditor) {
   return new EditorJS({
     holder: 'codex-editor',
-    autofocus: true,
     data: params.savedData,
+    placeholder: 'Let`s write an awesome document!',
     tools: {
       header: {
         class: Header,
