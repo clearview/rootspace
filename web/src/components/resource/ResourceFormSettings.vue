@@ -18,7 +18,7 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.firstName.$dirty && !$v.payload.firstName.required"
+          v-if="$v.payload.firstName.$error && !$v.payload.firstName.required"
         >First Name is required.</div>
       </div>
     </v-field>
@@ -39,7 +39,7 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.lastName.$dirty && !$v.payload.lastName.required"
+          v-if="$v.payload.lastName.$error && !$v.payload.lastName.required"
         >Last Name is required.</div>
       </div>
     </v-field>
@@ -60,11 +60,11 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.required"
+          v-if="$v.payload.email.$error && !$v.payload.email.required"
         >Email is required.</div>
         <div
           class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.email"
+          v-if="$v.payload.email.$error && !$v.payload.email.email"
         >Email format is not valid.</div>
       </div>
     </v-field>
@@ -78,7 +78,7 @@
           id="oldpassword"
           type="password"
           placeholder="******"
-          v-model.trim="$v.payload.password.$model"
+          v-model.trim="$v.password.password.$model"
         />
         <span class="icon">
           <v-icon name="lock" size="1.5em" />
@@ -87,12 +87,12 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.required"
+          v-if="$v.password.password.$error && !$v.password.password.required"
         >Password is required.</div>
         <div
           class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
-        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.</div>
+          v-if="$v.password.password.$error && !$v.password.password.minLength"
+        >Password must have at least {{ $v.password.password.$params.minLength.min }} letters.</div>
       </div>
     </v-field>
 
@@ -103,7 +103,7 @@
           id="password"
           type="password"
           placeholder="******"
-          v-model.trim="$v.payload.password.$model"
+          v-model.trim="$v.password.newPassword.$model"
         />
         <span class="icon">
           <v-icon name="lock" size="1.5em" />
@@ -112,12 +112,13 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.required"
+          v-if="$v.password.newPassword.$error && !$v.password.newPassword.required"
         >Password is required.</div>
+
         <div
           class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
-        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.</div>
+          v-if="$v.password.newPassword.$error && !$v.password.newPassword.minLength"
+        >Password must have at least {{ $v.password.newPassword.$params.minLength.min }} letters.</div>
       </div>
     </v-field>
 
@@ -128,7 +129,7 @@
           id="repeatpassword"
           type="password"
           placeholder="******"
-          v-model.trim="$v.payload.password_confirmation.$model"
+          v-model.trim="$v.password.newPassword_confirmation.$model"
         />
         <span class="icon">
           <v-icon name="lock" size="1.5em" />
@@ -137,7 +138,7 @@
       <div class="error-group">
         <div
           class="error"
-          v-if="!$v.payload.password_confirmation.sameAsPassword"
+          v-if="!$v.password.newPassword_confirmation.sameAsPassword"
         >Passwords must be identical.</div>
       </div>
     </v-field>
@@ -153,15 +154,17 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState } from 'vuex'
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
-import { SettingsResource } from '@/types/resource'
+import { SettingsResource, PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   payload: SettingsResource;
+  password: PasswordResource;
 }
 
 export default Vue.extend({
@@ -175,10 +178,12 @@ export default Vue.extend({
       payload: {
         firstName: '',
         lastName: '',
-        email: '',
-        oldPassword: '',
+        email: ''
+      },
+      password: {
         password: '',
-        password_confirmation: '' // eslint-disable-line
+        newPassword: '',
+        newPassword_confirmation: '' // eslint-disable-line
       }
     }
   },
@@ -186,20 +191,32 @@ export default Vue.extend({
     payload: {
       firstName: { required },
       lastName: { required },
-      email: { required, email },
-      oldPassword: {
-        required,
-        minLength: minLength(6)
-      },
+      email: { required, email }
+    },
+    password: {
       password: {
         required,
         minLength: minLength(6)
       },
-      password_confirmation: { // eslint-disable-line
+      newPassword: {
+        required,
+        minLength: minLength(6)
+      },
+      newPassword_confirmation: { // eslint-disable-line
         required,
         minLength: minLength(6),
-        sameAsPassword: sameAs('password')
+        sameAsPassword: sameAs('newPassword')
       }
+    }
+  },
+  computed: {
+    ...mapState('auth', ['user'])
+  },
+  created () {
+    this.payload = {
+      firstName: this.user.firstName,
+      lastName: this.user.lastName,
+      email: this.user.email
     }
   },
   methods: {
@@ -207,7 +224,14 @@ export default Vue.extend({
       this.$v.payload.$touch()
 
       if (!this.$v.payload.$invalid) {
-        this.$emit('submit', this.payload)
+        this.$emit('submit', this.payload, this.password)
+
+        this.$v.password.$reset()
+        this.password = {
+          password: '',
+          newPassword: '',
+          newPassword_confirmation: '' // eslint-disable-line
+        }
       }
     }
   }

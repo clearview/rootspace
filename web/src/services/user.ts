@@ -34,6 +34,48 @@ async function confirmEmail (payload: object) {
   }
 }
 
+async function update (payload: object) {
+  try {
+    const res = await api.patch('user/update', payload)
+
+    return res
+  } catch (error) {
+    let err = error
+
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+        fields: error.response.data.error.fields
+      }
+      err = body
+    }
+
+    throw err
+  }
+}
+
+async function passwordChange (payload: object) {
+  try {
+    const res = await api.patch('user/password/change', payload)
+
+    return res
+  } catch (error) {
+    let err = error
+
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+        fields: error.response.data.error.fields
+      }
+      err = body
+    }
+
+    throw err
+  }
+}
+
 async function invitation (payload: object) {
   try {
     const res = await api.post('invites/accept', payload)
@@ -67,6 +109,8 @@ async function whoami () {
 export default {
   signup,
   confirmEmail,
+  update,
+  passwordChange,
   whoami,
   invitation
 }

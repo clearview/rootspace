@@ -27,9 +27,12 @@ export interface SettingsResource {
   firstName: string;
   lastName: string;
   email: string;
-  oldPassword: string;
+}
+
+export interface PasswordResource {
   password: string;
-  password_confirmation: string; // eslint-disable-line
+  newPassword: string;
+  newPassword_confirmation: string; // eslint-disable-line
 }
 
 export interface WorkspaceResource {

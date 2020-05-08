@@ -137,7 +137,7 @@ export class UserService {
 
       if (res !== true) {
         return done(
-          clientError('Worng password', ClientErrName.WrongPassword),
+          clientError('Wrong password', ClientErrName.WrongPassword),
           null
         )
       }

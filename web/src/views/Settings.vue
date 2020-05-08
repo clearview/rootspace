@@ -27,19 +27,20 @@
             </div>
           </div>
           <div class="col-right">
-            <resource-form-settings @submit="save" ref="settings" />
+            <v-alert :the-message="errorAccount" />
+            <resource-form-settings @submit="UpdateAccount" ref="account" />
           </div>
         </div>
 
         <div class="settings-workspace" v-if="(tab === 'workspace')">
           <div class="col-center">
-            <v-alert :the-message="error" />
+            <v-alert :the-message="errorWorkspace" />
 
             <div class="workspace-avatar">
               <img src="@/assets/logo@2x.png" alt="Root Logo"/>
             </div>
 
-            <resource-form-workspace @submit="createWorkspace" ref="workspace">
+            <resource-form-workspace @submit="updateWorkspace" :value="workspaceData" ref="workspace">
               <div class="form-border">
                 <p>Mobile push notifications</p>
                 <button-switch v-model="mobileNotifications" />
@@ -54,13 +55,21 @@
         </div>
       </div>
     </div>
+
+    <v-loading :loading="isLoading">
+      <p>{{ loadingMessage }}</p>
+    </v-loading>
   </layout-main>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapActions, mapMutations } from 'vuex'
 
-import { SettingsResource } from '@/types/resource'
+import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/resource'
+
+import UserService from '@/services/user'
+import WorkspaceService from '@/services/workspace'
 
 import VIcon from '@/components/icons/Index.vue'
 import VAlert from '@/components/Alert.vue'
@@ -68,12 +77,17 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import ResourceFormSettings from '@/components/resource/ResourceFormSettings.vue'
 import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
 import LayoutMain from '@/components/LayoutMain.vue'
+import VLoading from '@/components/Loading.vue'
 
 type ComponentData = {
   tab: string;
-  error: object;
+  errorAccount: object;
+  errorWorkspace: object;
   mobileNotifications: boolean;
   emailNotifications: boolean;
+  loadingMessage: string;
+  isLoading: boolean;
+  workspaceData: object;
 }
 
 export default Vue.extend({
@@ -84,14 +98,19 @@ export default Vue.extend({
     ResourceFormSettings,
     ResourceFormWorkspace,
     VAlert,
-    LayoutMain
+    LayoutMain,
+    VLoading
   },
   data (): ComponentData {
     return {
-      tab: 'workspace',
-      error: {},
+      tab: 'account',
+      errorAccount: {},
+      errorWorkspace: {},
       mobileNotifications: false,
-      emailNotifications: true
+      emailNotifications: true,
+      loadingMessage: 'Update Settings...',
+      isLoading: false,
+      workspaceData: {}
     }
   },
   computed: {
@@ -100,15 +119,79 @@ export default Vue.extend({
     }
   },
   methods: {
-    save (data: SettingsResource) {
-      console.log('save: ', data)
+    async UpdateAccount (...args: [SettingsResource, PasswordResource]) {
+      try {
+        const [setting, password] = args
+        this.isLoading = true
+        this.loadingMessage = 'Update Account Settings...'
+        const userUpdate = await UserService.update(setting)
+
+        if (password.password !== '' && password.newPassword !== '') {
+          await UserService.passwordChange(password)
+        }
+
+        this.isLoading = false
+        const getUserData = userUpdate.data
+        this.setUser(getUserData)
+      } catch (err) {
+        if (err.code === 401) {
+          this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
+          this.signout()
+          this.$router.push({ name: 'SignIn' })
+        }
+        this.errorAccount = err
+        this.isLoading = false
+      }
+    },
+    async updateWorkspace (data: WorkspaceResource) {
+      try {
+        const id = 1 // change this when we can switch the workspace
+        this.isLoading = true
+        this.loadingMessage = 'Update Workspace Settings...'
+
+        const payload = { // for temporary
+          title: data.title
+        }
+        await WorkspaceService.update(id, payload)
+
+        this.isLoading = false
+      } catch (err) {
+        if (err.code === 401) {
+          this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
+          this.signout()
+          this.$router.push({ name: 'SignIn' })
+        }
+        this.errorAccount = err
+        this.isLoading = false
+      }
+    },
+    async viewWorkspace () {
+      const id = 1 // change this when we can switch the workspace
+      this.isLoading = true
+      this.loadingMessage = 'Get Workspace Settings...'
+
+      const viewWorkspace = await WorkspaceService.view(id)
+      this.workspaceData = {
+        title: viewWorkspace.title,
+        invites: []
+      }
+      this.isLoading = false
     },
     swichTab (tab: string) {
       this.tab = tab
+
+      if (tab === 'workspace') {
+        this.viewWorkspace()
+      }
     },
-    createWorkspace () {
-      console.log('createWorkspace: ')
-    }
+
+    ...mapMutations({
+      setUser: 'auth/setUser'
+    }),
+
+    ...mapActions({
+      signout: 'auth/signout'
+    })
   }
 })
 </script>

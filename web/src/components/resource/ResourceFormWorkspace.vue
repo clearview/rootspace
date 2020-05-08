@@ -98,6 +98,11 @@ export default Vue.extend({
     VField,
     VIcon
   },
+  props: {
+    value: {
+      type: Object
+    }
+  },
   data (): ComponentData {
     return {
       payload: {
@@ -116,6 +121,14 @@ export default Vue.extend({
     invitation: {
       required,
       email
+    }
+  },
+  watch: {
+    value (newVal) {
+      this.payload = {
+        title: newVal.title,
+        invites: newVal.invites
+      }
     }
   },
   methods: {
