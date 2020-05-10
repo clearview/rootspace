@@ -39,12 +39,11 @@ const AuthModule: Module<AuthState, RootState> = {
         commit('setToken', res.data.token)
       }
     },
-    async whoami ({ dispatch, commit }, payload) {
-      await dispatch(payload.action, payload.params)
-      const userRes = await UserService.whoami()
+    async whoami ({ commit }) {
+      const res = await UserService.whoami()
 
-      commit('setUser', userRes.user)
-      commit('setSpaces', userRes.spaces)
+      commit('setUser', res.user)
+      commit('setSpaces', res.spaces)
     },
     async signout ({ commit }) {
       commit('setToken', null)
