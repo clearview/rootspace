@@ -6,7 +6,7 @@
         <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
       </div>
 
-      <editor v-if="!loading" id="editor" :content="value" @update-editor="onUpdateEditor" />
+      <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
     </div>
   </layout-main>
 </template>
@@ -27,6 +27,7 @@ type ComponentData = {
   value: object;
   title: string;
   timer: undefined | number;
+  initialize: boolean;
   loading: boolean;
 }
 
@@ -42,13 +43,14 @@ export default Vue.extend({
       value: {},
       title: '',
       timer: undefined,
+      initialize: false,
       loading: false
     }
   },
   watch: {
     title () {
       clearTimeout(this.timer)
-      this.timer = setTimeout(this.saveDocument, config.saveInterval * 1000)
+      this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     },
     $route () {
       this.loadDocument()
@@ -69,7 +71,7 @@ export default Vue.extend({
       const id = this.$route.params.id
 
       if (id) {
-        this.loading = true
+        this.initialize = true
 
         try {
           const viewDoc = await DocumentService.view(id)
@@ -80,7 +82,7 @@ export default Vue.extend({
           this.$router.replace({ name: 'Document' })
         }
 
-        this.loading = false
+        this.initialize = false
       }
     },
     saveDocument () {
@@ -103,17 +105,18 @@ export default Vue.extend({
 
         if (id) {
           document = await DocumentService.update(id, data)
-          this.loading = false
         } else {
           document = await DocumentService.create(data)
           const getDocument = document.data
-          this.loading = false
 
           this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
         }
-      } catch (err) {
-        console.log(err)
+
         this.loading = false
+      } catch (err) {
+        this.loading = false
+
+        console.log(err)
       }
     }
   }

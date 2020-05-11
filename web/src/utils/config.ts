@@ -1,4 +1,5 @@
 const config = {
+  saveTitle: 2,
   saveInterval: 5
 }
 
