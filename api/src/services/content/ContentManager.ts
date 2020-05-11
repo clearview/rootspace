@@ -1,18 +1,19 @@
-import { Doc } from '../../entities/Doc'
+import { UpdateResult, DeleteResult } from 'typeorm'
 import { Link } from '../../entities/Link'
-import { LinkCreateValue } from '../../values/link'
+import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 import { LinkService } from '../LinkService'
-import { DocService } from '../DocService'
+import { ILinkContent } from '../types'
+import { DocService } from './DocService'
 
 export class ContentManager {
   private services = {
-    linkService: null,
-    docService: null,
+    link: null,
+    doc: null,
   }
 
-  readonly linkContentHandler = {
-    doc: (link: Link): Promise<Doc | Doc[]> => {
-      return this.getLinkDoc(link)
+  private linkTypeContentService = {
+    doc: () => {
+      return this.getDocService()
     },
   }
 
@@ -28,54 +29,77 @@ export class ContentManager {
     return ContentManager.instance
   }
 
-  getLinkContent(link: Link): Promise<object | object[]> {
-    if (this.linkContentHandler.hasOwnProperty(link.type)) {
-      return this.linkContentHandler[link.type](link)
+  getLinkByValue(value: string): Promise<Link> {
+    return this.getLinkService().getLinkByValue(value)
+  }
+
+  createLinkByContent(data: LinkCreateValue): Promise<Link> {
+    return this.getLinkService().create(data)
+  }
+
+  updateLinkByContent(
+    data: LinkUpdateValue,
+    id: number
+  ): Promise<UpdateResult> {
+    return this.getLinkService().updateByContent(data, id)
+  }
+
+  deleteLinkByContent(id: number): Promise<DeleteResult> {
+    return this.getLinkService().deleteByContent(id)
+  }
+
+  getContentByLink(link: Link): Promise<object | object[] | null> {
+    const service = this.getLinkContentService(link.type)
+
+    if (!service) {
+      return null
+    }
+
+    return service.getContentByLink(link)
+  }
+
+  updateContentByLink(link: Link): Promise<UpdateResult> {
+    const service = this.getLinkContentService(link.type)
+
+    if (!service) {
+      return null
+    }
+
+    return service.updateContentByLink(link)
+  }
+
+  deleteContentByLink(link: Link): Promise<DeleteResult> {
+    const service = this.getLinkContentService(link.type)
+
+    if (!service) {
+      return null
+    }
+
+    return service.deleteContentByLink(link)
+  }
+
+  private getLinkService(): LinkService {
+    if (!this.services.link) {
+      this.services.link = LinkService.getInstance()
+    }
+
+    return this.services.link
+  }
+
+  private getLinkContentService(linkType: string): ILinkContent<object> {
+    if (this.linkTypeContentService.hasOwnProperty(linkType)) {
+      const service = this.linkTypeContentService[linkType]()
+      return service
     }
 
     return null
   }
 
-  getLinkDoc(link: Link) {
-    return this.getDocService().getDocById(Number(link.value))
-  }
-
-  linkDeleted(link: Link) {
-    this.getDocService().delete(Number(link.value))
-  }
-
-  getDocLink(doc: Doc): Promise<Link> {
-    return this.getLinkService().getLinkByValue(String(doc.id))
-  }
-
-  async docCreated(doc: Doc): Promise<boolean> {
-    const data = LinkCreateValue.fromDoc(doc)
-    await this.getLinkService().create(data)
-
-    return true
-  }
-
-  async docDeleted(doc: Doc) {
-    const link = await this.getLinkService().getLinkByValue(String(doc.id))
-
-    if (link) {
-      this.getLinkService().delete(link.id)
-    }
-  }
-
   private getDocService(): DocService {
-    if (!this.services.docService) {
-      this.services.docService = DocService.getInstance()
+    if (!this.services.doc) {
+      this.services.doc = DocService.getInstance()
     }
 
-    return this.services.docService
-  }
-
-  private getLinkService(): LinkService {
-    if (!this.services.linkService) {
-      this.services.linkService = LinkService.getInstance()
-    }
-
-    return this.services.linkService
+    return this.services.doc
   }
 }

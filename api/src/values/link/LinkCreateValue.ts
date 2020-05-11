@@ -1,6 +1,4 @@
 import { ILinkCreateObject } from './types'
-import { Doc } from '../../entities/Doc'
-import { LinkType } from '../../constants'
 
 export class LinkCreateValue {
   private readonly props: ILinkCreateObject = {
@@ -75,15 +73,5 @@ export class LinkCreateValue {
   ): LinkCreateValue {
     Object.assign(data, { userId })
     return LinkCreateValue.fromObject(data)
-  }
-
-  static fromDoc(doc: Doc): LinkCreateValue {
-    return new LinkCreateValue(
-      doc.userId,
-      doc.spaceId,
-      doc.title,
-      LinkType.Doc,
-      String(doc.id)
-    )
   }
 }
