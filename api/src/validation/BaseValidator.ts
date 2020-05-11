@@ -22,10 +22,10 @@ configure({
 
 export abstract class BaseValidator {
   constructor() {
-    this.dbUnique()
+    this.extend()
   }
 
-  protected dbUnique() {
+  protected extend() {
     extend('dbUnique', {
       async: true,
 
@@ -69,7 +69,7 @@ export abstract class BaseValidator {
 
   async validate(input: any) {
     try {
-      return await validateAll(input, this.rules(), {}, {existyStrict: true})
+      return await validateAll(input, this.rules(), {}, { existyStrict: true })
     } catch (errors) {
       throw validationFailed('Validation failed', errors)
     }
