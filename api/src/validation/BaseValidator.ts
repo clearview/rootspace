@@ -3,6 +3,7 @@ import { validateAll, extend } from 'indicative/validator'
 import { getValue, skippable } from 'indicative-utils'
 import { Schema, ParsedRule } from 'indicative-parser'
 import { validationFailed } from '../errors/httpError'
+import { configure } from 'indicative/validator'
 
 declare module 'indicative-rules' {
   interface ValidationRulesContract {
@@ -14,6 +15,10 @@ declare module 'indicative-rules' {
     ]): ParsedRule
   }
 }
+
+configure({
+  existyStrict: true,
+})
 
 export abstract class BaseValidator {
   constructor() {
@@ -64,7 +69,7 @@ export abstract class BaseValidator {
 
   async validate(input: any) {
     try {
-      return await validateAll(input, this.rules())
+      return await validateAll(input, this.rules(), {}, {existyStrict: true})
     } catch (errors) {
       throw validationFailed('Validation failed', errors)
     }
