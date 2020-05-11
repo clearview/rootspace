@@ -135,7 +135,7 @@ type ComponentData = {
       alert: Alert | null;
     };
   };
-}
+};
 
 export default Vue.extend({
   name: 'Navigation',
@@ -176,19 +176,21 @@ export default Vue.extend({
     }
   },
   computed: {
-    spaces () {
-      return this.$store.state.auth.spaces
-    },
     links () {
       return this.$store.state.link.payload
     },
     isCollapse () {
       return this.$store.state.nav.collapse
+    },
+    hasSpace () {
+      const spaces = this.$store.state.auth.spaces
+
+      return spaces && spaces.length > 0
     }
   },
   async created () {
-    if (this.spaces && this.spaces.length === 0) {
-      this.$router.push({ name: 'CreateWorkspace' })
+    if (!this.hasSpace) {
+      return this.$router.replace({ name: 'CreateWorkspace' })
     }
 
     await this.fetchLink()

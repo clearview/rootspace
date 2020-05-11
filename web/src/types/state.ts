@@ -9,7 +9,7 @@ export interface RootState {
 export interface AuthState {
   token: string | null;
   user: object | null;
-  spaces: object | null;
+  spaces: object[] | null;
 }
 
 export interface LinkState {

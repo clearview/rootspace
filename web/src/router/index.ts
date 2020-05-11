@@ -73,19 +73,19 @@ const router = new VueRouter({
   mode: 'history'
 })
 
-router.beforeEach((to, from, next) => {
-  const noAuth = to.matched.some(record => record.meta.noAuth)
-  const isTokenSet = (store.state.auth.token !== null)
+router.beforeEach(async (to, from, next) => {
+  const noAuth = to.meta.noAuth
+  const hasToken = store.state.auth.token !== null
 
-  if (!noAuth && !isTokenSet) {
-    return next('/signin')
+  if (hasToken) {
+    await store.dispatch('auth/whoami')
   }
 
-  if (noAuth && isTokenSet) {
-    return next('/')
+  if (hasToken || noAuth) {
+    return next()
   }
 
-  return next()
+  next({ name: 'SignIn' })
 })
 
 export default router

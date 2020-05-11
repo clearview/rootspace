@@ -9,7 +9,10 @@
 
         <v-alert :the-message="error" />
 
-        <resource-form-signin @submit="userSignin" ref="signin" />
+        <resource-form-signin
+          @submit="userSignin"
+          ref="signin"
+        />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -17,11 +20,14 @@
           </p>
         </div>
 
-        <google-signin text="Sign In"/>
+        <google-signin text="Sign In" />
 
         <p class="w-full mt-16 mb-5 text-center">
           Don't have an account yet?
-          <router-link :to="{ name: 'SignUp'}" class="signup">Sign Up</router-link>
+          <router-link
+            :to="{ name: 'SignUp'}"
+            class="signup"
+          >Sign Up</router-link>
         </p>
       </div>
     </div>
@@ -34,7 +40,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 import { SigninResource } from '@/types/resource'
 
@@ -47,7 +53,7 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 type ComponentData = {
   isLoading: boolean;
   error: object;
-}
+};
 
 export default Vue.extend({
   name: 'Signin',
@@ -71,27 +77,17 @@ export default Vue.extend({
     async userSignin (data: SigninResource) {
       try {
         this.isLoading = true
-        await this.whoami({
-          action: 'withEmail',
-          params: data
-        })
+
+        await this.$store.dispatch('auth/withEmail', data)
 
         this.isLoading = false
-        if (this.spaces && this.spaces.length > 0) {
-          this.$router.push({ name: 'Main' })
-          return
-        }
 
-        this.$router.push({ name: 'CreateWorkspace' })
+        this.$router.push({ name: 'Main' })
       } catch (err) {
         this.error = err
         this.isLoading = false
       }
-    },
-
-    ...mapActions({
-      whoami: 'auth/whoami'
-    })
+    }
   }
 })
 </script>

@@ -2,7 +2,10 @@
   <div id="google-callback-page">
     <root-header></root-header>
 
-    <div id="google-callback-content" class="flex flex-col items-center justify-center">
+    <div
+      id="google-callback-content"
+      class="flex flex-col items-center justify-center"
+    >
       <h5>Sign in success!</h5>
       <h6>we will redirect you to our system</h6>
 
@@ -12,7 +15,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState } from 'vuex'
 
 import RootHeader from '@/components/RootHeader.vue'
 
@@ -28,25 +31,13 @@ export default Vue.extend({
   methods: {
     async submit () {
       try {
-        await this.whoami({
-          action: 'withGoogle',
-          params: this.$route.query
-        })
+        await this.$store.dispatch('auth/withGoogle', this.$route.query)
 
-        if (this.spaces && this.spaces.length > 0) {
-          this.$router.push({ name: 'Main' })
-          return
-        }
-
-        this.$router.push({ name: 'CreateWorkspace' })
+        this.$router.replace({ name: 'Main' })
       } catch (err) {
         console.log(err)
       }
-    },
-
-    ...mapActions({
-      whoami: 'auth/whoami'
-    })
+    }
   }
 })
 </script>
