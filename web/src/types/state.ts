@@ -19,5 +19,5 @@ export interface LinkState {
 
 export interface NavState {
   collapse: boolean;
-  size: string | number;
+  size: number;
 }

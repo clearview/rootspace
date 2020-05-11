@@ -1,7 +1,10 @@
 <template>
   <div
     class="nav"
-    :class="{ 'nav--collapse': isCollapse }"
+    :class="{
+      'nav--collapse': isCollapse,
+      'nav--resizing': resizing
+    }"
   >
     <div class="nav-content">
       <navigation-header
@@ -146,6 +149,11 @@ export default Vue.extend({
     FormLink,
     VIcon,
     VModal
+  },
+  props: {
+    resizing: {
+      type: Boolean
+    }
   },
   data (): ComponentData {
     return {

@@ -31,17 +31,12 @@
   @apply hidden;
 }
 
-
 .nav.nav--collapse {
   @apply p-2 items-center justify-between;
   @apply bg-gray-900 text-white;
 
   width: 52px !important;
   min-width: 52px;
-
-  & ~ .multipane-resizer {
-    @apply hidden;
-  }
 
   .nav-content {
     @apply hidden;
