@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { throttle } from 'lodash'
 
 import VNavigation from '@/components/navigation/Navigation.vue'
 
@@ -51,7 +52,7 @@ export default Vue.extend({
     }
   },
   created () {
-    this.resize = this.resize.bind(this)
+    this.resize = throttle(this.resize.bind(this), 150)
   }
 })
 </script>

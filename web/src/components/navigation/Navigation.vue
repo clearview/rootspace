@@ -2,8 +2,7 @@
   <div
     class="nav"
     :class="{
-      'nav--collapse': isCollapse,
-      'nav--resizing': resizing
+      'nav--collapse': isCollapse
     }"
   >
     <div class="nav-content">
@@ -149,11 +148,6 @@ export default Vue.extend({
     FormLink,
     VIcon,
     VModal
-  },
-  props: {
-    resizing: {
-      type: Boolean
-    }
   },
   data (): ComponentData {
     return {
