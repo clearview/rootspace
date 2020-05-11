@@ -5,6 +5,8 @@ import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/LinkService'
 import { ContentManager } from '../services/content/ContentManager'
+import { clientError } from '../errors/httpError'
+import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -16,16 +18,29 @@ export class LinksCtrl extends BaseCtrl {
     this.contentManager = ContentManager.getInstance()
   }
 
-  public async view(req: Request, res: Response) {
-    const link = await this.linkSrvice.getLinkById(Number(req.params.id))
-    const content = this.responseData(link)
+  public async view(req: Request, res: Response, next: NextFunction) {
+    try {
+      const link = await this.linkSrvice.getLinkById(Number(req.params.id))
 
-    if (link.type !== LinkType.Link) {
-      const linkContent = await this.contentManager.getLinkContent(link)
-      content.includes(linkContent, link.type)
+      if (!link) {
+        throw clientError(
+          'Not found',
+          ClientErrName.EntityNotFound,
+          ClientStatusCode.NotFound
+        )
+      }
+
+      const resData = this.responseData(link)
+
+      if (link.type !== LinkType.Link) {
+        const linkContent = await this.contentManager.getContentByLink(link)
+        resData.includes(linkContent, link.type)
+      }
+
+      res.send(resData)
+    } catch (err) {
+      next(err)
     }
-
-    res.send(content)
   }
 
   public async listAll(req: Request, res: Response) {
