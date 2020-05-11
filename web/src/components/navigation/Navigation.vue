@@ -57,7 +57,7 @@
     </v-modal>
 
     <v-modal
-      title="Delete Link"
+      title="Delete Link/Document"
       :visible="link.destroy.visible"
       :loading="link.destroy.loading"
       confirmText="Yes"
@@ -65,7 +65,7 @@
       @confirm="destroyLink(link.destroy.data)"
     >
       <div class="modal-body text-center">
-        Are you sure you want to delete this link?
+        Are you sure you want to delete this link/document?
       </div>
     </v-modal>
   </div>
@@ -241,6 +241,12 @@ export default Vue.extend({
 
       try {
         await this.$store.dispatch('link/destroy', data)
+
+        const route = this.$route
+        const isDoc = (data.type === 'doc' && route.name === 'Document')
+        if (isDoc && parseInt(data.value) === parseInt(route.params.id)) {
+          this.$router.push({ name: 'Main' })
+        }
       } catch (err) {
         this.link.destroy.alert = {
           type: 'danger',

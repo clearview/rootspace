@@ -47,7 +47,7 @@
           />
         </div>
         <div class="tree-node-actions">
-          <button @click="update({ node, path, tree }, true)">
+          <button v-if="node.type !== 'doc'" @click="update({ node, path, tree }, true)">
             <v-icon name="link-edit" />
           </button>
           <button @click="destroy({ node, path, tree })">
@@ -97,6 +97,11 @@ export default Vue.extend({
       type: Boolean
     }
   },
+  watch: {
+    editable (newVal) {
+      if (!newVal) this.select(null)
+    }
+  },
   data (): ComponentData {
     return {
       selected: null
@@ -132,7 +137,20 @@ export default Vue.extend({
     },
     open (data: LinkResource) {
       if (!this.editable) {
-        window.open(data.value, '_blank')
+        this.actionLink(data)
+      }
+    },
+    actionLink (data: LinkResource) {
+      switch (data.type) {
+        case 'doc':
+          this.$router
+            .push({ name: 'Document', params: { id: data.value } })
+            .catch()
+          break
+
+        default:
+          window.open(data.value, '_blank')
+          break
       }
     },
     update ({ node, path, tree }: NodeContext, modal = false) {

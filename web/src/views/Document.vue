@@ -3,6 +3,7 @@
     <div class="document-container">
       <div id="editor-toolbar">
         <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
+        <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
       </div>
 
       <editor v-if="!loading" id="editor" :content="value" @update-editor="onUpdateEditor" />
@@ -20,6 +21,7 @@ import DocumentService from '@/services/document'
 
 import LayoutMain from '@/components/LayoutMain.vue'
 import Editor from '@/components/Editor.vue'
+import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   value: object;
@@ -32,7 +34,8 @@ export default Vue.extend({
   name: 'Document',
   components: {
     LayoutMain,
-    Editor
+    Editor,
+    VIcon
   },
   data (): ComponentData {
     return {
@@ -46,34 +49,41 @@ export default Vue.extend({
     title () {
       clearTimeout(this.timer)
       this.timer = setTimeout(this.saveDocument, config.saveInterval * 1000)
+    },
+    $route () {
+      this.loadDocument()
     }
   },
   async mounted () {
-    const id = this.$route.params.id
-
-    if (id) {
-      this.loading = true
-
-      const viewDoc = await DocumentService.view(id)
-      this.title = viewDoc.data.title
-      this.value = viewDoc.data.content
-
-      this.loading = false
-    }
-    console.log('params.id', this.$route.params.id, this.value)
+    this.loadDocument()
   },
   methods: {
     onUpdateEditor (value: object) {
       this.value = value
-      console.log('value', value)
 
       if (this.title) {
         this.saveDocument()
       }
     },
-    saveDocument () {
-      console.log('saveDocument -- ', this.title, this.value)
+    async loadDocument () {
+      const id = this.$route.params.id
 
+      if (id) {
+        this.loading = true
+
+        try {
+          const viewDoc = await DocumentService.view(id)
+
+          this.title = viewDoc.data.title
+          this.value = viewDoc.data.content
+        } catch (e) {
+          this.$router.replace({ name: 'Document' })
+        }
+
+        this.loading = false
+      }
+    },
+    saveDocument () {
       if (this.title) {
         const payload = {
           spaceId: 3,
@@ -89,17 +99,21 @@ export default Vue.extend({
       try {
         let document
         const id = this.$route.params.id
+        this.loading = true
 
         if (id) {
           document = await DocumentService.update(id, data)
+          this.loading = false
         } else {
           document = await DocumentService.create(data)
           const getDocument = document.data
+          this.loading = false
 
-          this.$router.push({ name: 'Document', params: { id: getDocument.data.id } })
+          this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
         }
       } catch (err) {
         console.log(err)
+        this.loading = false
       }
     }
   }
@@ -125,7 +139,7 @@ export default Vue.extend({
     @apply flex justify-between border-b-2 w-full p-0;
 
     border-color: theme("colors.secondary.default");
-    padding-bottom: 1.5rem;
+    padding-bottom: .5rem;
     max-width: 650px;
     margin: 0 auto;
   }

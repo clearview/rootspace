@@ -1,8 +1,10 @@
 import api from '@/utils/api'
+import store from '@/store'
 
 async function create (payload: object) {
   try {
     const res = await api.post('docs', { data: payload })
+    await store.dispatch('link/fetch')
 
     return res
   } catch (error) {

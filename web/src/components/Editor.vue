@@ -37,7 +37,6 @@ export default Vue.extend({
       if (this.documentChanged) {
         editor.save().then((savedData: object) => {
           this.$emit('update-editor', savedData, this.documentChanged)
-          // console.log('-- Save --')
         })
       }
     }, config.saveInterval * 1000)
@@ -45,7 +44,6 @@ export default Vue.extend({
   methods: {
     onChange () {
       this.documentChanged = true
-      // console.log('++ Onchange ++')
     }
   }
 })

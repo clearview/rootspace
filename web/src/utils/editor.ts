@@ -17,7 +17,7 @@ import Checklist from '@editorjs/checklist'
 
 import { RootEditor } from '@/types/resource'
 
-export function createEditor (params: RootEditor) {
+export function createEditor (params: RootEditor): EditorJS {
   return new EditorJS({
     holder: 'codex-editor',
     data: params.savedData,
@@ -97,8 +97,6 @@ export function createEditor (params: RootEditor) {
     },
     onChange: () => {
       params.onChange()
-      console.log('params.onChange()', typeof params.onChange())
-      // console.log('++ Onchange EditorTS ++')
     }
   })
 }
