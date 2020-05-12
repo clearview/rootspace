@@ -48,7 +48,7 @@
       <div class="modal-body">
         <form-link
           @submit="addLink"
-          :space="currentSpace.id"
+          :space="currentSpaceID"
           ref="formLinkAdd"
         />
       </div>
@@ -88,7 +88,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import { LinkResource } from '@/types/resource'
 
@@ -188,7 +187,9 @@ export default Vue.extend({
 
       return spaces && spaces.length > 0
     },
-    ...mapState('auth', ['currentSpace'])
+    currentSpaceID () {
+      return this.$store.state.auth.currentSpace.id
+    }
   },
   async created () {
     if (!this.hasSpace) {
