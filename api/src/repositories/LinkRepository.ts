@@ -14,10 +14,10 @@ export class LinkRepository extends Repository<Link> {
   }
 
   async getRootsBySpaceId(spaceId: number): Promise<Link[]> {
-    return this.createQueryBuilder('link')
-      .innerJoin(Space, 'space', 'Space.id = link.spaceId')
-      .where('space.id = :spaceId', { spaceId })
-      .andWhere('link.parent IS NULL')
+    return this.createQueryBuilder('links')
+      .innerJoin(Space, 'spaces', 'spaces.id = links.spaceId')
+      .where('spaces.id = :spaceId', { spaceId })
+      .andWhere('links.parent IS NULL')
       .getMany()
   }
 }
