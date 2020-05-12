@@ -43,11 +43,21 @@ export class LinksCtrl extends BaseCtrl {
     }
   }
 
-  public async listAll(req: Request, res: Response) {
-    const links = await this.linkSrvice.getAll()
-    const data = this.responseData(links)
+  public async listAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const spaceId = Number(req.params.spaceId)
 
-    res.send(data)
+      if (!spaceId) {
+        throw clientError('Error fetching links')
+      }
+
+      const links = await this.linkSrvice.getAll(spaceId)
+      const data = this.responseData(links)
+
+      res.send(data)
+    } catch (err) {
+      next(err)
+    }
   }
 
   public async create(req: Request, res: Response, next: NextFunction) {
@@ -77,6 +87,11 @@ export class LinksCtrl extends BaseCtrl {
       await validateLinkUpdate(data)
 
       const value = LinkUpdateValue.fromObject(data)
+
+      if (data.parent !== undefined) {
+        value.parent = data.parent
+      }
+
       const result = await this.linkSrvice.update(value, id)
 
       res.send(result)

@@ -1,7 +1,7 @@
-import { ILinkCreateObject } from './types'
+import { ILinkCreateAttributes } from './types'
 
 export class LinkCreateValue {
-  private readonly props: ILinkCreateObject = {
+  private readonly attributes: ILinkCreateAttributes = {
     userId: null,
     spaceId: null,
     title: null,
@@ -18,7 +18,7 @@ export class LinkCreateValue {
     value: string,
     parent: number = null
   ) {
-    this.props = {
+    this.attributes = {
       userId,
       spaceId,
       title,
@@ -29,34 +29,50 @@ export class LinkCreateValue {
   }
 
   get userId(): number {
-    return this.props.userId
+    return this.attributes.userId
   }
 
   get spaceId(): number {
-    return this.props.spaceId
+    return this.attributes.spaceId
   }
 
   get title(): string {
-    return this.props.title
+    return this.attributes.title
   }
 
   get type(): string {
-    return this.props.type
+    return this.attributes.type
   }
 
   get value(): string {
-    return this.props.value
+    return this.attributes.value
   }
 
   get parent(): number {
-    return this.props.parent
+    return this.attributes.parent
   }
 
-  toObject(): ILinkCreateObject {
-    return this.props
+  toObject(): ILinkCreateAttributes {
+    return this.attributes
   }
 
-  static fromObject(data: ILinkCreateObject): LinkCreateValue {
+  getAttributes(filiterUndefined: boolean = true): ILinkCreateAttributes {
+    if (filiterUndefined === false) {
+      return this.attributes
+    }
+
+    const filtered = this.attributes
+
+    for (const key in this.attributes) {
+      if (filtered[key] === undefined) {
+        delete filtered[key]
+      }
+    }
+
+    return filtered
+  }
+
+  static fromObject(data: ILinkCreateAttributes): LinkCreateValue {
     return new LinkCreateValue(
       data.userId,
       data.spaceId,
@@ -68,7 +84,7 @@ export class LinkCreateValue {
   }
 
   static fromObjectAndUserId(
-    data: ILinkCreateObject,
+    data: ILinkCreateAttributes,
     userId: number
   ): LinkCreateValue {
     Object.assign(data, { userId })

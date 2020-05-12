@@ -61,6 +61,8 @@ router.delete('/spaces/:spaceId/users/:userId', auth, mapRoute(SpacesUsersCtrl, 
 
 router.get('/links', auth, mapRoute(LinksCtrl, 'listAll'))
 router.get('/links/:id', auth, mapRoute(LinksCtrl, 'view'))
+router.get('/links/:spaceId', auth, mapRoute(LinksCtrl, 'listAll'))
+router.get('/links/view/:id', auth, mapRoute(LinksCtrl, 'view'))
 router.post('/links', auth, mapRoute(LinksCtrl, 'create'))
 router.patch('/links/:id', auth, mapRoute(LinksCtrl, 'update'))
 router.delete('/links/:id', auth, mapRoute(LinksCtrl, 'delete'))

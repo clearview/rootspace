@@ -1,34 +1,44 @@
-import { ILinkUpdateObject } from './types'
+import { ILinkUpdateAttributes } from './types'
 
 export class LinkUpdateValue {
-  private readonly props: ILinkUpdateObject = {
+  private readonly attributes: ILinkUpdateAttributes = {
     title: undefined,
     value: undefined,
   }
 
-  constructor(title?: string, value?: string) {
-    this.props = {
+  private _parent: number
+
+  private constructor(title?: string, value?: string, parent?: number) {
+    this.attributes = {
       title,
       value,
     }
   }
 
   get title(): string {
-    return this.props.title
+    return this.attributes.title
   }
 
   get value(): string {
-    return this.props.value
+    return this.attributes.value
   }
 
-  toObject(filiterEmpty: boolean = true): ILinkUpdateObject {
-    if (filiterEmpty === false) {
-      return this.props
+  get parent(): number {
+    return this._parent
+  }
+
+  set parent(value: number) {
+    this._parent = value
+  }
+
+  getAttributes(filiterUndefined: boolean = true): ILinkUpdateAttributes {
+    if (filiterUndefined === false) {
+      return this.attributes
     }
 
-    const filtered = this.props
+    const filtered = this.attributes
 
-    for (const key in this.props) {
+    for (const key in this.attributes) {
       if (filtered[key] === undefined) {
         delete filtered[key]
       }
@@ -37,7 +47,7 @@ export class LinkUpdateValue {
     return filtered
   }
 
-  static fromObject(data: ILinkUpdateObject) {
+  static fromObject(data: ILinkUpdateAttributes) {
     return new LinkUpdateValue(data.title, data.value)
   }
 }
