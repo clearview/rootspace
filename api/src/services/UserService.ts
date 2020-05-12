@@ -30,6 +30,10 @@ export class UserService {
     return getCustomRepository(UserRepository)
   }
 
+  getUsersBySpaceId(spaceId: number): Promise<User[]> {
+    return this.getUserRepository().getBySpaceId(spaceId)
+  }
+
   getUserById(id: number, selectPassword = false): Promise<User | undefined> {
     return this.getUserRepository().getById(id, selectPassword)
   }
