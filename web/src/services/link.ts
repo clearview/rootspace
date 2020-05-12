@@ -20,8 +20,8 @@ export default class LinkService {
     return res.data
   }
 
-  static async create (body: LinkResource) {
-    const res = await api.post('links', body)
+  static async create (data: LinkResource) {
+    const res = await api.post('links', { data })
 
     return res.data
   }
