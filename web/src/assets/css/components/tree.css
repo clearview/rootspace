@@ -1,3 +1,7 @@
+.tree {
+  @apply w-full;
+}
+
 .tree-node-back {
   @apply relative;
 
@@ -44,7 +48,7 @@
 
 .tree-node-text {
   @apply flex flex-1;
-  @apply leading-tight;
+  @apply leading-tight whitespace-no-wrap;
 
   input {
     @apply outline-none;

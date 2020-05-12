@@ -1,4 +1,5 @@
 .nav {
+  @apply flex flex-col items-start;
   @apply h-screen p-4;
   width: 282px;
   min-width: 282px;
@@ -8,42 +9,77 @@
 }
 
 .nav-header {
-  @apply flex flex-row items-center mb-4;
+  @apply flex flex-row items-center;
+  @apply w-full mb-4;
+
+  .nav-logo {
+    @apply flex flex-none;
+    @apply bg-primary rounded;
+
+    transition: 300ms;
+  }
+
+  .nav-search {
+    @apply flex flex-1 mx-5 justify-center;
+  }
+
+  .nav-collapse {
+    @apply flex flex-none;
+  }
 }
 
 .nav-footer {
+  @apply w-full;
+
+  .btn {
+    @apply whitespace-no-wrap;
+  }
+
   .btn-icon {
-    @apply p-2;
+    @apply p-2 whitespace-no-wrap;
     font-size: 22px;
+  }
+
+  .nav-actions {
+    @apply flex mt-4;
+  }
+
+  .nav-expand {
+    @apply hidden;
   }
 }
 
 .nav-items {
-  @apply flex-1 overflow-scroll;
-}
-
-.nav-content,
-.nav-content--collapse {
-  @apply flex flex-col h-full;
-}
-
-.nav-content--collapse {
-  @apply hidden;
+  @apply flex flex-1 w-full overflow-scroll;
 }
 
 .nav.nav--collapse {
-  @apply p-2 items-center justify-between;
+  @apply p-2;
   @apply bg-gray-900 text-white;
 
   width: 52px !important;
   min-width: 52px;
 
-  .nav-content {
+  .nav-logo {
+    @apply bg-transparent;
+  }
+
+  .nav-items {
+    visibility: hidden;
+  }
+
+  .nav-search,
+  .nav-collapse,
+  .nav-actions {
     @apply hidden;
   }
 
-  .nav-content--collapse {
+  .nav-expand {
+    @apply block;
+  }
+
+  /* .nav-content--collapse {
     @apply flex flex-col items-center justify-between;
     @apply py-2;
-  }
+  } */
 }

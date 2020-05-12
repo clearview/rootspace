@@ -1,6 +1,6 @@
 <template>
   <div class="nav-footer">
-    <div class="flex flex-row mt-4">
+    <div class="nav-actions flex-row">
       <button class="btn btn-mute flex-grow px-2 mr-2">
         My Workspace
         <v-icon
@@ -31,7 +31,7 @@
         </button>
       </div>
     </div>
-    <div class="flex mt-4">
+    <div class="nav-actions">
       <button
         class="btn btn-primary flex-grow"
         @click="$emit('add')"
@@ -41,6 +41,20 @@
           class="mr-1"
         />
         Add New Link
+      </button>
+    </div>
+
+    <div class="nav-expand">
+      <button
+        class="btn btn-icon bg-transparent"
+        @click="$emit('toggleCollapse')"
+      >
+        <v-icon
+          name="right"
+          size="1em"
+          viewbox="36"
+          class="text-white"
+        />
       </button>
     </div>
   </div>
