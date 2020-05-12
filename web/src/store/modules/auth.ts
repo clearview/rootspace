@@ -10,7 +10,8 @@ const AuthModule: Module<AuthState, RootState> = {
     return {
       token: null,
       user: null,
-      spaces: null
+      spaces: null,
+      currentSpace: null
     }
   },
 
@@ -23,6 +24,9 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     setSpaces (state, spaces) {
       state.spaces = spaces
+    },
+    setCurrentSpace (state, space) {
+      state.currentSpace = space
     }
   },
 
@@ -44,11 +48,13 @@ const AuthModule: Module<AuthState, RootState> = {
 
       commit('setUser', res.user)
       commit('setSpaces', res.spaces)
+      commit('setCurrentSpace', res.spaces[0]) // set default Space
     },
     async signout ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
       commit('setSpaces', null)
+      commit('setCurrentSpace', null)
     }
   }
 }

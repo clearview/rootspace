@@ -14,26 +14,26 @@ export interface FetchParams {
 }
 
 export default class LinkService {
-  static async fetch (params: FetchParams) {
-    const res = await api.get('links', { params })
+  static async fetch (id: number, params: FetchParams) {
+    const res = await api.get(`links/${id}`, { params })
 
     return res.data
   }
 
-  static async create (data: LinkResource) {
-    const res = await api.post('links', { data })
+  static async create (body: LinkResource) {
+    const res = await api.post('links', { data: body })
 
     return res.data
   }
 
   static async view (id: number) {
-    const res = await api.get(`links/${id}`)
+    const res = await api.get(`links/view/${id}`)
 
     return res.data
   }
 
-  static async update (id: number, data: LinkResource) {
-    const res = await api.patch(`links/${id}`, { data })
+  static async update (id: number, body: LinkResource) {
+    const res = await api.patch(`links/${id}`, { data: body })
 
     return res.data
   }

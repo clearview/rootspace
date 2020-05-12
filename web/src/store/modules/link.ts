@@ -5,6 +5,8 @@ import { LinkResource } from '@/types/resource'
 
 import LinkService from '@/services/link'
 
+import store from '@/store'
+
 const LinkModule: Module<LinkState, RootState> = {
   namespaced: true,
 
@@ -33,9 +35,12 @@ const LinkModule: Module<LinkState, RootState> = {
 
   actions: {
     async fetch ({ commit }, params) {
-      const res = await LinkService.fetch(params)
+      const currentSpace = store.state.auth.currentSpace
 
-      commit('setPayload', res.data)
+      if (currentSpace) {
+        const res = await LinkService.fetch(currentSpace.id, params)
+        commit('setPayload', res.data)
+      }
     },
 
     async create ({ dispatch }, data: LinkResource) {

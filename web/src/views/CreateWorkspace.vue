@@ -87,6 +87,7 @@ export default Vue.extend({
           settings: getUserSpace.settings
         }]
         this.setSpaces(userSpace)
+        this.setCurrentSpace(getUserSpace.id)
         this.$router.push({ name: 'Main' })
       } catch (err) {
         if (err.code === 401) {
@@ -101,7 +102,8 @@ export default Vue.extend({
     },
 
     ...mapMutations({
-      setSpaces: 'auth/setSpaces'
+      setSpaces: 'auth/setSpaces',
+      setCurrentSpace: 'auth/setCurrentSpace'
     }),
 
     ...mapActions({
