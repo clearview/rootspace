@@ -5,9 +5,9 @@
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      :value="value"
+      v-model="treeData"
       foldingTransitionName="fold"
-      @drop="update($event.dragNode, $event.targetPath)"
+      @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
       <div
@@ -43,15 +43,15 @@
           <input
             v-show="isSelected(path)"
             v-model.lazy="node.title"
-            @change="update(node, path)"
+            @change="update({ node, path, tree })"
             @keydown.esc="select(null)"
           />
         </div>
         <div class="tree-node-actions">
-          <button @click="update(node, path, true)">
+          <button @click="update({ node, path, tree }, true)">
             <v-icon name="link-edit" />
           </button>
-          <button @click="destroy(node)">
+          <button @click="destroy({ node, path, tree })">
             <v-icon name="trash" />
           </button>
         </div>
@@ -64,25 +64,28 @@
 import Vue from 'vue'
 import { Tree, Draggable, Fold } from 'he-tree-vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
 import { LinkResource } from '@/types/resource'
 
 type ComponentData = {
   selected: string | null;
-};
-
-interface Tree extends Vue {
-  getNodeParentByPath(path: number[]): LinkResource;
 }
 
-const VTree = Vue.extend(Tree.mixPlugins([Draggable, Fold]))
+type NodeContext = {
+  node: object;
+  path: number[];
+  tree: Tree;
+}
+
+const VTree = Vue.extend({
+  name: 'Tree',
+  extends: Tree,
+  mixins: [Draggable, Fold]
+})
 
 export default Vue.extend({
   name: 'NavigationItems',
   components: {
-    VTree,
-    VIcon
+    VTree
   },
   props: {
     value: {
@@ -99,7 +102,7 @@ export default Vue.extend({
   },
   computed: {
     treeData () {
-      return this.$store.state.link.payload
+      return this.value
     }
   },
   methods: {
@@ -117,12 +120,11 @@ export default Vue.extend({
         window.open(data.value, '_blank')
       }
     },
-    update (data: LinkResource, path: number[], modal = false) {
-      const tree: Tree = this.$refs.tree as Tree
+    update ({ node, path, tree }: NodeContext, modal = false) {
       const parent = tree.getNodeParentByPath(path)
 
       const _data = {
-        ...data,
+        ...node,
         parent: (parent && parent.id) || null,
         children: undefined,
         created: undefined,
@@ -132,8 +134,8 @@ export default Vue.extend({
       this.select(null)
       this.$emit('update', _data, modal)
     },
-    destroy (data: LinkResource) {
-      this.$emit('destroy', data)
+    destroy ({ node }: NodeContext) {
+      this.$emit('destroy', node)
     }
   }
 })

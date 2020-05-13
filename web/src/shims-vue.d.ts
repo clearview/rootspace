@@ -6,4 +6,4 @@ declare module '*.vue' {
   export default Vue
 }
 
-declare module 'he-tree-vue'
+// declare module 'he-tree-vue'
