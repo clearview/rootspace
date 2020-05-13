@@ -88,7 +88,7 @@ import VField from '@/components/Field.vue'
 import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
-  payload: WorkspaceResource;
+  payload: Omit<WorkspaceResource, 'id'>;
   invitation: string;
 }
 

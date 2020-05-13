@@ -38,8 +38,10 @@ export interface PasswordResource {
 }
 
 export interface WorkspaceResource {
+  id: number;
   title: string;
   invites: string[];
+  settings?: object;
 }
 
 export interface UserResource {
