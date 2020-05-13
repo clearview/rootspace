@@ -66,6 +66,8 @@
 import Vue from 'vue'
 import { mapActions, mapMutations } from 'vuex'
 
+import { remove, map } from 'lodash'
+
 import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/resource'
 
 import UserService from '@/services/user'
@@ -149,8 +151,11 @@ export default Vue.extend({
         this.isLoading = true
         this.loadingMessage = 'Update Workspace Settings...'
 
+        console.log(data)
+
         const payload = { // for temporary
-          title: data.title
+          title: data.title,
+          invites: data.invites
         }
         await WorkspaceService.update(id, payload)
 
@@ -171,9 +176,15 @@ export default Vue.extend({
       this.loadingMessage = 'Get Workspace Settings...'
 
       const viewWorkspace = await WorkspaceService.view(id)
+      const viewUserAtSpace = await WorkspaceService.userAtSpace(id)
+      const currentUser = this.$store.state.auth.user.id
+
+      remove(viewUserAtSpace.data, user => user.id === currentUser)
+      const userAtSpace = map(viewUserAtSpace.data, 'email')
+
       this.workspaceData = {
         title: viewWorkspace.title,
-        invites: []
+        invites: userAtSpace
       }
       this.isLoading = false
     },
