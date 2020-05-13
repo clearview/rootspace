@@ -74,7 +74,7 @@
       type="button"
       :disabled="$v.payload.$invalid"
       @click="submit()"
-    >Create</button>
+    >{{ button }}</button>
   </form>
 </template>
 
@@ -101,6 +101,10 @@ export default Vue.extend({
   props: {
     value: {
       type: Object
+    },
+    button: {
+      type: String,
+      default: 'Create'
     }
   },
   data (): ComponentData {

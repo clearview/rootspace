@@ -25,6 +25,20 @@
     />
 
     <v-modal
+      title="Add New"
+      :visible="addNew.visible"
+      :nosubmit="true"
+      @cancel="addNew.visible = false"
+    >
+      <div class="modal-body">
+        <add-list
+          @link="startAddLink"
+          @document="startAddDocument"
+        />
+      </div>
+    </v-modal>
+
+    <v-modal
       title="Add Link"
       :visible="link.add.visible"
       :loading="link.add.loading"
@@ -77,6 +91,8 @@ import Vue from 'vue'
 import { LinkResource } from '@/types/resource'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
+import AddList from '@/components/resource/ResourceAddList.vue'
+import VIcon from '@/components/icons/Index.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -90,6 +106,9 @@ type Alert = {
 
 type ComponentData = {
   editable: boolean;
+  addNew: {
+    visible: boolean;
+  };
   link: {
     fetch: {
       loading: boolean;
@@ -122,11 +141,16 @@ export default Vue.extend({
     NavigationItems,
     NavigationFooter,
     FormLink,
+    AddList,
+    VIcon,
     VModal
   },
   data (): ComponentData {
     return {
       editable: false,
+      addNew: {
+        visible: false
+      },
       link: {
         fetch: {
           loading: false,
@@ -180,7 +204,15 @@ export default Vue.extend({
       this.$store.commit('nav/setCollapse', !this.collapse)
     },
     startAddLink () {
+      this.addNew.visible = false
       this.link.add.visible = true
+    },
+    startAddDocument () {
+      this.$router.push({ name: 'Document' })
+      this.addNew.visible = false
+    },
+    startAddNew () {
+      this.addNew.visible = true
     },
     startUpdateLink (data: LinkResource, modal: boolean) {
       this.link.update.data = data

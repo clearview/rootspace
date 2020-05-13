@@ -52,7 +52,18 @@ export default Vue.extend({
       clearTimeout(this.timer)
       this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     },
-    $route () {
+    $route (newval) {
+      this.initialize = true
+      if (typeof newval.params.id === 'undefined') {
+        this.title = ''
+        this.value = {}
+
+        setTimeout(() => {
+          this.initialize = false
+        }, 500)
+        return
+      }
+
       this.loadDocument()
     }
   },
@@ -71,8 +82,6 @@ export default Vue.extend({
       const id = this.$route.params.id
 
       if (id) {
-        this.initialize = true
-
         try {
           const viewDoc = await DocumentService.view(id)
 

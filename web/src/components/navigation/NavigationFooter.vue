@@ -40,7 +40,7 @@
           name="plus"
           class="mr-1"
         />
-        Add New Link
+        Add New
       </button>
     </div>
 
