@@ -6,8 +6,9 @@
       triggerClass="tree-node-handle"
       :indent="16"
       :value="value"
+      foldingTransitionName="fold"
       @drop="update($event.dragNode, $event.targetPath)"
-      #default="{ node, path }"
+      #default="{ node, path, tree }"
     >
       <div
         class="tree-node-content"
@@ -22,7 +23,11 @@
         </div>
         <div
           class="tree-node-arrow"
-          :class="{ 'is-hidden': !hasChildren(node) }"
+          :class="{
+            'is-hidden': !hasChildren(node),
+            'is-folded': node.$folded
+          }"
+          @click.stop="tree.toggleFold(node, path)"
         >
           <v-icon name="down" />
         </div>
@@ -57,7 +62,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { Tree, Draggable } from 'he-tree-vue'
+import { Tree, Draggable, Fold } from 'he-tree-vue'
 
 import VIcon from '@/components/icons/Index.vue'
 
@@ -65,15 +70,13 @@ import { LinkResource } from '@/types/resource'
 
 type ComponentData = {
   selected: string | null;
-}
+};
 
 interface Tree extends Vue {
   getNodeParentByPath(path: number[]): LinkResource;
 }
 
-const VTree = Vue.extend(
-  Tree.mixPlugins([Draggable])
-)
+const VTree = Vue.extend(Tree.mixPlugins([Draggable, Fold]))
 
 export default Vue.extend({
   name: 'NavigationItems',

@@ -40,9 +40,14 @@
 
 .tree-node-arrow {
   margin-left: 1em;
+  transition: transform .3s;
 
   &.is-hidden {
     visibility: hidden;
+  }
+
+  &.is-folded {
+    transform: rotate(-90deg);
   }
 }
 
