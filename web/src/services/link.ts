@@ -32,8 +32,8 @@ export default class LinkService {
     return res.data
   }
 
-  static async update (id: number, body: LinkResource) {
-    const res = await api.patch(`links/${id}`, body)
+  static async update (id: number, data: LinkResource) {
+    const res = await api.patch(`links/${id}`, { data })
 
     return res.data
   }

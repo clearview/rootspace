@@ -10,10 +10,12 @@
       @toggleCollapse="toggleCollapse"
     />
     <navigation-items
-      :value="links"
+      :value="links.payload"
+      :folded="links.folded"
       :editable="editable"
       @update="startUpdateLink"
       @destroy="startDestroyLink"
+      @fold="toggleFold"
     />
     <navigation-footer
       :editable="editable"
@@ -152,7 +154,7 @@ export default Vue.extend({
   },
   computed: {
     links () {
-      return this.$store.state.link.payload
+      return this.$store.state.link
     },
     collapse () {
       return this.$store.state.nav.collapse
@@ -192,6 +194,9 @@ export default Vue.extend({
     startDestroyLink (data: LinkResource) {
       this.link.destroy.visible = true
       this.link.destroy.data = data
+    },
+    toggleFold (data: object) {
+      this.$store.commit('link/setFolded', data)
     },
     async fetchLink () {
       this.link.fetch.loading = true

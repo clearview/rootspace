@@ -1,11 +1,10 @@
 <template>
   <div class="nav-items">
     <v-tree
-      ref="tree"
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      v-model="treeData"
+      :value="treeData"
       foldingTransitionName="fold"
       @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
@@ -27,7 +26,7 @@
             'is-hidden': !hasChildren(node),
             'is-folded': node.$folded
           }"
-          @click.stop="tree.toggleFold(node, path)"
+          @click.stop="toggleFold({ node, path, tree })"
         >
           <v-icon name="down" />
         </div>
@@ -61,8 +60,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Tree, Draggable, Fold } from 'he-tree-vue'
+import Vue, { PropType } from 'vue'
+import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
 import { LinkResource } from '@/types/resource'
 
@@ -71,9 +70,9 @@ type ComponentData = {
 }
 
 type NodeContext = {
-  node: object;
+  node: Node;
   path: number[];
-  tree: Tree;
+  tree: Tree & Fold & Draggable;
 }
 
 const VTree = Vue.extend({
@@ -89,7 +88,10 @@ export default Vue.extend({
   },
   props: {
     value: {
-      type: Array
+      type: Array as PropType<object[]>
+    },
+    folded: {
+      type: Object
     },
     editable: {
       type: Boolean
@@ -102,7 +104,13 @@ export default Vue.extend({
   },
   computed: {
     treeData () {
-      return this.value
+      const treeData = [...this.value]
+
+      walkTreeData(treeData, (node, index, parent, path) => {
+        node.$folded = this.folded[path.join('.')] === true
+      })
+
+      return treeData
     }
   },
   methods: {
@@ -114,6 +122,13 @@ export default Vue.extend({
     },
     isSelected (path: number[]) {
       return this.selected === path.join('.')
+    },
+    toggleFold ({ node, path, tree }: NodeContext) {
+      tree.toggleFold(node, path)
+
+      this.$emit('fold', {
+        [path.join('.')]: node.$folded === true
+      })
     },
     open (data: LinkResource) {
       if (!this.editable) {

@@ -15,6 +15,9 @@ export interface AuthState {
 export interface LinkState {
   payload: LinkResource[];
   active: LinkResource | null;
+  folded: {
+    [key: string]: boolean;
+  };
 }
 
 export interface NavState {
