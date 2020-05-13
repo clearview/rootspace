@@ -3,25 +3,23 @@ import api from '@/utils/api'
 import { LinkResource } from '@/types/resource'
 
 export interface FetchParams {
+  spaceId: number;
   limit: number;
   offset: number;
-  filter: {
-    [field: string]: string;
-  };
   sort: {
     [field: string]: string;
   };
 }
 
 export default class LinkService {
-  static async fetch (id: number, params: FetchParams) {
-    const res = await api.get(`links/${id}`, { params })
+  static async fetch ({ spaceId, ...params }: FetchParams) {
+    const res = await api.get(`links/${spaceId}`, { params })
 
     return res.data
   }
 
-  static async create (body: LinkResource) {
-    const res = await api.post('links', { data: body })
+  static async create (data: LinkResource) {
+    const res = await api.post('links', { data })
 
     return res.data
   }
@@ -32,8 +30,8 @@ export default class LinkService {
     return res.data
   }
 
-  static async update (id: number, body: LinkResource) {
-    const res = await api.patch(`links/${id}`, { data: body })
+  static async update (id: number, data: LinkResource) {
+    const res = await api.patch(`links/${id}`, { data })
 
     return res.data
   }

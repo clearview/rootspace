@@ -43,12 +43,15 @@ const AuthModule: Module<AuthState, RootState> = {
         commit('setToken', res.data.token)
       }
     },
-    async whoami ({ commit }) {
+    async whoami ({ commit, state }) {
       const res = await UserService.whoami()
 
       commit('setUser', res.user)
       commit('setSpaces', res.spaces)
-      commit('setCurrentSpace', res.spaces[0]) // set default Space
+
+      if (!state.currentSpace) {
+        commit('setCurrentSpace', res.spaces[0]) // set default Space
+      }
     },
     async signout ({ commit }) {
       commit('setToken', null)

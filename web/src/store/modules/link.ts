@@ -5,8 +5,6 @@ import { LinkResource } from '@/types/resource'
 
 import LinkService from '@/services/link'
 
-import store from '@/store'
-
 const LinkModule: Module<LinkState, RootState> = {
   namespaced: true,
 
@@ -34,13 +32,19 @@ const LinkModule: Module<LinkState, RootState> = {
   },
 
   actions: {
-    async fetch ({ commit }, params) {
-      const currentSpace = store.state.auth.currentSpace
+    async fetch ({ commit, rootState }, params) {
+      const currentSpace = rootState.auth.currentSpace
 
-      if (currentSpace) {
-        const res = await LinkService.fetch(currentSpace.id, params)
-        commit('setPayload', res.data)
+      if (!currentSpace) {
+        throw new Error('There is no currently active space')
       }
+
+      const res = await LinkService.fetch({
+        ...params,
+        spaceId: currentSpace.id
+      })
+
+      commit('setPayload', res.data)
     },
 
     async create ({ dispatch }, data: LinkResource) {
