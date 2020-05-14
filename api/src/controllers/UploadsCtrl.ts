@@ -1,41 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
-import { config } from 'node-config-ts'
-import { getCustomRepository } from 'typeorm'
+import { UploadService } from '../services/UploadService'
 import { BaseCtrl } from './BaseCtrl'
-import S3 from 'aws-sdk/clients/s3'
-import fs from 'fs'
 
 export class UploadsCtrl extends BaseCtrl {
-  protected s3: S3
+
+  private uploadService: UploadService
+
   constructor() {
     super()
-    this.s3 = new S3({
-      accessKeyId: config.s3.accessKey,
-      secretAccessKey: config.s3.secretKey
-    })
+    this.uploadService = new UploadService()
   }
 
   async index(req: Request, res: Response, next: NextFunction) {
-    const upload = await this.uploadFile(req.file)
+    const upload = await this.uploadService.upload(req.file, { spaceId: req.query.spaceId, userId: req.user.id})
     res.send(upload)
   }
-
-  uploadFile (file) {
-    return new Promise((resolve, reject) => {
-      this.s3.upload({
-        Key: file.originalname.replace(/\s+/g, '-').toLowerCase(),
-        Bucket: config.s3.bucket,
-        ACL: 'public-read',
-        ContentType: file.mimetype,
-        Body: fs.createReadStream(file.path)
-      }, (err, output) => {
-        if (err) {
-          reject(err)
-          return
-        }
-        resolve(output)
-      })
-    })
-  }
-
 }
