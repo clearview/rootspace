@@ -1,49 +1,28 @@
 <template>
   <div
     class="nav"
-    :class="{ 'nav--collapse': isCollapse }"
+    :class="{
+      'nav--collapse': collapse
+    }"
   >
-    <div class="nav-content">
-      <navigation-header
-        :collapse="isCollapse"
-        @search="search"
-        @toggleCollapse="toggleCollapse"
-      />
-      <navigation-items
-        :value="links"
-        :editable="editable"
-        @update="startUpdateLink"
-        @destroy="startDestroyLink"
-      />
-      <navigation-footer
-        :editable="editable"
-        @add="startAddLink"
-        @edit="editable = !editable"
-      />
-    </div>
-
-    <div class="nav-content--collapse">
-      <img
-        srcset="
-          @/assets/logo_2.png,
-          @/assets/logo_2@2x.png 2x
-        "
-        src="@/assets/logo_2.png"
-        alt="Root Logo"
-      />
-
-      <button
-        class="btn p-0 border-none bg-transparent"
-        @click="toggleCollapse"
-      >
-        <v-icon
-          name="right"
-          size="2em"
-          viewbox="36"
-          class="text-white"
-        />
-      </button>
-    </div>
+    <navigation-header
+      @search="search"
+      @toggleCollapse="toggleCollapse"
+    />
+    <navigation-items
+      :value="links.payload"
+      :folded="links.folded"
+      :editable="editable"
+      @update="startUpdateLink"
+      @destroy="startDestroyLink"
+      @fold="toggleFold"
+    />
+    <navigation-footer
+      :editable="editable"
+      @add="startAddLink"
+      @edit="editable = !editable"
+      @toggleCollapse="toggleCollapse"
+    />
 
     <v-modal
       title="Add Link"
@@ -98,7 +77,6 @@ import Vue from 'vue'
 import { LinkResource } from '@/types/resource'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
-import VIcon from '@/components/icons/Index.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -144,7 +122,6 @@ export default Vue.extend({
     NavigationItems,
     NavigationFooter,
     FormLink,
-    VIcon,
     VModal
   },
   data (): ComponentData {
@@ -177,9 +154,9 @@ export default Vue.extend({
   },
   computed: {
     links () {
-      return this.$store.state.link.payload
+      return this.$store.state.link
     },
-    isCollapse () {
+    collapse () {
       return this.$store.state.nav.collapse
     },
     hasSpace () {
@@ -200,7 +177,7 @@ export default Vue.extend({
       console.log(`Search: ${keyword}`)
     },
     toggleCollapse () {
-      this.$store.commit('nav/setCollapse', !this.isCollapse)
+      this.$store.commit('nav/setCollapse', !this.collapse)
     },
     startAddLink () {
       this.link.add.visible = true
@@ -217,6 +194,9 @@ export default Vue.extend({
     startDestroyLink (data: LinkResource) {
       this.link.destroy.visible = true
       this.link.destroy.data = data
+    },
+    toggleFold (data: object) {
+      this.$store.commit('link/setFolded', data)
     },
     async fetchLink () {
       this.link.fetch.loading = true

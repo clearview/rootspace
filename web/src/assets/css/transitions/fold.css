@@ -1,0 +1,15 @@
+.fold-leave, .fold-enter-to {
+  opacity: 1;
+  max-height: 999px;
+  transform: translateY(0);
+}
+
+.fold-enter, .fold-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-30px);
+}
+
+.fold-enter-active, .fold-leave-active {
+  transition: .5s;
+}

@@ -1,13 +1,13 @@
 <template>
   <div class="nav-items">
     <v-tree
-      ref="tree"
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      :value="value"
-      @drop="update($event.dragNode, $event.targetPath)"
-      #default="{ node, path }"
+      :value="treeData"
+      foldingTransitionName="fold"
+      @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
+      #default="{ node, path, tree }"
     >
       <div
         class="tree-node-content"
@@ -22,7 +22,11 @@
         </div>
         <div
           class="tree-node-arrow"
-          :class="{ 'is-hidden': !hasChildren(node) }"
+          :class="{
+            'is-hidden': !hasChildren(node),
+            'is-folded': node.$folded
+          }"
+          @click.stop="toggleFold({ node, path, tree })"
         >
           <v-icon name="down" />
         </div>
@@ -38,15 +42,15 @@
           <input
             v-show="isSelected(path)"
             v-model.lazy="node.title"
-            @change="update(node, path)"
+            @change="update({ node, path, tree })"
             @keydown.esc="select(null)"
           />
         </div>
         <div class="tree-node-actions">
-          <button @click="update(node, path, true)">
+          <button @click="update({ node, path, tree }, true)">
             <v-icon name="link-edit" />
           </button>
-          <button @click="destroy(node)">
+          <button @click="destroy({ node, path, tree })">
             <v-icon name="trash" />
           </button>
         </div>
@@ -56,10 +60,8 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Tree, Draggable } from 'he-tree-vue'
-
-import VIcon from '@/components/icons/Index.vue'
+import Vue, { PropType } from 'vue'
+import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
 import { LinkResource } from '@/types/resource'
 
@@ -67,23 +69,29 @@ type ComponentData = {
   selected: string | null;
 }
 
-interface Tree extends Vue {
-  getNodeParentByPath(path: number[]): LinkResource;
+type NodeContext = {
+  node: Node;
+  path: number[];
+  tree: Tree & Fold & Draggable;
 }
 
-const VTree = Vue.extend(
-  Tree.mixPlugins([Draggable])
-)
+const VTree = Vue.extend({
+  name: 'Tree',
+  extends: Tree,
+  mixins: [Draggable, Fold]
+})
 
 export default Vue.extend({
   name: 'NavigationItems',
   components: {
-    VTree,
-    VIcon
+    VTree
   },
   props: {
     value: {
-      type: Array
+      type: Array as PropType<object[]>
+    },
+    folded: {
+      type: Object
     },
     editable: {
       type: Boolean
@@ -96,7 +104,13 @@ export default Vue.extend({
   },
   computed: {
     treeData () {
-      return this.$store.state.link.payload
+      const treeData = [...this.value]
+
+      walkTreeData(treeData, (node, index, parent, path) => {
+        node.$folded = this.folded[path.join('.')] === true
+      })
+
+      return treeData
     }
   },
   methods: {
@@ -109,17 +123,23 @@ export default Vue.extend({
     isSelected (path: number[]) {
       return this.selected === path.join('.')
     },
+    toggleFold ({ node, path, tree }: NodeContext) {
+      tree.toggleFold(node, path)
+
+      this.$emit('fold', {
+        [path.join('.')]: node.$folded === true
+      })
+    },
     open (data: LinkResource) {
       if (!this.editable) {
         window.open(data.value, '_blank')
       }
     },
-    update (data: LinkResource, path: number[], modal = false) {
-      const tree: Tree = this.$refs.tree as Tree
+    update ({ node, path, tree }: NodeContext, modal = false) {
       const parent = tree.getNodeParentByPath(path)
 
       const _data = {
-        ...data,
+        ...node,
         parent: (parent && parent.id) || null,
         children: undefined,
         created: undefined,
@@ -129,8 +149,8 @@ export default Vue.extend({
       this.select(null)
       this.$emit('update', _data, modal)
     },
-    destroy (data: LinkResource) {
-      this.$emit('destroy', data)
+    destroy ({ node }: NodeContext) {
+      this.$emit('destroy', node)
     }
   }
 })

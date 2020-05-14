@@ -7,7 +7,10 @@ const vuexSession = new VuexPersist<RootState>({
   storage: window.localStorage,
   reducer (state) {
     return {
-      nav: state.nav
+      nav: state.nav,
+      link: {
+        folded: state.link.folded
+      }
     }
   }
 })

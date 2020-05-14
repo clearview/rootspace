@@ -10,17 +10,24 @@ const LinkModule: Module<LinkState, RootState> = {
 
   state () {
     return {
-      active: null,
-      payload: []
+      payload: [],
+      folded: {},
+      active: null
     }
   },
 
   mutations: {
+    setPayload (state, payload) {
+      state.payload = payload
+    },
     setActive (state, link) {
       state.active = link
     },
-    setPayload (state, payload) {
-      state.payload = payload
+    setFolded (state, path) {
+      state.folded = {
+        ...state.folded,
+        ...path
+      }
     }
   },
 

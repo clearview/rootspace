@@ -1,12 +1,14 @@
 import { Module } from 'vuex'
 import { RootState, NavState } from '@/types/state'
 
+const minSize = 282
+
 const NavModule: Module<NavState, RootState> = {
   namespaced: true,
   state () {
     return {
       collapse: false,
-      size: '282px'
+      size: minSize
     }
   },
 
@@ -15,7 +17,7 @@ const NavModule: Module<NavState, RootState> = {
       state.collapse = collapse
     },
     setSize (state, size) {
-      state.size = size
+      state.size = Math.max(minSize, size)
     }
   }
 }
