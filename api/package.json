@@ -33,6 +33,7 @@
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
+    "nanoid": "^3.1.7",
     "node-config-ts": "^3.0.4",
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0",

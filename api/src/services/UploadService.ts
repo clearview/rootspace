@@ -2,6 +2,7 @@ import { config } from 'node-config-ts'
 import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../repositories/UploadRepository'
 import { Upload } from '../entities/Upload'
+import { nanoid } from 'nanoid'
 import S3 from 'aws-sdk/clients/s3'
 import path from 'path'
 import fs from 'fs'
@@ -27,7 +28,11 @@ export class UploadService {
 
   async upload (file: any, metadata: any) {
     try {
-      const filePath = metadata.spaceId + path.sep + file.originalname.replace(/\s+/g, '-').toLowerCase()
+      const filePath = path.join(
+        String(metadata.spaceId),
+        nanoid(),
+        file.originalname.replace(/\s+/g, '-').toLowerCase()
+      )
       const sFFile: any = await this.sendFileToS3(file, filePath)
       const fileData: Upload = this.getUploadRepository().create()
 
