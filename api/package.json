@@ -11,6 +11,7 @@
     "start": "node dist/index.js",
     "build": "tsc --project tsconfig.json",
     "postbuild": "rsync -r ./src/templates/ ./dist/templates/",
+    "dev:debug": "nodemon --inspect src/index.ts",
     "tslint": "tslint -p tsconfig.json -c tslint.json 'src/**/*.ts'",
     "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
     "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
