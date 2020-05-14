@@ -14,6 +14,11 @@
 - create `.env` file from `.env.example`
 - `nodemon`
 
+### DB Seeding
+DB Seeder will populate following models: User, Space and Link
+
+- Run `cd ./api & yarn seed:run`
+
 #### API docs
 
 https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
