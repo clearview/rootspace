@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { UploadService } from '../services/UploadService'
+import { UploadValidator } from '../validation/upload'
 import { BaseCtrl } from './BaseCtrl'
 
 export class UploadsCtrl extends BaseCtrl {
@@ -12,7 +13,19 @@ export class UploadsCtrl extends BaseCtrl {
   }
 
   async index(req: Request, res: Response, next: NextFunction) {
-    const upload = await this.uploadService.upload(req.file, { spaceId: req.query.spaceId, userId: req.user.id})
-    res.send(upload)
+    try {
+      const data = {
+        spaceId: req.query.spaceId,
+        userId: req.user.id,
+        file: req.file
+      }
+      const validator = new UploadValidator()
+      await validator.validate(data)
+
+      const upload = await this.uploadService.upload(req.file, data)
+      res.send(upload)
+    } catch (err) {
+      next(err)
+    }
   }
 }
