@@ -4,7 +4,7 @@ import { SpacesCtrl } from './controllers/SpacesCtrl'
 import { InviteCtrl } from './controllers/InviteCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { DocsCtrl } from './controllers/DocsCtrl'
-
+import { SpacesUsersCtrl} from './controllers/SpacesUsersCtrl'
 import passport from './passport'
 import auth from './middleware/AuthMiddleware'
 import { mapRoute } from './utils'
@@ -45,10 +45,12 @@ router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
-router.get('/spaces/:id/users', auth, mapRoute(SpacesCtrl, 'users'))
 router.post('/spaces', auth, mapRoute(SpacesCtrl, 'create'))
 router.patch('/spaces/:id', auth, mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', auth, mapRoute(SpacesCtrl, 'delete'))
+
+router.get('/spaces/:spaceId/users', auth, mapRoute(SpacesUsersCtrl, 'listAll'))
+router.delete('/spaces/:spaceId/users/:userId', auth, mapRoute(SpacesUsersCtrl, 'remove'))
 
 router.get('/links', auth, mapRoute(LinksCtrl, 'listAll'))
 router.get('/links/:id', auth, mapRoute(LinksCtrl, 'view'))
