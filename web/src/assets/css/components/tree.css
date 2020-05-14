@@ -1,7 +1,12 @@
+.tree {
+  @apply w-full;
+}
+
 .tree-node-back {
   @apply relative;
 
   border-radius: 4px;
+  margin: 6px auto;
 
   &:hover {
     @apply bg-gray-100;
@@ -35,15 +40,20 @@
 
 .tree-node-arrow {
   margin-left: 1em;
+  transition: transform .3s;
 
   &.is-hidden {
     visibility: hidden;
+  }
+
+  &.is-folded {
+    transform: rotate(-90deg);
   }
 }
 
 .tree-node-text {
   @apply flex flex-1;
-  @apply leading-tight;
+  @apply leading-tight whitespace-no-wrap;
 
   input {
     @apply outline-none;

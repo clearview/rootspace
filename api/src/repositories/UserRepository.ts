@@ -1,9 +1,19 @@
 import { EntityRepository, Repository } from 'typeorm'
 import { User } from '../entities/User'
+import { UserToSpace } from '../entities/UserToSpace'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  getById(id: number, selectPassword = false): Promise<User | undefined> {
+  getBySpaceId(spaceId: number): Promise<User[]> {
+    return this.createQueryBuilder('user')
+      .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.userId = user.id')
+      .where('userToSpace.spaceId = :spaceId AND userToSpace.active = true', {
+        spaceId,
+      })
+      .getMany()
+  }
+
+  getById(id: number, selectPassword = false): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
     if (selectPassword === true) {
@@ -16,7 +26,7 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
-  getByEmail(email: string, selectPassword = false): Promise<User | undefined> {
+  getByEmail(email: string, selectPassword = false): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
     if (selectPassword === true) {

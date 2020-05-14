@@ -2,16 +2,12 @@ import { IDocUpdateObject } from './types'
 
 export class DocUpdateValue {
   private readonly props: IDocUpdateObject = {
-    title: null,
-    content: null,
-    access: null,
+    title: undefined,
+    content: undefined,
+    access: undefined,
   }
 
-  constructor(
-    title: string = null,
-    content: string = null,
-    access: number = null
-  ) {
+  constructor(title?: string, content?: string, access?: number) {
     this.props = {
       title,
       content,

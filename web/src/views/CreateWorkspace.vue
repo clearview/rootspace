@@ -70,7 +70,7 @@ export default Vue.extend({
   },
   created () {
     if (this.spaces && this.spaces.length > 0) {
-      this.$router.push({ name: 'Main' })
+      this.$router.replace({ name: 'Main' })
     }
   },
   methods: {
@@ -94,7 +94,8 @@ export default Vue.extend({
           this.signout()
           this.$router.push({ name: 'SignIn' })
         }
-        this.error = err
+
+        // this.error = err
         this.isLoading = false
       }
     },

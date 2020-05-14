@@ -1,11 +1,9 @@
 .input {
   @apply flex flex-1;
-
-  @apply py-2 px-3 my-2;
-
+  @apply py-2 px-3;
   @apply border rounded border-gray-400;
-
   @apply outline-none !important;
+
   transition: .4s;
 
   &.input-success {

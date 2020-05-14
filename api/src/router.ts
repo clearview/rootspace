@@ -6,7 +6,7 @@ import { InviteCtrl } from './controllers/InviteCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { DocsCtrl } from './controllers/DocsCtrl'
 import { UploadsCtrl } from './controllers/UploadsCtrl'
-
+import { SpacesUsersCtrl } from './controllers/SpacesUsersCtrl'
 import passport from './passport'
 import multer from 'multer'
 import auth from './middleware/AuthMiddleware'
@@ -55,6 +55,9 @@ router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
 router.post('/spaces', auth, mapRoute(SpacesCtrl, 'create'))
 router.patch('/spaces/:id', auth, mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', auth, mapRoute(SpacesCtrl, 'delete'))
+
+router.get('/spaces/:spaceId/users', auth, mapRoute(SpacesUsersCtrl, 'listAll'))
+router.delete('/spaces/:spaceId/users/:userId', auth, mapRoute(SpacesUsersCtrl, 'remove'))
 
 router.get('/links', auth, mapRoute(LinksCtrl, 'listAll'))
 router.get('/links/:id', auth, mapRoute(LinksCtrl, 'view'))

@@ -9,15 +9,18 @@ export interface RootState {
 export interface AuthState {
   token: string | null;
   user: object | null;
-  spaces: object | null;
+  spaces: object[] | null;
 }
 
 export interface LinkState {
   payload: LinkResource[];
   active: LinkResource | null;
+  folded: {
+    [key: string]: boolean;
+  };
 }
 
 export interface NavState {
   collapse: boolean;
-  size: string | number;
+  size: number;
 }

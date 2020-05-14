@@ -1,6 +1,9 @@
 .field {
   @apply flex flex-col;
-  @apply my-3;
+
+  & + & {
+    @apply mt-3;
+  }
 
   &.field-inline {
     @apply flex-row justify-between mt-6;
@@ -20,6 +23,10 @@
     .field-label {
       @apply text-gray-400;
     }
+  }
+
+  .input {
+    @apply mt-2;
   }
 }
 

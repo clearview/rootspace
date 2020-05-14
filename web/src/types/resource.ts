@@ -39,3 +39,16 @@ export interface WorkspaceResource {
   title: string;
   invites: string[];
 }
+
+export interface UserResource {
+  active: boolean;
+  authProvider: string;
+  email: string;
+  emailConfirmed: boolean;
+  firstName: string;
+  id: number;
+  lastName: string;
+  token: string;
+  created: string;
+  updated: string;
+}

@@ -2,11 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { SpaceService } from '../services/SpaceService'
-import { InviteService } from '../services/InviteService'
+import { Space } from '../entities/Space'
 import { ISpaceProvider } from '../types/space'
 import { SpaceValidator } from '../validation/space/SpaceValidator'
-import { Space } from '../entities/Space'
+import { SpaceService, InviteService } from '../services'
 
 export class SpacesCtrl extends BaseCtrl {
   private spaceService: SpaceService
@@ -14,8 +13,8 @@ export class SpacesCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.inviteService = new InviteService()
     this.spaceService = new SpaceService()
+    this.inviteService = new InviteService()
   }
 
   public async view(req: Request, res: Response) {

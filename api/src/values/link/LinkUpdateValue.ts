@@ -2,11 +2,11 @@ import { ILinkUpdateObject } from './types'
 
 export class LinkUpdateValue {
   private readonly props: ILinkUpdateObject = {
-    title: null,
-    value: null,
+    title: undefined,
+    value: undefined,
   }
 
-  constructor(title: string, value: string) {
+  constructor(title?: string, value?: string) {
     this.props = {
       title,
       value,
