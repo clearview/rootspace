@@ -30,7 +30,7 @@ export class UploadService {
     try {
       const filePath = path.join(
         String(metadata.spaceId),
-        nanoid(),
+        nanoid(23),
         file.originalname.replace(/\s+/g, '-').toLowerCase()
       )
       const sFFile: any = await this.sendFileToS3(file, filePath)
