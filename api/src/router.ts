@@ -1,15 +1,22 @@
 import express from 'express'
+import { config } from 'node-config-ts'
 import { UsersCtrl } from './controllers/UsersCtrl'
 import { SpacesCtrl } from './controllers/SpacesCtrl'
 import { InviteCtrl } from './controllers/InviteCtrl'
 import { LinksCtrl } from './controllers/LinksCtrl'
 import { DocsCtrl } from './controllers/DocsCtrl'
-import { SpacesUsersCtrl} from './controllers/SpacesUsersCtrl'
+import { UploadsCtrl } from './controllers/UploadsCtrl'
+import { SpacesUsersCtrl } from './controllers/SpacesUsersCtrl'
 import passport from './passport'
+import multer from 'multer'
 import auth from './middleware/AuthMiddleware'
 import { mapRoute } from './utils'
+import path from 'path'
 
 const router = express.Router()
+const upload = multer({
+  dest: path.resolve(config.uploadDir)
+})
 
 router.get('/', async (req, res) => {
   res.send({ Root: 'app' })
@@ -62,5 +69,11 @@ router.get('/docs/:id', auth, mapRoute(DocsCtrl, 'view'))
 router.post('/docs', auth, mapRoute(DocsCtrl, 'create'))
 router.patch('/docs/:id', auth, mapRoute(DocsCtrl, 'update'))
 router.delete('/docs/:id', auth, mapRoute(DocsCtrl, 'delete'))
+
+router.post('/upload',
+  auth,
+  upload.single('file'),
+  mapRoute(UploadsCtrl, 'index')
+)
 
 export default router
