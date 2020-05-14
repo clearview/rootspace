@@ -59,9 +59,20 @@ async function view (id: number) {
   return data
 }
 
+async function userAtSpace (id: number) {
+  const { data } = await api.get(`spaces/${id}/users`)
+
+  if (data.status === 'error') {
+    throw new Error(data)
+  }
+
+  return data
+}
+
 export default {
   create,
   update,
   my,
-  view
+  view,
+  userAtSpace
 }
