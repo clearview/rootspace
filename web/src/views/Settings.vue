@@ -68,7 +68,7 @@ import { mapActions, mapMutations } from 'vuex'
 
 import { remove, map } from 'lodash'
 
-import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/resource'
+import { SettingsResource, WorkspaceResource, PasswordResource, UserResource } from '@/types/resource'
 
 import UserService from '@/services/user'
 import WorkspaceService from '@/services/workspace'
@@ -179,7 +179,7 @@ export default Vue.extend({
       const viewUserAtSpace = await WorkspaceService.userAtSpace(id)
       const currentUser = this.$store.state.auth.user.id
 
-      remove(viewUserAtSpace.data, user => user.id === currentUser)
+      remove(viewUserAtSpace.data, (user: UserResource) => user.id === currentUser)
       const userAtSpace = map(viewUserAtSpace.data, 'email')
 
       this.workspaceData = {
