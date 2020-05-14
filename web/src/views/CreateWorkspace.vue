@@ -94,7 +94,8 @@ export default Vue.extend({
           this.signout()
           this.$router.push({ name: 'SignIn' })
         }
-        this.error = err
+
+        // this.error = err
         this.isLoading = false
       }
     },
