@@ -2,24 +2,18 @@ import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { SpaceService } from '../services/SpaceService'
-import { InviteService } from '../services/InviteService'
-import { UserService } from '../services/UserService'
+import { Space } from '../entities/Space'
 import { ISpaceProvider } from '../types/space'
 import { SpaceValidator } from '../validation/space/SpaceValidator'
-import { Space } from '../entities/Space'
-import { clientError } from '../errors/httpError'
-import { User } from '../entities/User'
+import { SpaceService, InviteService } from '../services'
 
 export class SpacesCtrl extends BaseCtrl {
   private spaceService: SpaceService
-  private userService: UserService
   private inviteService: InviteService
 
   constructor() {
     super()
     this.spaceService = new SpaceService()
-    this.userService = new UserService()
     this.inviteService = new InviteService()
   }
 
@@ -46,23 +40,6 @@ export class SpacesCtrl extends BaseCtrl {
       userId: req.user.id,
     })
     res.send(spaces)
-  }
-
-  async users(req: Request, res: Response, next: NextFunction) {
-    try {
-      const spacedId = req.params.id
-
-      if (!spacedId) {
-        throw clientError('Invalid request')
-      }
-
-      const users = await this.userService.getUsersBySpaceId(Number(spacedId))
-      const resData = this.responseData(users)
-
-      res.send(resData)
-    } catch (err) {
-      next(err)
-    }
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
