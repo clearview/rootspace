@@ -1,46 +1,83 @@
 <template>
-  <multipane layout="vertical" @paneResizeStop="resize">
-    <v-navigation :style="navStyle" />
-    <multipane-resizer/>
+  <div
+    class="layout"
+    @mouseup="end"
+    @mouseleave="end"
+  >
+    <v-navigation :style="paneStyle" />
+    <div
+      class="resizer"
+      @mousedown="start"
+    />
     <div class="content">
-      <slot/>
+      <slot />
     </div>
-  </multipane>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue, { VNode } from 'vue'
-import { Multipane, MultipaneResizer } from 'vue-multipane'
+import Vue from 'vue'
+import { throttle } from 'lodash'
 
 import VNavigation from '@/components/navigation/Navigation.vue'
 
 export default Vue.extend({
   name: 'LayoutMain',
   components: {
-    Multipane,
-    MultipaneResizer,
     VNavigation
   },
   computed: {
-    navStyle () {
+    size () {
+      return this.$store.state.nav.size
+    },
+    paneStyle (): object {
       return {
-        width: this.$store.state.nav.size
+        width: `${this.size}px`
       }
     }
   },
   methods: {
-    resize (pane: VNode, container: VNode, size: string) {
-      this.$store.commit('nav/setSize', size)
+    start (e: MouseEvent) {
+      e.preventDefault()
+
+      document.addEventListener('mousemove', this.resize)
+    },
+    end () {
+      document.removeEventListener('mousemove', this.resize)
+    },
+    resize (e: MouseEvent) {
+      e.preventDefault()
+
+      this.$store.commit('nav/setSize', e.pageX)
     }
+  },
+  created () {
+    this.resize = throttle(this.resize.bind(this), 150)
   }
 })
 </script>
 
 <style lang="postcss" scoped>
-.multipane-resizer {
-  @apply border-l border-gray-100;
+.layout {
+  @apply flex flex-row;
+}
 
-  height: 100vh !important;
+.resizer {
+  padding: 0 5px;
+  margin-left: -5px;
+  height: 100vh;
+  cursor: col-resize;
+
+  &:after {
+    @apply block h-full bg-gray-100;
+
+    content: '';
+    width: 1px;
+  }
+
+  .nav--collapse ~ & {
+    @apply hidden;
+  }
 }
 
 .content {

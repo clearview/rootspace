@@ -1,33 +1,30 @@
 <template>
   <div class="nav-header">
-    <div class="flex flex-none">
+    <div class="nav-logo">
       <img
         srcset="
-          @/assets/logo.png,
-          @/assets/logo@2x.png 2x
+          @/assets/logo_2.png,
+          @/assets/logo_2@2x.png 2x
         "
-        src="@/assets/logo.png"
+        src="@/assets/logo_2.png"
         alt="Root Logo"
       />
     </div>
 
-    <div class="flex flex-1 mx-5">
+    <div class="nav-search">
       <v-searchbar @input="search" />
     </div>
 
-    <div class="flex flex-none">
+    <div class="nav-collapse">
       <button
-        class="btn p-0 border-none"
+        class="btn btn-icon bg-transparent"
         @click="$emit('toggleCollapse')"
       >
         <v-icon
           name="left"
           size="2em"
           viewbox="36"
-          :class="{
-            'text-primary': collapse,
-            'text-gray-400': !collapse
-          }"
+          class="text-gray-400"
         />
       </button>
     </div>
@@ -45,11 +42,6 @@ export default Vue.extend({
   components: {
     VSearchbar,
     VIcon
-  },
-  props: {
-    collapse: {
-      type: Boolean
-    }
   },
   methods: {
     search (keyword: string): void {
