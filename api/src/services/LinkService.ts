@@ -61,8 +61,11 @@ export class LinkService {
     Object.assign(link, data.getAttributes())
 
     if (data.parent !== undefined) {
-      const parent = await this.getLinkById(Number(data.parent))
-      link.parent = parent
+      const parentId = Number(data.parent)
+
+      link.parent = parentId
+        ? await this.getLinkById(parentId)
+        : null
     }
 
     await this.getLinkRepository().save(link)
