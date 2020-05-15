@@ -15,7 +15,7 @@ import path from 'path'
 
 const router = express.Router()
 const upload = multer({
-  dest: path.resolve(config.uploadDir),
+  dest: path.resolve(config.uploadDir)
 })
 
 router.get('/', async (req, res) => {
@@ -26,7 +26,7 @@ router.get(
   '/auth/google',
   passport.authenticate('google', {
     session: false,
-    scope: ['openid profile email '],
+    scope: ['openid profile email ']
   })
 )
 
