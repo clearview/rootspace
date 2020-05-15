@@ -89,7 +89,7 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import { LinkResource } from '@/types/resource'
+import { LinkResource, WorkspaceResource } from '@/types/resource'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
 import AddList from '@/components/resource/ResourceAddList.vue'
@@ -191,12 +191,17 @@ export default Vue.extend({
       return this.$store.state.auth.currentSpace
     }
   },
+  watch: {
+    async currentSpace (val) {
+      await this.fetchLink(val)
+    }
+  },
   async created () {
     if (!this.hasSpace) {
       return this.$router.replace({ name: 'CreateWorkspace' })
     }
 
-    await this.fetchLink()
+    await this.fetchLink(this.currentSpace)
   },
   methods: {
     search (keyword: string): void {
@@ -232,10 +237,10 @@ export default Vue.extend({
     toggleFold (data: object) {
       this.$store.commit('link/setFolded', data)
     },
-    async fetchLink () {
+    async fetchLink (space: WorkspaceResource) {
       this.link.fetch.loading = true
 
-      await this.$store.dispatch('link/fetch')
+      await this.$store.dispatch('link/fetch', { spaceId: space.id })
 
       this.link.fetch.loading = false
     },

@@ -15,12 +15,16 @@
         <div class="nav-menu-item-content">
           <div class="nav-menu-item-logo">
             <img
+              srcset="
+                @/assets/images/workspace.png 1x,
+                @/assets/images/workspace@2x.png 2x
+              "
               src="@/assets/images/workspace.png"
-              alt="Logo"
+              alt="Workspace"
             >
           </div>
           <div class="nav-menu-item-label">
-            <strong v-text="item.title" />
+            <strong class="truncate" v-text="item.title" />
             <span class="text-gray-400">1 Member</span>
           </div>
         </div>

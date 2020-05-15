@@ -2,13 +2,24 @@
   <div class="nav-footer">
     <div class="nav-actions flex-row relative">
       <button
-        class="btn btn-mute flex-grow px-2 mr-2"
+        class="btn btn-mute flex-grow p-1 mr-2 justify-between truncate"
         @click.stop="showMenu = !showMenu"
       >
-        {{ currentSpace.title }}
+        <div class="flex flex-row items-center truncate">
+          <img
+            class="bg-white rounded mr-2"
+            srcset="
+              @/assets/images/workspace.png 1x,
+              @/assets/images/workspace@2x.png 2x
+            "
+            src="@/assets/images/workspace.png"
+            alt="Workspace"
+          >
+          <span class="truncate">{{ currentSpace.title }}</span>
+        </div>
         <v-icon
           name="down"
-          class="ml-1 text-gray-400"
+          class="flex flex-none ml-1 text-gray-400"
         />
       </button>
 

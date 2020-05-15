@@ -89,12 +89,18 @@
   }
 
   .nav-menu-item-content {
-    @apply flex flex-row items-center;
+    @apply flex flex-row flex-1 items-center;
+    @apply truncate;
+  }
+
+  .nav-menu-item-logo {
+    @apply flex flex-none;
   }
 
   .nav-menu-item-label {
     @apply flex flex-col;
     @apply ml-2;
+    @apply truncate;
   }
 
   .nav-menu-item-check {
