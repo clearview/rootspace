@@ -1,7 +1,10 @@
 <template>
   <div class="nav-footer">
-    <div class="nav-actions flex-row">
-      <button class="btn btn-mute flex-grow px-2 mr-2">
+    <div class="nav-actions flex-row relative">
+      <button
+        class="btn btn-mute flex-grow px-2 mr-2"
+        @click="showMenu = !showMenu"
+      >
         {{ currentSpace.title }}
         <v-icon
           name="down"
@@ -30,6 +33,10 @@
           />
         </button>
       </div>
+
+      <transition name="menu">
+        <navigation-menu v-show="showMenu"/>
+      </transition>
     </div>
     <div class="nav-actions">
       <button
@@ -65,15 +72,22 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
+import NavigationMenu from '@/components/navigation/NavigationMenu.vue'
 
 export default Vue.extend({
   name: 'NavigationFooter',
   components: {
-    VIcon
+    VIcon,
+    NavigationMenu
   },
   props: {
     editable: {
       type: Boolean
+    }
+  },
+  data () {
+    return {
+      showMenu: false
     }
   },
   computed: {

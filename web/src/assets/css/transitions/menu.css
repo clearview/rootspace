@@ -1,0 +1,13 @@
+.menu-enter, .menu-leave-to {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.menu-leave, .menu-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.menu-enter-active, .menu-leave-active {
+  transition: .3s;
+}
