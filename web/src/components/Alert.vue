@@ -47,7 +47,7 @@ export default Vue.extend({
 
       if (fields && fields.length > 0) {
         fields.forEach((thefield: Field) => {
-          if (thefield.field === 'email' && thefield.validation === 'unique') {
+          if (thefield.field === 'email' && thefield.validation === 'dbUnique') {
             messages.push('Email is already exist')
           }
           if (thefield.validation === 'required') {
