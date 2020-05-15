@@ -3,7 +3,7 @@
     <div class="nav-actions flex-row relative">
       <button
         class="btn btn-mute flex-grow px-2 mr-2"
-        @click="showMenu = !showMenu"
+        @click.stop="showMenu = !showMenu"
       >
         {{ currentSpace.title }}
         <v-icon
@@ -34,9 +34,9 @@
         </button>
       </div>
 
-      <transition name="menu">
-        <navigation-menu v-show="showMenu"/>
-      </transition>
+      <navigation-menu
+        v-model="showMenu"
+      />
     </div>
     <div class="nav-actions">
       <button
