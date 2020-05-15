@@ -2,7 +2,7 @@
   <div class="nav-footer">
     <div class="nav-actions flex-row">
       <button class="btn btn-mute flex-grow px-2 mr-2">
-        My Workspace
+        {{ currentSpace.title }}
         <v-icon
           name="down"
           class="ml-1 text-gray-400"
@@ -62,6 +62,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
 
@@ -74,6 +75,9 @@ export default Vue.extend({
     editable: {
       type: Boolean
     }
+  },
+  computed: {
+    ...mapState('auth', ['currentSpace'])
   },
   methods: {
     settingsPage () {

@@ -10,7 +10,8 @@ const AuthModule: Module<AuthState, RootState> = {
     return {
       token: null,
       user: null,
-      spaces: null
+      spaces: null,
+      currentSpace: null
     }
   },
 
@@ -23,6 +24,9 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     setSpaces (state, spaces) {
       state.spaces = spaces
+    },
+    setCurrentSpace (state, space) {
+      state.currentSpace = space
     }
   },
 
@@ -39,16 +43,21 @@ const AuthModule: Module<AuthState, RootState> = {
         commit('setToken', res.data.token)
       }
     },
-    async whoami ({ commit }) {
+    async whoami ({ commit, state }) {
       const res = await UserService.whoami()
 
       commit('setUser', res.user)
       commit('setSpaces', res.spaces)
+
+      if (!state.currentSpace) {
+        commit('setCurrentSpace', res.spaces[0]) // set default Space
+      }
     },
     async signout ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
       commit('setSpaces', null)
+      commit('setCurrentSpace', null)
     }
   }
 }

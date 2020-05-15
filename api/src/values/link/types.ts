@@ -1,4 +1,4 @@
-export interface ILinkCreateObject {
+export interface ILinkCreateAttributes {
   userId: number
   spaceId: number
   title: string
@@ -7,7 +7,7 @@ export interface ILinkCreateObject {
   parent?: number
 }
 
-export interface ILinkUpdateObject {
+export interface ILinkUpdateAttributes {
   title?: string
   value?: string
 }

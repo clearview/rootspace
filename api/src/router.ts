@@ -26,7 +26,7 @@ router.get(
   '/auth/google',
   passport.authenticate('google', {
     session: false,
-    scope: ['openid profile email '],
+    scope: ['openid profile email ']
   })
 )
 
@@ -57,10 +57,14 @@ router.patch('/spaces/:id', auth, mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', auth, mapRoute(SpacesCtrl, 'delete'))
 
 router.get('/spaces/:spaceId/users', auth, mapRoute(SpacesUsersCtrl, 'listAll'))
-router.delete('/spaces/:spaceId/users/:userId', auth, mapRoute(SpacesUsersCtrl, 'remove'))
+router.delete(
+  '/spaces/:spaceId/users/:userId',
+  auth,
+  mapRoute(SpacesUsersCtrl, 'remove')
+)
 
-router.get('/links', auth, mapRoute(LinksCtrl, 'listAll'))
-router.get('/links/:id', auth, mapRoute(LinksCtrl, 'view'))
+router.get('/links/:spaceId', auth, mapRoute(LinksCtrl, 'listAll'))
+router.get('/links/view/:id', auth, mapRoute(LinksCtrl, 'view'))
 router.post('/links', auth, mapRoute(LinksCtrl, 'create'))
 router.patch('/links/:id', auth, mapRoute(LinksCtrl, 'update'))
 router.delete('/links/:id', auth, mapRoute(LinksCtrl, 'delete'))
@@ -70,7 +74,8 @@ router.post('/docs', auth, mapRoute(DocsCtrl, 'create'))
 router.patch('/docs/:id', auth, mapRoute(DocsCtrl, 'update'))
 router.delete('/docs/:id', auth, mapRoute(DocsCtrl, 'delete'))
 
-router.post('/upload',
+router.post(
+  '/upload',
   auth,
   upload.single('file'),
   mapRoute(UploadsCtrl, 'index')

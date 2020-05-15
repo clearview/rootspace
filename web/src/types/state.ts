@@ -1,4 +1,4 @@
-import { LinkResource } from './resource'
+import { LinkResource, WorkspaceResource } from './resource'
 
 export interface RootState {
   auth: AuthState;
@@ -9,7 +9,8 @@ export interface RootState {
 export interface AuthState {
   token: string | null;
   user: object | null;
-  spaces: object[] | null;
+  spaces: WorkspaceResource[] | null;
+  currentSpace: WorkspaceResource | null;
 }
 
 export interface LinkState {

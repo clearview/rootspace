@@ -48,6 +48,7 @@
       <div class="modal-body">
         <form-link
           @submit="addLink"
+          :space="currentSpace.id"
           ref="formLinkAdd"
         />
       </div>
@@ -185,6 +186,9 @@ export default Vue.extend({
       const spaces = this.$store.state.auth.spaces
 
       return spaces && spaces.length > 0
+    },
+    currentSpace () {
+      return this.$store.state.auth.currentSpace
     }
   },
   async created () {
