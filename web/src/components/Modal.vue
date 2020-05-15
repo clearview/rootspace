@@ -41,6 +41,7 @@
             <button
               class="btn btn-small btn-primary"
               @click="confirm"
+              v-if="!nosubmit"
             >
               {{ confirmText }}
             </button>
@@ -81,6 +82,9 @@ export default Vue.extend({
       type: Boolean
     },
     nofooter: {
+      type: Boolean
+    },
+    nosubmit: {
       type: Boolean
     }
   },

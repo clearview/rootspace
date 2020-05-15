@@ -19,10 +19,24 @@
     />
     <navigation-footer
       :editable="editable"
-      @add="startAddLink"
+      @add="startAddNew"
       @edit="editable = !editable"
       @toggleCollapse="toggleCollapse"
     />
+
+    <v-modal
+      title="Add New"
+      :visible="addNew.visible"
+      :nosubmit="true"
+      @cancel="addNew.visible = false"
+    >
+      <div class="modal-body">
+        <add-list
+          @link="startAddLink"
+          @document="startAddDocument"
+        />
+      </div>
+    </v-modal>
 
     <v-modal
       title="Add Link"
@@ -57,7 +71,7 @@
     </v-modal>
 
     <v-modal
-      title="Delete Link"
+      title="Delete Link/Document"
       :visible="link.destroy.visible"
       :loading="link.destroy.loading"
       confirmText="Yes"
@@ -65,7 +79,7 @@
       @confirm="destroyLink(link.destroy.data)"
     >
       <div class="modal-body text-center">
-        Are you sure you want to delete this link?
+        Are you sure you want to delete this link/document?
       </div>
     </v-modal>
   </div>
@@ -77,6 +91,7 @@ import Vue from 'vue'
 import { LinkResource } from '@/types/resource'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
+import AddList from '@/components/resource/ResourceAddList.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -90,6 +105,9 @@ type Alert = {
 
 type ComponentData = {
   editable: boolean;
+  addNew: {
+    visible: boolean;
+  };
   link: {
     fetch: {
       loading: boolean;
@@ -122,11 +140,15 @@ export default Vue.extend({
     NavigationItems,
     NavigationFooter,
     FormLink,
+    AddList,
     VModal
   },
   data (): ComponentData {
     return {
       editable: false,
+      addNew: {
+        visible: false
+      },
       link: {
         fetch: {
           loading: false,
@@ -180,7 +202,15 @@ export default Vue.extend({
       this.$store.commit('nav/setCollapse', !this.collapse)
     },
     startAddLink () {
+      this.addNew.visible = false
       this.link.add.visible = true
+    },
+    startAddDocument () {
+      this.$router.push({ name: 'Document' })
+      this.addNew.visible = false
+    },
+    startAddNew () {
+      this.addNew.visible = true
     },
     startUpdateLink (data: LinkResource, modal: boolean) {
       this.link.update.data = data
@@ -241,6 +271,12 @@ export default Vue.extend({
 
       try {
         await this.$store.dispatch('link/destroy', data)
+
+        const route = this.$route
+        const isDoc = (data.type === 'doc' && route.name === 'Document')
+        if (isDoc && parseInt(data.value) === parseInt(route.params.id)) {
+          this.$router.push({ name: 'Main' })
+        }
       } catch (err) {
         this.link.destroy.alert = {
           type: 'danger',

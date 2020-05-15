@@ -40,7 +40,11 @@
               <img src="@/assets/logo@2x.png" alt="Root Logo"/>
             </div>
 
-            <resource-form-workspace @submit="updateWorkspace" :value="workspaceData" ref="workspace">
+            <resource-form-workspace
+              @submit="updateWorkspace"
+              :value="workspaceData"
+              button="Save"
+              ref="workspace">
               <div class="form-border">
                 <p>Mobile push notifications</p>
                 <button-switch v-model="mobileNotifications" />
