@@ -3,19 +3,17 @@ import api from '@/utils/api'
 import { LinkResource } from '@/types/resource'
 
 export interface FetchParams {
+  spaceId: number;
   limit: number;
   offset: number;
-  filter: {
-    [field: string]: string;
-  };
   sort: {
     [field: string]: string;
   };
 }
 
 export default class LinkService {
-  static async fetch (params: FetchParams) {
-    const res = await api.get('links', { params })
+  static async fetch ({ spaceId, ...params }: FetchParams) {
+    const res = await api.get(`links/${spaceId}`, { params })
 
     return res.data
   }
@@ -27,7 +25,7 @@ export default class LinkService {
   }
 
   static async view (id: number) {
-    const res = await api.get(`links/${id}`)
+    const res = await api.get(`links/view/${id}`)
 
     return res.data
   }

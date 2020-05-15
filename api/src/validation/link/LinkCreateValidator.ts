@@ -6,7 +6,6 @@ export class LinkCreateValidator extends BaseValidator {
       spaceId: 'required|number',
       title: 'required',
       value: 'required',
-      parent: 'number',
     }
   }
 }
