@@ -188,7 +188,7 @@ export default Vue.extend({
       return spaces && spaces.length > 0
     },
     currentSpace () {
-      return this.$store.state.auth.currentSpace
+      return this.$store.state.auth.currentSpace || {}
     }
   },
   watch: {

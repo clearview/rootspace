@@ -1,7 +1,7 @@
 <template>
   <transition name="menu">
     <div
-      v-show="value"
+      v-if="value"
       v-click-outside="() => $emit('input', false)"
       class="nav-menu"
     >
@@ -24,7 +24,10 @@
             >
           </div>
           <div class="nav-menu-item-label">
-            <strong class="truncate" v-text="item.title" />
+            <strong
+              class="truncate"
+              v-text="item.title"
+            />
             <span class="text-gray-400">1 Member</span>
           </div>
         </div>
@@ -54,7 +57,10 @@
         <span>Add New Workspace</span>
       </button>
 
-      <button class="nav-menu-logout">
+      <button
+        class="nav-menu-logout"
+        @click="signout"
+      >
         <strong>Logout</strong>
         <span>({{ user.email }})</span>
       </button>
@@ -82,22 +88,26 @@ export default Vue.extend({
   },
   computed: {
     user () {
-      return this.$store.state.auth.user
+      return this.$store.state.auth.user || {}
     },
     spaces () {
       const current = this.$store.state.auth.currentSpace
+      const list = this.$store.state.auth.spaces
 
-      return this.$store.state.auth.spaces.map((space: WorkspaceResource) => {
-        return {
+      return !list || !current
+        ? []
+        : list.map((space: WorkspaceResource) => ({
           ...space,
           active: current.id === space.id
-        }
-      })
+        }))
     }
   },
   methods: {
     select (data: object) {
       this.$store.commit('auth/setCurrentSpace', omit('active', data))
+    },
+    signout () {
+      this.$store.dispatch('auth/signout')
     }
   }
 })

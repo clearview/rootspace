@@ -78,7 +78,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
 import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
@@ -100,7 +99,9 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState('auth', ['currentSpace'])
+    currentSpace (): object {
+      return this.$store.state.auth.currentSpace || {}
+    }
   },
   methods: {
     settingsPage () {
