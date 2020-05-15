@@ -8,6 +8,9 @@ const vuexSession = new VuexPersist<RootState>({
   reducer (state) {
     return {
       nav: state.nav,
+      link: {
+        folded: state.link.folded
+      },
       auth: {
         spaces: state.auth.spaces,
         currentSpace: state.auth.currentSpace
