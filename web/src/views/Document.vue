@@ -67,21 +67,20 @@ export default Vue.extend({
       this.loadDocument()
     }
   },
-  async mounted () {
+  async created () {
     this.loadDocument()
   },
   methods: {
     onUpdateEditor (value: object) {
       this.value = value
 
-      if (this.title) {
-        this.saveDocument()
-      }
+      this.saveDocument()
     },
     async loadDocument () {
       const id = this.$route.params.id
 
       if (id) {
+        this.initialize = true
         try {
           const viewDoc = await DocumentService.view(id)
 

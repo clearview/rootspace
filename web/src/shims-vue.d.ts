@@ -7,7 +7,6 @@ declare module '*.vue' {
 }
 
 // declare module 'he-tree-vue'
-declare module '@editorjs/editorjs'
 declare module '@editorjs/header'
 declare module '@editorjs/list'
 declare module '@editorjs/image'

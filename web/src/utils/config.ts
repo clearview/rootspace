@@ -1,6 +1,5 @@
 const config = {
-  saveTitle: 2,
-  saveInterval: 5
+  saveTitle: 1
 }
 
 export default config

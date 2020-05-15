@@ -6,7 +6,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import config from '@/utils/config'
 
 import { createEditor } from '@/utils/editor'
 
@@ -21,7 +20,8 @@ export default Vue.extend({
   },
   data (): Editor {
     return {
-      documentChanged: false
+      documentChanged: false,
+      editor: true
     }
   },
   async mounted () {
@@ -29,21 +29,17 @@ export default Vue.extend({
       savedData: this.content,
       onChange: this.onChange
     }
-    const editor = createEditor(params)
 
-    await editor.isReady
+    this.editor = createEditor(params)
 
-    window.setInterval(() => {
-      if (this.documentChanged) {
-        editor.save().then((savedData: object) => {
-          this.$emit('update-editor', savedData, this.documentChanged)
-        })
-      }
-    }, config.saveInterval * 1000)
+    await this.editor.isReady
   },
   methods: {
     onChange () {
-      this.documentChanged = true
+      this.editor.save().then((savedData: object) => {
+        console.log('savedData', savedData)
+        this.$emit('update-editor', savedData)
+      })
     }
   }
 })

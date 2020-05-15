@@ -19,7 +19,7 @@
     />
     <navigation-footer
       :editable="editable"
-      @add="startAddLink"
+      @add="startAddNew"
       @edit="editable = !editable"
       @toggleCollapse="toggleCollapse"
     />
@@ -92,7 +92,6 @@ import { LinkResource } from '@/types/resource'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
 import AddList from '@/components/resource/ResourceAddList.vue'
-import VIcon from '@/components/icons/Index.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -142,7 +141,6 @@ export default Vue.extend({
     NavigationFooter,
     FormLink,
     AddList,
-    VIcon,
     VModal
   },
   data (): ComponentData {

@@ -1,4 +1,5 @@
 import { OutputData } from '@editorjs/editorjs/types/data-formats/output-data'
+import EditorJS from '@editorjs/editorjs'
 
 export interface LinkResource {
   id: number;
@@ -57,6 +58,7 @@ export interface UserResource {
 
 export interface Editor {
   documentChanged: boolean;
+  editor: any; // eslint-disable-line
 }
 
 export interface RootEditor {
