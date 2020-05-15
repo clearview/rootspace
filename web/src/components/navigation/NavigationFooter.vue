@@ -34,9 +34,7 @@
         </button>
       </div>
 
-      <navigation-menu
-        v-model="showMenu"
-      />
+      <navigation-workspace v-model="showMenu"/>
     </div>
     <div class="nav-actions">
       <button
@@ -72,13 +70,13 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
-import NavigationMenu from '@/components/navigation/NavigationMenu.vue'
+import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
 
 export default Vue.extend({
   name: 'NavigationFooter',
   components: {
     VIcon,
-    NavigationMenu
+    NavigationWorkspace
   },
   props: {
     editable: {
