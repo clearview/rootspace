@@ -5,7 +5,6 @@ import { Space } from '../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { clientError } from '../errors/httpError'
 
-
 export class SpaceService {
   getSpaceRepository(): SpaceRepository {
     return getCustomRepository(SpaceRepository)
