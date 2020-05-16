@@ -3,21 +3,38 @@ import { Seeder, Factory } from 'typeorm-seeding'
 import { Space } from '../../entities/Space'
 import { User } from '../../entities/User'
 import { Link } from '../../entities/Link'
+import { Doc } from '../../entities/Doc'
+import { UserToSpace } from '../../entities/UserToSpace'
 
 export default class MainSeeder implements Seeder {
   public async run(factory: Factory, connection: Connection): Promise<any> {
     const user = await factory(User)().create()
-    const spaces = await factory(Space)().createMany(3, { userId: user.id })
+    const spaces = await factory(Space)().createMany(1, { userId: user.id })
 
     for (const space of spaces) {
-      const link = await factory(Link)().create({ userId: user.id, spaceId: space.id })
-      const linksLevel01 = await factory(Link)().createMany(5, { parent: link, userId: user.id, spaceId: space.id })
-      for (const linkLevel01 of linksLevel01) {
-        const linksLevel02 = await factory(Link)().createMany(10, { parent: linkLevel01, userId: user.id, spaceId: space.id })
-        for (const linkLevel02 of linksLevel02) {
-          await factory(Link)().createMany(5, { parent: linkLevel02, userId: user.id, spaceId: space.id })
+      await factory(UserToSpace)().create({ userId: user.id, spaceId: space.id })
+      const links = await this.createLinkDocPair(factory, user, space)
+      for (const link of links) {
+        const links01 = await this.createLinkDocPair(factory, user, space, link, 2)
+        for (const link01 of links01) {
+          const links02 = await this.createLinkDocPair(factory, user, space, link01, 3)
         }
       }
     }
+  }
+
+  async createLinkDocPair(factory: Factory, user, space, parentLink = null, count = 3) {
+    const docs = await factory(Doc)().createMany(count)
+    const links = []
+    for (const doc of docs) {
+      const link = await factory(Link)().create({
+        parent: parentLink || null,
+        userId: user.id,
+        spaceId: space.id,
+        value: String(doc.id)
+      })
+      links.push(link.id)
+    }
+    return links
   }
 }
