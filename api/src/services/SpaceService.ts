@@ -2,7 +2,9 @@ import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Space } from '../entities/Space'
-import { ISpaceProvider } from '../types/space'
+import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
+import { clientError } from '../errors/httpError'
+
 
 export class SpaceService {
   getSpaceRepository(): SpaceRepository {
@@ -30,13 +32,13 @@ export class SpaceService {
     return false
   }
 
-  async create(data: ISpaceProvider): Promise<Space> {
+  async create(data: SpaceCreateValue): Promise<Space> {
     try {
-      let space = this.getSpaceRepository().create(data)
+      let space = this.getSpaceRepository().create(data.getAttributes())
       space = await this.getSpaceRepository().save(space)
 
       let userToSpace = this.getUserToSpaceRepository().create({
-        userId: data.userId,
+        userId: space.userId,
         spaceId: space.id,
       })
 
@@ -46,5 +48,16 @@ export class SpaceService {
     } catch (err) {
       throw err
     }
+  }
+
+  async update(data: SpaceUpdateValue, id: number): Promise<Space> {
+    const space = await this.getSpaceRepository().findOne(id)
+
+    if (!space) {
+      throw clientError('Invalid request')
+    }
+
+    Object.assign(space, data.getAttributes())
+    return this.getSpaceRepository().save(space)
   }
 }

@@ -1,9 +1,9 @@
 import { BaseValidator } from '../BaseValidator'
 
-export class SpaceValidator extends BaseValidator {
+export class SpaceUpdateValidator extends BaseValidator {
   rules() {
     return {
-      title: 'required',
+      title: 'accepted',
     }
   }
 }

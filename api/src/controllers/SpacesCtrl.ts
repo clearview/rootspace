@@ -3,8 +3,8 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { Space } from '../entities/Space'
-import { ISpaceProvider } from '../types/space'
-import { SpaceValidator } from '../validation/space/SpaceValidator'
+import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
+import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { SpaceService, InviteService } from '../services'
 
 export class SpacesCtrl extends BaseCtrl {
@@ -46,15 +46,11 @@ export class SpacesCtrl extends BaseCtrl {
     let space: Space
 
     try {
-      const data: ISpaceProvider = {
-        title: req.body.title,
-        userId: req.user.id,
-      }
+      const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
 
-      const validator = new SpaceValidator()
-      await validator.validate(data)
-
+      await validateSpaceCreate(data)
       space = await this.spaceService.create(data)
+
       res.send(space)
     } catch (err) {
       next(err)
@@ -65,15 +61,18 @@ export class SpacesCtrl extends BaseCtrl {
     }
   }
 
-  public async update(req: Request, res: Response) {
-    const space = await getCustomRepository(SpaceRepository).update(
-      {
-        id: Number(req.params.id),
-        userId: req.user.id,
-      },
-      req.body
-    )
-    return this.view(req, res)
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = Number(req.params.id)
+      const data = SpaceUpdateValue.fromObject(req.body)
+
+      await validateSpaceUpdate(data)
+      const space = await this.spaceService.update(data, id)
+
+      res.send(space)
+    } catch (err) {
+      next(err)
+    }
   }
 
   public async delete(req: Request, res: Response) {
