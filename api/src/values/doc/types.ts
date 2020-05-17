@@ -1,4 +1,4 @@
-export interface IDocCreateObject {
+export interface IDocCreateAttributes {
   userId: number
   spaceId: number
   title: string
@@ -6,7 +6,7 @@ export interface IDocCreateObject {
   access: number
 }
 
-export interface IDocUpdateObject {
+export interface IDocUpdateAttributes {
   title?: string
   content?: string
   access?: number

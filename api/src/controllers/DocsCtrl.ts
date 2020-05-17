@@ -64,9 +64,9 @@ export class DocsCtrl extends BaseCtrl {
       await validateDocUpdate(data)
 
       const value = DocUpdateValue.fromObject(data)
-      const result = await this.docService.update(value, id)
+      const doc = await this.docService.update(value, id)
 
-      res.send({ updated: result })
+      res.send(this.responseData(doc))
     } catch (err) {
       next(err)
     }

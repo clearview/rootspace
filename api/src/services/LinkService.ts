@@ -51,7 +51,7 @@ export class LinkService {
     return this.getLinkRepository().save(link)
   }
 
-  async update(data: LinkUpdateValue, id: number) {
+  async update(data: LinkUpdateValue, id: number): Promise<Link> {
     const link = await this.getLinkById(id)
 
     if (!link) {

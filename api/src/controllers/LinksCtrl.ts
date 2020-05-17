@@ -92,9 +92,10 @@ export class LinksCtrl extends BaseCtrl {
         value.parent = data.parent
       }
 
-      const result = await this.linkSrvice.update(value, id)
+      const link = await this.linkSrvice.update(value, id)
+      const resData = this.responseData(link)
 
-      res.send(result)
+      res.send(resData)
     } catch (err) {
       next(err)
     }

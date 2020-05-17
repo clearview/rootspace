@@ -1,7 +1,7 @@
-import {IDocCreateObject} from './types'
+import {IDocCreateAttributes} from './types'
 
 export class DocCreateValue {
-  private readonly props: IDocCreateObject = {
+  private readonly attributes: IDocCreateAttributes = {
     userId: null,
     spaceId: null,
     title: null,
@@ -9,14 +9,14 @@ export class DocCreateValue {
     access: null,
   }
 
-  constructor(
+  private constructor(
     userId: number,
     spaceId: number,
     title: string,
     content: string,
     access: number
   ) {
-    this.props = {
+    this.attributes = {
       userId,
       spaceId,
       title,
@@ -26,30 +26,42 @@ export class DocCreateValue {
   }
 
   get userId(): number {
-    return this.props.userId
+    return this.attributes.userId
   }
 
   get spaceId(): number {
-    return this.props.spaceId
+    return this.attributes.spaceId
   }
 
   get title(): string {
-    return this.props.title
+    return this.attributes.title
   }
 
   get content(): string {
-    return this.props.content
+    return this.attributes.content
   }
 
   get access(): number {
-    return this.props.access
+    return this.attributes.access
   }
 
-  toObject(): IDocCreateObject {
-    return this.props
+  getAttributes(filiterUndefined: boolean = true): IDocCreateAttributes {
+    if (filiterUndefined === false) {
+      return this.attributes
+    }
+
+    const filtered = this.attributes
+
+    for (const key in this.attributes) {
+      if (filtered[key] === undefined) {
+        delete filtered[key]
+      }
+    }
+
+    return filtered
   }
 
-  static fromObject(data: IDocCreateObject) {
+  static fromObject(data: IDocCreateAttributes) {
     return new DocCreateValue(
       data.userId,
       data.spaceId,
@@ -59,7 +71,7 @@ export class DocCreateValue {
     )
   }
 
-  static fromObjectAndUserId(object: IDocCreateObject, userId: number) {
+  static fromObjectAndUserId(object: IDocCreateAttributes, userId: number) {
     Object.assign(object, { userId })
     return DocCreateValue.fromObject(object)
   }

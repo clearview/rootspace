@@ -15,8 +15,14 @@ export class InviteCtrl extends BaseCtrl {
     try {
       const validator = new InviteAcceptValidator()
       await validator.validate(req.body)
-      await this.inviteService.accept(req.body.token, req.body.id, req.user.id)
-      res.send({ message: 'Invite accepted' })
+
+      const invite = await this.inviteService.accept(
+        req.body.token,
+        req.body.id,
+        req.user.id
+      )
+
+      res.send(invite)
     } catch (err) {
       next(err)
     }
