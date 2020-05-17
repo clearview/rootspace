@@ -1,14 +1,14 @@
-import { IDocUpdateObject } from './types'
+import { IDocUpdateAttributes } from './types'
 
 export class DocUpdateValue {
-  private readonly props: IDocUpdateObject = {
+  private readonly attributes: IDocUpdateAttributes = {
     title: undefined,
     content: undefined,
     access: undefined,
   }
 
-  constructor(title?: string, content?: string, access?: number) {
-    this.props = {
+  private constructor(title?: string, content?: string, access?: number) {
+    this.attributes = {
       title,
       content,
       access,
@@ -16,25 +16,25 @@ export class DocUpdateValue {
   }
 
   get title(): string {
-    return this.props.title
+    return this.attributes.title
   }
 
   get content(): string {
-    return this.props.content
+    return this.attributes.content
   }
 
   get access(): number {
-    return this.props.access
+    return this.attributes.access
   }
 
-  toObject(filiterEmpty: boolean = true): IDocUpdateObject {
-    if (filiterEmpty === false) {
-      return this.props
+  getAttributes(filiterUndefined: boolean = true): IDocUpdateAttributes {
+    if (filiterUndefined === false) {
+      return this.attributes
     }
 
-    const filtered = this.props
+    const filtered = this.attributes
 
-    for (const key in this.props) {
+    for (const key in this.attributes) {
       if (filtered[key] === undefined) {
         delete filtered[key]
       }
@@ -43,7 +43,7 @@ export class DocUpdateValue {
     return filtered
   }
 
-  static fromObject(data: IDocUpdateObject) {
+  static fromObject(data: IDocUpdateAttributes) {
     return new DocUpdateValue(data.title, data.content, data.access)
   }
 }

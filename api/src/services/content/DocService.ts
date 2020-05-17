@@ -70,7 +70,7 @@ export class DocService implements ILinkContent<Doc> {
       title: link.title,
     })
 
-    return this.getDocRepository().update(Number(link.value), data.toObject())
+    return this.getDocRepository().update(Number(link.value), data.getAttributes())
   }
 
   deleteContentByLink(link: Link): Promise<DeleteResult> {
@@ -82,27 +82,25 @@ export class DocService implements ILinkContent<Doc> {
   }
 
   async create(data: DocCreateValue): Promise<Doc> {
-    const doc = await this.getDocRepository().save(data.toObject())
+    const doc = await this.getDocRepository().save(data.getAttributes())
     await this.createLinkByContent(doc)
 
     return doc
   }
 
-  async update(data: DocUpdateValue, id: number): Promise<any> {
+  async update(data: DocUpdateValue, id: number): Promise<Doc> {
     let doc = await this.getById(id)
 
     if (!doc) {
       throw clientError('Error updating document')
     }
 
-    const res = await this.getDocRepository().update(id, data.toObject())
+    Object.assign(doc, data.getAttributes())
+    doc = await this.getDocRepository().save(doc)
 
-    if (res.affected > 0) {
-      doc = await this.getById(id)
-      await this.updateLinkByContent(doc)
-    }
+    await this.updateLinkByContent(doc)
 
-    return res
+    return doc
   }
 
   async delete(id: number) {

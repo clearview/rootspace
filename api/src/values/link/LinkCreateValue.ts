@@ -52,10 +52,6 @@ export class LinkCreateValue {
     return this.attributes.parent
   }
 
-  toObject(): ILinkCreateAttributes {
-    return this.attributes
-  }
-
   getAttributes(filiterUndefined: boolean = true): ILinkCreateAttributes {
     if (filiterUndefined === false) {
       return this.attributes

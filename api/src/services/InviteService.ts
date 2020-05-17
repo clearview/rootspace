@@ -42,7 +42,7 @@ export class InviteService {
     return this.getInviteRepository().findOne(id, { where: { token } })
   }
 
-  async accept(token: string, id: number, authUserId: number) {
+  async accept(token: string, id: number, authUserId: number): Promise<Invite> {
     const invite = await this.getInviteByTokenAndId(token, id)
 
     if (!invite) {

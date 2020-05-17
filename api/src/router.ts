@@ -15,7 +15,7 @@ import path from 'path'
 
 const router = express.Router()
 const upload = multer({
-  dest: path.resolve(config.uploadDir)
+  dest: path.resolve(config.uploadDir),
 })
 
 router.get('/', async (req, res) => {
@@ -26,7 +26,7 @@ router.get(
   '/auth/google',
   passport.authenticate('google', {
     session: false,
-    scope: ['openid profile email ']
+    scope: ['openid profile email '],
   })
 )
 
@@ -48,8 +48,6 @@ router.patch(
   mapRoute(UsersCtrl, 'changePassword')
 )
 
-router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
-
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
 router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
 router.post('/spaces', auth, mapRoute(SpacesCtrl, 'create'))
@@ -62,6 +60,8 @@ router.delete(
   auth,
   mapRoute(SpacesUsersCtrl, 'remove')
 )
+
+router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
 
 router.get('/links/:spaceId', auth, mapRoute(LinksCtrl, 'listAll'))
 router.get('/links/view/:id', auth, mapRoute(LinksCtrl, 'view'))
