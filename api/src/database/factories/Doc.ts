@@ -24,7 +24,7 @@ define(Doc, (faker: typeof Faker) => {
       }
     ]
   }
-  doc.content = JSON.stringify(content)
+  doc.content = content
   doc.access = 2
   return doc
 })
