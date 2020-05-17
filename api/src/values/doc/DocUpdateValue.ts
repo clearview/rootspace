@@ -7,7 +7,7 @@ export class DocUpdateValue {
     access: undefined,
   }
 
-  private constructor(title?: string, content?: string, access?: number) {
+  private constructor(title?: string, content?: object, access?: number) {
     this.attributes = {
       title,
       content,
@@ -19,7 +19,7 @@ export class DocUpdateValue {
     return this.attributes.title
   }
 
-  get content(): string {
+  get content(): object {
     return this.attributes.content
   }
 

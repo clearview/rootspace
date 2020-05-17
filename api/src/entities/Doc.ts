@@ -18,7 +18,7 @@ export class Doc {
   title: string
 
   @Column('json')
-  content: string
+  content: object
 
   @Column('integer')
   access: number

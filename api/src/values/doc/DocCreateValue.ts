@@ -13,7 +13,7 @@ export class DocCreateValue {
     userId: number,
     spaceId: number,
     title: string,
-    content: string,
+    content: object,
     access: number
   ) {
     this.attributes = {
@@ -37,7 +37,7 @@ export class DocCreateValue {
     return this.attributes.title
   }
 
-  get content(): string {
+  get content(): object {
     return this.attributes.content
   }
 
