@@ -1,6 +1,5 @@
 .nav {
-  @apply flex flex-col items-start;
-  @apply h-screen p-4;
+  @apply flex flex-col items-start h-screen;
   width: 282px;
   min-width: 282px;
 
@@ -10,7 +9,7 @@
 
 .nav-header {
   @apply flex flex-row items-center;
-  @apply w-full mb-4;
+  @apply w-full p-4;
 
   .nav-logo {
     @apply flex flex-none;
@@ -29,7 +28,7 @@
 }
 
 .nav-footer {
-  @apply w-full;
+  @apply w-full p-4;
 
   .btn {
     @apply whitespace-no-wrap;
@@ -42,6 +41,10 @@
 
   .nav-actions {
     @apply flex mt-4;
+
+    &:first-child {
+      @apply mt-0;
+    }
   }
 
   .nav-expand {
@@ -50,7 +53,7 @@
 }
 
 .nav-items {
-  @apply flex flex-1 w-full overflow-scroll;
+  @apply flex flex-1 w-full overflow-scroll px-1;
 }
 
 .nav-menu {
@@ -157,9 +160,4 @@
   .nav-expand {
     @apply block;
   }
-
-  /* .nav-content--collapse {
-    @apply flex flex-col items-center justify-between;
-    @apply py-2;
-  } */
 }

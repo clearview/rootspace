@@ -37,6 +37,7 @@
           <span
             v-show="!isSelected(path)"
             v-text="node.title"
+            class="truncate"
             @dblclick="editable && select(path)"
           />
           <input
@@ -173,12 +174,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.tree-node-text {
-  span {
-    word-break: break-all;
-    padding-right: 2.2rem;
-  }
-}
-</style>

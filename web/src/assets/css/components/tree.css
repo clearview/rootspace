@@ -3,7 +3,7 @@
 }
 
 .tree-node-back {
-  @apply relative;
+  @apply relative w-full;
 
   border-radius: 4px;
   margin: 6px auto;
@@ -14,7 +14,7 @@
 }
 
 .tree-node-content {
-  @apply flex flex-row;
+  @apply flex flex-row flex-1;
   @apply cursor-pointer;
 
   padding: 6px;
@@ -24,17 +24,17 @@
 .tree-node-arrow,
 .tree-node-icon,
 .tree-node-actions {
-  @apply flex items-center;
+  @apply flex flex-none items-center;
   @apply text-gray-400;
 
   margin-right: 6px;
 }
 
 .tree-node-handle {
-  @apply hidden;
   @apply absolute left-0;
   @apply cursor-pointer;
 
+  visibility: hidden;
   top: calc(50% - 10px);
 }
 
@@ -53,7 +53,7 @@
 
 .tree-node-text {
   @apply flex flex-1;
-  @apply leading-tight whitespace-no-wrap;
+  @apply overflow-hidden leading-tight;
 
   input {
     @apply outline-none;
@@ -63,8 +63,7 @@
 }
 
 .tree-node-actions {
-  @apply hidden;
-  @apply absolute right-0;
+  visibility: hidden;
 }
 
 .tree-placeholder-node{
@@ -79,6 +78,7 @@
 
   .tree-node-handle,
   .tree-node-actions {
-    @apply block;
+    /* @apply block; */
+    visibility: visible;
   }
 }
