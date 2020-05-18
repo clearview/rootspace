@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm'
+import { TaskList } from './TaskList'
 
 @Entity('tasks')
 export class Task {
@@ -39,10 +40,16 @@ export class Task {
   @Column('timestamp', { nullable: true })
   dueDate: string
 
+  @Column('integer')
+  order: number
+
   @CreateDateColumn()
   createdAt: string
 
   @UpdateDateColumn()
   updatedAt: string
+
+  @ManyToOne(type => TaskList, list => list.tasks)
+  list: TaskList
 
 }

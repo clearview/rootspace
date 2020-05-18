@@ -1,7 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import { TaskList } from './TaskList'
 
-@Entity('list_groups')
-export class ListGroup {
+@Entity('task_boards')
+export class ListBoard {
 
   @PrimaryGeneratedColumn()
   id: number

@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import { Task } from './Task'
 
 @Entity('task_lists')
 export class TaskList {
@@ -32,5 +33,8 @@ export class TaskList {
 
   @UpdateDateColumn()
   updatedAt: string
+
+  @OneToMany(type => Task, task => task.list)
+  tasks: Task[]
 
 }
