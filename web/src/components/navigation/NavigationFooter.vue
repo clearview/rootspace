@@ -45,7 +45,7 @@
         </button>
       </div>
 
-      <navigation-workspace v-model="showMenu"/>
+      <navigation-workspace v-model="showMenu" @add="$emit('addWorkspace')"/>
     </div>
     <div class="nav-actions">
       <button

@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <button class="nav-menu-create">
+      <button class="nav-menu-create" @click="$emit('add')">
         <v-icon name="plus" />
         <span>Add New Workspace</span>
       </button>

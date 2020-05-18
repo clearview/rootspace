@@ -115,6 +115,7 @@
     @apply flex flex-row items-center justify-center;
     @apply border rounded border-dashed border-gray-400;
     @apply w-full p-3 mb-3;
+    @apply outline-none;
 
     transition: .3s;
 
