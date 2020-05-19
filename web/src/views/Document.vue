@@ -47,6 +47,11 @@ export default Vue.extend({
       loading: false
     }
   },
+  computed: {
+    currentSpace () {
+      return this.$store.state.auth.currentSpace || {}
+    }
+  },
   watch: {
     title () {
       clearTimeout(this.timer)
@@ -96,7 +101,7 @@ export default Vue.extend({
     saveDocument () {
       if (this.title) {
         const payload = {
-          spaceId: 3,
+          spaceId: this.currentSpace.id,
           title: this.title,
           content: this.value,
           access: 2

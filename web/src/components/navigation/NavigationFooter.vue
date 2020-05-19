@@ -1,11 +1,25 @@
 <template>
   <div class="nav-footer">
-    <div class="nav-actions flex-row">
-      <button class="btn btn-mute flex-grow px-2 mr-2">
-        {{ currentSpace.title }}
+    <div class="nav-actions flex-row relative">
+      <button
+        class="btn btn-mute flex-grow p-1 mr-2 justify-between truncate"
+        @click.stop="showMenu = !showMenu"
+      >
+        <div class="flex flex-row items-center truncate">
+          <img
+            class="bg-white rounded mr-2"
+            srcset="
+              @/assets/images/workspace.png 1x,
+              @/assets/images/workspace@2x.png 2x
+            "
+            src="@/assets/images/workspace.png"
+            alt="Workspace"
+          >
+          <span class="truncate">{{ currentSpace.title }}</span>
+        </div>
         <v-icon
           name="down"
-          class="ml-1 text-gray-400"
+          class="flex flex-none ml-1 text-gray-400"
         />
       </button>
 
@@ -30,6 +44,8 @@
           />
         </button>
       </div>
+
+      <navigation-workspace v-model="showMenu" @add="$emit('addWorkspace')"/>
     </div>
     <div class="nav-actions">
       <button
@@ -62,22 +78,30 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import VIcon from '@/components/icons/Index.vue'
+import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
 
 export default Vue.extend({
   name: 'NavigationFooter',
   components: {
-    VIcon
+    VIcon,
+    NavigationWorkspace
   },
   props: {
     editable: {
       type: Boolean
     }
   },
+  data () {
+    return {
+      showMenu: false
+    }
+  },
   computed: {
-    ...mapState('auth', ['currentSpace'])
+    currentSpace (): object {
+      return this.$store.state.auth.currentSpace || {}
+    }
   },
   methods: {
     settingsPage () {

@@ -22,6 +22,7 @@
       @add="startAddNew"
       @edit="editable = !editable"
       @toggleCollapse="toggleCollapse"
+      @addWorkspace="startAddWorkspace"
     />
 
     <v-modal
@@ -83,16 +84,36 @@
         Are you sure you want to delete this link/document?
       </div>
     </v-modal>
+
+    <v-modal
+      title="Add Workspace"
+      :visible="workspace.add.visible"
+      :loading="workspace.add.loading"
+      confirmText="Add"
+      @cancel="workspace.add.visible = false"
+      @confirm="() => $refs.formWorkspaceAdd.submit()"
+    >
+      <div class="modal-body">
+        <form-workspace
+          nobutton
+          ref="formWorkspaceAdd"
+          @submit="addWorkspace"
+        />
+      </div>
+    </v-modal>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 
-import { LinkResource } from '@/types/resource'
+import { LinkResource, WorkspaceResource } from '@/types/resource'
+
+import WorkspaceService from '@/services/workspace'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
 import AddList from '@/components/resource/ResourceAddList.vue'
+import FormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -102,7 +123,7 @@ import NavigationFooter from './NavigationFooter.vue'
 type Alert = {
   type: string;
   message: string;
-}
+};
 
 type ComponentData = {
   editable: boolean;
@@ -132,6 +153,13 @@ type ComponentData = {
       alert: Alert | null;
     };
   };
+  workspace: {
+    add: {
+      visible: boolean;
+      loading: boolean;
+      alert: Alert | null;
+    };
+  };
 };
 
 export default Vue.extend({
@@ -142,6 +170,7 @@ export default Vue.extend({
     NavigationFooter,
     FormLink,
     AddList,
+    FormWorkspace,
     VModal
   },
   data (): ComponentData {
@@ -172,6 +201,13 @@ export default Vue.extend({
           data: null,
           alert: null
         }
+      },
+      workspace: {
+        add: {
+          visible: false,
+          loading: false,
+          alert: null
+        }
       }
     }
   },
@@ -188,7 +224,12 @@ export default Vue.extend({
       return spaces && spaces.length > 0
     },
     currentSpace () {
-      return this.$store.state.auth.currentSpace
+      return this.$store.state.auth.currentSpace || {}
+    }
+  },
+  watch: {
+    async currentSpace (val) {
+      await this.fetchLink(val)
     }
   },
   async created () {
@@ -196,7 +237,7 @@ export default Vue.extend({
       return this.$router.replace({ name: 'CreateWorkspace' })
     }
 
-    await this.fetchLink()
+    await this.fetchLink(this.currentSpace)
   },
   methods: {
     search (keyword: string): void {
@@ -229,13 +270,16 @@ export default Vue.extend({
       this.link.destroy.visible = true
       this.link.destroy.data = data
     },
+    startAddWorkspace () {
+      this.workspace.add.visible = true
+    },
     toggleFold (data: object) {
       this.$store.commit('link/setFolded', data)
     },
-    async fetchLink () {
+    async fetchLink (space: WorkspaceResource) {
       this.link.fetch.loading = true
 
-      await this.$store.dispatch('link/fetch')
+      await this.$store.dispatch('link/fetch', { spaceId: space.id })
 
       this.link.fetch.loading = false
     },
@@ -291,6 +335,22 @@ export default Vue.extend({
       this.link.destroy.loading = false
       this.link.destroy.visible = false
       this.link.destroy.data = null
+    },
+    async addWorkspace (data: WorkspaceResource) {
+      this.workspace.add.loading = true
+
+      try {
+        await WorkspaceService.create(data)
+        await this.$store.dispatch('auth/whoami')
+      } catch (err) {
+        this.workspace.add.alert = {
+          type: 'danger',
+          message: err.message
+        }
+      }
+
+      this.workspace.add.loading = false
+      this.workspace.add.visible = false
     }
   }
 })
