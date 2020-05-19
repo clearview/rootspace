@@ -69,10 +69,32 @@ async function userAtSpace (id: number) {
   return data
 }
 
+async function removeUser (id: number, userid: number) {
+  try {
+    const res = await api.delete(`spaces/${id}/users/${userid}`)
+
+    return res
+  } catch (error) {
+    let err = error
+
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+        fields: error.response.data.error.fields
+      }
+      err = body
+    }
+
+    throw err
+  }
+}
+
 export default {
   create,
   update,
   my,
   view,
-  userAtSpace
+  userAtSpace,
+  removeUser
 }
