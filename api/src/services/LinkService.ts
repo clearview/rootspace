@@ -34,16 +34,18 @@ export class LinkService {
     return this.getLinkRepository().findOne({ where: { value } })
   }
 
-  getAll(spaceId: number) {
+  getLinksBySpaceId(spaceId: number) {
     return this.getLinkRepository().getTreeBySpaceId(spaceId)
   }
 
-  getMaxPositionByParentId(parentId: number | null): Promise<number> {
+  getLinkMaxPositionByParentId(parentId: number | null): Promise<number> {
     return this.getLinkRepository().getMaxPositionByParentId(parentId)
   }
 
-  async getNextPositionByParentId(parentId: number | null): Promise<number> {
-    let position = await this.getMaxPositionByParentId(parentId)
+  async getLinkNextPositionByParentId(
+    parentId: number | null
+  ): Promise<number> {
+    let position = await this.getLinkMaxPositionByParentId(parentId)
     return ++position
   }
 
@@ -54,12 +56,17 @@ export class LinkService {
 
     if (data.parent) {
       const parent = await this.getLinkById(Number(data.parent))
+
+      if (!parent) {
+        throw clientError('Cant not find parent ' + data.parent)
+      }
+
       link.parent = parent
     }
 
     link.position = link.parent
-      ? await this.getNextPositionByParentId(link.parent.id)
-      : await this.getNextPositionByParentId(null)
+      ? await this.getLinkNextPositionByParentId(link.parent.id)
+      : await this.getLinkNextPositionByParentId(null)
 
     return this.getLinkRepository().save(link)
   }
@@ -95,9 +102,7 @@ export class LinkService {
   }
 
   async updateLinkParent(link: Link, toParentId: number | null): Promise<Link> {
-    const rawLink = await this.getLinkRepository().getRawById(link.id)
-
-    const exParentId = rawLink.link_parentId
+    const exParentId = await this.getLinkRepository().getParentId(link.id)
     const exPosition = link.position
 
     if (toParentId === exParentId) {
@@ -111,8 +116,7 @@ export class LinkService {
     }
 
     link.parent = parent
-    link.position = await this.getNextPositionByParentId(toParentId)
-
+    link.position = await this.getLinkNextPositionByParentId(toParentId)
     link = await this.getLinkRepository().save(link)
 
     await this.getLinkRepository().decreasePositions(exParentId, exPosition)
@@ -121,16 +125,14 @@ export class LinkService {
   }
 
   async updateLinkPosition(link: Link, toPosition: number): Promise<Link> {
-    const rawLink = await this.getLinkRepository().getRawById(link.id)
-
-    const linkParentId = rawLink.link_parentId
+    const linkParentId = await this.getLinkRepository().getParentId(link.id)
     const fromPosition = link.position
 
     if (toPosition === link.position) {
       return link
     }
 
-    const maxPosition = await this.getMaxPositionByParentId(linkParentId)
+    const maxPosition = await this.getLinkMaxPositionByParentId(linkParentId)
 
     if (toPosition > maxPosition) {
       toPosition = maxPosition
@@ -163,12 +165,15 @@ export class LinkService {
       throw clientError('Error deleting link')
     }
 
+    const parentId = await this.getLinkRepository().getParentId(link.id)
+
     const res = await this.getLinkRepository().delete({
       id,
     })
 
     if (res.affected > 0) {
       this.contentManager.deleteContentByLink(link)
+      this.getLinkRepository().decreasePositions(parentId, link.position)
     }
 
     return res

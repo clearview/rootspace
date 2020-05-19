@@ -50,7 +50,7 @@ export class LinksCtrl extends BaseCtrl {
         throw clientError('Error fetching links')
       }
 
-      const links = await this.linkSrvice.getAll(spaceId)
+      const links = await this.linkSrvice.getLinksBySpaceId(spaceId)
       const data = this.responseData(links)
 
       res.send(data)

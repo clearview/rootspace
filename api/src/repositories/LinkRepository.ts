@@ -15,13 +15,9 @@ export class LinkRepository extends Repository<Link> {
       .getRawOne()
   }
 
-  async getRootsBySpaceId(spaceId: number): Promise<Link[]> {
-    return this.createQueryBuilder('links')
-      .innerJoin(Space, 'spaces', 'spaces.id = links.spaceId')
-      .where('spaces.id = :spaceId', { spaceId })
-      .andWhere('links.parent IS NULL')
-      .orderBy({ 'links.created': 'ASC' })
-      .getMany()
+  async getParentId(id: number): Promise<number | null> {
+    const rawLink = await this.getRawById(id)
+    return rawLink.link_parentId
   }
 
   async getTreeBySpaceId(spaceId: number): Promise<Link[]> {
@@ -31,6 +27,15 @@ export class LinkRepository extends Repository<Link> {
     )
 
     return this.sortTree(roots)
+  }
+
+  async getRootsBySpaceId(spaceId: number): Promise<Link[]> {
+    return this.createQueryBuilder('links')
+      .innerJoin(Space, 'spaces', 'spaces.id = links.spaceId')
+      .where('spaces.id = :spaceId', { spaceId })
+      .andWhere('links.parent IS NULL')
+      .orderBy({ 'links.created': 'ASC' })
+      .getMany()
   }
 
   async getMaxPositionByParentId(parent: number | null): Promise<number> {
