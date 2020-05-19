@@ -1,9 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, Tree, TreeParent, TreeChildren } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Tree,
+  TreeParent,
+  TreeChildren,
+} from 'typeorm'
 
 @Entity('links')
 @Tree('nested-set')
 export class Link {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -32,6 +41,9 @@ export class Link {
 
   @Column('json', { nullable: true })
   config: object
+
+  @Column('integer', { default: 0 })
+  position: number
 
   @CreateDateColumn()
   created: string

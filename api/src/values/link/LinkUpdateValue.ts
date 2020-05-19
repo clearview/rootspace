@@ -6,9 +6,10 @@ export class LinkUpdateValue {
     value: undefined,
   }
 
-  private _parent: number
+  private _parent: number = undefined
+  private _position: number = undefined
 
-  private constructor(title?: string, value?: string, parent?: number) {
+  private constructor(title?: string, value?: string) {
     this.attributes = {
       title,
       value,
@@ -29,6 +30,14 @@ export class LinkUpdateValue {
 
   set parent(value: number) {
     this._parent = value
+  }
+
+  get position(): number {
+    return this._position
+  }
+
+  set position(value: number) {
+    this._position = value
   }
 
   getAttributes(filiterUndefined: boolean = true): ILinkUpdateAttributes {

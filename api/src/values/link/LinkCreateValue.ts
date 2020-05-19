@@ -7,16 +7,16 @@ export class LinkCreateValue {
     title: null,
     type: null,
     value: null,
-    parent: null,
   }
+
+  private _parent: number = null
 
   constructor(
     userId: number,
     spaceId: number,
     title: string,
     type: string,
-    value: string,
-    parent: number = null
+    value: string
   ) {
     this.attributes = {
       userId,
@@ -24,7 +24,6 @@ export class LinkCreateValue {
       title,
       type,
       value,
-      parent,
     }
   }
 
@@ -49,7 +48,11 @@ export class LinkCreateValue {
   }
 
   get parent(): number {
-    return this.attributes.parent
+    return this._parent
+  }
+
+  set parent(value: number) {
+    this._parent = value
   }
 
   getAttributes(filiterUndefined: boolean = true): ILinkCreateAttributes {
@@ -74,8 +77,7 @@ export class LinkCreateValue {
       data.spaceId,
       data.title,
       data.type,
-      data.value,
-      data.parent
+      data.value
     )
   }
 

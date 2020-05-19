@@ -69,6 +69,10 @@ export class LinksCtrl extends BaseCtrl {
         Number(req.user.id)
       )
 
+      if (data.parent !== undefined) {
+        value.parent = data.parent
+      }
+
       const link = await this.linkSrvice.create(value)
       const resData = this.responseData(link)
 
@@ -89,6 +93,10 @@ export class LinksCtrl extends BaseCtrl {
 
       if (data.parent !== undefined) {
         value.parent = data.parent
+      }
+
+      if (data.position) {
+        value.position = data.position
       }
 
       const link = await this.linkSrvice.update(value, id)

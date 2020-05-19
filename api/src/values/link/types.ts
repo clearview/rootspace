@@ -4,7 +4,6 @@ export interface ILinkCreateAttributes {
   title: string
   type: string
   value: string
-  parent?: number
 }
 
 export interface ILinkUpdateAttributes {
