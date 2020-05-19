@@ -79,13 +79,11 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
 import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
 
 export default Vue.extend({
   name: 'NavigationFooter',
   components: {
-    VIcon,
     NavigationWorkspace
   },
   props: {

@@ -7,7 +7,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import VIcon from '@/components/icons/Index.vue'
+import VIcon from '@/components/icon/Icon.vue'
 
 Vue.config.productionTip = false
 

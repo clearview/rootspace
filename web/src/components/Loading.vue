@@ -10,13 +10,11 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
 import VModal from '@/components/Modal.vue'
 
 export default Vue.extend({
   name: 'Loading',
   components: {
-    VIcon,
     VModal
   },
   props: {

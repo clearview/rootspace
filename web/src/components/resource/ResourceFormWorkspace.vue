@@ -86,7 +86,6 @@ import { required, email } from 'vuelidate/lib/validators'
 import { WorkspaceResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
-import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   payload: Omit<WorkspaceResource, 'id'>;
@@ -96,8 +95,7 @@ type ComponentData = {
 export default Vue.extend({
   name: 'ResourceFormWorkspace',
   components: {
-    VField,
-    VIcon
+    VField
   },
   props: {
     value: {

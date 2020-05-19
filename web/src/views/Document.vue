@@ -21,7 +21,6 @@ import DocumentService from '@/services/document'
 
 import LayoutMain from '@/components/LayoutMain.vue'
 import Editor from '@/components/Editor.vue'
-import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   value: object;
@@ -35,8 +34,7 @@ export default Vue.extend({
   name: 'Document',
   components: {
     LayoutMain,
-    Editor,
-    VIcon
+    Editor
   },
   data (): ComponentData {
     return {

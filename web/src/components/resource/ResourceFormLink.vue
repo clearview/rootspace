@@ -55,7 +55,6 @@ import { LinkResource } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
-import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   payload: Omit<LinkResource, 'children'>;
@@ -65,8 +64,7 @@ export default Vue.extend({
   name: 'ResourceFormLink',
   components: {
     ButtonSwitch,
-    VField,
-    VIcon
+    VField
   },
   props: {
     value: {

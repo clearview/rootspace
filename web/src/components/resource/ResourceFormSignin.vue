@@ -73,7 +73,6 @@ import { required, email, minLength } from 'vuelidate/lib/validators'
 import { SigninResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
-import VIcon from '@/components/icons/Index.vue'
 
 type ComponentData = {
   payload: SigninResource;
@@ -82,8 +81,7 @@ type ComponentData = {
 export default Vue.extend({
   name: 'ResourceFormSignin',
   components: {
-    VField,
-    VIcon
+    VField
   },
   data (): ComponentData {
     return {
