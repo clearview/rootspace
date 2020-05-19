@@ -70,6 +70,7 @@
     <slot></slot>
 
     <button
+      v-show="!nobutton"
       class="btn btn-primary w-full mx-0 mt-5"
       type="button"
       :disabled="$v.payload.$invalid"
@@ -105,6 +106,9 @@ export default Vue.extend({
     button: {
       type: String,
       default: 'Create'
+    },
+    nobutton: {
+      type: Boolean
     }
   },
   data (): ComponentData {
