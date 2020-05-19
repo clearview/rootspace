@@ -129,7 +129,7 @@ export default Vue.extend({
       return this.$store.state.link.active
     },
     currentSpace () {
-      return this.$store.state.auth.currentSpace
+      return this.$store.state.auth.currentSpace || {}
     }
   },
   methods: {
