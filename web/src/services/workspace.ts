@@ -69,9 +69,9 @@ async function userAtSpace (id: number) {
   return data
 }
 
-async function removeUser (id: number, userid: number) {
+async function removeUser (id: number, userId: number) {
   try {
-    const res = await api.delete(`spaces/${id}/users/${userid}`)
+    const res = await api.delete(`spaces/${id}/users/${userId}`)
 
     return res
   } catch (error) {

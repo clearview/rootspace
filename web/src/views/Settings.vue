@@ -190,8 +190,8 @@ export default Vue.extend({
         this.isLoading = true
         this.loadingMessage = 'Remove user from workspace...'
 
-        const getUserID = get(getUser, 'id')
-        await WorkspaceService.removeUser(this.currentSpace.id, getUserID)
+        const getUserId = get(getUser, 'id')
+        await WorkspaceService.removeUser(this.currentSpace.id, getUserId)
 
         this.isLoading = false
       }
