@@ -15,7 +15,7 @@ export interface AuthState {
 
 export interface LinkState {
   payload: LinkResource[];
-  active: LinkResource | null;
+  active: string | null;
   folded: {
     [key: string]: boolean;
   };
