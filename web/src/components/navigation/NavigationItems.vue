@@ -5,7 +5,6 @@
       triggerClass="tree-node-handle"
       :indent="16"
       :value="treeData"
-      foldingTransitionName="fold"
       @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
