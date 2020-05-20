@@ -2,7 +2,6 @@ import { Module } from 'vuex'
 import { RootState, AuthState } from '@/types/state'
 
 import AuthService from '@/services/auth'
-import UserService from '@/services/user'
 
 type SigninContext = {
   type: string;
@@ -36,15 +35,22 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async whoami ({ commit, state }) {
-      const res = await UserService.whoami()
+    async whoami ({ commit, dispatch, state }) {
+      try {
+        const { data } = await AuthService.whoami()
 
-      commit('setUser', res.user)
-      commit('setSpaces', res.spaces)
+        commit('setUser', data.user)
+        commit('setSpaces', data.spaces)
 
-      if (!state.currentSpace) {
-        commit('setCurrentSpace', res.spaces[0]) // set default Space
+        if (!state.currentSpace) {
+          commit('setCurrentSpace', data.spaces[0]) // set default Space
+        }
+      } catch (err) {
+        dispatch('signout')
       }
+    },
+    async signup (_, payload) {
+      await AuthService.signup(payload)
     },
     async signin ({ commit }, { type, payload }: SigninContext) {
       const { data } = await AuthService.signin(type, payload)

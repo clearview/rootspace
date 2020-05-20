@@ -68,10 +68,10 @@ export default Vue.extend({
     async userSignup (data: SignupResource) {
       try {
         this.isLoading = true
-        await UserService.signup(data)
+        await this.$store.dispatch('auth/signup', data)
 
         this.isLoading = false
-        this.$router.push({ name: 'SignUpSuccess' })
+        this.$router.push({ name: 'SignIn' })
       } catch (err) {
         this.error = err
         this.isLoading = false
