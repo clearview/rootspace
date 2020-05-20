@@ -4,6 +4,11 @@ import { RootState, AuthState } from '@/types/state'
 import AuthService from '@/services/auth'
 import UserService from '@/services/user'
 
+type SigninContext = {
+  type: string;
+  payload: object;
+}
+
 const AuthModule: Module<AuthState, RootState> = {
   namespaced: true,
   state () {
@@ -31,18 +36,6 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async withGoogle ({ commit }, params) {
-      const { token } = await AuthService.googleCallback(params)
-
-      commit('setToken', token)
-    },
-    async withEmail ({ commit }, params) {
-      const res = await AuthService.localSignin(params)
-
-      if (res) {
-        commit('setToken', res.data.token)
-      }
-    },
     async whoami ({ commit, state }) {
       const res = await UserService.whoami()
 
@@ -52,6 +45,11 @@ const AuthModule: Module<AuthState, RootState> = {
       if (!state.currentSpace) {
         commit('setCurrentSpace', res.spaces[0]) // set default Space
       }
+    },
+    async signin ({ commit }, { type, payload }: SigninContext) {
+      const { data } = await AuthService.signin(type, payload)
+
+      commit('setToken', data.token)
     },
     async signout ({ commit }) {
       commit('setToken', null)

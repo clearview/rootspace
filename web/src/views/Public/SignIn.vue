@@ -78,7 +78,10 @@ export default Vue.extend({
       try {
         this.isLoading = true
 
-        await this.$store.dispatch('auth/withEmail', data)
+        await this.$store.dispatch('auth/signin', {
+          type: 'email',
+          payload: data
+        })
 
         this.isLoading = false
 
