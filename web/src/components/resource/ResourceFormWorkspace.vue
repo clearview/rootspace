@@ -61,7 +61,7 @@
         <div class="flex-grow text-sm">
           <p class="text-gray-900">{{ invitation }}</p>
         </div>
-        <span class="close-icon" @click="deleteInvitation(index)">
+        <span class="close-icon" @click="deleteInvitation(index, invitation)">
           <v-icon name="close" size=".9em" viewbox="32" />
         </span>
       </div>
@@ -109,6 +109,9 @@ export default Vue.extend({
     },
     nobutton: {
       type: Boolean
+    },
+    isEdit: {
+      type: Boolean
     }
   },
   data (): ComponentData {
@@ -143,8 +146,16 @@ export default Vue.extend({
     addInvitationList (email: string): void {
       this.invitation = ''
       this.payload.invites.push(email)
+
+      if (this.isEdit) {
+        this.$emit('addUser', email)
+      }
     },
-    deleteInvitation (index: number): void {
+    deleteInvitation (index: number, email: string): void {
+      if (this.isEdit) {
+        this.$emit('deleteUser', email)
+      }
+
       this.payload.invites.splice(index, 1)
     },
     submit (): void {
