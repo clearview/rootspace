@@ -42,7 +42,10 @@
 
             <resource-form-workspace
               @submit="updateWorkspace"
+              @addUser="addWorkspaceUser"
+              @deleteUser="deleteWorkspaceUser"
               :value="workspaceData"
+              :is-edit="true"
               button="Save"
               ref="workspace">
               <div class="form-border">
@@ -70,9 +73,9 @@
 import Vue from 'vue'
 import { mapActions, mapMutations } from 'vuex'
 
-import { remove, map } from 'lodash'
+import { map, find, get } from 'lodash'
 
-import { SettingsResource, WorkspaceResource, PasswordResource, UserResource } from '@/types/resource'
+import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/resource'
 
 import UserService from '@/services/user'
 import WorkspaceService from '@/services/workspace'
@@ -94,6 +97,7 @@ type ComponentData = {
   loadingMessage: string;
   isLoading: boolean;
   workspaceData: object;
+  userAtSpaceObj: object;
 }
 
 export default Vue.extend({
@@ -116,12 +120,23 @@ export default Vue.extend({
       emailNotifications: true,
       loadingMessage: 'Update Settings...',
       isLoading: false,
-      workspaceData: {}
+      workspaceData: {},
+      userAtSpaceObj: {}
     }
   },
   computed: {
     activeLink () {
       return this.$store.state.link.active
+    },
+    currentSpace () {
+      return this.$store.state.auth.currentSpace || {}
+    }
+  },
+  watch: {
+    async currentSpace (val) {
+      if (this.tab === 'workspace') {
+        await this.viewWorkspace(val.id)
+      }
     }
   },
   methods: {
@@ -151,11 +166,9 @@ export default Vue.extend({
     },
     async updateWorkspace (data: WorkspaceResource) {
       try {
-        const id = 1 // change this when we can switch the workspace
+        const id = this.currentSpace.id
         this.isLoading = true
         this.loadingMessage = 'Update Workspace Settings...'
-
-        console.log(data)
 
         const payload = { // for temporary
           title: data.title,
@@ -174,20 +187,36 @@ export default Vue.extend({
         this.isLoading = false
       }
     },
-    async viewWorkspace () {
-      const id = 1 // change this when we can switch the workspace
+    addWorkspaceUser (email: string) {
+      console.log(this.currentSpace.id, email)
+    },
+    async deleteWorkspaceUser (email: string) {
+      const getUser = find(this.userAtSpaceObj, ['email', email])
+
+      if (getUser) {
+        this.isLoading = true
+        this.loadingMessage = 'Remove user from workspace...'
+
+        const getUserId = get(getUser, 'id')
+        await WorkspaceService.removeUser(this.currentSpace.id, getUserId)
+
+        this.isLoading = false
+      }
+    },
+    async viewWorkspace (id: number) {
       this.isLoading = true
       this.loadingMessage = 'Get Workspace Settings...'
 
-      const viewWorkspace = await WorkspaceService.view(id)
       const viewUserAtSpace = await WorkspaceService.userAtSpace(id)
-      const currentUser = this.$store.state.auth.user.id
+      // const currentUser = this.$store.state.auth.user.id
 
-      remove(viewUserAtSpace.data, (user: UserResource) => user.id === currentUser)
+      // remove(viewUserAtSpace.data, (user: UserResource) => user.id === currentUser)
+      this.userAtSpaceObj = viewUserAtSpace.data
       const userAtSpace = map(viewUserAtSpace.data, 'email')
 
+      const workspaceTitle = this.currentSpace.title
       this.workspaceData = {
-        title: viewWorkspace.title,
+        title: workspaceTitle,
         invites: userAtSpace
       }
       this.isLoading = false
@@ -196,7 +225,8 @@ export default Vue.extend({
       this.tab = tab
 
       if (tab === 'workspace') {
-        this.viewWorkspace()
+        const id = this.currentSpace.id
+        this.viewWorkspace(id)
       }
     },
 
