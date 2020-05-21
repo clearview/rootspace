@@ -57,6 +57,11 @@ export default Vue.extend({
       clearTimeout(this.timer)
       this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     },
+    currentSpace (val, oldVal) {
+      if (val.id !== oldVal.id) {
+        this.$router.push({ name: 'Main' })
+      }
+    },
     $route (newval) {
       this.initialize = true
       if (typeof newval.params.id === 'undefined') {
