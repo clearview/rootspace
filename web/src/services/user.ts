@@ -1,4 +1,5 @@
 import api from '@/utils/api'
+import { ValidationError } from '@/utils/error'
 
 async function confirmEmail (payload: object) {
   try {
@@ -19,19 +20,16 @@ async function update (payload: object) {
     const res = await api.patch('user/update', payload)
 
     return res
-  } catch (error) {
-    let err = error
+  } catch (err) {
+    const { response } = err
 
-    if (error.response) {
-      const body = {
-        code: error.response.status,
-        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
-        fields: error.response.data.error.fields
-      }
-      err = body
+    if (response) {
+      const { message, fields } = response.data.error
+
+      throw new ValidationError(message, fields)
+    } else {
+      throw err
     }
-
-    throw err
   }
 }
 
@@ -40,19 +38,16 @@ async function passwordChange (payload: object) {
     const res = await api.patch('user/password/change', payload)
 
     return res
-  } catch (error) {
-    let err = error
+  } catch (err) {
+    const { response } = err
 
-    if (error.response) {
-      const body = {
-        code: error.response.status,
-        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
-        fields: error.response.data.error.fields
-      }
-      err = body
+    if (response) {
+      const { message, fields } = response.data.error
+
+      throw new ValidationError(message, fields)
+    } else {
+      throw err
     }
-
-    throw err
   }
 }
 

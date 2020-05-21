@@ -1,5 +1,5 @@
 import api from '@/utils/api'
-import { FormError } from '@/utils/error'
+import { ValidationError } from '@/utils/error'
 
 export default class AuthService {
   static async whoami () {
@@ -39,7 +39,7 @@ export default class AuthService {
       if (response) {
         const { message, fields } = response.data.error
 
-        throw new FormError(message, fields)
+        throw new ValidationError(message, fields)
       } else {
         throw err
       }

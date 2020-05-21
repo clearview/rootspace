@@ -27,14 +27,14 @@
             </div>
           </div>
           <div class="col-right">
-            <v-alert :the-message="errorAccount" />
-            <resource-form-settings @submit="UpdateAccount" ref="account" />
+            <v-alert v-model="account.alert" />
+            <resource-form-settings @submit="updateAccount" ref="account" />
           </div>
         </div>
 
         <div class="settings-workspace" v-if="(tab === 'workspace')">
           <div class="col-center">
-            <v-alert :the-message="errorWorkspace" />
+            <v-alert v-model="workspace.alert" />
 
             <div class="workspace-avatar">
               <img src="@/assets/logo@2x.png" alt="Root Logo"/>
@@ -98,6 +98,12 @@ type ComponentData = {
   isLoading: boolean;
   workspaceData: object;
   userAtSpaceObj: object;
+  account: {
+    alert: object | null;
+  };
+  workspace: {
+    alert: object | null;
+  };
 }
 
 export default Vue.extend({
@@ -122,6 +128,12 @@ export default Vue.extend({
       isLoading: false,
       workspaceData: {},
       userAtSpaceObj: {}
+      account: {
+        alert: null
+      },
+      workspace: {
+        alert: null
+      }
     }
   },
   computed: {
@@ -140,10 +152,11 @@ export default Vue.extend({
     }
   },
   methods: {
-    async UpdateAccount (...args: [SettingsResource, PasswordResource]) {
+    async updateAccount (...args: [SettingsResource, PasswordResource]) {
+      this.isLoading = true
+
       try {
         const [setting, password] = args
-        this.isLoading = true
         this.loadingMessage = 'Update Account Settings...'
         const userUpdate = await UserService.update(setting)
 
@@ -151,20 +164,21 @@ export default Vue.extend({
           await UserService.passwordChange(password)
         }
 
-        this.isLoading = false
         const getUserData = userUpdate.data
         this.setUser(getUserData)
       } catch (err) {
-        if (err.code === 401) {
-          this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
-          this.signout()
-          this.$router.push({ name: 'SignIn' })
+        this.account.alert = {
+          type: 'danger',
+          message: err.message,
+          fields: err.fields
         }
-        this.errorAccount = err
+      } finally {
         this.isLoading = false
       }
     },
     async updateWorkspace (data: WorkspaceResource) {
+      this.isLoading = true
+
       try {
         const id = this.currentSpace.id
         this.isLoading = true
@@ -174,16 +188,15 @@ export default Vue.extend({
           title: data.title,
           invites: data.invites
         }
-        await WorkspaceService.update(id, payload)
 
-        this.isLoading = false
+        await WorkspaceService.update(id, payload)
       } catch (err) {
-        if (err.code === 401) {
-          this.loadingMessage = `${err.message}. You will redirect to Signin Page.`
-          this.signout()
-          this.$router.push({ name: 'SignIn' })
+        this.account.alert = {
+          type: 'danger',
+          message: err.message,
+          fields: err.fields
         }
-        this.errorAccount = err
+      } finally {
         this.isLoading = false
       }
     },
