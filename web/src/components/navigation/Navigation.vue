@@ -343,12 +343,12 @@ export default Vue.extend({
       try {
         const res = await WorkspaceService.create(data)
 
+        await this.$store.dispatch('auth/whoami')
+
         this.$store.commit(
           'auth/setCurrentSpace',
           pick(res.data, ['id', 'title', 'settings'])
         )
-
-        await this.$store.dispatch('auth/whoami')
       } catch (err) {
         this.workspace.add.alert = {
           type: 'danger',

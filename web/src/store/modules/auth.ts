@@ -1,5 +1,7 @@
 import { Module } from 'vuex'
+
 import { RootState, AuthState } from '@/types/state'
+import { WorkspaceResource } from '@/types/resource'
 
 import AuthService from '@/services/auth'
 
@@ -35,28 +37,25 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async whoami ({ commit, dispatch, state }) {
+    async whoami ({ commit, dispatch }) {
       try {
         const { data } = await AuthService.whoami()
 
-        let currentSpace = state.currentSpace
-
-        if (currentSpace !== null) {
-          const spaceId = currentSpace.id
-
-          currentSpace = data.spaces.find(
-            (space: { id: number }) => (
-              space.id === spaceId
-            )
-          )
-        }
-
         commit('setUser', data.user)
         commit('setSpaces', data.spaces)
-        commit('setCurrentSpace', currentSpace || data.spaces[0])
       } catch (err) {
         dispatch('signout')
       }
+    },
+    async initSpace ({ commit, state }) {
+      const spaces: WorkspaceResource[] = state.spaces || []
+      const cache: Partial<WorkspaceResource> = state.currentSpace || {}
+
+      const space = spaces.find(
+        (space: WorkspaceResource) => space.id === cache.id
+      )
+
+      commit('setCurrentSpace', space || spaces[0])
     },
     async signup (_, payload) {
       await AuthService.signup(payload)
