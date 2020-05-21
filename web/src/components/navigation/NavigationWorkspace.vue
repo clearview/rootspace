@@ -105,6 +105,8 @@ export default Vue.extend({
   methods: {
     select (data: object) {
       this.$store.commit('auth/setCurrentSpace', omit('active', data))
+
+      this.$emit('input', null)
     },
     signout () {
       this.$store.dispatch('auth/signout')

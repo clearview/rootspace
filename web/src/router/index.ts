@@ -84,6 +84,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (hasToken) {
     await store.dispatch('auth/whoami')
+    await store.dispatch('auth/initSpace')
   }
 
   if (hasToken || noAuth) {
