@@ -106,6 +106,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { pick } from 'lodash'
 
 import { LinkResource, WorkspaceResource } from '@/types/resource'
 
@@ -340,8 +341,13 @@ export default Vue.extend({
       this.workspace.add.loading = true
 
       try {
-        await WorkspaceService.create(data)
+        const res = await WorkspaceService.create(data)
         await this.$store.dispatch('auth/whoami')
+
+        this.$store.commit(
+          'auth/setCurrentSpace',
+          pick(res.data, ['id', 'title', 'settings'])
+        )
       } catch (err) {
         this.workspace.add.alert = {
           type: 'danger',
