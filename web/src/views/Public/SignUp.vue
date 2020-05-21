@@ -7,7 +7,7 @@
         <h2 class="text-center">Sign Up</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <v-alert :the-message="error" />
+        <v-alert v-model="alert" />
 
         <resource-form-signup @submit="userSignup" ref="signup" />
 
@@ -35,7 +35,6 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import UserService from '@/services/user'
 import { SignupResource } from '@/types/resource'
 
 import VAlert from '@/components/Alert.vue'
@@ -46,11 +45,11 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
   isLoading: boolean;
-  error: object;
+  alert: object | null;
 }
 
 export default Vue.extend({
-  name: 'Signin',
+  name: 'SignUp',
   components: {
     VAlert,
     RootHeader,
@@ -61,19 +60,24 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       isLoading: false,
-      error: {}
+      alert: null
     }
   },
   methods: {
     async userSignup (data: SignupResource) {
-      try {
-        this.isLoading = true
-        await UserService.signup(data)
+      this.isLoading = true
 
-        this.isLoading = false
-        this.$router.push({ name: 'SignUpSuccess' })
+      try {
+        await this.$store.dispatch('auth/signup', data)
+
+        this.$router.push({ name: 'SignIn' })
       } catch (err) {
-        this.error = err
+        this.alert = {
+          type: 'danger',
+          message: err.message,
+          fields: err.fields
+        }
+      } finally {
         this.isLoading = false
       }
     }

@@ -7,8 +7,6 @@
         <h2 class="text-center">Welcome {{ name }}!</h2>
         <p class="text-center mb-2 text-gray-800">Create your own workspace in few steps...</p>
 
-        <v-alert :the-message="error" />
-
         <div class="avatar">
           <img src="@/assets/logo@2x.png" alt="Root Logo" class="mx-auto" />
         </div>
@@ -30,7 +28,6 @@ import { WorkspaceResource } from '@/types/resource'
 
 import WorkspaceService from '@/services/workspace'
 
-import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
 import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
@@ -38,13 +35,12 @@ import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.v
 type ComponentData = {
   isLoading: boolean;
   loadingMessage: string;
-  error: object;
+  alert: object | null;
 }
 
 export default Vue.extend({
   name: 'CreateWorkspace',
   components: {
-    VAlert,
     RootHeader,
     VLoading,
     ResourceFormWorkspace
@@ -53,7 +49,7 @@ export default Vue.extend({
     return {
       isLoading: false,
       loadingMessage: 'Creating Workspace...',
-      error: {}
+      alert: null
     }
   },
   computed: {
@@ -96,7 +92,6 @@ export default Vue.extend({
           this.$router.push({ name: 'SignIn' })
         }
 
-        // this.error = err
         this.isLoading = false
       }
     },

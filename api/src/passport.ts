@@ -79,11 +79,21 @@ passport.use(
             )
           }
 
-          if (user.emailConfirmed !== true) {
+          /* if (user.emailConfirmed !== true) {
             return done(
               clientError(
                 'Email not confirmed',
-                ClientErrName.UserNotConfirmed,
+                ClientErrName.EmailNotConfirmed,
+                ClientStatusCode.Forbidden
+              )
+            )
+          } */
+
+          if(user.active !== true){
+            return done(
+              clientError(
+                'User not active',
+                ClientErrName.UserNotActive,
                 ClientStatusCode.Forbidden
               )
             )

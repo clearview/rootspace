@@ -2,7 +2,11 @@ import { Module } from 'vuex'
 import { RootState, AuthState } from '@/types/state'
 
 import AuthService from '@/services/auth'
-import UserService from '@/services/user'
+
+type SigninContext = {
+  type: string;
+  payload: object;
+}
 
 const AuthModule: Module<AuthState, RootState> = {
   namespaced: true,
@@ -31,27 +35,27 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async withGoogle ({ commit }, params) {
-      const { token } = await AuthService.googleCallback(params)
+    async whoami ({ commit, dispatch, state }) {
+      try {
+        const { data } = await AuthService.whoami()
 
-      commit('setToken', token)
-    },
-    async withEmail ({ commit }, params) {
-      const res = await AuthService.localSignin(params)
+        commit('setUser', data.user)
+        commit('setSpaces', data.spaces)
 
-      if (res) {
-        commit('setToken', res.data.token)
+        if (!state.currentSpace) {
+          commit('setCurrentSpace', data.spaces[0]) // set default Space
+        }
+      } catch (err) {
+        dispatch('signout')
       }
     },
-    async whoami ({ commit, state }) {
-      const res = await UserService.whoami()
+    async signup (_, payload) {
+      await AuthService.signup(payload)
+    },
+    async signin ({ commit }, { type, payload }: SigninContext) {
+      const { data } = await AuthService.signin(type, payload)
 
-      commit('setUser', res.user)
-      commit('setSpaces', res.spaces)
-
-      if (!state.currentSpace) {
-        commit('setCurrentSpace', res.spaces[0]) // set default Space
-      }
+      commit('setToken', data.token)
     },
     async signout ({ commit }) {
       commit('setToken', null)

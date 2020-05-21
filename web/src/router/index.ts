@@ -27,14 +27,14 @@ const routes: Array<RouteConfig> = [
       noAuth: true
     }
   },
-  {
-    path: '/signup-success',
-    name: 'SignUpSuccess',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue'),
-    meta: {
-      noAuth: true
-    }
-  },
+  // {
+  //   path: '/signup-success',
+  //   name: 'SignUpSuccess',
+  //   component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue'),
+  //   meta: {
+  //     noAuth: true
+  //   }
+  // },
   {
     path: '/confirm-email/:token/:id',
     name: 'ConfirmEmail',
