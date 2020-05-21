@@ -10,6 +10,7 @@
       @mousedown="start"
     />
     <div class="content">
+      <v-alert v-model="alert" />
       <slot />
     </div>
   </div>
@@ -19,12 +20,23 @@
 import Vue from 'vue'
 import { throttle } from 'lodash'
 
+import VAlert from '@/components/Alert.vue'
 import VNavigation from '@/components/navigation/Navigation.vue'
+
+type ComponentData = {
+  alert: object | null;
+}
 
 export default Vue.extend({
   name: 'LayoutMain',
   components: {
+    VAlert,
     VNavigation
+  },
+  data (): ComponentData {
+    return {
+      alert: null
+    }
   },
   computed: {
     size () {
@@ -53,6 +65,14 @@ export default Vue.extend({
   },
   created () {
     this.resize = throttle(this.resize.bind(this), 150)
+
+    if (!this.$store.state.auth.user.emailConfirmed) {
+      this.alert = {
+        type: 'secondary',
+        message: 'Please remember to verify your email address',
+        noicon: true
+      }
+    }
   }
 })
 </script>

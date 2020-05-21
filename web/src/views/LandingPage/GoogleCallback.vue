@@ -31,7 +31,10 @@ export default Vue.extend({
   methods: {
     async submit () {
       try {
-        await this.$store.dispatch('auth/withGoogle', this.$route.query)
+        await this.$store.dispatch('auth/signin', {
+          type: 'google',
+          payload: this.$route.query
+        })
 
         this.$router.replace({ name: 'Main' })
       } catch (err) {

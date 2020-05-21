@@ -80,13 +80,13 @@ export class UserService {
     user.email = data.email
     user.password = String(password)
     user.authProvider = 'local'
-    user.active = false
+    user.active = true
 
     user = await this.getUserRepository().save(user)
+    delete user.password
 
     this.sendConfirmationEmail(user)
 
-    delete user.password
     return user
   }
 

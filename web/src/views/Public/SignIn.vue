@@ -7,7 +7,7 @@
         <h2 class="text-center">Sign In</h2>
         <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-        <v-alert :the-message="error" />
+        <v-alert v-model="alert" />
 
         <resource-form-signin
           @submit="userSignin"
@@ -52,7 +52,7 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
   isLoading: boolean;
-  error: object;
+  alert: object | null;
 };
 
 export default Vue.extend({
@@ -67,7 +67,7 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       isLoading: false,
-      error: {}
+      alert: null
     }
   },
   computed: {
@@ -75,16 +75,21 @@ export default Vue.extend({
   },
   methods: {
     async userSignin (data: SigninResource) {
+      this.isLoading = true
+
       try {
-        this.isLoading = true
-
-        await this.$store.dispatch('auth/withEmail', data)
-
-        this.isLoading = false
+        await this.$store.dispatch('auth/signin', {
+          type: 'email',
+          payload: data
+        })
 
         this.$router.push({ name: 'Main' })
       } catch (err) {
-        this.error = err
+        this.alert = {
+          type: 'danger',
+          message: err.message
+        }
+      } finally {
         this.isLoading = false
       }
     }

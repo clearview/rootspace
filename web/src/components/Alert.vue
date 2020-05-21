@@ -1,15 +1,27 @@
 <template>
-  <div class="alert alert-danger signup-alert" v-if="showMessage">
+  <div
+    v-if="visible"
+    class="alert"
+    :class="`alert-${value.type}`"
+    @click="close"
+  >
     <div>
       <div class="message">
-        <span class="mr-1">
-          <v-icon name="warning" size="1.5em" />
+        <span v-if="!value.noicon" class="mr-1">
+          <v-icon
+            name="warning"
+            size="1.5em"
+          />
         </span>
-        <p>{{ theMessage.message }}.</p>
+        <p>{{ value.message }}.</p>
       </div>
 
-      <ul v-if="formatFieldMessages">
-        <li v-for="(message, index) in formatFieldMessages" :key="index">{{ message }}</li>
+      <ul v-if="value.fields">
+        <li
+          v-for="(field, key) in value.fields"
+          v-text="field"
+          :key="key"
+        />
       </ul>
     </div>
   </div>
@@ -18,71 +30,34 @@
 <script lang="ts">
 import Vue, { PropType } from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
-type Field = {
+type AlertModel = {
+  type: string;
   message: string;
-  validation: string;
-  field: string;
-}
-
-type Message = {
-  fields: Field[];
+  fields: string[];
 }
 
 export default Vue.extend({
   name: 'Alert',
-  components: {
-    VIcon
-  },
   props: {
-    theMessage: {
-      type: Object as PropType<Message>
+    value: {
+      type: Object as PropType<AlertModel>
     }
   },
   computed: {
-    formatFieldMessages () {
-      const messages: Array<string> = []
-      const fields = (this.theMessage as Message).fields
-
-      if (fields && fields.length > 0) {
-        fields.forEach((thefield: Field) => {
-          if (thefield.field === 'email' && thefield.validation === 'dbUnique') {
-            messages.push('Email is already exist')
-          }
-          if (thefield.validation === 'required') {
-            switch (thefield.field) {
-              case 'firstName':
-                messages.push('First Name is required')
-                break
-              case 'lastName':
-                messages.push('Last Name is required')
-                break
-              case 'email':
-                messages.push('Email is required')
-                break
-              case 'password':
-                messages.push('Password is required')
-                break
-              case 'password_confirmation':
-                messages.push('Password Confirmation is required')
-                break
-            }
-          }
-        })
-      }
-
-      return messages
-    },
-    showMessage () {
-      return Object.keys(this.theMessage).length > 0
+    visible () {
+      return !!this.value
+    }
+  },
+  methods: {
+    close () {
+      this.$emit('input', null)
     }
   }
 })
 </script>
 
 <style lang="postcss" scoped>
-.signup-alert {
+.alert {
   line-height: 1.5;
 
   .message {
