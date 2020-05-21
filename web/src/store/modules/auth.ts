@@ -39,12 +39,21 @@ const AuthModule: Module<AuthState, RootState> = {
       try {
         const { data } = await AuthService.whoami()
 
+        let currentSpace = state.currentSpace
+
+        if (currentSpace !== null) {
+          const spaceId = currentSpace.id
+
+          currentSpace = data.spaces.find(
+            (space: { id: number }) => (
+              space.id === spaceId
+            )
+          )
+        }
+
         commit('setUser', data.user)
         commit('setSpaces', data.spaces)
-
-        if (!state.currentSpace) {
-          commit('setCurrentSpace', data.spaces[0]) // set default Space
-        }
+        commit('setCurrentSpace', currentSpace || data.spaces[0])
       } catch (err) {
         dispatch('signout')
       }
