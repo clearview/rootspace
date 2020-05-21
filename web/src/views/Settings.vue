@@ -127,7 +127,7 @@ export default Vue.extend({
       loadingMessage: 'Update Settings...',
       isLoading: false,
       workspaceData: {},
-      userAtSpaceObj: {}
+      userAtSpaceObj: {},
       account: {
         alert: null
       },

@@ -7,7 +7,7 @@
   >
     <div>
       <div class="message">
-        <span class="mr-1">
+        <span v-if="!value.noicon" class="mr-1">
           <v-icon
             name="warning"
             size="1.5em"
@@ -40,8 +40,7 @@ export default Vue.extend({
   name: 'Alert',
   props: {
     value: {
-      type: Object as PropType<AlertModel>,
-      require: true
+      type: Object as PropType<AlertModel>
     }
   },
   computed: {
