@@ -1,5 +1,7 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
+import { UserToSpace } from '../entities/UserToSpace'
+import { UserSignupValidator } from '../validation/user/UserSignupValidator'
 
 export class UserSpaceService {
   private constructor() {}
@@ -16,6 +18,15 @@ export class UserSpaceService {
 
   getUserToSpaceRepository(): UserToSpaceRepository {
     return getCustomRepository(UserToSpaceRepository)
+  }
+
+  add(userId: number, spaceId: number): Promise<UserToSpace> {
+    const userToSpace = new UserToSpace()
+    userToSpace.userId = userId
+    userToSpace.spaceId = spaceId
+    userToSpace.active = true
+
+    return this.getUserToSpaceRepository().save(userToSpace)
   }
 
   remove(userId: number, spaceId: number): Promise<DeleteResult> {

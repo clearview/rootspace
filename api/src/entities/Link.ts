@@ -22,6 +22,10 @@ export class Link {
   @TreeParent()
   parent: Link
 
+  @Column('integer', { nullable: true })
+  @Index()
+  parentId: number
+
   @Column('integer')
   @Index()
   userId: number

@@ -22,7 +22,7 @@ export class InviteService {
 
   constructor() {
     this.userService = new UserService()
-    this.spaceSerivce = new SpaceService()
+    this.spaceSerivce = SpaceService.getInstance()
     this.mailSerivce = new MailService()
   }
 

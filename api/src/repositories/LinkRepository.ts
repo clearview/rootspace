@@ -1,53 +1,69 @@
 import {
   EntityRepository,
   Repository,
-  getTreeRepository,
   UpdateResult,
+  getTreeRepository,
 } from 'typeorm'
 import { Link } from '../entities/Link'
-import { Space } from '../entities/Space'
+import { LinkType } from '../constants'
 
 @EntityRepository(Link)
 export class LinkRepository extends Repository<Link> {
-  getRawById(id: number): Promise<any> {
-    return this.createQueryBuilder('link')
-      .where('id = :id', { id })
-      .getRawOne()
+  getById(id: number, spaceId?: number) {
+    const query = this.createQueryBuilder('link').where('link.id = :id', { id })
+
+    if (spaceId) {
+      query.andWhere('link.spaceId = :spaceId', { spaceId })
+    }
+
+    return query.getOne()
   }
 
-  async getParentId(id: number): Promise<number | null> {
-    const rawLink = await this.getRawById(id)
-    return rawLink.link_parentId
-  }
+  async getLinksBySpaceId(spaceId: number): Promise<Link[]> {
+    const root = await this.getSpaceRootBySpaceId(spaceId)
 
-  async getTreeBySpaceId(spaceId: number): Promise<Link[]> {
-    const roots = await this.getRootsBySpaceId(spaceId)
-    await Promise.all(
-      roots.map((root) => getTreeRepository(Link).findDescendantsTree(root))
-    )
-
-    return this.sortTree(roots)
-  }
-
-  async getRootsBySpaceId(spaceId: number): Promise<Link[]> {
-    return this.createQueryBuilder('links')
-      .innerJoin(Space, 'spaces', 'spaces.id = links.spaceId')
-      .where('spaces.id = :spaceId', { spaceId })
-      .andWhere('links.parent IS NULL')
-      .orderBy({ 'links.created': 'ASC' })
+    let links = await this.createQueryBuilder('link')
+      .where('link.spaceId = :spaceId', { spaceId })
+      .andWhere('link.id != :id', { id: root.id })
       .getMany()
+
+    links = this.buildTree(links, root.id)
+    links = this.sortTree(links)
+
+    return links
   }
 
-  async getMaxPositionByParentId(parent: number | null): Promise<number> {
+  getSpaceRootBySpaceId(spaceId: number): Promise<Link> {
+    return this.createQueryBuilder('link')
+      .where('link.type = :type AND value = :value', {
+        type: LinkType.Root,
+        value: spaceId,
+      })
+      .getOne()
+  }
+
+  async hasDescendant(ancestors: Link, descendantId: number): Promise<boolean> {
+    const count = await getTreeRepository(Link)
+      .createDescendantsQueryBuilder('link', null, ancestors)
+      .andWhere('link.id = :descendantId', { descendantId })
+      .andWhere('link.spaceId = :spaceId', { spaceId: ancestors.spaceId })
+      .getCount()
+
+    if (count) {
+      return true
+    }
+
+    return false
+  }
+
+  async getMaxPositionByParentId(parentId: number | null): Promise<number> {
     const query = this.createQueryBuilder('link').select(
       'Max(link.position)',
       'position'
     )
 
-    if (parent) {
-      query.where('link.parent = :parent', { parent })
-    } else {
-      query.where('link.parent IS NULL')
+    if (parentId) {
+      query.where('link.parent = :parentId', { parentId })
     }
 
     const { position } = await query.getRawOne()
@@ -98,6 +114,35 @@ export class LinkRepository extends Repository<Link> {
     }
 
     return query.execute()
+  }
+
+  private buildTree(links: Link[], rootId: number): Link[] {
+    const tree = []
+
+    for (const link of links) {
+      if (link.parentId === rootId) {
+        tree.push(link)
+      }
+    }
+
+    for (const link of tree) {
+      link.children = this.buildChildrenTree(link, links)
+    }
+
+    return tree
+  }
+
+  private buildChildrenTree(parent: Link, links: Link[]) {
+    const children = []
+
+    for (const link of links) {
+      if (link.parentId === parent.id) {
+        link.children = this.buildChildrenTree(link, links)
+        children.push(link)
+      }
+    }
+
+    return children
   }
 
   private sortTree(tree: Link[]): Link[] {

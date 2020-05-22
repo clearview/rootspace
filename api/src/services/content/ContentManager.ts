@@ -1,9 +1,11 @@
 import { UpdateResult, DeleteResult } from 'typeorm'
 import { Link } from '../../entities/Link'
+import { Space } from '../../entities/Space'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 import { LinkService } from '../LinkService'
-import { ILinkContent } from '../types'
 import { DocService } from './DocService'
+import { ILinkContent } from '../types'
+import { LinkType } from '../../constants'
 
 export class ContentManager {
   private services = {
@@ -31,6 +33,18 @@ export class ContentManager {
 
   getLinkByValue(value: string): Promise<Link> {
     return this.getLinkService().getLinkByValue(value)
+  }
+
+  createSpaceRootLink(space: Space): Promise<Link> {
+    const data = LinkCreateValue.fromObject({
+      spaceId: space.id,
+      userId: space.userId,
+      title: 'root',
+      type: LinkType.Root,
+      value: String(space.id),
+    })
+
+    return this.getLinkService().createSpaceRoot(data)
   }
 
   createLinkByContent(data: LinkCreateValue): Promise<Link> {

@@ -7,11 +7,12 @@ export class SpacesUsersCtrl extends BaseCtrl {
   private userService: UserService
   private userSpaceService: UserSpaceService
   private spaceService: SpaceService
+
   constructor() {
     super()
     this.userService = new UserService()
     this.userSpaceService = UserSpaceService.getInstance()
-    this.spaceService = new SpaceService()
+    this.spaceService = SpaceService.getInstance()
   }
 
   async listAll(req: Request, res: Response, next: NextFunction) {

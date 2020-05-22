@@ -26,27 +26,40 @@ export class LinkService {
     return getCustomRepository(LinkRepository)
   }
 
-  getLinkById(id: number): Promise<Link> {
-    return this.getLinkRepository().findOne(id)
+  getLinkById(id: number, spaceId?: number): Promise<Link> {
+    return this.getLinkRepository().getById(id, spaceId)
   }
 
   getLinkByValue(value: string): Promise<Link> {
     return this.getLinkRepository().findOne({ where: { value } })
   }
 
-  getLinksBySpaceId(spaceId: number) {
-    return this.getLinkRepository().getTreeBySpaceId(spaceId)
+  getSpaceRootBySpaceId(spaceId: number): Promise<Link> {
+    return this.getLinkRepository().getSpaceRootBySpaceId(spaceId)
   }
 
-  getLinkMaxPositionByParentId(parentId: number | null): Promise<number> {
+  getLinksBySpaceId(spaceId: number): Promise<Link[]> {
+    return this.getLinkRepository().getLinksBySpaceId(spaceId)
+  }
+
+  getLinkMaxPositionByParentId(parentId: number): Promise<number> {
     return this.getLinkRepository().getMaxPositionByParentId(parentId)
   }
 
-  async getLinkNextPositionByParentId(
-    parentId: number | null
-  ): Promise<number> {
+  async getLinkNextPositionByParentId(parentId: number): Promise<number> {
     let position = await this.getLinkMaxPositionByParentId(parentId)
     return ++position
+  }
+
+  async createSpaceRoot(data: LinkCreateValue): Promise<Link> {
+    const link = this.getLinkRepository().create()
+
+    Object.assign(link, data.getAttributes())
+
+    link.parent = null
+    link.position = 0
+
+    return this.getLinkRepository().save(link)
   }
 
   async create(data: LinkCreateValue): Promise<Link> {
@@ -54,19 +67,16 @@ export class LinkService {
 
     Object.assign(link, data.getAttributes())
 
-    if (data.parent) {
-      const parent = await this.getLinkById(Number(data.parent))
+    const parent = data.parent
+      ? await this.getLinkById(Number(data.parent))
+      : await this.getSpaceRootBySpaceId(data.spaceId)
 
-      if (!parent) {
-        throw clientError('Cant not find parent ' + data.parent)
-      }
-
-      link.parent = parent
+    if (!parent) {
+      throw clientError('Cant not find parent ' + data.parent)
     }
 
-    link.position = link.parent
-      ? await this.getLinkNextPositionByParentId(link.parent.id)
-      : await this.getLinkNextPositionByParentId(null)
+    link.parent = parent
+    link.position = await this.getLinkNextPositionByParentId(parent.id)
 
     return this.getLinkRepository().save(link)
   }
@@ -102,17 +112,23 @@ export class LinkService {
   }
 
   async updateLinkParent(link: Link, toParentId: number | null): Promise<Link> {
-    const exParentId = await this.getLinkRepository().getParentId(link.id)
+    const exParentId = link.parentId
     const exPosition = link.position
 
     if (toParentId === exParentId) {
       return link
     }
 
-    const parent = toParentId ? await this.getLinkById(toParentId) : null
+    const parent = toParentId
+      ? await this.getLinkById(toParentId, link.spaceId)
+      : await this.getSpaceRootBySpaceId(link.spaceId)
 
     if (parent === undefined) {
       throw clientError('Cant not find parent ' + toParentId)
+    }
+
+    if (await this.getLinkRepository().hasDescendant(link, parent.id)) {
+      throw clientError('Cant move link into his own descendant ' + toParentId)
     }
 
     link.parent = parent
@@ -125,7 +141,7 @@ export class LinkService {
   }
 
   async updateLinkPosition(link: Link, toPosition: number): Promise<Link> {
-    const linkParentId = await this.getLinkRepository().getParentId(link.id)
+    const linkParentId = link.parentId
     const fromPosition = link.position
 
     if (toPosition === link.position) {
@@ -165,15 +181,13 @@ export class LinkService {
       throw clientError('Error deleting link')
     }
 
-    const parentId = await this.getLinkRepository().getParentId(link.id)
-
     const res = await this.getLinkRepository().delete({
       id,
     })
 
     if (res.affected > 0) {
       this.contentManager.deleteContentByLink(link)
-      this.getLinkRepository().decreasePositions(parentId, link.position)
+      this.getLinkRepository().decreasePositions(link.parentId, link.position)
     }
 
     return res

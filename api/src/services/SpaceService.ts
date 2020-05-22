@@ -2,11 +2,28 @@ import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Space } from '../entities/Space'
+import { ContentManager } from './content/ContentManager'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { clientError } from '../errors/client'
 import { UserToSpace } from '../entities/UserToSpace'
 
 export class SpaceService {
+  private contentManager: ContentManager
+
+  private static instance: SpaceService
+
+  private constructor() {
+    this.contentManager = ContentManager.getInstance()
+  }
+
+  static getInstance() {
+    if (!SpaceService.instance) {
+      SpaceService.instance = new SpaceService()
+    }
+
+    return SpaceService.instance
+  }
+
   getSpaceRepository(): SpaceRepository {
     return getCustomRepository(SpaceRepository)
   }
@@ -37,12 +54,13 @@ export class SpaceService {
       let space = this.getSpaceRepository().create(data.getAttributes())
       space = await this.getSpaceRepository().save(space)
 
-      let userToSpace = this.getUserToSpaceRepository().create({
-        userId: space.userId,
-        spaceId: space.id,
-      })
+      const userToSpace = new UserToSpace()
+      userToSpace.spaceId = space.id
+      userToSpace.userId = space.userId
 
-      userToSpace = await this.getUserToSpaceRepository().save(userToSpace)
+      this.getUserToSpaceRepository().save(userToSpace)
+
+      await this.contentManager.createSpaceRootLink(space)
 
       return space
     } catch (err) {
