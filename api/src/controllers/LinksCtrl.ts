@@ -95,7 +95,7 @@ export class LinksCtrl extends BaseCtrl {
         value.parent = data.parent
       }
 
-      if (data.position) {
+      if (data.position !== undefined) {
         value.position = data.position
       }
 

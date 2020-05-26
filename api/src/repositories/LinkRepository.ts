@@ -19,8 +19,8 @@ export class LinkRepository extends Repository<Link> {
     return query.getOne()
   }
 
-  async getLinksBySpaceId(spaceId: number): Promise<Link[]> {
-    const root = await this.getSpaceRootBySpaceId(spaceId)
+  async getBySpaceId(spaceId: number): Promise<Link[]> {
+    const root = await this.getRootBySpaceId(spaceId)
 
     let links = await this.createQueryBuilder('link')
       .where('link.spaceId = :spaceId', { spaceId })
@@ -33,7 +33,7 @@ export class LinkRepository extends Repository<Link> {
     return links
   }
 
-  getSpaceRootBySpaceId(spaceId: number): Promise<Link> {
+  getRootBySpaceId(spaceId: number): Promise<Link> {
     return this.createQueryBuilder('link')
       .where('link.type = :type AND value = :value', {
         type: LinkType.Root,
@@ -42,11 +42,11 @@ export class LinkRepository extends Repository<Link> {
       .getOne()
   }
 
-  async hasDescendant(ancestors: Link, descendantId: number): Promise<boolean> {
+  async hasDescendant(ancestor: Link, descendantId: number): Promise<boolean> {
     const count = await getTreeRepository(Link)
-      .createDescendantsQueryBuilder('link', null, ancestors)
+      .createDescendantsQueryBuilder('link', null, ancestor)
       .andWhere('link.id = :descendantId', { descendantId })
-      .andWhere('link.spaceId = :spaceId', { spaceId: ancestors.spaceId })
+      .andWhere('link.spaceId = :spaceId', { spaceId: ancestor.spaceId })
       .getCount()
 
     if (count) {

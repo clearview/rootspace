@@ -34,12 +34,12 @@ export class LinkService {
     return this.getLinkRepository().findOne({ where: { value } })
   }
 
-  getSpaceRootBySpaceId(spaceId: number): Promise<Link> {
-    return this.getLinkRepository().getSpaceRootBySpaceId(spaceId)
+  getRootLinkBySpaceId(spaceId: number): Promise<Link> {
+    return this.getLinkRepository().getRootBySpaceId(spaceId)
   }
 
   getLinksBySpaceId(spaceId: number): Promise<Link[]> {
-    return this.getLinkRepository().getLinksBySpaceId(spaceId)
+    return this.getLinkRepository().getBySpaceId(spaceId)
   }
 
   getLinkMaxPositionByParentId(parentId: number): Promise<number> {
@@ -69,7 +69,7 @@ export class LinkService {
 
     const parent = data.parent
       ? await this.getLinkById(Number(data.parent))
-      : await this.getSpaceRootBySpaceId(data.spaceId)
+      : await this.getRootLinkBySpaceId(data.spaceId)
 
     if (!parent) {
       throw clientError('Cant not find parent ' + data.parent)
@@ -121,10 +121,10 @@ export class LinkService {
 
     const parent = toParentId
       ? await this.getLinkById(toParentId, link.spaceId)
-      : await this.getSpaceRootBySpaceId(link.spaceId)
+      : await this.getRootLinkBySpaceId(link.spaceId)
 
     if (parent === undefined) {
-      throw clientError('Cant not find parent ' + toParentId)
+      throw clientError('Cant not find link ' + toParentId)
     }
 
     if (await this.getLinkRepository().hasDescendant(link, parent.id)) {
