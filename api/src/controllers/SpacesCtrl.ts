@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { Space } from '../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { SpaceService, InviteService } from '../services'
@@ -13,7 +12,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.spaceService = new SpaceService()
+    this.spaceService = SpaceService.getInstance()
     this.inviteService = new InviteService()
   }
 
@@ -43,21 +42,19 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    let space: Space
-
     try {
-      const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
+      await validateSpaceCreate(req.body)
 
-      await validateSpaceCreate(data)
-      space = await this.spaceService.create(data)
+      const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
+      const space = await this.spaceService.create(data)
+
+      if (req.body.invites) {
+        this.inviteService.createfromArray(req.body.invites, space)
+      }
 
       res.send(space)
     } catch (err) {
       next(err)
-    }
-
-    if (req.body.invites) {
-      this.inviteService.createfromArray(req.body.invites, space)
     }
   }
 
