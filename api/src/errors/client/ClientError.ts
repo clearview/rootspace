@@ -14,7 +14,7 @@ export class ClientError extends Error {
     this.statusCode = statusCode
   }
 
-  response() {
+  toResponse = () => {
     return {
       error: {
         name: this.name,

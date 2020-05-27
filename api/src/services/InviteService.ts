@@ -20,10 +20,20 @@ export class InviteService {
   private spaceSerivce: SpaceService
   private mailSerivce: MailService
 
-  constructor() {
+  private static instance: InviteService
+
+  private constructor() {
     this.userService = new UserService()
     this.spaceSerivce = SpaceService.getInstance()
     this.mailSerivce = new MailService()
+  }
+
+  static getInstance() {
+    if (!InviteService.instance) {
+      InviteService.instance = new InviteService()
+    }
+
+    return InviteService.instance
   }
 
   getInviteRepository() {

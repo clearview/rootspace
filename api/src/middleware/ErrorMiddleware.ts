@@ -1,6 +1,7 @@
 import { config } from 'node-config-ts'
 import { Request, Response, NextFunction } from 'express'
-import { ClientErrName, ClientErrNames } from '../errors/client'
+import { ClientErrNames } from '../errors/client'
+import { ClientError } from '../errors/client/ClientError'
 
 export function errorHandler(
   err: any,
@@ -8,12 +9,9 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (err.name === ClientErrName.ValidationFailed) {
-    return res.status(err.statusCode).send(err.response())
-  }
-
   if (ClientErrNames.includes(err.name)) {
-    return res.status(err.statusCode).send(err.response())
+    const e = err as ClientError
+    return res.status(e.statusCode).send(e.toResponse())
   }
 
   if (err instanceof Error) {

@@ -14,7 +14,7 @@ export class ClientValidationError extends ClientError {
     this.fields = fields
   }
 
-  response() {
+  toResponse = () => {
     return {
       error: {
         name: this.name,

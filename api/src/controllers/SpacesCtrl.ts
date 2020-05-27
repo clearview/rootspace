@@ -13,7 +13,7 @@ export class SpacesCtrl extends BaseCtrl {
   constructor() {
     super()
     this.spaceService = SpaceService.getInstance()
-    this.inviteService = new InviteService()
+    this.inviteService = InviteService.getInstance()
   }
 
   public async view(req: Request, res: Response) {

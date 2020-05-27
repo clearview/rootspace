@@ -8,7 +8,7 @@ export class InviteCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.inviteService = new InviteService()
+    this.inviteService = InviteService.getInstance()
   }
 
   async accept(req: Request, res: Response, next: NextFunction) {
