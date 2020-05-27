@@ -28,9 +28,9 @@ https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
 
 ### Docker development environment
 
-- Copy `.env.docker` file to `.env` in / folder
-- Copy `.env.docker` file to `.env` in /api folder
-- Copy `.env.docker` file to `.env` in /web folder
+- Copy `.env.example` file to `.env` in / folder
+- Copy `.env.example` file to `.env` in /api folder
+- Copy `.env.example` file to `.env` in /web folder
 - Make sure to run `yarn install` in both /api and /web folders
 - Run `docker-compose up` or `docker-compose up -d` from project root
 
