@@ -5,6 +5,7 @@ export class LinkUpdateValidator extends BaseValidator {
     return {
       title: 'accepted',
       value: 'accepted',
+      position: 'number|above:0'
     }
   }
 }

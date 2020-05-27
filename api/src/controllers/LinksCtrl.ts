@@ -50,7 +50,7 @@ export class LinksCtrl extends BaseCtrl {
         throw clientError('Error fetching links')
       }
 
-      const links = await this.linkSrvice.getAll(spaceId)
+      const links = await this.linkSrvice.getLinksBySpaceId(spaceId)
       const data = this.responseData(links)
 
       res.send(data)
@@ -68,6 +68,10 @@ export class LinksCtrl extends BaseCtrl {
         data,
         Number(req.user.id)
       )
+
+      if (data.parent !== undefined) {
+        value.parent = data.parent
+      }
 
       const link = await this.linkSrvice.create(value)
       const resData = this.responseData(link)
@@ -89,6 +93,10 @@ export class LinksCtrl extends BaseCtrl {
 
       if (data.parent !== undefined) {
         value.parent = data.parent
+      }
+
+      if (data.position !== undefined) {
+        value.position = data.position
       }
 
       const link = await this.linkSrvice.update(value, id)
