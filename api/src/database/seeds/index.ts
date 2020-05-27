@@ -13,7 +13,8 @@ export default class MainSeeder implements Seeder {
 
     for (const space of spaces) {
       await factory(UserToSpace)().create({ userId: user.id, spaceId: space.id })
-      const links = await this.createLinkDocPair(factory, user, space)
+      const linkRoot = await this.rootLink(factory, user, space)
+      const links = await this.createLinkDocPair(factory, user, space, linkRoot, 3)
       for (const link of links) {
         const links01 = await this.createLinkDocPair(factory, user, space, link, 2)
         for (const link01 of links01) {
@@ -27,14 +28,27 @@ export default class MainSeeder implements Seeder {
     const docs = await factory(Doc)().createMany(count)
     const links = []
     for (const doc of docs) {
-      const link = await factory(Link)().create({
+      const linkPair = await factory(Link)().create({
         parent: parentLink || null,
         userId: user.id,
         spaceId: space.id,
         value: String(doc.id)
       })
-      links.push(link.id)
+      links.push(linkPair)
     }
     return links
+  }
+
+  async rootLink (factory, user, space) {
+    const linkRoot = await factory(Link)().create({
+      parent: null,
+      userId: user.id,
+      spaceId: space.id,
+      title: 'root',
+      type: 'root',
+      value: space.id,
+      position: 0
+    })
+    return linkRoot
   }
 }
