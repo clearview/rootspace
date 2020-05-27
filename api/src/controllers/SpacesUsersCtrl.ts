@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { UserService, UserSpaceService, SpaceService } from '../services'
-import { clientError } from '../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 
 export class SpacesUsersCtrl extends BaseCtrl {
   private userService: UserService

@@ -4,8 +4,8 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { ClientErrName, ClientStatusCode } from './errors/httpErrorProperty'
-import { clientError } from './errors/httpError'
+import { clientError, ClientErrName, ClientStatusCode } from './errors/client'
+
 import {
   Strategy as JwtStrategy,
   ExtractJwt,

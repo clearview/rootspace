@@ -3,8 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services/content/DocService'
-import { clientError } from '../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 import { ContentManager } from '../services/content/ContentManager'
 
 export class DocsCtrl extends BaseCtrl {

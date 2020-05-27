@@ -11,8 +11,7 @@ import {
   IUserUpdateProvider,
   IChangePasswordProvider,
 } from '../types/user'
-import { clientError } from '../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 

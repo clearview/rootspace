@@ -2,7 +2,7 @@ import { getConnection } from 'typeorm'
 import { validateAll, extend } from 'indicative/validator'
 import { getValue, skippable } from 'indicative-utils'
 import { Schema, ParsedRule } from 'indicative-parser'
-import { validationFailed } from '../errors/httpError'
+import { validationFailed } from '../errors/client'
 import { configure } from 'indicative/validator'
 
 declare module 'indicative-rules' {

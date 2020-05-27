@@ -3,7 +3,8 @@ import { SpaceRepository } from '../repositories/SpaceRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Space } from '../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
-import { clientError } from '../errors/httpError'
+import { clientError } from '../errors/client'
+import { UserToSpace } from '../entities/UserToSpace'
 
 export class SpaceService {
   getSpaceRepository(): SpaceRepository {

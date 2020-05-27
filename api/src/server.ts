@@ -7,8 +7,6 @@ import passport from './passport'
 import { config } from 'node-config-ts'
 import {
   errorHandler,
-  httpClientErrorHandler,
-  httpValidationErrorHandler,
 } from './middleware/ErrorMiddleware'
 
 declare global {
@@ -36,8 +34,6 @@ export default class Server {
     this.app.use(cors())
     this.app.use(passport.initialize())
     this.app.use(router)
-    this.app.use(httpValidationErrorHandler)
-    this.app.use(httpClientErrorHandler)
     this.app.use(errorHandler)
   }
 

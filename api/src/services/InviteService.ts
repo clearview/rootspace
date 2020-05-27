@@ -10,8 +10,7 @@ import { UserToSpace } from '../entities/UserToSpace'
 import { UserService } from './UserService'
 import { SpaceService } from './SpaceService'
 import { MailService } from './mail/MailService'
-import { clientError } from '../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 
 export class InviteService {
   static mailTemplatesDir =

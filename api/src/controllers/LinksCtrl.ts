@@ -5,8 +5,7 @@ import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/LinkService'
 import { ContentManager } from '../services/content/ContentManager'
-import { clientError } from '../errors/httpError'
-import { ClientErrName, ClientStatusCode } from '../errors/httpErrorProperty'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService

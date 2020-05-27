@@ -3,7 +3,7 @@ import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { ContentManager } from './content/ContentManager'
-import { clientError } from '../errors/httpError'
+import { clientError } from '../errors/client'
 
 export class LinkService {
   private contentManager: ContentManager

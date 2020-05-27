@@ -11,7 +11,7 @@ export enum ClientErrName {
   InvalidToken = 'invalidToken',
 }
 
-export const ClientErrNameArray: string[] = Object.keys(ClientErrName).map(
+export const ClientErrNames: string[] = Object.keys(ClientErrName).map(
   (key) => ClientErrName[key]
 )
 

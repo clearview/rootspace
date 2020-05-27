@@ -7,7 +7,7 @@ import { LinkType } from '../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 import { ILinkContent } from '../types'
 import { ContentManager } from './ContentManager'
-import { clientError } from '../../errors/httpError'
+import { clientError } from '../../errors/client'
 
 export class DocService implements ILinkContent<Doc> {
   private contentManager: ContentManager
@@ -70,7 +70,10 @@ export class DocService implements ILinkContent<Doc> {
       title: link.title,
     })
 
-    return this.getDocRepository().update(Number(link.value), data.getAttributes())
+    return this.getDocRepository().update(
+      Number(link.value),
+      data.getAttributes()
+    )
   }
 
   deleteContentByLink(link: Link): Promise<DeleteResult> {
