@@ -190,6 +190,8 @@ export default Vue.extend({
         }
 
         await WorkspaceService.update(id, payload)
+
+        this.$store.dispatch('auth/whoami', { updateSpace: true })
       } catch (err) {
         this.account.alert = {
           type: 'danger',

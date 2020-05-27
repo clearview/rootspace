@@ -83,8 +83,7 @@ router.beforeEach(async (to, from, next) => {
   const hasToken = store.state.auth.token !== null
 
   if (hasToken) {
-    await store.dispatch('auth/whoami')
-    await store.dispatch('auth/initSpace')
+    await store.dispatch('auth/whoami', { updateSpace: true })
   }
 
   if (hasToken || noAuth) {
