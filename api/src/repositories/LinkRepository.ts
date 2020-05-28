@@ -42,6 +42,14 @@ export class LinkRepository extends Repository<Link> {
       .getOne()
   }
 
+  getChildrenByParentId(parentId: number): Promise<Link[]> {
+    return this.createQueryBuilder('link')
+      .where('link.parentId = :parentId', {
+        parentId,
+      })
+      .getMany()
+  }
+
   async hasDescendant(ancestor: Link, descendantId: number): Promise<boolean> {
     const count = await getTreeRepository(Link)
       .createDescendantsQueryBuilder('link', null, ancestor)

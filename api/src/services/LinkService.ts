@@ -3,7 +3,7 @@ import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { ContentManager } from './content/ContentManager'
-import { clientError } from '../errors/client'
+import { clientError, ClientErrName } from '../errors/client'
 
 export class LinkService {
   private contentManager: ContentManager
@@ -179,6 +179,26 @@ export class LinkService {
 
     if (!link) {
       throw clientError('Error deleting link')
+    }
+
+    const children = await this.getLinkRepository().getChildrenByParentId(
+      link.id
+    )
+
+    if (children.length > 0) {
+      const parent = await this.getLinkById(link.parentId)
+
+      if (!parent) {
+        throw clientError(ClientErrName.EntityDeleteFailed)
+      }
+
+      await Promise.all(
+        children.map(
+          function(child: Link) {
+            return this.updateLinkParent(child, link.parentId)
+          }.bind(this)
+        )
+      )
     }
 
     const res = await this.getLinkRepository().delete({

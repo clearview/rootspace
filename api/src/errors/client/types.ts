@@ -3,6 +3,7 @@ export enum ClientErrName {
   ValidationFailed = 'validationFailed',
   EntityCreateFailed = 'entityCreateFailed',
   EntityUpdateFailed = 'entityUpdateFailed',
+  EntityDeleteFailed = 'entityDeleteFailed',
   EntityNotFound = 'entityNotFound',
   AuthenticationFailed = 'authenticationFailed',
   EmailNotConfirmed = 'userNotConfirmed',
