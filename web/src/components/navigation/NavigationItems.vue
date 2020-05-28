@@ -171,10 +171,12 @@ export default Vue.extend({
     },
     update ({ node, path, tree }: NodeContext, modal = false) {
       const parent = tree.getNodeParentByPath(path)
+      const position = path.slice(-1).pop() || 0
 
       const _data = {
         ...node,
         parent: (parent && parent.id) || null,
+        position: position + 1,
         children: undefined,
         created: undefined,
         updated: undefined
