@@ -64,61 +64,44 @@ export class LinkRepository extends Repository<Link> {
     return false
   }
 
-  async getMaxPositionByParentId(parentId: number | null): Promise<number> {
-    const query = this.createQueryBuilder('link').select(
-      'Max(link.position)',
-      'position'
-    )
-
-    if (parentId) {
-      query.where('link.parent = :parentId', { parentId })
-    }
-
-    const { position } = await query.getRawOne()
-    return position
+  async getMaxPositionByParentId(parentId: number): Promise<number> {
+    return this.createQueryBuilder('link')
+      .where('link.parent = :parentId', { parentId })
+      .getCount()
   }
 
   async decreasePositions(
-    parent: number | null,
+    parentId: number,
     fromPosition: number,
     toPostion?: number
   ): Promise<UpdateResult> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position - 1' })
+      .andWhere('parentId = :parent', { parentId })
       .where('position > :fromPosition', { fromPosition })
 
     if (toPostion) {
       query.andWhere('position <= :toPostion', { toPostion })
     }
 
-    if (parent) {
-      query.andWhere('parent = :parent', { parent })
-    } else {
-      query.andWhere('parent IS NULL')
-    }
-
     return query.execute()
   }
 
   async increasePositions(
-    parent: number | null,
+    parentId: number,
     fromPosition: number,
     toPostion?: number
   ): Promise<UpdateResult> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position + 1' })
+    query
+      .andWhere('parentId = :parentId', { parentId })
       .where('position >= :fromPosition', { fromPosition })
 
     if (toPostion) {
       query.andWhere('position < :toPostion', { toPostion })
-    }
-
-    if (parent) {
-      query.andWhere('parent = :parent', { parent })
-    } else {
-      query.andWhere('parent IS NULL')
     }
 
     return query.execute()

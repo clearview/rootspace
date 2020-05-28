@@ -3,7 +3,8 @@ import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { ContentManager } from './content/ContentManager'
-import { clientError, ClientErrName } from '../errors/client'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { LinkType } from '../constants'
 
 export class LinkService {
   private contentManager: ContentManager
@@ -178,7 +179,19 @@ export class LinkService {
     const link = await this.getLinkById(id)
 
     if (!link) {
-      throw clientError('Error deleting link')
+      throw clientError(
+        'Error deleting link',
+        ClientErrName.EntityNotFound,
+        ClientStatusCode.NotFound
+      )
+    }
+
+    if (link.type === LinkType.Root) {
+      throw clientError(
+        'Can not delete space root link',
+        ClientErrName.NotAllowed,
+        ClientStatusCode.NotAllowed
+      )
     }
 
     const children = await this.getLinkRepository().getChildrenByParentId(
@@ -192,10 +205,14 @@ export class LinkService {
         throw clientError(ClientErrName.EntityDeleteFailed)
       }
 
+      let nextPosition = await this.getLinkNextPositionByParentId(parent.id)
+
       await Promise.all(
         children.map(
           function(child: Link) {
-            return this.updateLinkParent(child, link.parentId)
+            child.parent = parent
+            child.position = nextPosition++
+            return this.getLinkRepository().save(child)
           }.bind(this)
         )
       )
@@ -206,8 +223,8 @@ export class LinkService {
     })
 
     if (res.affected > 0) {
-      this.contentManager.deleteContentByLink(link)
       this.getLinkRepository().decreasePositions(link.parentId, link.position)
+      this.contentManager.deleteContentByLink(link)
     }
 
     return res
