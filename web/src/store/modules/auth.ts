@@ -10,6 +10,10 @@ type SigninContext = {
   payload: object;
 }
 
+type WhoamiOptions = {
+  updateSpace: boolean;
+}
+
 const AuthModule: Module<AuthState, RootState> = {
   namespaced: true,
   state () {
@@ -37,25 +41,26 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async whoami ({ commit, dispatch }) {
+    async whoami ({ commit, dispatch, state }, opts: WhoamiOptions) {
       try {
         const { data } = await AuthService.whoami()
 
         commit('setUser', data.user)
         commit('setSpaces', data.spaces)
+
+        if (opts.updateSpace) {
+          const spaces: WorkspaceResource[] = state.spaces || []
+          const cache: Partial<WorkspaceResource> = state.currentSpace || {}
+
+          const space = spaces.find(
+            (space: WorkspaceResource) => space.id === cache.id
+          )
+
+          commit('setCurrentSpace', space || spaces[0])
+        }
       } catch (err) {
         dispatch('signout')
       }
-    },
-    async initSpace ({ commit, state }) {
-      const spaces: WorkspaceResource[] = state.spaces || []
-      const cache: Partial<WorkspaceResource> = state.currentSpace || {}
-
-      const space = spaces.find(
-        (space: WorkspaceResource) => space.id === cache.id
-      )
-
-      commit('setCurrentSpace', space || spaces[0])
     },
     async signup (_, payload) {
       await AuthService.signup(payload)
