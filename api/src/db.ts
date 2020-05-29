@@ -11,7 +11,7 @@ export default async function init() {
     synchronize: true,
     entities: [`${__dirname}/entities/*{.ts,.js}`],
     migrations: [`${__dirname}/migrations/*{.ts,.js}`],
-    subscribers: [`${__dirname}/subscriber/*{.ts,.js}`]
+    subscribers: [`${__dirname}/entities/subscribers/*{.ts,.js}`]
   })
 
   return connection

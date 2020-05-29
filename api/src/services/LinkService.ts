@@ -76,7 +76,6 @@ export class LinkService {
     }
 
     link.parent = parent
-    link.position = await this.getLinkNextPositionByParentId(parent.id)
 
     return this.getLinkRepository().save(link)
   }
