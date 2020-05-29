@@ -25,3 +25,19 @@ https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
 
 #### Debug
 - Set `logging: true` in `db.ts` to see in console all SQL queries sent to PostgreSQL server
+
+### Docker development environment
+
+- Copy `.env.example` file to `.env` in / folder
+- Copy `.env.example` file to `.env` in /api folder
+- Copy `.env.example` file to `.env` in /web folder
+- Make sure to run `yarn install` in both /api and /web folders
+- Run `docker-compose up` or `docker-compose up -d` from project root
+
+```
+- visit web on your machine's port 80 or port 3000
+- access api through port 3001
+- connect from your machine to postgresql on port 5432
+- watch container logs in realtime on port 9999
+- run container-related commands with docker/cli.sh script
+```
