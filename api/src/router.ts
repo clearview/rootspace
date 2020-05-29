@@ -7,6 +7,7 @@ import { LinksCtrl } from './controllers/LinksCtrl'
 import { DocsCtrl } from './controllers/DocsCtrl'
 import { UploadsCtrl } from './controllers/UploadsCtrl'
 import { SpacesUsersCtrl } from './controllers/SpacesUsersCtrl'
+import { TasksCtrl } from './controllers/TasksCtrl'
 import passport from './passport'
 import multer from 'multer'
 import auth from './middleware/AuthMiddleware'
@@ -73,6 +74,11 @@ router.get('/docs/:id', auth, mapRoute(DocsCtrl, 'view'))
 router.post('/docs', auth, mapRoute(DocsCtrl, 'create'))
 router.patch('/docs/:id', auth, mapRoute(DocsCtrl, 'update'))
 router.delete('/docs/:id', auth, mapRoute(DocsCtrl, 'delete'))
+
+router.get('/tasks/:id', auth, mapRoute(TasksCtrl, 'view'))
+router.post('/tasks', auth, mapRoute(TasksCtrl, 'create'))
+router.patch('/tasks/:id', auth, mapRoute(TasksCtrl, 'update'))
+router.delete('/tasks/:id', auth, mapRoute(TasksCtrl, 'delete'))
 
 router.post(
   '/upload',
