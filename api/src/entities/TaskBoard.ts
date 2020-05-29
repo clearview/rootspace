@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 import { TaskList } from './TaskList'
 
 @Entity('task_boards')
-export class ListBoard {
+export class TaskBoard {
 
   @PrimaryGeneratedColumn()
   id: number
