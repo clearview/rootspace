@@ -161,7 +161,7 @@ export default Vue.extend({
         case 'doc':
           this.$router
             .push({ name: 'Document', params: { id: node.value } })
-            .catch()
+            .catch(err => err)
           break
 
         default:

@@ -1,6 +1,6 @@
 <template>
   <layout-main>
-    <!-- TODO: Put content here -->
+    <router-view/>
   </layout-main>
 </template>
 
