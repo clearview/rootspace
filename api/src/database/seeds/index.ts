@@ -5,8 +5,15 @@ import { User } from '../../entities/User'
 import { Link } from '../../entities/Link'
 import { Doc } from '../../entities/Doc'
 import { UserToSpace } from '../../entities/UserToSpace'
+import { LinkService } from '../../services/LinkService'
 
 export default class MainSeeder implements Seeder {
+  protected linkSrvice: LinkService
+
+  constructor() {
+    this.linkSrvice = LinkService.getInstance()
+  }
+
   public async run(factory: Factory, connection: Connection): Promise<any> {
     const user = await factory(User)().create()
     const spaces = await factory(Space)().createMany(1, { userId: user.id })
@@ -32,7 +39,9 @@ export default class MainSeeder implements Seeder {
         parent: parentLink || null,
         userId: user.id,
         spaceId: space.id,
-        value: String(doc.id)
+        value: String(doc.id),
+        position: await this.linkSrvice.getLinkNextPositionByParentId(parentLink.id)
+
       })
       links.push(linkPair)
     }
