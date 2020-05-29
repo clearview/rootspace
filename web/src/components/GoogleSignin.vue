@@ -11,8 +11,6 @@
 import Vue from 'vue'
 import { isEmpty } from 'lodash/fp'
 
-import VIcon from '@/components/icons/Index.vue'
-
 type ComponentData = {
   query: {
     redirectTo?: string;
@@ -21,9 +19,6 @@ type ComponentData = {
 
 export default Vue.extend({
   name: 'ButtonLock',
-  components: {
-    VIcon
-  },
   props: {
     text: {
       type: String
