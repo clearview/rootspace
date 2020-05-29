@@ -41,7 +41,6 @@ export default class MainSeeder implements Seeder {
         spaceId: space.id,
         value: String(doc.id),
         position: await this.linkSrvice.getLinkNextPositionByParentId(parentLink.id)
-
       })
       links.push(linkPair)
     }
@@ -56,7 +55,7 @@ export default class MainSeeder implements Seeder {
       title: 'root',
       type: 'root',
       value: space.id,
-      position: 0
+      position: 1
     })
     return linkRoot
   }
