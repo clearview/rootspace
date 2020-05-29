@@ -81,8 +81,9 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   const noAuth = to.meta.noAuth
   const hasToken = store.state.auth.token !== null
+  const hasUser = store.state.auth.user !== null
 
-  if (hasToken) {
+  if (hasToken && !hasUser) {
     await store.dispatch('auth/whoami', { updateSpace: true })
   }
 
