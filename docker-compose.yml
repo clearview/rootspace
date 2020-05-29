@@ -1,0 +1,94 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:12
+    container_name: root_postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  api:
+    image: node:12
+    container_name: root_api
+    depends_on:
+      - postgres
+    volumes:
+      - ./api:/opt/project/
+    working_dir: /opt/project
+    command: yarn dev:debug
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "3001:3001"
+      - "9229:9229"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  web:
+    image: node:12
+    container_name: root_web
+    depends_on:
+      - api
+    volumes:
+      - ./web:/opt/project/
+    working_dir: /opt/project
+    command: yarn serve --watch
+    networks:
+      - frontend
+    ports:
+      - "3000:3000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  nginx:
+    image: nginx:stable
+    container_name: root_nginx
+    depends_on:
+      - web
+    networks:
+      - frontend
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  dozzle:
+    container_name: root_dozzle
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_TAILSIZE=100
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9999:8080"
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  postgres:
