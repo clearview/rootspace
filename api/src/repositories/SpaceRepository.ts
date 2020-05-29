@@ -6,8 +6,7 @@ import { Space } from '../entities/Space'
 export class SpaceRepository extends Repository<Space> {
   getByUserId(userId: number) {
     return this.createQueryBuilder('spaces')
-      .select(['spaces.id', 'spaces.title', 'spaces.settings'])
-      .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.spaceId = spaces.id')
+      .innerJoin(UserToSpace, 'userToSpace', 'userToSpace.spaceId = spaces.id')
       .where('userToSpace.userId = :userId AND spaces.active = true', {
         userId,
       })
@@ -16,11 +15,7 @@ export class SpaceRepository extends Repository<Space> {
 
   getByIdAndUserId(id: number, userId: number): Promise<Space | undefined> {
     return this.createQueryBuilder('space')
-      .innerJoin(
-        UserToSpace,
-        'users_spaces',
-        'users_spaces.spaceId = space.id'
-      )
+      .innerJoin(UserToSpace, 'users_spaces', 'users_spaces.spaceId = space.id')
       .where(
         'space.id = :id AND users_spaces.userId = :userId AND users_spaces.active = true',
         {

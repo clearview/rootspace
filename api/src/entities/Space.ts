@@ -1,9 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 
 @Entity('spaces')
 export class Space {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -17,6 +24,9 @@ export class Space {
   @Column('json', { nullable: true })
   settings: object
 
+  @Column('integer', { default: 0 })
+  membersCount: number
+
   @Column('boolean', { default: true })
   active: boolean
 
@@ -26,7 +36,9 @@ export class Space {
   @UpdateDateColumn()
   updated: string
 
-  @OneToMany(type => UserToSpace, space => space.space)
+  @OneToMany(
+    (type) => UserToSpace,
+    (space) => space.space
+  )
   public users!: UserToSpace[]
-
 }

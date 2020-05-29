@@ -1,44 +1,28 @@
 import { Request, Response, NextFunction } from 'express'
-import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
-import { SpaceRepository } from '../repositories/SpaceRepository'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
-import { SpaceService, InviteService } from '../services'
+import { clientError, ClientErrName } from '../errors/client'
+import { InviteService } from '../services'
+import { SpaceFacade } from '../services/facade'
 
 export class SpacesCtrl extends BaseCtrl {
-  private spaceService: SpaceService
   private inviteService: InviteService
+  private spaceFacade: SpaceFacade
 
   constructor() {
     super()
-    this.spaceService = SpaceService.getInstance()
     this.inviteService = InviteService.getInstance()
+    this.spaceFacade = new SpaceFacade()
   }
 
-  public async view(req: Request, res: Response) {
-    if (req.params.id === 'my') {
-      return this.my(req, res)
+  public async listAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
+      res.send(spaces)
+    } catch (err) {
+      next(err)
     }
-    const space = await getCustomRepository(SpaceRepository).findOne({
-      id: Number(req.params.id),
-      userId: req.user.id,
-    })
-    res.send(space)
-  }
-
-  public async my(req: Request, res: Response) {
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(
-      req.user.id
-    )
-    res.send(spaces)
-  }
-
-  public async listAll(req: Request, res: Response) {
-    const spaces = await getCustomRepository(SpaceRepository).find({
-      userId: req.user.id,
-    })
-    res.send(spaces)
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
@@ -46,7 +30,7 @@ export class SpacesCtrl extends BaseCtrl {
       await validateSpaceCreate(req.body)
 
       const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
-      const space = await this.spaceService.create(data)
+      const space = await this.spaceFacade.createSpace(data)
 
       if (req.body.invites) {
         this.inviteService.createfromArray(req.body.invites, space)
@@ -64,7 +48,7 @@ export class SpacesCtrl extends BaseCtrl {
       const data = SpaceUpdateValue.fromObject(req.body)
 
       await validateSpaceUpdate(data)
-      const space = await this.spaceService.update(data, id)
+      const space = await this.spaceFacade.updateSpace(data, id)
 
       res.send(space)
     } catch (err) {
@@ -73,10 +57,6 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   public async delete(req: Request, res: Response) {
-    const space = await getCustomRepository(SpaceRepository).delete({
-      id: Number(req.params.id),
-      userId: req.user.id,
-    })
-    res.send({ deleted: true })
+    throw clientError('Not implemented', ClientErrName.InvalidRequest)
   }
 }
