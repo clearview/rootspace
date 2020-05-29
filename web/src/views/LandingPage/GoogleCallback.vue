@@ -36,7 +36,12 @@ export default Vue.extend({
           payload: this.$route.query
         })
 
-        this.$router.replace({ name: 'Main' })
+        const query = this.$route.query
+        if (query.redirectTo) {
+          this.$router.replace({ path: query.redirectTo.toString() })
+        } else {
+          this.$router.replace({ name: 'Main' })
+        }
       } catch (err) {
         console.log(err)
       }
