@@ -1,5 +1,15 @@
 version: "3"
 services:
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: root_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - frontend
+      - backend
+
   postgres:
     image: postgres:12
     container_name: root_postgres
