@@ -13,5 +13,8 @@
 ### Dozzle
 - Visit http://localhost:9999 to watch container logs
 
+### Mailhog
+- Visit http://localhost:8025 to access/test emails in development environment
+
 ### Docker scripts
 - Use docker/cli.sh to run api cli commands in docker: `docker/cli.sh`

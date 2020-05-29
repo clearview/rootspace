@@ -39,5 +39,6 @@ https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
 - access api through port 3001
 - connect from your machine to postgresql on port 5432
 - watch container logs in realtime on port 9999
+- access sent emails on port 8025
 - run container-related commands with docker/cli.sh script
 ```
