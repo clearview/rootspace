@@ -12,6 +12,7 @@
     <navigation-items
       :value="links.payload"
       :folded="links.folded"
+      :active="links.active"
       :editable="editable"
       @update="startUpdateLink"
       @destroy="startDestroyLink"

@@ -55,14 +55,9 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
 export default Vue.extend({
   name: 'Modal',
   inheritAttrs: false,
-  components: {
-    VIcon
-  },
   props: {
     visible: {
       type: Boolean

@@ -5,14 +5,13 @@
       triggerClass="tree-node-handle"
       :indent="16"
       :value="treeData"
-      foldingTransitionName="fold"
       @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
       <div
         class="tree-node-content"
         :class="{ 'is-editable': editable }"
-        @click="open(node)"
+        @click="open({ node, path, tree })"
       >
         <div class="tree-node-handle">
           <v-icon
@@ -37,6 +36,7 @@
           <span
             v-show="!isSelected(path)"
             v-text="node.title"
+            class="truncate"
             @dblclick="editable && select(path)"
           />
           <input
@@ -93,6 +93,9 @@ export default Vue.extend({
     folded: {
       type: Object
     },
+    active: {
+      type: String
+    },
     editable: {
       type: Boolean
     }
@@ -100,6 +103,18 @@ export default Vue.extend({
   watch: {
     editable (newVal) {
       if (!newVal) this.select(null)
+    },
+    active (val) {
+      const activeEls = this.$el.querySelectorAll('.tree-node-back.is-active')
+      const targetEl = this.$el.querySelector(`[data-tree-node-path="${val}"] .tree-node-back`)
+
+      if (activeEls) {
+        activeEls.forEach(el => el.classList.remove('is-active'))
+      }
+
+      if (targetEl) {
+        targetEl.classList.add('is-active')
+      }
     }
   },
   data (): ComponentData {
@@ -135,30 +150,33 @@ export default Vue.extend({
         [path.join('.')]: node.$folded === true
       })
     },
-    open (data: LinkResource) {
-      if (!this.editable) {
-        this.actionLink(data)
+    open ({ path, node }: NodeContext) {
+      if (this.editable) {
+        return
       }
-    },
-    actionLink (data: LinkResource) {
-      switch (data.type) {
+
+      this.$store.commit('link/setActive', path.join(','))
+
+      switch (node.type) {
         case 'doc':
           this.$router
-            .push({ name: 'Document', params: { id: data.value } })
+            .push({ name: 'Document', params: { id: node.value } })
             .catch()
           break
 
         default:
-          window.open(data.value, '_blank')
+          window.open(node.value, '_blank')
           break
       }
     },
     update ({ node, path, tree }: NodeContext, modal = false) {
       const parent = tree.getNodeParentByPath(path)
+      const position = path.slice(-1).pop() || 0
 
       const _data = {
         ...node,
         parent: (parent && parent.id) || null,
+        position: position + 1,
         children: undefined,
         created: undefined,
         updated: undefined
@@ -173,12 +191,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-.tree-node-text {
-  span {
-    word-break: break-all;
-    padding-right: 2.2rem;
-  }
-}
-</style>

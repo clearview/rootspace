@@ -17,17 +17,12 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
 interface ComponentData {
   payload: string;
 }
 
 export default Vue.extend({
   name: 'Searchbar',
-  components: {
-    VIcon
-  },
   props: {
     value: {
       type: String

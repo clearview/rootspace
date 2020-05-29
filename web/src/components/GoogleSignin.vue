@@ -10,13 +10,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
 export default Vue.extend({
   name: 'ButtonLock',
-  components: {
-    VIcon
-  },
   props: {
     text: {
       type: String

@@ -74,13 +74,8 @@ import { omit } from 'lodash/fp'
 
 import { WorkspaceResource } from '@/types/resource'
 
-import VIcon from '@/components/icons/Index.vue'
-
 export default Vue.extend({
   name: 'NavigationMenu',
-  components: {
-    VIcon
-  },
   props: {
     value: {
       type: Boolean

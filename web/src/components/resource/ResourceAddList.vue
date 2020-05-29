@@ -31,13 +31,8 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import VIcon from '@/components/icons/Index.vue'
-
 export default Vue.extend({
-  name: 'ResourceAddList',
-  components: {
-    VIcon
-  }
+  name: 'ResourceAddList'
 })
 </script>
 

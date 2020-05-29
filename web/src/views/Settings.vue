@@ -80,7 +80,6 @@ import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/r
 import UserService from '@/services/user'
 import WorkspaceService from '@/services/workspace'
 
-import VIcon from '@/components/icons/Index.vue'
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import ResourceFormSettings from '@/components/resource/ResourceFormSettings.vue'
@@ -109,7 +108,6 @@ type ComponentData = {
 export default Vue.extend({
   name: 'Settings',
   components: {
-    VIcon,
     ButtonSwitch,
     ResourceFormSettings,
     ResourceFormWorkspace,

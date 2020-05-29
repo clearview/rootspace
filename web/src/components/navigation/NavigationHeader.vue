@@ -35,13 +35,11 @@
 import Vue from 'vue'
 
 import VSearchbar from '@/components/Searchbar.vue'
-import VIcon from '@/components/icons/Index.vue'
 
 export default Vue.extend({
   name: 'NavigationHeader',
   components: {
-    VSearchbar,
-    VIcon
+    VSearchbar
   },
   methods: {
     search (keyword: string): void {
