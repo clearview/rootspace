@@ -7,9 +7,9 @@ import { UserSpaceService } from '../UserSpaceService'
 import { LinkService } from '../LinkService'
 
 export class SpaceFacade {
-  spaceService: SpaceService
-  userSpaceService: UserSpaceService
-  linkService: LinkService
+  private spaceService: SpaceService
+  private userSpaceService: UserSpaceService
+  private linkService: LinkService
 
   constructor() {
     this.spaceService = SpaceService.getInstance()
@@ -43,8 +43,8 @@ export class SpaceFacade {
     return this.spaceService.update(data, spaceId)
   }
 
-  async updateSpaceMembersCount(spaceId: number): Promise<Space> {
-    const count = await this.userSpaceService.getUsersCountBySpaceId(spaceId)
-    return this.spaceService.updateMembersCount(count, spaceId)
+  async updateSpaceCountMembers(spaceId: number): Promise<Space> {
+    const count = await this.userSpaceService.getCountSpaceUsers(spaceId)
+    return this.spaceService.updateCountMembers(count, spaceId)
   }
 }

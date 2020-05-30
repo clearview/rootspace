@@ -25,7 +25,7 @@ export class Space {
   settings: object
 
   @Column('integer', { default: 0 })
-  membersCount: number
+  countMembers: number
 
   @Column('boolean', { default: true })
   active: boolean

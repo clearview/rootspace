@@ -19,8 +19,8 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
-  getUsersCountBySpaceId(spaceId: number): Promise<number> {
-    return this.getUserToSpaceRepository().getUsersCountBySpaceId(spaceId)
+  getCountSpaceUsers(spaceId: number): Promise<number> {
+    return this.getUserToSpaceRepository().getCountUsersBySpaceId(spaceId)
   }
 
   add(userId: number, spaceId: number): Promise<UserToSpace> {

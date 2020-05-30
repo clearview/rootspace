@@ -56,7 +56,7 @@ export class SpaceService {
     return this.getSpaceRepository().save(space)
   }
 
-  async updateMembersCount(count: number, spaceId: number): Promise<Space> {
+  async updateCountMembers(count: number, spaceId: number): Promise<Space> {
     const space = await this.getSpaceById(spaceId)
 
     if (!space) {
@@ -67,7 +67,7 @@ export class SpaceService {
       )
     }
 
-    space.membersCount = count
+    space.countMembers = count
     return this.getSpaceRepository().save(space)
   }
 }
