@@ -42,11 +42,12 @@ export class LinkRepository extends Repository<Link> {
       .getOne()
   }
 
-  getChildrenByParentId(parentId: number): Promise<Link[]> {
+  getChildren(parentId: number): Promise<Link[]> {
     return this.createQueryBuilder('link')
       .where('link.parentId = :parentId', {
         parentId,
       })
+      .orderBy('position', 'ASC')
       .getMany()
   }
 
@@ -66,7 +67,7 @@ export class LinkRepository extends Repository<Link> {
 
   async getMaxPositionByParentId(parentId: number): Promise<number> {
     return this.createQueryBuilder('link')
-      .where('link.parent = :parentId', { parentId })
+      .where('link.parentId = :parentId', { parentId })
       .getCount()
   }
 
@@ -78,8 +79,8 @@ export class LinkRepository extends Repository<Link> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position - 1' })
-      .andWhere('parentId = :parent', { parentId })
-      .where('position > :fromPosition', { fromPosition })
+      .where('parentId = :parentId', { parentId })
+      .andWhere('position > :fromPosition', { fromPosition })
 
     if (toPostion) {
       query.andWhere('position <= :toPostion', { toPostion })
@@ -96,9 +97,8 @@ export class LinkRepository extends Repository<Link> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position + 1' })
-    query
-      .andWhere('parentId = :parentId', { parentId })
-      .where('position >= :fromPosition', { fromPosition })
+      .where('parentId = :parentId', { parentId })
+      .andWhere('position >= :fromPosition', { fromPosition })
 
     if (toPostion) {
       query.andWhere('position < :toPostion', { toPostion })
