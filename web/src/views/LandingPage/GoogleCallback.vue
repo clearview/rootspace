@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import { isEmpty } from 'lodash/fp'
 
 import RootHeader from '@/components/RootHeader.vue'
 
@@ -24,7 +24,11 @@ export default Vue.extend({
   components: {
     RootHeader
   },
-  computed: mapState('auth', ['spaces']),
+  computed: {
+    redirect () {
+      return this.$store.state.option.redirect || {}
+    }
+  },
   created () {
     this.submit()
   },
@@ -36,9 +40,9 @@ export default Vue.extend({
           payload: this.$route.query
         })
 
-        const query = this.$route.query
-        if (query.redirectTo) {
-          this.$router.replace({ path: query.redirectTo.toString() })
+        if (!isEmpty(this.redirect)) {
+          this.$router.replace({ path: this.redirect.redirectTo.toString() })
+          this.$store.commit('option/setRedirect', null)
         } else {
           this.$router.replace({ name: 'Main' })
         }

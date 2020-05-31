@@ -77,6 +77,7 @@ export default Vue.extend({
   },
   mounted () {
     this.redirectTo = this.$route.query ? this.$route.query : {}
+    this.$store.commit('option/setRedirect', this.redirectTo)
   },
   methods: {
     async userSignin (data: SigninResource) {
