@@ -8,7 +8,7 @@ import { Link } from '../Link'
 import { LinkRepository } from '../../repositories/LinkRepository'
 
 @EventSubscriber()
-export class PostSubscriber implements EntitySubscriberInterface<Link> {
+export class LinkSubscriber implements EntitySubscriberInterface<Link> {
   listenTo() {
     return Link
   }
