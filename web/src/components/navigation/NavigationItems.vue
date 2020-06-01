@@ -30,7 +30,7 @@
           <v-icon name="down" />
         </div>
         <div class="tree-node-icon">
-          <v-icon name="file" />
+          <v-icon :name="iconName[node.type]" />
         </div>
         <div class="tree-node-text">
           <span
@@ -131,6 +131,14 @@ export default Vue.extend({
       })
 
       return treeData
+    },
+    iconName: {
+      get () {
+        return {
+          doc: 'file',
+          link: 'link'
+        }
+      }
     }
   },
   methods: {
@@ -161,7 +169,7 @@ export default Vue.extend({
         case 'doc':
           this.$router
             .push({ name: 'Document', params: { id: node.value } })
-            .catch()
+            .catch(err => err)
           break
 
         default:

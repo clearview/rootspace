@@ -1,5 +1,5 @@
 <template>
-  <layout-main>
+  <div>
     <div class="settings-container">
       <h2 class="mb-5">Settings</h2>
 
@@ -66,7 +66,7 @@
     <v-loading :loading="isLoading">
       <p>{{ loadingMessage }}</p>
     </v-loading>
-  </layout-main>
+  </div>
 </template>
 
 <script lang="ts">
@@ -84,7 +84,6 @@ import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import ResourceFormSettings from '@/components/resource/ResourceFormSettings.vue'
 import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
-import LayoutMain from '@/components/LayoutMain.vue'
 import VLoading from '@/components/Loading.vue'
 
 type ComponentData = {
@@ -112,7 +111,6 @@ export default Vue.extend({
     ResourceFormSettings,
     ResourceFormWorkspace,
     VAlert,
-    LayoutMain,
     VLoading
   },
   data (): ComponentData {

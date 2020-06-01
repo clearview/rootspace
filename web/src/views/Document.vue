@@ -1,14 +1,12 @@
 <template>
-  <layout-main>
-    <div class="document-container">
-      <div id="editor-toolbar">
-        <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
-        <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
-      </div>
-
-      <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+  <div class="document-container">
+    <div id="editor-toolbar">
+      <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
+      <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
     </div>
-  </layout-main>
+
+    <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -19,7 +17,6 @@ import { DocumentResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
-import LayoutMain from '@/components/LayoutMain.vue'
 import Editor from '@/components/Editor.vue'
 
 type ComponentData = {
@@ -34,7 +31,6 @@ type ComponentData = {
 export default Vue.extend({
   name: 'Document',
   components: {
-    LayoutMain,
     Editor
   },
   data (): ComponentData {
