@@ -49,7 +49,6 @@ router.patch(
 )
 
 router.get('/spaces', auth, mapRoute(SpacesCtrl, 'listAll'))
-router.get('/spaces/:id', auth, mapRoute(SpacesCtrl, 'view'))
 router.post('/spaces', auth, mapRoute(SpacesCtrl, 'create'))
 router.patch('/spaces/:id', auth, mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', auth, mapRoute(SpacesCtrl, 'delete'))
