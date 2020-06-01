@@ -10,7 +10,7 @@ export class SpacesUsersCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.userService = new UserService()
+    this.userService = UserService.getInstance()
     this.userSpaceService = UserSpaceService.getInstance()
     this.spaceService = SpaceService.getInstance()
   }

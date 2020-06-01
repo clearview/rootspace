@@ -60,6 +60,7 @@ router.delete(
   mapRoute(SpacesUsersCtrl, 'remove')
 )
 
+router.post('/invites/create', auth, mapRoute(InviteCtrl, 'create'))
 router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
 
 router.get('/links/:spaceId', auth, mapRoute(LinksCtrl, 'listAll'))

@@ -3,6 +3,18 @@ import { UserToSpace } from '../entities/UserToSpace'
 
 @EntityRepository(UserToSpace)
 export class UserToSpaceRepository extends Repository<UserToSpace> {
+  getByUserIdAndSpaceId(
+    userId: number,
+    spaceId: number
+  ): Promise<UserToSpace | undefined> {
+    return this.createQueryBuilder('userSpace')
+      .where('userSpace.userId = :userId AND userSpace.spaceId = :spaceId', {
+        userId,
+        spaceId,
+      })
+      .getOne()
+  }
+
   getCountUsersBySpaceId(spaceId: number): Promise<number> {
     return this.createQueryBuilder('userSpace')
       .where('userSpace.spaceId = :spaceId AND userSpace.active = true', {
