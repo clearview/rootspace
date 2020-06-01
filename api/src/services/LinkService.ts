@@ -3,7 +3,8 @@ import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { ContentManager } from './content/ContentManager'
-import { clientError } from '../errors/client'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { LinkType } from '../constants'
 
 export class LinkService {
   private contentManager: ContentManager
@@ -132,6 +133,7 @@ export class LinkService {
 
     link.parent = parent
     link.position = await this.getLinkNextPositionByParentId(toParentId)
+
     link = await this.getLinkRepository().save(link)
 
     await this.getLinkRepository().decreasePositions(exParentId, exPosition)
@@ -177,7 +179,41 @@ export class LinkService {
     const link = await this.getLinkById(id)
 
     if (!link) {
-      throw clientError('Error deleting link')
+      throw clientError(
+        'Error deleting link',
+        ClientErrName.EntityNotFound,
+        ClientStatusCode.NotFound
+      )
+    }
+
+    if (link.type === LinkType.Root) {
+      throw clientError(
+        'Can not delete space root link',
+        ClientErrName.NotAllowed,
+        ClientStatusCode.NotAllowed
+      )
+    }
+
+    const children = await this.getLinkRepository().getChildren(link.id)
+
+    if (children.length > 0) {
+      const parent = await this.getLinkById(link.parentId)
+
+      if (!parent) {
+        throw clientError(ClientErrName.EntityDeleteFailed)
+      }
+
+      let nextPosition = await this.getLinkNextPositionByParentId(parent.id)
+
+      await Promise.all(
+        children.map(
+          function(child: Link) {
+            child.parent = parent
+            child.position = nextPosition++
+            return this.getLinkRepository().save(child)
+          }.bind(this)
+        )
+      )
     }
 
     const res = await this.getLinkRepository().delete({
@@ -185,8 +221,8 @@ export class LinkService {
     })
 
     if (res.affected > 0) {
-      this.contentManager.deleteContentByLink(link)
       this.getLinkRepository().decreasePositions(link.parentId, link.position)
+      this.contentManager.deleteContentByLink(link)
     }
 
     return res
