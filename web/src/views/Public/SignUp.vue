@@ -70,7 +70,8 @@ export default Vue.extend({
       try {
         await this.$store.dispatch('auth/signup', data)
 
-        this.$router.push({ name: 'SignIn' })
+        const queryParams = this.$route.query ? this.$route.query : {}
+        this.$router.push({ name: 'SignIn', query: queryParams })
       } catch (err) {
         this.alert = {
           type: 'danger',

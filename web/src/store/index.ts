@@ -12,6 +12,7 @@ import token from '@/store/plugins/token'
 import auth from '@/store/modules/auth'
 import link from '@/store/modules/link'
 import nav from '@/store/modules/nav'
+import option from '@/store/modules/option'
 
 Vue.use(Vuex)
 
@@ -19,7 +20,8 @@ export default new Vuex.Store<RootState>({
   modules: {
     auth,
     link,
-    nav
+    nav,
+    option
   },
   plugins: [
     local.plugin,

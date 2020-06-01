@@ -11,7 +11,8 @@ const vuexSession = new VuexPersist<RootState>({
       auth: {
         spaces: state.auth.spaces,
         currentSpace: state.auth.currentSpace
-      }
+      },
+      option: state.option
     }
   }
 })

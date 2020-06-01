@@ -4,6 +4,7 @@ export interface RootState {
   auth: AuthState;
   link: LinkState;
   nav: NavState;
+  option: OptionState;
 }
 
 export interface AuthState {
@@ -24,4 +25,8 @@ export interface LinkState {
 export interface NavState {
   collapse: boolean;
   size: number;
+}
+
+export interface OptionState {
+  redirect: object | null;
 }

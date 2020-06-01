@@ -9,6 +9,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { isEmpty } from 'lodash/fp'
+
+type ComponentData = {
+  query: {
+    redirectTo?: string;
+  };
+};
 
 export default Vue.extend({
   name: 'ButtonLock',
@@ -17,10 +24,26 @@ export default Vue.extend({
       type: String
     }
   },
+  data (): ComponentData {
+    return {
+      query: {
+        redirectTo: ''
+      }
+    }
+  },
+  mounted () {
+    this.query = this.$route.query ? this.$route.query : {}
+  },
   methods: {
     authWithGoogle () {
       const API: string = process.env.VUE_APP_API_URL
-      location.href = `${API}/auth/google`
+      let queryRedirectTo = ''
+
+      if (!isEmpty(this.query)) {
+        queryRedirectTo = `?redirectTo=${this.query.redirectTo}`
+      }
+
+      location.href = `${API}/auth/google${queryRedirectTo}`
     }
   }
 })
