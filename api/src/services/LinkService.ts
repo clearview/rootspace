@@ -206,11 +206,15 @@ export class LinkService {
 
       let nextPosition = await this.getLinkNextPositionByParentId(parent.id)
 
-      for (const child of children) {
-        child.parent = parent
-        child.position = nextPosition++
-        await this.getLinkRepository().save(child)
-      }
+      await Promise.all(
+        children.map(
+          function(child: Link) {
+            child.parent = parent
+            child.position = nextPosition++
+            return this.getLinkRepository().save(child)
+          }.bind(this)
+        )
+      )
     }
 
     const res = await this.getLinkRepository().delete({
