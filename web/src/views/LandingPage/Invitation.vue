@@ -4,22 +4,19 @@
 
     <div id="confirm-email-content" class="flex flex-col items-center justify-center">
       <h5 v-if="isLoading">Checking your invitation...</h5>
-      <h5 v-if="!isLoading">{{ message }}!</h5> {{  }}
-      <h6 v-if="!isLoading && code !== 401">
+      <h5 v-if="!isLoading && message">{{ message }}!</h5>
+      <h6 v-if="!isLoading && code !== 401 && message">
         <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
         to going to the Root App
       </h6>
-      <h6 v-if="!isLoading && code === 401">
-        <router-link :to="{ name: 'SignIn'}" class="signin">click here</router-link>
-        to login to the Root App
-      </h6>
-
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+
+import { find } from 'lodash'
 
 import UserService from '@/services/user'
 
@@ -60,9 +57,11 @@ export default Vue.extend({
         const data = await UserService.invitation(payload)
 
         if (data.status === 200) {
-          this.message = data.data.message
-          this.code = data.status
-          this.isLoading = false
+          await this.$store.dispatch('auth/whoami')
+          const listSpaces = this.$store.state.auth.spaces
+          const space = find(listSpaces, ['id', data.data.spaceId])
+          this.$store.commit('auth/setCurrentSpace', space)
+          this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
         }
       } catch (err) {
         this.message = err.message
