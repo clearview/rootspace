@@ -53,7 +53,7 @@
 }
 
 .nav-items {
-  @apply flex flex-1 w-full overflow-scroll px-1;
+  @apply flex flex-1 w-full overflow-auto px-1;
 }
 
 .nav-menu {

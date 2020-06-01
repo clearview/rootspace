@@ -11,7 +11,7 @@ type SigninContext = {
 }
 
 type WhoamiOptions = {
-  updateSpace: boolean;
+  updateSpace?: boolean;
 }
 
 const AuthModule: Module<AuthState, RootState> = {
@@ -41,7 +41,7 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async whoami ({ commit, dispatch, state }, opts: WhoamiOptions) {
+    async whoami ({ commit, dispatch, state }, opts: WhoamiOptions = {}) {
       try {
         const { data } = await AuthService.whoami()
 

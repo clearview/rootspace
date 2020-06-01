@@ -9,7 +9,19 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'Main',
-    component: Main
+    component: Main,
+    children: [
+      {
+        path: '/settings',
+        name: 'Settings',
+        component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue')
+      },
+      {
+        path: '/document/:id?',
+        name: 'Document',
+        component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
+      }
+    ]
   },
   {
     path: '/signin',
@@ -27,14 +39,6 @@ const routes: Array<RouteConfig> = [
       noAuth: true
     }
   },
-  // {
-  //   path: '/signup-success',
-  //   name: 'SignUpSuccess',
-  //   component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/SignUpSuccess.vue'),
-  //   meta: {
-  //     noAuth: true
-  //   }
-  // },
   {
     path: '/confirm-email/:token/:id',
     name: 'ConfirmEmail',
@@ -60,16 +64,6 @@ const routes: Array<RouteConfig> = [
     path: '/create-workspace',
     name: 'CreateWorkspace',
     component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue')
-  },
-  {
-    path: '/settings',
-    name: 'Settings',
-    component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue')
-  },
-  {
-    path: '/document/:id?',
-    name: 'Document',
-    component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
   }
 ]
 
@@ -81,8 +75,9 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   const noAuth = to.meta.noAuth
   const hasToken = store.state.auth.token !== null
+  const hasUser = store.state.auth.user !== null
 
-  if (hasToken) {
+  if (hasToken && !hasUser) {
     await store.dispatch('auth/whoami', { updateSpace: true })
   }
 

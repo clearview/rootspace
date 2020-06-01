@@ -1,14 +1,12 @@
 <template>
-  <layout-main>
-    <div class="document-container">
-      <div id="editor-toolbar">
-        <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
-        <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
-      </div>
-
-      <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+  <div class="document-container">
+    <div id="editor-toolbar">
+      <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
+      <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
     </div>
-  </layout-main>
+
+    <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -19,7 +17,6 @@ import { DocumentResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
-import LayoutMain from '@/components/LayoutMain.vue'
 import Editor from '@/components/Editor.vue'
 
 type ComponentData = {
@@ -28,12 +25,12 @@ type ComponentData = {
   timer: undefined | number;
   initialize: boolean;
   loading: boolean;
+  isFromLoad: boolean;
 }
 
 export default Vue.extend({
   name: 'Document',
   components: {
-    LayoutMain,
     Editor
   },
   data (): ComponentData {
@@ -42,7 +39,8 @@ export default Vue.extend({
       title: '',
       timer: undefined,
       initialize: false,
-      loading: false
+      loading: false,
+      isFromLoad: false
     }
   },
   computed: {
@@ -53,6 +51,10 @@ export default Vue.extend({
   watch: {
     title () {
       clearTimeout(this.timer)
+      if (this.isFromLoad) {
+        this.isFromLoad = false
+        return
+      }
       this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     },
     currentSpace (val, oldVal) {
@@ -71,7 +73,6 @@ export default Vue.extend({
         }, 500)
         return
       }
-
       this.loadDocument()
     }
   },
@@ -90,6 +91,7 @@ export default Vue.extend({
       if (id) {
         this.initialize = true
         try {
+          this.isFromLoad = true
           const viewDoc = await DocumentService.view(id)
 
           this.title = viewDoc.data.title
@@ -97,7 +99,6 @@ export default Vue.extend({
         } catch (e) {
           this.$router.replace({ name: 'Document' })
         }
-
         this.initialize = false
       }
     },
