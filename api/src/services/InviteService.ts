@@ -48,8 +48,8 @@ export class InviteService {
   async requireInviteByTokenAndId(token: string, id: number) {
     const invite = await this.getInviteByTokenAndId(token, id)
 
-    if (invite) {
-      throw clientError('Can not find invite ' + ClientErrName.EntityNotFound)
+    if (!invite) {
+      throw clientError('Invalid invite request', ClientErrName.InvalidToken)
     }
 
     return invite
@@ -64,16 +64,6 @@ export class InviteService {
     invite.acceptedDate = new Date(Date.now())
 
     return await this.getInviteRepository().save(invite)
-  }
-
-  createfromArray(invites: string[], space: Space) {
-    invites = Array.from(new Set(invites))
-
-    for (const email of invites) {
-      this.createWithEmail(email, space).catch((err) => {
-        // log error
-      })
-    }
   }
 
   async createWithEmail(email: string, space: Space): Promise<Invite> {
@@ -111,7 +101,7 @@ export class InviteService {
     try {
       await this.mailService.sendMail(invite.email, subject, content)
     } catch (error) {
-      //
+      // log error
     }
   }
 

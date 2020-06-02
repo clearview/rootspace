@@ -20,17 +20,29 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
+  getByUserIdAndSpaceId(userId: number, spaceId: number): Promise<UserToSpace> {
+    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(
+      userId,
+      spaceId
+    )
+  }
+
   getCountSpaceUsers(spaceId: number): Promise<number> {
     return this.getUserToSpaceRepository().getCountUsersBySpaceId(spaceId)
   }
 
-  async add(userId: number, spaceId: number): Promise<UserToSpace> {
-    const userSpace = await this.getUserToSpaceRepository().getByUserIdAndSpaceId(
-      userId,
-      spaceId
-    )
+  async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
+    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId)
 
-    if (userSpace) {
+    if (userSpace && userSpace.active === true) {
+      return true
+    }
+
+    return false
+  }
+
+  async add(userId: number, spaceId: number): Promise<UserToSpace> {
+    if (true === (await this.isUserInSpace(userId, spaceId))) {
       throw clientError('User is already in space', ClientErrName.NotAllowed)
     }
 

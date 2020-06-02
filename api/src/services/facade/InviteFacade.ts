@@ -47,8 +47,11 @@ export class InviteFacade {
 
     const space = await this.spaceService.requireSpaceById(invite.spaceId)
 
+    if (!(await this.userSpaceService.isUserInSpace(user.id, space.id))) {
+      await this.userSpaceService.add(user.id, space.id)
+    }
+
     await this.intiveService.accept(invite)
-    this.userSpaceService.add(user.id, space.id)
 
     return invite
   }
