@@ -37,7 +37,7 @@ export default Vue.extend({
   },
   created () {
     const query = this.$route.query
-    console.log(query)
+
     if (query.from === 'invitation' && query.accept === '1') {
       this.alert = {
         type: 'success',
