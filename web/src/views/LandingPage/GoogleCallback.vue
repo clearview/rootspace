@@ -34,20 +34,16 @@ export default Vue.extend({
   },
   methods: {
     async submit () {
-      try {
-        await this.$store.dispatch('auth/signin', {
-          type: 'google',
-          payload: this.$route.query
-        })
+      await this.$store.dispatch('auth/signin', {
+        type: 'google',
+        payload: this.$route.query
+      })
 
-        if (!isEmpty(this.redirect)) {
-          this.$router.replace({ path: this.redirect.redirectTo.toString() })
-          this.$store.commit('option/setRedirect', null)
-        } else {
-          this.$router.replace({ name: 'Main' })
-        }
-      } catch (err) {
-        console.log(err)
+      if (!isEmpty(this.redirect)) {
+        this.$router.replace({ path: this.redirect.redirectTo.toString() })
+        this.$store.commit('option/setRedirect', null)
+      } else {
+        this.$router.replace({ name: 'Main' })
       }
     }
   }

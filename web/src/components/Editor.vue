@@ -37,7 +37,6 @@ export default Vue.extend({
   methods: {
     onChange () {
       this.editor.save().then((savedData: object) => {
-        console.log('savedData', savedData)
         this.$emit('update-editor', savedData)
       })
     }

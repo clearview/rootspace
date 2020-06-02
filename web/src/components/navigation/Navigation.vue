@@ -6,7 +6,6 @@
     }"
   >
     <navigation-header
-      @search="search"
       @toggleCollapse="toggleCollapse"
     />
     <navigation-items
@@ -242,9 +241,6 @@ export default Vue.extend({
     await this.fetchLink(this.currentSpace)
   },
   methods: {
-    search (keyword: string): void {
-      console.log(`Search: ${keyword}`)
-    },
     toggleCollapse () {
       this.$store.commit('nav/setCollapse', !this.collapse)
     },

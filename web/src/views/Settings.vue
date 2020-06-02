@@ -199,7 +199,7 @@ export default Vue.extend({
       }
     },
     addWorkspaceUser (email: string) {
-      console.log(this.currentSpace.id, email)
+      // code here
     },
     async deleteWorkspaceUser (email: string) {
       const getUser = find(this.userAtSpaceObj, ['email', email])
