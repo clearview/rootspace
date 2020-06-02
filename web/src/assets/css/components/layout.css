@@ -1,0 +1,18 @@
+.layout.public {
+  @apply border-t-4 border-primary;
+
+  & .header {
+    @apply flex justify-center p-2;
+    @apply border-b-2 border-secondary;
+
+    h1 {
+      @apply text-2xl;
+    }
+  }
+  & .content {
+    @apply bg-local bg-cover bg-no-repeat;
+    background-image: url("~@/assets/images/root-bg.png");
+    background-position: top 150px right;
+    height: calc(100vh - 100px);
+  }
+}

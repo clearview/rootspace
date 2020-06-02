@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="relative h-screen"
+    class="relative h-screen overflow-y-auto"
   >
     <router-view />
     <portal-target name="default" />
