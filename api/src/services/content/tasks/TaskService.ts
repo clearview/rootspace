@@ -1,7 +1,7 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
 import { TaskRepository } from '../../../repositories/TaskRepository'
 import { Task } from '../../../entities/Task'
-import { TaskCreateValue, TaskUpdateValue } from '../../../values/task'
+import { TaskCreateValue, TaskUpdateValue } from '../../../values/tasks/task'
 import { Link } from '../../../entities/Link'
 import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'

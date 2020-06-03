@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { validateTaskCreate, validateTaskUpdate } from '../../validation/task'
-import { TaskCreateValue, TaskUpdateValue } from '../../values/task'
+import { TaskCreateValue, TaskUpdateValue } from '../../values/tasks/task'
 import { TaskService } from '../../services'
 import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
 import { ContentManager } from '../../services/content/ContentManager'

@@ -1,7 +1,7 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
 import { TaskBoardRepository } from '../../../repositories/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/TaskBoard'
-import { TaskCreateValue, TaskUpdateValue } from '../../../values/task'
+import { TaskBoardCreateValue, TaskBoardUpdateValue } from '../../../values/tasks/board'
 import { Link } from '../../../entities/Link'
 import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
@@ -66,7 +66,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
   }
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
-    const data = TaskUpdateValue.fromObject({
+    const data = TaskBoardUpdateValue.fromObject({
       title: link.title,
     })
 
@@ -84,14 +84,14 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return this.getTaskBoardRepository().findOne(id)
   }
 
-  async create(data: TaskCreateValue): Promise<TaskBoard> {
+  async create(data: TaskBoardCreateValue): Promise<TaskBoard> {
     const doc = await this.getTaskBoardRepository().save(data.getAttributes())
     await this.createLinkByContent(doc)
 
     return doc
   }
 
-  async update(data: TaskUpdateValue, id: number): Promise<TaskBoard> {
+  async update(data: TaskBoardUpdateValue, id: number): Promise<TaskBoard> {
     let task = await this.getById(id)
 
     if (!task) {

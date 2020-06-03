@@ -1,7 +1,7 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
 import { TaskListRepository } from '../../../repositories/TaskListRepository'
 import { TaskList } from '../../../entities/TaskList'
-import { TaskCreateValue, TaskUpdateValue } from '../../../values/task'
+import { TaskListCreateValue, TaskListUpdateValue } from '../../../values/tasks/list'
 import { Link } from '../../../entities/Link'
 import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
@@ -66,7 +66,7 @@ export class TaskListService implements ILinkContent<TaskList> {
   }
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
-    const data = TaskUpdateValue.fromObject({
+    const data = TaskListUpdateValue.fromObject({
       title: link.title,
     })
 
@@ -84,14 +84,14 @@ export class TaskListService implements ILinkContent<TaskList> {
     return this.getTaskListRepository().findOne(id)
   }
 
-  async create(data: TaskCreateValue): Promise<TaskList> {
+  async create(data: TaskListCreateValue): Promise<TaskList> {
     const taskList = await this.getTaskListRepository().save(data.getAttributes())
     await this.createLinkByContent(taskList)
 
     return taskList
   }
 
-  async update(data: TaskUpdateValue, id: number): Promise<TaskList> {
+  async update(data: TaskListUpdateValue, id: number): Promise<TaskList> {
     let taskList = await this.getById(id)
 
     if (!taskList) {
