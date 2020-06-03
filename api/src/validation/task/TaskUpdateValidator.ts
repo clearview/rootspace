@@ -3,6 +3,7 @@ import { BaseValidator } from '../BaseValidator'
 export class TaskUpdateValidator extends BaseValidator {
   rules() {
     return {
+      listId: 'number',
       assignedTo: 'object',
       title: 'accepted',
       description: 'accepted',

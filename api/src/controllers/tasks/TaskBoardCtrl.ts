@@ -1,35 +1,35 @@
 import { Request, Response, NextFunction } from 'express'
-import { BaseCtrl } from './BaseCtrl'
-import { validateTaskCreate, validateTaskUpdate } from '../validation/task'
-import { TaskCreateValue, TaskUpdateValue } from '../values/task'
-import { TaskService } from '../services'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
-import { ContentManager } from '../services/content/ContentManager'
+import { BaseCtrl } from '../BaseCtrl'
+import { validateTaskCreate, validateTaskUpdate } from '../../validation/task'
+import { TaskCreateValue, TaskUpdateValue } from '../../values/task'
+import { TaskBoardService } from '../../services'
+import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
+import { ContentManager } from '../../services/content/ContentManager'
 
-export class TasksCtrl extends BaseCtrl {
-  private taskService: TaskService
+export class TaskBoardCtrl extends BaseCtrl {
+  private taskBoardService: TaskBoardService
   private contentManager: ContentManager
 
   constructor() {
     super()
-    this.taskService = TaskService.getInstance()
+    this.taskBoardService = TaskBoardService.getInstance()
     this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const doc = await this.taskService.getById(Number(req.params.id))
+    const task = await this.taskBoardService.getById(Number(req.params.id))
 
-    if (!doc) {
+    if (!task) {
       return next(
         clientError(
-          'Task not found',
+          'Task board not found',
           ClientErrName.EntityNotFound,
           ClientStatusCode.NotFound
         )
       )
     }
 
-    const resData = this.responseData(doc)
+    const resData = this.responseData(task)
     res.send(resData)
   }
 
@@ -43,10 +43,10 @@ export class TasksCtrl extends BaseCtrl {
         Number(req.user.id)
       )
 
-      const doc = await this.taskService.create(value)
-      const resData = this.responseData(doc)
+      const task = await this.taskBoardService.create(value)
+      const resData = this.responseData(task)
 
-      const link = await this.taskService.getLinkByContent(doc)
+      const link = await this.taskBoardService.getLinkByContent(task)
       resData.includes(link, 'link')
 
       res.send(resData)
@@ -63,9 +63,9 @@ export class TasksCtrl extends BaseCtrl {
       await validateTaskUpdate(data)
 
       const value = TaskUpdateValue.fromObject(data)
-      const doc = await this.taskService.update(value, id)
+      const task = await this.taskBoardService.update(value, id)
 
-      res.send(this.responseData(doc))
+      res.send(this.responseData(task))
     } catch (err) {
       next(err)
     }
@@ -73,7 +73,7 @@ export class TasksCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.taskService.delete(Number(req.params.id))
+      const result = await this.taskBoardService.delete(Number(req.params.id))
       res.send(result)
     } catch (err) {
       next(err)

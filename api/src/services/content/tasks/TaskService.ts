@@ -1,13 +1,13 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
-import { TaskRepository } from '../../repositories/TaskRepository'
-import { Task } from '../../entities/Task'
-import { TaskCreateValue, TaskUpdateValue } from '../../values/task'
-import { Link } from '../../entities/Link'
-import { LinkType } from '../../constants'
-import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
-import { ILinkContent } from '../types'
-import { ContentManager } from './ContentManager'
-import { clientError } from '../../errors/client'
+import { TaskRepository } from '../../../repositories/TaskRepository'
+import { Task } from '../../../entities/Task'
+import { TaskCreateValue, TaskUpdateValue } from '../../../values/task'
+import { Link } from '../../../entities/Link'
+import { LinkType } from '../../../constants'
+import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
+import { ILinkContent } from '../../types'
+import { ContentManager } from '../ContentManager'
+import { clientError } from '../../../errors/client'
 
 export class TaskService implements ILinkContent<Task> {
   private contentManager: ContentManager
@@ -85,10 +85,10 @@ export class TaskService implements ILinkContent<Task> {
   }
 
   async create(data: TaskCreateValue): Promise<Task> {
-    const doc = await this.getTaskRepository().save(data.getAttributes())
-    await this.createLinkByContent(doc)
+    const task = await this.getTaskRepository().save(data.getAttributes())
+    await this.createLinkByContent(task)
 
-    return doc
+    return task
   }
 
   async update(data: TaskUpdateValue, id: number): Promise<Task> {
@@ -107,9 +107,9 @@ export class TaskService implements ILinkContent<Task> {
   }
 
   async delete(id: number) {
-    const doc = await this.getById(id)
+    const task = await this.getById(id)
 
-    if (!doc) {
+    if (!task) {
       throw clientError('Error deleting document')
     }
 
@@ -118,7 +118,7 @@ export class TaskService implements ILinkContent<Task> {
     })
 
     if (res.affected > 0) {
-      await this.deleteLinkByContent(doc)
+      await this.deleteLinkByContent(task)
     }
 
     return res

@@ -19,16 +19,16 @@ export class Task {
   @Index()
   listId: number
 
-  @Column('json')
+  @Column('json', { nullable: true })
   assignedTo: object
 
   @Column('varchar')
   title: string
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description: string
 
-  @Column('integer')
+  @Column('integer', { nullable: true })
   status: number
 
   @Column('json', { nullable: true })
@@ -40,8 +40,8 @@ export class Task {
   @Column('timestamp', { nullable: true })
   dueDate: string
 
-  @Column('integer')
-  order: number
+  @Column('integer', { default: 0 })
+  position: number
 
   @CreateDateColumn()
   createdAt: string
