@@ -49,6 +49,8 @@
           class="error"
           v-if="$v.invitation.$dirty && !$v.invitation.email"
         >Email format is not valid.</div>
+
+        <div class="error" v-if="duplicateMessage">{{ duplicateMessage }}</div>
       </div>
     </v-field>
 
@@ -83,6 +85,8 @@
 import Vue from 'vue'
 import { required, email } from 'vuelidate/lib/validators'
 
+import { find } from 'lodash'
+
 import { WorkspaceResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
@@ -90,6 +94,7 @@ import VField from '@/components/Field.vue'
 type ComponentData = {
   payload: Omit<WorkspaceResource, 'id'>;
   invitation: string;
+  duplicateMessage: string;
 }
 
 export default Vue.extend({
@@ -118,7 +123,8 @@ export default Vue.extend({
         title: '',
         invites: []
       },
-      invitation: ''
+      invitation: '',
+      duplicateMessage: ''
     }
   },
   validations: {
@@ -138,11 +144,23 @@ export default Vue.extend({
         title: newVal.title,
         invites: newVal.invites
       }
+    },
+    invitation (newVal) {
+      if (newVal) {
+        this.duplicateMessage = ''
+      }
     }
   },
   methods: {
     addInvitationList (email: string): void {
       this.invitation = ''
+      const getUser = find(this.payload.invites, (o) => { return o === email })
+
+      if (getUser) {
+        this.duplicateMessage = 'User is already exist on workspace'
+        return
+      }
+
       this.payload.invites.push(email)
 
       if (this.isEdit) {
@@ -169,7 +187,7 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 .list-invitation {
-  @apply border-t border-b border-gray-100 text-gray-400 mb-5;
+  @apply border-t border-b border-gray-100 text-gray-400 mb-5 mt-2;
 
   .invitation {
     @apply py-2;
