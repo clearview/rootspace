@@ -25,19 +25,13 @@
       @addWorkspace="startAddWorkspace"
     />
 
-    <v-modal
+    <modal-select-link-type
       title="Add New"
       :visible="addNew.visible"
-      :nosubmit="true"
       @cancel="addNew.visible = false"
-    >
-      <div class="modal-body">
-        <add-list
-          @link="startAddLink"
-          @document="startAddDocument"
-        />
-      </div>
-    </v-modal>
+      @select:link="startAddLink"
+      @select:document="startAddDocument"
+    />
 
     <v-modal
       title="Add Link"
@@ -113,9 +107,9 @@ import { LinkResource, WorkspaceResource } from '@/types/resource'
 import WorkspaceService from '@/services/workspace'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
-import AddList from '@/components/resource/ResourceAddList.vue'
 import FormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
 import VModal from '@/components/Modal.vue'
+import ModalSelectLinkType from '@/components/ModalSelectLinkType.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
@@ -170,7 +164,7 @@ export default Vue.extend({
     NavigationItems,
     NavigationFooter,
     FormLink,
-    AddList,
+    ModalSelectLinkType,
     FormWorkspace,
     VModal
   },
