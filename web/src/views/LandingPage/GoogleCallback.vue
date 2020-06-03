@@ -1,36 +1,29 @@
 <template>
-  <div id="google-callback-page">
-    <root-header></root-header>
-
-    <div
-      id="google-callback-content"
-      class="flex flex-col items-center justify-center"
-    >
-      <h5>Sign in success!</h5>
-      <h6>we will redirect you to our system</h6>
-
+  <layout-public>
+    <div class="flex flex-col items-center justify-center h-full">
+      <v-icon class="icon-loading" name="loading" size="5em" viewbox="100" />
     </div>
-  </div>
+  </layout-public>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { isEmpty } from 'lodash/fp'
 
-import RootHeader from '@/components/RootHeader.vue'
+import LayoutPublic from '@/components/LayoutPublic.vue'
 
 export default Vue.extend({
   name: 'GoogleCallback',
   components: {
-    RootHeader
+    LayoutPublic
   },
   computed: {
     redirect () {
       return this.$store.state.option.redirect || {}
     }
   },
-  created () {
-    this.submit()
+  async created () {
+    await this.submit()
   },
   methods: {
     async submit () {
@@ -49,13 +42,3 @@ export default Vue.extend({
   }
 })
 </script>
-
-<style lang="postcss" scoped>
-#google-callback-page {
-  @apply border-t-4;
-  border-color: theme("colors.primary.default");
-}
-#google-callback-content {
-  height: calc(100vh - 100px);
-}
-</style>
