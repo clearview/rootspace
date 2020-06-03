@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { validateTaskCreate, validateTaskUpdate } from '../../validation/task'
-import { TaskCreateValue, TaskUpdateValue } from '../../values/tasks/task'
+import { validateTaskBoardCreate, validateTaskBoardUpdate } from '../../validation/tasks/board'
+import { TaskBoardCreateValue, TaskBoardUpdateValue } from '../../values/tasks/board'
 import { TaskBoardService } from '../../services'
 import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
 import { ContentManager } from '../../services/content/ContentManager'
@@ -36,9 +36,9 @@ export class TaskBoardCtrl extends BaseCtrl {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = req.body.data
-      await validateTaskCreate(data)
+      await validateTaskBoardCreate(data)
 
-      const value = TaskCreateValue.fromObjectAndUserId(
+      const value = TaskBoardCreateValue.fromObjectAndUserId(
         data,
         Number(req.user.id)
       )
@@ -60,9 +60,9 @@ export class TaskBoardCtrl extends BaseCtrl {
       const id = Number(req.params.id)
       const data = req.body.data
 
-      await validateTaskUpdate(data)
+      await validateTaskBoardUpdate(data)
 
-      const value = TaskUpdateValue.fromObject(data)
+      const value = TaskBoardUpdateValue.fromObject(data)
       const task = await this.taskBoardService.update(value, id)
 
       res.send(this.responseData(task))

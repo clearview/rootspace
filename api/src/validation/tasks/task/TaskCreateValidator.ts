@@ -1,4 +1,4 @@
-import { BaseValidator } from '../BaseValidator'
+import { BaseValidator } from '../../BaseValidator'
 
 export class TaskCreateValidator extends BaseValidator {
   rules() {

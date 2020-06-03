@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { validateTaskCreate, validateTaskUpdate } from '../../validation/task'
-import { TaskCreateValue, TaskUpdateValue } from '../../values/tasks/task'
+import { validateTaskListCreate, validateTaskListUpdate } from '../../validation/tasks/list'
+import { TaskListCreateValue, TaskListUpdateValue } from '../../values/tasks/list'
 import { TaskListService } from '../../services'
 import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
 import { ContentManager } from '../../services/content/ContentManager'
@@ -36,9 +36,9 @@ export class TaskListCtrl extends BaseCtrl {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = req.body.data
-      await validateTaskCreate(data)
+      await validateTaskListCreate(data)
 
-      const value = TaskCreateValue.fromObjectAndUserId(
+      const value = TaskListCreateValue.fromObjectAndUserId(
         data,
         Number(req.user.id)
       )
@@ -60,9 +60,9 @@ export class TaskListCtrl extends BaseCtrl {
       const id = Number(req.params.id)
       const data = req.body.data
 
-      await validateTaskUpdate(data)
+      await validateTaskListUpdate(data)
 
-      const value = TaskUpdateValue.fromObject(data)
+      const value = TaskListUpdateValue.fromObject(data)
       const task = await this.taskListService.update(value, id)
 
       res.send(this.responseData(task))
