@@ -54,7 +54,7 @@ export default Vue.extend({
         }
 
         this.isLoading = true
-        const data = await UserService.invitation(payload)
+        const data = await UserService.acceptInvitation(payload)
 
         if (data.status === 200) {
           await this.$store.dispatch('auth/whoami')

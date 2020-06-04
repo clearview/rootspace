@@ -69,24 +69,6 @@ async function userAtSpace (id: number) {
   return data
 }
 
-async function addUser (payload: object) {
-  try {
-    const res = await api.post('invites/create', { data: payload })
-
-    return res
-  } catch (error) {
-    let err = error
-    if (error.response) {
-      const body = {
-        code: error.response.status,
-        message: error.response.data
-      }
-      err = body
-    }
-    throw err
-  }
-}
-
 async function removeUser (id: number, userId: number) {
   try {
     const res = await api.delete(`spaces/${id}/users/${userId}`)
@@ -114,6 +96,5 @@ export default {
   my,
   view,
   userAtSpace,
-  removeUser,
-  addUser
+  removeUser
 }

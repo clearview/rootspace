@@ -208,7 +208,7 @@ export default Vue.extend({
           spaceId: this.currentSpace.id,
           emails: [email]
         }
-        await WorkspaceService.addUser(payload)
+        await UserService.addInvitation(payload)
       } catch (err) {
         console.log(err)
         // if (err.code === 405) {
