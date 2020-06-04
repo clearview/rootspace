@@ -1,15 +1,15 @@
 <template>
-  <div class="document-container">
-    <div id="editor-toolbar">
+  <div class="doc">
+    <div class="doc-header">
       <input
+        autofocus
         type="text"
         v-model="title"
-        class="title"
+        class="doc-title"
         placeholder="Your Title Here"
-        ref="titleInput"
       >
       <v-icon
-        v-if="loading"
+        v-show="loading"
         class="icon-loading"
         name="loading"
         size="2em"
@@ -19,7 +19,7 @@
 
     <editor
       v-if="!initialize"
-      id="editor"
+      class="doc-content"
       :content="value"
       @update-editor="onUpdateEditor"
     />
@@ -167,31 +167,31 @@ export default Vue.extend({
 </script>
 
 <style lang="postcss" scoped>
-.document-container {
-  @apply max-w-2xl mx-auto p-0;
+.doc {
+  @apply w-full mx-auto p-0;
 
-  width: 43.8rem;
+  max-width: 700px;
+}
 
-  .title {
-    font-size: 2rem;
-    width: 100%;
+.doc-header {
+  @apply flex justify-between items-center;
+  @apply border-b;
+  @apply pt-2 px-0 pb-6;
+  @apply my-0;
 
-    &:focus {
-      outline: none;
-    }
+  border-color: #DEE2EE;
+}
+
+.doc-title {
+  font-size: 2rem;
+  width: 100%;
+
+  &:focus {
+    outline: none;
   }
+}
 
-  #editor-toolbar {
-    @apply flex justify-between border-b-2 w-full p-0;
-
-    border-color: theme("colors.secondary.default");
-    padding-bottom: 0.5rem;
-    max-width: 650px;
-    margin: 0 auto;
-  }
-
-  #editor {
-    padding-top: 0.5rem;
-  }
+.doc-content {
+  @apply pt-6;
 }
 </style>

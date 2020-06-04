@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <div class id="codex-editor" />
-  </div>
+  <div id="codex-editor" class="editor" />
 </template>
 
 <script lang="ts">
@@ -44,15 +42,17 @@ export default Vue.extend({
 })
 </script>
 
-<style lang="postcss">
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
-
-#codex-editor {
+<style lang="postcss" scope>
+.editor {
   font-family: 'Open Sans', sans-serif;
 
   .ce-header {
-    padding: 0;
-    margin-bottom: 0;
+    @apply p-0 mb-0;
+  }
+
+  .ce-block__content,
+  .ce-toolbar__content {
+    @apply max-w-none m-0;
   }
 
   .cdx-settings-button--active,
@@ -60,15 +60,7 @@ export default Vue.extend({
   .ce-toolbox__button:hover,
   .ce-toolbar__plus--active,
   .ce-toolbar__plus:hover {
-    color: theme("colors.primary.default");
-  }
-
-  .tc-toolbar {
-    background-color: theme("colors.primary.default");
-  }
-
-  .tc-toolbar__plus svg circle {
-    fill: theme("colors.primary.default");
+    @apply text-primary;
   }
 }
 </style>
