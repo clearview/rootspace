@@ -17,15 +17,15 @@ export class InviteService {
     path.dirname(require.main.filename) + '/templates/mail/invite/'
 
   private userService: UserService
-  private spaceSerivce: SpaceService
-  private mailSerivce: MailService
+  private spaceService: SpaceService
+  private mailService: MailService
 
   private static instance: InviteService
 
   private constructor() {
     this.userService = new UserService()
-    this.spaceSerivce = SpaceService.getInstance()
-    this.mailSerivce = new MailService()
+    this.spaceService = SpaceService.getInstance()
+    this.mailService = new MailService()
   }
 
   static getInstance() {
@@ -70,7 +70,7 @@ export class InviteService {
       throw clientError('This invite is no longer active')
     }
 
-    const space = await this.spaceSerivce.getSpaceById(invite.spaceId)
+    const space = await this.spaceService.getSpaceById(invite.spaceId)
 
     if (!space) {
       throw clientError(
@@ -80,7 +80,7 @@ export class InviteService {
       )
     }
 
-    const userInSpace = await this.spaceSerivce.isUserInSpace(user.id, space.id)
+    const userInSpace = await this.spaceService.isUserInSpace(user.id, space.id)
 
     if (!userInSpace) {
       const userToSpace = new UserToSpace()
@@ -127,7 +127,7 @@ export class InviteService {
       : await this.getInviteEmailTemplate(invite, space)
 
     try {
-      await this.mailSerivce.sendMail(invite.email, subject, content)
+      await this.mailService.sendMail(invite.email, subject, content)
     } catch (error) {
       //
     }
