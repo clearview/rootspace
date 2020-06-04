@@ -1,11 +1,28 @@
 <template>
   <div class="document-container">
     <div id="editor-toolbar">
-      <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
-      <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
+      <input
+        type="text"
+        v-model="title"
+        class="title"
+        placeholder="Your Title Here"
+        ref="titleInput"
+      >
+      <v-icon
+        v-if="loading"
+        class="icon-loading"
+        name="loading"
+        size="2em"
+        viewbox="100"
+      />
     </div>
 
-    <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+    <editor
+      v-if="!initialize"
+      id="editor"
+      :content="value"
+      @update-editor="onUpdateEditor"
+    />
   </div>
 </template>
 
@@ -46,6 +63,9 @@ export default Vue.extend({
   computed: {
     currentSpace () {
       return this.$store.state.auth.currentSpace || {}
+    },
+    titleInput (): HTMLInputElement {
+      return this.$refs.titleInput as HTMLInputElement
     }
   },
   watch: {
@@ -78,6 +98,14 @@ export default Vue.extend({
   },
   async created () {
     this.loadDocument()
+  },
+  mounted () {
+    this.titleInput.focus()
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.titleInput.focus()
+
+    return next()
   },
   methods: {
     onUpdateEditor (value: object) {
@@ -157,13 +185,13 @@ export default Vue.extend({
     @apply flex justify-between border-b-2 w-full p-0;
 
     border-color: theme("colors.secondary.default");
-    padding-bottom: .5rem;
+    padding-bottom: 0.5rem;
     max-width: 650px;
     margin: 0 auto;
   }
 
   #editor {
-    padding-top: .5rem;
+    padding-top: 0.5rem;
   }
 }
 </style>
