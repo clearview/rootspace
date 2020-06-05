@@ -1,7 +1,7 @@
 export interface ITaskCreateAttributes {
   userId: number
   spaceId: number
-  listId: number
+  listId: string
   assignedTo: object
   title: string
   description: string

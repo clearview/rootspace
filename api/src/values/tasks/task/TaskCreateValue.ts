@@ -18,7 +18,7 @@ export class TaskCreateValue {
   private constructor(
       userId: number,
       spaceId: number,
-      listId: number,
+      listId: string,
       assignedTo: object,
       title: string,
       description: string,
@@ -51,7 +51,7 @@ export class TaskCreateValue {
     return this.attributes.spaceId
   }
 
-  get listId(): number {
+  get listId(): string {
     return this.attributes.listId
   }
 

@@ -39,5 +39,5 @@ export class TaskBoard {
   updatedAt: string
 
   @OneToMany(type => TaskList, taskList => taskList.board)
-  lists: TaskList[]
+  taskLists: TaskList[]
 }

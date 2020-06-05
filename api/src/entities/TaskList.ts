@@ -25,18 +25,15 @@ export class TaskList {
   @Index()
   spaceId: number
 
-  @Column('integer')
+  @Column('uuid')
   @Index()
-  boardId: number
+  boardId: string
 
   @Column('varchar')
   title: string
 
   @Column('text', { nullable: true })
   description: string
-
-  @Column('integer', { default: 0 })
-  countTasks: number
 
   @Column('integer', { default: 0 })
   position: number
@@ -47,7 +44,7 @@ export class TaskList {
   @UpdateDateColumn()
   updatedAt: string
 
-  @ManyToOne(type => TaskBoard, board => board.lists)
+  @ManyToOne(type => TaskBoard, board => board.taskLists)
   board: TaskBoard
 
   @OneToMany(type => Task, task => task.list)

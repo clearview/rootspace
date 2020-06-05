@@ -1,6 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm'
 import { TaskList } from './TaskList'
 
+export enum TaskStatus {
+  Open = 0,
+  Closed = 1
+}
+
 @Entity('tasks')
 export class Task {
 
@@ -15,9 +20,9 @@ export class Task {
   @Index()
   spaceId: number
 
-  @Column('integer')
+  @Column('uuid')
   @Index()
-  listId: number
+  listId: string
 
   @Column('json', { nullable: true })
   assignedTo: object
@@ -29,7 +34,7 @@ export class Task {
   description: string
 
   @Column('integer', { nullable: true })
-  status: number
+  status: TaskStatus
 
   @Column('json', { nullable: true })
   tags: object
