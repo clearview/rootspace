@@ -1,6 +1,11 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
 import { TaskList } from './TaskList'
 
+export enum TaskBoardType {
+  List = 1,
+  Kanban = 2
+}
+
 @Entity('task_boards')
 export class TaskBoard {
 
@@ -16,10 +21,10 @@ export class TaskBoard {
   spaceId: number
 
   @Column('integer')
-  type: number
+  type: TaskBoardType
 
   @Column('boolean', { default: false })
-  public: boolean
+  isPublic: boolean
 
   @Column('varchar')
   title: string
