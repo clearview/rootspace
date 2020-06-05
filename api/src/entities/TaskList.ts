@@ -38,11 +38,11 @@ export class TaskList {
   @Column('integer', { default: 0 })
   position: number
 
-  @CreateDateColumn()
-  createdAt: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updatedAt: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
   @ManyToOne(type => TaskBoard, board => board.taskLists)
   board: TaskBoard

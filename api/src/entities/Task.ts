@@ -42,17 +42,17 @@ export class Task {
   @Column('json', { nullable: true })
   attachments: object
 
-  @Column('timestamp', { nullable: true })
-  dueDate: string
+  @Column( 'timestamptz', { nullable: true })
+  dueDate: Date
 
   @Column('integer', { default: 0 })
   position: number
 
-  @CreateDateColumn()
-  createdAt: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updatedAt: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
   @ManyToOne(type => TaskList, list => list.tasks)
   list: TaskList

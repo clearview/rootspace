@@ -32,11 +32,11 @@ export class TaskBoard {
   @Column('text', { nullable: true })
   description: string
 
-  @CreateDateColumn()
-  createdAt: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updatedAt: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
   @OneToMany(type => TaskList, taskList => taskList.board)
   taskLists: TaskList[]
