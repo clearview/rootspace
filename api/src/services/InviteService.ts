@@ -14,12 +14,12 @@ export class InviteService {
   static mailTemplatesDir =
     path.dirname(require.main.filename) + '/templates/mail/invite/'
 
-  private mailSerivce: MailService
+  private mailService: MailService
 
   private static instance: InviteService
 
   private constructor() {
-    this.mailSerivce = new MailService()
+    this.mailService = new MailService()
   }
 
   static getInstance() {
