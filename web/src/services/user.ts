@@ -51,9 +51,9 @@ async function passwordChange (payload: object) {
   }
 }
 
-async function invitation (payload: object) {
+async function acceptInvitation (data: object) {
   try {
-    const res = await api.post('invites/accept', payload)
+    const res = await api.post('invites/accept', { data })
 
     return res
   } catch (error) {
@@ -71,9 +71,28 @@ async function invitation (payload: object) {
   }
 }
 
+async function addInvitation (data: object) {
+  try {
+    const res = await api.post('invites/create', { data })
+
+    return res
+  } catch (error) {
+    let err = error
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: error.response.data
+      }
+      err = body
+    }
+    throw err
+  }
+}
+
 export default {
   confirmEmail,
   update,
   passwordChange,
-  invitation
+  acceptInvitation,
+  addInvitation
 }

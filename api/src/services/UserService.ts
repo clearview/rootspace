@@ -21,8 +21,18 @@ export class UserService {
 
   private mailService: MailService
 
-  constructor() {
+  private static instance: UserService
+
+  private constructor() {
     this.mailService = new MailService()
+  }
+
+  static getInstance() {
+    if (!UserService.instance) {
+      UserService.instance = new UserService()
+    }
+
+    return UserService.instance
   }
 
   getUserRepository() {

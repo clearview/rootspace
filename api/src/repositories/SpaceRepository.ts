@@ -12,17 +12,4 @@ export class SpaceRepository extends Repository<Space> {
       })
       .getMany()
   }
-
-  getByIdAndUserId(id: number, userId: number): Promise<Space | undefined> {
-    return this.createQueryBuilder('space')
-      .innerJoin(UserToSpace, 'users_spaces', 'users_spaces.spaceId = space.id')
-      .where(
-        'space.id = :id AND users_spaces.userId = :userId AND users_spaces.active = true',
-        {
-          id,
-          userId,
-        }
-      )
-      .getOne()
-  }
 }

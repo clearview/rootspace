@@ -1,6 +1,7 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserToSpace } from '../entities/UserToSpace'
+import { clientError, ClientErrName } from '../errors/client'
 
 export class UserSpaceService {
   private constructor() {}
@@ -19,11 +20,32 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
+  getByUserIdAndSpaceId(userId: number, spaceId: number): Promise<UserToSpace> {
+    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(
+      userId,
+      spaceId
+    )
+  }
+
   getCountSpaceUsers(spaceId: number): Promise<number> {
     return this.getUserToSpaceRepository().getCountUsersBySpaceId(spaceId)
   }
 
-  add(userId: number, spaceId: number): Promise<UserToSpace> {
+  async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
+    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId)
+
+    if (userSpace && userSpace.active === true) {
+      return true
+    }
+
+    return false
+  }
+
+  async add(userId: number, spaceId: number): Promise<UserToSpace> {
+    if (true === (await this.isUserInSpace(userId, spaceId))) {
+      throw clientError('User is already in space', ClientErrName.NotAllowed)
+    }
+
     const userToSpace = new UserToSpace()
     userToSpace.userId = userId
     userToSpace.spaceId = spaceId
