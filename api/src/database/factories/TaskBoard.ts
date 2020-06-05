@@ -5,8 +5,6 @@ import { TaskBoard, TaskBoardType } from '../../entities/TaskBoard'
 define(TaskBoard, (faker: typeof Faker) => {
 
   const taskBoard = new TaskBoard()
-  taskBoard.userId = 1
-  taskBoard.spaceId = 1
   taskBoard.type = TaskBoardType.List
   taskBoard.isPublic = false
   taskBoard.title = faker.company.companyName()

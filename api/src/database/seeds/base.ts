@@ -1,9 +1,9 @@
-import { Factory, Seeder } from 'typeorm-seeding'
-import { User } from '../../entities/User'
-import { Space } from '../../entities/Space'
-import { Link } from '../../entities/Link'
-import { UserToSpace } from '../../entities/UserToSpace'
-import { LinkService } from '../../services'
+import {Factory, Seeder} from 'typeorm-seeding'
+import {User} from '../../entities/User'
+import {Space} from '../../entities/Space'
+import {Link, LinkType} from '../../entities/Link'
+import {UserToSpace} from '../../entities/UserToSpace'
+import {LinkService} from '../../services'
 
 export class BaseSeeder implements Seeder {
   private static instance: BaseSeeder
@@ -23,7 +23,6 @@ export class BaseSeeder implements Seeder {
 
   public async run(factory: Factory): Promise<any> {
     this.factory = factory
-
     this.user = await this.createUser()
     this.space = await this.createSpace()
     this.rootLink = await this.createRootLink()
@@ -48,7 +47,7 @@ export class BaseSeeder implements Seeder {
       userId: this.user.id,
       spaceId: this.space.id,
       title: 'root',
-      type: 'root',
+      type: LinkType.Root,
       value: String(this.space.id),
       position: 1
     })
