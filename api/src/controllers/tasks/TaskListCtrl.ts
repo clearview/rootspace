@@ -17,7 +17,7 @@ export class TaskListCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskListService.getById(Number(req.params.id))
+    const task = await this.taskListService.getById(String(req.params.id))
 
     if (!task) {
       return next(
@@ -57,7 +57,7 @@ export class TaskListCtrl extends BaseCtrl {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = Number(req.params.id)
+      const id = String(req.params.id)
       const data = req.body.data
 
       await validateTaskListUpdate(data)
@@ -73,7 +73,7 @@ export class TaskListCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.taskListService.delete(Number(req.params.id))
+      const result = await this.taskListService.delete(String(req.params.id))
       res.send(result)
     } catch (err) {
       next(err)
