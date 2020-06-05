@@ -64,19 +64,21 @@ export class LinksCtrl extends BaseCtrl {
       const data = req.body.data
       await validateLinkCreate(data)
 
-      const value = LinkCreateValue.fromObjectAndUserId(
-        data,
-        Number(req.user.id)
-      )
+      let value = LinkCreateValue.fromObjectAndUserId(data, Number(req.user.id))
 
       if (data.parent !== undefined) {
-        value.parent = data.parent
+        value = value.withParent(data.parent)
       }
 
-      const link = await this.linkSrvice.create(value)
-      const resData = this.responseData(link)
+      const value1 = LinkCreateValue.fromObject(
+        { spaceId: 2, title: '', type: null, value: null, userId: 2 },
+      )
+      res.send(this.responseData(value))
 
-      res.send(resData)
+      //const link = await this.linkSrvice.create(value)
+      //const resData = this.responseData(link)
+
+      //res.send(resData)
     } catch (err) {
       next(err)
     }

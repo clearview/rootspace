@@ -71,7 +71,7 @@ export class LinkService {
 
     const parent = data.parent
       ? await this.getLinkById(Number(data.parent))
-      : await this.getRootLinkBySpaceId(data.spaceId)
+      : await this.getRootLinkBySpaceId(data._attributes.spaceId)
 
     if (!parent) {
       throw clientError('Cant not find parent ' + data.parent)
