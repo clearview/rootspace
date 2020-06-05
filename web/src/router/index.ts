@@ -20,6 +20,11 @@ const routes: Array<RouteConfig> = [
         path: '/document/:id?',
         name: 'Document',
         component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
+      },
+      {
+        path: '/task/list/:id',
+        name: 'TaskList',
+        component: () => import(/* webpackChunkName: "task-list" */'../views/Task/List.vue')
       }
     ]
   },

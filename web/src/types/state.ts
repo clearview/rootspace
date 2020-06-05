@@ -1,9 +1,10 @@
-import { LinkResource, WorkspaceResource } from './resource'
+import { LinkResource, WorkspaceResource, TaskResource } from './resource'
 
 export interface RootState {
   auth: AuthState;
   link: LinkState;
   nav: NavState;
+  task: TaskState;
 }
 
 export interface AuthState {
@@ -15,6 +16,15 @@ export interface AuthState {
 
 export interface LinkState {
   payload: LinkResource[];
+  active: string | null;
+  folded: {
+    [key: string]: boolean;
+  };
+}
+
+export interface TaskState {
+  payload: TaskResource[];
+  current: TaskResource | null;
   active: string | null;
   folded: {
     [key: string]: boolean;

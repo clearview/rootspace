@@ -1,4 +1,4 @@
-import { OutputData } from '@editorjs/editorjs/types/data-formats/output-data'
+import {OutputData} from '@editorjs/editorjs/types/data-formats/output-data'
 
 export interface LinkResource {
   id: number;
@@ -9,6 +9,17 @@ export interface LinkResource {
   children?: LinkResource[];
   config?: {
     alwaysOpen: boolean;
+  };
+}
+
+export interface TaskResource {
+  id: number;
+  spaceId: number;
+  name: string;
+  type: 'list' | 'kanban';
+  children?: TaskResource[];
+  config?: {
+    private: boolean;
   };
 }
 
