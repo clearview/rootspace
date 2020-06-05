@@ -4,8 +4,8 @@ import { TaskList } from './TaskList'
 @Entity('task_boards')
 export class TaskBoard {
 
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column('integer')
   @Index()
@@ -18,8 +18,8 @@ export class TaskBoard {
   @Column('integer')
   type: number
 
-  @Column('boolean')
-  private: boolean
+  @Column('boolean', { default: false })
+  public: boolean
 
   @Column('varchar')
   title: string

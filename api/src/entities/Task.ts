@@ -4,8 +4,8 @@ import { TaskList } from './TaskList'
 @Entity('tasks')
 export class Task {
 
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column('integer')
   @Index()

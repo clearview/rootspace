@@ -14,8 +14,8 @@ import {TaskBoard} from './TaskBoard'
 @Entity('task_lists')
 export class TaskList {
 
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column('integer')
   @Index()
