@@ -36,7 +36,7 @@ export class Task {
   @Column('integer', { nullable: true })
   status: TaskStatus
 
-  @Column('json', { nullable: true })
+  @Column('json', { default: [], nullable: true })
   tags: object
 
   @Column('json', { nullable: true })
