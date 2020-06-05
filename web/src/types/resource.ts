@@ -1,5 +1,3 @@
-import { OutputData } from '@editorjs/editorjs/types/data-formats/output-data'
-
 export interface LinkResource {
   id: number;
   spaceId: number;
@@ -57,25 +55,9 @@ export interface UserResource {
   updated: string;
 }
 
-export interface Editor {
-  documentChanged: boolean;
-  editor: any; // eslint-disable-line
-}
-
-export interface RootEditor {
-  savedData: OutputData;
-  onChange: Function;
-}
-
 export interface DocumentResource {
   spaceId: number;
   title: string;
-  content: object;
+  content: EditorJS.OutputData;
   access: number;
 }
-
-// export interface DocumentData {
-//   time?: number;
-//   blocks?: Array<OutputData>;
-//   version: string;
-// }

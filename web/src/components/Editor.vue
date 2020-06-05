@@ -1,42 +1,48 @@
 <template>
-  <div id="codex-editor" class="editor" />
+  <div class="editor" />
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
+import Editor from '@editorjs/editorjs'
 
 import { createEditor } from '@/utils/editor'
 
-import { Editor } from '@/types/resource'
+type ComponentData = {
+  editor: Editor | null;
+}
 
 export default Vue.extend({
   name: 'DocumentEditor',
   props: {
-    content: {
-      type: Object
+    value: {
+      type: Object as PropType<EditorJS.OutputData>
     }
   },
-  data (): Editor {
+  data (): ComponentData {
     return {
-      documentChanged: false,
-      editor: true
+      editor: null
     }
   },
   async mounted () {
-    const params = {
-      savedData: this.content,
-      onChange: this.onChange
-    }
-
-    this.editor = createEditor(params)
+    this.editor = createEditor({
+      holder: this.$el as HTMLElement,
+      data: this.value,
+      logLevel: 'ERROR' as EditorJS.LogLevels,
+      onChange: this.save.bind(this)
+    })
 
     await this.editor.isReady
   },
   methods: {
-    onChange () {
-      this.editor.save().then((savedData: object) => {
-        this.$emit('update-editor', savedData)
-      })
+    async save () {
+      if (!this.editor) {
+        return
+      }
+
+      const data = await this.editor.save()
+
+      this.$emit('input', data)
     }
   }
 })

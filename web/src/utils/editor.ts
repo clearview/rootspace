@@ -1,4 +1,4 @@
-import EditorJS from '@editorjs/editorjs'
+import Editor, { EditorConfig } from '@editorjs/editorjs'
 import Header from '@editorjs/header'
 import List from '@editorjs/list'
 import Image from '@editorjs/image'
@@ -15,19 +15,16 @@ import Warning from '@editorjs/warning'
 import Paragraph from '@editorjs/paragraph'
 import Checklist from '@editorjs/checklist'
 
-import { RootEditor } from '@/types/resource'
-
-export function createEditor (params: RootEditor): EditorJS {
-  return new EditorJS({
-    holder: 'codex-editor',
-    data: params.savedData,
+export function createEditor (setting: Partial<EditorConfig>): Editor {
+  const defaultSetting: Partial<EditorConfig> = {
     placeholder: 'Let`s write an awesome document!',
     tools: {
       header: {
         class: Header,
         inlineToolbar: ['link'],
         config: {
-          placeholder: 'Header'
+          placeholder: 'Header',
+          levels: [1, 2, 3]
         },
         shortcut: 'CMD+SHIFT+H'
       },
@@ -94,9 +91,11 @@ export function createEditor (params: RootEditor): EditorJS {
         class: Checklist,
         inlineToolbar: true
       }
-    },
-    onChange: () => {
-      params.onChange()
     }
+  }
+
+  return new Editor({
+    ...defaultSetting,
+    ...setting
   })
 }

@@ -20,8 +20,8 @@
     <editor
       v-if="!initialize"
       class="doc-content"
-      :content="value"
-      @update-editor="onUpdateEditor"
+      v-model="value"
+      @input="onUpdateEditor"
     />
   </div>
 </template>
@@ -37,7 +37,7 @@ import DocumentService from '@/services/document'
 import Editor from '@/components/Editor.vue'
 
 type ComponentData = {
-  value: object;
+  value: EditorJS.OutputData;
   title: string;
   timer: undefined | number;
   initialize: boolean;
@@ -52,7 +52,9 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
-      value: {},
+      value: {
+        blocks: []
+      },
       title: '',
       timer: undefined,
       initialize: false,
@@ -86,7 +88,7 @@ export default Vue.extend({
       this.initialize = true
       if (typeof newval.params.id === 'undefined') {
         this.title = ''
-        this.value = {}
+        this.value = { blocks: [] }
 
         setTimeout(() => {
           this.initialize = false
@@ -108,7 +110,7 @@ export default Vue.extend({
     return next()
   },
   methods: {
-    onUpdateEditor (value: object) {
+    onUpdateEditor (value: EditorJS.OutputData) {
       this.value = value
 
       this.saveDocument()
@@ -132,7 +134,7 @@ export default Vue.extend({
     },
     saveDocument () {
       if (this.title) {
-        const payload = {
+        const payload: DocumentResource = {
           spaceId: this.currentSpace.id,
           title: this.title,
           content: this.value,
