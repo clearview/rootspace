@@ -20,6 +20,6 @@ export class UserToSpaceSubscriber
   }
 
   async afterInsert(event: InsertEvent<UserToSpace>) {
-    this.spaceFacade.updateSpaceCountMembers(event.entity.spaceId)
+    await this.spaceFacade.updateSpaceCountMembers(event.entity.spaceId)
   }
 }
