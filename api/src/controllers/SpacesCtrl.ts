@@ -4,15 +4,15 @@ import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { clientError, ClientErrName } from '../errors/client'
 import { InviteService } from '../services'
-import { SpaceFacade } from '../services/facade'
+import { SpaceFacade, InviteFacade } from '../services/facade'
 
 export class SpacesCtrl extends BaseCtrl {
-  private inviteService: InviteService
+  private inviteFacade: InviteFacade
   private spaceFacade: SpaceFacade
 
   constructor() {
     super()
-    this.inviteService = InviteService.getInstance()
+    this.inviteFacade = new InviteFacade()
     this.spaceFacade = new SpaceFacade()
   }
 
@@ -33,7 +33,7 @@ export class SpacesCtrl extends BaseCtrl {
       const space = await this.spaceFacade.createSpace(data)
 
       if (req.body.invites) {
-        this.inviteService.createfromArray(req.body.invites, space)
+        this.inviteFacade.sendToEmails(req.body.invites, space.id)
       }
 
       res.send(space)

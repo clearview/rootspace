@@ -1,9 +1,9 @@
 import api from '@/utils/api'
 import store from '@/store'
 
-async function create (payload: object) {
+async function create (data: object) {
   try {
-    const res = await api.post('docs', { data: payload })
+    const res = await api.post('docs', { data })
     await store.dispatch('link/fetch')
 
     return res
@@ -30,9 +30,9 @@ async function view (id: string) {
   return data
 }
 
-async function update (id: string, payload: object) {
+async function update (id: string, data: object) {
   try {
-    const res = await api.patch(`docs/${id}`, { data: payload })
+    const res = await api.patch(`docs/${id}`, { data })
 
     return res
   } catch (error) {

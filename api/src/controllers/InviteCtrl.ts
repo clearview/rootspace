@@ -1,28 +1,52 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services/InviteService'
-import { InviteAcceptValidator } from '../validation/invite/InviteAcceptValidator'
+import {
+  validateInviteAccept,
+  validateInviteCreate,
+} from '../validation/invite'
+import { InviteFacade } from '../services/facade'
 
 export class InviteCtrl extends BaseCtrl {
   protected inviteService: InviteService
+  private inviteFacade: InviteFacade
 
   constructor() {
     super()
     this.inviteService = InviteService.getInstance()
+    this.inviteFacade = new InviteFacade()
+  }
+
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = req.body.data
+      await validateInviteCreate(data)
+
+      const invites = await this.inviteFacade.sendToEmails(
+        data.emails,
+        data.spaceId
+      )
+
+      const resData = this.responseData(invites)
+      res.send(resData)
+    } catch (err) {
+      next(err)
+    }
   }
 
   async accept(req: Request, res: Response, next: NextFunction) {
     try {
-      const validator = new InviteAcceptValidator()
-      await validator.validate(req.body)
+      const data = req.body.data
+      await validateInviteAccept(data)
 
-      const invite = await this.inviteService.accept(
-        req.body.token,
-        req.body.id,
+      const invite = await this.inviteFacade.accept(
+        data.token,
+        data.id,
         req.user.id
       )
 
-      res.send(invite)
+      const resData = this.responseData(invite)
+      res.send(resData)
     } catch (err) {
       next(err)
     }

@@ -6,25 +6,19 @@ import { InviteRepository } from '../repositories/InviteRepository'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Invite } from '../entities/Invite'
 import { Space } from '../entities/Space'
-import { UserToSpace } from '../entities/UserToSpace'
-import { UserService } from './UserService'
-import { SpaceService } from './SpaceService'
 import { MailService } from './mail/MailService'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, ClientErrName } from '../errors/client'
+import { User } from '../entities/User'
 
 export class InviteService {
   static mailTemplatesDir =
     path.dirname(require.main.filename) + '/templates/mail/invite/'
 
-  private userService: UserService
-  private spaceService: SpaceService
   private mailService: MailService
 
   private static instance: InviteService
 
   private constructor() {
-    this.userService = new UserService()
-    this.spaceService = SpaceService.getInstance()
     this.mailService = new MailService()
   }
 
@@ -51,43 +45,19 @@ export class InviteService {
     return this.getInviteRepository().findOne(id, { where: { token } })
   }
 
-  async accept(token: string, id: number, authUserId: number): Promise<Invite> {
+  async requireInviteByTokenAndId(token: string, id: number) {
     const invite = await this.getInviteByTokenAndId(token, id)
 
     if (!invite) {
-      throw clientError('Invite not found', ClientErrName.EntityNotFound)
+      throw clientError('Invalid invite request', ClientErrName.InvalidToken)
     }
 
-    const user = invite.userId
-      ? await this.userService.getUserById(invite.userId)
-      : await this.userService.getUserByEmail(invite.email)
+    return invite
+  }
 
-    if (!user || user.id !== authUserId) {
-      throw clientError('Invalid request')
-    }
-
+  async accept(invite: Invite): Promise<Invite> {
     if (invite.accepted) {
       throw clientError('This invite is no longer active')
-    }
-
-    const space = await this.spaceService.getSpaceById(invite.spaceId)
-
-    if (!space) {
-      throw clientError(
-        'Space not found',
-        ClientErrName.EntityNotFound,
-        ClientStatusCode.NotFound
-      )
-    }
-
-    const userInSpace = await this.spaceService.isUserInSpace(user.id, space.id)
-
-    if (!userInSpace) {
-      const userToSpace = new UserToSpace()
-      userToSpace.userId = user.id
-      userToSpace.spaceId = space.id
-
-      await this.getUserToSpaceRepository().save(userToSpace)
     }
 
     invite.accepted = true
@@ -96,27 +66,29 @@ export class InviteService {
     return await this.getInviteRepository().save(invite)
   }
 
-  createfromArray(invites: string[], space: Space) {
-    invites = Array.from(new Set(invites))
-
-    for (const email of invites) {
-      this.createWithEmail(email, space).catch((err) => {
-        // log error
-      })
-    }
-  }
-
-  async createWithEmail(email: string, space: Space) {
-    const user = await this.userService.getUserByEmail(email)
-
+  async createWithEmail(email: string, space: Space): Promise<Invite> {
     let invite = new Invite()
-    invite.email = email
+
     invite.spaceId = space.id
-    invite.userId = user ? user.id : null
+    invite.email = email
 
     invite = await this.getInviteRepository().save(invite)
-
     this.sendInvitationEmail(invite, space)
+
+    return invite
+  }
+
+  async createWithUser(user: User, space: Space): Promise<Invite> {
+    let invite = new Invite()
+
+    invite.spaceId = space.id
+    invite.userId = user.id
+    invite.email = user.email
+
+    invite = await this.getInviteRepository().save(invite)
+    this.sendInvitationEmail(invite, space)
+
+    return invite
   }
 
   private async sendInvitationEmail(invite: Invite, space: Space) {
@@ -129,7 +101,7 @@ export class InviteService {
     try {
       await this.mailService.sendMail(invite.email, subject, content)
     } catch (error) {
-      //
+      // log error
     }
   }
 

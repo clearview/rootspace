@@ -198,8 +198,26 @@ export default Vue.extend({
         this.isLoading = false
       }
     },
-    addWorkspaceUser (email: string) {
+    async addWorkspaceUser (email: string) {
       console.log(this.currentSpace.id, email)
+      try {
+        this.isLoading = true
+        this.loadingMessage = 'Add user to workspace...'
+
+        const payload = {
+          spaceId: this.currentSpace.id,
+          emails: [email]
+        }
+        await UserService.addInvitation(payload)
+      } catch (err) {
+        console.log(err)
+        // if (err.code === 405) {
+        //   this.workspace.error = true
+        //   this.workspace.errorMessage = err.message
+        // }
+      } finally {
+        this.isLoading = false
+      }
     },
     async deleteWorkspaceUser (email: string) {
       const getUser = find(this.userAtSpaceObj, ['email', email])

@@ -23,21 +23,22 @@ export class SpaceService {
     return this.getSpaceRepository().findOne(id)
   }
 
-  getSpacesByUserId(userId: number): Promise<Space[]> {
-    return this.getSpaceRepository().getByUserId(userId)
-  }
+  async requireSpaceById(id: number): Promise<Space> {
+    const space = await this.getSpaceById(id)
 
-  async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
-    const space = await this.getSpaceRepository().getByIdAndUserId(
-      spaceId,
-      userId
-    )
-
-    if (space && space !== undefined) {
-      return true
+    if (!space) {
+      throw clientError(
+        'Can not find space id ' + id,
+        ClientErrName.EntityNotFound,
+        ClientStatusCode.NotFound
+      )
     }
 
-    return false
+    return space
+  }
+
+  getSpacesByUserId(userId: number): Promise<Space[]> {
+    return this.getSpaceRepository().getByUserId(userId)
   }
 
   async create(data: SpaceCreateValue): Promise<Space> {

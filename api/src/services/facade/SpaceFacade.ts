@@ -2,9 +2,7 @@ import { Space } from '../../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { LinkType } from '../../constants'
 import { LinkCreateValue } from '../../values/link'
-import { SpaceService } from '../SpaceService'
-import { UserSpaceService } from '../UserSpaceService'
-import { LinkService } from '../LinkService'
+import { SpaceService, LinkService, UserSpaceService } from '../'
 
 export class SpaceFacade {
   private spaceService: SpaceService

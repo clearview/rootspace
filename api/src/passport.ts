@@ -59,7 +59,7 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const userService = new UserService()
+        const userService = UserService.getInstance()
         const user = await userService.getUserByEmail(email, true)
 
         if (!user) {
@@ -90,7 +90,7 @@ passport.use(
             )
           } */
 
-          if(user.active !== true){
+          if (user.active !== true) {
             return done(
               clientError(
                 'User not active',
