@@ -2,8 +2,9 @@ import express from 'express'
 import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
+import PromiseRouter from 'express-promise-router'
 
-const router = express.Router()
+const router = PromiseRouter()
 
 router.get('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'view'))
 router.post('/tasks/board', auth, mapRoute(TaskBoardCtrl, 'create'))
