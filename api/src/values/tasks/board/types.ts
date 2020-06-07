@@ -1,7 +1,9 @@
+import { TaskBoardType} from '../../../entities/TaskBoard'
+
 export interface ITaskBoardCreateAttributes {
   userId: number
   spaceId: number
-  listId: number
+  type: TaskBoardType
   assignedTo: object
   title: string
   description: string
@@ -13,6 +15,7 @@ export interface ITaskBoardCreateAttributes {
 }
 
 export interface ITaskBoardUpdateAttributes {
+  type?: TaskBoardType,
   assignedTo?: object
   title?: string
   description?: string

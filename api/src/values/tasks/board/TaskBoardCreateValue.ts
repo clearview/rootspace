@@ -1,10 +1,11 @@
 import {ITaskBoardCreateAttributes} from './types'
+import { TaskBoardType} from '../../../entities/TaskBoard'
 
 export class TaskBoardCreateValue {
   private readonly attributes: ITaskBoardCreateAttributes = {
     userId: null,
     spaceId: null,
-    listId: null,
+    type: null,
     assignedTo: null,
     title: null,
     description: null,
@@ -18,7 +19,7 @@ export class TaskBoardCreateValue {
   private constructor(
       userId: number,
       spaceId: number,
-      listId: number,
+      type: TaskBoardType,
       assignedTo: object,
       title: string,
       description: string,
@@ -31,7 +32,7 @@ export class TaskBoardCreateValue {
     this.attributes = {
       userId,
       spaceId,
-      listId,
+      type,
       assignedTo,
       title,
       description,
@@ -51,8 +52,8 @@ export class TaskBoardCreateValue {
     return this.attributes.spaceId
   }
 
-  get listId(): number {
-    return this.attributes.listId
+  get type(): TaskBoardType {
+    return this.attributes.type
   }
 
   get assignedTo(): object {
@@ -107,7 +108,7 @@ export class TaskBoardCreateValue {
     return new TaskBoardCreateValue(
         data.userId,
         data.spaceId,
-        data.listId,
+        data.type,
         data.assignedTo,
         data.title,
         data.description,

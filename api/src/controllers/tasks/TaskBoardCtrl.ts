@@ -34,25 +34,21 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = req.body.data
-      await validateTaskBoardCreate(data)
+    const data = req.body.data
+    // await validateTaskBoardCreate(data)
 
-      const value = TaskBoardCreateValue.fromObjectAndUserId(
+    const value = TaskBoardCreateValue.fromObjectAndUserId(
         data,
         Number(req.user.id)
-      )
+    )
 
-      const task = await this.taskBoardService.create(value)
-      const resData = this.responseData(task)
+    const task = await this.taskBoardService.create(value)
+    const resData = this.responseData(task)
 
-      const link = await this.taskBoardService.getLinkByContent(task)
-      resData.includes(link, 'link')
+    const link = await this.taskBoardService.getLinkByContent(task)
+    resData.includes(link, 'link')
 
-      res.send(resData)
-    } catch (err) {
-      next(err)
-    }
+    res.send(resData)
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
