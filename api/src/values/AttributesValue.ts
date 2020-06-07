@@ -1,8 +1,12 @@
 export abstract class AttributesValue<T> {
-  public readonly _attributes: T
+  protected readonly _attributes: T
 
   constructor(attributes: T) {
-    this._attributes = attributes
+    for (const key in attributes) {
+      if (this._attributes.hasOwnProperty(key)) {
+        this._attributes[key] = attributes[key]
+      }
+    }
   }
 
   get attributes(): T {

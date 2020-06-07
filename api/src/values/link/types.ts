@@ -6,7 +6,7 @@ export interface ILinkCreateAttributes {
   readonly value: string
 }
 
-export type ILinkUpdateAttributes = Pick<
+export type ILinkUpdateAttributes = Omit<
   Partial<ILinkCreateAttributes>,
-  'title' | 'value'
+  'userId' | 'spaceId' | 'type'
 >

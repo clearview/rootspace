@@ -1,5 +1,5 @@
-import { AttributesValue } from '../_base/AttributesValue'
-import { attributes } from '../_base'
+import { AttributesValue } from '../AttributesValue'
+import { attributes } from '../attributes'
 import { ILinkCreateAttributes } from './types'
 
 export const LinkCreateAttributes: ILinkCreateAttributes = {

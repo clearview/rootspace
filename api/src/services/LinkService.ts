@@ -56,7 +56,7 @@ export class LinkService {
   async createSpaceRoot(data: LinkCreateValue): Promise<Link> {
     const link = this.getLinkRepository().create()
 
-    Object.assign(link, data.getAttributes())
+    Object.assign(link, data.attributes)
 
     link.parent = null
     link.position = 0
@@ -67,11 +67,11 @@ export class LinkService {
   async create(data: LinkCreateValue): Promise<Link> {
     const link = this.getLinkRepository().create()
 
-    Object.assign(link, data.getAttributes())
+    Object.assign(link, data.attributes)
 
     const parent = data.parent
       ? await this.getLinkById(Number(data.parent))
-      : await this.getRootLinkBySpaceId(data._attributes.spaceId)
+      : await this.getRootLinkBySpaceId(data.attributes.spaceId)
 
     if (!parent) {
       throw clientError('Cant not find parent ' + data.parent)
@@ -88,7 +88,7 @@ export class LinkService {
       throw clientError('Error updating link')
     }
 
-    Object.assign(link, data.getAttributes())
+    Object.assign(link, data.attributes)
 
     await this.getLinkRepository().save(link)
     await this.contentManager.updateContentByLink(link)
@@ -108,7 +108,7 @@ export class LinkService {
     data: LinkUpdateValue,
     id: number
   ): Promise<UpdateResult> {
-    return this.getLinkRepository().update(id, data.getAttributes())
+    return this.getLinkRepository().update(id, data.attributes)
   }
 
   async updateLinkParent(link: Link, toParentId: number | null): Promise<Link> {

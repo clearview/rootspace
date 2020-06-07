@@ -70,15 +70,12 @@ export class LinksCtrl extends BaseCtrl {
         value = value.withParent(data.parent)
       }
 
-      const value1 = LinkCreateValue.fromObject(
-        { spaceId: 2, title: '', type: null, value: null, userId: 2 },
-      )
-      res.send(this.responseData(value))
+      console.log(value)
+      
+      const link = await this.linkSrvice.create(value)
+      const resData = this.responseData(link)
 
-      //const link = await this.linkSrvice.create(value)
-      //const resData = this.responseData(link)
-
-      //res.send(resData)
+      res.send(resData)
     } catch (err) {
       next(err)
     }
@@ -91,14 +88,14 @@ export class LinksCtrl extends BaseCtrl {
 
       await validateLinkUpdate(data)
 
-      const value = LinkUpdateValue.fromObject(data)
+      let value = LinkUpdateValue.fromObject(data)
 
       if (data.parent !== undefined) {
-        value.parent = data.parent
+        value = value.withParent(data.paren)
       }
 
       if (data.position !== undefined) {
-        value.position = data.position
+        value = value.withPosition(data.position)
       }
 
       const link = await this.linkSrvice.update(value, id)

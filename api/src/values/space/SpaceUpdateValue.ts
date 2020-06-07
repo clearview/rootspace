@@ -1,37 +1,14 @@
+import { AttributesValue } from '../AttributesValue'
+import { attributes } from '../attributes'
 import { ISpaceUpdateAttributes } from './types'
 
-export class SpaceUpdateValue {
-  private readonly attributes: ISpaceUpdateAttributes = {
-    title: null,
-  }
+export const SpaceUpdateAttributes = {
+  title: null,
+}
 
-  private constructor(title?: string) {
-    this.attributes = {
-      title,
-    }
-  }
-
-  get title(): string {
-    return this.attributes.title
-  }
-
-  getAttributes(filiterUndefined: boolean = true): ISpaceUpdateAttributes {
-    if (filiterUndefined === false) {
-      return this.attributes
-    }
-
-    const filtered = this.attributes
-
-    for (const key in this.attributes) {
-      if (filtered[key] === undefined) {
-        delete filtered[key]
-      }
-    }
-
-    return filtered
-  }
-
-  static fromObject(data: ISpaceUpdateAttributes): SpaceUpdateValue {
-    return new SpaceUpdateValue(data.title)
+@attributes(SpaceUpdateAttributes)
+export class SpaceUpdateValue extends AttributesValue<ISpaceUpdateAttributes> {
+  static fromObject(object: ISpaceUpdateAttributes): SpaceUpdateValue {
+    return new SpaceUpdateValue(object)
   }
 }

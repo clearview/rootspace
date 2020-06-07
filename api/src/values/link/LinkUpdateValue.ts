@@ -1,5 +1,5 @@
-import { AttributesValue } from '../_base/AttributesValue'
-import { attributes } from '../_base'
+import { AttributesValue } from '../AttributesValue'
+import { attributes } from '../attributes'
 import { ILinkUpdateAttributes } from './types'
 
 export const LinkUpdateAttributes: ILinkUpdateAttributes = {
@@ -16,16 +16,22 @@ export class LinkUpdateValue extends AttributesValue<ILinkUpdateAttributes> {
     return this._parent
   }
 
-  set parent(value: number) {
-    this._parent = value
-  }
-
   get position(): number {
     return this._position
   }
 
-  set position(value: number) {
-    this._position = value
+  withParent(parent: number): LinkUpdateValue {
+    const value = new LinkUpdateValue(this._attributes)
+    value._parent = parent
+
+    return value
+  }
+
+  withPosition(position: number): LinkUpdateValue {
+    const value = new LinkUpdateValue(this._attributes)
+    value._position = position
+
+    return value
   }
 
   static fromObject(data: ILinkUpdateAttributes) {
