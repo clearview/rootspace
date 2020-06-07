@@ -1,4 +1,3 @@
-import express from 'express'
 import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
