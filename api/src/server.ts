@@ -2,7 +2,7 @@ import db from './db'
 import express, { Application } from 'express'
 import * as bodyParser from 'body-parser'
 import cors from 'cors'
-import router from './router'
+import routers from './routers'
 import passport from './passport'
 import { config } from 'node-config-ts'
 import {
@@ -33,7 +33,7 @@ export default class Server {
     this.app.use(bodyParser.json())
     this.app.use(cors())
     this.app.use(passport.initialize())
-    this.app.use(router)
+    this.app.use(routers)
     this.app.use(errorHandler)
   }
 
