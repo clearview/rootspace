@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
 import { TaskList } from './TaskList'
+import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
 
 export enum TaskBoardType {
   List = 1,
@@ -21,21 +22,27 @@ export class TaskBoard {
   spaceId: number
 
   @Column('integer')
+  @IsInt()
+  @Min(1)
+  @Max(2)
   type: TaskBoardType
 
   @Column('boolean', { default: false })
   isPublic: boolean
 
   @Column('varchar')
+  @Length(2, 128)
   title: string
 
   @Column('text', { nullable: true })
   description: string
 
   @CreateDateColumn({ type: 'timestamptz'})
+  @IsDate()
   createdAt: Date
 
   @UpdateDateColumn({ type: 'timestamptz'})
+  @IsDate()
   updatedAt: Date
 
   @OneToMany(type => TaskList, taskList => taskList.board)
