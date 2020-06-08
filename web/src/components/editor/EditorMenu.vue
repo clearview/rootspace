@@ -1,43 +1,50 @@
 <template>
   <div id="editor-menu">
     <v-icon v-if="loading" name="loading" size="2em" viewbox="100" />
+    <span @click.stop="showMenu = !showMenu">
     <v-icon v-if="!loading"
       name="context-menu"
       size="1.5em"
       viewbox="20"
-      class="text-primary"
+      class="text-primary pointer"
     />
+    </span>
 
-    <context-menu>
-      <template v-slot:header>
-        <h6>
-          Page Lock
-          <button-switch v-model="lockEditor" class="switch" />
-        </h6>
-      </template>
+    <transition name="menu">
+      <context-menu
+        v-if="showMenu"
+        v-click-outside="() => showMenu = false"
+      >
+        <template v-slot:header>
+          <h6>
+            Page Lock
+            <button-switch v-model="lockEditor" class="switch" />
+          </h6>
+        </template>
 
-      <h6 class="link" @click="share">
-        <v-icon name="share" viewbox="20" />
-        <span>
-          Share
-        </span>
-      </h6>
-      <h6 class="link" @click="history">
-        <v-icon name="history" viewbox="20" />
-        <span>
-          Page History
-        </span>
-      </h6>
-
-      <template v-slot:footer>
-        <h6 class="link trash" @click="trash">
-          <v-icon name="trash" />
+        <h6 class="link" @click="share">
+          <v-icon name="share" viewbox="20" />
           <span>
-            Delete
+            Share
           </span>
         </h6>
-      </template>
-    </context-menu>
+        <h6 class="link" @click="history">
+          <v-icon name="history" viewbox="20" />
+          <span>
+            Page History
+          </span>
+        </h6>
+
+        <template v-slot:footer>
+          <h6 class="link trash" @click="trash">
+            <v-icon name="trash" />
+            <span>
+              Delete
+            </span>
+          </h6>
+        </template>
+      </context-menu>
+    </transition>
   </div>
 </template>
 
@@ -48,6 +55,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
 type ComponentData = {
   lockEditor: boolean;
+  showMenu: boolean;
 }
 
 export default Vue.extend({
@@ -63,7 +71,8 @@ export default Vue.extend({
   },
   data (): ComponentData {
     return {
-      lockEditor: false
+      lockEditor: false,
+      showMenu: false
     }
   },
   methods: {

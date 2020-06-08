@@ -194,7 +194,7 @@ export default Vue.extend({
 }
 
 .header {
-  @apply flex justify-between border-b-2 w-full p-0;
+  @apply flex justify-between border-b-2 w-full p-0 items-center;
 
   border-color: theme("colors.secondary.default");
   padding-bottom: 0.5rem;
