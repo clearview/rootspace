@@ -52,6 +52,9 @@ import IconEllipsis from '@/components/icon/IconEllipsis.vue'
 import IconPlus2 from '@/components/icon/IconPlus2.vue'
 import IconClose2 from '@/components/icon/IconClose2.vue'
 import IconReply from '@/components/icon/IconReply.vue'
+import IconContextMenu from './IconContextMenu.vue'
+import IconShare from './IconShare.vue'
+import IconHistory from './IconHistory.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -92,7 +95,10 @@ export default Vue.extend({
     IconWarning,
     IconGoogle,
     IconWorkspace,
-    IconLoading
+    IconLoading,
+    IconContextMenu,
+    IconShare,
+    IconHistory
   },
   props: {
     name: {

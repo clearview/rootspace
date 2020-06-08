@@ -9,12 +9,7 @@
         placeholder="Your Title Here"
         ref="title"
       >
-      <v-icon
-        v-if="loading"
-        name="loading"
-        size="2em"
-        viewbox="100"
-      />
+      <editor-menu :loading="loading" />
     </div>
 
     <editor
@@ -36,6 +31,7 @@ import { DocumentResource, WorkspaceResource } from '@/types/resource'
 import DocumentService from '@/services/document'
 
 import Editor from '@/components/Editor.vue'
+import EditorMenu from '@/components/editor/EditorMenu.vue'
 
 type ComponentData = {
   value: object;
@@ -49,7 +45,8 @@ type ComponentData = {
 export default Vue.extend({
   name: 'Document',
   components: {
-    Editor
+    Editor,
+    EditorMenu
   },
   data (): ComponentData {
     return {
