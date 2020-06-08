@@ -1,5 +1,25 @@
 <template>
-  <div class="editor" />
+  <div class="editor">
+    <div class="editor-header">
+      <input
+        autofocus
+        type="text"
+        v-model="payload.title"
+        class="editor-title"
+        placeholder="Your Title Here"
+        @input="save"
+      >
+      <v-icon
+        v-show="loading"
+        class="icon-loading"
+        name="loading"
+        size="2em"
+        viewbox="100"
+      />
+    </div>
+
+    <div class="editor-content" ref="content" />
+  </div>
 </template>
 
 <script lang="ts">
@@ -7,32 +27,45 @@ import Vue, { PropType } from 'vue'
 import Editor from '@editorjs/editorjs'
 
 import { createEditor } from '@/utils/editor'
+import { DocumentResource } from '@/types/resource'
 
 type ComponentData = {
   editor: Editor | null;
+  payload: DocumentResource;
 }
 
 export default Vue.extend({
   name: 'DocumentEditor',
   props: {
     value: {
-      type: Object as PropType<EditorJS.OutputData>
+      type: Object as PropType<DocumentResource>
+    },
+    loading: {
+      type: Boolean
     }
   },
   data (): ComponentData {
     return {
-      editor: null
+      editor: null,
+      payload: { ...this.value }
     }
   },
   async mounted () {
     this.editor = createEditor({
-      holder: this.$el as HTMLElement,
-      data: this.value,
+      holder: this.$refs.content as HTMLElement,
+      data: this.value.content,
       logLevel: 'ERROR' as EditorJS.LogLevels,
       onChange: this.save.bind(this)
     })
 
     await this.editor.isReady
+  },
+  beforeDestroy () {
+    if (!this.editor) {
+      return
+    }
+
+    this.editor.destroy()
   },
   methods: {
     async save () {
@@ -40,9 +73,9 @@ export default Vue.extend({
         return
       }
 
-      const data = await this.editor.save()
+      this.payload.content = await this.editor.save()
 
-      this.$emit('input', data)
+      this.$emit('input', this.payload)
     }
   }
 })
@@ -68,5 +101,35 @@ export default Vue.extend({
   .ce-toolbar__plus:hover {
     @apply text-primary;
   }
+}
+</style>
+
+<style lang="postcss" scoped>
+.editor {
+  @apply w-full mx-auto p-0;
+
+  max-width: 700px;
+}
+
+.editor-header {
+  @apply flex justify-between items-center;
+  @apply border-b;
+  @apply pt-2 px-0 pb-6;
+  @apply my-0;
+
+  border-color: #DEE2EE;
+}
+
+.editor-title {
+  font-size: 2rem;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.editor-content {
+  @apply pt-6;
 }
 </style>

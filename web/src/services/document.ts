@@ -3,10 +3,10 @@ import store from '@/store'
 
 async function create (payload: object) {
   try {
-    const res = await api.post('docs', { data: payload })
+    const { data } = await api.post('docs', { data: payload })
     await store.dispatch('link/fetch')
 
-    return res
+    return data
   } catch (error) {
     let err = error
     if (error.response) {
@@ -20,7 +20,7 @@ async function create (payload: object) {
   }
 }
 
-async function view (id: string) {
+async function view (id: number | string) {
   const { data } = await api.get(`docs/${id}`)
 
   if (data.status === 'error') {
@@ -30,11 +30,11 @@ async function view (id: string) {
   return data
 }
 
-async function update (id: string, payload: object) {
+async function update (id: number| string, payload: object) {
   try {
-    const res = await api.patch(`docs/${id}`, { data: payload })
+    const { data } = await api.patch(`docs/${id}`, { data: payload })
 
-    return res
+    return data
   } catch (error) {
     let err = error
 
