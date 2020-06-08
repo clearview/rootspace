@@ -6,7 +6,7 @@ module.exports = {
   url: process.env.POSTGRES,
   logging: false,
   synchronize: true,
-  entities: [`${__dirname}/src/entities/*{.ts,.js}`],
   migrations: [`${__dirname}/src/migrations/*{.ts,.js}`],
-  subscribers: [`${__dirname}/src/subscriber/*{.ts,.js}`]
+  entities: [`${__dirname}/src/entities/*{.ts,.js}`],
+  subscribers: [`${__dirname}/src/entities/subscribers/*{.ts,.js}`]
 }

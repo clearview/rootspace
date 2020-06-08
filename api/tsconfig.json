@@ -7,7 +7,7 @@
     "lib": ["esnext", "es6"],
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "experimentalDecorators": true
   },
   "include": [
     "./src/**/*.ts"
