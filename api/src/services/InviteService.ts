@@ -3,12 +3,11 @@ import pug from 'pug'
 import { config } from 'node-config-ts'
 import { getCustomRepository } from 'typeorm'
 import { InviteRepository } from '../repositories/InviteRepository'
-import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Invite } from '../entities/Invite'
 import { Space } from '../entities/Space'
+import { User } from '../entities/User'
 import { MailService } from './mail/MailService'
 import { clientError, ClientErrName } from '../errors/client'
-import { User } from '../entities/User'
 
 export class InviteService {
   static mailTemplatesDir =
@@ -34,8 +33,8 @@ export class InviteService {
     return getCustomRepository(InviteRepository)
   }
 
-  getUserToSpaceRepository(): UserToSpaceRepository {
-    return getCustomRepository(UserToSpaceRepository)
+  getInvite(email: string, spaceId: number): Promise<Invite> {
+    return this.getInviteRepository().getByEmailAndSpaceId(email, spaceId)
   }
 
   getInviteByTokenAndId(
@@ -67,27 +66,31 @@ export class InviteService {
   }
 
   async createWithEmail(email: string, space: Space): Promise<Invite> {
-    let invite = new Invite()
+    let invite = await this.getInvite(email, space.id)
 
-    invite.spaceId = space.id
-    invite.email = email
+    if (!invite) {
+      invite = new Invite()
+      invite.spaceId = space.id
+      invite.email = email
+      invite = await this.getInviteRepository().save(invite)
+    }
 
-    invite = await this.getInviteRepository().save(invite)
     this.sendInvitationEmail(invite, space)
-
     return invite
   }
 
   async createWithUser(user: User, space: Space): Promise<Invite> {
-    let invite = new Invite()
+    let invite = await this.getInvite(user.email, space.id)
 
-    invite.spaceId = space.id
-    invite.userId = user.id
-    invite.email = user.email
+    if (!invite) {
+      invite = new Invite()
+      invite.spaceId = space.id
+      invite.userId = user.id
+      invite.email = user.email
+      invite = await this.getInviteRepository().save(invite)
+    }
 
-    invite = await this.getInviteRepository().save(invite)
     this.sendInvitationEmail(invite, space)
-
     return invite
   }
 
