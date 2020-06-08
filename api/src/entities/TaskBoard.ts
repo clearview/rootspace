@@ -10,8 +10,11 @@ export enum TaskBoardType {
 @Entity('task_boards')
 export class TaskBoard {
 
-  @PrimaryGeneratedColumn('uuid')
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number
+
+  @Column('uuid')
+  uuid: string
 
   @Column('integer')
   @Index()
