@@ -1,41 +1,16 @@
-import {Connection, getConnection, getConnectionManager, getCustomRepository} from 'typeorm'
+import {spawnTestDatabase, destroyTestDatabase} from './helpers/db'
+import {getCustomRepository} from 'typeorm'
 import {TaskBoard, TaskBoardType} from '../src/entities/TaskBoard'
 import {TaskBoardRepository} from '../src/repositories/TaskBoardRepository'
 import {validate} from 'class-validator'
-import {GenericContainer, StartedTestContainer} from 'testcontainers'
-
-let container: StartedTestContainer = null
-let connection: Connection
 
 describe('Database', () => {
     beforeAll(async () => {
-        container = await new GenericContainer('postgres', '12')
-            .withName('root_test')
-            .withEnv('POSTGRES_USER', 'test')
-            .withEnv('POSTGRES_PASSWORD', 'test')
-            .withEnv('POSTGRES_DB', 'test')
-            .withExposedPorts(5432)
-            .start()
-
-        const connectionManager = getConnectionManager()
-
-        connection = connectionManager.create({
-            name: 'default',
-            type: 'postgres',
-            url: `postgresql://test:test@${container.getContainerIpAddress()}:${container.getMappedPort(5432)}/test`,
-            logging: false,
-            synchronize: true,
-            migrations: [`${__dirname}/../src/migrations/*{.ts,.js}`],
-            entities: [`${__dirname}/../src/entities/*{.ts,.js}`],
-            subscribers: [`${__dirname}/../src/entities/subscribers/*{.ts,.js}`]
-        })
-
-        await connection.connect()
+        await spawnTestDatabase()
     })
 
     afterAll(async () => {
-        await getConnection().close()
-        await container.stop()
+        await destroyTestDatabase()
     })
 
     it('should save and retrieve a record', async () => {

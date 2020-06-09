@@ -43,8 +43,11 @@ export default class Server {
     this.app.use(errorHandler)
   }
 
-  listen() {
-    const port = process.env.PORT || config.port
+  listen(port?: number) {
+    if (!port) {
+      port = process.env.PORT || config.port
+    }
+
     const domain = process.env.DOAMIN || config.domain
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: ${domain}`) // tslint:disable-line
