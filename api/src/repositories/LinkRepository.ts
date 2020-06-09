@@ -65,7 +65,7 @@ export class LinkRepository extends Repository<Link> {
     return false
   }
 
-  async getMaxPositionByParentId(parentId: number): Promise<number> {
+  async getNodeMaxPosition(parentId: number): Promise<number> {
     return this.createQueryBuilder('link')
       .where('link.parentId = :parentId', { parentId })
       .getCount()

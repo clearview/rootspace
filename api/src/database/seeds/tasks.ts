@@ -40,7 +40,7 @@ export default class TasksSeeder implements Seeder {
                 type: LinkType.TaskBoard,
                 title: taskBoard.title,
                 value: String(taskBoard.id),
-                position: await this.base.linkService.getLinkNextPositionByParentId(this.base.rootLink.id)
+                position: await this.base.linkService.getNodeNextPosition(this.base.rootLink.id)
             })
         }
 

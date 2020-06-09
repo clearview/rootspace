@@ -41,7 +41,7 @@ export default class DocsSeeder implements Seeder {
                 type: LinkType.Document,
                 title: doc.title,
                 value: String(doc.id),
-                position: await this.base.linkService.getLinkNextPositionByParentId(parentLink.id)
+                position: await this.base.linkService.getNodeNextPosition(parentLink.id)
             })
             links.push(linkPair)
         }

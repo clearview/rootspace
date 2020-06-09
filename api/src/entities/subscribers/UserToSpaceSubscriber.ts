@@ -8,7 +8,7 @@ import { SpaceFacade } from '../../services/facade'
 
 @EventSubscriber()
 export class UserToSpaceSubscriber
-  implements EntitySubscriberInterface<UserToSpace> {
+    implements EntitySubscriberInterface<UserToSpace> {
   spaceFacade: SpaceFacade
 
   constructor() {
@@ -20,6 +20,6 @@ export class UserToSpaceSubscriber
   }
 
   async afterInsert(event: InsertEvent<UserToSpace>) {
-    await this.spaceFacade.updateSpaceCountMembers(event.entity.spaceId)
+    return this.spaceFacade.updateSpaceCountMembers(event.entity.spaceId)
   }
 }
