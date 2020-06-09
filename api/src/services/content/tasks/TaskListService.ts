@@ -62,7 +62,7 @@ export class TaskListService implements ILinkContent<TaskList> {
   }
 
   getContentByLink(link: Link): Promise<TaskList> {
-    return this.getById(String(link.value))
+    return this.getById(Number(link.value))
   }
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
@@ -80,7 +80,7 @@ export class TaskListService implements ILinkContent<TaskList> {
     return this.getTaskListRepository().delete(String(link.value))
   }
 
-  async getById(id: string): Promise<TaskList> {
+  async getById(id: number): Promise<TaskList> {
     return this.getTaskListRepository().findOne(id)
   }
 
@@ -91,7 +91,7 @@ export class TaskListService implements ILinkContent<TaskList> {
     return taskList
   }
 
-  async update(data: TaskListUpdateValue, id: string): Promise<TaskList> {
+  async update(data: TaskListUpdateValue, id: number): Promise<TaskList> {
     let taskList = await this.getById(id)
 
     if (!taskList) {
@@ -106,7 +106,7 @@ export class TaskListService implements ILinkContent<TaskList> {
     return taskList
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     const taskList = await this.getById(id)
 
     if (!taskList) {

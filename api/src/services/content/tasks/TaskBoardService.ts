@@ -62,7 +62,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
   }
 
   getContentByLink(link: Link): Promise<TaskBoard> {
-    return this.getById(String(link.value))
+    return this.getById(Number(link.value))
   }
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
@@ -80,7 +80,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return this.getTaskBoardRepository().delete(String(link.value))
   }
 
-  async getById(id: string): Promise<TaskBoard> {
+  async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOne(id)
   }
 
@@ -91,7 +91,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return doc
   }
 
-  async update(data: TaskBoardUpdateValue, id: string): Promise<TaskBoard> {
+  async update(data: TaskBoardUpdateValue, id: number): Promise<TaskBoard> {
     let task = await this.getById(id)
 
     if (!task) {
@@ -106,7 +106,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return task
   }
 
-  async delete(id: string) {
+  async delete(id: number) {
     const taskBoard = await this.getById(id)
 
     if (!taskBoard) {
