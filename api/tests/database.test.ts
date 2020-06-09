@@ -10,7 +10,7 @@ let connection: Connection
 describe('Database', () => {
     beforeAll(async () => {
         container = await new GenericContainer('postgres', '12')
-            .withName('root_test')
+            .withName('root_db_test')
             .withEnv('POSTGRES_USER', 'test')
             .withEnv('POSTGRES_PASSWORD', 'test')
             .withEnv('POSTGRES_DB', 'test')

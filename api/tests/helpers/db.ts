@@ -6,7 +6,7 @@ let connection: Connection
 
 async function spawnTestDatabase () {
     container = await new GenericContainer('postgres', '12')
-        .withName('root_test')
+        .withName('root_test_database')
         .withEnv('POSTGRES_USER', 'test')
         .withEnv('POSTGRES_PASSWORD', 'test')
         .withEnv('POSTGRES_DB', 'test')
