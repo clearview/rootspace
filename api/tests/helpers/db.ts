@@ -6,7 +6,6 @@ let connection: Connection
 
 async function spawnTestDatabase () {
     container = await new GenericContainer('postgres', '12')
-        .withName('root_test_database')
         .withEnv('POSTGRES_USER', 'test')
         .withEnv('POSTGRES_PASSWORD', 'test')
         .withEnv('POSTGRES_DB', 'test')
@@ -21,9 +20,9 @@ async function spawnTestDatabase () {
         url: `postgresql://test:test@${container.getContainerIpAddress()}:${container.getMappedPort(5432)}/test`,
         logging: false,
         synchronize: true,
-        migrations: [`${__dirname}/../src/migrations/*{.ts,.js}`],
-        entities: [`${__dirname}/../src/entities/*{.ts,.js}`],
-        subscribers: [`${__dirname}/../src/entities/subscribers/*{.ts,.js}`]
+        migrations: [`${__dirname}/../../src/migrations/*{.ts,.js}`],
+        entities: [`${__dirname}/../../src/entities/*{.ts,.js}`],
+        subscribers: [`${__dirname}/../../src/entities/subscribers/*{.ts,.js}`]
     })
 
     await connection.connect()
