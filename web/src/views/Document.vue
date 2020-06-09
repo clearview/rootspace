@@ -10,15 +10,17 @@
         ref="title"
         :min-height="50"
       />
-      <editor-menu :loading="loading" />
+      <editor-menu :loading="loading" @change-readonly="changeReadonlyStatus" />
     </div>
 
     <editor
+      id="editor"
       v-if="!initialize"
       class="content"
       :key="`editor-${id}`"
       :content="value"
       @update-editor="onUpdateEditor"
+      :read-only="readOnly"
     />
   </div>
 </template>
@@ -41,6 +43,7 @@ type ComponentData = {
   initialize: boolean;
   loading: boolean;
   isFromLoad: boolean;
+  readOnly: boolean;
 }
 
 export default Vue.extend({
@@ -56,7 +59,8 @@ export default Vue.extend({
       timer: undefined,
       initialize: false,
       loading: false,
-      isFromLoad: false
+      isFromLoad: false,
+      readOnly: true
     }
   },
   computed: {
@@ -108,6 +112,11 @@ export default Vue.extend({
       this.value = value
 
       this.saveDocument()
+    },
+    changeReadonlyStatus (value: boolean) {
+      console.log('onChangeReadOnly', value)
+
+      this.readOnly = value
     },
     async loadDocument () {
       const id = this.$route.params.id

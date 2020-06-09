@@ -18,6 +18,9 @@ export default Vue.extend({
   props: {
     content: {
       type: Object
+    },
+    readOnly: {
+      type: Boolean
     }
   },
   data (): ComponentData {
@@ -40,7 +43,8 @@ export default Vue.extend({
     this.editor = createEditor({
       holder: this.$el as HTMLElement,
       data: this.data,
-      onChange: this.save.bind(this)
+      onChange: this.save.bind(this),
+      readOnly: this.readOnly
     })
 
     await this.editor.isReady
