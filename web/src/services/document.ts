@@ -1,7 +1,13 @@
 import api from '@/utils/api'
 import store from '@/store'
 
-async function create (payload: object) {
+import { DocumentResource } from '@/types/resource'
+
+type Response = {
+  data: DocumentResource;
+}
+
+async function create (payload: object): Promise<Response> {
   try {
     const { data } = await api.post('docs', { data: payload })
     await store.dispatch('link/fetch')
@@ -20,7 +26,7 @@ async function create (payload: object) {
   }
 }
 
-async function view (id: number | string) {
+async function view (id: number | string): Promise<Response> {
   const { data } = await api.get(`docs/${id}`)
 
   if (data.status === 'error') {

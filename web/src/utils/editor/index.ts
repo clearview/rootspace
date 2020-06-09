@@ -1,5 +1,5 @@
 import Editor, { EditorConfig } from '@editorjs/editorjs'
-import Header from '@editorjs/header'
+import Paragraph from '@editorjs/paragraph'
 import List from '@editorjs/list'
 import Image from '@editorjs/image'
 import InlineCode from '@editorjs/inline-code'
@@ -12,31 +12,79 @@ import Delimiter from '@editorjs/delimiter'
 import Raw from '@editorjs/raw'
 import Table from '@editorjs/table'
 import Warning from '@editorjs/warning'
-import Paragraph from '@editorjs/paragraph'
 import Checklist from '@editorjs/checklist'
+
+import { createHeading } from './plugins/heading'
 
 export function createEditor (setting: Partial<EditorConfig>): Editor {
   const defaultSetting: Partial<EditorConfig> = {
     placeholder: 'Let`s write an awesome document!',
     tools: {
-      header: {
-        class: Header,
-        inlineToolbar: ['link'],
+      paragraph: {
+        class: Paragraph,
+        inlineToolbar: true
+      },
+      h1: {
+        class: createHeading(1),
+        inlineToolbar: ['bold', 'italic'],
         config: {
-          placeholder: 'Header',
-          levels: [1, 2, 3]
+          placeholder: 'Heading 1'
+        }
+      },
+      h2: {
+        class: createHeading(2),
+        inlineToolbar: ['bold', 'italic'],
+        config: {
+          placeholder: 'Heading 2'
+        }
+      },
+      h3: {
+        class: createHeading(3),
+        inlineToolbar: ['bold', 'italic'],
+        config: {
+          placeholder: 'Heading 3'
+        }
+      },
+      quote: {
+        class: Quote,
+        inlineToolbar: true,
+        config: {
+          quotePlaceholder: 'Enter a quote',
+          captionPlaceholder: 'Quote\'s author'
         },
-        shortcut: 'CMD+SHIFT+H'
+        shortcut: 'CMD+SHIFT+O'
+      },
+      code: {
+        class: Code,
+        shortcut: 'CMD+SHIFT+C'
+      },
+      inlineCode: {
+        class: InlineCode,
+        shortcut: 'CMD+SHIFT+C'
+      },
+      marker: {
+        class: Marker,
+        shortcut: 'CMD+SHIFT+M'
       },
       list: {
         class: List,
         inlineToolbar: true,
         shortcut: 'CMD+SHIFT+L'
       },
-      image: Image,
-      inlineCode: {
-        class: InlineCode,
-        shortcut: 'CMD+SHIFT+C'
+      checklist: {
+        class: Checklist,
+        inlineToolbar: true
+      },
+      linkTool: {
+        class: LinkTool
+      },
+      table: {
+        class: Table,
+        inlineToolbar: true,
+        shortcut: 'CMD+ALT+T'
+      },
+      image: {
+        class: Image
       },
       embed: {
         class: Embed,
@@ -49,31 +97,6 @@ export function createEditor (setting: Partial<EditorConfig>): Editor {
           }
         }
       },
-      quote: {
-        class: Quote,
-        inlineToolbar: true,
-        config: {
-          quotePlaceholder: 'Enter a quote',
-          captionPlaceholder: 'Quote\'s author'
-        },
-        shortcut: 'CMD+SHIFT+O'
-      },
-      marker: {
-        class: Marker,
-        shortcut: 'CMD+SHIFT+M'
-      },
-      code: {
-        class: Code,
-        shortcut: 'CMD+SHIFT+C'
-      },
-      linkTool: LinkTool,
-      delimiter: Delimiter,
-      raw: Raw,
-      table: {
-        class: Table,
-        inlineToolbar: true,
-        shortcut: 'CMD+ALT+T'
-      },
       warning: {
         class: Warning,
         inlineToolbar: true,
@@ -83,13 +106,11 @@ export function createEditor (setting: Partial<EditorConfig>): Editor {
           messagePlaceholder: 'Message'
         }
       },
-      paragraph: {
-        class: Paragraph,
-        inlineToolbar: true
+      raw: {
+        class: Raw
       },
-      checklist: {
-        class: Checklist,
-        inlineToolbar: true
+      delimiter: {
+        class: Delimiter
       }
     }
   }

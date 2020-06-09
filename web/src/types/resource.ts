@@ -56,6 +56,7 @@ export interface UserResource {
 }
 
 export interface DocumentResource {
+  id: number;
   spaceId: number;
   title: string;
   content: EditorJS.OutputData;

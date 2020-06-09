@@ -24,6 +24,13 @@ type ComponentData = {
   payload: Partial<DocumentResource> | null;
 }
 
+type DocumentBlock = {
+  type: string;
+  data: {
+    [key: string]: number | string;
+  };
+}
+
 export default Vue.extend({
   name: 'Document',
   components: {
@@ -79,7 +86,7 @@ export default Vue.extend({
       try {
         const { data } = await DocumentService.view(this.id)
 
-        this.payload = data
+        this.payload = this.transform(data)
       } finally {
         this.loading = false
       }
@@ -100,13 +107,30 @@ export default Vue.extend({
           this.$router.replace({
             name: 'Document',
             params: {
-              id: data.id
+              id: data.id.toString()
             }
           })
         }
       } finally {
         this.loading = false
       }
+    },
+    transform (data: DocumentResource) {
+      data.content.blocks = data.content.blocks.map((block) => {
+        const { type, data } = block as DocumentBlock
+
+        switch (type) {
+          case 'header':
+            return {
+              type: `h${data.level}`,
+              data
+            }
+          default:
+            return { type, data }
+        }
+      })
+
+      return data
     }
   },
   async created () {
