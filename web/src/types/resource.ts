@@ -1,4 +1,4 @@
-import {OutputData} from '@editorjs/editorjs/types/data-formats/output-data'
+import { OutputData } from '@editorjs/editorjs/types/data-formats/output-data'
 
 export interface LinkResource {
   id: number;

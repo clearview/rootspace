@@ -33,20 +33,23 @@
                 </div>
             </div>
         </header>
+      <main class="list">
+        <ListEntry/>
+      </main>
     </section>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import Icon from '@/components/icon/Icon'
-import { TaskResource } from '../../types/resource'
+import Icon from '@/components/icon/Icon.vue'
 import { mapState } from 'vuex'
-import { RootState } from '../../types/state'
+import ListEntry from '@/views/Task/ListEntry.vue'
 interface ComponentData {
     x_: null;
 }
 export default Vue.extend({
   components: {
+    ListEntry,
     Icon
   },
   data (): ComponentData {
@@ -55,8 +58,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState({
-      task: (state: RootState) => state.task.current
+    ...mapState('task', {
+      task: 'current'
     })
   },
   methods: {
