@@ -17,10 +17,10 @@
       id="editor"
       v-if="!initialize"
       class="content"
+      :class="{ readonly: readOnly }"
       :key="`editor-${id}`"
       :content="value"
       @update-editor="onUpdateEditor"
-      :read-only="readOnly"
     />
   </div>
 </template>
@@ -60,7 +60,7 @@ export default Vue.extend({
       initialize: false,
       loading: false,
       isFromLoad: false,
-      readOnly: true
+      readOnly: false
     }
   },
   computed: {
@@ -114,9 +114,13 @@ export default Vue.extend({
       this.saveDocument()
     },
     changeReadonlyStatus (value: boolean) {
-      console.log('onChangeReadOnly', value)
-
       this.readOnly = value
+
+      const elements = document.querySelectorAll(`[contenteditable=${value}]`)
+      const state = !value
+      elements.forEach(element => {
+        element.setAttribute('contenteditable', state.toString())
+      })
     },
     async loadDocument () {
       const id = this.$route.params.id
@@ -214,5 +218,16 @@ export default Vue.extend({
 
 .content {
   padding-top: 0.5rem;
+}
+</style>
+
+<style lang="postcss">
+#editor {
+  &.readonly {
+    .ce-toolbar__plus,
+    .ce-toolbar {
+      display: none;
+    }
+  }
 }
 </style>
