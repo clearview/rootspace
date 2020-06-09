@@ -10,6 +10,13 @@ import {
   TreeChildren,
 } from 'typeorm'
 
+export enum LinkType {
+  Undefined = 'undefined',
+  Root = 'root',
+  Document = 'doc',
+  TaskBoard = 'taskBoard'
+}
+
 @Entity('links')
 @Tree('nested-set')
 export class Link {
@@ -38,7 +45,7 @@ export class Link {
   title: string
 
   @Column('varchar', { length: 20 })
-  type: string
+  type: LinkType
 
   @Column('varchar', { length: 150 })
   value: string

@@ -9,8 +9,8 @@ export enum TaskStatus {
 @Entity('tasks')
 export class Task {
 
-    @PrimaryGeneratedColumn('uuid')
-    id: string
+    @PrimaryGeneratedColumn()
+    id: number
 
     @Column('integer')
     @Index()
@@ -20,9 +20,9 @@ export class Task {
     @Index()
     spaceId: number
 
-    @Column('uuid')
+    @Column('integer')
     @Index()
-    listId: string
+    listId: number
 
     @Column('json', { nullable: true })
     assignedTo: object
