@@ -22,6 +22,7 @@ export default new Vuex.Store<RootState>({
     auth,
     link,
     task,
+    nav,
     option
   },
   plugins: [
