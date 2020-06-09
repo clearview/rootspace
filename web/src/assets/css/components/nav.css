@@ -7,6 +7,11 @@
   overflow: hidden;
 }
 
+.nav-header,
+.nav-footer {
+  transition: 300ms;
+}
+
 .nav-header {
   @apply flex flex-row items-center;
   @apply w-full p-4;
@@ -137,11 +142,15 @@
 }
 
 .nav.nav--collapse {
-  @apply p-2;
   @apply bg-gray-900 text-white;
 
   width: 52px !important;
   min-width: 52px;
+
+  .nav-header,
+  .nav-footer {
+    @apply p-2;
+  }
 
   .nav-logo {
     @apply bg-transparent;

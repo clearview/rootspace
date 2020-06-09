@@ -70,7 +70,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { omit } from 'lodash/fp'
+import { omit, isEmpty } from 'lodash/fp'
 
 import { WorkspaceResource } from '@/types/resource'
 
@@ -102,6 +102,9 @@ export default Vue.extend({
       this.$store.commit('auth/setCurrentSpace', omit('active', data))
 
       this.$emit('input', null)
+      if (!isEmpty(this.$route.query)) {
+        this.$router.replace({ query: {} })
+      }
     },
     signout () {
       this.$store.dispatch('auth/signout')

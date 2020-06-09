@@ -37,6 +37,7 @@ passport.use(
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
           email: profile.emails[0].value,
+          emailConfirmed: true,
           password: '',
           authProvider: 'google',
           active: true,
@@ -58,7 +59,7 @@ passport.use(
     },
     async (email, password, done) => {
       try {
-        const userService = new UserService()
+        const userService = UserService.getInstance()
         const user = await userService.getUserByEmail(email, true)
 
         if (!user) {
@@ -89,7 +90,7 @@ passport.use(
             )
           } */
 
-          if(user.active !== true){
+          if (user.active !== true) {
             return done(
               clientError(
                 'User not active',

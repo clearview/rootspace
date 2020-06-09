@@ -40,7 +40,7 @@ export default class MainSeeder implements Seeder {
         userId: user.id,
         spaceId: space.id,
         value: String(doc.id),
-        position: await this.linkSrvice.getLinkNextPositionByParentId(parentLink.id)
+        position: await this.linkSrvice.getNodeNextPosition(parentLink.id)
       })
       links.push(linkPair)
     }
@@ -48,7 +48,7 @@ export default class MainSeeder implements Seeder {
   }
 
   async rootLink (factory, user, space) {
-    const linkRoot = await factory(Link)().create({
+    return factory(Link)().create({
       parent: null,
       userId: user.id,
       spaceId: space.id,
@@ -57,6 +57,5 @@ export default class MainSeeder implements Seeder {
       value: space.id,
       position: 1
     })
-    return linkRoot
   }
 }

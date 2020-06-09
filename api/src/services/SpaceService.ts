@@ -1,20 +1,11 @@
 import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../repositories/SpaceRepository'
-import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { Space } from '../entities/Space'
-import { ContentManager } from './content/ContentManager'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
-import { clientError } from '../errors/client'
-import { UserToSpace } from '../entities/UserToSpace'
+import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
 
 export class SpaceService {
-  private contentManager: ContentManager
-
   private static instance: SpaceService
-
-  private constructor() {
-    this.contentManager = ContentManager.getInstance()
-  }
 
   static getInstance() {
     if (!SpaceService.instance) {
@@ -28,44 +19,31 @@ export class SpaceService {
     return getCustomRepository(SpaceRepository)
   }
 
-  getUserToSpaceRepository(): UserToSpaceRepository {
-    return getCustomRepository(UserToSpaceRepository)
-  }
-
   getSpaceById(id: number): Promise<Space | undefined> {
     return this.getSpaceRepository().findOne(id)
   }
 
-  async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
-    const space = await this.getSpaceRepository().getByIdAndUserId(
-      spaceId,
-      userId
-    )
+  async requireSpaceById(id: number): Promise<Space> {
+    const space = await this.getSpaceById(id)
 
-    if (space && space !== undefined) {
-      return true
+    if (!space) {
+      throw clientError(
+        'Can not find space id ' + id,
+        ClientErrName.EntityNotFound,
+        ClientStatusCode.NotFound
+      )
     }
 
-    return false
+    return space
+  }
+
+  getSpacesByUserId(userId: number): Promise<Space[]> {
+    return this.getSpaceRepository().getByUserId(userId)
   }
 
   async create(data: SpaceCreateValue): Promise<Space> {
-    try {
-      let space = this.getSpaceRepository().create(data.getAttributes())
-      space = await this.getSpaceRepository().save(space)
-
-      const userToSpace = new UserToSpace()
-      userToSpace.spaceId = space.id
-      userToSpace.userId = space.userId
-
-      this.getUserToSpaceRepository().save(userToSpace)
-
-      await this.contentManager.createSpaceRootLink(space)
-
-      return space
-    } catch (err) {
-      throw err
-    }
+    const space = this.getSpaceRepository().create(data.getAttributes())
+    return await this.getSpaceRepository().save(space)
   }
 
   async update(data: SpaceUpdateValue, id: number): Promise<Space> {
@@ -76,6 +54,21 @@ export class SpaceService {
     }
 
     Object.assign(space, data.getAttributes())
+    return this.getSpaceRepository().save(space)
+  }
+
+  async updateCountMembers(count: number, spaceId: number): Promise<Space> {
+    const space = await this.getSpaceById(spaceId)
+
+    if (!space) {
+      throw clientError(
+        'Space not found ' + spaceId,
+        ClientErrName.EntityNotFound,
+        ClientStatusCode.NotFound
+      )
+    }
+
+    space.countMembers = count
     return this.getSpaceRepository().save(space)
   }
 }

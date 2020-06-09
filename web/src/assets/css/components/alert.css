@@ -4,6 +4,12 @@
   @apply bg-gray-100 text-gray-900;
   @apply leading-none font-medium;
 
+  line-height: 1.5;
+
+  .message {
+    @apply flex flex-row;
+  }
+
   &.alert-primary {
     @apply text-primary;
 

@@ -8,9 +8,13 @@ Vue.use(VueRouter)
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Main',
     component: Main,
     children: [
+      {
+        path: '/',
+        name: 'Main',
+        component: () => import(/* webpackChunkName: "start" */ '../views/Start.vue')
+      },
       {
         path: '/settings',
         name: 'Settings',
@@ -90,7 +94,9 @@ router.beforeEach(async (to, from, next) => {
     return next()
   }
 
-  next({ name: 'SignIn' })
+  const queryParams = to.fullPath ? { redirectTo: to.fullPath } : {}
+
+  next({ name: 'SignIn', query: queryParams })
 })
 
 export default router

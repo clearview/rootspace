@@ -19,10 +19,20 @@ export class UserService {
   static mailTemplatesDir =
     path.dirname(require.main.filename) + '/templates/mail/user/'
 
-  private mailSerivce: MailService
+  private mailService: MailService
 
-  constructor() {
-    this.mailSerivce = new MailService()
+  private static instance: UserService
+
+  private constructor() {
+    this.mailService = new MailService()
+  }
+
+  static getInstance() {
+    if (!UserService.instance) {
+      UserService.instance = new UserService()
+    }
+
+    return UserService.instance
   }
 
   getUserRepository() {
@@ -169,7 +179,7 @@ export class UserService {
     )
 
     try {
-      await this.mailSerivce.sendMail(user.email, subject, content)
+      await this.mailService.sendMail(user.email, subject, content)
     } catch (error) {
       //
     }

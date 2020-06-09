@@ -19,7 +19,7 @@ export class UsersCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.userService = new UserService()
+    this.userService = UserService.getInstance()
   }
 
   async signup(req: Request, res: Response, next: NextFunction) {

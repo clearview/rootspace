@@ -13,6 +13,7 @@ import auth from '@/store/modules/auth'
 import link from '@/store/modules/link'
 import task from '@/store/modules/task'
 import nav from '@/store/modules/nav'
+import option from '@/store/modules/option'
 
 Vue.use(Vuex)
 
@@ -21,7 +22,7 @@ export default new Vuex.Store<RootState>({
     auth,
     link,
     task,
-    nav
+    option
   },
   plugins: [
     local.plugin,

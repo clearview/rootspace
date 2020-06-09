@@ -25,7 +25,7 @@
         <p class="w-full mt-16 mb-5 text-center">
           Don't have an account yet?
           <router-link
-            :to="{ name: 'SignUp'}"
+            :to="{ name: 'SignUp', query: redirectTo }"
             class="signup"
           >Sign Up</router-link>
         </p>
@@ -53,6 +53,7 @@ import GoogleSignin from '@/components/GoogleSignin.vue'
 type ComponentData = {
   isLoading: boolean;
   alert: object | null;
+  redirectTo: object | null;
 };
 
 export default Vue.extend({
@@ -67,11 +68,16 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       isLoading: false,
-      alert: null
+      alert: null,
+      redirectTo: null
     }
   },
   computed: {
     ...mapState('auth', ['spaces'])
+  },
+  mounted () {
+    this.redirectTo = this.$route.query ? this.$route.query : {}
+    this.$store.commit('option/setRedirect', this.redirectTo)
   },
   methods: {
     async userSignin (data: SigninResource) {
@@ -83,7 +89,12 @@ export default Vue.extend({
           payload: data
         })
 
-        this.$router.push({ name: 'Main' })
+        const query = this.$route.query
+        if (query.redirectTo) {
+          this.$router.push({ path: query.redirectTo.toString() })
+        } else {
+          this.$router.push({ name: 'Main' })
+        }
       } catch (err) {
         this.alert = {
           type: 'danger',

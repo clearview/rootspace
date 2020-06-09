@@ -1,11 +1,17 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
 import { TaskList } from './TaskList'
+import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
+
+export enum TaskBoardType {
+  List = 1,
+  Kanban = 2
+}
 
 @Entity('task_boards')
 export class TaskBoard {
 
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column('integer')
   @Index()
@@ -16,18 +22,29 @@ export class TaskBoard {
   spaceId: number
 
   @Column('integer')
-  type: number
+  @IsInt()
+  @Min(1)
+  @Max(2)
+  type: TaskBoardType
+
+  @Column('boolean', { default: false })
+  isPublic: boolean
 
   @Column('varchar')
+  @Length(2, 128)
   title: string
 
-  @Column('text')
+  @Column('text', { nullable: true })
   description: string
 
-  @CreateDateColumn()
-  createdAt: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  @IsDate()
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updatedAt: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  @IsDate()
+  updatedAt: Date
 
+  @OneToMany(type => TaskList, taskList => taskList.board)
+  taskLists: TaskList[]
 }

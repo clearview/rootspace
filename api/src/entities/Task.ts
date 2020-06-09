@@ -1,55 +1,60 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm'
 import { TaskList } from './TaskList'
 
+export enum TaskStatus {
+    Open = 0,
+    Closed = 1
+}
+
 @Entity('tasks')
 export class Task {
 
-  @PrimaryGeneratedColumn()
-  id: number
+    @PrimaryGeneratedColumn('uuid')
+    id: string
 
-  @Column('integer')
-  @Index()
-  userId: number
+    @Column('integer')
+    @Index()
+    userId: number
 
-  @Column('integer')
-  @Index()
-  spaceId: number
+    @Column('integer')
+    @Index()
+    spaceId: number
 
-  @Column('integer')
-  @Index()
-  listId: number
+    @Column('uuid')
+    @Index()
+    listId: string
 
-  @Column('json')
-  assignedTo: object
+    @Column('json', { nullable: true })
+    assignedTo: object
 
-  @Column('varchar')
-  title: string
+    @Column('varchar')
+    title: string
 
-  @Column('text')
-  description: string
+    @Column('text', { nullable: true })
+    description: string
 
-  @Column('integer')
-  status: number
+    @Column('integer', { nullable: true })
+    status: TaskStatus
 
-  @Column('json', { nullable: true })
-  tags: object
+    @Column('json', { default: [], nullable: true })
+    tags: object
 
-  @Column('json', { nullable: true })
-  attacments: object
+    @Column('json', { nullable: true })
+    attachments: object
 
-  @Column('timestamp', { nullable: true })
-  dueDate: string
+    @Column( 'timestamptz', { nullable: true })
+    dueDate: Date
 
-  @Column('integer')
-  order: number
+    @Column('integer', { default: 0 })
+    position: number
 
-  @CreateDateColumn()
-  createdAt: string
+    @CreateDateColumn({ type: 'timestamptz'})
+    createdAt: Date
 
-  @UpdateDateColumn()
-  updatedAt: string
+    @UpdateDateColumn({ type: 'timestamptz'})
+    updatedAt: Date
 
-  @ManyToOne(type => TaskList, list => list.tasks)
-  list: TaskList
+    @ManyToOne(type => TaskList, list => list.tasks)
+    list: TaskList
 
 }
