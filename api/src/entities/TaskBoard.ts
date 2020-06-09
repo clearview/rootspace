@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Generated
+} from 'typeorm'
 import { TaskList } from './TaskList'
 import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
 
@@ -14,6 +23,7 @@ export class TaskBoard {
   id: number
 
   @Column('uuid')
+  @Generated('uuid')
   uuid: string
 
   @Column('integer')
