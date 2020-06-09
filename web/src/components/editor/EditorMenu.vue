@@ -78,6 +78,7 @@ export default Vue.extend({
   watch: {
     lockEditor (newVal) {
       this.$emit('change-readonly', newVal)
+      this.showMenu = false
     }
   },
   methods: {
