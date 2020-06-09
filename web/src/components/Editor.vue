@@ -2,11 +2,11 @@
   <div class="editor">
     <div class="editor-header">
       <input
-        autofocus
         type="text"
         v-model="payload.title"
         class="editor-title"
         placeholder="Your Title Here"
+        ref="title"
         @input="save"
       >
       <v-icon
@@ -34,6 +34,11 @@ type ComponentData = {
   payload: DocumentResource;
 }
 
+type ComponentRefs = {
+  content: HTMLElement;
+  title: HTMLInputElement;
+}
+
 export default Vue.extend({
   name: 'DocumentEditor',
   props: {
@@ -50,15 +55,25 @@ export default Vue.extend({
       payload: { ...this.value }
     }
   },
+  computed: {
+    refs (): ComponentRefs {
+      return {
+        content: this.$refs.content as HTMLElement,
+        title: this.$refs.title as HTMLInputElement
+      }
+    }
+  },
   async mounted () {
     this.editor = createEditor({
-      holder: this.$refs.content as HTMLElement,
+      holder: this.refs.content,
       data: this.value.content,
       logLevel: 'ERROR' as EditorJS.LogLevels,
       onChange: this.save.bind(this)
     })
 
     await this.editor.isReady
+
+    this.refs.title.focus()
   },
   beforeDestroy () {
     if (!this.editor) {
