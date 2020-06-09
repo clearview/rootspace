@@ -1,14 +1,15 @@
 <template>
   <div class="page">
     <div class="header">
-      <input
+      <textarea-autosize
         autofocus
         v-model="title"
-        type="text"
+        rows="1"
         class="title"
         placeholder="Your Title Here"
         ref="title"
-      >
+        :min-height="50"
+      />
       <editor-menu :loading="loading" />
     </div>
 
