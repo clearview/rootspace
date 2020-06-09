@@ -25,9 +25,9 @@ export class TaskList {
     @Index()
     spaceId: number
 
-    @Column('uuid')
+    @Column('integer')
     @Index()
-    boardId: string
+    boardId: number
 
     @Column('varchar')
     title: string

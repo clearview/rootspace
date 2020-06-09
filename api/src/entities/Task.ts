@@ -20,9 +20,9 @@ export class Task {
     @Index()
     spaceId: number
 
-    @Column('uuid')
+    @Column('integer')
     @Index()
-    listId: string
+    listId: number
 
     @Column('json', { nullable: true })
     assignedTo: object
