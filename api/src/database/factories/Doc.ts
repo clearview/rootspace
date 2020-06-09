@@ -4,10 +4,8 @@ import { Doc } from '../../entities/Doc'
 
 define(Doc, (faker: typeof Faker) => {
   const doc = new Doc()
-  doc.userId = 1
-  doc.spaceId = 1
   doc.title = faker.lorem.sentence()
-  const content = {
+  doc.content = {
     blocks: [
       {
         type: 'header',
@@ -24,7 +22,6 @@ define(Doc, (faker: typeof Faker) => {
       }
     ]
   }
-  doc.content = content
   doc.access = 2
   return doc
 })

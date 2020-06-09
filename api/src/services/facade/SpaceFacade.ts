@@ -24,7 +24,7 @@ export class SpaceFacade {
 
     await this.userSpaceService.add(space.userId, space.id)
 
-    this.linkService.createSpaceRoot(
+    await this.linkService.createSpaceRoot(
       LinkCreateValue.fromObject({
         userId: space.userId,
         spaceId: space.id,

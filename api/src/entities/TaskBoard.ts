@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Generated
+} from 'typeorm'
 import { TaskList } from './TaskList'
 import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
 
@@ -10,8 +19,12 @@ export enum TaskBoardType {
 @Entity('task_boards')
 export class TaskBoard {
 
-  @PrimaryGeneratedColumn('uuid')
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number
+
+  @Column('uuid')
+  @Generated('uuid')
+  uuid: string
 
   @Column('integer')
   @Index()
