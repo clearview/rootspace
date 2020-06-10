@@ -1,20 +1,28 @@
 import request from 'supertest'
 import Server from '../src/server'
-import {spawnTestDatabase, destroyTestDatabase} from './helpers/db'
+import {connect, disconnect} from './helpers/db.testcontainers'
+import {createUser} from './fixtures/createUser'
+import {UserRepository} from '../src/repositories/UserRepository'
+import {getCustomRepository} from 'typeorm'
 
 const server = new Server()
 
 describe('Express', () => {
 
     beforeAll(async () => {
-        await spawnTestDatabase()
+        await connect()
+
+        const user = await createUser('test@test.com', '123123')
+        const userRepository = getCustomRepository(UserRepository)
+        await userRepository.save(user)
+
         await server.bootstrap()
         server.listen(3333)
     })
 
     afterAll(async () => {
         await server.close()
-        await destroyTestDatabase()
+        await disconnect()
     })
 
     it('should GET root API', async () => {
@@ -22,5 +30,4 @@ describe('Express', () => {
 
         expect(res.statusCode).toEqual(200)
     })
-
 })

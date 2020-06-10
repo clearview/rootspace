@@ -14,6 +14,19 @@
 - create `.env` file from `.env.example`
 - `nodemon`
 
+#### API Testing
+
+##### Writing tests
+Use `docker-compose up -d` in api/tests directory to bring up test postgres database and use `helpers/db.docker.ts` connector while working on a test.
+
+This will make running a test much faster when writing / executing test.
+
+##### TestContainers
+
+Once satisfied with your tests switch to `helpers/db.testcontatiners.ts` to utilize TestContainers in your test.
+
+This will spawn a fresh postgres db container for every test so `root_postgres_test` is not needed anymore. 
+
 ### DB Seeding
 DB Seeder will populate following models: User, Space and Link
 

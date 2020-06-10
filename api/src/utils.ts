@@ -8,7 +8,7 @@ export function mapRoute(ctrl: any, fn: string) {
   return instances[ctrl][fn].bind(instances[ctrl])
 }
 
-export function hashPassword(password: string) {
+export function hashPassword(password: string): Promise<string> {
   const BCRYPT_WORK_FACTOR_BASE = 12
   const BCRYPT_DATE_BASE = 1483228800000
   const BCRYPT_WORK_INCREASE_INTERVAL = 47300000000
