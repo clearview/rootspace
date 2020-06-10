@@ -22,6 +22,7 @@ import IconDown from './IconDown.vue'
 import IconEdit from './IconEdit.vue'
 import IconEmail from './IconEmail.vue'
 import IconFile from './IconFile.vue'
+import IconFilter from './IconFilter.vue'
 import IconFolder from './IconFolder.vue'
 import IconLeft from './IconLeft.vue'
 import IconLink from './IconLink.vue'
@@ -40,20 +41,32 @@ import IconWarning from './IconWarning.vue'
 import IconGoogle from './IconGoogle.vue'
 import IconWorkspace from './IconWorkspace.vue'
 import IconLoading from './IconLoading.vue'
+import IconKanban from '@/components/icon/IconKanban.vue'
+import IconList from '@/components/icon/IconList.vue'
+import IconTag from '@/components/icon/IconTag.vue'
+import IconTime from '@/components/icon/IconTime.vue'
+import IconAttachment from '@/components/icon/IconAttachment.vue'
+import IconDrag from '@/components/icon/IconDrag.vue'
+import IconUser2 from '@/components/icon/IconUser2.vue'
 
 export default Vue.extend({
   name: 'Icon',
   components: {
     IconAdd,
+    IconAttachment,
     IconClose,
     IconDots,
     IconDown,
+    IconDrag,
     IconEdit,
     IconEmail,
     IconFile,
+    IconFilter,
+    IconKanban,
     IconFolder,
     IconLeft,
     IconLink,
+    IconList,
     IconLinkEdit,
     IconLock,
     IconPlus,
@@ -61,10 +74,13 @@ export default Vue.extend({
     IconRight,
     IconSearch,
     IconSettings,
+    IconTag,
+    IconTime,
     IconTrash,
     IconUnlock,
     IconUp,
     IconUser,
+    IconUser2,
     IconWarning,
     IconGoogle,
     IconWorkspace,
