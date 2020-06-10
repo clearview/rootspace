@@ -12,6 +12,17 @@ export interface LinkResource {
   };
 }
 
+export interface TaskResource {
+  id: number;
+  spaceId: number;
+  name: string;
+  type: 'list' | 'kanban';
+  children?: TaskResource[];
+  config?: {
+    private: boolean;
+  };
+}
+
 export interface SignupResource {
   firstName: string;
   lastName: string;
