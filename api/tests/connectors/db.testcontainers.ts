@@ -2,10 +2,8 @@ import {Connection, getConnection, getConnectionManager} from 'typeorm'
 import {GenericContainer, StartedTestContainer} from 'testcontainers'
 
 let container: StartedTestContainer = null
-let connection: Connection
 
 /**
- *
  * @param dropDatabase
  * kept only to match db.docker.ts connector signature - has no other use
  */
@@ -19,7 +17,7 @@ const connect = async (dropDatabase?: boolean): Promise<Connection> => {
 
     const connectionManager = getConnectionManager()
 
-    connection = connectionManager.create({
+    return connectionManager.create({
         name: 'default',
         type: 'postgres',
         url: `postgresql://test:test@${container.getContainerIpAddress()}:${container.getMappedPort(5432)}/test`,
@@ -28,9 +26,7 @@ const connect = async (dropDatabase?: boolean): Promise<Connection> => {
         migrations: [`${__dirname}/../../src/migrations/*{.ts,.js}`],
         entities: [`${__dirname}/../../src/entities/*{.ts,.js}`],
         subscribers: [`${__dirname}/../../src/entities/subscribers/*{.ts,.js}`]
-    })
-
-    return connection.connect()
+    }).connect()
 }
 
 const disconnect = async () => {

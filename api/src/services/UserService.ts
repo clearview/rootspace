@@ -1,6 +1,5 @@
 import { config } from 'node-config-ts'
 import pug from 'pug'
-import path from 'path'
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
@@ -16,8 +15,7 @@ import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 
 export class UserService {
-  static mailTemplatesDir =
-    path.dirname(require.main.filename) + '/templates/mail/user/'
+  static mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
 
   private mailService: MailService
 
@@ -67,11 +65,11 @@ export class UserService {
     })
 
     if (!user) {
-      throw clientError('Invalid confirmatio token', ClientErrName.InvalidToken)
+      throw clientError('Invalid confirmation token', ClientErrName.InvalidToken)
     }
 
     if (user.emailConfirmed) {
-      throw clientError('Email alredy confirmed')
+      throw clientError('Email already confirmed')
     }
 
     user.emailConfirmed = true
@@ -94,7 +92,7 @@ export class UserService {
     user = await this.getUserRepository().save(user)
     delete user.password
 
-    this.sendConfirmationEmail(user)
+    await this.sendConfirmationEmail(user)
 
     return user
   }
@@ -165,7 +163,7 @@ export class UserService {
     })
   }
 
-  private async sendConfirmationEmail(user: User) {
+  private async sendConfirmationEmail(user: User): Promise<boolean> {
     const subject = 'Root, email confirmation'
     const confirmationURL = config.domain + config.domainEmailConfirmationPath
     const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
@@ -181,7 +179,9 @@ export class UserService {
     try {
       await this.mailService.sendMail(user.email, subject, content)
     } catch (error) {
-      //
+      return false
     }
+
+    return true
   }
 }

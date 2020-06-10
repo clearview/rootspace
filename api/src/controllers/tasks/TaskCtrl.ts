@@ -17,7 +17,7 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.getById(String(req.params.id))
+    const task = await this.taskService.getById(Number(req.params.id))
 
     if (!task) {
       return next(
@@ -46,9 +46,6 @@ export class TaskCtrl extends BaseCtrl {
       const task = await this.taskService.create(value)
       const resData = this.responseData(task)
 
-      const link = await this.taskService.getLinkByContent(task)
-      resData.includes(link, 'link')
-
       res.send(resData)
     } catch (err) {
       next(err)
@@ -57,7 +54,7 @@ export class TaskCtrl extends BaseCtrl {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = String(req.params.id)
+      const id = Number(req.params.id)
       const data = req.body.data
 
       await validateTaskUpdate(data)
@@ -73,7 +70,7 @@ export class TaskCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.taskService.delete(String(req.params.id))
+      const result = await this.taskService.delete(Number(req.params.id))
       res.send(result)
     } catch (err) {
       next(err)

@@ -17,7 +17,7 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskBoardService.getById(String(req.params.id))
+    const task = await this.taskBoardService.getById(Number(req.params.id))
 
     if (!task) {
       return next(
@@ -42,10 +42,10 @@ export class TaskBoardCtrl extends BaseCtrl {
         Number(req.user.id)
     )
 
-    const task = await this.taskBoardService.create(value)
-    const resData = this.responseData(task)
+    const taskBoard = await this.taskBoardService.create(value)
+    const resData = this.responseData(taskBoard)
 
-    const link = await this.taskBoardService.getLinkByContent(task)
+    const link = await this.taskBoardService.getLinkByContent(taskBoard)
     resData.includes(link, 'link')
 
     res.send(resData)
@@ -53,7 +53,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const id = String(req.params.id)
+      const id = Number(req.params.id)
       const data = req.body.data
 
       await validateTaskBoardUpdate(data)
@@ -69,7 +69,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.taskBoardService.delete(String(req.params.id))
+      const result = await this.taskBoardService.delete(Number(req.params.id))
       res.send(result)
     } catch (err) {
       next(err)

@@ -39,7 +39,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
       userId: taskBoard.userId,
       spaceId: taskBoard.spaceId,
       title: taskBoard.title,
-      type: LinkType.Task,
+      type: LinkType.TaskBoard,
       value: String(taskBoard.id),
     })
 
@@ -85,10 +85,10 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
   }
 
   async create(data: TaskBoardCreateValue): Promise<TaskBoard> {
-    const doc = await this.getTaskBoardRepository().save(data.getAttributes())
-    await this.createLinkByContent(doc)
+    const taskBoard = await this.getTaskBoardRepository().save(data.getAttributes())
+    await this.createLinkByContent(taskBoard)
 
-    return doc
+    return taskBoard
   }
 
   async update(data: TaskBoardUpdateValue, id: number): Promise<TaskBoard> {

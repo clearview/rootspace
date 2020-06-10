@@ -1,15 +1,11 @@
-import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../repositories/TaskRepository'
 import { Task } from '../../../entities/Task'
 import { TaskCreateValue, TaskUpdateValue } from '../../../values/tasks/task'
-import { Link } from '../../../entities/Link'
-import { LinkType } from '../../../constants'
-import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
-import { ILinkContent } from '../../types'
 import { ContentManager } from '../ContentManager'
 import { clientError } from '../../../errors/client'
 
-export class TaskService implements ILinkContent<Task> {
+export class TaskService {
   private contentManager: ContentManager
 
   private constructor() {
@@ -30,80 +26,23 @@ export class TaskService implements ILinkContent<Task> {
     return getCustomRepository(TaskRepository)
   }
 
-  getLinkByContent(task: Task): Promise<Link> {
-    return this.contentManager.getLinkByValue(String(task.id))
-  }
-
-  createLinkByContent(task: Task): Promise<Link> {
-    const linkCreateData = LinkCreateValue.fromObject({
-      userId: task.userId,
-      spaceId: task.spaceId,
-      title: task.title,
-      type: LinkType.Task,
-      value: String(task.id),
-    })
-
-    return this.contentManager.createLinkByContent(linkCreateData)
-  }
-
-  async updateLinkByContent(task: Task): Promise<UpdateResult> {
-    const link = await this.contentManager.getLinkByValue(String(task.id))
-
-    const updateLinkData = LinkUpdateValue.fromObject({
-      title: task.title,
-    })
-
-    return this.contentManager.updateLinkByContent(updateLinkData, link.id)
-  }
-
-  async deleteLinkByContent(task: Task): Promise<DeleteResult> {
-    const link = await this.contentManager.getLinkByValue(String(task.id))
-    return this.contentManager.deleteLinkByContent(link.id)
-  }
-
-  getContentByLink(link: Link): Promise<Task> {
-    return this.getById(Number(link.value))
-  }
-
-  updateContentByLink(link: Link): Promise<UpdateResult> {
-    const data = TaskUpdateValue.fromObject({
-      title: link.title,
-    })
-
-    return this.getTaskRepository().update(
-      Number(link.value),
-      data.getAttributes()
-    )
-  }
-
-  deleteContentByLink(link: Link): Promise<DeleteResult> {
-    return this.getTaskRepository().delete(String(link.value))
-  }
-
   async getById(id: number): Promise<Task> {
     return this.getTaskRepository().findOne(id)
   }
 
   async create(data: TaskCreateValue): Promise<Task> {
-    const task = await this.getTaskRepository().save(data.getAttributes())
-    await this.createLinkByContent(task)
-
-    return task
+    return this.getTaskRepository().save(data.getAttributes())
   }
 
   async update(data: TaskUpdateValue, id: number): Promise<Task> {
-    let task = await this.getById(id)
+    const task = await this.getById(id)
 
     if (!task) {
       throw clientError('Error updating task')
     }
 
     Object.assign(task, data.getAttributes())
-    task = await this.getTaskRepository().save(task)
-
-    await this.updateLinkByContent(task)
-
-    return task
+    return this.getTaskRepository().save(task)
   }
 
   async delete(id: number) {
@@ -113,14 +52,6 @@ export class TaskService implements ILinkContent<Task> {
       throw clientError('Error deleting document')
     }
 
-    const res = await this.getTaskRepository().delete({
-      id,
-    })
-
-    if (res.affected > 0) {
-      await this.deleteLinkByContent(task)
-    }
-
-    return res
+    return this.getTaskRepository().delete({id})
   }
 }

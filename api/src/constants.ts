@@ -2,14 +2,14 @@ interface ILinkType {
   Root: string
   Link: string
   Doc: string
-  Task: string
+  TaskBoard: string
 }
 
 export const LinkType: ILinkType = {
   Root: 'root',
   Link: 'link',
   Doc: 'doc',
-  Task: 'task'
+  TaskBoard: 'taskBoard'
 }
 
 interface IDocAccess {
