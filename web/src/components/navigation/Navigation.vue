@@ -36,6 +36,7 @@
         <add-list
           @link="startAddLink"
           @document="startAddDocument"
+          @task="startAddTask"
         />
       </div>
     </v-modal>
@@ -87,6 +88,23 @@
     </v-modal>
 
     <v-modal
+      title="Add Board"
+      :visible="task.add.visible"
+      :loading="task.add.loading"
+      @cancel="task.add.visible = false"
+      confirm-text="Create"
+      @confirm="() => $refs.formTaskAdd.submit()"
+    >
+      <div class="modal-body">
+        <form-task
+          @submit="addTask"
+          :space="currentSpace.id"
+          ref="formTaskAdd"
+        />
+      </div>
+    </v-modal>
+
+    <v-modal
       title="Add Workspace"
       :visible="workspace.add.visible"
       :loading="workspace.add.loading"
@@ -109,11 +127,12 @@
 import Vue from 'vue'
 import { pick } from 'lodash'
 
-import { LinkResource, WorkspaceResource } from '@/types/resource'
+import { LinkResource, TaskResource, WorkspaceResource } from '@/types/resource'
 
 import WorkspaceService from '@/services/workspace'
 
 import FormLink from '@/components/resource/ResourceFormLink.vue'
+import FormTask from '@/components/resource/ResourceFormTask.vue'
 import AddList from '@/components/resource/ResourceAddList.vue'
 import FormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
 import VModal from '@/components/Modal.vue'
@@ -155,6 +174,29 @@ type ComponentData = {
       alert: Alert | null;
     };
   };
+  task: {
+    fetch: {
+      loading: boolean;
+      alert: Alert | null;
+    };
+    add: {
+      visible: boolean;
+      loading: boolean;
+      alert: Alert | null;
+    };
+    update: {
+      visible: boolean;
+      loading: boolean;
+      data: LinkResource | null;
+      alert: Alert | null;
+    };
+    destroy: {
+      visible: boolean;
+      loading: boolean;
+      data: LinkResource | null;
+      alert: Alert | null;
+    };
+  };
   workspace: {
     add: {
       visible: boolean;
@@ -171,6 +213,7 @@ export default Vue.extend({
     NavigationItems,
     NavigationFooter,
     FormLink,
+    FormTask,
     AddList,
     FormWorkspace,
     VModal
@@ -182,6 +225,29 @@ export default Vue.extend({
         visible: false
       },
       link: {
+        fetch: {
+          loading: false,
+          alert: null
+        },
+        add: {
+          visible: false,
+          loading: false,
+          alert: null
+        },
+        update: {
+          visible: false,
+          loading: false,
+          data: null,
+          alert: null
+        },
+        destroy: {
+          visible: false,
+          loading: false,
+          data: null,
+          alert: null
+        }
+      },
+      task: {
         fetch: {
           loading: false,
           alert: null
@@ -252,6 +318,10 @@ export default Vue.extend({
       this.addNew.visible = false
       this.link.add.visible = true
     },
+    startAddTask () {
+      this.addNew.visible = false
+      this.task.add.visible = true
+    },
     startAddDocument () {
       this.$router.push({ name: 'Document' })
       this.addNew.visible = false
@@ -299,6 +369,27 @@ export default Vue.extend({
 
       this.link.add.loading = false
       this.link.add.visible = false
+    },
+    async addTask (data: TaskResource) {
+      this.link.add.loading = true
+
+      try {
+        await this.$store.dispatch('task/create', data)
+        this.$router.push({
+          name: 'TaskList',
+          params: {
+            id: data.id.toString()
+          }
+        })
+      } catch (e) {
+        this.task.add.alert = {
+          type: 'danger',
+          message: e.message
+        }
+      }
+
+      this.task.add.loading = false
+      this.task.add.visible = false
     },
     async updateLink (data: LinkResource) {
       this.link.update.loading = true

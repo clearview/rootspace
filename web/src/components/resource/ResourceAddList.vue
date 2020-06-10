@@ -13,7 +13,7 @@
       </div>
     </a>
 
-    <a class="add-list" @click="$emit('document')">
+    <a class="add-list mb-4" @click="$emit('document')">
       <v-icon
         name="file"
         size="3.5em"
@@ -23,6 +23,19 @@
       <div class="desc-list">
         <h5>Document</h5>
         <p>WRITE NOTES, THOUGHTS OR IDEAS.</p>
+      </div>
+    </a>
+
+    <a class="add-list" @click="$emit('task')">
+      <v-icon
+        name="edit"
+        size="3.5em"
+        class="icon-list"
+      />
+
+      <div class="desc-list">
+        <h5>Task</h5>
+        <p>CREATE BOARD, LIST OR IDEAS.</p>
       </div>
     </a>
   </div>

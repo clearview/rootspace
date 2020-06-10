@@ -4,7 +4,12 @@ import {GenericContainer, StartedTestContainer} from 'testcontainers'
 let container: StartedTestContainer = null
 let connection: Connection
 
-async function spawnTestDatabase () {
+/**
+ *
+ * @param dropDatabase
+ * kept only to match db.docker.ts connector signature - has no other use
+ */
+const connect = async (dropDatabase?: boolean): Promise<Connection> => {
     container = await new GenericContainer('postgres', '12')
         .withEnv('POSTGRES_USER', 'test')
         .withEnv('POSTGRES_PASSWORD', 'test')
@@ -25,12 +30,12 @@ async function spawnTestDatabase () {
         subscribers: [`${__dirname}/../../src/entities/subscribers/*{.ts,.js}`]
     })
 
-    await connection.connect()
+    return connection.connect()
 }
 
-async function destroyTestDatabase() {
+const disconnect = async () => {
     await getConnection().close()
     await container.stop()
 }
 
-export {spawnTestDatabase, destroyTestDatabase}
+export {connect, disconnect}

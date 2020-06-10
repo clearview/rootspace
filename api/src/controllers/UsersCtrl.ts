@@ -45,6 +45,10 @@ export class UsersCtrl extends BaseCtrl {
     }
   }
 
+  /**
+   * Todo: return 401 with www-authenticate (NO BODY) for failed login attempt
+   * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+   */
   async auth(req: Request, res: Response, next: NextFunction) {
     return passport.authenticate(
       'local',

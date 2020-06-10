@@ -1,4 +1,4 @@
-import {spawnTestDatabase, destroyTestDatabase} from './helpers/db'
+import {connect, disconnect} from './helpers/db.testcontainers'
 import {getCustomRepository} from 'typeorm'
 import {TaskBoard, TaskBoardType} from '../src/entities/TaskBoard'
 import {TaskBoardRepository} from '../src/repositories/TaskBoardRepository'
@@ -6,11 +6,11 @@ import {validate} from 'class-validator'
 
 describe('Database', () => {
     beforeAll(async () => {
-        await spawnTestDatabase()
+        await connect()
     })
 
     afterAll(async () => {
-        await destroyTestDatabase()
+        await disconnect()
     })
 
     it('should save and retrieve a record', async () => {
