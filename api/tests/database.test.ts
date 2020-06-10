@@ -3,7 +3,6 @@ import {getCustomRepository} from 'typeorm'
 import {TaskBoard, TaskBoardType} from '../src/entities/TaskBoard'
 import {TaskBoardRepository} from '../src/repositories/TaskBoardRepository'
 import {validate} from 'class-validator'
-import {createUser} from './helpers/createUser'
 
 describe('Database', () => {
     beforeAll(async () => {

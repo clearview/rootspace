@@ -4,6 +4,14 @@ import {GenericContainer, StartedTestContainer} from 'testcontainers'
 let container: StartedTestContainer = null
 
 /**
+ * Ugly hack - getInstance() gets called multiple times
+ * Todo: Remove once getInstance() is fixed
+ * @link api/src/services/UserService.ts
+ * @link api/src/services/SpaceService.ts
+ */
+jest.setTimeout(30000)
+
+/**
  * @param dropDatabase
  * kept only to match db.docker.ts connector signature - has no other use
  */

@@ -25,6 +25,7 @@ export class UserService {
     this.mailService = new MailService()
   }
 
+  // Todo: Fix multiple calls to getInstance()
   static getInstance() {
     if (!UserService.instance) {
       UserService.instance = new UserService()

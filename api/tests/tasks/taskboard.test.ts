@@ -1,6 +1,6 @@
 import request from 'supertest'
 import Server from '../../src/server'
-import {connect, disconnect} from '../connectors/db.docker'
+import {connect, disconnect} from '../connectors/db.testcontainers'
 import {createUser} from '../helpers/createUser'
 import {getJwt} from '../helpers/getJwt'
 import {createSpace} from '../helpers/createSpace'
