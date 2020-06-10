@@ -19,7 +19,7 @@
 ##### Writing tests
 Use `docker-compose up -d` in api/tests directory to bring up test postgres database and use `helpers/db.docker.ts` connector while working on a test.
 
-This will make running a test much faster when writing / executing test.
+This will make running a test much faster when writing / executing test and enable you to connect to test database through port 5433 so you can inspect test db contents.
 
 ##### TestContainers
 
@@ -46,6 +46,8 @@ https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
 - Copy `.env.example` file to `.env` in /web folder
 - Make sure to run `yarn install` in both /api and /web folders
 - Run `docker-compose up` or `docker-compose up -d` from project root
+
+Note: You can also run `docker-compose up` or `docker-compose up -d` from `tests` directory to bring up ephemeral testing postgres database 
 
 ```
 - visit web on your machine's port 80 or port 3000

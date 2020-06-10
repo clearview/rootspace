@@ -10,9 +10,9 @@ const server = new Server()
 describe('Express', () => {
 
     beforeAll(async () => {
-        await connect()
+        await connect(true)
 
-        const user = await createUser('test@test.com', '123123')
+        const user = await createUser('betty@boop.com', '123123')
         const userRepository = getCustomRepository(UserRepository)
         await userRepository.save(user)
 
@@ -25,9 +25,42 @@ describe('Express', () => {
         await disconnect()
     })
 
-    it('should GET root API', async () => {
+    it('should GET root', async () => {
         const res = await request(server.app).get('/')
 
         expect(res.statusCode).toEqual(200)
+    })
+
+    it('should fail to GET whoami', async () => {
+        const res = await request(server.app).get('/whoami')
+
+        expect(res.statusCode).toEqual(401)
+    })
+
+    /**
+     * Todo: fix failed authentication response
+     * @link api/src/controllers/UsersCtrl.ts
+     */
+    it('should fail to login with invalid password', async () => {
+        const res = await request(server.app)
+            .post('/auth')
+            .send({
+                email: 'jon.show@mail.com',
+                password: 'staima',
+            })
+
+        expect(res.statusCode).toEqual(401)
+    })
+
+    it('should receive a token after successful login', async () => {
+        const res = await request(server.app)
+            .post('/auth')
+            .send({
+                email: 'betty@boop.com',
+                password: '123123'
+            })
+
+        expect(res.statusCode).toEqual(200)
+        expect(res.body).toHaveProperty('token')
     })
 })
