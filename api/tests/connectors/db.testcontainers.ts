@@ -9,7 +9,7 @@ let container: StartedTestContainer = null
  * @link api/src/services/UserService.ts
  * @link api/src/services/SpaceService.ts
  */
-jest.setTimeout(30000)
+jest.setTimeout(10000)
 
 /**
  * @param dropDatabase
