@@ -6,6 +6,7 @@
         v-model="title"
         rows="1"
         class="title"
+        :readonly="readOnly"
         placeholder="Your Title Here"
         ref="title"
         :min-height="50"
@@ -20,6 +21,7 @@
       :class="{ readonly: readOnly }"
       :key="`editor-${id}`"
       :content="value"
+      :readonly="readOnly"
       @update-editor="onUpdateEditor"
     />
   </div>

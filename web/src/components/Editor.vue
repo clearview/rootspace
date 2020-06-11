@@ -18,6 +18,9 @@ export default Vue.extend({
   props: {
     content: {
       type: Object
+    },
+    readonly: {
+      type: Boolean
     }
   },
   data (): ComponentData {
@@ -47,6 +50,8 @@ export default Vue.extend({
   },
   methods: {
     async save (api: EditorJS.API) {
+      if (this.readonly) return
+
       this.data = await api.saver.save()
     }
   }
