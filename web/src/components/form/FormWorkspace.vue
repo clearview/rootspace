@@ -98,7 +98,7 @@ type ComponentData = {
 }
 
 export default Vue.extend({
-  name: 'ResourceFormWorkspace',
+  name: 'FormWorkspace',
   components: {
     VField
   },
