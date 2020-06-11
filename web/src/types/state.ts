@@ -1,4 +1,4 @@
-import {LinkResource, WorkspaceResource, TaskBoardResource, TaskListResource, TaskItemResource} from './resource'
+import { LinkResource, WorkspaceResource, TaskBoardResource, TaskListResource, TaskItemResource } from './resource'
 
 export interface ResourceState<T>{
   processing: boolean;

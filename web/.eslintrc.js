@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  'parser': 'vue-eslint-parser',
+  parser: 'vue-eslint-parser',
   env: {
     node: true
   },
@@ -8,17 +8,17 @@ module.exports = {
     'plugin:vue/essential',
     '@vue/standard',
     '@vue/typescript/recommended',
-    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended'
   ],
   parserOptions: {
     ecmaVersion: 2020,
-    parser: '@typescript-eslint/parser',
+    parser: '@typescript-eslint/parser'
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off'
   },
   overrides: [
     {
