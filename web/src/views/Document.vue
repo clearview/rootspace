@@ -2,7 +2,6 @@
   <div class="page">
     <div class="header">
       <textarea-autosize
-        autofocus
         v-model="title"
         rows="1"
         class="title"
@@ -11,7 +10,10 @@
         ref="title"
         :min-height="50"
       />
-      <editor-menu :loading="loading" @change-readonly="changeReadonlyStatus" />
+      <editor-menu
+        :loading="loading"
+        @change-readonly="changeReadonlyStatus"
+        @delete-document="deleteDocConfirm"/>
     </div>
 
     <editor
@@ -24,6 +26,19 @@
       :readonly="readOnly"
       @update-editor="onUpdateEditor"
     />
+
+    <v-modal
+      title="Delete Document"
+      :visible="deleteDoc.visible"
+      :loading="deleteDoc.loading"
+      confirmText="Yes"
+      @cancel="deleteDoc.visible = false"
+      @confirm="deleteDocument(id)"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this document?
+      </div>
+    </v-modal>
   </div>
 </template>
 
@@ -37,6 +52,12 @@ import DocumentService from '@/services/document'
 
 import Editor from '@/components/Editor.vue'
 import EditorMenu from '@/components/editor/EditorMenu.vue'
+import VModal from '@/components/Modal.vue'
+
+type Alert = {
+  type: string;
+  message: string;
+};
 
 type ComponentData = {
   value: object;
@@ -46,13 +67,20 @@ type ComponentData = {
   loading: boolean;
   isFromLoad: boolean;
   readOnly: boolean;
+  deleteDoc: {
+    visible: boolean;
+    loading: boolean;
+    data: number | null;
+    alert: Alert | null;
+  };
 }
 
 export default Vue.extend({
   name: 'Document',
   components: {
     Editor,
-    EditorMenu
+    EditorMenu,
+    VModal
   },
   data (): ComponentData {
     return {
@@ -62,7 +90,13 @@ export default Vue.extend({
       initialize: false,
       loading: false,
       isFromLoad: false,
-      readOnly: false
+      readOnly: false,
+      deleteDoc: {
+        visible: false,
+        loading: false,
+        data: null,
+        alert: null
+      }
     }
   },
   computed: {
@@ -184,6 +218,26 @@ export default Vue.extend({
       } else {
         this.refs.title.focus()
       }
+    },
+    deleteDocConfirm () {
+      this.deleteDoc.visible = true
+    },
+    async deleteDocument (id: number) {
+      this.deleteDoc.loading = true
+
+      try {
+        await DocumentService.destroy(id)
+
+        this.$router.push({ name: 'Main' })
+      } catch (err) {
+        this.deleteDoc.alert = {
+          type: 'danger',
+          message: err.message
+        }
+      }
+
+      this.deleteDoc.loading = false
+      this.deleteDoc.visible = false
     }
   },
   mounted () {

@@ -89,6 +89,7 @@ export default Vue.extend({
       console.log('history')
     },
     trash () {
+      this.$emit('delete-document')
       console.log('delete')
     }
   }
