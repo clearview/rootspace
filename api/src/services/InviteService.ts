@@ -7,7 +7,7 @@ import { Invite } from '../entities/Invite'
 import { Space } from '../entities/Space'
 import { User } from '../entities/User'
 import { MailService } from './mail/MailService'
-import { clientError, ClientErrName } from '../errors/client'
+import { clientError, HttpErrName } from '../errors'
 
 export class InviteService {
   static mailTemplatesDir =
@@ -48,7 +48,7 @@ export class InviteService {
     const invite = await this.getInviteByTokenAndId(token, id)
 
     if (!invite) {
-      throw clientError('Invalid invite request', ClientErrName.InvalidToken)
+      throw clientError('Invalid invite request', HttpErrName.InvalidToken)
     }
 
     return invite

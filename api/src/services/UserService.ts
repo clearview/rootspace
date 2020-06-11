@@ -11,7 +11,12 @@ import {
   IUserUpdateProvider,
   IChangePasswordProvider,
 } from '../types/user'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import {
+  HttpErrName,
+  HttpStatusCode,
+  clientError,
+  unauthorized,
+} from '../errors'
 import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 
@@ -67,7 +72,7 @@ export class UserService {
     })
 
     if (!user) {
-      throw clientError('Invalid confirmatio token', ClientErrName.InvalidToken)
+      throw clientError('Invalid confirmatio token', HttpErrName.InvalidToken)
     }
 
     if (user.emailConfirmed) {
@@ -105,16 +110,16 @@ export class UserService {
     if (!user) {
       throw clientError(
         'User not found',
-        ClientErrName.EntityNotFound,
-        ClientStatusCode.NotFound
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
       )
     }
 
     if (user.authProvider !== 'local') {
       throw clientError(
         'Error updating user',
-        ClientErrName.EntityUpdateFailed,
-        ClientStatusCode.Forbidden
+        HttpErrName.EntityUpdateFailed,
+        HttpStatusCode.Forbidden
       )
     }
 
@@ -136,8 +141,8 @@ export class UserService {
       return done(
         clientError(
           'User not found',
-          ClientErrName.EntityNotFound,
-          ClientStatusCode.NotFound
+          HttpErrName.EntityNotFound,
+          HttpStatusCode.NotFound
         ),
         null
       )
@@ -149,10 +154,7 @@ export class UserService {
       }
 
       if (res !== true) {
-        return done(
-          clientError('Wrong password', ClientErrName.WrongPassword),
-          null
-        )
+        return done(unauthorized(), null)
       }
 
       const newPassword = await hashPassword(data.newPassword)

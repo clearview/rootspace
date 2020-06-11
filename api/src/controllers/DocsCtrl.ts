@@ -3,7 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services/content/DocService'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 import { ContentManager } from '../services/content/ContentManager'
 
 export class DocsCtrl extends BaseCtrl {
@@ -23,8 +23,8 @@ export class DocsCtrl extends BaseCtrl {
       return next(
         clientError(
           'Document not found',
-          ClientErrName.EntityNotFound,
-          ClientStatusCode.NotFound
+          HttpErrName.EntityNotFound,
+          HttpStatusCode.NotFound
         )
       )
     }

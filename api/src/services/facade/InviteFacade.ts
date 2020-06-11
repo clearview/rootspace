@@ -1,6 +1,6 @@
 import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../entities/Invite'
-import { clientError } from '../../errors/client'
+import { clientError } from '../../errors'
 
 export class InviteFacade {
   private intiveService: InviteService
