@@ -4,8 +4,8 @@ import {
   InsertEvent,
   getCustomRepository,
 } from 'typeorm'
-import { Link } from '../Link'
-import { LinkRepository } from '../../repositories/LinkRepository'
+import { Link } from '../entities/Link'
+import { LinkRepository } from '../repositories/LinkRepository'
 
 @EventSubscriber()
 export class LinkSubscriber implements EntitySubscriberInterface<Link> {

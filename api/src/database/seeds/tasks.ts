@@ -2,9 +2,9 @@ import {Connection} from 'typeorm'
 import {Factory, Seeder} from 'typeorm-seeding'
 import {Link, LinkType} from '../../entities/Link'
 import {BaseSeeder} from './base'
-import {TaskBoard} from '../../entities/TaskBoard'
-import {TaskList} from '../../entities/TaskList'
-import {Task} from '../../entities/Task'
+import {TaskBoard} from '../../entities/tasks/TaskBoard'
+import {TaskList} from '../../entities/tasks/TaskList'
+import {Task} from '../../entities/tasks/Task'
 
 export default class TasksSeeder implements Seeder {
     protected base: BaseSeeder

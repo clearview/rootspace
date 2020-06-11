@@ -4,7 +4,7 @@ import {connect, disconnect} from '../connectors/db.testcontainers'
 import {createUser} from '../helpers/createUser'
 import {getJwt} from '../helpers/getJwt'
 import {createSpace} from '../helpers/createSpace'
-import {TaskBoardType} from '../../src/entities/TaskBoard'
+import {TaskBoardType} from '../../src/entities/tasks/TaskBoard'
 
 const server = new Server()
 const mockUser: any = {}

@@ -1,6 +1,6 @@
 import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../repositories/TaskRepository'
-import { Task } from '../../../entities/Task'
+import { Task } from '../../../entities/tasks/Task'
 import { TaskCreateValue, TaskUpdateValue } from '../../../values/tasks/task'
 import { ContentManager } from '../ContentManager'
 import { clientError } from '../../../errors'

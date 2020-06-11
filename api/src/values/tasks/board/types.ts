@@ -1,4 +1,4 @@
-import { TaskBoardType} from '../../../entities/TaskBoard'
+import { TaskBoardType} from '../../../entities/tasks/TaskBoard'
 
 export interface ITaskBoardCreateAttributes {
   userId: number

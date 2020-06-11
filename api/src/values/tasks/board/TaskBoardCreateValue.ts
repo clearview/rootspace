@@ -1,5 +1,5 @@
 import {ITaskBoardCreateAttributes} from './types'
-import { TaskBoardType} from '../../../entities/TaskBoard'
+import { TaskBoardType} from '../../../entities/tasks/TaskBoard'
 
 export class TaskBoardCreateValue {
   private readonly attributes: ITaskBoardCreateAttributes = {
