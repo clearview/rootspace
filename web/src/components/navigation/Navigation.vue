@@ -127,7 +127,7 @@
 import Vue from 'vue'
 import { pick } from 'lodash'
 
-import { LinkResource, TaskResource, WorkspaceResource } from '@/types/resource'
+import { LinkResource, TaskBoardResource, WorkspaceResource } from '@/types/resource'
 
 import WorkspaceService from '@/services/workspace'
 
@@ -370,17 +370,19 @@ export default Vue.extend({
       this.link.add.loading = false
       this.link.add.visible = false
     },
-    async addTask (data: TaskResource) {
+    async addTask (data: TaskBoardResource) {
       this.link.add.loading = true
 
       try {
         await this.$store.dispatch('task/create', data)
-        this.$router.push({
-          name: 'TaskList',
-          params: {
-            id: data.id.toString()
-          }
-        })
+        if (data.id) {
+          this.$router.push({
+            name: 'TaskList',
+            params: {
+              id: data.id.toString()
+            }
+          })
+        }
       } catch (e) {
         this.task.add.alert = {
           type: 'danger',

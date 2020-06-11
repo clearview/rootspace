@@ -51,7 +51,7 @@
       label="Make Board Private"
       class="mb-0"
     >
-      <button-switch v-model="payload.config.private" />
+      <button-switch v-model="payload.isPublic" />
     </v-field>
 
     <button type="submit" class="hidden"/>
@@ -97,13 +97,13 @@ import Vue from 'vue'
 
 import { required } from 'vuelidate/lib/validators'
 
-import { TaskResource } from '@/types/resource'
+import { TaskBoardResource } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
 
 type ComponentData = {
-  payload: Omit<TaskResource, 'children'>;
+  payload: Omit<TaskBoardResource, 'taskLists'>;
 }
 
 export default Vue.extend({
@@ -133,12 +133,9 @@ export default Vue.extend({
       payload: {
         id: this.value.id || undefined,
         spaceId: this.value.space || this.space,
-        name: this.value.name || '',
+        title: this.value.title || '',
         type: this.value.type || 'list',
-        config: {
-          private: false,
-          ...this.value.config
-        }
+        isPublic: this.value.isPublic
       }
     }
   },

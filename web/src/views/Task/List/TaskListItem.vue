@@ -7,30 +7,35 @@
       <input class="input-field" type="text" placeholder="e.g Design UI Components on Sunday  at 11am #Personal">
       <div class="input-actions">
         <Icon name="attachment" viewbox="24"/>
-        <Icon name="tag"  viewbox="24"/>
-        <Icon name="time"  viewbox="24"/>
+        <Icon name="tag" viewbox="24"/>
+        <Icon name="time" viewbox="24"/>
         <Icon name="user2" viewbox="24"/>
       </div>
     </div>
-    <div class="actions">
+    <div class="actions" v-if="withActions">
       <button class="btn btn-small btn-primary">Add Task</button>
-      <button class="btn btn-small">Cancel</button>
+      <button @click="cancel" class="btn btn-small">Cancel</button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
 
   @Component({
-    name: 'ListEntry',
+    name: 'TaskListItem',
     components: {
       Icon
     }
   })
-export default class ListEntry extends Vue {
+export default class TaskListItem extends Vue {
+    @Prop({ type: Boolean, default: false })
+    private readonly withActions!: boolean;
 
+    @Emit('cancel')
+    cancel (): void {
+    }
 }
 </script>
 
@@ -52,6 +57,7 @@ export default class ListEntry extends Vue {
   .input-field {
     @apply flex-auto bg-transparent outline-none;
   }
+
   .input-actions {
     @apply flex items-center;
 

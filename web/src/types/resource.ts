@@ -12,15 +12,57 @@ export interface LinkResource {
   };
 }
 
-export interface TaskResource {
-  id: number;
+export interface ApiResource {
+  id?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export enum TaskItemStatus {
+  Open = 0,
+  Closed = 1
+}
+
+export enum TaskBoardType {
+  List = 1,
+  Kanban = 2
+}
+
+export interface TaskItemResource extends ApiResource {
+  userId?: number;
+  spaceId?: number;
+  listId?: number;
+  assignedTo?: never[];
+  title: string;
+  description?: string;
+  status: TaskItemStatus;
+  tags?: string[];
+  attachments?: never[];
+  dueDate?: Date;
+  position: number;
+  list: TaskListResource;
+}
+
+export interface TaskListResource extends ApiResource {
+  userId?: number;
+  spaceId?: number;
+  boardId?: number;
+  title: string;
+  description?: string;
+  position: number;
+  board: TaskBoardResource;
+  tasks: TaskItemResource[];
+}
+
+export interface TaskBoardResource extends ApiResource {
+  uuid?: string;
+  userId?: number;
   spaceId: number;
-  name: string;
-  type: 'list' | 'kanban';
-  children?: TaskResource[];
-  config?: {
-    private: boolean;
-  };
+  title: string;
+  description?: string;
+  type: TaskBoardType;
+  taskLists: TaskListResource[];
+  isPublic: boolean;
 }
 
 export interface SignupResource {

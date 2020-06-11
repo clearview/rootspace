@@ -1,4 +1,17 @@
-import { LinkResource, WorkspaceResource, TaskResource } from './resource'
+import {LinkResource, WorkspaceResource, TaskBoardResource, TaskListResource, TaskItemResource} from './resource'
+
+export interface ResourceState<T>{
+  processing: boolean;
+  fetching: boolean;
+  data: T[];
+  current: T | null;
+}
+export interface CollectionResourceState<T>{
+  processing: boolean;
+  fetching: boolean;
+  data: Record<number, T>;
+  current: T | null;
+}
 
 export interface RootState {
   auth: AuthState;
@@ -24,12 +37,24 @@ export interface LinkState {
 }
 
 export interface TaskState {
-  payload: TaskResource[];
-  current: TaskResource | null;
-  active: string | null;
-  folded: {
-    [key: string]: boolean;
-  };
+  board: TaskBoardState;
+  list: TaskListState;
+  item: TaskItemState;
+}
+
+export interface TaskBoardState {
+  data: TaskBoardResource[];
+  current: TaskBoardResource | null;
+}
+
+export interface TaskListState {
+  data: TaskListResource[];
+  current: TaskListResource | null;
+}
+
+export interface TaskItemState {
+  data: TaskItemResource[];
+  current: TaskItemResource | null;
 }
 
 export interface NavState {

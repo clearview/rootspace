@@ -1,0 +1,85 @@
+import { ResourceState, RootState } from '@/types/state'
+
+import { ApiService } from '@/services/task'
+import { Module } from 'vuex'
+import { ApiResource } from '@/types/resource'
+
+export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>): Module<ResourceState<TResource>, RootState> {
+  return {
+    namespaced: true,
+    state (): ResourceState<TResource> {
+      return {
+        fetching: false,
+        current: null,
+        data: [],
+        processing: false
+      }
+    },
+    mutations: {
+      setFetching (state, payload: boolean): void {
+        state.fetching = payload
+      },
+      setCurrent (state, payload: TResource): void {
+        state.current = payload
+      },
+      setData (state, payload: TResource[]): void {
+        state.data = payload
+      },
+      setProcessing (state, payload: boolean): void {
+        state.processing = payload
+      }
+    },
+    actions: {
+      async fetch ({ commit, rootState }, params: TParams): Promise<void> {
+        const currentSpace = rootState.auth.currentSpace
+
+        if (!currentSpace) {
+          throw new Error('There is no currently active space')
+        }
+
+        commit('setFetching', true)
+        const res = await service.fetch(params)
+        commit('setFetching', false)
+
+        commit('setData', res)
+      },
+
+      async view ({ commit }, id: number): Promise<void> {
+        commit('setFetching', true)
+        const task = await service.view(id)
+        commit('setFetching', false)
+
+        commit('setCurrent', task)
+      },
+
+      async create ({ commit, dispatch }, data: TResource): Promise<void> {
+        commit('setProcessing', true)
+        await service.create(data)
+        commit('setProcessing', false)
+
+        await dispatch('fetch')
+      },
+
+      async update ({ commit, dispatch }, data: TResource): Promise<void> {
+        if (!data.id) {
+          throw new Error('Unable to update data without ID')
+        }
+        commit('setProcessing', true)
+        await service.update(data.id, data)
+        commit('setProcessing', false)
+
+        await dispatch('fetch')
+      },
+
+      async destroy ({ commit, dispatch }, data: TResource): Promise<void> {
+        if (!data.id) {
+          throw new Error('ID is not defined')
+        }
+        commit('setProcessing', true)
+        await service.destroy(data.id)
+        commit('setProcessing', false)
+        await dispatch('fetch')
+      }
+    }
+  }
+}
