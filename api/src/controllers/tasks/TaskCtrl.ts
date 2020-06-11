@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { validateTaskCreate, validateTaskUpdate } from '../../validation/tasks/task'
 import { TaskCreateValue, TaskUpdateValue } from '../../values/tasks/task'
 import { TaskService } from '../../services'
 import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
@@ -36,7 +35,6 @@ export class TaskCtrl extends BaseCtrl {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = req.body.data
-      await validateTaskCreate(data)
 
       const value = TaskCreateValue.fromObjectAndUserId(
         data,
@@ -56,8 +54,6 @@ export class TaskCtrl extends BaseCtrl {
     try {
       const id = Number(req.params.id)
       const data = req.body.data
-
-      await validateTaskUpdate(data)
 
       const value = TaskUpdateValue.fromObject(data)
       const task = await this.taskService.update(value, id)

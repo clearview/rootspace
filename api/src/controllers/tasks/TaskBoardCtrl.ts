@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { validateTaskBoardCreate, validateTaskBoardUpdate } from '../../validation/tasks/board'
 import { TaskBoardCreateValue, TaskBoardUpdateValue } from '../../values/tasks/board'
 import { TaskBoardService } from '../../services'
 import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
@@ -35,7 +34,6 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    // await validateTaskBoardCreate(data)
 
     const value = TaskBoardCreateValue.fromObjectAndUserId(
         data,
@@ -55,8 +53,6 @@ export class TaskBoardCtrl extends BaseCtrl {
     try {
       const id = Number(req.params.id)
       const data = req.body.data
-
-      await validateTaskBoardUpdate(data)
 
       const value = TaskBoardUpdateValue.fromObject(data)
       const task = await this.taskBoardService.update(value, id)
