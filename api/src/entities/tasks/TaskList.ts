@@ -47,7 +47,7 @@ export class TaskList {
   @ManyToOne(type => TaskBoard, board => board.taskLists)
   board: TaskBoard
 
-  @OneToMany(type => Task, task => task.list)
+  @OneToMany(type => Task, task => task.list, {eager: true})
   tasks: Task[]
 
 }

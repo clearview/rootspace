@@ -1,5 +1,5 @@
 import { getCustomRepository } from 'typeorm'
-import { TaskListRepository } from '../../../repositories/TaskListRepository'
+import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../entities/tasks/TaskList'
 import { TaskListCreateValue, TaskListUpdateValue } from '../../../values/tasks/list'
 import { ContentManager } from '../ContentManager'

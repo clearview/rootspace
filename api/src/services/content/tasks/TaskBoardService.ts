@@ -1,5 +1,5 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
-import { TaskBoardRepository } from '../../../repositories/TaskBoardRepository'
+import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
 import { TaskBoardCreateValue, TaskBoardUpdateValue } from '../../../values/tasks/board'
 import { Link } from '../../../entities/Link'

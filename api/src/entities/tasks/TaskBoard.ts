@@ -58,6 +58,6 @@ export class TaskBoard {
   @IsDate()
   updatedAt: Date
 
-  @OneToMany(type => TaskList, taskList => taskList.board)
+  @OneToMany(type => TaskList, taskList => taskList.board, {eager: true})
   taskLists: TaskList[]
 }

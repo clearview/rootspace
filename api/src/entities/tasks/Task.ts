@@ -1,5 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany
+} from 'typeorm'
 import { TaskList } from './TaskList'
+import {TaskComment} from './TaskComment'
 
 export enum TaskStatus {
   Open = 0,
@@ -56,5 +66,8 @@ export class Task {
 
   @ManyToOne(type => TaskList, list => list.tasks)
   list: TaskList
+
+  @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true})
+  taskComments: TaskComment[]
 
 }

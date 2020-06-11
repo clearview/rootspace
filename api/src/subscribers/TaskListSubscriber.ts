@@ -5,7 +5,7 @@ import {
     getCustomRepository
 } from 'typeorm'
 import { TaskList } from '../entities/tasks/TaskList'
-import { TaskListRepository } from '../repositories/TaskListRepository'
+import { TaskListRepository } from '../repositories/tasks/TaskListRepository'
 
 @EventSubscriber()
 export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
