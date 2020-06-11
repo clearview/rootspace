@@ -1,7 +1,6 @@
 import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
-import { TaskCreateValue, TaskUpdateValue } from '../../../values/tasks/task'
 import { ContentManager } from '../ContentManager'
 import { clientError } from '../../../errors'
 
@@ -30,11 +29,11 @@ export class TaskService {
     return this.getTaskRepository().findOne(id)
   }
 
-  async create(data: TaskCreateValue): Promise<Task> {
+  async create(data: any): Promise<Task> {
     return this.getTaskRepository().save(data.getAttributes())
   }
 
-  async update(data: TaskUpdateValue, id: number): Promise<Task> {
+  async update(data: any, id: number): Promise<Task> {
     const task = await this.getById(id)
 
     if (!task) {
@@ -49,7 +48,7 @@ export class TaskService {
     const task = await this.getById(id)
 
     if (!task) {
-      throw clientError('Error deleting document')
+      throw clientError('Error deleting task')
     }
 
     return this.getTaskRepository().delete({id})

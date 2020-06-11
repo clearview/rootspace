@@ -1,7 +1,6 @@
 import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
-import { TaskBoardCreateValue, TaskBoardUpdateValue } from '../../../values/tasks/board'
 import { Link } from '../../../entities/Link'
 import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
@@ -66,13 +65,11 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
   }
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
-    const data = TaskBoardUpdateValue.fromObject({
-      title: link.title,
-    })
-
     return this.getTaskBoardRepository().update(
       Number(link.value),
-      data.getAttributes()
+        {
+          title: link.title
+        }
     )
   }
 
@@ -84,33 +81,33 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return this.getTaskBoardRepository().findOne(id)
   }
 
-  async create(data: TaskBoardCreateValue): Promise<TaskBoard> {
+  async create(data: any): Promise<TaskBoard> {
     const taskBoard = await this.getTaskBoardRepository().save(data.getAttributes())
     await this.createLinkByContent(taskBoard)
 
     return taskBoard
   }
 
-  async update(data: TaskBoardUpdateValue, id: number): Promise<TaskBoard> {
-    let task = await this.getById(id)
+  async update(data: any, id: number): Promise<TaskBoard> {
+    let taskBoard = await this.getById(id)
 
-    if (!task) {
-      throw clientError('Error updating task')
+    if (!taskBoard) {
+      throw clientError('Error updating task board')
     }
 
-    Object.assign(task, data.getAttributes())
-    task = await this.getTaskBoardRepository().save(task)
+    Object.assign(taskBoard, data.getAttributes())
+    taskBoard = await this.getTaskBoardRepository().save(taskBoard)
 
-    await this.updateLinkByContent(task)
+    await this.updateLinkByContent(taskBoard)
 
-    return task
+    return taskBoard
   }
 
   async delete(id: number) {
     const taskBoard = await this.getById(id)
 
     if (!taskBoard) {
-      throw clientError('Error deleting document')
+      throw clientError('Error deleting task board')
     }
 
     const res = await this.getTaskBoardRepository().delete({

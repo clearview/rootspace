@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { TaskListCreateValue, TaskListUpdateValue } from '../../values/tasks/list'
 import { TaskListService } from '../../services'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ContentManager } from '../../services/content/ContentManager'
@@ -35,13 +34,7 @@ export class TaskListCtrl extends BaseCtrl {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = req.body.data
-
-      const value = TaskListCreateValue.fromObjectAndUserId(
-        data,
-        Number(req.user.id)
-      )
-
-      const task = await this.taskListService.create(value)
+      const task = await this.taskListService.create(data)
       const resData = this.responseData(task)
 
       res.send(resData)
@@ -54,9 +47,7 @@ export class TaskListCtrl extends BaseCtrl {
     try {
       const id = Number(req.params.id)
       const data = req.body.data
-
-      const value = TaskListUpdateValue.fromObject(data)
-      const task = await this.taskListService.update(value, id)
+      const task = await this.taskListService.update(data, id)
 
       res.send(this.responseData(task))
     } catch (err) {

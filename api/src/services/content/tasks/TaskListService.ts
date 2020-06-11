@@ -1,7 +1,6 @@
 import { getCustomRepository } from 'typeorm'
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../entities/tasks/TaskList'
-import { TaskListCreateValue, TaskListUpdateValue } from '../../../values/tasks/list'
 import { ContentManager } from '../ContentManager'
 import { clientError } from '../../../errors'
 
@@ -30,15 +29,15 @@ export class TaskListService {
     return this.getTaskListRepository().findOne(id)
   }
 
-  async create(data: TaskListCreateValue): Promise<TaskList> {
+  async create(data: any): Promise<TaskList> {
     return this.getTaskListRepository().save(data.getAttributes())
   }
 
-  async update(data: TaskListUpdateValue, id: number): Promise<TaskList> {
+  async update(data: any, id: number): Promise<TaskList> {
     const taskList = await this.getById(id)
 
     if (!taskList) {
-      throw clientError('Error updating task')
+      throw clientError('Error updating task list')
     }
 
     Object.assign(taskList, data.getAttributes())
@@ -49,7 +48,7 @@ export class TaskListService {
     const taskList = await this.getById(id)
 
     if (!taskList) {
-      throw clientError('Error deleting document')
+      throw clientError('Error deleting task list')
     }
 
     return this.getTaskListRepository().delete({id})
