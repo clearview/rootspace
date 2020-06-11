@@ -40,7 +40,7 @@ export interface TaskItemResource extends ApiResource {
   attachments?: never[];
   dueDate?: Date;
   position: number;
-  list: TaskListResource;
+  list?: TaskListResource;
 }
 
 export interface TaskListResource extends ApiResource {
@@ -50,7 +50,7 @@ export interface TaskListResource extends ApiResource {
   title: string;
   description?: string;
   position: number;
-  board: TaskBoardResource;
+  board?: TaskBoardResource;
   tasks: TaskItemResource[];
 }
 

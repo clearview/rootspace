@@ -56,8 +56,6 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setProcessing', true)
         await service.create(data)
         commit('setProcessing', false)
-
-        await dispatch('fetch')
       },
 
       async update ({ commit, dispatch }, data: TResource): Promise<void> {
@@ -67,8 +65,6 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setProcessing', true)
         await service.update(data.id, data)
         commit('setProcessing', false)
-
-        await dispatch('fetch')
       },
 
       async destroy ({ commit, dispatch }, data: TResource): Promise<void> {
@@ -78,7 +74,6 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setProcessing', true)
         await service.destroy(data.id)
         commit('setProcessing', false)
-        await dispatch('fetch')
       }
     }
   }

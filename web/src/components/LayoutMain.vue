@@ -66,7 +66,8 @@ export default Vue.extend({
   created () {
     this.resize = throttle(this.resize.bind(this), 150)
 
-    if (!this.$store.state.auth.user.emailConfirmed) {
+    // TODO remove before push
+    if (this.$store.state.auth.user.emailConfirmed) {
       this.alert = {
         type: 'secondary',
         message: 'Please remember to verify your email address',

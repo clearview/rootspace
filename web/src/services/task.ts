@@ -24,14 +24,32 @@ export interface ItemFetchParams {
   listId: number;
 }
 
+let itemBackend: TaskItemResource[] = [{
+  position: 0,
+  title: 'Hello',
+  listId: 0,
+  id: 0,
+  status: TaskItemStatus.Open
+}]
+
+let listBackend: TaskListResource[] = [
+  {
+    id: 0,
+    title: 'To-do',
+    position: 0,
+    tasks: itemBackend
+  }
+]
+
 let boardBackend: TaskBoardResource[] = [{
   id: 0,
   title: 'Groceries',
-  type: TaskBoardType.List,
+  type: TaskBoardType.Kanban,
   isPublic: true,
-  taskLists: [],
+  taskLists: listBackend,
   spaceId: 1
 }]
+
 let idGen = 1
 
 // TODO Replace with API calls
@@ -67,15 +85,6 @@ export class TaskBoardService implements ApiService<TaskBoardResource, BoardFetc
   }
 }
 
-let listBackend: TaskListResource[] = [{
-  board: boardBackend[0],
-  boardId: boardBackend[0].id,
-  title: 'To-do',
-  spaceId: boardBackend[0].spaceId,
-  position: 0,
-  tasks: []
-}]
-
 export class TaskListService implements ApiService<TaskListResource, ListFetchParams> {
   async fetch ({ boardId }: ListFetchParams): Promise<TaskListResource[]> {
     console.log(`Fetch ${boardId}`)
@@ -107,15 +116,6 @@ export class TaskListService implements ApiService<TaskListResource, ListFetchPa
     delete listBackend[index]
   }
 }
-
-let itemBackend: TaskItemResource[] = [{
-  list: listBackend[0],
-  listId: listBackend[0].id,
-  title: 'To-do',
-  spaceId: boardBackend[0].spaceId,
-  position: 0,
-  status: TaskItemStatus.Open
-}]
 
 export class TaskItemService implements ApiService<TaskItemResource, ItemFetchParams> {
   async fetch ({ listId }: ItemFetchParams): Promise<TaskItemResource[]> {

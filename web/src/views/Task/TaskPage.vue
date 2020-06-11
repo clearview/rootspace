@@ -23,19 +23,21 @@
           <Icon
             name="list"
             size="2.5em"
-            class="icon-circle active"
+            class="icon-circle"
+            :class="{active: !isKanban}"
           />
           <Icon
             name="kanban"
             size="2.5em"
             class="icon-circle"
+            :class="{active: isKanban}"
           />
         </div>
       </div>
     </header>
     <main class="board">
       <Ghost v-if="!board" active></Ghost>
-      <BoardManager v-else :type="boardType" :board="board"/>
+      <BoardManager v-else :board="board"/>
     </main>
   </section>
 </template>
@@ -48,9 +50,9 @@ import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
 
-/**
- * This component is responsible for displaying the board header and then pass it to board manager
- */
+  /**
+   * This component is responsible for displaying the board header and then pass it to board manager
+   */
   @Component({
     name: 'TaskPage',
     components: {
@@ -65,14 +67,10 @@ import Ghost from '@/components/Ghost.vue'
     }
   })
 export default class TaskPage extends Vue {
-    // Obtained from store
     private readonly board?: TaskBoardResource;
 
-    get boardType (): TaskBoardType {
-      if (this.$route.params.type === 'list') {
-        return TaskBoardType.List
-      }
-      return TaskBoardType.Kanban
+    get isKanban (): boolean {
+      return this.board?.type === TaskBoardType.Kanban
     }
 
     get boardId (): number {
@@ -90,6 +88,10 @@ export default class TaskPage extends Vue {
 </script>
 
 <style lang="postcss" scoped>
+  .task-board {
+    margin: -1rem;
+  }
+
   .header {
     background: theme('colors.gray.900');
     color: theme('colors.white.default');
