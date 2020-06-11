@@ -2,7 +2,7 @@ import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
 import PromiseRouter from 'express-promise-router'
-import {TaskCommentCtrl} from "../controllers/tasks/TaskCommentCtrl";
+import {TaskCommentCtrl} from '../controllers/tasks/TaskCommentCtrl'
 
 const router = PromiseRouter()
 
@@ -21,6 +21,8 @@ router.post('/tasks/task', auth, mapRoute(TaskCtrl, 'create'))
 router.patch('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'update'))
 router.delete('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'delete'))
 
+router.get('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'view'))
+router.post('/tasks/comment', auth, mapRoute(TaskCommentCtrl, 'create'))
 router.patch('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'update'))
 router.delete('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'delete'))
 
