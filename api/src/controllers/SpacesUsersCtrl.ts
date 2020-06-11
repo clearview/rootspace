@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { UserService, UserSpaceService, SpaceService } from '../services'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 
 export class SpacesUsersCtrl extends BaseCtrl {
   private userService: UserService
@@ -46,8 +46,8 @@ export class SpacesUsersCtrl extends BaseCtrl {
       if (userId === space.userId) {
         throw clientError(
           'Can not remove space owner from space',
-          ClientErrName.InvalidRequest,
-          ClientStatusCode.NotAllowed
+          HttpErrName.InvalidRequest,
+          HttpStatusCode.NotAllowed
         )
       }
 

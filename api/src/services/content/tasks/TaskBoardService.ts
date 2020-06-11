@@ -7,7 +7,7 @@ import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
 import { ILinkContent } from '../../types'
 import { ContentManager } from '../ContentManager'
-import { clientError } from '../../../errors/client'
+import { clientError } from '../../../errors'
 
 export class TaskBoardService implements ILinkContent<TaskBoard> {
   private contentManager: ContentManager

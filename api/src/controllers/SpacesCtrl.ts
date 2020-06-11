@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
-import { clientError, ClientErrName } from '../errors/client'
+import { clientError, HttpErrName } from '../errors'
 import { InviteService } from '../services'
 import { SpaceFacade, InviteFacade } from '../services/facade'
 
@@ -57,6 +57,6 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   public async delete(req: Request, res: Response) {
-    throw clientError('Not implemented', ClientErrName.InvalidRequest)
+    throw clientError('Not implemented', HttpErrName.InvalidRequest)
   }
 }

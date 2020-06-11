@@ -3,7 +3,7 @@ import { TaskListRepository } from '../../../repositories/TaskListRepository'
 import { TaskList } from '../../../entities/TaskList'
 import { TaskListCreateValue, TaskListUpdateValue } from '../../../values/tasks/list'
 import { ContentManager } from '../ContentManager'
-import { clientError } from '../../../errors/client'
+import { clientError } from '../../../errors'
 
 export class TaskListService {
   private contentManager: ContentManager

@@ -4,7 +4,7 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { UserService } from './services/UserService'
-import { clientError, ClientErrName, ClientStatusCode } from './errors/client'
+import { unauthorized } from './errors'
 
 import {
   Strategy as JwtStrategy,
@@ -63,9 +63,7 @@ passport.use(
         const user = await userService.getUserByEmail(email, true)
 
         if (!user) {
-          return done(
-            clientError('User not found', ClientErrName.EntityNotFound)
-          )
+          return done(unauthorized)
         }
 
         bcrypt.compare(password, user.password, (err, res) => {
@@ -74,30 +72,17 @@ passport.use(
           }
 
           if (res !== true) {
-            return done(
-              clientError('Wrong Password', ClientErrName.WrongPassword),
-              user
-            )
+            return done(unauthorized())
           }
 
           /* if (user.emailConfirmed !== true) {
             return done(
-              clientError(
-                'Email not confirmed',
-                ClientErrName.EmailNotConfirmed,
-                ClientStatusCode.Forbidden
-              )
+              unauthorized
             )
           } */
 
           if (user.active !== true) {
-            return done(
-              clientError(
-                'User not active',
-                ClientErrName.UserNotActive,
-                ClientStatusCode.Forbidden
-              )
-            )
+            return done(unauthorized)
           }
 
           return done(null, user)

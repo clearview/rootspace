@@ -1,23 +1,20 @@
-export enum ClientErrName {
+export enum HttpErrName {
   InvalidRequest = 'invalidRequest',
   ValidationFailed = 'validationFailed',
   EntityCreateFailed = 'entityCreateFailed',
   EntityUpdateFailed = 'entityUpdateFailed',
   EntityDeleteFailed = 'entityDeleteFailed',
   EntityNotFound = 'entityNotFound',
+  Unauthorized = 'unauthorized',
   NotAllowed = 'notAllowed',
-  AuthenticationFailed = 'authenticationFailed',
-  EmailNotConfirmed = 'userNotConfirmed',
-  UserNotActive = 'userNotActive',
-  WrongPassword = 'wrongPassword',
   InvalidToken = 'invalidToken',
 }
 
-export const ClientErrNames: string[] = Object.keys(ClientErrName).map(
-  (key) => ClientErrName[key]
+export const HttpErrNames: string[] = Object.keys(HttpErrName).map(
+  (key) => HttpErrName[key]
 )
 
-export enum ClientStatusCode {
+export enum HttpStatusCode {
   BadRequest = 400,
   Unauthorized = 401,
   Forbidden = 403,

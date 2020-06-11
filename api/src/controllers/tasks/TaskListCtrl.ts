@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskListCreateValue, TaskListUpdateValue } from '../../values/tasks/list'
 import { TaskListService } from '../../services'
-import { clientError, ClientErrName, ClientStatusCode } from '../../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskListCtrl extends BaseCtrl {
@@ -22,8 +22,8 @@ export class TaskListCtrl extends BaseCtrl {
       return next(
         clientError(
           'Task list not found',
-          ClientErrName.EntityNotFound,
-          ClientStatusCode.NotFound
+            HttpErrName.EntityNotFound,
+            HttpStatusCode.NotFound
         )
       )
     }

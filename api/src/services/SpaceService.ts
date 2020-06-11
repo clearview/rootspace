@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../repositories/SpaceRepository'
 import { Space } from '../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 
 export class SpaceService {
   private static instance: SpaceService
@@ -29,8 +29,8 @@ export class SpaceService {
     if (!space) {
       throw clientError(
         'Can not find space id ' + id,
-        ClientErrName.EntityNotFound,
-        ClientStatusCode.NotFound
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
       )
     }
 
@@ -63,8 +63,8 @@ export class SpaceService {
     if (!space) {
       throw clientError(
         'Space not found ' + spaceId,
-        ClientErrName.EntityNotFound,
-        ClientStatusCode.NotFound
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
       )
     }
 
