@@ -4,7 +4,7 @@
       <TaskList v-for="list in lists" :list="list" :key="list.id"></TaskList>
     </div>
     <div v-if="isKanban" class="board-kanban">
-      <TaskLane v-for="list in board.taskLists" :list="list" :key="list.id"></TaskLane>
+      <TaskLane @cancel="list" v-for="list in board.taskLists" :list="list" :key="list.id"></TaskLane>
     </div>
   </div>
 </template>

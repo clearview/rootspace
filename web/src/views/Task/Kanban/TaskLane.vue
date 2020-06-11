@@ -1,13 +1,15 @@
 <template>
   <div class="task-lane">
     <header class="header">
-      <input v-model="listCopy.title" v-if="isInputting" class="header-input"/>
-      <h4 v-else class="header-title" @click="cancel">{{list.title}}</h4>
+      <input v-model="listCopy.title" v-if="isInputting" class="header-input" @keypress.enter="save"
+             @keypress.esc="cancel"/>
+      <h4 v-else class="header-title">{{list.title}}</h4>
+
       <Icon v-if="isInputting" name="close" size="1.5rem" class="header-icon"/>
-      <Icon v-else name="ellipsis" size="1.5rem" class="header-icon" @click="isEditTitle = false"/>
+      <Icon v-else name="ellipsis" size="1.5rem" class="header-icon" @click="cancel"/>
     </header>
     <main class="cards">
-      <TaskCard :is-inputting="isInputting(task)" v-for="task in list.tasks"
+      <TaskCard :is-inputting="isItemInputting(task)" v-for="task in list.tasks"
                 :item="task" :key="task.id" @click="toggleInputting(task, true)" @save="saveItem(task, $event)"
                 @cancel="toggleInputting(task, false)"/>
 
@@ -25,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import TaskCard from '@/views/Task/Kanban/TaskCard.vue'
@@ -45,11 +47,19 @@ export default class TaskLane extends Vue {
     private readonly isInputting!: boolean
 
     private readonly inputtings: Record<number, boolean> = {}
-
     private listCopy: TaskListResource = { ...this.list }
-
     private isNew = false
     private newItem: TaskItemResource | null = null
+
+    @Emit('cancel')
+    cancel () {
+
+    }
+
+    @Emit('save')
+    save () {
+      return this.listCopy
+    }
 
     isItemInputting (task: TaskItemResource) {
       if (task.id !== undefined) {
