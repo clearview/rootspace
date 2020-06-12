@@ -3,10 +3,11 @@
     <div class="header">
       <input
         autofocus
-        type="text"
         v-model="title"
+        type="text"
         class="title"
         placeholder="Your Title Here"
+        ref="title"
       >
       <v-icon
         v-if="loading"
@@ -19,6 +20,7 @@
     <editor
       v-if="!initialize"
       class="content"
+      :key="`editor-${id}`"
       :content="value"
       @update-editor="onUpdateEditor"
     />
@@ -44,6 +46,10 @@ type ComponentData = {
   isFromLoad: boolean;
 }
 
+type ComponentRefs = {
+  title: HTMLInputElement;
+}
+
 export default Vue.extend({
   name: 'Document',
   components: {
@@ -62,6 +68,14 @@ export default Vue.extend({
   computed: {
     currentSpace () {
       return this.$store.state.auth.currentSpace || {}
+    },
+    id (): number {
+      return Number(this.$route.params.id) || 0
+    },
+    refs (): ComponentRefs {
+      return {
+        title: this.$refs.title as HTMLInputElement
+      }
     }
   },
   watch: {
@@ -78,22 +92,21 @@ export default Vue.extend({
         this.$router.push({ name: 'Main' })
       }
     },
-    $route (newval) {
-      this.initialize = true
-      if (typeof newval.params.id === 'undefined') {
-        this.title = ''
-        this.value = {}
+    id: {
+      immediate: true,
+      async handler (id) {
+        if (!id) {
+          this.title = ''
+          this.value = {}
+        } else {
+          await this.loadDocument()
+        }
 
-        setTimeout(() => {
-          this.initialize = false
-        }, 500)
-        return
+        if (this.refs.title) {
+          this.refs.title.focus()
+        }
       }
-      this.loadDocument()
     }
-  },
-  async created () {
-    this.loadDocument()
   },
   methods: {
     onUpdateEditor (value: object) {
