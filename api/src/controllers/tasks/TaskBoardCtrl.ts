@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskBoardService } from '../../services'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskBoardCtrl extends BaseCtrl {
@@ -15,24 +14,16 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskBoardService.getById(Number(req.params.id))
+    const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
 
-    if (!task) {
-      return next(
-        clientError(
-          'Task board not found',
-            HttpErrName.EntityNotFound,
-            HttpStatusCode.NotFound
-        )
-      )
-    }
-
-    const resData = this.responseData(task)
+    const resData = this.responseData(taskBoard)
     res.send(resData)
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
+    data.userId = req.user.id
+
     const taskBoard = await this.taskBoardService.create(data)
     const resData = this.responseData(taskBoard)
 
@@ -43,23 +34,17 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const id = Number(req.params.id)
-      const data = req.body.data
-      const task = await this.taskBoardService.update(data, id)
+    const id = Number(req.params.id)
+    const data = req.body.data
 
-      res.send(this.responseData(task))
-    } catch (err) {
-      next(err)
-    }
+    const taskBoard = await this.taskBoardService.update(id, data)
+
+    const resData = this.responseData(taskBoard)
+    res.send(resData)
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await this.taskBoardService.delete(Number(req.params.id))
-      res.send(result)
-    } catch (err) {
-      next(err)
-    }
+    const result = await this.taskBoardService.delete(Number(req.params.id))
+    res.send(result)
   }
 }

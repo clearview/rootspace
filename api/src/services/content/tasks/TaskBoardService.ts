@@ -29,6 +29,45 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return getCustomRepository(TaskBoardRepository)
   }
 
+  async getById(id: number): Promise<TaskBoard> {
+    return this.getTaskBoardRepository().findOneOrFail(id)
+  }
+
+  async create(data: any): Promise<TaskBoard> {
+    const taskBoard = await this.getTaskBoardRepository().save(data)
+    await this.createLinkByContent(taskBoard)
+
+    return taskBoard
+  }
+
+  async update(id: number, data: any): Promise<TaskBoard> {
+    let taskBoard = await this.getById(id)
+    taskBoard = await this.getTaskBoardRepository().save({
+      ...taskBoard,
+      ...data
+    })
+
+    await this.updateLinkByContent(taskBoard)
+
+    return this.getTaskBoardRepository().reload(taskBoard)
+  }
+
+  async delete(id: number) {
+    const taskBoard = await this.getById(id)
+
+    const res = await this.getTaskBoardRepository().delete({id})
+
+    if (res.affected > 0) {
+      await this.deleteLinkByContent(taskBoard)
+    }
+
+    return res
+  }
+
+  /**
+   * ILinkContent methods
+   */
+
   getLinkByContent(taskBoard: TaskBoard): Promise<Link> {
     return this.contentManager.getLinkByValue(String(taskBoard.id))
   }
@@ -66,7 +105,7 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
 
   updateContentByLink(link: Link): Promise<UpdateResult> {
     return this.getTaskBoardRepository().update(
-      Number(link.value),
+        Number(link.value),
         {
           title: link.title
         }
@@ -75,49 +114,5 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
 
   deleteContentByLink(link: Link): Promise<DeleteResult> {
     return this.getTaskBoardRepository().delete(String(link.value))
-  }
-
-  async getById(id: number): Promise<TaskBoard> {
-    return this.getTaskBoardRepository().findOne(id)
-  }
-
-  async create(data: any): Promise<TaskBoard> {
-    const taskBoard = await this.getTaskBoardRepository().save(data.getAttributes())
-    await this.createLinkByContent(taskBoard)
-
-    return taskBoard
-  }
-
-  async update(data: any, id: number): Promise<TaskBoard> {
-    let taskBoard = await this.getById(id)
-
-    if (!taskBoard) {
-      throw clientError('Error updating task board')
-    }
-
-    Object.assign(taskBoard, data.getAttributes())
-    taskBoard = await this.getTaskBoardRepository().save(taskBoard)
-
-    await this.updateLinkByContent(taskBoard)
-
-    return taskBoard
-  }
-
-  async delete(id: number) {
-    const taskBoard = await this.getById(id)
-
-    if (!taskBoard) {
-      throw clientError('Error deleting task board')
-    }
-
-    const res = await this.getTaskBoardRepository().delete({
-      id,
-    })
-
-    if (res.affected > 0) {
-      await this.deleteLinkByContent(taskBoard)
-    }
-
-    return res
   }
 }
