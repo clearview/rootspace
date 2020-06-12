@@ -15,17 +15,16 @@ import Warning from '@editorjs/warning'
 import Paragraph from '@editorjs/paragraph'
 import Checklist from '@editorjs/checklist'
 
-import { RootEditor } from '@/types/resource'
+type EditorConfig = Partial<EditorJS.EditorConfig>
 
-export function createEditor (params: RootEditor): EditorJS {
-  return new EditorJS({
-    holder: 'codex-editor',
-    data: params.savedData,
+export function createEditor (config: EditorConfig): EditorJS {
+  const defaultConfig: EditorConfig = {
     placeholder: 'Let`s write an awesome document!',
+    logLevel: 'ERROR' as EditorJS.LogLevels,
     tools: {
       header: {
         class: Header,
-        inlineToolbar: ['link'],
+        inlineToolbar: ['bold', 'italic', 'marker'],
         config: {
           placeholder: 'Header'
         },
@@ -94,9 +93,11 @@ export function createEditor (params: RootEditor): EditorJS {
         class: Checklist,
         inlineToolbar: true
       }
-    },
-    onChange: () => {
-      params.onChange()
     }
+  }
+
+  return new EditorJS({
+    ...defaultConfig,
+    ...config
   })
 }
