@@ -2,7 +2,6 @@ import { getCustomRepository } from 'typeorm'
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../entities/tasks/TaskList'
 import { ContentManager } from '../ContentManager'
-import { clientError } from '../../../errors'
 
 export class TaskListService {
   private contentManager: ContentManager
@@ -26,31 +25,24 @@ export class TaskListService {
   }
 
   async getById(id: number): Promise<TaskList> {
-    return this.getTaskListRepository().findOne(id)
+    return this.getTaskListRepository().findOneOrFail(id)
   }
 
   async create(data: any): Promise<TaskList> {
-    return this.getTaskListRepository().save(data.getAttributes())
+    return this.getTaskListRepository().save(data)
   }
 
-  async update(data: any, id: number): Promise<TaskList> {
-    const taskList = await this.getById(id)
+  async update(id: number, data: any): Promise<TaskList> {
+    let taskList = await this.getById(id)
+    taskList = await this.getTaskListRepository().save({
+      ...taskList,
+      ...data
+    })
 
-    if (!taskList) {
-      throw clientError('Error updating task list')
-    }
-
-    Object.assign(taskList, data.getAttributes())
-    return this.getTaskListRepository().save(taskList)
+    return this.getTaskListRepository().reload(taskList)
   }
 
   async delete(id: number) {
-    const taskList = await this.getById(id)
-
-    if (!taskList) {
-      throw clientError('Error deleting task list')
-    }
-
     return this.getTaskListRepository().delete({id})
   }
 }
