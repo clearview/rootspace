@@ -1,16 +1,17 @@
 <template>
   <div class="task-card">
-    <div class="task-input" v-if="isInputting">
-      <textarea ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…" rows="5"
-                class="task-textarea"></textarea>
-      <div class="task-actions">
+    <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
+      <textarea ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…" rows="3"
+                class="item-textarea"></textarea>
+      <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
           <Icon name="close" size="1.5rem"/>
         </button>
-        <button class="btn btn-primary" @click="save">Add Card</button>
+        <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
+        <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
       </div>
     </div>
-    <div v-else class="card" @click="click">
+    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="click">
       <div class="color"></div>
       <div class="title">
         {{itemCopy.title}}
@@ -23,11 +24,17 @@
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource } from '@/types/resource'
+import { required } from 'vuelidate/lib/validators'
 
   @Component({
     name: 'TaskCard',
     components: {
       Icon
+    },
+    validations: {
+      itemCopy: {
+        title: { required }
+      }
     }
   })
 export default class TaskCard extends Vue {
@@ -35,26 +42,47 @@ export default class TaskCard extends Vue {
     private readonly item!: TaskItemResource
 
     @Prop({ type: Boolean, default: false })
-    private readonly isInputting!: boolean;
+    private readonly defaultInputting!: boolean
 
     @Ref('textarea')
     private readonly textarea!: HTMLTextAreaElement;
 
+    private isInputting = this.defaultInputting
     private itemCopy: TaskItemResource = { ...this.item }
 
+    private get isInputtingNewCard () {
+      return this.isInputting && this.itemCopy.id === null
+    }
+
+    private get isEditingCard () {
+      return this.isInputting && this.itemCopy.id !== null
+    }
+
+    private get canSave () {
+      return !this.$v.$invalid
+    }
+
     @Emit('save')
-    save () {
+    async save () {
+      if (this.itemCopy.id === null) {
+        this.itemCopy = await this.$store.dispatch('task/item/create', this.itemCopy)
+      } else {
+        this.itemCopy = await this.$store.dispatch('task/item/update', this.itemCopy)
+      }
+      this.isInputting = false
       return this.itemCopy
     }
 
     @Emit('cancel')
     cancel () {
       this.itemCopy = { ...this.item }
+      this.isInputting = false
       return true
     }
 
     @Emit('click')
     click () {
+      this.isInputting = true
       Vue.nextTick().then(() => {
         this.textarea.focus()
       })
@@ -71,7 +99,7 @@ export default class TaskCard extends Vue {
     @apply mt-3
   }
 
-  .task-input {
+  .item-input {
 
   }
 
@@ -84,7 +112,7 @@ export default class TaskCard extends Vue {
     color: theme("colors.gray.400");
   }
 
-  .task-actions {
+  .item-actions {
     @apply flex items-center justify-end mt-2;
 
     .btn {
@@ -93,7 +121,7 @@ export default class TaskCard extends Vue {
     }
   }
 
-  .task-textarea {
+  .item-textarea {
     @apply rounded p-2 w-full text-base;
     border: solid thin theme("colors.gray.100");
   }

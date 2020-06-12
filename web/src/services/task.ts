@@ -24,20 +24,37 @@ export interface ItemFetchParams {
   listId: number;
 }
 
-let itemBackend: TaskItemResource[] = [{
+const itemBackend: TaskItemResource[] = [{
   position: 0,
   title: 'Hello',
   listId: 0,
   id: 0,
-  status: TaskItemStatus.Open
+  status: TaskItemStatus.Open,
+  assignedTo: null,
+  list: null,
+  attachments: null,
+  createdAt: null,
+  description: null,
+  dueDate: null,
+  spaceId: null,
+  tags: null,
+  updatedAt: null,
+  userId: null
 }]
 
-let listBackend: TaskListResource[] = [
+const listBackend: TaskListResource[] = [
   {
     id: 0,
     title: 'To-do',
     position: 0,
-    tasks: itemBackend
+    tasks: itemBackend,
+    updatedAt: null,
+    createdAt: null,
+    spaceId: null,
+    boardId: 0,
+    board: null,
+    description: null,
+    userId: null
   }
 ]
 
@@ -46,8 +63,13 @@ let boardBackend: TaskBoardResource[] = [{
   title: 'Groceries',
   type: TaskBoardType.Kanban,
   isPublic: true,
-  taskLists: listBackend,
-  spaceId: 1
+  taskLists: [],
+  spaceId: 1,
+  createdAt: null,
+  updatedAt: null,
+  description: null,
+  userId: null,
+  uuid: null
 }]
 
 let idGen = 1
@@ -92,8 +114,11 @@ export class TaskListService implements ApiService<TaskListResource, ListFetchPa
   }
 
   async create (data: TaskListResource): Promise<TaskListResource> {
-    data.id = idGen++
-    listBackend.push(data)
+    const targetBoard = boardBackend.find(board => board.id === data.boardId)
+    if (targetBoard) {
+      data.id = idGen++
+      targetBoard.taskLists.push(data)
+    }
     return data
   }
 
@@ -102,12 +127,16 @@ export class TaskListService implements ApiService<TaskListResource, ListFetchPa
   }
 
   async update (id: number, data: TaskListResource): Promise<TaskListResource> {
-    listBackend = listBackend.map(list => {
-      if (list.id === id) {
-        return data
-      }
-      return list
-    })
+    const targetBoard = boardBackend.find(board => board.id === data.boardId)
+    if (targetBoard) {
+      targetBoard.taskLists = targetBoard.taskLists.map(list => {
+        if (list.id === id) {
+          return data
+        }
+        return list
+      })
+      return data
+    }
     return data
   }
 
@@ -124,8 +153,14 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
   }
 
   async create (data: TaskItemResource): Promise<TaskItemResource> {
-    data.id = idGen++
-    itemBackend.push(data)
+    const targetBoard = boardBackend.find(board => board.id === data.list?.boardId)
+    if (targetBoard) {
+      const targetList = targetBoard.taskLists.find(list => list.id === data.listId)
+      if (targetList) {
+        data.id = idGen++
+        targetList.tasks.push(data)
+      }
+    }
     return data
   }
 
@@ -134,12 +169,19 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
   }
 
   async update (id: number, data: TaskItemResource): Promise<TaskItemResource> {
-    itemBackend = itemBackend.map(item => {
-      if (item.id === id) {
+    const targetBoard = boardBackend.find(board => board.id === data.list?.boardId)
+    if (targetBoard) {
+      const targetList = listBackend.find(list => list.id === data.listId)
+      if (targetList) {
+        targetList.tasks = targetList.tasks.map(item => {
+          if (item.id === id) {
+            return data
+          }
+          return item
+        })
         return data
       }
-      return item
-    })
+    }
     return data
   }
 

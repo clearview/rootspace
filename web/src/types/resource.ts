@@ -13,9 +13,9 @@ export interface LinkResource {
 }
 
 export interface ApiResource {
-  id?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  id: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
 
 export enum TaskItemStatus {
@@ -29,37 +29,37 @@ export enum TaskBoardType {
 }
 
 export interface TaskItemResource extends ApiResource {
-  userId?: number;
-  spaceId?: number;
-  listId?: number;
-  assignedTo?: never[];
+  userId: number | null;
+  spaceId: number | null;
+  listId: number | null;
+  assignedTo: never[] | null;
   title: string;
-  description?: string;
+  description: string | null;
   status: TaskItemStatus;
-  tags?: string[];
-  attachments?: never[];
-  dueDate?: Date;
+  tags: string[] | null;
+  attachments: never[] | null;
+  dueDate: Date | null;
   position: number;
-  list?: TaskListResource;
+  list: TaskListResource | null;
 }
 
 export interface TaskListResource extends ApiResource {
-  userId?: number;
-  spaceId?: number;
-  boardId?: number;
+  userId: number | null;
+  spaceId: number | null;
+  boardId: number | null;
   title: string;
-  description?: string;
+  description: string | null;
   position: number;
-  board?: TaskBoardResource;
+  board: TaskBoardResource | null;
   tasks: TaskItemResource[];
 }
 
 export interface TaskBoardResource extends ApiResource {
-  uuid?: string;
-  userId?: number;
-  spaceId: number;
+  uuid: string | null;
+  userId: number | null;
+  spaceId: number | null;
   title: string;
-  description?: string;
+  description: string | null;
   type: TaskBoardType;
   taskLists: TaskListResource[];
   isPublic: boolean;

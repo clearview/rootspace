@@ -52,24 +52,28 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setCurrent', task)
       },
 
-      async create ({ commit, dispatch }, data: TResource): Promise<void> {
+      async create ({ commit }, data: TResource): Promise<TResource> {
         commit('setProcessing', true)
-        await service.create(data)
+        const res = await service.create(data)
         commit('setProcessing', false)
+
+        return res
       },
 
-      async update ({ commit, dispatch }, data: TResource): Promise<void> {
-        if (!data.id) {
+      async update ({ commit }, data: TResource): Promise<TResource> {
+        if (data.id === null) {
           throw new Error('Unable to update data without ID')
         }
         commit('setProcessing', true)
-        await service.update(data.id, data)
+        const res = await service.update(data.id, data)
         commit('setProcessing', false)
+
+        return res
       },
 
-      async destroy ({ commit, dispatch }, data: TResource): Promise<void> {
-        if (!data.id) {
-          throw new Error('ID is not defined')
+      async destroy ({ commit }, data: TResource): Promise<void> {
+        if (data.id === null) {
+          throw new Error('Unable to delete data without ID')
         }
         commit('setProcessing', true)
         await service.destroy(data.id)

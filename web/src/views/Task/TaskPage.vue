@@ -89,7 +89,13 @@ export default class TaskPage extends Vue {
 
 <style lang="postcss" scoped>
   .task-board {
+    @apply flex flex-col;
+    flex: 1 0 auto;
     margin: -1rem;
+  }
+
+  .board {
+    flex: 1 0 auto;
   }
 
   .header {
