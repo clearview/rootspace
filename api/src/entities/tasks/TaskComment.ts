@@ -24,7 +24,7 @@ export class TaskComment {
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
 
-  @ManyToOne(type => Task, task => task.taskComments)
+  @ManyToOne(type => Task, task => task.taskComments, {onDelete: 'CASCADE'})
   task: Task
 
 }

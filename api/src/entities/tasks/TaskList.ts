@@ -44,7 +44,7 @@ export class TaskList {
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
 
-  @ManyToOne(type => TaskBoard, board => board.taskLists)
+  @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
   board: TaskBoard
 
   @OneToMany(type => Task, task => task.list, {eager: true})
