@@ -39,7 +39,7 @@ type ComponentData = {
 }
 
 export default Vue.extend({
-  name: 'CreateWorkspace',
+  name: 'WorkspaceInit',
   components: {
     RootHeader,
     VLoading,
