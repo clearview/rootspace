@@ -40,12 +40,15 @@ export default Vue.extend({
     this.editor = createEditor({
       holder: this.$el as HTMLElement,
       data: this.data,
-      async onChange (api: EditorJS.API) {
-        this.data = await api.saver.save()
-      }
+      onChange: this.save.bind(this)
     })
 
     await this.editor.isReady
+  },
+  methods: {
+    async save (api: EditorJS.API) {
+      this.data = await api.saver.save()
+    }
   }
 })
 </script>
