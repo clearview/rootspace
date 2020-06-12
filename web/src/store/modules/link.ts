@@ -32,8 +32,17 @@ const LinkModule: Module<LinkState, RootState> = {
   },
 
   actions: {
-    async fetch ({ commit }, params) {
-      const res = await LinkService.fetch(params)
+    async fetch ({ commit, rootState }, params) {
+      const currentSpace = rootState.auth.currentSpace
+
+      if (!currentSpace) {
+        throw new Error('There is no currently active space')
+      }
+
+      const res = await LinkService.fetch({
+        ...params,
+        spaceId: currentSpace.id
+      })
 
       commit('setPayload', res.data)
     },
