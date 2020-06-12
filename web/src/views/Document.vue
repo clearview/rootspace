@@ -1,11 +1,27 @@
 <template>
-  <div class="document-container">
-    <div id="editor-toolbar">
-      <input autofocus type="text" v-model="title" class="title" placeholder="Your Title Here">
-      <v-icon v-if="loading" class="icon-loading" name="loading" size="2em" viewbox="100" />
+  <div class="page">
+    <div class="header">
+      <input
+        autofocus
+        type="text"
+        v-model="title"
+        class="title"
+        placeholder="Your Title Here"
+      >
+      <v-icon
+        v-if="loading"
+        name="loading"
+        size="2em"
+        viewbox="100"
+      />
     </div>
 
-    <editor v-if="!initialize" id="editor" :content="value" @update-editor="onUpdateEditor" />
+    <editor
+      v-if="!initialize"
+      class="content"
+      :content="value"
+      @update-editor="onUpdateEditor"
+    />
   </div>
 </template>
 
@@ -139,31 +155,32 @@ export default Vue.extend({
 </script>
 
 <style lang="postcss" scoped>
-.document-container {
+.page {
   @apply max-w-2xl mx-auto p-0;
 
   width: 43.8rem;
 
-  .title {
-    font-size: 2rem;
-    width: 100%;
+}
 
-    &:focus {
-      outline: none;
-    }
+.title {
+  font-size: 2rem;
+  width: 100%;
+
+  &:focus {
+    outline: none;
   }
+}
 
-  #editor-toolbar {
-    @apply flex justify-between border-b-2 w-full p-0;
+.header {
+  @apply flex justify-between border-b-2 w-full p-0;
 
-    border-color: theme("colors.secondary.default");
-    padding-bottom: .5rem;
-    max-width: 650px;
-    margin: 0 auto;
-  }
+  border-color: theme("colors.secondary.default");
+  padding-bottom: 0.5rem;
+  max-width: 650px;
+  margin: 0 auto;
+}
 
-  #editor {
-    padding-top: .5rem;
-  }
+.content {
+  padding-top: 0.5rem;
 }
 </style>
