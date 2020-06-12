@@ -2,18 +2,16 @@ import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
 import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
-import { ContentManager } from './content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 import { LinkType } from '../constants'
-import { parentPort } from 'worker_threads'
+import { LinkContentService } from './LinkContentService'
 
 export class LinkService {
-  private contentManager: ContentManager
+  private linkContentService: LinkContentService
 
   private static instance: LinkService
-
   private constructor() {
-    this.contentManager = ContentManager.getInstance()
+    this.linkContentService = LinkContentService.getInstance()
   }
 
   static getInstance() {
@@ -91,7 +89,7 @@ export class LinkService {
     Object.assign(link, data.getAttributes())
 
     await this.getLinkRepository().save(link)
-    await this.contentManager.updateContentByLink(link)
+    await this.linkContentService.updateByLink(link)
 
     if (data.parent !== undefined) {
       link = await this.updateLinkParent(link, data.parent)
@@ -221,7 +219,7 @@ export class LinkService {
 
     if (res.affected > 0) {
       this.getLinkRepository().decreasePositions(link.parentId, link.position)
-      this.contentManager.deleteContentByLink(link)
+      this.linkContentService.deleteByLink(link)
     }
 
     return res
