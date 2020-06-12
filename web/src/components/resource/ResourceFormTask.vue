@@ -135,7 +135,12 @@ export default Vue.extend({
         spaceId: this.value.space || this.space,
         title: this.value.title || '',
         type: this.value.type || 'list',
-        isPublic: this.value.isPublic
+        isPublic: this.value.isPublic,
+        uuid: null,
+        userId: null,
+        description: null,
+        updatedAt: null,
+        createdAt: null
       }
     }
   },
