@@ -3,18 +3,18 @@ import { BaseCtrl } from './BaseCtrl'
 import { LinkType } from '../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
-import { LinkService } from '../services/LinkService'
-import { ContentManager } from '../services/content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { LinkService } from '../services/LinkService'
+import { LinkContentService } from '../services/LinkContentService'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
-  protected contentManager: ContentManager
+  protected linkContentService: LinkContentService
 
   constructor() {
     super()
     this.linkSrvice = LinkService.getInstance()
-    this.contentManager = ContentManager.getInstance()
+    this.linkContentService = LinkContentService.getInstance()
   }
 
   public async view(req: Request, res: Response, next: NextFunction) {
@@ -32,7 +32,7 @@ export class LinksCtrl extends BaseCtrl {
       const resData = this.responseData(link)
 
       if (link.type !== LinkType.Link) {
-        const linkContent = await this.contentManager.getContentByLink(link)
+        const linkContent = await this.linkContentService.getLinkContent(link)
         resData.includes(linkContent, link.type)
       }
 

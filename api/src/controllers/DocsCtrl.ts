@@ -2,18 +2,15 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
-import { DocService } from '../services/content/DocService'
+import { DocService } from '../services/DocService'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
-import { ContentManager } from '../services/content/ContentManager'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
-  private contentManager: ContentManager
 
   constructor() {
     super()
     this.docService = DocService.getInstance()
-    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
@@ -46,7 +43,7 @@ export class DocsCtrl extends BaseCtrl {
       const doc = await this.docService.create(value)
       const resData = this.responseData(doc)
 
-      const link = await this.docService.getLinkByContent(doc)
+      const link = await this.docService.getDocLink(doc)
       resData.includes(link, 'link')
 
       res.send(resData)
