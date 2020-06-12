@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskService } from '../../services'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCtrl extends BaseCtrl {
@@ -17,50 +16,30 @@ export class TaskCtrl extends BaseCtrl {
   async view(req: Request, res: Response, next: NextFunction) {
     const task = await this.taskService.getById(Number(req.params.id))
 
-    if (!task) {
-      return next(
-        clientError(
-          'Task not found',
-            HttpErrName.EntityNotFound,
-            HttpStatusCode.NotFound
-        )
-      )
-    }
-
     const resData = this.responseData(task)
     res.send(resData)
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = req.body.data
-      const task = await this.taskService.create(data)
-      const resData = this.responseData(task)
+    const data = req.body.data
+    data.userId = req.user.id
 
-      res.send(resData)
-    } catch (err) {
-      next(err)
-    }
+    const task = await this.taskService.create(data)
+
+    const resData = this.responseData(task)
+    res.send(resData)
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const id = Number(req.params.id)
-      const data = req.body.data
-      const task = await this.taskService.update(data, id)
+    const id = Number(req.params.id)
+    const data = req.body.data
+    const task = await this.taskService.update(id, data)
 
-      res.send(this.responseData(task))
-    } catch (err) {
-      next(err)
-    }
+    res.send(this.responseData(task))
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await this.taskService.delete(Number(req.params.id))
-      res.send(result)
-    } catch (err) {
-      next(err)
-    }
+    const result = await this.taskService.delete(Number(req.params.id))
+    res.send(result)
   }
 }

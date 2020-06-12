@@ -2,7 +2,6 @@ import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
 import { ContentManager } from '../ContentManager'
-import { clientError } from '../../../errors'
 
 export class TaskService {
   private contentManager: ContentManager
@@ -26,31 +25,24 @@ export class TaskService {
   }
 
   async getById(id: number): Promise<Task> {
-    return this.getTaskRepository().findOne(id)
+    return this.getTaskRepository().findOneOrFail(id)
   }
 
   async create(data: any): Promise<Task> {
     return this.getTaskRepository().save(data.getAttributes())
   }
 
-  async update(data: any, id: number): Promise<Task> {
-    const task = await this.getById(id)
+  async update(id: number, data: any): Promise<Task> {
+    let task = await this.getById(id)
+    task = await this.getTaskRepository().save({
+      ...task,
+      ...data
+    })
 
-    if (!task) {
-      throw clientError('Error updating task')
-    }
-
-    Object.assign(task, data.getAttributes())
-    return this.getTaskRepository().save(task)
+    return this.getTaskRepository().reload(task)
   }
 
   async delete(id: number) {
-    const task = await this.getById(id)
-
-    if (!task) {
-      throw clientError('Error deleting task')
-    }
-
     return this.getTaskRepository().delete({id})
   }
 }

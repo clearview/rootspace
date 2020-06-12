@@ -2,7 +2,6 @@ import { getCustomRepository } from 'typeorm'
 import { TaskCommentRepository } from '../../../repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../entities/tasks/TaskComment'
 import { ContentManager } from '../ContentManager'
-import { clientError } from '../../../errors'
 
 export class TaskCommentService {
   private contentManager: ContentManager
@@ -26,31 +25,24 @@ export class TaskCommentService {
   }
 
   async getById(id: number): Promise<TaskComment> {
-    return this.getTaskCommentRepository().findOne(id)
+    return this.getTaskCommentRepository().findOneOrFail(id)
   }
 
   async create(data: any): Promise<TaskComment> {
     return this.getTaskCommentRepository().save(data.getAttributes())
   }
 
-  async update(data: any, id: number): Promise<TaskComment> {
-    const taskComment = await this.getById(id)
+  async update(id: number, data: any): Promise<TaskComment> {
+    let taskComment = await this.getById(id)
+    taskComment = await this.getTaskCommentRepository().save({
+      ...taskComment,
+      ...data
+    })
 
-    if (!taskComment) {
-      throw clientError('Error updating comment')
-    }
-
-    Object.assign(taskComment, data.getAttributes())
-    return this.getTaskCommentRepository().save(taskComment)
+    return this.getTaskCommentRepository().reload(taskComment)
   }
 
   async delete(id: number) {
-    const taskComment = await this.getById(id)
-
-    if (!taskComment) {
-      throw clientError('Error deleting comment')
-    }
-
     return this.getTaskCommentRepository().delete({id})
   }
 }
