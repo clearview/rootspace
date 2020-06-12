@@ -73,17 +73,12 @@ export default Vue.extend({
     async createWorkspace (data: WorkspaceResource) {
       try {
         this.isLoading = true
-        const workspace = await WorkspaceService.create(data)
+
+        await WorkspaceService.create(data)
+        await this.$store.dispatch('auth/whoami', { updateSpace: true })
 
         this.isLoading = false
-        const getUserSpace = workspace.data
-        const userSpace = [{
-          id: getUserSpace.id,
-          title: getUserSpace.title,
-          settings: getUserSpace.settings
-        }]
-        this.setSpaces(userSpace)
-        this.setCurrentSpace(getUserSpace.id)
+
         this.$router.push({ name: 'Main' })
       } catch (err) {
         if (err.code === 401) {
