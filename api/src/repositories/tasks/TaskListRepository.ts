@@ -1,8 +1,9 @@
-import { EntityRepository, Repository } from 'typeorm'
-import { TaskList } from '../entities/TaskList'
+import { EntityRepository } from 'typeorm'
+import { TaskList } from '../../entities/tasks/TaskList'
+import {BaseRepository} from '../BaseRepository'
 
 @EntityRepository(TaskList)
-export class TaskListRepository extends Repository<TaskList> {
+export class TaskListRepository extends BaseRepository<TaskList> {
 
     async getMaxPositionByBoardId(boardId: number): Promise<number> {
         return this.createQueryBuilder('taskList')

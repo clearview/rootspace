@@ -6,25 +6,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  Generated
+  ManyToOne
 } from 'typeorm'
-import { TaskList } from './TaskList'
-import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
+import { Task } from './Task'
+import {TaskBoard} from './TaskBoard'
 
-export enum TaskBoardType {
-  List = 1,
-  Kanban = 2
-}
-
-@Entity('task_boards')
-export class TaskBoard {
+@Entity('task_lists')
+export class TaskList {
 
   @PrimaryGeneratedColumn()
   id: number
-
-  @Column('uuid')
-  @Generated('uuid')
-  uuid: string
 
   @Column('integer')
   @Index()
@@ -35,29 +26,28 @@ export class TaskBoard {
   spaceId: number
 
   @Column('integer')
-  @IsInt()
-  @Min(1)
-  @Max(2)
-  type: TaskBoardType
-
-  @Column('boolean', { default: false })
-  isPublic: boolean
+  @Index()
+  boardId: number
 
   @Column('varchar')
-  @Length(2, 128)
   title: string
 
   @Column('text', { nullable: true })
   description: string
 
+  @Column('integer', { default: 0 })
+  position: number
+
   @CreateDateColumn({ type: 'timestamptz'})
-  @IsDate()
   createdAt: Date
 
   @UpdateDateColumn({ type: 'timestamptz'})
-  @IsDate()
   updatedAt: Date
 
-  @OneToMany(type => TaskList, taskList => taskList.board)
-  taskLists: TaskList[]
+  @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
+  board: TaskBoard
+
+  @OneToMany(type => Task, task => task.list, {eager: true})
+  tasks: Task[]
+
 }

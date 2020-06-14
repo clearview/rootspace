@@ -2,10 +2,10 @@ import {
     EntitySubscriberInterface,
     InsertEvent,
     EventSubscriber,
-    getCustomRepository,
+    getCustomRepository
 } from 'typeorm'
-import { Task } from '../Task'
-import { TaskRepository } from '../../repositories/TaskRepository'
+import { Task } from '../entities/tasks/Task'
+import { TaskRepository } from '../repositories/tasks/TaskRepository'
 
 @EventSubscriber()
 export class TaskSubscriber implements EntitySubscriberInterface<Task> {

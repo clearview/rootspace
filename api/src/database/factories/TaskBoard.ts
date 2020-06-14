@@ -1,6 +1,6 @@
 import * as Faker from 'faker'
 import { define } from 'typeorm-seeding'
-import { TaskBoard, TaskBoardType } from '../../entities/TaskBoard'
+import { TaskBoard, TaskBoardType } from '../../entities/tasks/TaskBoard'
 
 define(TaskBoard, (faker: typeof Faker) => {
 

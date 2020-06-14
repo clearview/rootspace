@@ -15,5 +15,6 @@ define(User, (faker: typeof Faker) => {
   user.authProvider = 'local'
   user.active = true
   user.emailConfirmed = true
+
   return user
 })

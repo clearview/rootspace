@@ -9,8 +9,8 @@ export default async function init() {
     url: config.postgres,
     logging: false,
     synchronize: true,
-    entities: [`${__dirname}/entities/*{.ts,.js}`],
-    migrations: [`${__dirname}/migrations/*{.ts,.js}`],
-    subscribers: [`${__dirname}/entities/subscribers/*{.ts,.js}`]
+    migrations: [`${__dirname}/migrations/**/*{.ts,.js}`],
+    entities: [`${__dirname}/entities/**/*{.ts,.js}`],
+    subscribers: [`${__dirname}/subscribers/**/*{.ts,.js}`]
   })
 }

@@ -1,6 +1,6 @@
 import * as Faker from 'faker'
 import {define, times} from 'typeorm-seeding'
-import { TaskList } from '../../entities/TaskList'
+import { TaskList } from '../../entities/tasks/TaskList'
 
 define(TaskList, (faker: typeof Faker) => {
 

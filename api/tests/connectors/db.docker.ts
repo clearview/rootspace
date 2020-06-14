@@ -11,9 +11,9 @@ const connect = async (dropDatabase?: boolean): Promise<Connection> => {
         url: 'postgresql://test:test@localhost:5433/test',
         logging: false,
         synchronize: true,
-        migrations: [`${__dirname}/../../src/migrations/*{.ts,.js}`],
-        entities: [`${__dirname}/../../src/entities/*{.ts,.js}`],
-        subscribers: [`${__dirname}/../../src/entities/subscribers/*{.ts,.js}`]
+        migrations: [`${__dirname}/../../src/migrations/**/*{.ts,.js}`],
+        entities: [`${__dirname}/../../src/entities/**/*{.ts,.js}`],
+        subscribers: [`${__dirname}/../../src/entities/subscribers/**/*{.ts,.js}`]
     })
 
     await connection.connect()

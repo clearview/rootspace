@@ -1,20 +1,14 @@
 import request from 'supertest'
 import Server from '../src/server'
-import {connect, disconnect} from './helpers/db.testcontainers'
-import {createUser} from './fixtures/createUser'
-import {UserRepository} from '../src/repositories/UserRepository'
-import {getCustomRepository} from 'typeorm'
+import {connect, disconnect} from './connectors/db.testcontainers'
+import {createUser} from './helpers/createUser'
 
-const server = new Server()
+const server: Server = new Server()
 
 describe('Express', () => {
-
     beforeAll(async () => {
         await connect(true)
-
-        const user = await createUser('betty@boop.com', '123123')
-        const userRepository = getCustomRepository(UserRepository)
-        await userRepository.save(user)
+        await createUser('betty@boop.com', '123123')
 
         await server.bootstrap()
         server.listen(3333)

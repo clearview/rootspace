@@ -38,7 +38,7 @@ export default class Server {
     this.app.use(express.json())
     this.app.use(cors())
     this.app.use(passport.initialize())
-    this.app.use(routers)
+    this.app.use(...routers)
     this.app.use(errorHandler)
   }
 
@@ -48,7 +48,6 @@ export default class Server {
     }
 
     const domain = process.env.DOAMIN || config.domain
-
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: ${domain}`) // tslint:disable-line
     })
