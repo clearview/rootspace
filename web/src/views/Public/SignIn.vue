@@ -9,7 +9,7 @@
 
         <v-alert v-model="alert" />
 
-        <resource-form-signin
+        <form-signin
           @submit="userSignin"
           ref="signin"
         />
@@ -47,7 +47,7 @@ import { SigninResource } from '@/types/resource'
 import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
-import ResourceFormSignin from '@/components/resource/ResourceFormSignin.vue'
+import FormSignin from '@/components/form/FormSignin.vue'
 import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
@@ -62,7 +62,7 @@ export default Vue.extend({
     VAlert,
     RootHeader,
     VLoading,
-    ResourceFormSignin,
+    FormSignin,
     GoogleSignin
   },
   data (): ComponentData {

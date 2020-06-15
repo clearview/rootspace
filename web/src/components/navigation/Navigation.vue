@@ -33,7 +33,7 @@
       @cancel="addNew.visible = false"
     >
       <div class="modal-body">
-        <add-list
+        <select-link-type
           @link="startAddLink"
           @document="startAddDocument"
           @task="startAddTask"
@@ -131,10 +131,10 @@ import { LinkResource, TaskResource, WorkspaceResource } from '@/types/resource'
 
 import WorkspaceService from '@/services/workspace'
 
-import FormLink from '@/components/resource/ResourceFormLink.vue'
-import FormTask from '@/components/resource/ResourceFormTask.vue'
-import AddList from '@/components/resource/ResourceAddList.vue'
-import FormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
+import FormLink from '@/components/form/FormLink.vue'
+import FormTask from '@/components/form/FormTask.vue'
+import SelectLinkType from '@/components/SelectLinkType.vue'
+import FormWorkspace from '@/components/form/FormWorkspace.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -214,7 +214,7 @@ export default Vue.extend({
     NavigationFooter,
     FormLink,
     FormTask,
-    AddList,
+    SelectLinkType,
     FormWorkspace,
     VModal
   },

@@ -28,7 +28,7 @@
           </div>
           <div class="col-right">
             <v-alert v-model="account.alert" />
-            <resource-form-settings @submit="updateAccount" ref="account" />
+            <form-settings @submit="updateAccount" ref="account" />
           </div>
         </div>
 
@@ -40,7 +40,7 @@
               <img src="@/assets/logo@2x.png" alt="Root Logo"/>
             </div>
 
-            <resource-form-workspace
+            <form-workspace
               @submit="updateWorkspace"
               @addUser="addWorkspaceUser"
               @deleteUser="deleteWorkspaceUser"
@@ -57,7 +57,7 @@
                 <p>Email notifications</p>
                 <button-switch v-model="emailNotifications" />
               </div>
-            </resource-form-workspace>
+            </form-workspace>
           </div>
         </div>
       </div>
@@ -82,8 +82,8 @@ import WorkspaceService from '@/services/workspace'
 
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-import ResourceFormSettings from '@/components/resource/ResourceFormSettings.vue'
-import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
+import FormSettings from '@/components/form/FormSettings.vue'
+import FormWorkspace from '@/components/form/FormWorkspace.vue'
 import VLoading from '@/components/Loading.vue'
 
 type ComponentData = {
@@ -108,8 +108,8 @@ export default Vue.extend({
   name: 'Settings',
   components: {
     ButtonSwitch,
-    ResourceFormSettings,
-    ResourceFormWorkspace,
+    FormSettings,
+    FormWorkspace,
     VAlert,
     VLoading
   },
