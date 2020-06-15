@@ -46,10 +46,6 @@ type ComponentData = {
   isFromLoad: boolean;
 }
 
-type ComponentRefs = {
-  title: HTMLInputElement;
-}
-
 export default Vue.extend({
   name: 'Document',
   components: {
@@ -71,11 +67,6 @@ export default Vue.extend({
     },
     id (): number {
       return Number(this.$route.params.id) || 0
-    },
-    refs (): ComponentRefs {
-      return {
-        title: this.$refs.title as HTMLInputElement
-      }
     }
   },
   watch: {
@@ -95,15 +86,13 @@ export default Vue.extend({
     id: {
       immediate: true,
       async handler (id) {
+        this.titleFocus()
+
         if (!id) {
           this.title = ''
           this.value = {}
         } else {
           await this.loadDocument()
-        }
-
-        if (this.refs.title) {
-          this.refs.title.focus()
         }
       }
     }
@@ -162,7 +151,17 @@ export default Vue.extend({
       } catch (err) {
         this.loading = false
       }
+    },
+    titleFocus () {
+      const titleEl = this.$refs.title as HTMLInputElement
+
+      if (titleEl) {
+        titleEl.focus()
+      }
     }
+  },
+  mounted () {
+    this.titleFocus()
   }
 })
 </script>
