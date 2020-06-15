@@ -86,11 +86,11 @@ export default Vue.extend({
     id: {
       immediate: true,
       async handler (id) {
-        this.titleFocus()
-
         if (!id) {
           this.title = ''
           this.value = {}
+
+          this.titleFocus()
         } else {
           await this.loadDocument()
         }
@@ -161,7 +161,9 @@ export default Vue.extend({
     }
   },
   mounted () {
-    this.titleFocus()
+    if (!this.id) {
+      this.titleFocus()
+    }
   }
 })
 </script>
