@@ -3,7 +3,7 @@
     <span class="mr-1">
       <v-icon name="google" size="1.1em" />
     </span>
-    {{ text }} with Google
+    <span v-text="text"/>
   </button>
 </template>
 
@@ -21,7 +21,8 @@ export default Vue.extend({
   name: 'ButtonLock',
   props: {
     text: {
-      type: String
+      type: String,
+      default: 'Google'
     }
   },
   data (): ComponentData {

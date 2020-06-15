@@ -8,5 +8,6 @@
 @import './modal';
 @import './nav';
 @import './select';
+@import './layout';
 @import './list';
 @import './tree';
