@@ -88,7 +88,7 @@ export class LinksCtrl extends BaseCtrl {
       await validateLinkUpdate(data)
 
       let value = LinkUpdateValue.fromObject(data)
-      
+
       if (data.parent !== undefined) {
         value = value.withParent(data.parent)
       }
@@ -96,7 +96,7 @@ export class LinksCtrl extends BaseCtrl {
       if (data.position !== undefined) {
         value = value.withPosition(data.position)
       }
-      
+
       const link = await this.linkSrvice.update(value, id)
       const resData = this.responseData(link)
 
