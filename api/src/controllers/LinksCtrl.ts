@@ -70,8 +70,6 @@ export class LinksCtrl extends BaseCtrl {
         value = value.withParent(data.parent)
       }
 
-      console.log(value)
-      
       const link = await this.linkSrvice.create(value)
       const resData = this.responseData(link)
 
