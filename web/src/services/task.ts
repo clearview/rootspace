@@ -22,7 +22,7 @@ const backend: TaskResource[] = [{
 let idGen = 1
 // TODO Replace with API calls
 export default class TaskService {
-  static async fetch ({ spaceId, ...params }: FetchParams) {
+  static async fetch ({ spaceId, ...params }: FetchParams) { // eslint-disable-line
     return backend
   }
 
