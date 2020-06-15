@@ -301,7 +301,7 @@ export default Vue.extend({
   },
   async created () {
     if (!this.hasSpace) {
-      return this.$router.replace({ name: 'CreateWorkspace' })
+      return this.$router.replace({ name: 'WorkspaceInit' })
     }
 
     await this.fetchLink(this.currentSpace)
