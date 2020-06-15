@@ -55,7 +55,7 @@ export class Task {
   @Column( 'timestamptz', { nullable: true })
   dueDate: Date
 
-  @Column('integer', { default: 0 })
+  @Column('double precision', { default: 0 })
   position: number
 
   @CreateDateColumn({ type: 'timestamptz'})

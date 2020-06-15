@@ -35,7 +35,7 @@ export class TaskList {
   @Column('text', { nullable: true })
   description: string
 
-  @Column('integer', { default: 0 })
+  @Column('double precision', { default: 0 })
   position: number
 
   @CreateDateColumn({ type: 'timestamptz'})
