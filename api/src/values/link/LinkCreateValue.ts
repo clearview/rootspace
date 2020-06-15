@@ -1,5 +1,4 @@
-import { AttributesValue } from '../AttributesValue'
-import { attributes } from '../attributes'
+import { EntityValue, attributes } from '../entity'
 import { ILinkCreateAttributes } from './types'
 
 export const LinkCreateAttributes: ILinkCreateAttributes = {
@@ -11,7 +10,7 @@ export const LinkCreateAttributes: ILinkCreateAttributes = {
 }
 
 @attributes(LinkCreateAttributes)
-export class LinkCreateValue extends AttributesValue<ILinkCreateAttributes> {
+export class LinkCreateValue extends EntityValue<ILinkCreateAttributes> {
   private _parent: number = null
 
   get parent(): number {
@@ -19,10 +18,14 @@ export class LinkCreateValue extends AttributesValue<ILinkCreateAttributes> {
   }
 
   withParent(parent: number): LinkCreateValue {
-    const value = new LinkCreateValue(this._attributes)
-    value._parent = parent
+    const copy = this.copy()
+    copy._parent = parent
+    return copy
+  }
 
-    return value
+  private copy(): LinkCreateValue {
+    const copy = new LinkCreateValue(this._attributes)
+    return Object.assign(copy, this)
   }
 
   static fromObject(object: ILinkCreateAttributes): LinkCreateValue {

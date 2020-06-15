@@ -1,5 +1,4 @@
-import { AttributesValue } from '../AttributesValue'
-import { attributes } from '../attributes'
+import { EntityValue, attributes } from '../entity'
 import { ISpaceCreateAttributes } from './types'
 
 export const SpaceCreateAttributes = {
@@ -8,7 +7,7 @@ export const SpaceCreateAttributes = {
 }
 
 @attributes(SpaceCreateAttributes)
-export class SpaceCreateValue extends AttributesValue<ISpaceCreateAttributes> {
+export class SpaceCreateValue extends EntityValue<ISpaceCreateAttributes> {
   static fromObject(object: ISpaceCreateAttributes): SpaceCreateValue {
     return new SpaceCreateValue(object)
   }

@@ -1,5 +1,4 @@
-import { AttributesValue } from '../AttributesValue'
-import { attributes } from '../attributes'
+import { EntityValue, attributes } from '../entity'
 import { IDocUpdateAttributes } from './types'
 
 export const DocUpdateAttributes = {
@@ -9,7 +8,7 @@ export const DocUpdateAttributes = {
 }
 
 @attributes(DocUpdateAttributes)
-export class DocUpdateValue extends AttributesValue<IDocUpdateAttributes> {
+export class DocUpdateValue extends EntityValue<IDocUpdateAttributes> {
   static fromObject(data: IDocUpdateAttributes) {
     return new DocUpdateValue(data)
   }

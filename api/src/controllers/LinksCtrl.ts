@@ -6,6 +6,7 @@ import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/LinkService'
 import { ContentManager } from '../services/content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { validate } from 'indicative/validator'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -87,15 +88,15 @@ export class LinksCtrl extends BaseCtrl {
       await validateLinkUpdate(data)
 
       let value = LinkUpdateValue.fromObject(data)
-
+      
       if (data.parent !== undefined) {
-        value = value.withParent(data.paren)
+        value = value.withParent(data.parent)
       }
 
       if (data.position !== undefined) {
         value = value.withPosition(data.position)
       }
-
+      
       const link = await this.linkSrvice.update(value, id)
       const resData = this.responseData(link)
 

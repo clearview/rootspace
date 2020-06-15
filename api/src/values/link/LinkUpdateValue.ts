@@ -1,5 +1,4 @@
-import { AttributesValue } from '../AttributesValue'
-import { attributes } from '../attributes'
+import { EntityValue, attributes } from '../entity'
 import { ILinkUpdateAttributes } from './types'
 
 export const LinkUpdateAttributes: ILinkUpdateAttributes = {
@@ -8,7 +7,7 @@ export const LinkUpdateAttributes: ILinkUpdateAttributes = {
 }
 
 @attributes(LinkUpdateAttributes)
-export class LinkUpdateValue extends AttributesValue<ILinkUpdateAttributes> {
+export class LinkUpdateValue extends EntityValue<ILinkUpdateAttributes> {
   private _parent: number = undefined
   private _position: number = undefined
 
@@ -21,17 +20,20 @@ export class LinkUpdateValue extends AttributesValue<ILinkUpdateAttributes> {
   }
 
   withParent(parent: number): LinkUpdateValue {
-    const value = new LinkUpdateValue(this._attributes)
-    value._parent = parent
-
-    return value
+    const copy = this.copy()
+    copy._parent = parent
+    return copy
   }
 
   withPosition(position: number): LinkUpdateValue {
-    const value = new LinkUpdateValue(this._attributes)
-    value._position = position
+    const copy = this.copy()
+    copy._position = position
+    return copy
+  }
 
-    return value
+  private copy(): LinkUpdateValue {
+    const copy = new LinkUpdateValue(this._attributes)
+    return Object.assign(copy, this)
   }
 
   static fromObject(data: ILinkUpdateAttributes) {

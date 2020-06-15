@@ -1,4 +1,4 @@
-export abstract class AttributesValue<T> {
+export abstract class EntityValue<T> {
   protected readonly _attributes: T
 
   constructor(attributes: T) {

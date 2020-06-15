@@ -1,5 +1,4 @@
-import { AttributesValue } from '../AttributesValue'
-import { attributes } from '../attributes'
+import { EntityValue, attributes } from '../entity'
 import { IDocCreateAttributes } from './types'
 
 export const DocCreateAttributes: IDocCreateAttributes = {
@@ -11,7 +10,7 @@ export const DocCreateAttributes: IDocCreateAttributes = {
 }
 
 @attributes(DocCreateAttributes)
-export class DocCreateValue extends AttributesValue<IDocCreateAttributes> {
+export class DocCreateValue extends EntityValue<IDocCreateAttributes> {
   static fromObject(data: IDocCreateAttributes) {
     return new DocCreateValue(data)
   }
