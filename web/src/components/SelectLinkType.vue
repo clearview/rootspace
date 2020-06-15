@@ -45,7 +45,7 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'ResourceAddList'
+  name: 'SelectLinkType'
 })
 </script>
 

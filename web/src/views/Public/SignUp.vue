@@ -9,7 +9,7 @@
 
         <v-alert v-model="alert" />
 
-        <resource-form-signup @submit="userSignup" ref="signup" />
+        <form-signup @submit="userSignup" ref="signup" />
 
         <div class="my-10">
           <p class="text-horizontal-line">
@@ -40,7 +40,7 @@ import { SignupResource } from '@/types/resource'
 import VAlert from '@/components/Alert.vue'
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
-import ResourceFormSignup from '@/components/resource/ResourceFormSignup.vue'
+import FormSignup from '@/components/form/FormSignup.vue'
 import GoogleSignin from '@/components/GoogleSignin.vue'
 
 type ComponentData = {
@@ -54,7 +54,7 @@ export default Vue.extend({
     VAlert,
     RootHeader,
     VLoading,
-    ResourceFormSignup,
+    FormSignup,
     GoogleSignin
   },
   data (): ComponentData {
