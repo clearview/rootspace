@@ -58,7 +58,7 @@ export default Vue.extend({
     ...mapState('auth', ['user', 'spaces']),
 
     name (): string {
-      if (this.user) {
+      if (!this.user) {
         return ''
       }
 
