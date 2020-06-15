@@ -11,7 +11,7 @@
           <img src="@/assets/logo@2x.png" alt="Root Logo" class="mx-auto" />
         </div>
 
-        <resource-form-workspace @submit="createWorkspace" ref="workspace" />
+        <form-workspace @submit="createWorkspace" ref="workspace" />
       </div>
     </div>
     <v-loading :loading="isLoading">
@@ -30,7 +30,7 @@ import WorkspaceService from '@/services/workspace'
 
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
-import ResourceFormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
+import FormWorkspace from '@/components/form/FormWorkspace.vue'
 
 type ComponentData = {
   isLoading: boolean;
@@ -43,7 +43,7 @@ export default Vue.extend({
   components: {
     RootHeader,
     VLoading,
-    ResourceFormWorkspace
+    FormWorkspace
   },
   data (): ComponentData {
     return {
