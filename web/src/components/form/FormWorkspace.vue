@@ -170,9 +170,9 @@ export default Vue.extend({
     deleteInvitation (index: number, email: string): void {
       if (this.isEdit) {
         this.$emit('deleteUser', email)
+      } else {
+        this.payload.invites.splice(index, 1)
       }
-
-      this.payload.invites.splice(index, 1)
     },
     submit (): void {
       this.$v.payload.$touch()
@@ -187,7 +187,7 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 .list-invitation {
-  @apply border-t border-b border-gray-100 text-gray-400 mb-5 mt-2;
+  @apply border-t border-b border-gray-100 text-gray-400 mb-5 mt-3;
 
   .invitation {
     @apply py-2;
