@@ -27,7 +27,7 @@ function transform (data?: EditorData): EditorData | undefined {
     return
   }
 
-  const blocks = data.blocks.map(block => {
+  const blocks = data.blocks && data.blocks.map(block => {
     const data = block.data as EditorBlockData
 
     switch (block.type) {
