@@ -5,7 +5,7 @@ import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/LinkService'
 import { ContentManager } from '../services/content/ContentManager'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -24,8 +24,8 @@ export class LinksCtrl extends BaseCtrl {
       if (!link) {
         throw clientError(
           'Not found',
-          ClientErrName.EntityNotFound,
-          ClientStatusCode.NotFound
+          HttpErrName.EntityNotFound,
+          HttpStatusCode.NotFound
         )
       }
 

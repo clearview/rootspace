@@ -3,7 +3,7 @@ import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { ContentManager } from './content/ContentManager'
-import { clientError, ClientErrName, ClientStatusCode } from '../errors/client'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 import { LinkType } from '../constants'
 import { parentPort } from 'worker_threads'
 
@@ -78,8 +78,6 @@ export class LinkService {
     }
 
     link.parent = parent
-    link.position = await this.getNodeNextPosition(parent.id)
-
     return this.getLinkRepository().save(link)
   }
 
@@ -182,16 +180,16 @@ export class LinkService {
     if (!link) {
       throw clientError(
         'Error deleting link',
-        ClientErrName.EntityNotFound,
-        ClientStatusCode.NotFound
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
       )
     }
 
     if (link.type === LinkType.Root) {
       throw clientError(
         'Can not delete space root link',
-        ClientErrName.NotAllowed,
-        ClientStatusCode.NotAllowed
+        HttpErrName.NotAllowed,
+        HttpStatusCode.NotAllowed
       )
     }
 
@@ -201,7 +199,7 @@ export class LinkService {
       const parent = await this.getLinkById(link.parentId)
 
       if (!parent) {
-        throw clientError(ClientErrName.EntityDeleteFailed)
+        throw clientError(HttpErrName.EntityDeleteFailed)
       }
 
       let nextPosition = await this.getNodeNextPosition(parent.id)

@@ -1,12 +1,12 @@
-import {connect, disconnect} from './helpers/db.testcontainers'
+import {connect, disconnect} from './connectors/db.testcontainers'
 import {getCustomRepository} from 'typeorm'
-import {TaskBoard, TaskBoardType} from '../src/entities/TaskBoard'
-import {TaskBoardRepository} from '../src/repositories/TaskBoardRepository'
+import {TaskBoard, TaskBoardType} from '../src/entities/tasks/TaskBoard'
+import {TaskBoardRepository} from '../src/repositories/tasks/TaskBoardRepository'
 import {validate} from 'class-validator'
 
 describe('Database', () => {
     beforeAll(async () => {
-        await connect()
+        await connect( true)
     })
 
     afterAll(async () => {

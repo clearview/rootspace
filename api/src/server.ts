@@ -2,7 +2,6 @@ import 'dotenv/config'
 import db from './db'
 import express, { Application } from 'express'
 import * as http from 'http'
-import * as bodyParser from 'body-parser'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
@@ -36,10 +35,10 @@ export default class Server {
       await db()
     }
 
-    this.app.use(bodyParser.json())
+    this.app.use(express.json())
     this.app.use(cors())
     this.app.use(passport.initialize())
-    this.app.use(routers)
+    this.app.use(...routers)
     this.app.use(errorHandler)
   }
 
@@ -49,7 +48,6 @@ export default class Server {
     }
 
     const domain = process.env.DOAMIN || config.domain
-
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: ${domain}`) // tslint:disable-line
     })

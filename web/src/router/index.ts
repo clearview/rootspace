@@ -71,8 +71,8 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/create-workspace',
-    name: 'CreateWorkspace',
-    component: () => import(/* webpackChunkName: "create-workspace" */ '../views/CreateWorkspace.vue')
+    name: 'WorkspaceInit',
+    component: () => import(/* webpackChunkName: "workspace-init" */ '../views/WorkspaceInit.vue')
   }
 ]
 

@@ -1,7 +1,7 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserToSpace } from '../entities/UserToSpace'
-import { clientError, ClientErrName } from '../errors/client'
+import { clientError, HttpErrName } from '../errors'
 
 export class UserSpaceService {
   private constructor() {}
@@ -43,7 +43,7 @@ export class UserSpaceService {
 
   async add(userId: number, spaceId: number): Promise<UserToSpace> {
     if (true === (await this.isUserInSpace(userId, spaceId))) {
-      throw clientError('User is already in space', ClientErrName.NotAllowed)
+      throw clientError('User is already in space', HttpErrName.NotAllowed)
     }
 
     const userToSpace = new UserToSpace()

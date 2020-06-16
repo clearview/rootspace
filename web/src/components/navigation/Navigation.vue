@@ -6,7 +6,6 @@
     }"
   >
     <navigation-header
-      @search="search"
       @toggleCollapse="toggleCollapse"
     />
     <navigation-items
@@ -33,7 +32,7 @@
       @cancel="addNew.visible = false"
     >
       <div class="modal-body">
-        <add-list
+        <select-link-type
           @link="startAddLink"
           @document="startAddDocument"
           @task="startAddTask"
@@ -131,10 +130,10 @@ import { LinkResource, TaskBoardResource, WorkspaceResource } from '@/types/reso
 
 import WorkspaceService from '@/services/workspace'
 
-import FormLink from '@/components/resource/ResourceFormLink.vue'
-import FormTask from '@/components/resource/ResourceFormTask.vue'
-import AddList from '@/components/resource/ResourceAddList.vue'
-import FormWorkspace from '@/components/resource/ResourceFormWorkspace.vue'
+import FormLink from '@/components/form/FormLink.vue'
+import FormTask from '@/components/form/FormTask.vue'
+import SelectLinkType from '@/components/SelectLinkType.vue'
+import FormWorkspace from '@/components/form/FormWorkspace.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -214,7 +213,7 @@ export default Vue.extend({
     NavigationFooter,
     FormLink,
     FormTask,
-    AddList,
+    SelectLinkType,
     FormWorkspace,
     VModal
   },
@@ -302,15 +301,12 @@ export default Vue.extend({
   },
   async created () {
     if (!this.hasSpace) {
-      return this.$router.replace({ name: 'CreateWorkspace' })
+      return this.$router.replace({ name: 'WorkspaceInit' })
     }
 
     await this.fetchLink(this.currentSpace)
   },
   methods: {
-    search (keyword: string): void {
-      console.log(`Search: ${keyword}`)
-    },
     toggleCollapse () {
       this.$store.commit('nav/setCollapse', !this.collapse)
     },
