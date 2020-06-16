@@ -143,6 +143,8 @@
       </div>
     </v-field>
 
+    <p class="password-hint">Password must contain at least 8 characters</p>
+
     <button
       class="btn btn-primary w-full mx-0 mt-5"
       type="button"
@@ -238,7 +240,15 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 .divider {
-  @apply my-10 border-b-2;
+  @apply my-8 border-b-2;
+
   border-color: theme("colors.secondary.default");
 }
+
+.password-hint {
+  @apply mb-8 mt-5;
+
+  color: theme("colors.gray.400");
+}
+
 </style>

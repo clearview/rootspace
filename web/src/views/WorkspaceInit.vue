@@ -120,26 +120,4 @@ export default Vue.extend({
     height: 64px;
   }
 }
-.list-invitation {
-  @apply border-t border-b border-gray-100 text-gray-400 mb-5;
-
-  .invitation {
-    @apply py-2;
-
-    cursor: pointer;
-
-    &:hover {
-      .close-icon {
-        @apply visible;
-      }
-    }
-  }
-
-  .close-icon {
-    @apply rounded-full bg-gray-100;
-    @apply invisible;
-
-    padding: 0.15rem;
-  }
-}
 </style>

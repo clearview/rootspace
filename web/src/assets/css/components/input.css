@@ -37,13 +37,10 @@
   margin-bottom: 0.5rem;
 
   .input-group-component {
-    @apply py-2 px-3;
+    @apply px-3 border-0 outline-none !important text-gray-400;
 
-    @apply border-0;
-
-    @apply outline-none !important;
-
-    @apply text-gray-400;
+    padding-top: 6px;
+    padding-bottom: 6px;
 
     &.button {
       @apply rounded-r-sm;

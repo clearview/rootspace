@@ -1,5 +1,4 @@
 import EditorJS from '@editorjs/editorjs'
-import Header from '@editorjs/header'
 import List from '@editorjs/list'
 import Image from '@editorjs/image'
 import InlineCode from '@editorjs/inline-code'

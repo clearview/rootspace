@@ -66,6 +66,18 @@
     <v-loading :loading="isLoading">
       <p>{{ loadingMessage }}</p>
     </v-loading>
+
+    <v-modal
+      title="User Workspace"
+      :visible="workspace.error"
+      :nosubmit="true"
+      cancel-text="Okay"
+      @cancel="workspace.error = false"
+    >
+      <div class="modal-body text-center">
+        {{ workspace.errorMessage }}
+      </div>
+    </v-modal>
   </div>
 </template>
 
@@ -85,6 +97,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import FormSettings from '@/components/form/FormSettings.vue'
 import FormWorkspace from '@/components/form/FormWorkspace.vue'
 import VLoading from '@/components/Loading.vue'
+import VModal from '@/components/Modal.vue'
 
 type ComponentData = {
   tab: string;
@@ -101,6 +114,8 @@ type ComponentData = {
   };
   workspace: {
     alert: object | null;
+    error: boolean;
+    errorMessage: string;
   };
 }
 
@@ -111,7 +126,8 @@ export default Vue.extend({
     FormSettings,
     FormWorkspace,
     VAlert,
-    VLoading
+    VLoading,
+    VModal
   },
   data (): ComponentData {
     return {
@@ -128,7 +144,9 @@ export default Vue.extend({
         alert: null
       },
       workspace: {
-        alert: null
+        alert: null,
+        error: false,
+        errorMessage: ''
       }
     }
   },
@@ -138,6 +156,9 @@ export default Vue.extend({
     },
     currentSpace () {
       return this.$store.state.auth.currentSpace || {}
+    },
+    currentUser () {
+      return this.$store.state.auth.user
     }
   },
   watch: {
@@ -210,11 +231,10 @@ export default Vue.extend({
         }
         await UserService.addInvitation(payload)
       } catch (err) {
-        console.log(err)
-        // if (err.code === 405) {
-        //   this.workspace.error = true
-        //   this.workspace.errorMessage = err.message
-        // }
+        if (err.code === 405) {
+          this.workspace.error = true
+          this.workspace.errorMessage = err.message
+        }
       } finally {
         this.isLoading = false
       }
@@ -226,10 +246,24 @@ export default Vue.extend({
         this.isLoading = true
         this.loadingMessage = 'Remove user from workspace...'
 
-        const getUserId = get(getUser, 'id')
-        await WorkspaceService.removeUser(this.currentSpace.id, getUserId)
+        try {
+          const getUserId = get(getUser, 'id')
+          await WorkspaceService.removeUser(this.currentSpace.id, getUserId)
 
-        this.isLoading = false
+          if (this.currentUser.id === getUserId) {
+            await this.$store.dispatch('auth/whoami', { updateSpace: true })
+          } else {
+            const id = this.currentSpace.id
+            this.viewWorkspace(id)
+          }
+        } catch (err) {
+          if (err.code === 405) {
+            this.workspace.error = true
+            this.workspace.errorMessage = err.message
+          }
+        } finally {
+          this.isLoading = false
+        }
       }
     },
     async viewWorkspace (id: number) {
@@ -272,9 +306,10 @@ export default Vue.extend({
 
 <style lang="postcss" scoped>
 .settings-container {
-  @apply max-w-2xl mx-auto p-4 mt-10;
+  @apply max-w-3xl p-4 mt-10;
 
-  width: 42rem;
+  width: 44rem;
+  margin-left: 70px;
 }
 .settings-content {
   @apply p-8;
@@ -285,10 +320,14 @@ export default Vue.extend({
 
   .settings-myaccount {
     .avatar {
-      @apply mt-8;
+      @apply mt-8 w-24;
 
       position: relative;
       cursor: pointer;
+
+      img {
+       @apply w-24;
+      }
 
       .icon-edit {
         @apply rounded-full;
@@ -297,7 +336,7 @@ export default Vue.extend({
         padding: 3px;
         width: 22px;
         top: 0;
-        right: 20px;
+        right: 0;
         position: absolute;
         background: theme("colors.secondary.default");
       }
@@ -311,15 +350,17 @@ export default Vue.extend({
   }
 
   .settings-workspace {
-
+    .col-center {
+      @apply p-0;
+    }
   }
 
   .col-left {
-    @apply flex flex-col p-2 w-1/5;
+    @apply flex flex-col p-2 w-2/6;
   }
 
   .col-right {
-    @apply flex flex-col py-2 w-4/5;
+    @apply flex flex-col py-2 w-4/6;
   }
 
   .col-center {
