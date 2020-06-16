@@ -48,6 +48,7 @@ import IconTime from '@/components/icon/IconTime.vue'
 import IconAttachment from '@/components/icon/IconAttachment.vue'
 import IconDrag from '@/components/icon/IconDrag.vue'
 import IconUser2 from '@/components/icon/IconUser2.vue'
+import IconEllipsis from '@/components/icon/IconEllipsis.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -60,6 +61,7 @@ export default Vue.extend({
     IconDrag,
     IconEdit,
     IconEmail,
+    IconEllipsis,
     IconFile,
     IconFilter,
     IconKanban,
