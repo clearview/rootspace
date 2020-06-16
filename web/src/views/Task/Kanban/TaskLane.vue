@@ -24,10 +24,13 @@
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
       <main class="cards">
-        <TaskCard v-for="item in list.tasks"
+        <Draggable :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
+            <TaskCard v-for="item in orderedCards"
                   :item="item" :key="item.id"/>
+        </Draggable>
 
         <TaskCard default-inputting
+                  class="card-input"
                   v-if="isInputtingNewItem"
                   :item="newItem"
                   @save="clearNewItem"
@@ -41,6 +44,8 @@
 </template>
 
 <script lang="ts">
+import Draggable, { MovedEvent } from 'vuedraggable'
+
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
@@ -53,7 +58,8 @@ import TaskAddCard from '@/views/Task/Kanban/TaskAddCard.vue'
     components: {
       TaskAddCard,
       TaskCard,
-      Icon
+      Icon,
+      Draggable
     },
     validations: {
       listCopy: {
@@ -78,6 +84,11 @@ export default class TaskLane extends Vue {
     private listCopy: TaskListResource = { ...this.list }
     private isInputtingNewItem = false
     private newItem: TaskItemResource | null = null
+    private drag = false
+
+    private get orderedCards () {
+      return [...this.list.tasks].sort((a, b) => a.position - b.position)
+    }
 
     private get canSave () {
       return !this.$v.$invalid
@@ -96,6 +107,36 @@ export default class TaskLane extends Vue {
       Vue.nextTick().then(() => {
         this.editInput.focus()
       })
+    }
+
+    private async reorder (data: MovedEvent<TaskItemResource>) {
+      if (data.removed) {
+        await this.$store.dispatch('task/item/destroy', data.removed.element)
+      }
+      if (data.added) {
+        await this.$store.dispatch('task/item/create', { ...data.added.element, listId: this.list.id, list: this.list })
+        await this.$store.dispatch('task/item/move', {
+          parentId: this.list.id,
+          entryId: data.added.element.id,
+          position: data.added.newIndex
+        })
+      }
+      if (data.moved) {
+        await this.$store.dispatch('task/item/move', {
+          parentId: this.list.id,
+          entryId: data.moved.element.id,
+          position: data.moved.newIndex
+        })
+      }
+    }
+
+    get dragOptions () {
+      return {
+        animation: 200,
+        group: 'description',
+        disabled: false,
+        ghostClass: 'ghost'
+      }
     }
 
     @Emit('save')
@@ -143,13 +184,17 @@ export default class TaskLane extends Vue {
         userId: null,
         title: '',
         status: TaskItemStatus.Open,
-        position: this.list.tasks.length + 1
+        position: this.list.tasks.length
       }
     }
 }
 </script>
 
 <style lang="postcss" scoped>
+
+  .flip-list-move {
+    transition: transform 0.5s;
+  }
 
   .task-lane {
     @apply flex flex-col p-4 rounded;
@@ -199,7 +244,13 @@ export default class TaskLane extends Vue {
   }
 
   .cards {
-    @apply py-2;
+    @apply py-2 px-1;
     overflow-y: auto;
+  }
+  .card-input {
+    @apply mt-4;
+  }
+
+  .lane-transition-group {
   }
 </style>

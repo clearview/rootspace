@@ -71,6 +71,17 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         return res
       },
 
+      async move ({ commit }, data: {parentId: number; entryId: number; position: number}) {
+        if (data.entryId === null) {
+          throw new Error('Unable to update data without ID')
+        }
+        commit('setProcessing', true)
+        const res = await service.move(data.parentId, data.entryId, data.position)
+        commit('setProcessing', false)
+
+        return res
+      },
+
       async destroy ({ commit }, data: TResource): Promise<void> {
         if (data.id === null) {
           throw new Error('Unable to delete data without ID')

@@ -11,7 +11,7 @@
         <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="click">
+    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="click" >
       <div class="color"></div>
       <div class="title">
         {{itemCopy.title}}
@@ -93,6 +93,11 @@ export default class TaskCard extends Vue {
 <style lang="postcss" scoped>
   .task-card {
     cursor: pointer;
+    &.dragged {
+      opacity: 0.5;
+    }
+    &.overed{
+    }
   }
 
   .task-card ~ .task-card {
@@ -127,7 +132,7 @@ export default class TaskCard extends Vue {
   }
 
   .card {
-    @apply p-2 flex items-center;
+    @apply p-2 flex items-center rounded;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
   }
@@ -146,5 +151,10 @@ export default class TaskCard extends Vue {
     font-weight: 500;
     color: theme("colors.gray.900");
     flex: 1 1 auto;
+  }
+
+  .overed-container{
+    height: 40px;
+    background: red;
   }
 </style>

@@ -10,6 +10,8 @@ export interface ApiService<T, TFetch> {
   update(id: number, data: T): Promise<T>;
 
   destroy(id: number): Promise<void>;
+
+  move(parentId: number, entryId: number, position: number): Promise<void>;
 }
 
 export interface BoardFetchParams {
@@ -105,6 +107,10 @@ export class TaskBoardService implements ApiService<TaskBoardResource, BoardFetc
     const index = boardBackend.findIndex(task => task.id === id)
     delete boardBackend[index]
   }
+
+  async move (parentId: number, id: number, position: number): Promise<void> {
+    // NOT IMPLEMENTED FOR BOARD
+  }
 }
 
 export class TaskListService implements ApiService<TaskListResource, ListFetchParams> {
@@ -143,6 +149,29 @@ export class TaskListService implements ApiService<TaskListResource, ListFetchPa
   async destroy (id: number): Promise<void> {
     const index = listBackend.findIndex(list => list.id === id)
     delete listBackend[index]
+  }
+
+  async move (parentId: number, id: number, position: number): Promise<void> {
+    const original = boardBackend[0].taskLists.find(list => list.id === id)
+    boardBackend[0].taskLists = boardBackend[0].taskLists.map(list => {
+      const lastPos = list.position
+      if (list.id === id) {
+        list.position = position
+      } else if (list.position <= position && list.id !== id) {
+        if (position === 0) {
+          list.position++
+        } else {
+          list.position--
+        }
+      } else if (list.position >= position && list.id !== id) {
+        if (position === boardBackend[0].taskLists.length) {
+          list.position--
+        } else {
+          list.position++
+        }
+      }
+      return list
+    })
   }
 }
 
@@ -186,7 +215,62 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
   }
 
   async destroy (id: number): Promise<void> {
-    const index = itemBackend.findIndex(item => item.id === id)
-    delete itemBackend[index]
+    console.log(`Delete ${id}`)
+    const taskData = boardBackend[0].taskLists.reduce((prev: any, next) => {
+      const data = next.tasks.reduce((prevTask: any, nextTask) => {
+        if (nextTask.id === id) {
+          return nextTask
+        }
+        return prevTask
+      }, null)
+      if (data) {
+        return data
+      }
+      return prev
+    }, null)
+    console.log(taskData)
+    if (taskData) {
+      const list = boardBackend[0].taskLists.find(list => list.id === taskData.listId)
+      if (list) {
+        list.tasks = list.tasks.filter(item => item.id !== id)
+      }
+    }
+  }
+
+  async move (parentId: number, id: number, position: number): Promise<void> {
+    const taskData = boardBackend[0].taskLists.reduce((prev: any, next) => {
+      const data = next.tasks.reduce((prevTask: any, nextTask) => {
+        if (nextTask.id === id) {
+          return nextTask
+        }
+        return prevTask
+      }, null)
+      if (data) {
+        return data
+      }
+      return prev
+    }, null)
+
+    if (taskData) {
+      const currentParent = boardBackend[0].taskLists.find(list => list.id === taskData.listId)
+      const oldPos = taskData.position
+      if (currentParent && currentParent.id === parentId) {
+        currentParent.tasks = currentParent.tasks.map(item => {
+          const lastPos = item.position
+          if (item.id === id) {
+            item.position = position
+          } else if (oldPos < position) {
+            if (item.position <= position && item.position > oldPos) {
+              item.position--
+            }
+          } else if (oldPos > position) {
+            if (item.position >= position && item.position < oldPos) {
+              item.position++
+            }
+          }
+          return item
+        })
+      }
+    }
   }
 }
