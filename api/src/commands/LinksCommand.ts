@@ -1,10 +1,8 @@
 import chalk from 'chalk'
 import db from '../db'
-import { getConnection, getCustomRepository } from 'typeorm'
-import { SpaceRepository } from '../repositories/SpaceRepository'
+import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
 import { LinkRepository } from '../repositories/LinkRepository'
 import { Link } from '../entities/Link'
-import { Space } from '../entities/Space'
 
 export class LinksCommand {
   async run(command: string) {
@@ -30,36 +28,49 @@ export class LinksCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Normalize positions...'))
 
-    const spaces = await getCustomRepository(SpaceRepository)
-      .createQueryBuilder('space')
-      .getMany()
+    await this.setRootPositions()
+
+    const parents = await getCustomRepository(LinkRepository)
+      .createQueryBuilder('link')
+      .select(['link.parentId'])
+      .distinctOn(['link.parentId'])
+      .where('link.type != :type', { type: 'root' })
+      .getRawMany()
 
     await Promise.all(
-      spaces.map(
-        async function(space: Space) {
-          const links = await getCustomRepository(LinkRepository).getBySpaceId(
-            space.id
-          )
-          return this.updatePositions(links)
+      parents.map(
+        async function(parent: any) {
+          return this.setPositions(parent.link_parentId)
         }.bind(this)
       )
     )
   }
 
-  private async updatePositions(links: Link[]) {
+  private async setRootPositions(): Promise<UpdateResult> {
+    return getCustomRepository(LinkRepository)
+      .createQueryBuilder()
+      .update()
+      .set({
+        position: 0,
+      })
+      .where('type = :type', { type: 'root' })
+      .execute()
+  }
+
+  private async setPositions(parentId: number) {
+    const links = await getCustomRepository(LinkRepository)
+      .createQueryBuilder('link')
+      .where('link.parentId = :parentId', { parentId })
+      .orderBy('link.position')
+      .getMany()
+
     let position = 1
 
-    await Promise.all(
-      links.map(
-        async function(link: Link) {
-          if (link.children && link.children.length > 0) {
-            await this.updatePositions(link.children)
-          }
-
-          link.position = position++
-          return getCustomRepository(LinkRepository).save(link)
-        }.bind(this)
-      )
+    return Promise.all(
+      links.map(async (link: Link) => {
+        link.position = position++
+        return getCustomRepository(LinkRepository).save(link)
+      })
     )
   }
 }
