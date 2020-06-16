@@ -47,6 +47,9 @@ export class LinksCommand {
   }
 
   private async setRootPositions(): Promise<UpdateResult> {
+    // tslint:disable-next-line:no-console
+    console.log(chalk.yellow('Set space root links positions to 0'))
+
     return getCustomRepository(LinkRepository)
       .createQueryBuilder()
       .update()
@@ -58,10 +61,14 @@ export class LinksCommand {
   }
 
   private async setPositions(parentId: number) {
+    // tslint:disable-next-line:no-console
+    console.log(chalk.yellow('Set positions for parent id ' + parentId))
+
     const links = await getCustomRepository(LinkRepository)
       .createQueryBuilder('link')
       .where('link.parentId = :parentId', { parentId })
       .orderBy('link.position')
+      .orderBy('created')
       .getMany()
 
     let position = 1
