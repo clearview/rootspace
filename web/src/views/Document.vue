@@ -234,10 +234,10 @@ export default Vue.extend({
           type: 'danger',
           message: err.message
         }
+      } finally {
+        this.deleteDoc.loading = false
+        this.deleteDoc.visible = false
       }
-
-      this.deleteDoc.loading = false
-      this.deleteDoc.visible = false
     }
   },
   mounted () {
