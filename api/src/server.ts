@@ -1,14 +1,12 @@
 import 'dotenv/config'
 import db from './db'
+import { config } from 'node-config-ts'
 import express, { Application } from 'express'
 import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
-import { config } from 'node-config-ts'
-import {
-  errorHandler,
-} from './middleware/ErrorMiddleware'
+import {errorHandler} from './middleware/ErrorMiddleware'
 
 declare global {
   namespace Express {
@@ -31,23 +29,23 @@ export default class Server {
   }
 
   async bootstrap() {
-    if (process.env.NODE_ENV !== 'test') {
+    if (config.env !== 'test') {
       await db()
     }
 
     this.app.use(express.json())
     this.app.use(cors())
     this.app.use(passport.initialize())
-    this.app.use(...routers)
     this.app.use(errorHandler)
+    this.app.use(...routers)
   }
 
   listen(port?: number) {
     if (!port) {
-      port = process.env.PORT || config.port
+      port = config.port
     }
 
-    const domain = process.env.DOAMIN || config.domain
+    const domain = config.domain
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: ${domain}`) // tslint:disable-line
     })

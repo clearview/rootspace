@@ -20,6 +20,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@casl/ability": "^4.1.5",
     "@sendgrid/mail": "^7.0.0",
     "aws-sdk": "^2.673.0",
     "bcryptjs": "^2.4.3",

@@ -3,7 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { LinkType } from '../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
-import { LinkService } from '../services/LinkService'
+import { LinkService } from '../services'
 import { ContentManager } from '../services/content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 

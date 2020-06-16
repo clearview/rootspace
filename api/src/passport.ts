@@ -3,17 +3,15 @@ import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
-import { UserService } from './services/UserService'
+import { UserService } from './services'
 import { unauthorized } from './errors'
-
 import {
-  Strategy as JwtStrategy,
-  ExtractJwt,
-  StrategyOptions,
+    Strategy as JwtStrategy,
+    ExtractJwt,
+    StrategyOptions, VerifiedCallback,
 } from 'passport-jwt'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
-import { isNumber } from 'util'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -24,7 +22,7 @@ passport.use(
     {
       clientID: config.google.clientID,
       clientSecret: config.google.clientSecret,
-      callbackURL: googleCallbackURL,
+      callbackURL: googleCallbackURL
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const userRepository = getCustomRepository(UserRepository)
@@ -55,9 +53,9 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: 'email',
-      passwordField: 'password',
+      passwordField: 'password'
     },
-    async (email, password, done) => {
+    async (email: string, password: string, done) => {
       try {
         const userService = UserService.getInstance()
         const user = await userService.getUserByEmail(email, true)
@@ -95,22 +93,25 @@ passport.use(
 )
 
 const jwtOptions: StrategyOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwtSecretKey,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: config.jwtSecretKey,
+    passReqToCallback: true
 }
 
 passport.use(
-  new JwtStrategy(jwtOptions, async (payload, done) => {
+  new JwtStrategy(jwtOptions, async (req: any, payload: any, done: VerifiedCallback) => {
     const userId = payload.id
 
-    if (!isNumber(userId)) {
+    if (typeof userId !== 'number') {
       return done(null, false, { message: 'Invalid payload' })
     }
 
     const user = await getCustomRepository(UserRepository).findOne(userId)
     if (user) {
-      return done(null, user)
+        req.user = user
+        return done(null, user)
     }
+
     return done(null, false, { message: 'Wrong token' })
   })
 )
