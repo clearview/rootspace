@@ -1,15 +1,17 @@
 <template>
-  <div>
-    <div class id="codex-editor" />
-  </div>
+  <div class="editor" />
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
+import EditorJS from '@editorjs/editorjs'
 
 import { createEditor } from '@/utils/editor'
 
-import { Editor } from '@/types/resource'
+type ComponentData = {
+  editor: EditorJS | null;
+  documentChanged: boolean;
+}
 
 export default Vue.extend({
   name: 'DocumentEditor',
@@ -18,27 +20,34 @@ export default Vue.extend({
       type: Object
     }
   },
-  data (): Editor {
+  data (): ComponentData {
     return {
-      documentChanged: false,
-      editor: true
+      editor: null,
+      documentChanged: false
+    }
+  },
+  computed: {
+    data: {
+      get (): EditorJS.OutputData {
+        return this.content
+      },
+      set (data: EditorJS.OutputData) {
+        this.$emit('update-editor', data)
+      }
     }
   },
   async mounted () {
-    const params = {
-      savedData: this.content,
-      onChange: this.onChange
-    }
-
-    this.editor = createEditor(params)
+    this.editor = createEditor({
+      holder: this.$el as HTMLElement,
+      data: this.data,
+      onChange: this.save.bind(this)
+    })
 
     await this.editor.isReady
   },
   methods: {
-    onChange () {
-      this.editor.save().then((savedData: object) => {
-        this.$emit('update-editor', savedData)
-      })
+    async save (api: EditorJS.API) {
+      this.data = await api.saver.save()
     }
   }
 })
@@ -47,7 +56,7 @@ export default Vue.extend({
 <style lang="postcss">
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
 
-#codex-editor {
+.editor {
   font-family: 'Open Sans', sans-serif;
 
   .ce-header {

@@ -15,21 +15,50 @@ import Warning from '@editorjs/warning'
 import Paragraph from '@editorjs/paragraph'
 import Checklist from '@editorjs/checklist'
 
-import { RootEditor } from '@/types/resource'
+import { createHeading } from './createHeader'
 
-export function createEditor (params: RootEditor): EditorJS {
-  return new EditorJS({
-    holder: 'codex-editor',
-    data: params.savedData,
+type EditorConfig = Partial<EditorJS.EditorConfig>
+type EditorData = EditorJS.OutputData
+type EditorBlockData = {
+  [key: string]: string | number;
+}
+
+function transform (data?: EditorData): EditorData | undefined {
+  if (!data) {
+    return
+  }
+
+  const blocks = data.blocks.map(block => {
+    const data = block.data as EditorBlockData
+
+    switch (block.type) {
+      default:
+        return block
+
+      case 'header':
+        return { ...block, type: `h${data.level}` }
+    }
+  })
+
+  return { ...data, blocks }
+}
+
+export function createEditor (config: EditorConfig): EditorJS {
+  const defaultConfig: EditorConfig = {
     placeholder: 'Let`s write an awesome document!',
+    logLevel: 'ERROR' as EditorJS.LogLevels,
     tools: {
-      header: {
-        class: Header,
-        inlineToolbar: ['link'],
-        config: {
-          placeholder: 'Header'
-        },
-        shortcut: 'CMD+SHIFT+H'
+      h1: {
+        class: createHeading({ level: 1 }),
+        inlineToolbar: ['bold', 'italic', 'marker']
+      },
+      h2: {
+        class: createHeading({ level: 2 }),
+        inlineToolbar: ['bold', 'italic', 'marker']
+      },
+      h3: {
+        class: createHeading({ level: 3 }),
+        inlineToolbar: ['bold', 'italic', 'marker']
       },
       list: {
         class: List,
@@ -94,9 +123,13 @@ export function createEditor (params: RootEditor): EditorJS {
         class: Checklist,
         inlineToolbar: true
       }
-    },
-    onChange: () => {
-      params.onChange()
     }
+  }
+
+  return new EditorJS({
+    ...defaultConfig,
+    ...config,
+
+    data: transform(config.data)
   })
 }
