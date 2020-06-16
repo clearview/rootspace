@@ -108,6 +108,7 @@ export class TaskBoardService implements ApiService<TaskBoardResource, BoardFetc
     delete boardBackend[index]
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async move (parentId: number, id: number, position: number): Promise<void> {
     // NOT IMPLEMENTED FOR BOARD
   }
@@ -152,26 +153,24 @@ export class TaskListService implements ApiService<TaskListResource, ListFetchPa
   }
 
   async move (parentId: number, id: number, position: number): Promise<void> {
-    const original = boardBackend[0].taskLists.find(list => list.id === id)
-    boardBackend[0].taskLists = boardBackend[0].taskLists.map(list => {
-      const lastPos = list.position
-      if (list.id === id) {
-        list.position = position
-      } else if (list.position <= position && list.id !== id) {
-        if (position === 0) {
-          list.position++
-        } else {
-          list.position--
+    const listData = boardBackend[0].taskLists.find(list => list.id === id)
+    if (listData) {
+      const oldPos = listData.position
+      boardBackend[0].taskLists = boardBackend[0].taskLists.map(list => {
+        if (list.id === id) {
+          list.position = position
+        } else if (oldPos < position) {
+          if (list.position <= position && list.position > oldPos) {
+            list.position--
+          }
+        } else if (oldPos > position) {
+          if (list.position >= position && list.position < oldPos) {
+            list.position++
+          }
         }
-      } else if (list.position >= position && list.id !== id) {
-        if (position === boardBackend[0].taskLists.length) {
-          list.position--
-        } else {
-          list.position++
-        }
-      }
-      return list
-    })
+        return list
+      })
+    }
   }
 }
 
@@ -215,9 +214,8 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
   }
 
   async destroy (id: number): Promise<void> {
-    console.log(`Delete ${id}`)
-    const taskData = boardBackend[0].taskLists.reduce((prev: any, next) => {
-      const data = next.tasks.reduce((prevTask: any, nextTask) => {
+    const taskData = boardBackend[0].taskLists.reduce((prev: TaskItemResource | null, next) => {
+      const data = next.tasks.reduce((prevTask: TaskItemResource | null, nextTask) => {
         if (nextTask.id === id) {
           return nextTask
         }
@@ -228,7 +226,6 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
       }
       return prev
     }, null)
-    console.log(taskData)
     if (taskData) {
       const list = boardBackend[0].taskLists.find(list => list.id === taskData.listId)
       if (list) {
@@ -238,8 +235,8 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
   }
 
   async move (parentId: number, id: number, position: number): Promise<void> {
-    const taskData = boardBackend[0].taskLists.reduce((prev: any, next) => {
-      const data = next.tasks.reduce((prevTask: any, nextTask) => {
+    const taskData = boardBackend[0].taskLists.reduce((prev: TaskItemResource | null, next) => {
+      const data = next.tasks.reduce((prevTask: TaskItemResource | null, nextTask) => {
         if (nextTask.id === id) {
           return nextTask
         }
@@ -256,7 +253,6 @@ export class TaskItemService implements ApiService<TaskItemResource, ItemFetchPa
       const oldPos = taskData.position
       if (currentParent && currentParent.id === parentId) {
         currentParent.tasks = currentParent.tasks.map(item => {
-          const lastPos = item.position
           if (item.id === id) {
             item.position = position
           } else if (oldPos < position) {
