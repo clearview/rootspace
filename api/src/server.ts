@@ -7,6 +7,7 @@ import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
 import {errorHandler} from './middleware/ErrorMiddleware'
+import {Ability} from '@casl/ability'
 
 declare global {
   namespace Express {
@@ -14,7 +15,8 @@ declare global {
       id: number
       firstName: string,
       lastName: string,
-      email: string
+      email: string,
+      ability: Ability
     }
   }
 }

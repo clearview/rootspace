@@ -6,6 +6,8 @@ import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services'
 import { ContentManager } from '../services/content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import {Actions} from '../middleware/AuthorizationMiddleware'
+import {ForbiddenError} from '@casl/ability'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -20,6 +22,7 @@ export class LinksCtrl extends BaseCtrl {
   public async view(req: Request, res: Response, next: NextFunction) {
     try {
       const link = await this.linkSrvice.getLinkById(Number(req.params.id))
+      ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
 
       if (!link) {
         throw clientError(
