@@ -30,13 +30,7 @@ export enum Objects {
 
 export function authorize (action: Actions, object: Objects) {
     return async (req: Request, res: Response, next: NextFunction) => {
-        console.log('MW Time:', Date.now())
-        console.log('MW Action:', action)
-        console.log('MW Object:', object)
-        console.log('MW ID:', req.params.id)
-
         const { can, cannot, rules } = new AbilityBuilder()
-        const ability = new Ability()
 
         if (!req.user) { next() }
 
