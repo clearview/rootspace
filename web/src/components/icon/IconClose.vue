@@ -3,7 +3,7 @@
     <path
       d="M24 8L8 24M8 8L24 24"
       fill="none"
-      stroke-width="1.5"
+      stroke-width="currentWidth"
       stroke-linecap="round"
       stroke-linejoin="round"
     />

@@ -3,7 +3,7 @@
     <path
       d="M16.0001 9.60001V22.4M9.6001 16H22.4001"
       fill="none"
-      stroke-width="1.5"
+      stroke-width="currentStroke"
       stroke-linecap="round"
       stroke-linejoin="round"
     />
