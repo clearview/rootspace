@@ -1,78 +1,24 @@
-import {IDocCreateAttributes} from './types'
+import { EntityValue, attributes } from '../entity'
+import { IDocCreateAttributes } from './types'
 
-export class DocCreateValue {
-  private readonly attributes: IDocCreateAttributes = {
-    userId: null,
-    spaceId: null,
-    title: null,
-    content: null,
-    access: null,
-  }
+export const DocCreateAttributes: IDocCreateAttributes = {
+  userId: null,
+  spaceId: null,
+  title: null,
+  content: null,
+  access: null,
+}
 
-  private constructor(
-    userId: number,
-    spaceId: number,
-    title: string,
-    content: object,
-    access: number
-  ) {
-    this.attributes = {
-      userId,
-      spaceId,
-      title,
-      content,
-      access,
-    }
-  }
-
-  get userId(): number {
-    return this.attributes.userId
-  }
-
-  get spaceId(): number {
-    return this.attributes.spaceId
-  }
-
-  get title(): string {
-    return this.attributes.title
-  }
-
-  get content(): object {
-    return this.attributes.content
-  }
-
-  get access(): number {
-    return this.attributes.access
-  }
-
-  getAttributes(filiterUndefined: boolean = true): IDocCreateAttributes {
-    if (filiterUndefined === false) {
-      return this.attributes
-    }
-
-    const filtered = this.attributes
-
-    for (const key in this.attributes) {
-      if (filtered[key] === undefined) {
-        delete filtered[key]
-      }
-    }
-
-    return filtered
-  }
-
+@attributes(DocCreateAttributes)
+export class DocCreateValue extends EntityValue<IDocCreateAttributes> {
   static fromObject(data: IDocCreateAttributes) {
-    return new DocCreateValue(
-      data.userId,
-      data.spaceId,
-      data.title,
-      data.content,
-      data.access
-    )
+    return new DocCreateValue(data)
   }
 
-  static fromObjectAndUserId(object: IDocCreateAttributes, userId: number) {
-    Object.assign(object, { userId })
-    return DocCreateValue.fromObject(object)
+  static fromObjectAndUserId(
+    object: Omit<IDocCreateAttributes, 'userId'>,
+    userId: number
+  ) {
+    return DocCreateValue.fromObject(Object.assign(object, { userId }))
   }
 }

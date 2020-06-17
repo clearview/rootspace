@@ -1,12 +1,12 @@
 export interface ILinkCreateAttributes {
-  userId: number
-  spaceId: number
-  title: string
-  type: string
-  value: string
+  readonly userId: number
+  readonly spaceId: number
+  readonly title: string
+  readonly type: string
+  readonly value: string
 }
 
-export interface ILinkUpdateAttributes {
-  title?: string
-  value?: string
-}
+export type ILinkUpdateAttributes = Omit<
+  Partial<ILinkCreateAttributes>,
+  'userId' | 'spaceId' | 'type'
+>

@@ -42,7 +42,7 @@ export class SpaceService {
   }
 
   async create(data: SpaceCreateValue): Promise<Space> {
-    const space = this.getSpaceRepository().create(data.getAttributes())
+    const space = this.getSpaceRepository().create(data.attributes)
     return await this.getSpaceRepository().save(space)
   }
 
@@ -53,7 +53,7 @@ export class SpaceService {
       throw clientError('Invalid request')
     }
 
-    Object.assign(space, data.getAttributes())
+    Object.assign(space, data.attributes)
     return this.getSpaceRepository().save(space)
   }
 

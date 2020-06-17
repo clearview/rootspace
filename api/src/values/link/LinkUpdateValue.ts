@@ -1,62 +1,42 @@
+import { EntityValue, attributes } from '../entity'
 import { ILinkUpdateAttributes } from './types'
 
-export class LinkUpdateValue {
-  private readonly attributes: ILinkUpdateAttributes = {
-    title: undefined,
-    value: undefined,
-  }
+export const LinkUpdateAttributes: ILinkUpdateAttributes = {
+  title: undefined,
+  value: undefined,
+}
 
+@attributes(LinkUpdateAttributes)
+export class LinkUpdateValue extends EntityValue<ILinkUpdateAttributes> {
   private _parent: number = undefined
   private _position: number = undefined
 
-  private constructor(title?: string, value?: string) {
-    this.attributes = {
-      title,
-      value,
-    }
-  }
-
-  get title(): string {
-    return this.attributes.title
-  }
-
-  get value(): string {
-    return this.attributes.value
-  }
-
   get parent(): number {
     return this._parent
-  }
-
-  set parent(value: number) {
-    this._parent = value
   }
 
   get position(): number {
     return this._position
   }
 
-  set position(value: number) {
-    this._position = value
+  withParent(parent: number): LinkUpdateValue {
+    const copy = this.copy()
+    copy._parent = parent
+    return copy
   }
 
-  getAttributes(filiterUndefined: boolean = true): ILinkUpdateAttributes {
-    if (filiterUndefined === false) {
-      return this.attributes
-    }
+  withPosition(position: number): LinkUpdateValue {
+    const copy = this.copy()
+    copy._position = position
+    return copy
+  }
 
-    const filtered = this.attributes
-
-    for (const key in this.attributes) {
-      if (filtered[key] === undefined) {
-        delete filtered[key]
-      }
-    }
-
-    return filtered
+  private copy(): LinkUpdateValue {
+    const copy = new LinkUpdateValue(this._attributes)
+    return Object.assign(copy, this)
   }
 
   static fromObject(data: ILinkUpdateAttributes) {
-    return new LinkUpdateValue(data.title, data.value)
+    return new LinkUpdateValue(data)
   }
 }

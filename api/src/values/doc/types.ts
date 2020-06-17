@@ -6,8 +6,7 @@ export interface IDocCreateAttributes {
   access: number
 }
 
-export interface IDocUpdateAttributes {
-  title?: string
-  content?: object
-  access?: number
-}
+export type IDocUpdateAttributes = Omit<
+  Partial<IDocCreateAttributes>,
+  'userId' | 'spaceId'
+>

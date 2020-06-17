@@ -64,13 +64,10 @@ export class LinksCtrl extends BaseCtrl {
       const data = req.body.data
       await validateLinkCreate(data)
 
-      const value = LinkCreateValue.fromObjectAndUserId(
-        data,
-        Number(req.user.id)
-      )
+      let value = LinkCreateValue.fromObjectAndUserId(data, Number(req.user.id))
 
       if (data.parent !== undefined) {
-        value.parent = data.parent
+        value = value.withParent(data.parent)
       }
 
       const link = await this.linkSrvice.create(value)
@@ -89,14 +86,14 @@ export class LinksCtrl extends BaseCtrl {
 
       await validateLinkUpdate(data)
 
-      const value = LinkUpdateValue.fromObject(data)
+      let value = LinkUpdateValue.fromObject(data)
 
       if (data.parent !== undefined) {
-        value.parent = data.parent
+        value = value.withParent(data.parent)
       }
 
       if (data.position !== undefined) {
-        value.position = data.position
+        value = value.withPosition(data.position)
       }
 
       const link = await this.linkSrvice.update(value, id)

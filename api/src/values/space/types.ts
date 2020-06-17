@@ -3,6 +3,7 @@ export interface ISpaceCreateAttributes {
   title: string
 }
 
-export interface ISpaceUpdateAttributes {
-  title?: string
-}
+export type ISpaceUpdateAttributes = Omit<
+  Partial<ISpaceCreateAttributes>,
+  'userId'
+>
