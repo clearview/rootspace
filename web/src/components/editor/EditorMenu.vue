@@ -13,7 +13,7 @@
     <transition name="menu">
       <context-menu
         v-if="showMenu"
-        v-click-outside="() => showMenu = false"
+        v-click-outside="menuOutside"
       >
         <template v-slot:header>
           <h6>
@@ -45,6 +45,35 @@
         </template>
       </context-menu>
     </transition>
+
+    <transition name="menu">
+      <context-menu
+        v-if="showShareMenu"
+        v-click-outside="shareMenuOutside"
+        class="share-menu"
+      >
+
+        <template v-slot:header>
+          <h6 class="link" @click="backMenu">
+            <v-icon
+              name="left"
+              size="2em"
+              viewbox="36"
+              class="text-gray-400"
+            />
+            Share
+          </h6>
+        </template>
+
+        <h6 class="link" @click="share">
+          <v-icon name="share" viewbox="20" />
+          <span>
+            Anyone with link can view
+          </span>
+        </h6>
+
+      </context-menu>
+    </transition>
   </div>
 </template>
 
@@ -56,6 +85,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 type ComponentData = {
   lockEditor: boolean;
   showMenu: boolean;
+  showShareMenu: boolean;
 }
 
 export default Vue.extend({
@@ -72,7 +102,8 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       lockEditor: false,
-      showMenu: false
+      showMenu: false,
+      showShareMenu: false
     }
   },
   watch: {
@@ -83,7 +114,18 @@ export default Vue.extend({
   },
   methods: {
     share () {
-      console.log('share')
+      this.showMenu = false
+      this.showShareMenu = true
+    },
+    shareMenuOutside (event) {
+      console.log('shareMenuOutside event', event)
+    },
+    backMenu () {
+      this.showShareMenu = false
+      this.showMenu = true
+    },
+    menuOutside (event) {
+      console.log('menuOutside event', event)
     },
     history () {
       console.log('history')
@@ -127,6 +169,10 @@ export default Vue.extend({
 
   .switch {
     float: right;
+  }
+
+  .share-menu {
+    width: 352px;
   }
 }
 </style>

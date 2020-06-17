@@ -11,6 +11,7 @@
         :min-height="50"
       />
       <editor-menu
+        v-if="id"
         :loading="loading"
         @change-readonly="changeReadonlyStatus"
         @delete-document="deleteDocConfirm"/>
