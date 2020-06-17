@@ -28,6 +28,10 @@
     @apply bg-gray-100 text-gray-900 border-gray-100;
   }
 
+  &.btn-link {
+   @apply bg-transparent text-gray-900 border-transparent;
+  }
+
   &.btn-icon {
     @apply border-none p-1;
   }
@@ -58,6 +62,10 @@
   &.btn-mute {
     background-color: rgba(theme('colors.gray.100'), 0.5);
   }
+
+  &.btn-link {
+   background-color: rgba(theme('colors.gray.100'), 0.5);
+ }
 }
 
 
