@@ -31,7 +31,7 @@
 import Vue from 'vue'
 import config from '@/utils/config'
 
-import { DocumentResource } from '@/types/resource'
+import { DocumentResource, WorkspaceResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
@@ -62,11 +62,19 @@ export default Vue.extend({
     }
   },
   computed: {
-    currentSpace () {
+    currentSpace (): WorkspaceResource {
       return this.$store.state.auth.currentSpace || {}
     },
     id (): number {
       return Number(this.$route.params.id) || 0
+    },
+    refs: {
+      cache: false,
+      get (this: Vue) {
+        return {
+          title: this.$refs.title as HTMLInputElement
+        }
+      }
     }
   },
   watch: {
@@ -86,14 +94,14 @@ export default Vue.extend({
     id: {
       immediate: true,
       async handler (id) {
-        this.titleFocus()
-
         if (!id) {
           this.title = ''
           this.value = {}
         } else {
           await this.loadDocument()
         }
+
+        this.titleFocus()
       }
     }
   },
@@ -153,10 +161,14 @@ export default Vue.extend({
       }
     },
     titleFocus () {
-      const titleEl = this.$refs.title as HTMLInputElement
+      if (!this.refs.title) {
+        return
+      }
 
-      if (titleEl) {
-        titleEl.focus()
+      if (this.id) {
+        this.refs.title.blur()
+      } else {
+        this.refs.title.focus()
       }
     }
   },
