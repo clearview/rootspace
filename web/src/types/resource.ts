@@ -55,7 +55,7 @@ export interface TaskListResource extends ApiResource {
 export interface TaskBoardResource extends ApiResource {
   uuid: string | null;
   userId: number | null;
-  spaceId: number | null;
+  spaceId: number;
   title: string;
   description: string | null;
   type: TaskBoardType;

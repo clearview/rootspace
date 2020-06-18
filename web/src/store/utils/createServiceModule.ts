@@ -49,7 +49,7 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         const task = await service.view(id)
         commit('setFetching', false)
 
-        commit('setCurrent', task)
+        commit('setCurrent', task?.data)
       },
 
       async create ({ commit }, data: TResource): Promise<TResource> {

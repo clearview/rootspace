@@ -370,12 +370,13 @@ export default Vue.extend({
       this.link.add.loading = true
 
       try {
-        await this.$store.dispatch('task/create', data)
-        if (data.id) {
-          this.$router.push({
-            name: 'TaskList',
+        const res = await this.$store.dispatch('task/board/create', data) as {data: TaskBoardResource}
+        await this.$store.dispatch('link/fetch')
+        if (res.data.id) {
+          await this.$router.push({
+            name: 'TaskPage',
             params: {
-              id: data.id.toString()
+              id: res.data.id.toString()
             }
           })
         }
