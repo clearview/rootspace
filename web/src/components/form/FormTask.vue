@@ -11,7 +11,7 @@
           type="text"
           class="input"
           placeholder="E.g. Weekly Groceries"
-          v-model="payload.name"
+          v-model="payload.title"
         >
       </div>
     </v-field>
@@ -20,7 +20,7 @@
       label="Select Board Type"
     >
       <div class="type-list mt-2">
-        <a class="type-item mr-4" :class="{'active': payload.type === 'list'}" @click="payload.type = 'list'">
+        <a class="type-item mr-4" :class="{'active': !isKanban}" @click="payload.type = boardTypeList">
           <v-icon
             name="list"
             size="3.5em"
@@ -31,7 +31,7 @@
             <h5>List</h5>
           </div>
         </a>
-        <a class="type-item" :class="{'active': payload.type === 'kanban'}" @click="payload.type = 'kanban'">
+        <a class="type-item" :class="{'active': isKanban}" @click="payload.type = boardTypeKanban">
           <v-icon
             name="kanban"
             size="3.5em"
@@ -93,66 +93,63 @@
 </style>
 
 <script lang="ts">
-import Vue from 'vue'
 
 import { required } from 'vuelidate/lib/validators'
 
-import { TaskBoardResource } from '@/types/resource'
+import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  payload: Omit<TaskBoardResource, 'children'>;
-}
-
-export default Vue.extend({
-  name: 'FormTask',
-  components: {
-    ButtonSwitch,
-    VField
-  },
-  props: {
-    value: {
-      type: Object,
-      default: () => ({})
+  @Component({
+    name: 'FormTask',
+    components: {
+      ButtonSwitch,
+      VField
     },
-    space: {
-      type: Number,
-      default: 0
-    }
-  },
-  validations: {
-    payload: {
-      name: { required },
-      type: { required }
-    }
-  },
-  data (): ComponentData {
-    return {
+    validations: {
       payload: {
-        id: this.value.id || undefined,
-        spaceId: this.value.space || this.space,
-        title: this.value.name || '',
-        type: this.value.type || 'list',
-        isPublic: this.value.isPublic || false,
-        taskLists: [],
-        createdAt: null,
-        updatedAt: null,
-        description: null,
-        userId: null,
-        uuid: null
+        title: { required },
+        type: { required }
       }
     }
-  },
-  methods: {
-    submit (): void {
-      this.$v.payload.$touch()
+  })
+export default class FormTask extends Vue {
+  get boardTypeKanban () {
+    return TaskBoardType.Kanban
+  }
 
-      if (!this.$v.payload.$invalid) {
-        this.$emit('submit', this.payload)
-      }
+  get boardTypeList () {
+    return TaskBoardType.List
+  }
+
+  get isKanban () {
+    return this.payload.type === TaskBoardType.Kanban
+  }
+
+  @Prop({ type: Object, default: () => ({}) })
+  private readonly value!: TaskBoardResource;
+
+  @Prop({ type: Number, default: 0 })
+  private readonly space!: number;
+
+  private payload: Omit<TaskBoardResource, 'createdAt' | 'updatedAt' | 'uuid' | 'userId'> = {
+    id: this.value.id || null,
+    spaceId: this.value.spaceId || this.space,
+    title: this.value.title || '',
+    type: this.value.type || TaskBoardType.List,
+    isPublic: this.value.isPublic || false,
+    taskLists: [],
+    description: null
+  }
+
+  submit (): void {
+    this.$v.payload.$touch()
+
+    if (!this.$v.payload.$invalid) {
+      this.$emit('submit', this.payload)
     }
   }
-})
+}
 </script>
