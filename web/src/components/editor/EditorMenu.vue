@@ -22,9 +22,9 @@
           </h6>
         </template>
 
-        <h6 class="link" @click="share">
+        <h6 id="doc-share-button" class="link" @click="share">
           <v-icon name="share" viewbox="20" />
-          <span>
+          <span id="doc-share-button-span">
             Share
           </span>
         </h6>
@@ -54,7 +54,7 @@
       >
 
         <template v-slot:header>
-          <h6 class="link" @click="backMenu">
+          <h6 id="doc-share-button-back" class="link" @click="backMenu">
             <v-icon
               name="left"
               size="2em"
@@ -118,14 +118,22 @@ export default Vue.extend({
       this.showShareMenu = true
     },
     shareMenuOutside (event) {
-      console.log('shareMenuOutside event', event)
+      console.log('shareMenuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
+
+      if (event.srcElement.id !== 'doc-share-button' && event.srcElement.id !== 'doc-share-button-span') {
+        this.showShareMenu = false
+      }
     },
     backMenu () {
       this.showShareMenu = false
       this.showMenu = true
     },
     menuOutside (event) {
-      console.log('menuOutside event', event)
+      console.log('menuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
+
+      if (event.srcElement.id !== 'doc-share-button-back') {
+        this.showMenu = false
+      }
     },
     history () {
       console.log('history')
