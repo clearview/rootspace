@@ -29,7 +29,7 @@ export class TaskService {
   }
 
   async create(data: any): Promise<Task> {
-    return this.getTaskRepository().save(data.getAttributes())
+    return this.getTaskRepository().save(data)
   }
 
   async update(id: number, data: any): Promise<Task> {
