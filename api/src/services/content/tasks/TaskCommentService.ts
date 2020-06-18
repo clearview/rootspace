@@ -29,7 +29,7 @@ export class TaskCommentService {
   }
 
   async create(data: any): Promise<TaskComment> {
-    return this.getTaskCommentRepository().save(data.getAttributes())
+    return this.getTaskCommentRepository().save(data)
   }
 
   async update(id: number, data: any): Promise<TaskComment> {
