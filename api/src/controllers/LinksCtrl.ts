@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
-import { LinkService } from '../services'
-import { ContentManager } from '../services/content/ContentManager'
+import { LinkService } from '../services/content/LinkService'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { Actions } from '../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 
@@ -13,7 +13,7 @@ export class LinksCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.linkSrvice = LinkService.getInstance()
+    this.linkSrvice = ServiceFactory.getInstance().getLinkservice()
   }
 
   public async view(req: Request, res: Response, next: NextFunction) {
@@ -37,11 +37,7 @@ export class LinksCtrl extends BaseCtrl {
     const data = req.body.data
     await validateLinkCreate(data)
 
-      let value = LinkCreateValue.fromObjectAndUserId(data, Number(req.user.id))
-
-      if (data.parent !== undefined) {
-        value = value.withParent(data.parent)
-      }
+    const value = LinkCreateValue.fromObjectAndUserId(data, Number(req.user.id))
 
     const link = await this.linkSrvice.create(value)
     const resData = this.responseData(link)
@@ -55,23 +51,11 @@ export class LinksCtrl extends BaseCtrl {
 
     await validateLinkUpdate(data)
 
-      let value = LinkUpdateValue.fromObject(data)
+    const value = LinkUpdateValue.fromObject(data)
+    const link = await this.linkSrvice.update(value, id)
 
-      if (data.parent !== undefined) {
-        value = value.withParent(data.parent)
-      }
-
-      if (data.position !== undefined) {
-        value = value.withPosition(data.position)
-      }
-
-      const link = await this.linkSrvice.update(value, id)
-      const resData = this.responseData(link)
-
-      res.send(resData)
-    } catch (err) {
-      next(err)
-    }
+    const resData = this.responseData(link)
+    res.send(resData)
   }
 
   public async delete(req: Request, res: Response, next: NextFunction) {

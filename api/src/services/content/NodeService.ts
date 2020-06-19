@@ -1,11 +1,14 @@
-import { getCustomRepository } from 'typeorm'
-import { LinkCreateValue, LinkUpdateValue } from '../values/link'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
-import { LinkType } from '../constants'
-import { NodeRepository } from '../repositories/NodeRepository'
-import { Node } from '../entities/Node'
+import { getCustomRepository, DeleteResult } from 'typeorm'
+import { NodeRepository } from '../../repositories/NodeRepository'
+import { Node } from '../../entities/Node'
+import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
+import { NodeType } from '../../types/node'
+import { INodeContentMediator } from './contracts'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
 export class NodeService {
+  private mediator: INodeContentMediator
+
   private static instance: NodeService
 
   static getInstance() {
@@ -16,6 +19,10 @@ export class NodeService {
     return NodeService.instance
   }
 
+  setMediator(mediator: INodeContentMediator) {
+    this.mediator = mediator
+  }
+
   getNodeRepository(): NodeRepository {
     return getCustomRepository(NodeRepository)
   }
@@ -24,8 +31,8 @@ export class NodeService {
     return this.getNodeRepository().getById(id, spaceId)
   }
 
-  getNodeByContent(content: string, type: string): Promise<Node> {
-    return this.getNodeRepository().findOne({ where: { content, type } })
+  getNodeByContentId(contentId: number, type: NodeType): Promise<Node> {
+    return this.getNodeRepository().findOne({ where: { contentId, type } })
   }
 
   getRootNodeBySpaceId(spaceId: number): Promise<Node> {
@@ -45,10 +52,10 @@ export class NodeService {
     return ++position
   }
 
-  async createRootNode(data: LinkCreateValue): Promise<Node> {
+  async createRootNode(data: NodeCreateValue): Promise<Node> {
     const link = this.getNodeRepository().create()
 
-    Object.assign(link, data.getAttributes())
+    Object.assign(link, data.attributes)
 
     link.parent = null
     link.position = 0
@@ -56,14 +63,14 @@ export class NodeService {
     return this.getNodeRepository().save(link)
   }
 
-  async create(data: LinkCreateValue): Promise<Node> {
+  async create(data: NodeCreateValue): Promise<Node> {
     const node = this.getNodeRepository().create()
 
-    Object.assign(node, data.getAttributes())
+    Object.assign(node, data.attributes)
 
     const parent = data.parent
       ? await this.getNodeById(Number(data.parent))
-      : await this.getRootNodeBySpaceId(data.spaceId)
+      : await this.getRootNodeBySpaceId(data.attributes.spaceId)
 
     if (!parent) {
       throw clientError('Cant not find parent ' + data.parent)
@@ -73,14 +80,14 @@ export class NodeService {
     return this.getNodeRepository().save(node)
   }
 
-  async update(data: LinkUpdateValue, id: number): Promise<Node> {
+  async update(data: NodeUpdateValue, id: number): Promise<Node> {
     let node = await this.getNodeById(id)
 
     if (!node) {
       throw clientError('Error updating node')
     }
 
-    Object.assign(node, data.getAttributes())
+    Object.assign(node, data.attributes)
 
     await this.getNodeRepository().save(node)
 
@@ -169,7 +176,25 @@ export class NodeService {
       )
     }
 
-    if (node.type === LinkType.Root) {
+    const res = await this._delete(node)
+
+    if (res.affected > 0) {
+      await this.mediator.nodeDeleted(node)
+    }
+
+    return res
+  }
+
+  async contentDeleted(contentId: number, type: NodeType): Promise<void> {
+    const node = await this.getNodeByContentId(contentId, type)
+
+    if (node) {
+      await this._delete(node)
+    }
+  }
+
+  private async _delete(node: Node): Promise<DeleteResult> {
+    if (node.type === NodeType.Root) {
       throw clientError(
         'Can not delete space root link',
         HttpErrName.NotAllowed,
@@ -200,7 +225,7 @@ export class NodeService {
     }
 
     const res = await this.getNodeRepository().delete({
-      id,
+      id: node.id,
     })
 
     return res

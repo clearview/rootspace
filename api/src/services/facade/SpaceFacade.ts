@@ -1,18 +1,22 @@
 import { Space } from '../../entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
-import { LinkType } from '../../constants'
-import { LinkCreateValue } from '../../values/link'
-import { SpaceService, LinkService, UserSpaceService } from '../'
+import { NodeCreateValue } from '../../values/node'
+import { NodeType } from '../../types/node'
+import { SpaceService, UserSpaceService, NodeService } from '../'
 
 export class SpaceFacade {
   private spaceService: SpaceService
   private userSpaceService: UserSpaceService
-  private linkService: LinkService
+  private nodeService: NodeService
 
   constructor() {
     this.spaceService = SpaceService.getInstance()
     this.userSpaceService = UserSpaceService.getInstance()
-    this.linkService = LinkService.getInstance()
+    this.nodeService = NodeService.getInstance()
+  }
+
+  getNodesTree(spaceId: number) {
+    return this.nodeService.getTreeBySpaceId(spaceId)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {
@@ -21,16 +25,15 @@ export class SpaceFacade {
 
   async createSpace(data: SpaceCreateValue): Promise<Space> {
     const space = await this.spaceService.create(data)
-
     await this.userSpaceService.add(space.userId, space.id)
 
-    await this.linkService.createSpaceRoot(
-      LinkCreateValue.fromObject({
+    await this.nodeService.createRootNode(
+      NodeCreateValue.fromObject({
         userId: space.userId,
         spaceId: space.id,
+        contentId: space.id,
         title: 'root',
-        type: LinkType.Root,
-        value: String(space.id),
+        type: NodeType.Root,
       })
     )
 

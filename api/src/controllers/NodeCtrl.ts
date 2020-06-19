@@ -1,54 +1,40 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { LinkUpdateValue } from '../values/link'
-import { validateLinkUpdate } from '../validation/link'
-import { clientError } from '../errors'
-import { NodeService } from '../services/NodeService'
+import { NodeUpdateValue } from '../values/node'
+import { validateNodeUpdate } from '../validation/node'
+import { NodeService } from '../services/content/NodeService'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class NodeCtrl extends BaseCtrl {
   protected nodeService: NodeService
 
   constructor() {
     super()
-    this.nodeService = NodeService.getInstance()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
-  public async view(req: Request, res: Response) {
-    const spaceId = Number(req.params.spaceId)
-
-    if (!spaceId) {
-      throw clientError('Error fetching tree')
-    }
-
-    const nodes = await this.nodeService.getTreeBySpaceId(spaceId)
-    const data = this.responseData(nodes)
-
-    res.send(data)
-  }
-
-  public async update(req: Request, res: Response) {
-    const nodeId = Number(req.params.nodeId)
+  async update(req: Request, res: Response) {
+    const id = Number(req.params.id)
     const data = req.body.data
 
-    await validateLinkUpdate(data)
-
-    const value = LinkUpdateValue.fromObject(data)
+    await validateNodeUpdate(data)
+    let value = NodeUpdateValue.fromObject(data)
 
     if (data.parent !== undefined) {
-      value.parent = data.parent
+      value = value.withParent(data.parent)
     }
 
     if (data.position !== undefined) {
-      value.position = data.position
+      value = value.withPosition(data.position)
     }
 
-    const link = await this.nodeService.update(value, nodeId)
-    const resData = this.responseData(link)
+    const node = await this.nodeService.update(value, id)
+    const resData = this.responseData(node)
 
     res.send(resData)
   }
 
-  public async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response) {
     const result = await this.nodeService.delete(Number(req.params.id))
     res.send(result)
   }

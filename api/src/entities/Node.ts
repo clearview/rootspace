@@ -9,15 +9,9 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm'
+import { NodeType } from '../types/node'
 
-export enum NodeType {
-  Undefined = 'undefined',
-  Root = 'root',
-  Document = 'doc',
-  TaskBoard = 'taskBoard',
-}
-
-@Entity('links')
+@Entity('nodes')
 @Tree('nested-set')
 export class Node {
   @PrimaryGeneratedColumn()
@@ -41,14 +35,14 @@ export class Node {
   @Index()
   spaceId: number
 
+  @Column('integer')
+  contentId: number
+
   @Column('varchar', { length: 100 })
   title: string
 
   @Column('varchar', { length: 20 })
   type: NodeType
-
-  @Column('varchar', { length: 150 })
-  content: string
 
   @Column('json', { nullable: true })
   config: object

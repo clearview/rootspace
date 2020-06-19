@@ -5,7 +5,7 @@ import {
   getTreeRepository,
 } from 'typeorm'
 import { Node } from '../entities/Node'
-import { LinkType } from '../constants'
+import { NodeType } from '../types/node'
 
 @EntityRepository(Node)
 export class NodeRepository extends Repository<Node> {
@@ -35,9 +35,9 @@ export class NodeRepository extends Repository<Node> {
 
   getRootBySpaceId(spaceId: number): Promise<Node> {
     return this.createQueryBuilder('node')
-      .where('node.type = :type AND node.content = :value', {
-        type: LinkType.Root,
-        value: spaceId,
+      .where('node.type = :type AND node.contentId = :contentId', {
+        type: NodeType.Root,
+        contentId: spaceId,
       })
       .getOne()
   }

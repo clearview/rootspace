@@ -5,12 +5,10 @@ import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCommentCtrl extends BaseCtrl {
   private taskCommentService: TaskCommentService
-  private contentManager: ContentManager
 
   constructor() {
     super()
     this.taskCommentService = TaskCommentService.getInstance()
-    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {

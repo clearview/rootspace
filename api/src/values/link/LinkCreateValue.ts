@@ -5,7 +5,6 @@ export const LinkCreateAttributes: ILinkCreateAttributes = {
   userId: null,
   spaceId: null,
   title: null,
-  type: null,
   value: null,
 }
 

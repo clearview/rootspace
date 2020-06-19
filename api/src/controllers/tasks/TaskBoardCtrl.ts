@@ -7,12 +7,10 @@ import { ForbiddenError } from '@casl/ability'
 
 export class TaskBoardCtrl extends BaseCtrl {
   private taskBoardService: TaskBoardService
-  private contentManager: ContentManager
 
   constructor() {
     super()
     this.taskBoardService = TaskBoardService.getInstance()
-    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
@@ -34,9 +32,6 @@ export class TaskBoardCtrl extends BaseCtrl {
 
     taskBoard = await this.taskBoardService.save(taskBoard)
     const resData = this.responseData(taskBoard)
-
-    const link = await this.taskBoardService.getLinkByContent(taskBoard)
-    resData.includes(link, 'link')
 
     res.send(resData)
   }

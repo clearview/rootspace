@@ -64,7 +64,7 @@ export class TaskService {
     let task = await this.getById(id)
     task = await this.getTaskRepository().save({
       ...task,
-      ...data
+      ...data,
     })
 
     await this.assigneesUpdate(task, data)
@@ -81,7 +81,7 @@ export class TaskService {
   }
 
   async delete(id: number) {
-    return this.getTaskRepository().delete({id})
+    return this.getTaskRepository().delete({ id })
   }
 
   async assigneesUpdate(task: Task, data: any): Promise<Task> {
