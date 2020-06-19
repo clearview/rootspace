@@ -1,14 +1,14 @@
 <template>
   <div class="task-list">
     <h4 class="title">
-      <Icon class="title-arrow" name="right"/>
+      <v-icon class="title-arrow" name="right"/>
       <span class="title-text">{{list.title}}</span>
     </h4>
     <div class="items">
     </div>
     <div class="new-task">
       <button v-if="!isInputtingNewTask" class="new-task-button" @click="toggleInputNewTask(true)">
-        <Icon class="new-task-button-icon" name="plus" size="1.5rem"/>
+        <v-icon class="new-task-button-icon" name="plus" size="1.5rem"/>
         <span class="new-task-button-label">Add Task</span>
       </button>
       <TaskListItem with-actions v-else @cancel="toggleInputNewTask(false)"></TaskListItem>

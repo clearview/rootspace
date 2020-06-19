@@ -101,6 +101,7 @@ import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Optional } from '@/types/core'
 
   @Component({
     name: 'FormTask',
@@ -134,7 +135,7 @@ export default class FormTask extends Vue {
   @Prop({ type: Number, default: 0 })
   private readonly space!: number;
 
-  private payload: Omit<TaskBoardResource, 'createdAt' | 'updatedAt' | 'uuid' | 'userId'> = {
+  private payload: Optional<TaskBoardResource, 'createdAt' | 'updatedAt' | 'uuid' | 'userId'> = {
     id: this.value.id || null,
     spaceId: this.value.spaceId || this.space,
     title: this.value.title || '',

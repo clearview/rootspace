@@ -6,7 +6,7 @@
       </h3>
       <div class="header-actions">
         <div class="action action-search">
-          <Icon name="search" class="action-search-icon"/>
+          <v-icon name="search" class="action-search-icon"/>
           <input
             type="text"
             class="action-search-input"
@@ -14,19 +14,19 @@
           >
         </div>
         <div class="action action-filter">
-          <Icon name="filter" class="action-filter-icon" size="1.5em"/>
+          <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
           <div class="action-label">
             Filter
           </div>
         </div>
         <div class="action action-type">
-          <Icon
+          <v-icon
             name="list"
             size="2.5em"
             class="icon-circle"
             :class="{active: !isKanban}"
           />
-          <Icon
+          <v-icon
             name="kanban"
             size="2.5em"
             class="icon-circle"

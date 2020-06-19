@@ -5,18 +5,24 @@
                 class="item-textarea"></textarea>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
-          <Icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem"/>
         </button>
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
         <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="click" >
+    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="showModal = true">
       <div class="color"></div>
       <div class="title">
         {{itemCopy.title}}
       </div>
+      <div class="actions">
+        <button class="btn btn-tiny btn-link" @click="edit">
+          <v-icon name="edit" size="1rem"/>
+        </button>
+      </div>
     </div>
+    <TaskModal :item="item" :visible="showModal"></TaskModal>
   </div>
 </template>
 
@@ -25,11 +31,13 @@ import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
+import { Optional } from '@/types/core'
+import TaskModal from '@/views/Task/TaskModal.vue'
 
   @Component({
     name: 'TaskCard',
     components: {
-      Icon
+      TaskModal
     },
     validations: {
       itemCopy: {
@@ -39,7 +47,7 @@ import { required } from 'vuelidate/lib/validators'
   })
 export default class TaskCard extends Vue {
     @Prop({ type: Object, required: true })
-    private readonly item!: TaskItemResource
+    private readonly item!: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>
 
     @Prop({ type: Boolean, default: false })
     private readonly defaultInputting!: boolean
@@ -48,7 +56,8 @@ export default class TaskCard extends Vue {
     private readonly textarea!: HTMLTextAreaElement;
 
     private isInputting = this.defaultInputting
-    private itemCopy: TaskItemResource = { ...this.item }
+    private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
+    private showModal = false
 
     private get isInputtingNewCard () {
       return this.isInputting && this.itemCopy.id === null
@@ -69,6 +78,9 @@ export default class TaskCard extends Vue {
       } else {
         this.itemCopy = await this.$store.dispatch('task/item/update', this.itemCopy)
       }
+      if (this.item.list) {
+        await this.$store.dispatch('task/board/view', this.item.list.boardId)
+      }
       this.isInputting = false
       return this.itemCopy
     }
@@ -80,8 +92,8 @@ export default class TaskCard extends Vue {
       return true
     }
 
-    @Emit('click')
-    click () {
+    @Emit('edit')
+    edit () {
       this.isInputting = true
       Vue.nextTick().then(() => {
         this.textarea.focus()
@@ -109,7 +121,7 @@ export default class TaskCard extends Vue {
   }
 
   .btn-link {
-    @apply py-2 px-2;
+    @apply py-1 px-1;
   }
 
   .btn-link .stroke-current {
@@ -135,6 +147,16 @@ export default class TaskCard extends Vue {
     @apply p-2 flex items-center rounded;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
+
+    &:hover .actions {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  .actions {
+    transition: all 0.3s ease;
+    visibility: hidden;
+    opacity: 0;
   }
 
   .color {

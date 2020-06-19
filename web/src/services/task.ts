@@ -37,22 +37,21 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
       return res.data
     }
 
-    destroy (id: number): Promise<void> {
-      return Promise.resolve(undefined)
+    async destroy (id: number): Promise<void> {
+      const res = await api.delete(`${url}/${id}`)
     }
 
     fetch (params: TFetch): Promise<T[]> {
       return Promise.resolve([])
     }
 
-    move (parentId: number, entryId: number, position: number): Promise<void> {
-      return Promise.resolve(undefined)
+    move (parentId: number | null, entryId: number, position: number): Promise<void> {
+      return Promise.resolve()
     }
 
-    update (id: number, data: T): Promise<T> {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      return Promise.resolve(undefined)
+    async update (id: number, data: Partial<T>): Promise<T> {
+      const res = await api.patch(`${url}/${id}`, { data })
+      return res.data
     }
 
     async view (id: number): Promise<ApiResponse<T> | null> {
@@ -63,3 +62,5 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
 }
 
 export const BoardService = createService<TaskBoardResource, BoardFetchParams>('tasks/board')
+export const ListService = createService<TaskListResource, ListFetchParams>('tasks/list')
+export const ItemService = createService<TaskItemResource, ItemFetchParams>('tasks/task')

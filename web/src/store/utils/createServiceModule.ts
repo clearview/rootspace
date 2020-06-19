@@ -56,7 +56,6 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setProcessing', true)
         const res = await service.create(data)
         commit('setProcessing', false)
-
         return res
       },
 

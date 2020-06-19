@@ -139,6 +139,8 @@ import VModal from '@/components/Modal.vue'
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
+import { Module } from 'vuex'
+import { LinkState, RootState } from '@/types/state'
 
 type Alert = {
   type: string;
@@ -279,7 +281,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    links () {
+    links (): Module<LinkState, RootState> {
       return this.$store.state.link
     },
     collapse () {
