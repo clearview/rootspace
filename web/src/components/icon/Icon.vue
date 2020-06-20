@@ -55,6 +55,7 @@ import IconReply from '@/components/icon/IconReply.vue'
 import IconContextMenu from './IconContextMenu.vue'
 import IconShare from './IconShare.vue'
 import IconHistory from './IconHistory.vue'
+import IconShareGlobe from './IconShareGlobe.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -98,7 +99,8 @@ export default Vue.extend({
     IconLoading,
     IconContextMenu,
     IconShare,
-    IconHistory
+    IconHistory,
+    IconShareGlobe
   },
   props: {
     name: {

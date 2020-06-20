@@ -59,18 +59,35 @@
               name="left"
               size="2em"
               viewbox="36"
-              class="text-gray-400"
+              id="doc-share-button-svg"
             />
             Share
           </h6>
         </template>
 
-        <h6 class="link" @click="share">
-          <v-icon name="share" viewbox="20" />
-          <span>
-            Anyone with link can view
-          </span>
+        <h6 class="link three-col" @click="share">
+          <v-icon name="share-globe" viewbox="20" class="text-gray-800" />
+          <div class="text-block">
+            Make Public
+            <span>Anyone with link can view</span>
+          </div>
+          <button-switch v-model="lockShare" class="switch" />
         </h6>
+
+        <div class="input-group" v-if="lockShare">
+          <input
+            type="text"
+            class="input-group-component flex-grow w-px flex-1 border h- px-3 relative text-inherit"
+            value="https://root.app/doc/123"
+            readonly
+          />
+          <div class="flex">
+            <button
+              type="button"
+              class="button input-group-component flex items-center justify-center"
+            >Copy Link</button>
+          </div>
+        </div>
 
       </context-menu>
     </transition>
@@ -84,6 +101,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
 type ComponentData = {
   lockEditor: boolean;
+  lockShare: boolean;
   showMenu: boolean;
   showShareMenu: boolean;
 }
@@ -102,6 +120,7 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       lockEditor: false,
+      lockShare: false,
       showMenu: false,
       showShareMenu: false
     }
@@ -120,7 +139,9 @@ export default Vue.extend({
     shareMenuOutside (event) {
       console.log('shareMenuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
 
-      if (event.srcElement.id !== 'doc-share-button' && event.srcElement.id !== 'doc-share-button-span') {
+      if (event.srcElement.id !== 'doc-share-button' &&
+          event.srcElement.id !== 'doc-share-button-span'
+      ) {
         this.showShareMenu = false
       }
     },
@@ -131,7 +152,9 @@ export default Vue.extend({
     menuOutside (event) {
       console.log('menuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
 
-      if (event.srcElement.id !== 'doc-share-button-back') {
+      if (event.srcElement.id !== 'doc-share-button-back' &&
+          event.srcElement.id !== 'doc-share-button-svg'
+      ) {
         this.showMenu = false
       }
     },
@@ -164,9 +187,38 @@ export default Vue.extend({
 
     &.link {
       cursor: pointer;
+      color: theme("colors.gray.900");
 
       &:hover {
         background: theme("colors.gray.100");
+      }
+
+      &.three-col {
+        @apply flex flex-row;
+
+        cursor: auto;
+
+        svg {
+          margin: .2rem .5rem 0 .5rem;
+        }
+
+        .text-block {
+          @apply flex-grow;
+
+          span {
+            display: block;
+            margin: 0;
+            color: theme("colors.gray.800");
+          }
+        }
+
+        .switch {
+          @apply self-center;
+        }
+
+        &:hover {
+          background: none;
+        }
       }
     }
 
@@ -181,6 +233,23 @@ export default Vue.extend({
 
   .share-menu {
     width: 352px;
+
+    .input-group {
+      margin: 1rem;
+      margin-top: 0;
+      width: 92%;
+      padding-left: 5px;
+
+      .input-group-component.button {
+        width: 100px;
+        border-radius: 0.25rem;
+        border-left-color: theme("colors.gray.400");
+
+        &:hover {
+          background: theme("colors.primary.default");
+        }
+      }
+    }
   }
 }
 </style>
