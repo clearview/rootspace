@@ -3,9 +3,18 @@ import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardReposi
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { SpaceRepository } from '../../../repositories/SpaceRepository'
+import { NodeContentService } from '../NodeContentService'
+import { NodeType } from '../../../types/node'
+import { NodeService } from '../NodeService'
+import { ServiceFactory } from '../../factory/ServiceFactory'
+import { NodeCreateValue } from '../../../values/node'
 
-export class TaskBoardService {
-  private constructor() {}
+export class TaskBoardService extends NodeContentService {
+  private nodeService: NodeService
+  private constructor() {
+    super()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
+  }
 
   private static instance: TaskBoardService
 
@@ -23,6 +32,10 @@ export class TaskBoardService {
 
   getTaskBoardRepository(): TaskBoardRepository {
     return getCustomRepository(TaskBoardRepository)
+  }
+
+  getNodeType() {
+    return NodeType.TaskBoard
   }
 
   async getById(id: number): Promise<TaskBoard> {
@@ -52,6 +65,17 @@ export class TaskBoardService {
   async save(data: any): Promise<TaskBoard> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     const taskBoard = await this.getTaskBoardRepository().save(data)
+
+    await this.nodeService.create(
+      NodeCreateValue.fromObject({
+        userId: taskBoard.userId,
+        spaceId: taskBoard.spaceId,
+        contentId: taskBoard.id,
+        title: taskBoard.title,
+        type: this.getNodeType(),
+      })
+    )
+
     return taskBoard
   }
 
@@ -66,9 +90,16 @@ export class TaskBoardService {
   }
 
   async delete(id: number) {
-    const taskBoard = await this.getById(id)
-
     const res = await this.getTaskBoardRepository().delete({ id })
+
+    if (res.affected > 0) {
+      await this.mediator.contentDeleted(id, this.getNodeType())
+    }
+
     return res
+  }
+
+  async nodeDeleted(contentId: number): Promise<void> {
+    await this.getTaskBoardRepository().delete({ id: contentId })
   }
 }

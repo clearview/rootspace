@@ -1,10 +1,11 @@
-import { NodeService, LinkService, DocService } from '../'
+import { NodeService, LinkService, DocService, TaskBoardService } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
 export class ServiceFactory {
   private nodeService: NodeService
   private linkService: LinkService
   private docService: DocService
+  private taskBoardService: TaskBoardService
 
   private constructor() {}
 
@@ -19,7 +20,7 @@ export class ServiceFactory {
 
   getNodeService() {
     if (!this.nodeService) {
-      this.initContentServices()
+      this.initNodeContentServices()
     }
 
     return this.nodeService
@@ -27,7 +28,7 @@ export class ServiceFactory {
 
   getLinkservice() {
     if (!this.linkService) {
-      this.initContentServices()
+      this.initNodeContentServices()
     }
 
     return this.linkService
@@ -35,20 +36,30 @@ export class ServiceFactory {
 
   getDocService() {
     if (!this.docService) {
-      this.initContentServices()
+      this.initNodeContentServices()
     }
 
     return this.docService
   }
 
-  private initContentServices() {
+  getTaskBoardService() {
+    if (!this.taskBoardService) {
+      this.initNodeContentServices()
+    }
+
+    return this.taskBoardService
+  }
+
+  private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
     this.linkService = LinkService.getInstance()
     this.docService = DocService.getInstance()
+    this.taskBoardService = TaskBoardService.getInstance()
 
     const mediator = new NodeContentMediator(this.nodeService)
 
     mediator.addContentService(this.linkService)
     mediator.addContentService(this.docService)
+    mediator.addContentService(this.taskBoardService)
   }
 }

@@ -10,7 +10,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.taskBoardService = TaskBoardService.getInstance()
+    this.taskBoardService = ServiceFactory.getInstance().getTaskBoardService()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
