@@ -123,6 +123,7 @@ export default Vue.extend({
         return
       }
       this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
+      this.textareaResize()
     },
     currentSpace (val, oldVal) {
       if (val.id !== oldVal.id) {
@@ -153,7 +154,7 @@ export default Vue.extend({
       const title = this.$refs.title as HTMLInputElement
 
       if (title === undefined) return
-      // console.log(title)
+
       title.style.minHeight = '50px'
       if (this.title === '') return
 
