@@ -3,13 +3,13 @@ import { Invite } from '../../entities/Invite'
 import { clientError } from '../../errors'
 
 export class InviteFacade {
-  private intiveService: InviteService
+  private inviteService: InviteService
   private spaceService: SpaceService
   private userService: UserService
   private userSpaceService: UserSpaceService
 
   constructor() {
-    this.intiveService = InviteService.getInstance()
+    this.inviteService = InviteService.getInstance()
     this.spaceService = SpaceService.getInstance()
     this.userService = UserService.getInstance()
     this.userSpaceService = UserSpaceService.getInstance()
@@ -25,8 +25,8 @@ export class InviteFacade {
       const user = await this.userService.getUserByEmail(email)
 
       const invite = user
-        ? await this.intiveService.createWithUser(user, space)
-        : await this.intiveService.createWithEmail(email, space)
+        ? await this.inviteService.createWithUser(user, space)
+        : await this.inviteService.createWithEmail(email, space)
 
       invites.push(invite)
     }
@@ -35,7 +35,7 @@ export class InviteFacade {
   }
 
   async accept(token: string, id: number, authUserId: number): Promise<Invite> {
-    const invite = await this.intiveService.requireInviteByTokenAndId(token, id)
+    const invite = await this.inviteService.requireInviteByTokenAndId(token, id)
 
     const user = invite.userId
       ? await this.userService.getUserById(invite.userId)
@@ -51,7 +51,7 @@ export class InviteFacade {
       await this.userSpaceService.add(user.id, space.id)
     }
 
-    await this.intiveService.accept(invite)
+    await this.inviteService.accept(invite)
 
     return invite
   }
