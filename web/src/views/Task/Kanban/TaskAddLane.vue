@@ -1,7 +1,7 @@
 <template>
   <div class="task-add-lane">
     <button class="add-lane-button" @click="$emit('click')">
-      <Icon class="add-lane-button-icon" name="plus" size="1.5rem"/>
+      <v-icon class="add-lane-button-icon" name="plus" size="1.5rem"/>
       <span class="add-lane-button-label">Add Another List</span>
     </button>
   </div>

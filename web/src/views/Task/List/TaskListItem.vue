@@ -1,15 +1,15 @@
 <template>
   <div class="list-entry">
     <div class="drag-handle">
-      <Icon name="drag" viewbox="20"/>
+      <v-icon name="drag" viewbox="20"/>
     </div>
     <div class="input-box">
       <input class="input-field" type="text" placeholder="e.g Design UI Components on Sunday  at 11am #Personal">
       <div class="input-actions">
-        <Icon name="attachment" viewbox="24"/>
-        <Icon name="tag" viewbox="24"/>
-        <Icon name="time" viewbox="24"/>
-        <Icon name="user2" viewbox="24"/>
+        <v-icon name="attachment" viewbox="24"/>
+        <v-icon name="tag" viewbox="24"/>
+        <v-icon name="time" viewbox="24"/>
+        <v-icon name="user2" viewbox="24"/>
       </div>
     </div>
     <div class="actions" v-if="withActions">

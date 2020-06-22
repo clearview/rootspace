@@ -27,6 +27,8 @@ import { TaskBoardResource, TaskBoardType, TaskListResource } from '@/types/reso
 import TaskList from '@/views/Task/List/TaskList.vue'
 import TaskLane from '@/views/Task/Kanban/TaskLane.vue'
 import TaskAddLane from '@/views/Task/Kanban/TaskAddLane.vue'
+import { Optional } from '@/types/core'
+import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 
   /**
    * Responsible for managing CRUD operations on board and determining how to render the board
@@ -41,7 +43,7 @@ export default class BoardManager extends Vue {
 
     private readonly lists!: TaskListResource[];
     private isInputtingNewList = false
-    private newList: TaskListResource | null = null
+    private newList: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> | null = null
     private drag = false
 
     get orderedLanes () {
@@ -69,26 +71,32 @@ export default class BoardManager extends Vue {
     addList () {
       this.isInputtingNewList = true
       this.newList = {
+        id: null,
         board: this.board,
         boardId: this.board.id,
-        createdAt: null,
         description: null,
-        id: null,
-        position: this.board.taskLists.length,
-        spaceId: null,
+        position: getNextPosition(this.board.taskLists.length),
+        spaceId: this.board.spaceId,
         tasks: [],
-        title: '',
-        updatedAt: null,
-        userId: null
+        title: ''
       }
+      console.log(this.newList)
     }
 
     async reorder (data: MovedEvent<TaskListResource>) {
-      await this.$store.dispatch('task/list/move', {
-        parentId: data.moved.element.boardId,
-        entryId: data.moved.element.id,
-        position: data.moved.newIndex
-      })
+      if (data.moved) {
+        const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
+        const prev = this.orderedLanes[prevIndex]
+        const next = this.orderedLanes[nextIndex]
+
+        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.board.taskLists.length))
+
+        await this.$store.dispatch('task/list/update', {
+          id: data.moved.element.id,
+          position: newPos
+        })
+        await this.$store.dispatch('task/board/view', this.board.id)
+      }
     }
 }
 </script>
