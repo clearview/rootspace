@@ -1,7 +1,7 @@
 <template>
   <div class="task-add-card">
     <button class="add-card-button" @click="$emit('click')">
-      <Icon class="add-card-button-icon" name="plus" size="1.5rem"/>
+      <v-icon class="add-card-button-icon" name="plus" size="1.5rem"/>
       <span class="add-card-button-label">Add Card</span>
     </button>
   </div>

@@ -2,12 +2,14 @@ import { Module } from 'vuex'
 
 import { RootState, TaskState } from '@/types/state'
 import { createServiceModule } from '@/store/utils/createServiceModule'
-import { BoardService } from '@/services/task'
+import { BoardService, ItemService, ListService } from '@/services/task'
 
 const TaskModule: Module<TaskState, RootState> = {
   namespaced: true,
   modules: {
-    board: createServiceModule(BoardService)
+    board: createServiceModule(BoardService),
+    list: createServiceModule(ListService),
+    item: createServiceModule(ItemService)
   }
 }
 
