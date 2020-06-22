@@ -49,6 +49,7 @@ import IconAttachment from '@/components/icon/IconAttachment.vue'
 import IconDrag from '@/components/icon/IconDrag.vue'
 import IconUser2 from '@/components/icon/IconUser2.vue'
 import IconEllipsis from '@/components/icon/IconEllipsis.vue'
+import IconPlus2 from '@/components/icon/IconPlus2.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -72,6 +73,7 @@ export default Vue.extend({
     IconLinkEdit,
     IconLock,
     IconPlus,
+    IconPlus2,
     IconRandom,
     IconRight,
     IconSearch,
