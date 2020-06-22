@@ -8,6 +8,7 @@ export class MailService {
     let service: MailClientInterface<any>
 
     switch (process.env.NODE_ENV) {
+      case 'development':
       case 'docker':
       case 'test':
         service = new MailhogClient()

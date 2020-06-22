@@ -18,6 +18,8 @@ router.delete('/tasks/list/:id', auth, mapRoute(TaskListCtrl, 'delete'))
 
 router.get('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'view'))
 router.post('/tasks/task', auth, mapRoute(TaskCtrl, 'create'))
+router.post('/tasks/task/:id/assignee/:userId/add', auth, mapRoute(TaskCtrl, 'assigneeAdd'))
+router.post('/tasks/task/:id/assignee/:userId/remove', auth, mapRoute(TaskCtrl, 'assigneeRemove'))
 router.patch('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'update'))
 router.delete('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'delete'))
 

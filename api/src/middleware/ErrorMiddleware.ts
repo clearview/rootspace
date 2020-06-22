@@ -9,7 +9,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction
 ) {
-  if (HttpErrNames.includes(err.name)) {
+  if (HttpErrNames.includes(err.name) && HttpErrNames.includes(err.response)) {
     const e = err as HttpError
     return res.status(e.statusCode).send(e.response())
   }
