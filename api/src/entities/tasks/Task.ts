@@ -6,10 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany
+  OneToMany, ManyToMany, JoinTable
 } from 'typeorm'
 import { TaskList } from './TaskList'
 import { TaskComment } from './TaskComment'
+import { User } from '../User'
 
 export enum TaskStatus {
   Open = 0,
@@ -33,9 +34,6 @@ export class Task {
   @Column('integer')
   @Index()
   listId: number
-
-  @Column('json', { nullable: true })
-  assignedTo: object
 
   @Column('varchar')
   title: string
@@ -70,4 +68,7 @@ export class Task {
   @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true})
   taskComments: TaskComment[]
 
+  @ManyToMany(type => User, {cascade: true, eager: true})
+  @JoinTable()
+  assignees: User[]
 }

@@ -29,24 +29,24 @@ export class User {
   @Column('varchar', { select: false })
   password: string
 
-  @Column('varchar')
+  @Column('varchar', { select: false })
   authProvider: string
 
   @Column('boolean')
   active: boolean
 
-  @Column('boolean', { default: false })
+  @Column('boolean', { default: false, select: false })
   emailConfirmed: boolean
 
-  @Column()
+  @Column({ select: false })
   @Generated('uuid')
   @Index()
   token: string
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created: string
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated: string
 
   @OneToMany(type => UserToSpace, space => space.user)
