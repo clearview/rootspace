@@ -1,14 +1,13 @@
 <template>
   <div class="page">
     <div class="header">
-      <textarea-autosize
+      <textarea
         v-model="title"
         rows="1"
         class="title"
         :readonly="readOnly"
         placeholder="Your Title Here"
         ref="title"
-        :min-height="50"
       />
       <editor-menu
         v-if="id"
@@ -141,10 +140,25 @@ export default Vue.extend({
         }
 
         this.titleFocus()
+        this.textareaResize()
       }
     }
   },
+  mounted () {
+    this.titleFocus()
+    this.textareaResize()
+  },
   methods: {
+    textareaResize () {
+      const title = this.$refs.title as HTMLInputElement
+
+      if (title === undefined) return
+      // console.log(title)
+      title.style.minHeight = '50px'
+      if (this.title === '') return
+
+      title.style.minHeight = title.scrollHeight + 'px'
+    },
     onUpdateEditor (value: object) {
       this.value = value
 
@@ -240,9 +254,6 @@ export default Vue.extend({
         this.deleteDoc.visible = false
       }
     }
-  },
-  mounted () {
-    this.titleFocus()
   }
 })
 </script>
@@ -261,6 +272,10 @@ export default Vue.extend({
 
   &:focus {
     outline: none;
+  }
+
+  &::-webkit-resizer {
+    display: none;
   }
 }
 
