@@ -38,8 +38,8 @@ export default class Server {
     this.app.use(express.json())
     this.app.use(cors())
     this.app.use(passport.initialize())
-    this.app.use(errorHandler)
     this.app.use(...routers)
+    this.app.use(errorHandler)
   }
 
   listen(port?: number) {
