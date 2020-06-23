@@ -10,42 +10,43 @@ export default class DocsSeeder implements Seeder {
     public async run(factory: Factory, connection: Connection): Promise<any> {
         this.base = await UserSpace.getInstance(factory)
 
-        await this.createDocuments()
+  async seedDocuments(count: number, parentNode: Node, treeDepth: number) {
+    const nodes = await this.createDocuments(count, parentNode)
+
+    if (treeDepth > 0) {
+      for (const node of nodes) {
+        await this.seedDocuments(count, node, treeDepth - 1)
+      }
+    }
+  }
+
+  async createDocuments(count: number, parentNode: Node) {
+    const docs = await this.base
+      .factory(Doc)()
+      .map(async (doc: Doc) => {
+        doc.userId = this.base.user.id
+        doc.spaceId = this.base.space.id
+        return doc
+      })
+      .createMany(count)
+
+    const nodes = []
+
+    for (const doc of docs) {
+      nodes.push(
+        await this.base
+          .factory(Node)()
+          .create({
+            userId: this.base.user.id,
+            spaceId: this.base.space.id,
+            contentId: doc.id,
+            title: doc.title,
+            type: NodeType.Document,
+            parent: parentNode,
+          })
+      )
     }
 
-    async createDocuments() {
-        const links = await this.createLinkDocPair(this.base.rootLink, 3)
-        for (const link of links) {
-            const links01 = await this.createLinkDocPair(link, 2)
-            for (const link01 of links01) {
-                await this.createLinkDocPair(link01, 3)
-            }
-        }
-    }
-
-    async createLinkDocPair(parentLink: Link, count = 3) {
-        const docs = await this.base.factory(Doc)()
-            .map(async (doc: Doc) => {
-                doc.userId = this.base.user.id
-                doc.spaceId = this.base.space.id
-                return doc
-            })
-            .createMany(count)
-
-        const links = []
-        for (const doc of docs) {
-            const linkPair = await this.base.factory(Link)().create({
-                parent: parentLink,
-                userId: this.base.user.id,
-                spaceId: this.base.space.id,
-                type: LinkType.Document,
-                title: doc.title,
-                value: String(doc.id),
-                position: await this.base.linkService.getNodeNextPosition(parentLink.id)
-            })
-            links.push(linkPair)
-        }
-
-        return links
-    }
+    return nodes
+  }
 }

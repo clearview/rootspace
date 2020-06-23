@@ -8,6 +8,13 @@ import { TaskList } from '../../entities/tasks/TaskList'
 import { Task } from '../../entities/tasks/Task'
 import { TaskComment } from '../../entities/tasks/TaskComment'
 import * as faker from 'faker'
+import { BaseSeeder } from './base'
+import { TaskBoard } from '../../entities/tasks/TaskBoard'
+import { TaskList } from '../../entities/tasks/TaskList'
+import { Task } from '../../entities/tasks/Task'
+import { TaskComment } from '../../entities/tasks/TaskComment'
+import { Node } from '../../entities/Node'
+import { NodeType } from '../../types/node'
 
 export default class TasksSeeder implements Seeder {
     protected base: UserSpace
@@ -22,15 +29,17 @@ export default class TasksSeeder implements Seeder {
 
             const taskLists = await this.createTaskList(taskBoard, 3)
 
-            for (const taskList of taskLists) {
-                const tasks = await this.createTasks(taskList, 3)
+      for (const taskList of taskLists) {
+        const tasks = await this.createTasks(taskList, 3)
 
                 for (const task of tasks) {
                     await this.createTaskComments(task, faker.random.number(3))
                 }
             }
         }
+      }
     }
+  }
 
     async createTaskBoard(count: number): Promise<TaskBoard[]> {
         const taskBoards = await this.base.factory(TaskBoard)({
@@ -38,19 +47,17 @@ export default class TasksSeeder implements Seeder {
             space: this.base.space
         }).createMany(count)
 
-        for (const taskBoard of taskBoards) {
-            await this.base.factory(Link)().create({
-                parent: this.base.rootLink,
-                userId: this.base.user.id,
-                spaceId: this.base.space.id,
-                type: LinkType.TaskBoard,
-                title: taskBoard.title,
-                value: String(taskBoard.id),
-                position: await this.base.linkService.getNodeNextPosition(this.base.rootLink.id)
-            })
-        }
-
-        return taskBoards
+    for (const taskBoard of taskBoards) {
+      await this.base
+        .factory(Node)()
+        .create({
+          parent: this.base.spaceRootNode,
+          userId: this.base.user.id,
+          spaceId: this.base.space.id,
+          contentId: taskBoard.id,
+          title: taskBoard.title,
+          type: NodeType.TaskBoard,
+        })
     }
 
     async createTaskList(taskBoard: TaskBoard, count: number): Promise<TaskList[]> {
