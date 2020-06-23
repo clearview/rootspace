@@ -3,13 +3,14 @@ import { mapRoute } from '../utils'
 import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
 import PromiseRouter from 'express-promise-router'
 import {TaskCommentCtrl} from '../controllers/tasks'
+import {Actions, authorize, Objects} from '../middleware/AuthorizationMiddleware'
 
 const router = PromiseRouter()
 
-router.get('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'view'))
-router.post('/tasks/board', auth, mapRoute(TaskBoardCtrl, 'create'))
-router.patch('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'update'))
-router.delete('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'delete'))
+router.get('/tasks/board/:id', [auth, authorize(Objects.TaskBoard)], mapRoute(TaskBoardCtrl, 'view'))
+router.post('/tasks/board', [auth, authorize(Objects.TaskBoard)], mapRoute(TaskBoardCtrl, 'create'))
+router.patch('/tasks/board/:id', [auth, authorize(Objects.TaskBoard)], mapRoute(TaskBoardCtrl, 'update'))
+router.delete('/tasks/board/:id', [auth, authorize(Objects.TaskBoard)], mapRoute(TaskBoardCtrl, 'delete'))
 
 router.get('/tasks/list/:id', auth, mapRoute(TaskListCtrl, 'view'))
 router.post('/tasks/list', auth, mapRoute(TaskListCtrl, 'create'))
