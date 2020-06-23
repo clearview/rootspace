@@ -18,7 +18,7 @@
 
     <editor
       id="editor"
-      v-if="!initialize"
+      v-if="!initialize && !readOnly"
       class="content"
       :class="{ readonly: readOnly }"
       :key="`editor-${id}`"
@@ -26,6 +26,10 @@
       :readonly="readOnly"
       @update-editor="onUpdateEditor"
     />
+
+    <div v-if="readOnly" class="editor content">
+      <div class="codex-editor" v-html="valueEditor"></div>
+    </div>
 
     <v-modal
       title="Delete Document"
@@ -45,6 +49,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import config from '@/utils/config'
+import readOnly from '@/utils/editor/readOnly'
 
 import { DocumentResource, WorkspaceResource } from '@/types/resource'
 
@@ -61,6 +66,7 @@ type Alert = {
 
 type ComponentData = {
   value: object;
+  valueEditor: string;
   title: string;
   timer: undefined | number;
   initialize: boolean;
@@ -85,6 +91,7 @@ export default Vue.extend({
   data (): ComponentData {
     return {
       value: {},
+      valueEditor: '',
       title: '',
       timer: undefined,
       initialize: false,
@@ -165,14 +172,19 @@ export default Vue.extend({
 
       this.saveDocument()
     },
-    changeReadonlyStatus (value: boolean) {
-      this.readOnly = value
+    changeReadonlyStatus (val: boolean) {
+      this.readOnly = val
 
-      const elements = document.querySelectorAll(`[contenteditable=${value}]`)
-      const state = !value
-      elements.forEach(element => {
-        element.setAttribute('contenteditable', state.toString())
-      })
+      // const elements = document.querySelectorAll(`[contenteditable=${val}]`)
+      // const state = !val
+      // elements.forEach(element => {
+      //   element.setAttribute('contenteditable', state.toString())
+      // })
+
+      if (val) {
+        console.log(this.value)
+        this.valueEditor = readOnly(this.value)
+      }
     },
     async loadDocument () {
       const id = this.$route.params.id
