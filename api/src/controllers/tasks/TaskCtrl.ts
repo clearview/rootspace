@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { TaskService } from '../../services'
+import {TaskService} from '../../services'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCtrl extends BaseCtrl {
@@ -41,5 +41,23 @@ export class TaskCtrl extends BaseCtrl {
   async delete(req: Request, res: Response, next: NextFunction) {
     const result = await this.taskService.delete(Number(req.params.id))
     res.send(result)
+  }
+
+  async assigneeAdd(req: Request, res: Response, next: NextFunction) {
+    const userId = Number(req.params.userId)
+
+    let task = await this.taskService.getById(Number(req.params.id))
+    task = await this.taskService.assigneeAdd(task, userId)
+
+    res.send(this.responseData(task))
+  }
+
+  async assigneeRemove(req: Request, res: Response, next: NextFunction) {
+    const userId = Number(req.params.userId)
+
+    let task = await this.taskService.getById(Number(req.params.id))
+    task = await this.taskService.assigneeRemove(task, userId)
+
+    res.send(this.responseData(task))
   }
 }
