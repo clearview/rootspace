@@ -2,9 +2,7 @@
   <div class="board-manager">
     <div v-if="isKanban" class="board-kanban">
       <Draggable class="board-kanban-draggable" v-bind="dragOptions" :value="orderedLanes" group="lists" @start="drag=true" @end="drag=false" @change="reorder">
-        <transition-group class="board-transition-group" type="transition" :name="!drag ? 'flip-list' : null">
           <TaskLane v-for="list in orderedLanes" :list="list" :key="list.id"></TaskLane>
-        </transition-group>
       </Draggable>
       <TaskLane class="lane-input" default-inputting
                 v-if="isInputtingNewList"

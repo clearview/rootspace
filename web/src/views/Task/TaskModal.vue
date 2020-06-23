@@ -5,6 +5,7 @@
     nosubmit
     nofooter
     cancel-text="Okay"
+    @cancel="close"
   >
     <template v-slot:header>
       <div class="task-modal-header">
@@ -14,12 +15,24 @@
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
         </div>
-        <button
-          class="btn btn-icon rounded-full"
-          @click="cancel"
-        >
-          <v-icon name="close"/>
-        </button>
+        <div class="task-modal-header-actions">
+          <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
+            <template slot="trigger">
+              <button
+                class="btn btn-icon rounded-full"
+                @click="cancel"
+              >
+                <v-icon name="ellipsis" viewbox="20" size="1.5rem" class="header-icon"/>
+              </button>
+            </template>
+          </PopoverList>
+          <button
+            class="btn btn-icon rounded-full"
+            @click="close"
+          >
+            <v-icon viewbox="20" size="1.5rem" name="close2"/>
+          </button>
+        </div>
       </div>
     </template>
     <div class="task-modal-body">
@@ -48,9 +61,25 @@
           </div>
         </div>
         <div class="task-description">
-          <div class="description-title">
+          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true">
             <span class="description-title-placeholder">Description</span>
             <v-icon name="edit"/>
+          </div>
+          <div class="description-content" v-if="!isEditingDescription">
+            {{itemCopy.description}}
+          </div>
+          <div class="description-input" v-if="isEditingDescription">
+            <textarea
+              class="input"
+              placeholder="Write a description…"
+              v-model="itemCopy.description"
+            />
+            <div class="description-input-actions">
+              <button class="btn btn-link" @click="isEditingDescription = false">
+                <v-icon name="close2" viewbox="20"/>
+              </button>
+              <button class="btn btn-primary" @click="saveDescription">Save</button>
+            </div>
           </div>
         </div>
         <div class="comment-separator"></div>
@@ -98,10 +127,12 @@ import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
 import { TaskItemResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
+import PopoverList from '@/components/PopoverList.vue'
 
   @Component({
     name: 'TaskModal',
     components: {
+      PopoverList,
       Modal,
       Field
     }
@@ -113,9 +144,33 @@ export default class TaskModal extends Vue {
     @Prop({ type: Object, required: true })
     private readonly item!: TaskItemResource;
 
+    private itemCopy = { ...this.item }
+    private isEditingDescription = false;
+
     @Emit('cancel')
     cancel () {
 
+    }
+
+    @Emit('close')
+    close () {
+
+    }
+
+    async saveDescription () {
+      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/board/view', this.item.list?.boardId)
+      this.isEditingDescription = false
+    }
+
+    async handleMenu (value: string) {
+      switch (value) {
+        case 'delete':
+          await this.$store.dispatch('task/item/destroy', this.item)
+          break
+      }
+      this.close()
+      await this.$store.dispatch('task/board/view', this.item.list?.boardId)
     }
 }
 </script>
@@ -125,6 +180,14 @@ export default class TaskModal extends Vue {
   .task-modal-header {
     @apply flex items-center py-8 px-12 pb-2;
     font-weight: bold;
+  }
+
+  .task-modal-header-actions {
+    @apply flex items-center;
+  }
+
+  .task-modal-header-actions * ~ * {
+    @apply ml-2;
   }
 
   .task-modal-title {
@@ -189,11 +252,31 @@ export default class TaskModal extends Vue {
 
   .description-title {
     @apply flex items-center;
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
   }
 
   .description-title-placeholder {
     @apply uppercase pr-2;
     color: theme("colors.gray.800");
+  }
+
+  .description-input {
+    @apply my-2;
+  }
+  .description-input-actions {
+    @apply flex items-center justify-end mt-4;
+    .btn {
+      @apply px-4;
+      flex: 0 0 auto;
+    }
+  }
+  .description-content {
+    @apply my-2;
+    font-size: 14px;
+    line-height: 1.2;
   }
 
   .comment-separator {
@@ -205,14 +288,17 @@ export default class TaskModal extends Vue {
   .input {
     @apply w-full;
   }
-  .right-field{
+
+  .right-field {
     @apply mb-4;
   }
+
   .right-field-title {
     @apply uppercase;
     color: theme("colors.gray.800");
     font-weight: 500;
   }
+
   .right-field-content {
     color: rgba(theme("colors.gray.800"), 0.5);
   }
