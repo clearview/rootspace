@@ -22,7 +22,7 @@
         </button>
       </div>
     </div>
-    <TaskModal :item="item" :visible="showModal"></TaskModal>
+    <TaskModal @close="showModal = false" :item="item" :visible="showModal"></TaskModal>
   </div>
 </template>
 
