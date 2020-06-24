@@ -28,6 +28,9 @@ export class User {
   @Column('varchar', { select: false })
   password: string
 
+  @Column('varchar', { length: 254, nullable: true })
+  avatar: string
+
   @Column('varchar', { select: false })
   authProvider: string
 
