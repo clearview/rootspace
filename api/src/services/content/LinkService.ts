@@ -68,7 +68,7 @@ export class LinkService extends NodeContentService {
     return this.getLinkRepository().save(link)
   }
 
-  async delete(id: number) {
+  async delete(id: number): Promise<DeleteResult> {
     const link = await this.getLinkById(id)
 
     if (!link) {
@@ -86,6 +86,8 @@ export class LinkService extends NodeContentService {
     if (res.affected > 0) {
       this.mediator.contentDeleted(link.id, this.getNodeType())
     }
+
+    return res
   }
 
   async nodeDeleted(contentId: number): Promise<void> {
