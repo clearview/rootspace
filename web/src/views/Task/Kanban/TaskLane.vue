@@ -144,7 +144,7 @@ export default class TaskLane extends Vue {
           position: newPos
         })
       }
-      await this.$store.dispatch('task/board/view', this.list.boardId)
+      await this.$store.dispatch('task/board/refresh')
     }
 
     get dragOptions () {
@@ -166,7 +166,7 @@ export default class TaskLane extends Vue {
       } else {
         this.listCopy = await this.$store.dispatch('task/list/update', this.listCopy)
       }
-      await this.$store.dispatch('task/board/view', this.list.boardId)
+      await this.$store.dispatch('task/board/refresh')
       this.isInputting = false
       return this.listCopy
     }
@@ -209,7 +209,7 @@ export default class TaskLane extends Vue {
           await this.$store.dispatch('task/list/destroy', this.listCopy)
           break
       }
-      await this.$store.dispatch('task/board/view', this.list.boardId)
+      await this.$store.dispatch('task/board/refresh')
     }
 }
 </script>

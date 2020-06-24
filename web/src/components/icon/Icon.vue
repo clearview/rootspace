@@ -51,6 +51,7 @@ import IconUser2 from '@/components/icon/IconUser2.vue'
 import IconEllipsis from '@/components/icon/IconEllipsis.vue'
 import IconPlus2 from '@/components/icon/IconPlus2.vue'
 import IconClose2 from '@/components/icon/IconClose2.vue'
+import IconReply from '@/components/icon/IconReply.vue'
 
 export default Vue.extend({
   name: 'Icon',
@@ -77,6 +78,7 @@ export default Vue.extend({
     IconPlus,
     IconPlus2,
     IconRandom,
+    IconReply,
     IconRight,
     IconSearch,
     IconSettings,

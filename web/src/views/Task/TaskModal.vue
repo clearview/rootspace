@@ -83,14 +83,19 @@
           </div>
         </div>
         <div class="comment-separator"></div>
-        <ul class="comments"></ul>
         <div class="comment-input">
           <input
             type="text"
             class="input"
             placeholder="Write a comment…"
+            v-model="commentInput"
+            @keyup.enter="saveComment"
           >
         </div>
+        <ul class="comments">
+          <TaskComment v-for="comment in item.taskComments" :comment="comment" :key="comment.id"/>
+        </ul>
+
       </div>
       <div class="task-right">
         <div class="right-field">
@@ -125,13 +130,16 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TaskItemResource } from '@/types/resource'
+import { TaskCommentResource, TaskItemResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
+import { Optional } from '@/types/core'
+import TaskComment from '@/views/Task/TaskComment.vue'
 
   @Component({
     name: 'TaskModal',
     components: {
+      TaskComment,
       PopoverList,
       Modal,
       Field
@@ -146,6 +154,7 @@ export default class TaskModal extends Vue {
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false;
+    private commentInput = '';
 
     @Emit('cancel')
     cancel () {
@@ -159,8 +168,21 @@ export default class TaskModal extends Vue {
 
     async saveDescription () {
       await this.$store.dispatch('task/item/update', this.itemCopy)
-      await this.$store.dispatch('task/board/view', this.item.list?.boardId)
+      await this.$store.dispatch('task/board/refresh')
       this.isEditingDescription = false
+    }
+
+    async saveComment () {
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'createdAt' | 'updatedAt'> = {
+        id: null,
+        content: this.commentInput,
+        taskId: this.item.id,
+        task: this.item
+      }
+      await this.$store.dispatch('task/comment/create', commentResource)
+      this.commentInput = ''
+
+      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleMenu (value: string) {
@@ -170,7 +192,7 @@ export default class TaskModal extends Vue {
           break
       }
       this.close()
-      await this.$store.dispatch('task/board/view', this.item.list?.boardId)
+      await this.$store.dispatch('task/board/refresh')
     }
 }
 </script>
@@ -277,12 +299,24 @@ export default class TaskModal extends Vue {
     @apply my-2;
     font-size: 14px;
     line-height: 1.2;
+    white-space: pre-line;
   }
 
   .comment-separator {
     @apply my-8;
     height: 1px;
     background: theme("colors.gray.100");
+  }
+
+  .comments {
+    @apply py-2;
+    max-height: 40vh;
+    overflow-y: auto;
+    overflow-x: visible;
+  }
+
+  .comment-input {
+    @apply mb-4;
   }
 
   .input {
