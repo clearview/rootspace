@@ -7,7 +7,7 @@
     "rules": {
         "quotemark": [true, "single"],
         "semicolon": [true, "never"],
-        "indent": [true, "spaces", 4],
+        "indent": [true, "spaces", 2],
         "trailing-comma": false
     },
     "rulesDirectory": []
