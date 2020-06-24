@@ -78,7 +78,6 @@ export default class BoardManager extends Vue {
         tasks: [],
         title: ''
       }
-      console.log(this.newList)
     }
 
     async reorder (data: MovedEvent<TaskListResource>) {
@@ -93,7 +92,7 @@ export default class BoardManager extends Vue {
           id: data.moved.element.id,
           position: newPos
         })
-        await this.$store.dispatch('task/board/view', this.board.id)
+        await this.$store.dispatch('task/board/refresh')
       }
     }
 }

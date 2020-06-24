@@ -39,6 +39,14 @@ export interface TaskItemResource extends ApiResource {
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;
+  taskComments: TaskCommentResource[];
+}
+
+export interface TaskCommentResource extends ApiResource{
+  userId: number | null;
+  taskId: number | null;
+  content: string;
+  task: TaskItemResource | null;
 }
 
 export interface TaskListResource extends ApiResource {

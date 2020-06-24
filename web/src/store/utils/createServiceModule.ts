@@ -52,6 +52,15 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         commit('setCurrent', task?.data)
       },
 
+      async refresh ({ commit, state }): Promise<void> {
+        if (state.current?.id) {
+          commit('setFetching', true)
+          const task = await service.view(state.current.id)
+          commit('setFetching', false)
+          commit('setCurrent', task?.data)
+        }
+      },
+
       async create ({ commit }, data: TResource): Promise<TResource> {
         commit('setProcessing', true)
         const res = await service.create(data)

@@ -1,4 +1,11 @@
-import { TaskBoardResource, TaskBoardType, TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
+import {
+  TaskBoardResource,
+  TaskBoardType,
+  TaskCommentResource,
+  TaskItemResource,
+  TaskItemStatus,
+  TaskListResource
+} from '@/types/resource'
 import api from '@/utils/api'
 
 export interface ApiResponse<T>{
@@ -28,6 +35,10 @@ export interface ListFetchParams {
 
 export interface ItemFetchParams {
   listId: number;
+}
+
+export interface CommentFetchParams {
+  itemId: number;
 }
 
 function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
@@ -64,3 +75,4 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
 export const BoardService = createService<TaskBoardResource, BoardFetchParams>('tasks/board')
 export const ListService = createService<TaskListResource, ListFetchParams>('tasks/list')
 export const ItemService = createService<TaskItemResource, ItemFetchParams>('tasks/task')
+export const CommentService = createService<TaskCommentResource, CommentFetchParams>('tasks/comment')
