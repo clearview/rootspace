@@ -45,7 +45,7 @@
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
 import { mapState } from 'vuex'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
@@ -77,6 +77,7 @@ export default class TaskPage extends Vue {
       return parseInt(this.$route.params.id)
     }
 
+    @Watch('boardId')
     fetchTask (): void {
       this.$store.dispatch('task/board/view', this.boardId)
     }

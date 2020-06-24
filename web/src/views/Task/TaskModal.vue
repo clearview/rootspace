@@ -46,10 +46,14 @@
               <v-icon name="attachment" viewbox="20" size="1rem"/>
               <span>Attach</span>
             </button>
-            <button class="btn btn-mute">
-              <v-icon name="tag" size="1rem" viewbox="20"/>
-              <span>Tag</span>
-            </button>
+            <TagsPopover>
+              <template v-slot:trigger>
+                <button class="btn btn-mute">
+                  <v-icon name="tag" size="1rem" viewbox="20"/>
+                  <span>Tag</span>
+                </button>
+              </template>
+            </TagsPopover>
             <button class="btn btn-mute">
               <v-icon name="time" size="1rem" viewbox="20"/>
               <span>Due Date</span>
@@ -135,10 +139,12 @@ import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
+import TagsPopover from '@/views/Task/TagsPopover.vue'
 
   @Component({
     name: 'TaskModal',
     components: {
+      TagsPopover,
       TaskComment,
       PopoverList,
       Modal,
@@ -233,6 +239,7 @@ export default class TaskModal extends Vue {
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
     min-width: 720px;
+    max-width: 860px;
   }
 
   .task-left {
@@ -252,11 +259,26 @@ export default class TaskModal extends Vue {
   }
 
   .actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 0.5rem;
   }
 
-  .actions .btn {
-    @apply flex items-center px-3;
+  .actions .popover-container {
+    flex: 0 1 auto;
+    .btn {
+      @apply px-3 w-full;
+      & .stroke-current {
+        fill: none;
+      }
+
+      & span {
+        @apply pl-2;
+      }
+    }
+  }
+  .actions > .btn {
+    @apply items-center px-3 ml-0;
     flex: 0 1 auto;
 
     & .stroke-current {

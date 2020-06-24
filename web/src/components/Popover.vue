@@ -1,6 +1,6 @@
 <template>
   <div class="popover-container" v-click-outside="hide">
-    <div class="popover" v-if="visible">
+    <div class="popover" v-if="visible" :style="{ top }">
       <slot v-bind="{ hide }"></slot>
     </div>
     <div @click="visible = !visible">
@@ -10,12 +10,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
   @Component({
     name: 'Popover'
   })
 export default class Popover extends Vue {
+  @Prop({ type: String, default: '24px' })
+  private readonly top!: number;
+
     private visible = false
 
     hide () {
@@ -31,7 +34,7 @@ export default class Popover extends Vue {
   }
 
   .popover {
-    @apply rounded absolute shadow-lg z-50;
+    @apply rounded absolute shadow shadow-lg z-50;
     background: theme('colors.white.default');
     top: 24px;
     right: 0;
