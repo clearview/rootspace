@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateColumn, UpdateDateColumn} from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity('invites')
 export class Invite {

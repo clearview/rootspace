@@ -2,15 +2,16 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  Index,
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany, ManyToMany, JoinTable
+  OneToMany, ManyToMany, JoinTable, JoinColumn, Index
 } from 'typeorm'
-import {TaskList} from './TaskList'
-import {TaskComment} from './TaskComment'
-import {User} from '../User'
+import { TaskList } from './TaskList'
+import { TaskComment } from './TaskComment'
+import { User } from '../User'
+import { Tag } from './Tag'
+import { Space } from '../Space'
 
 export enum TaskStatus {
   Open = 0,
@@ -23,17 +24,20 @@ export class Task {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column('integer')
+  @ManyToOne((type) => User)
+  @JoinColumn({ name: 'userId' })
   @Index()
-  userId: number
+  user!: User
 
-  @Column('integer')
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
   @Index()
-  spaceId: number
+  space!: Space
 
-  @Column('integer')
+  @ManyToOne(type => TaskList, list => list.tasks, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'listId' })
   @Index()
-  listId: number
+  list!: TaskList
 
   @Column('varchar')
   title: string
@@ -43,9 +47,6 @@ export class Task {
 
   @Column('integer', { nullable: true })
   status: TaskStatus
-
-  @Column('json', { default: [], nullable: true })
-  tags: object
 
   @Column('json', { nullable: true })
   attachments: object
@@ -62,13 +63,14 @@ export class Task {
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
 
-  @ManyToOne(type => TaskList, list => list.tasks, {onDelete: 'CASCADE'})
-  list: TaskList
-
   @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true})
   taskComments: TaskComment[]
 
   @ManyToMany(type => User, {cascade: true, eager: true})
   @JoinTable()
   assignees: User[]
+
+  @ManyToMany(type => Tag)
+  @JoinTable()
+  tags: Tag[]
 }
