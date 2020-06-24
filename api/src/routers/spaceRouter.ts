@@ -1,4 +1,4 @@
-import auth from '../middleware/AuthMiddleware'
+import { auth } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {SpacesCtrl} from '../controllers/SpacesCtrl'
 import {SpacesUsersCtrl} from '../controllers/SpacesUsersCtrl'

@@ -1,4 +1,4 @@
-import auth from '../middleware/AuthMiddleware'
+import { auth } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {InviteCtrl} from '../controllers/InviteCtrl'
 import PromiseRouter from 'express-promise-router'

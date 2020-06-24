@@ -1,9 +1,8 @@
-import auth from '../middleware/AuthMiddleware'
+import { auth, authorize, Objects } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
 import PromiseRouter from 'express-promise-router'
 import {TaskCommentCtrl} from '../controllers/tasks'
-import {Actions, authorize, Objects} from '../middleware/AuthorizationMiddleware'
 
 const router = PromiseRouter()
 

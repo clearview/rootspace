@@ -6,7 +6,7 @@ import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services'
 import { ContentManager } from '../services/content/ContentManager'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
-import {Actions} from '../middleware/AuthorizationMiddleware'
+import {Actions} from '../middleware/AuthMiddleware'
 import {ForbiddenError} from '@casl/ability'
 
 export class LinksCtrl extends BaseCtrl {

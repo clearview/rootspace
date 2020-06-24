@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskBoardService } from '../../services'
 import { ContentManager } from '../../services/content/ContentManager'
-import {Actions, Objects} from '../../middleware/AuthorizationMiddleware'
+import { Actions } from '../../middleware/AuthMiddleware'
 import {ForbiddenError} from '@casl/ability'
-import {TaskBoard} from '../../entities/tasks/TaskBoard'
 
 export class TaskBoardCtrl extends BaseCtrl {
   private taskBoardService: TaskBoardService

@@ -1,4 +1,4 @@
-import auth from '../middleware/AuthMiddleware'
+import { auth } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import passport from '../passport'
 import {UsersCtrl} from '../controllers/UsersCtrl'

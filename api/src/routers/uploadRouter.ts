@@ -1,4 +1,4 @@
-import auth from '../middleware/AuthMiddleware'
+import { auth } from '../middleware/AuthMiddleware'
 import { config } from 'node-config-ts'
 import { mapRoute } from '../utils'
 import {UploadsCtrl} from '../controllers/UploadsCtrl'
