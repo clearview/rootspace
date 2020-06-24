@@ -78,7 +78,7 @@ export default class TaskPage extends Vue {
     }
 
     fetchTask (): void {
-      await this.$store.dispatch('task/board/refresh')
+      this.$store.dispatch('task/board/view', this.boardId)
     }
 
     mounted (): void {
