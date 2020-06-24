@@ -6,7 +6,7 @@ import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
 import { ILinkContent } from '../../types'
 import { ContentManager } from '../ContentManager'
-import {DeepPartial} from "typeorm/common/DeepPartial";
+import {DeepPartial} from 'typeorm/common/DeepPartial'
 
 export class TaskBoardService implements ILinkContent<TaskBoard> {
   private contentManager: ContentManager
