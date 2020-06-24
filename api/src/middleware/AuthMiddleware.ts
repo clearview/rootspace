@@ -21,7 +21,7 @@ export enum Objects {
 
 interface AuthorizationInfo { user: User, userSpaceIds: number[] }
 
-export const auth = passport.authenticate('jwt', { session: false })
+export const authenticate = passport.authenticate('jwt', { session: false })
 
 export function authorize (object: Objects, action?: Actions) {
     return async (req: Request, res: Response, next: NextFunction) => {
