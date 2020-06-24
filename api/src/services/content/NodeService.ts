@@ -228,6 +228,8 @@ export class NodeService {
       id: node.id,
     })
 
+    this.getNodeRepository().decreasePositions(node.parentId, node.position)
+
     return res
   }
 }
