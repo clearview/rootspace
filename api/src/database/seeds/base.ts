@@ -6,7 +6,6 @@ import { UserToSpace } from '../../entities/UserToSpace'
 import { LinkService } from '../../services'
 
 export class BaseSeeder implements Seeder {
-  private static instance: BaseSeeder
   public linkService: LinkService
   public factory: Factory
   public user: User
