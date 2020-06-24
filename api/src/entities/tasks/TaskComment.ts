@@ -1,5 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn, Index
+} from 'typeorm'
 import { Task } from './Task'
+import { User } from '../User'
 
 @Entity('task_comments')
 export class TaskComment {
@@ -7,24 +16,22 @@ export class TaskComment {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column('integer')
+  @ManyToOne((type) => User)
+  @JoinColumn({ name: 'userId' })
   @Index()
-  userId: number
+  user!: User
 
-  @Column('integer')
+  @ManyToOne(type => Task, task => task.taskComments, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'taskId' })
   @Index()
-  taskId: number
+  task: Task
 
-  @Column('text', { nullable: true })
-  content: string
+  @Column('text')
+  content!: string
 
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
-
-  @ManyToOne(type => Task, task => task.taskComments, {onDelete: 'CASCADE'})
-  task: Task
-
 }

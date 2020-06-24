@@ -6,8 +6,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  ManyToOne
+  ManyToOne, JoinColumn
 } from 'typeorm'
+import { User } from '../User'
+import { Space } from '../Space'
 import { Task } from './Task'
 import { TaskBoard } from './TaskBoard'
 
@@ -17,17 +19,20 @@ export class TaskList {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column('integer')
+  @ManyToOne((type) => User)
+  @JoinColumn({ name: 'userId' })
   @Index()
-  userId: number
+  user!: User
 
-  @Column('integer')
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
   @Index()
-  spaceId: number
+  space!: Space
 
-  @Column('integer')
+  @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'boardId' })
   @Index()
-  boardId: number
+  board!: TaskBoard
 
   @Column('varchar')
   title: string
@@ -43,9 +48,6 @@ export class TaskList {
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
-
-  @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
-  board: TaskBoard
 
   @OneToMany(type => Task, task => task.list, {eager: true})
   tasks: Task[]
