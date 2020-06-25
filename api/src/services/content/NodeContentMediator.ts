@@ -1,7 +1,7 @@
 import { Node } from '../../entities/Node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { INodeContentMediator } from './contracts'
+import { INodeContentMediator, IContentNodeUpdate } from './contracts'
 import { NodeType } from '../../types/node'
 
 export class NodeContentMediator implements INodeContentMediator {
@@ -27,10 +27,22 @@ export class NodeContentMediator implements INodeContentMediator {
   }
 
   async nodeUpdated(node: Node): Promise<void> {
-    return
+    for (const service of this.contentServices) {
+      if (node.type === service.getNodeType()) {
+        return service.nodeUpdated(node.contentId, { title: node.title })
+      }
+    }
   }
 
   async contentDeleted(contentId: number, nodeType: NodeType): Promise<void> {
     return this.nodeService.contentDeleted(contentId, nodeType)
+  }
+
+  async contentUpdated(
+    contentId: number,
+    nodeType: NodeType,
+    data: IContentNodeUpdate
+  ): Promise<void> {
+    return this.nodeService.contentUpdated(contentId, nodeType, data)
   }
 }

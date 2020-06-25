@@ -3,7 +3,7 @@ import { NodeRepository } from '../../repositories/NodeRepository'
 import { Node } from '../../entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
-import { INodeContentMediator } from './contracts'
+import { INodeContentMediator, IContentNodeUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
 export class NodeService {
@@ -66,17 +66,17 @@ export class NodeService {
   async create(data: NodeCreateValue): Promise<Node> {
     const node = this.getNodeRepository().create()
 
-    Object.assign(node, data.attributes)
-
     const parent = data.parent
-      ? await this.getNodeById(Number(data.parent))
+      ? await this.getNodeById(data.parent)
       : await this.getRootNodeBySpaceId(data.attributes.spaceId)
 
     if (!parent) {
-      throw clientError('Cant not find parent ' + data.parent)
+      throw clientError('Cant not find parent node or sapce root node')
     }
 
+    Object.assign(node, data.attributes)
     node.parent = parent
+
     return this.getNodeRepository().save(node)
   }
 
@@ -98,6 +98,8 @@ export class NodeService {
     if (data.position !== undefined) {
       node = await this.updateNodePosition(node, data.position)
     }
+
+    this.mediator.nodeUpdated(node)
 
     return node
   }
@@ -183,6 +185,24 @@ export class NodeService {
     }
 
     return res
+  }
+
+  async contentUpdated(
+    contentId: number,
+    type: NodeType,
+    data: IContentNodeUpdate
+  ): Promise<void> {
+    const node = await this.getNodeByContentId(contentId, type)
+
+    if (!node) {
+      return
+    }
+
+    if (data.title) {
+      node.title = data.title
+    }
+
+    await this.getNodeRepository().save(node)
   }
 
   async contentDeleted(contentId: number, type: NodeType): Promise<void> {

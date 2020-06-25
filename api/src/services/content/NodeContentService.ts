@@ -1,5 +1,5 @@
 import { NodeType } from '../../types/node'
-import { INodeContentMediator } from './contracts'
+import { INodeContentMediator, INodeContentUpdate } from './contracts'
 
 export abstract class NodeContentService {
   protected mediator: INodeContentMediator
@@ -15,4 +15,11 @@ export abstract class NodeContentService {
   abstract getNodeType(): NodeType
 
   abstract nodeDeleted(contentId: number): Promise<void>
+
+  async nodeUpdated(
+    contentId: number,
+    data: INodeContentUpdate
+  ): Promise<void> {
+    return
+  }
 }

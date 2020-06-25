@@ -6,6 +6,7 @@ import { NodeType } from '../../types/node'
 import { NodeCreateValue } from '../../values/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
+import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
 export class LinkService extends NodeContentService {
@@ -55,14 +56,20 @@ export class LinkService extends NodeContentService {
   }
 
   async update(data: LinkUpdateValue, id: number): Promise<Link> {
-    const link = await this.getLinkById(id)
+    let link = await this.getLinkById(id)
 
     if (!link) {
       throw clientError('Error updating link')
     }
 
     Object.assign(link, data.attributes)
-    return this.getLinkRepository().save(link)
+    link = await this.getLinkRepository().save(link)
+
+    this.mediator.contentUpdated(link.id, this.getNodeType(), {
+      title: link.title,
+    })
+
+    return link
   }
 
   async delete(id: number): Promise<DeleteResult> {
@@ -85,6 +92,20 @@ export class LinkService extends NodeContentService {
     }
 
     return res
+  }
+
+  async nodeUpdated(
+    contentId: number,
+    data: INodeContentUpdate
+  ): Promise<void> {
+    const link = await this.getLinkById(contentId)
+
+    if (!link) {
+      return
+    }
+
+    link.title = data.title
+    await this.getLinkRepository().save(link)
   }
 
   async nodeDeleted(contentId: number): Promise<void> {
