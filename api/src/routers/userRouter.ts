@@ -1,7 +1,7 @@
 import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import passport from '../passport'
-import {UsersCtrl} from '../controllers/UsersCtrl'
+import { UsersCtrl } from '../controllers/UsersCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()

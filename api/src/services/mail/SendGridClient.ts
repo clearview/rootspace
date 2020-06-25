@@ -1,5 +1,5 @@
 import { config } from 'node-config-ts'
-import {MailClientInterface} from './types'
+import { MailClientInterface } from './types'
 import sgMail from '@sendgrid/mail'
 
 export class SendGridClient implements MailClientInterface<any> {

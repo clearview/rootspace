@@ -1,6 +1,6 @@
 import * as Faker from 'faker'
-import {define} from 'typeorm-seeding'
-import {Link, LinkType} from '../../entities/Link'
+import { define } from 'typeorm-seeding'
+import { Link, LinkType } from '../../entities/Link'
 
 define(Link, (faker: typeof Faker) => {
   const link = new Link()

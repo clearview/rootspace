@@ -1,6 +1,6 @@
 import * as Faker from 'faker'
-import {define} from 'typeorm-seeding'
-import {TaskComment} from '../../entities/tasks/TaskComment'
+import { define } from 'typeorm-seeding'
+import { TaskComment } from '../../entities/tasks/TaskComment'
 
 define(TaskComment, (faker: typeof Faker) => {
 

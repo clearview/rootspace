@@ -1,7 +1,7 @@
 import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
-import {SpacesCtrl} from '../controllers/SpacesCtrl'
-import {SpacesUsersCtrl} from '../controllers/SpacesUsersCtrl'
+import { SpacesCtrl } from '../controllers/SpacesCtrl'
+import { SpacesUsersCtrl } from '../controllers/SpacesUsersCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()
