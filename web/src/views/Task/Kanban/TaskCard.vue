@@ -11,7 +11,7 @@
         <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="showModal = true">
+    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="title">
         {{itemCopy.title}}
@@ -28,7 +28,6 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
@@ -98,6 +97,11 @@ export default class TaskCard extends Vue {
       Vue.nextTick().then(() => {
         this.textarea.focus()
       })
+    }
+
+    openModal () {
+      this.$store.commit('task/item/setCurrent', this.item)
+      this.showModal = true
     }
 }
 </script>

@@ -78,8 +78,9 @@ export default class TaskPage extends Vue {
     }
 
     @Watch('boardId')
-    fetchTask (): void {
-      this.$store.dispatch('task/board/view', this.boardId)
+    async fetchTask () {
+      await this.$store.dispatch('task/board/view', this.boardId)
+      await this.$store.dispatch('task/tag/fetch', null)
     }
 
     mounted (): void {

@@ -1,10 +1,10 @@
 import { ResourceState, RootState } from '@/types/state'
 
-import { ApiService } from '@/services/task'
+import { ChildApiService } from '@/services/task'
 import { Module } from 'vuex'
 import { ApiResource } from '@/types/resource'
 
-export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>): Module<ResourceState<TResource>, RootState> {
+export function createChildServiceModule<TResource extends ApiResource | Omit<ApiResource, 'createdAt' | 'updatedAt'>, TParams> (service: ChildApiService<TResource, TParams>, parentResolver: (root: RootState) => number | null | undefined): Module<ResourceState<TResource>, RootState> {
   return {
     namespaced: true,
     state (): ResourceState<TResource> {
@@ -32,59 +32,87 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
     actions: {
       async fetch ({ commit, rootState }, params: TParams): Promise<void> {
         const currentSpace = rootState.auth.currentSpace
+        const parentId = parentResolver(rootState)
 
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
         if (!currentSpace) {
           throw new Error('There is no currently active space')
         }
 
         commit('setFetching', true)
-        const res = await service.fetch(params)
+        const res = await service.fetch(params, parentId)
         commit('setFetching', false)
 
         commit('setData', res)
       },
 
-      async view ({ commit }, id: number): Promise<void> {
+      async view ({ commit, rootState }, id: number): Promise<void> {
+        const parentId = parentResolver(rootState)
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
+
         commit('setFetching', true)
-        const task = await service.view(id)
+        const task = await service.view(id, parentId)
         commit('setFetching', false)
 
         commit('setCurrent', task?.data)
       },
 
-      async refresh ({ commit, state }): Promise<void> {
+      async refresh ({ commit, state, rootState }): Promise<void> {
+        const parentId = parentResolver(rootState)
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
+
         if (state.current?.id) {
           commit('setFetching', true)
-          const task = await service.view(state.current.id)
+          const task = await service.view(state.current.id, parentId)
           commit('setFetching', false)
           commit('setCurrent', task?.data)
         }
       },
 
-      async create ({ commit }, data: TResource): Promise<TResource> {
+      async create ({ commit, rootState }, data: TResource): Promise<TResource> {
+        const parentId = parentResolver(rootState)
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
+
         commit('setProcessing', true)
-        const res = await service.create(data)
+        const res = await service.create(data, parentId)
         commit('setProcessing', false)
         return res
       },
 
-      async update ({ commit }, data: TResource): Promise<TResource> {
+      async update ({ commit, rootState }, data: TResource): Promise<TResource> {
+        const parentId = parentResolver(rootState)
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
         if (data.id === null) {
           throw new Error('Unable to update data without ID')
         }
         commit('setProcessing', true)
-        const res = await service.update(data.id, data)
+        const res = await service.update(data.id, data, parentId)
         commit('setProcessing', false)
 
         return res
       },
 
-      async destroy ({ commit }, data: TResource): Promise<void> {
+      async destroy ({ commit, rootState }, data: TResource): Promise<void> {
+        const parentId = parentResolver(rootState)
+        if (!parentId) {
+          throw new Error('No parent ID')
+        }
+
         if (data.id === null) {
           throw new Error('Unable to delete data without ID')
         }
         commit('setProcessing', true)
-        await service.destroy(data.id)
+        await service.destroy(data.id, parentId)
         commit('setProcessing', false)
       }
     }
