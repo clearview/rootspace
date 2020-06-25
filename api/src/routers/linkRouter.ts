@@ -1,6 +1,6 @@
 import auth from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
-import {LinksCtrl} from '../controllers/LinksCtrl'
+import { LinksCtrl } from '../controllers/LinksCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()

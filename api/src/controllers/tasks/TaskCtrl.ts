@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import {TaskService} from '../../services'
+import { TaskService } from '../../services'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCtrl extends BaseCtrl {
@@ -22,7 +22,7 @@ export class TaskCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    data.userId = req.user.id
+    data.user = req.user
 
     const task = await this.taskService.create(data)
 
@@ -31,9 +31,7 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
-    const data = req.body.data
-    const task = await this.taskService.update(id, data)
+    const task = await this.taskService.update(Number(req.params.id), req.body.data)
 
     res.send(this.responseData(task))
   }
@@ -43,21 +41,37 @@ export class TaskCtrl extends BaseCtrl {
     res.send(result)
   }
 
+  // Assignees
   async assigneeAdd(req: Request, res: Response, next: NextFunction) {
+    const taskId = Number(req.params.id)
     const userId = Number(req.params.userId)
 
-    let task = await this.taskService.getById(Number(req.params.id))
-    task = await this.taskService.assigneeAdd(task, userId)
-
+    const task = await this.taskService.assigneeAdd(taskId, userId)
     res.send(this.responseData(task))
   }
 
   async assigneeRemove(req: Request, res: Response, next: NextFunction) {
+    const taskId = Number(req.params.id)
     const userId = Number(req.params.userId)
 
-    let task = await this.taskService.getById(Number(req.params.id))
-    task = await this.taskService.assigneeRemove(task, userId)
+    const task = await this.taskService.assigneeRemove(taskId, userId)
+    res.send(this.responseData(task))
+  }
 
+  Tags
+  async tagAdd(req: Request, res: Response, next: NextFunction) {
+    const taskId = Number(req.params.id)
+    const tagId = Number(req.params.tagId)
+
+    const task = await this.taskService.tagAdd(taskId, tagId)
+    res.send(this.responseData(task))
+  }
+
+  async tagRemove(req: Request, res: Response, next: NextFunction) {
+    const taskId = Number(req.params.id)
+    const tagId = Number(req.params.tagId)
+
+    const task = await this.taskService.tagRemove(taskId, tagId)
     res.send(this.responseData(task))
   }
 }

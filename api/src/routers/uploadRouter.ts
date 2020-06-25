@@ -1,7 +1,7 @@
 import auth from '../middleware/AuthMiddleware'
 import { config } from 'node-config-ts'
 import { mapRoute } from '../utils'
-import {UploadsCtrl} from '../controllers/UploadsCtrl'
+import { UploadsCtrl } from '../controllers/UploadsCtrl'
 import multer from 'multer'
 import path from 'path'
 import PromiseRouter from 'express-promise-router'

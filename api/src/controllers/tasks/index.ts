@@ -1,4 +1,5 @@
 export * from './TaskBoardCtrl'
+export * from './TaskBoardTagCtrl'
 export * from './TaskListCtrl'
 export * from './TaskCtrl'
 export * from './TaskCommentCtrl'
