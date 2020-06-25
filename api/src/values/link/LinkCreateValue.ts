@@ -10,23 +10,6 @@ export const LinkCreateAttributes: ILinkCreateAttributes = {
 
 @attributes(LinkCreateAttributes)
 export class LinkCreateValue extends EntityValue<ILinkCreateAttributes> {
-  private _parent: number = null
-
-  get parent(): number {
-    return this._parent
-  }
-
-  withParent(parent: number): LinkCreateValue {
-    const copy = this.copy()
-    copy._parent = parent
-    return copy
-  }
-
-  private copy(): LinkCreateValue {
-    const copy = new LinkCreateValue(this._attributes)
-    return Object.assign(copy, this)
-  }
-
   static fromObject(object: ILinkCreateAttributes): LinkCreateValue {
     return new LinkCreateValue(object)
   }

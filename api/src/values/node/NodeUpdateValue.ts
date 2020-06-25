@@ -31,8 +31,11 @@ export class NodeUpdateValue extends EntityValue<INodeUpdateAttributes> {
   }
 
   private copy(): NodeUpdateValue {
-    const copy = new NodeUpdateValue(this._attributes)
-    return Object.assign(copy, this)
+    const copy = new NodeUpdateValue({ ...this.attributes })
+    copy._parent = this._parent
+    copy._position = this._position
+
+    return copy
   }
 
   static fromObject(data: INodeUpdateAttributes) {

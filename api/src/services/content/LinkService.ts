@@ -39,10 +39,7 @@ export class LinkService extends NodeContentService {
   }
 
   async create(data: LinkCreateValue): Promise<Link> {
-    let link = this.getLinkRepository().create()
-
-    Object.assign(link, data.attributes)
-    link = await this.getLinkRepository().save(link)
+    const link = await this.getLinkRepository().save(data.attributes)
 
     await this.nodeService.create(
       NodeCreateValue.fromObject({
