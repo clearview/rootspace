@@ -197,6 +197,7 @@ export default class TaskLane extends Vue {
         listId: this.list.id,
         spaceId: this.list.spaceId,
         tags: null,
+        taskComments: [],
         title: '',
         status: TaskItemStatus.Open,
         position: getNextPosition(this.list.tasks.length)
