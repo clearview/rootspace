@@ -26,6 +26,12 @@ export enum TaskBoardType {
   Kanban = 2
 }
 
+export interface TagResource extends Omit<ApiResource, 'createdAt' | 'updatedAt'> {
+  board: TaskBoardResource | null;
+  label: string;
+  color: string;
+}
+
 export interface TaskItemResource extends ApiResource {
   userId: number | null;
   spaceId: number | null;
@@ -34,7 +40,7 @@ export interface TaskItemResource extends ApiResource {
   title: string;
   description: string | null;
   status: TaskItemStatus;
-  tags: string[] | null;
+  tags: TagResource[] | null;
   attachments: never[] | null;
   dueDate: Date | null;
   position: number;

@@ -46,7 +46,7 @@
               <v-icon name="attachment" viewbox="20" size="1rem"/>
               <span>Attach</span>
             </button>
-            <TagsPopover>
+            <TagsPopover @input="handleTagMenu">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <v-icon name="tag" size="1rem" viewbox="20"/>
@@ -54,10 +54,14 @@
                 </button>
               </template>
             </TagsPopover>
-            <button class="btn btn-mute">
-              <v-icon name="time" size="1rem" viewbox="20"/>
-              <span>Due Date</span>
-            </button>
+            <DueDatePopover @input="handleDateMenu" @clear="handleDateClear">
+              <template v-slot:trigger>
+                <button class="btn btn-mute">
+                  <v-icon name="time" size="1rem" viewbox="20"/>
+                  <span>Due Date</span>
+                </button>
+              </template>
+            </DueDatePopover>
             <button class="btn btn-mute">
               <v-icon name="plus2" size="1rem" viewbox="16"/>
               <span>Member</span>
@@ -105,7 +109,16 @@
         <div class="right-field">
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
-            None
+            <ul class="tags" v-if="item.tags.length > 0">
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color}"
+                  @click="handleTagMenu(tag)">
+                <span>{{tag.label}}</span>
+                <v-icon name="close"/>
+              </li>
+            </ul>
+            <template v-else>
+              None
+            </template>
           </div>
         </div>
         <div class="right-field">
@@ -123,7 +136,7 @@
         <div class="right-field">
           <div class="right-field-title">Due Date</div>
           <div class="right-field-content">
-            None
+            {{item.dueDate | formatDateOrNone}}
           </div>
         </div>
       </div>
@@ -134,21 +147,41 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TaskCommentResource, TaskItemResource } from '@/types/resource'
+import { TagResource, TaskCommentResource, TaskItemResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
+import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 
   @Component({
     name: 'TaskModal',
     components: {
+      DueDatePopover,
       TagsPopover,
       TaskComment,
       PopoverList,
       Modal,
       Field
+    },
+    filters: {
+      formatDateOrNone (dateOrString: Date | string) {
+        const dateFormat = Intl.DateTimeFormat('default', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric'
+        })
+
+        if (dateOrString instanceof Date) {
+          return dateOrString ? dateFormat.format(dateOrString) : 'None'
+        } else {
+          const typedDate = new Date(dateOrString)
+          return dateOrString ? dateFormat.format(typedDate) : 'None'
+        }
+      }
     }
   })
 export default class TaskModal extends Vue {
@@ -198,6 +231,34 @@ export default class TaskModal extends Vue {
           break
       }
       this.close()
+      await this.$store.dispatch('task/board/refresh')
+    }
+
+    async handleTagMenu (tag: TagResource) {
+      const exist = this.item.tags?.find(itemTag => itemTag.id === tag.id)
+      if (exist) {
+        await this.$store.dispatch('task/tag/removeFromTask', {
+          taskId: this.item.id,
+          tagId: tag.id
+        })
+      } else {
+        await this.$store.dispatch('task/tag/addToTask', {
+          taskId: this.item.id,
+          tagId: tag.id
+        })
+      }
+      await this.$store.dispatch('task/board/refresh')
+    }
+
+    async handleDateMenu (date: Date) {
+      this.itemCopy.dueDate = date
+      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/board/refresh')
+    }
+
+    async handleDateClear () {
+      this.itemCopy.dueDate = null
+      await this.$store.dispatch('task/item/update', this.itemCopy)
       await this.$store.dispatch('task/board/refresh')
     }
 }
@@ -266,8 +327,10 @@ export default class TaskModal extends Vue {
 
   .actions .popover-container {
     flex: 0 1 auto;
+
     .btn {
       @apply px-3 w-full;
+
       & .stroke-current {
         fill: none;
       }
@@ -277,6 +340,7 @@ export default class TaskModal extends Vue {
       }
     }
   }
+
   .actions > .btn {
     @apply items-center px-3 ml-0;
     flex: 0 1 auto;
@@ -296,6 +360,7 @@ export default class TaskModal extends Vue {
 
   .description-title {
     @apply flex items-center;
+
     &:hover {
       cursor: pointer;
       text-decoration: underline;
@@ -310,13 +375,16 @@ export default class TaskModal extends Vue {
   .description-input {
     @apply my-2;
   }
+
   .description-input-actions {
     @apply flex items-center justify-end mt-4;
+
     .btn {
       @apply px-4;
       flex: 0 0 auto;
     }
   }
+
   .description-content {
     @apply my-2;
     font-size: 14px;
@@ -357,6 +425,27 @@ export default class TaskModal extends Vue {
 
   .right-field-content {
     color: rgba(theme("colors.gray.800"), 0.5);
+  }
+
+  .tags {
+    @apply flex flex-wrap justify-start;
+    max-width: 200px;
+  }
+
+  .tag {
+    @apply p-2 mr-2 rounded inline-flex items-center mb-2;
+    color: #fff;
+    cursor: pointer;
+
+    svg {
+      visibility: hidden;
+    }
+
+    &:hover {
+      svg {
+        visibility: visible;
+      }
+    }
   }
 
 </style>

@@ -5,7 +5,7 @@
         <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
       </div>
       <ul class="tags">
-        <li class="tag" v-for="tag in filteredTags" :key="tag.label">
+        <li class="tag" v-for="tag in filteredTags" :key="tag.label" @click="input(tag)">
           <div class="tag-color" :style="{background: tag.color}">
             {{tag.label}}
           </div>
@@ -30,28 +30,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Emit, Vue } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
+import { TagResource } from '@/types/resource'
+import { mapState } from 'vuex'
 
   @Component({
     name: 'TagsPopover',
-    components: { Popover }
+    components: { Popover },
+    computed: {
+      ...mapState('task/tag', {
+        tags: 'data'
+      })
+    }
   })
 export default class TagsPopover extends Vue {
     private tagInput = ''
     private colorInput = this.colors[0]
 
-    private tags = [{
-      label: 'A',
-      color: '#c44'
-    },
-    {
-      label: 'B',
-      color: '#4c4'
-    }, {
-      label: 'C',
-      color: '#44c'
-    }]
+    readonly tags!: TagResource[];
 
     get colors () {
       return ['#409240', '#29839f', '#b1a447', '#a05138', '#a73f5d', '#7d579f']
@@ -66,16 +63,22 @@ export default class TagsPopover extends Vue {
       return !match && this.tagInput.trim().length > 0
     }
 
-    addTag () {
-      this.tags.push({
-        label: this.tagInput,
-        color: this.colorInput
-      })
+    async addTag () {
+      await this.$store.dispatch('task/tag/create', {
+        color: this.colorInput,
+        label: this.tagInput
+      } as TagResource)
+      await this.$store.dispatch('task/tag/fetch', null)
       this.tagInput = ''
     }
 
     selectColor (color: string) {
       this.colorInput = color
+    }
+
+    @Emit('input')
+    input (tag: TagResource) {
+      return tag
     }
 }
 </script>
