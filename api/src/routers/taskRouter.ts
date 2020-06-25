@@ -11,11 +11,11 @@ router.post('/tasks/board', auth, mapRoute(TaskBoardCtrl, 'create'))
 router.patch('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'update'))
 router.delete('/tasks/board/:id', auth, mapRoute(TaskBoardCtrl, 'delete'))
 
-router.get('/tasks/board/:id/tags', auth, mapRoute(TaskBoardTagCtrl, 'list'))
+router.get('/tasks/board/:taskBoardId/tags', auth, mapRoute(TaskBoardTagCtrl, 'list'))
+router.post('/tasks/board/:taskBoardId/tags', auth, mapRoute(TaskBoardTagCtrl, 'create'))
 router.get('/tasks/board/tags/:tagId', auth, mapRoute(TaskBoardTagCtrl, 'view'))
-router.post('/tasks/board/:id:/tags', auth, mapRoute(TaskBoardTagCtrl, 'create'))
 router.patch('/tasks/board/tags/:tagId', auth, mapRoute(TaskBoardTagCtrl, 'update'))
-router.delete('/tasks/board/:id/tags/:tagId', auth, mapRoute(TaskBoardTagCtrl, 'delete'))
+router.delete('/tasks/board/tags/:tagId', auth, mapRoute(TaskBoardTagCtrl, 'delete'))
 
 // Task List
 router.get('/tasks/list/:id', auth, mapRoute(TaskListCtrl, 'view'))
@@ -32,9 +32,8 @@ router.delete('/tasks/task/:id', auth, mapRoute(TaskCtrl, 'delete'))
 router.post('/tasks/task/:id/assignee/:userId/add', auth, mapRoute(TaskCtrl, 'assigneeAdd'))
 router.post('/tasks/task/:id/assignee/:userId/remove', auth, mapRoute(TaskCtrl, 'assigneeRemove'))
 
-// Todo: Add task tag routes
-// router.post('/tasks/task/:id/tag/:tagId/add', auth, mapRoute(TaskCtrl, 'tagAdd'))
-// router.post('/tasks/task/:id/tag/:tagId/remove', auth, mapRoute(TaskCtrl, 'tagRemove'))
+router.post('/tasks/task/:id/tag/:tagId/add', auth, mapRoute(TaskCtrl, 'tagAdd'))
+router.post('/tasks/task/:id/tag/:tagId/remove', auth, mapRoute(TaskCtrl, 'tagRemove'))
 
 router.get('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'view'))
 router.post('/tasks/comment', auth, mapRoute(TaskCommentCtrl, 'create'))

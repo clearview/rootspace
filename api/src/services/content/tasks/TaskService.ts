@@ -6,14 +6,17 @@ import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
 import { ContentManager } from '../ContentManager'
 import { UserService } from '../../UserService'
+import { TaskBoardTagService } from './TaskBoardTagService'
 
 export class TaskService {
   private userService: UserService
+  private tagService: TaskBoardTagService
   private contentManager: ContentManager
 
   private constructor() {
     this.contentManager = ContentManager.getInstance()
     this.userService = UserService.getInstance()
+    this.tagService = TaskBoardTagService.getInstance()
   }
 
   private static instance: TaskService
@@ -90,7 +93,8 @@ export class TaskService {
     return this.getTaskRepository().save(task)
   }
 
-  async assigneeAdd(task: Task, userId: number): Promise<Task> {
+  async assigneeAdd(taskId: number, userId: number): Promise<Task> {
+    const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
     if (!task.assignees.includes(user)) {
@@ -104,7 +108,8 @@ export class TaskService {
     return task
   }
 
-  async assigneeRemove(task: Task, userId: number): Promise<Task> {
+  async assigneeRemove(taskId: number, userId: number): Promise<Task> {
+    const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
     task.assignees = task.assignees.filter(assignee => {
@@ -114,4 +119,29 @@ export class TaskService {
     return this.getTaskRepository().save(task)
   }
 
+  async tagAdd(taskId: number, tagId: number): Promise<Task> {
+    const task = await this.getById(taskId)
+    const boardTag = await this.tagService.getTagById(tagId)
+
+    if (!task.tags.includes(boardTag)) {
+      const tags = task.tags
+      tags.push(boardTag)
+      task.tags = tags
+
+      await this.getTaskRepository().save(task)
+    }
+
+    return task
+  }
+
+  async tagRemove(taskId: number, tagId: number): Promise<Task> {
+    const task = await this.getById(taskId)
+    const boardTag = await this.tagService.getTagById(tagId)
+
+    task.tags = task.tags.filter(tag => {
+      return tag.id !== boardTag.id
+    })
+
+    return this.getTaskRepository().save(task)
+  }
 }
