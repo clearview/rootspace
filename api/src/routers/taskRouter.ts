@@ -36,7 +36,6 @@ router.post('/tasks/task/:id/assignee/:userId/remove', auth, mapRoute(TaskCtrl, 
 // router.post('/tasks/task/:id/tag/:tagId/add', auth, mapRoute(TaskCtrl, 'tagAdd'))
 // router.post('/tasks/task/:id/tag/:tagId/remove', auth, mapRoute(TaskCtrl, 'tagRemove'))
 
-// Todo: Check task comments controller actions
 router.get('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'view'))
 router.post('/tasks/comment', auth, mapRoute(TaskCommentCtrl, 'create'))
 router.patch('/tasks/comment/:id', auth, mapRoute(TaskCommentCtrl, 'update'))
