@@ -70,7 +70,7 @@ export class Task {
   @JoinTable()
   assignees: User[]
 
-  @ManyToMany(type => Tag)
+  @ManyToMany(type => Tag, {eager: true})
   @JoinTable()
   tags: Tag[]
 }
