@@ -15,14 +15,14 @@ export class TaskBoardTagCtrl extends BaseCtrl {
   }
 
   async list(req: Request, res: Response, next: NextFunction) {
-    const tags = await this.taskBoardService.getById(Number(req.params.id))
+    const taskBoard = await this.taskBoardService.getById(Number(req.params.taskBoardId))
 
-    const resData = this.responseData(tags)
+    const resData = this.responseData(taskBoard.tags)
     res.send(resData)
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const tag = await this.tagService.getById(Number(req.params.id))
+    const tag = await this.tagService.getTagById(Number(req.params.tagId))
 
     const resData = this.responseData(tag)
     res.send(resData)
@@ -30,20 +30,14 @@ export class TaskBoardTagCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
+    data.taskBoardId = Number(req.params.taskBoardId)
 
-    // const tag = new Tag({ board: taskBoard, label: data.label, color: data.color })
-    const tag = new Tag()
-    tag.board = taskBoard
-    tag.label = data.label
-    tag.color = data.color
-
-    const resData = await this.tagService.create(tag)
+    const resData = await this.tagService.create(data)
     res.send(resData)
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    let tag = await this.tagService.getById(Number(req.params.id))
+    let tag = await this.tagService.getTagById(Number(req.params.tagId))
 
     const data = req.body.data
     tag = await this.tagService.update(tag.id, data)
@@ -52,7 +46,7 @@ export class TaskBoardTagCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.tagService.delete(Number(req.params.id))
+    const result = await this.tagService.delete(Number(req.params.tagId))
     res.send(result)
   }
 }

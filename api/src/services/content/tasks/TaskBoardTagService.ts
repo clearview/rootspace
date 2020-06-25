@@ -1,10 +1,15 @@
 import { getCustomRepository } from 'typeorm'
 import { Tag } from '../../../entities/tasks/Tag'
 import { TaskBoardTagRepository } from '../../../repositories/tasks/TaskBoardTagRepository'
+import { TaskBoardService } from './TaskBoardService'
 
 export class TaskBoardTagService {
   private static instance: TaskBoardTagService
+  private taskBoardService: TaskBoardService
 
+  private constructor() {
+    this.taskBoardService = TaskBoardService.getInstance()
+  }
   static getInstance() {
     if (!TaskBoardTagService.instance) {
       TaskBoardTagService.instance = new TaskBoardTagService()
@@ -17,16 +22,25 @@ export class TaskBoardTagService {
     return getCustomRepository(TaskBoardTagRepository)
   }
 
-  async getById(id: number): Promise<Tag> {
+  async getTagById(id: number): Promise<Tag> {
     return this.getTagRepository().findOneOrFail(id)
   }
 
-  async create(tag: Tag): Promise<Tag> {
-    return this.getTagRepository().save(tag)
+  async create(data: any): Promise<Tag> {
+    const taskBoard = await this.taskBoardService.getById(data.taskBoardId)
+
+    const tag = new Tag()
+    tag.board = taskBoard
+    tag.label = data.label
+    tag.color = data.color
+
+    await this.getTagRepository().save(tag)
+
+    return this.getTagRepository().reload(tag)
   }
 
   async update(id: number, data: any): Promise<Tag> {
-    let tag = await this.getById(id)
+    let tag = await this.getTagById(id)
     tag = await this.getTagRepository().save({
       ...tag,
       ...data
