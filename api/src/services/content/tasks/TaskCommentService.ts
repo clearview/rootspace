@@ -1,4 +1,5 @@
 import { getCustomRepository } from 'typeorm'
+import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { TaskCommentRepository } from '../../../repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../entities/tasks/TaskComment'
 import { ContentManager } from '../ContentManager'
@@ -20,6 +21,10 @@ export class TaskCommentService {
     return TaskCommentService.instance
   }
 
+  getTaskRepository(): TaskRepository {
+    return getCustomRepository(TaskRepository)
+  }
+
   getTaskCommentRepository(): TaskCommentRepository {
     return getCustomRepository(TaskCommentRepository)
   }
@@ -29,7 +34,10 @@ export class TaskCommentService {
   }
 
   async create(data: any): Promise<TaskComment> {
-    return this.getTaskCommentRepository().save(data)
+    data.task = await this.getTaskRepository().findOneOrFail(data.taskId)
+
+    const taskComment = await this.getTaskCommentRepository().save(data)
+    return this.getTaskCommentRepository().reload(taskComment)
   }
 
   async update(id: number, data: any): Promise<TaskComment> {
