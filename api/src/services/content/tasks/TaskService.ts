@@ -1,8 +1,11 @@
 import { getCustomRepository } from 'typeorm'
+import { SpaceRepository } from '../../../repositories/SpaceRepository'
+import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
+import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
 import { ContentManager } from '../ContentManager'
-import {UserService} from '../../UserService'
+import { UserService } from '../../UserService'
 
 export class TaskService {
   private userService: UserService
@@ -23,6 +26,18 @@ export class TaskService {
     return TaskService.instance
   }
 
+  getSpaceRepository(): SpaceRepository {
+    return getCustomRepository(SpaceRepository)
+  }
+
+  getTaskBoardRepository(): TaskBoardRepository {
+    return getCustomRepository(TaskBoardRepository)
+  }
+
+  getTaskListRepository(): TaskListRepository {
+    return getCustomRepository(TaskListRepository)
+  }
+
   getTaskRepository(): TaskRepository {
     return getCustomRepository(TaskRepository)
   }
@@ -32,11 +47,14 @@ export class TaskService {
   }
 
   async create(data: any): Promise<Task> {
-    const task: Task = await this.getTaskRepository().save(data)
+    data.list = await this.getTaskListRepository().findOneOrFail(data.listId, { relations: ['board'] })
+    data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.board.id, { relations: ['space'] })
+    data.space = await this.getSpaceRepository().findOneOrFail(data.board.space.id)
 
+    const task = await this.getTaskRepository().save(data)
     await this.assigneesUpdate(task, data)
 
-    return this.getTaskRepository().save(task)
+    return this.getTaskRepository().reload(task)
   }
 
   async update(id: number, data: any): Promise<Task> {
@@ -79,6 +97,8 @@ export class TaskService {
       const assignees = task.assignees
       assignees.push(user)
       task.assignees = assignees
+
+      await this.getTaskRepository().save(task)
     }
 
     return task

@@ -22,7 +22,7 @@ export class TaskListCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    data.userId = req.user.id
+    data.user = req.user
 
     const taskList = await this.taskListService.create(data)
 
@@ -31,11 +31,9 @@ export class TaskListCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
-    const data = req.body.data
-    const task = await this.taskListService.update(id, data)
+    const taskList = await this.taskListService.update(Number(req.params.id), req.body.data)
 
-    res.send(this.responseData(task))
+    res.send(this.responseData(taskList))
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {

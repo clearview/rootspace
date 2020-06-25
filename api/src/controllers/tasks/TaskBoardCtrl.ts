@@ -26,7 +26,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    data.userId = req.user.id
+    data.user = req.user
 
     let taskBoard = await this.taskBoardService.create(data)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Create, taskBoard)
