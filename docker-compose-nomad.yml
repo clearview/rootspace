@@ -25,8 +25,8 @@ services:
      - "8080:80"
     restart: always
     environment:
-     - NOMAD_HOST=nomad.root.gcp.clearviewdev.io
-     - CONSUL_HOST=consul.root.gcp.clearviewdev.io
+     - NOMAD_HOST=nomad.root.prod.clearviewdev.io
+     - CONSUL_HOST=consul.root.prod.clearviewdev.io
     command: "/bin/sh -c 'while :; do sleep 5m & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'" # CERTBOT
 
 volumes:
