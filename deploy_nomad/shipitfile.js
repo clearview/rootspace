@@ -24,24 +24,24 @@ module.exports = shipit => {
     staging: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dozkerize'
+      branch: 'dockerize'
     },
     staging_sidecar: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dozkerize'
+      branch: 'dockerize'
     },
     staging_certbot: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dozkerize'
+      branch: 'dockerize'
     },
     production: {
       deployTo: '/srv/root',
       servers: 'rut@',
-      branch: 'dozkerize'
+      branch: 'dockerize'
     }
   })
 
