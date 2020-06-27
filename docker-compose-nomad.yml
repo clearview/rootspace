@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   htpasswd:
-    image: registry:latest
+    image: registry:2.7.0
     container_name: root_htpasswd_nomad
     hostname: root_htpasswd_nomad
     volumes:
