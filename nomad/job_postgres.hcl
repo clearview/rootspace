@@ -52,9 +52,20 @@ job "root_pg" {
       }
       env {
         "RELEASE"         = "${RELEASE}"
-        POSTGRES_USER     = "user"
-        POSTGRES_PASSWORD = "password"
-        POSTGRES_DB       = "root"
+        POSTGRES_USER     = "${POSTGRES_USER}"
+        POSTGRES_PASSWORD = "${POSTGRES_PASSWORD}"
+        POSTGRES_DB       = "${POSTGRES_DB}"
+      }
+      template {
+        data = <<EOH
+        POSTGRES_USER = "{{key "service/postgres/credentials/user"}}"
+        POSTGRES_PASSWORD = "{{key "service/postgres/credentials/password"}}"
+        POSTGRES_DB = "{{key "service/postgres/credentials/db"}}"
+        EOH
+        destination   = "${NOMAD_TASK_DIR}/.postgres_env"
+        change_mode   = "noop"
+        perms         = "0775"
+        env = true
       }
       config {
         volumes = [

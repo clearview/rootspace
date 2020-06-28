@@ -66,15 +66,26 @@ job "root_api_web" {
       }
       template {
         data = <<EOH
+        POSTGRES_USER = "{{key "service/postgres/credentials/user"}}"
+        POSTGRES_PASSWORD = "{{key "service/postgres/credentials/password"}}"
+        POSTGRES_DB = "{{key "service/postgres/credentials/db"}}"
+        EOH
+        destination   = "${NOMAD_TASK_DIR}/.postgres_env"
+        change_mode   = "noop"
+        perms         = "0775"
+        env = true
+      }
+      template {
+        data = <<EOH
         NODE_ENV=development
 
         PORT=3001
         BASE_URL=http://api:3001
 
         POSTGRES_HOST={{range service "postgres"}}{{.Address}}{{end}}
-        POSTGRES_USER=user
-        POSTGRES_PASSWORD=password
-        POSTGRES_DB=root
+        POSTGRES_USER=${POSTGRES_USER}
+        POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        POSTGRES_DB=${POSTGRES_PASSWORD}
 
         LOG_LEVEL="{{key "service/root/api/log-level"}}"
         API_KEY="{{key "service/root/api/api-key"}}"
