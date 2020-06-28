@@ -44,8 +44,8 @@ job "root_api_web" {
         dns_search_domains = [ "consul" ]
         extra_hosts = [
           "host:${attr.unique.network.ip-address}",
-          "redis:${REDIS_IP_FROM_CONSUL}",
-          "mongodb:${MONGO_IP_FROM_CONSUL}"
+          // "redis:${REDIS_IP_FROM_CONSUL}",
+          // "mongodb:${MONGO_IP_FROM_CONSUL}"
         ]
         port_map {
           api = 3001
