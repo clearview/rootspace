@@ -80,6 +80,7 @@ job "root_api_web" {
         data = <<EOH
         NODE_ENV=development
         ENV=docker
+        PORT=3001
         POSTGRES="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}"
         SENDGRID_API_KEY="{{key "service/root/api/SENDGRID_API_KEY"}}"
         S3_ACCESS_KEY="{{key "service/root/api/S3_ACCESS_KEY"}}"

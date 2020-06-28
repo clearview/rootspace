@@ -75,7 +75,6 @@ module.exports = shipit => {
         console.log('Nomad deploying')
         console.log('\n')
         await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job.hcl > run_job.hcl && exec nomad job run run_job.hcl`)
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -84,7 +83,7 @@ module.exports = shipit => {
       });
     }
 
-    if (env === 'staging_sidecar') {
+    if (env === 'staging_postgres') {
       shipit.on('deployed', async() => {
         console.log('\n\n')
         const releaseDir = path.join(shipit.releasesPath, shipit.releaseDirname)
@@ -95,7 +94,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_proxy_mongo_redis.hcl > run_job_proxy_mongo_redis.hcl && exec nomad job run run_job_proxy_mongo_redis.hcl`)
+        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
