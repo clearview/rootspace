@@ -69,7 +69,7 @@ job "root_pg" {
       }
       config {
         volumes = [
-          "postgres_data:/var/lib/postgresql/data"
+          "root_postgres_data:/var/lib/postgresql/data"
         ]
         volume_driver = "local"
       }
