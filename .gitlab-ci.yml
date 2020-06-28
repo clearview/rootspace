@@ -1,18 +1,18 @@
-image: node:12.16.2
-
-before_script:
-  - apt-get install git
-
-stages:
-  - staging
-
-staging:
-  type: deploy
-  stage: staging
-  script:
-      - apt-get update -qy
-      - apt-get install -y ruby-dev
-      - gem install dpl
-      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
-  only:
-      - master
+# image: node:12.16.2
+#
+# before_script:
+#   - apt-get install git
+#
+# stages:
+#   - staging
+#
+# staging:
+#   type: deploy
+#   stage: staging
+#   script:
+#       - apt-get update -qy
+#       - apt-get install -y ruby-dev
+#       - gem install dpl
+#       - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
+#   only:
+#       - master

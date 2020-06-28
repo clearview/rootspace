@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "name": "flow_api",
+      "script": "/srv/api/dist/index.js",
+      "args": "",
+      "instances": "1",
+      "instance_var": "0",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv/api",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}
