@@ -81,11 +81,11 @@ job "root_api_web" {
         NODE_ENV=development
         ENV=docker
         POSTGRES=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
-        SENDGRID_API_KEY=
-        S3_ACCESS_KEY=
-        S3_SECRET_KEY=
-        GOOGLE_CLIENT_ID=
-        GOOGLE_CLIENT_SECRET=
+        SENDGRID_API_KEY="{{key "service/root/api/SENDGRID_API_KEY"}}"
+        S3_ACCESS_KEY="{{key "service/root/api/S3_ACCESS_KEY"}}"
+        S3_SECRET_KEY="{{key "service/root/api/S3_SECRET_KEY"}}"
+        GOOGLE_CLIENT_ID="{{key "service/root/api/GOOGLE_CLIENT_ID"}}"
+        GOOGLE_CLIENT_SECRET="{{key "service/root/api/GOOGLE_CLIENT_SECRET"}}"
         GOOGLE_CALLBACK_PATH=/auth/google/callback
         DOMAIN=http://localhost:3000
         DOMAIN_SIGNUP_PATH=/signup
