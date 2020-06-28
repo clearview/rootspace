@@ -66,6 +66,7 @@ job "root_api_web" {
       }
       template {
         data = <<EOH
+        POSTGRES_HOST={{range service "postgres"}}{{.Address}}{{end}}
         POSTGRES_USER = "{{key "service/postgres/credentials/user"}}"
         POSTGRES_PASSWORD = "{{key "service/postgres/credentials/password"}}"
         POSTGRES_DB = "{{key "service/postgres/credentials/db"}}"
@@ -77,15 +78,18 @@ job "root_api_web" {
       }
       template {
         data = <<EOH
-        NODE_ENV=development
-
-        PORT=3001
-        BASE_URL=http://api:3001
-
-        POSTGRES_HOST={{range service "postgres"}}{{.Address}}{{end}}
-        POSTGRES_USER=${POSTGRES_USER}
-        POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        POSTGRES_DB=${POSTGRES_PASSWORD}
+        ENV=docker
+        POSTGRES=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
+        SENDGRID_API_KEY=
+        S3_ACCESS_KEY=
+        S3_SECRET_KEY=
+        GOOGLE_CLIENT_ID=
+        GOOGLE_CLIENT_SECRET=
+        GOOGLE_CALLBACK_PATH=/auth/google/callback
+        DOMAIN=http://localhost:3000
+        DOMAIN_SIGNUP_PATH=/signup
+        DOMAIN_EMAIL_CONFIRMATION_PATH=/confirm-email
+        DOMAIN_INVITE_ACCEPT_PATH=/invitation
 
         LOG_LEVEL="{{key "service/root/api/log-level"}}"
         API_KEY="{{key "service/root/api/api-key"}}"
@@ -97,7 +101,7 @@ job "root_api_web" {
       }
       resources {
         cpu    = 200
-        memory = 1024
+        memory = 768
         network {
           mbits = 1
           port "api" {
