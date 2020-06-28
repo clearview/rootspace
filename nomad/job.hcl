@@ -102,7 +102,7 @@ job "root_api_web" {
       }
       resources {
         cpu    = 200
-        memory = 768
+        memory = 1024
         network {
           mbits = 1
           port "api" {
