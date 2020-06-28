@@ -43,7 +43,7 @@ job "root_pg" {
           server_address = "hub.docker.com"
         }
         port_map {
-          postgres = 27017
+          postgres = 5432
         }
       }
       lifecycle {
@@ -51,7 +51,10 @@ job "root_pg" {
          sidecar = true
       }
       env {
-        "RELEASE" = "${RELEASE}"
+        "RELEASE"         = "${RELEASE}"
+        POSTGRES_USER     = "user"
+        POSTGRES_PASSWORD = "password"
+        POSTGRES_DB       = "root"
       }
       config {
         volumes = [

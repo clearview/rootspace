@@ -71,26 +71,10 @@ job "root_api_web" {
         PORT=3001
         BASE_URL=http://api:3001
 
-        REDIS=redis://redis:6379
-        MONGO=mongodb://mongodb:27017/root-mock
-
-        REDIS_IP_FROM_CONSUL={{range service "redis"}}{{.Address}}{{end}}
-        MONGO_IP_FROM_CONSUL={{range service "mongodb"}}{{.Address}}{{end}}
-
-        REDIS_FROM_CONSUL=redis://{{range service "redis"}}{{.Address}}{{end}}:6379
-        MONGO_FROM_CONSUL=mongodb://{{range service "mongodb"}}{{.Address}}{{end}}:27017/root-mock
-
-        REDIS_SERVICE=redis://redis.service.dc1.consul:6379
-        MONGO_SERVICE=mongodb://mongodb.service.consul:27017/root-mock
-
-        MERIT_APP_ID=123
-        MERIT_APP_SECRET=
-
-        STRIPE_KEY2=
-        STRIPE_SECRET2=
-
-        STRIPE_KEY=
-        STRIPE_SECRET=
+        POSTGRES_HOST={{range service "postgres"}}{{.Address}}{{end}}
+        POSTGRES_USER=user
+        POSTGRES_PASSWORD=password
+        POSTGRES_DB=root
 
         LOG_LEVEL="{{key "service/root/api/log-level"}}"
         API_KEY="{{key "service/root/api/api-key"}}"
