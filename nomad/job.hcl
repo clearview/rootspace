@@ -78,6 +78,7 @@ job "root_api_web" {
       }
       template {
         data = <<EOH
+        NODE_ENV = development
         ENV=docker
         POSTGRES=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
         SENDGRID_API_KEY=

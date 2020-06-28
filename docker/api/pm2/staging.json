@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "flow_api",
+      "name": "root_api",
       "script": "/srv/api/dist/index.js",
       "args": "",
       "instances": "1",
