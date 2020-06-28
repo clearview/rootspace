@@ -4,7 +4,7 @@ LABEL project="root"
 
 FROM base as prereq
 RUN apt-get -qq update < /dev/null > /dev/null && \
-    apt-get install iputils-ping net-tools curl nano -y < /dev/null > /dev/null && \
+    apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
     echo "Installing PM2... $(npm install -g pm2)"
 
 FROM prereq as api
