@@ -1,6 +1,7 @@
 image: docker:latest
 
 variables:
+  REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com
   API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
   PROXY_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/proxy
 
