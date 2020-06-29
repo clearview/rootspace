@@ -16,10 +16,18 @@ export class TaskComment {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column('integer')
+  @Index()
+  userId: number
+
   @ManyToOne((type) => User)
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
+
+  @Column('integer')
+  @Index()
+  taskId: number
 
   @ManyToOne(type => Task, task => task.taskComments, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'taskId' })

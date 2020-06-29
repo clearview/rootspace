@@ -29,10 +29,18 @@ export class TaskBoard {
   @Generated('uuid')
   uuid: string
 
+  @Column('integer')
+  @Index()
+  userId: number
+
   @ManyToOne((type) => User)
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
+
+  @Column('integer')
+  @Index()
+  spaceId: number
 
   @ManyToOne((type) => Space)
   @JoinColumn({ name: 'spaceId' })
