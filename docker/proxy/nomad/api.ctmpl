@@ -1,5 +1,5 @@
-{{ $DOMAIN := key "service/root-api/domain" }}
-{{ $SSL_REWRITE := key "service/root-api/ssl_rewrite" }}
+{{ $DOMAIN := key "service/root/api/domain" }}
+{{ $SSL_REWRITE := key "service/root/api/ssl_rewrite" }}
 
 upstream to_api {
   least_conn;
