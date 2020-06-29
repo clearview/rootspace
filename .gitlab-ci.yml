@@ -3,6 +3,7 @@ image: docker:latest
 variables:
   API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
   PROXY_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/proxy
+  WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 services:
 - docker:dind
@@ -16,6 +17,7 @@ before_script:
 stages:
   - build_api
   - build_proxy
+  - build_web
 
 build_api:
   stage: build_api
@@ -29,6 +31,12 @@ build_proxy:
     - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
     - docker build -t $PROXY_REPOSITORY_URL:latest . --file ./docker/Dockerfile.proxy --target copy_root_proxy_conf_files
     - docker push $PROXY_REPOSITORY_URL:latest
+build_web:
+  stage: build_web
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - docker build -t $WEB_REPOSITORY_URL:latest . --file ./docker/Dockerfile.web
+    - docker push $WEB_REPOSITORY_URL:latest
   only:
    - master
    - dockerize
