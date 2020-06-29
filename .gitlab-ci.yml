@@ -14,17 +14,20 @@ before_script:
   - pip install awscli
 
 stages:
-  - build
+  - build_api
+  - build_proxy
 
 build:
-  stage: build
+  stage: build_api
   script:
-    - echo $AWS_ACCESS_KEY_ID
-    - echo $AWS_SECRET_ACCESS_KEY
     - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
     - docker build -t $API_REPOSITORY_URL:latest . --file ./docker/Dockerfile.api
-    - docker build -t $PROXY_REPOSITORY_URL:latest . --file ./docker/Dockerfile.proxy --target copy_flow_proxy_conf_files
     - docker push $API_REPOSITORY_URL:latest
+  stage: build_proxy
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - docker build -t $PROXY_REPOSITORY_URL:latest . --file ./docker/Dockerfile.proxy --target copy_flow_proxy_conf_files
+    - docker push $PROXY_REPOSITORY_URL:latest
   only:
    - master
    - dockerize
