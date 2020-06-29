@@ -6,6 +6,7 @@ if test -f "$NOMAD_TASK_DIR/.env" ; then
 fi
 
 cd /srv/api && \
+printenv | sort && \
 cat /srv/api/.env && \
 echo "Installing packages... $(yarn install --silent)"
 echo "Building... $(yarn build)"

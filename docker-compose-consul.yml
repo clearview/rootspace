@@ -19,5 +19,4 @@ services:
 networks:
   consul:
 volumes:
-  consul-config:
   consul-data:

@@ -26,7 +26,7 @@ module.exports = shipit => {
       servers: 'rut@server.root.prod.clearviewdev.io',
       branch: 'dockerize'
     },
-    staging_sidecar: {
+    staging_postgres: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
@@ -75,6 +75,7 @@ module.exports = shipit => {
         console.log('Nomad deploying')
         console.log('\n')
         await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job.hcl > run_job.hcl && exec nomad job run run_job.hcl`)
+        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
