@@ -78,6 +78,12 @@ job "root_api_web" {
       }
       template {
         data = <<EOH
+
+        POSTGRES_HOST={{range service "postgres"}}{{.Address}}{{end}}
+        POSTGRES_USER = "{{key "service/postgres/credentials/user"}}"
+        POSTGRES_PASSWORD = "{{key "service/postgres/credentials/password"}}"
+        POSTGRES_DB = "{{key "service/postgres/credentials/db"}}"
+        
         NODE_ENV=development
         ENV=docker
         PORT=3001
