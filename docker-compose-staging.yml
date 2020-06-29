@@ -1,0 +1,60 @@
+version: "3.7"
+
+services:
+  api:
+    container_name: root_api
+    hostname: root_api
+    restart: always
+    image: root_api:latest
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.api
+      target: api
+    environment:
+     - API_PORT=3001
+    volumes:
+      - root_api:/srv/api/
+    networks:
+      backend:
+        aliases:
+          - api
+      frontend:
+        aliases:
+          - api
+    ports:
+      - "3001:3001"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "/healthcheck.sh"]
+      interval: 5s
+      timeout: 30s
+      retries: 4
+      start_period: 30s
+
+networks:
+  frontend:
+  backend:
+
+volumes:
+  root_api:
+    name: root_api
+  root_web:
+    name: root_web
+  root_web_member:
+    name: root_web_member
+  root_web_org:
+    name: root_web_org
+  root_letsencrypt:
+    name: root_letsencrypt
+  root_mongodb:
+    name: root_mongodb
+  root_redis:
+    name: root_redis
+  root_htpasswd:
+    name: root_htpasswd
+  root_certbot:
+    name: root_certbot
