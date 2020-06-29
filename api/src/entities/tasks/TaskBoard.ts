@@ -30,7 +30,6 @@ export class TaskBoard {
   uuid: string
 
   @Column('integer')
-  @Index()
   userId: number
 
   @ManyToOne((type) => User)
@@ -39,7 +38,6 @@ export class TaskBoard {
   user!: User
 
   @Column('integer')
-  @Index()
   spaceId: number
 
   @ManyToOne((type) => Space)

@@ -17,7 +17,6 @@ export class TaskComment {
   id: number
 
   @Column('integer')
-  @Index()
   userId: number
 
   @ManyToOne((type) => User)
@@ -26,7 +25,6 @@ export class TaskComment {
   user!: User
 
   @Column('integer')
-  @Index()
   taskId: number
 
   @ManyToOne(type => Task, task => task.taskComments, {onDelete: 'CASCADE'})

@@ -23,8 +23,8 @@ export class Task {
 
   @PrimaryGeneratedColumn()
   id: number
+
   @Column('integer')
-  @Index()
   userId: number
 
   @ManyToOne((type) => User)
@@ -33,7 +33,6 @@ export class Task {
   user!: User
 
   @Column('integer')
-  @Index()
   spaceId: number
 
   @ManyToOne((type) => Space)
@@ -42,7 +41,6 @@ export class Task {
   space!: Space
 
   @Column('integer')
-  @Index()
   listId: number
 
   @ManyToOne(type => TaskList, list => list.tasks, {onDelete: 'CASCADE'})

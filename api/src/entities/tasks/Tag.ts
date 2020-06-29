@@ -13,12 +13,12 @@ export class Tag {
   id: number
 
   @Column('integer')
-  @Index()
   boardId: number
 
   @ManyToOne(type => TaskBoard, board => board.tags, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'boardId' })
-  @Index()  board!: TaskBoard
+  @Index()
+  board!: TaskBoard
 
   @Column('varchar')
   label: string
