@@ -7,11 +7,10 @@ services:
 - docker:dind
 
 before_script:
-  - apk add --update --no-cache curl jq python py-pip
-  - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl
+  - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
   - curl -O https://bootstrap.pypa.io/get-pip.py
   - python3 get-pip.py
- -  pip install --upgrade six awscli awsebcli
+  -  pip install --upgrade six awscli awsebcli
   - pip install awscli
 
 stages:
@@ -23,7 +22,7 @@ build:
     - $(aws ecr get-login --no-include-email --region us-east-1)
     - docker build -t $API_REPOSITORY_URL:latest . --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
-  only:
-    - master
+#  only:
+#    - master
   tags:
     - docker
