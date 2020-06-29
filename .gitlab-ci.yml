@@ -22,7 +22,7 @@ build:
     - $(aws ecr get-login --no-include-email --region us-east-1)
     - docker build -t $API_REPOSITORY_URL:latest . --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
-  only:
-    - master
+#  only:
+#    - master
   tags:
     - docker
