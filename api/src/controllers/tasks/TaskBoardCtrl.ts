@@ -3,7 +3,7 @@ import { BaseCtrl } from '../BaseCtrl'
 import { TaskBoardService } from '../../services'
 import { ContentManager } from '../../services/content/ContentManager'
 import { Actions } from '../../middleware/AuthMiddleware'
-import {ForbiddenError} from '@casl/ability'
+import { ForbiddenError } from '@casl/ability'
 
 export class TaskBoardCtrl extends BaseCtrl {
   private taskBoardService: TaskBoardService

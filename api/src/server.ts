@@ -6,8 +6,8 @@ import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
-import {errorHandler} from './middleware/ErrorMiddleware'
-import {Ability} from '@casl/ability'
+import { errorHandler } from './middleware/ErrorMiddleware'
+import { Ability } from '@casl/ability'
 
 declare global {
   namespace Express {

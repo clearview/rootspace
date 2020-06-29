@@ -1,8 +1,8 @@
 import { authenticate, authorize, Objects } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
-import {TaskBoardCtrl, TaskCtrl, TaskListCtrl} from '../controllers/tasks'
+import { TaskBoardCtrl, TaskCtrl, TaskListCtrl } from '../controllers/tasks'
 import PromiseRouter from 'express-promise-router'
-import {TaskCommentCtrl} from '../controllers/tasks'
+import { TaskCommentCtrl } from '../controllers/tasks'
 
 const router = PromiseRouter()
 router.use(authenticate)

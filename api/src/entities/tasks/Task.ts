@@ -9,7 +9,7 @@ import {
   OneToMany
 } from 'typeorm'
 import { TaskList } from './TaskList'
-import {TaskComment} from './TaskComment'
+import { TaskComment } from './TaskComment'
 
 export enum TaskStatus {
   Open = 0,

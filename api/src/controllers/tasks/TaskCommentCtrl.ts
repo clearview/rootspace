@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import {TaskCommentService} from '../../services/content/tasks'
+import { TaskCommentService } from '../../services/content/tasks'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCommentCtrl extends BaseCtrl {

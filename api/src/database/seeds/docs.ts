@@ -1,8 +1,8 @@
-import {Connection} from 'typeorm'
-import {Factory, Seeder} from 'typeorm-seeding'
-import {Link, LinkType} from '../../entities/Link'
-import {Doc} from '../../entities/Doc'
-import {BaseSeeder} from './base'
+import { Connection } from 'typeorm'
+import { Factory, Seeder } from 'typeorm-seeding'
+import { Link, LinkType } from '../../entities/Link'
+import { Doc } from '../../entities/Doc'
+import { BaseSeeder } from './base'
 
 export default class DocsSeeder implements Seeder {
     protected base: BaseSeeder

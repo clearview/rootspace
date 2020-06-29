@@ -9,7 +9,7 @@ import {
   ManyToOne
 } from 'typeorm'
 import { Task } from './Task'
-import {TaskBoard} from './TaskBoard'
+import { TaskBoard } from './TaskBoard'
 
 @Entity('task_lists')
 export class TaskList {

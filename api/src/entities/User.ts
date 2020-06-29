@@ -9,7 +9,7 @@ import {
   Generated
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
-import {Ability} from '@casl/ability'
+import { Ability } from '@casl/ability'
 
 @Entity('users')
 export class User {

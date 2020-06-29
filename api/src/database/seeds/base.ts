@@ -1,9 +1,9 @@
-import {Factory, Seeder} from 'typeorm-seeding'
-import {User} from '../../entities/User'
-import {Space} from '../../entities/Space'
-import {Link, LinkType} from '../../entities/Link'
-import {UserToSpace} from '../../entities/UserToSpace'
-import {LinkService} from '../../services'
+import { Factory, Seeder } from 'typeorm-seeding'
+import { User } from '../../entities/User'
+import { Space } from '../../entities/Space'
+import { Link, LinkType } from '../../entities/Link'
+import { UserToSpace } from '../../entities/UserToSpace'
+import { LinkService } from '../../services'
 
 export class BaseSeeder implements Seeder {
   private static instance: BaseSeeder

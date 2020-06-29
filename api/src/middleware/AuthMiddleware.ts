@@ -1,8 +1,8 @@
 import passport from '../passport'
-import {User} from '../entities/User'
-import {NextFunction, Request, Response} from 'express'
-import {Ability, AbilityBuilder} from '@casl/ability'
-import {SpaceService} from '../services'
+import { User } from '../entities/User'
+import { NextFunction, Request, Response } from 'express'
+import { Ability, AbilityBuilder } from '@casl/ability'
+import { SpaceService } from '../services'
 
 export enum Actions {
     'Create'= 'create',
