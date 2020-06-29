@@ -29,7 +29,7 @@ build:
     - $(aws ecr get-login --no-include-email --region us-east-1)
     - docker build -t $PROXY_REPOSITORY_URL:latest . --file ./docker/Dockerfile.proxy --target copy_flow_proxy_conf_files
     - docker push $PROXY_REPOSITORY_URL:latest
- only:
+  only:
    - master
    - dockerize
   tags:
