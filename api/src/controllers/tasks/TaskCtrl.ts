@@ -58,7 +58,7 @@ export class TaskCtrl extends BaseCtrl {
     res.send(this.responseData(task))
   }
 
-  Tags
+  // Tags
   async tagAdd(req: Request, res: Response, next: NextFunction) {
     const taskId = Number(req.params.id)
     const tagId = Number(req.params.tagId)
