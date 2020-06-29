@@ -1,0 +1,22 @@
+version: "3.7"
+services:
+  consul:
+    container_name: root_consul
+    image: root_consul:latest
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.consul
+    restart: always
+    volumes:
+      #- ./docker/consul/config:/consul/config
+      - consul-data:/consul/data
+    command: ["consul","agent","-config-file=/consul/config/config.hcl","-config-dir=/consul/config"]
+    ports:
+      - 8500:8500
+      - 8600:8600
+    networks:
+      consul:
+networks:
+  consul:
+volumes:
+  consul-data:
