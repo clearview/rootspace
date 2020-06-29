@@ -19,15 +19,27 @@ export class TaskList {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column('integer')
+  @Index()
+  userId: number
+
   @ManyToOne((type) => User)
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
 
+  @Column('integer')
+  @Index()
+  spaceId: number
+
   @ManyToOne((type) => Space)
   @JoinColumn({ name: 'spaceId' })
   @Index()
   space!: Space
+
+  @Column('integer')
+  @Index()
+  boardId: number
 
   @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'boardId' })

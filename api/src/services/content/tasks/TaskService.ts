@@ -50,9 +50,9 @@ export class TaskService {
   }
 
   async create(data: any): Promise<Task> {
-    data.list = await this.getTaskListRepository().findOneOrFail(data.listId, { relations: ['board'] })
-    data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.board.id, { relations: ['space'] })
-    data.space = await this.getSpaceRepository().findOneOrFail(data.board.space.id)
+    data.list = await this.getTaskListRepository().findOneOrFail(data.listId)
+    data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.boardId)
+    data.space = await this.getSpaceRepository().findOneOrFail(data.board.spaceId)
 
     const task = await this.getTaskRepository().save(data)
     await this.assigneesUpdate(task, data)

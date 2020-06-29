@@ -12,6 +12,10 @@ export class Tag {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column('integer')
+  @Index()
+  boardId: number
+
   @ManyToOne(type => TaskBoard, board => board.tags, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'boardId' })
   @Index()  board!: TaskBoard
