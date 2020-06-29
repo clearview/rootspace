@@ -1,3 +1,4 @@
+import { config } from 'node-config-ts'
 import { SendGridClient } from './SendGridClient'
 import { MailhogClient } from './MailhogClient'
 import {MailClientInterface} from './types'
@@ -7,7 +8,8 @@ export class MailService {
 
     let service: MailClientInterface<any>
 
-    switch (process.env.NODE_ENV) {
+    switch (config.env) {
+      case 'development':
       case 'docker':
       case 'test':
         service = new MailhogClient()

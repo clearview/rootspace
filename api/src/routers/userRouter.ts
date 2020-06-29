@@ -1,4 +1,4 @@
-import auth from '../middleware/AuthMiddleware'
+import { authenticate } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import passport from '../passport'
 import {UsersCtrl} from '../controllers/UsersCtrl'
@@ -22,13 +22,13 @@ router.get(
 
 router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 
-router.get('/whoami', auth, mapRoute(UsersCtrl, 'whoami'))
+router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
-router.patch('/user/update', auth, mapRoute(UsersCtrl, 'update'))
+router.patch('/user/update', authenticate, mapRoute(UsersCtrl, 'update'))
 router.patch(
     '/user/password/change',
-    auth,
+    authenticate,
     mapRoute(UsersCtrl, 'changePassword')
 )
 

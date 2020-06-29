@@ -9,6 +9,7 @@ import {
   Generated
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
+import {Ability} from '@casl/ability'
 
 @Entity('users')
 export class User {
@@ -48,9 +49,8 @@ export class User {
   @UpdateDateColumn()
   updated: string
 
-  @OneToMany(
-    type => UserToSpace,
-    space => space.user
-  )
+  @OneToMany(type => UserToSpace, space => space.user)
   public spaces!: UserToSpace[]
+
+  public ability: Ability
 }

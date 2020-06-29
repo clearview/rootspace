@@ -257,6 +257,13 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@casl/ability@^4.1.5":
+  version "4.1.5"
+  resolved "https://registry.yarnpkg.com/@casl/ability/-/ability-4.1.5.tgz#c34fedc1fd7e631f9f70309eecd5c8a2a7550ead"
+  integrity sha512-9nY2ear3CfCi0ckRZ4V6dRiy+f0wxj/aUPkelmGrZuEJusXfhROKahRHFGxXf5xLi3oA10SS/vbSLK4RAy7ttA==
+  dependencies:
+    sift "^13.0.0"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -2251,6 +2258,11 @@ expect@^26.0.1:
     jest-matcher-utils "^26.0.1"
     jest-message-util "^26.0.1"
     jest-regex-util "^26.0.0"
+
+express-async-errors@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/express-async-errors/-/express-async-errors-3.1.1.tgz#6053236d61d21ddef4892d6bd1d736889fc9da41"
+  integrity sha512-h6aK1da4tpqWSbyCa3FxB/V6Ehd4EEB15zyQq9qe75OZBp0krinNKuH4rAY+S/U/2I36vdLAUFSjQJ+TFmODng==
 
 express-promise-router@^3.0.3:
   version "3.0.3"
@@ -5411,6 +5423,11 @@ shellwords@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
   integrity sha512-vFwSUfQvqybiICwZY5+DAWIPLKsWO31Q91JSKl3UYv+K5c2QRPzn0qzec6QPu1Qc9eHYItiP3NdJqNVqetYAww==
+
+sift@^13.0.0:
+  version "13.1.10"
+  resolved "https://registry.yarnpkg.com/sift/-/sift-13.1.10.tgz#53cd1052c0214dc5d28a931e154191cce5cba942"
+  integrity sha512-Z+7ZMTbnmbuVCwER+8jNerXpuJNYsxFSZf1er8VUqF/qYdgTrG5o5TQ7C6nWDycQY/TA1pczVCj58y5RvrUtrA==
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.3"
