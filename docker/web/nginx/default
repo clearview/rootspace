@@ -1,0 +1,28 @@
+server {
+        listen 8888 default_server;
+
+        server_name _;
+
+        root   /srv/member/build;
+
+	      access_log off;
+
+        location / {
+                try_files $uri /index.html;
+            }
+
+}
+server {
+        listen 8889;
+
+        server_name _;
+
+        root   /srv/org/build;
+
+	      access_log off;
+
+        location / {
+                try_files $uri /index.html;
+            }
+
+}
