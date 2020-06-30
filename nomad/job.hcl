@@ -201,7 +201,7 @@ job "root_api_web" {
       API_IP_FROM_CONSUL={{range service "api"}}{{.Address}}{{end}}
 
       VUE_APP_API_URL=//{{range service "api"}}{{.Address}}{{end}}:{{range service "api"}}{{.Port}}{{end}}
-      VUE_APP_PORT={{range service "api"}}{{.Port}}{{end}}
+      VUE_APP_PORT=3000
 
       EOH
       destination   = "${NOMAD_TASK_DIR}/.env"
