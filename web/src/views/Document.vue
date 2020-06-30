@@ -140,7 +140,7 @@ export default Vue.extend({
         this.createUpdateDocument(payload)
       }
     },
-    async createUpdateDocument (data: DocumentResource) {
+    async createUpdateDocument (data: Partial<DocumentResource>) {
       try {
         let document
         const id = this.$route.params.id
