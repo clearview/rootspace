@@ -1,10 +1,10 @@
-FROM nginx:1.17  as base
+FROM nginx:1.18 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
 
 FROM base as install_packages
 RUN  apt-get -qq update  < /dev/null > /dev/null && \
-     apt install iputils-ping net-tools curl nano -y < /dev/null > /dev/null
+     apt-get install iputils-ping net-tools curl nano -y < /dev/null > /dev/null
 
 FROM install_packages as copy_nginx_conf_files
 #
