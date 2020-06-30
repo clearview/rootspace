@@ -34,7 +34,6 @@ build_api:
    - dockerize
   tags:
     - docker
-    - api
 build_proxy:
   stage: build_proxy
   script:
@@ -46,7 +45,6 @@ build_proxy:
    - dockerize
   tags:
     - docker
-    - proxy
 build_web:
   stage: build_web
   script:
@@ -58,4 +56,3 @@ build_web:
    - dockerize
   tags:
     - docker
-    - web
