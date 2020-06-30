@@ -1,11 +1,12 @@
-import auth from '../middleware/AuthMiddleware'
+import { authenticate } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
-import {InviteCtrl} from '../controllers/InviteCtrl'
+import { InviteCtrl } from '../controllers/InviteCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()
+router.use(authenticate)
 
-router.post('/invites/create', auth, mapRoute(InviteCtrl, 'create'))
-router.post('/invites/accept', auth, mapRoute(InviteCtrl, 'accept'))
+router.post('/invites/create', mapRoute(InviteCtrl, 'create'))
+router.post('/invites/accept', mapRoute(InviteCtrl, 'accept'))
 
 export { router as inviteRouter }

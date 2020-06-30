@@ -1,18 +1,28 @@
-image: node:12.16.2
+image: docker:latest
+
+variables:
+  API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
+
+services:
+- docker:dind
 
 before_script:
-  - apt-get install git
+  - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
+  - curl -O https://bootstrap.pypa.io/get-pip.py
+  - python3 get-pip.py
+  -  pip install --upgrade six awscli awsebcli
+  - pip install awscli
 
 stages:
-  - staging
+  - build
 
-staging:
-  type: deploy
-  stage: staging
+build:
+  stage: build
   script:
-      - apt-get update -qy
-      - apt-get install -y ruby-dev
-      - gem install dpl
-      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
-  only:
-      - master
+    - $(aws ecr get-login --no-include-email --region us-east-1)
+    - docker build -t $API_REPOSITORY_URL:latest . --file ./docker/Dockerfile.api
+    - docker push $API_REPOSITORY_URL:latest
+#  only:
+#    - master
+  tags:
+    - docker

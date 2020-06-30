@@ -1,0 +1,19 @@
+{
+  "name": "flow-deploy",
+  "version": "1.0.0",
+  "description": "flow deploy",
+  "main": "index.js",
+  "author": "ClearView",
+  "license": "Unlicensed",
+  "private": true,
+  "scripts": {
+    "deploy:staging": "npx shipit staging deploy",
+    "deploy:production": "npx shipit production deploy"
+  },
+  "devDependencies": {
+    "shipit-cli": "^5.3.0",
+    "shipit-deploy": "^5.3.0",
+    "shipit-pm2": "^0.0.4",
+    "shipit-slack": "^0.1.3"
+  }
+}

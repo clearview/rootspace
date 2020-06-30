@@ -98,8 +98,8 @@ export class InviteService {
     const subject = 'You are invited to ' + space.title + ' space on Root'
 
     const content = invite.userId
-      ? await this.getInviteUserEmailTemaplte(invite, space)
-      : await this.getInviteEmailTemplate(invite, space)
+      ? await InviteService.getInviteUserEmailTemplate(invite, space)
+      : await InviteService.getInviteEmailTemplate(invite, space)
 
     try {
       await this.mailService.sendMail(invite.email, subject, content)
@@ -108,28 +108,28 @@ export class InviteService {
     }
   }
 
-  private async getInviteUserEmailTemaplte(
+  private static async getInviteUserEmailTemplate(
     invite: Invite,
     space: Space
   ): Promise<string> {
     return pug.renderFile(InviteService.mailTemplatesDir + 'user.pug', {
       spaceTitle: space.title,
-      inviteUrl: this.generateInvitationUrl(invite),
+      inviteUrl: InviteService.generateInvitationUrl(invite),
     })
   }
 
-  private async getInviteEmailTemplate(
+  private static async getInviteEmailTemplate(
     invite: Invite,
     space: Space
   ): Promise<string> {
     return pug.renderFile(InviteService.mailTemplatesDir + 'email.pug', {
       spaceTitle: space.title,
-      inviteUrl: this.generateInvitationUrl(invite),
-      signUpUrl: this.getSignUpUrl(),
+      inviteUrl: InviteService.generateInvitationUrl(invite),
+      signUpUrl: InviteService.getSignUpUrl(),
     })
   }
 
-  private generateInvitationUrl(invite: Invite): string {
+  private static generateInvitationUrl(invite: Invite): string {
     return (
       config.domain +
       config.domainInviteAcceptPath +
@@ -140,7 +140,7 @@ export class InviteService {
     )
   }
 
-  private getSignUpUrl(): string {
+  private static getSignUpUrl(): string {
     return config.domain + config.domainSignupPath
   }
 }

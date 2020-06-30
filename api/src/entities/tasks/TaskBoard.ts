@@ -9,7 +9,7 @@ import {
   Generated
 } from 'typeorm'
 import { TaskList } from './TaskList'
-import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
+import { IsDate, IsInt, Length, Max, Min } from 'class-validator'
 
 export enum TaskBoardType {
   List = 1,
