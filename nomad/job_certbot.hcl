@@ -99,5 +99,83 @@ job "root_certbot" {
         }
      }
     }
+    # Certbot WEB
+    task "certbot_web" {
+
+      driver = "docker"
+      env {
+        "RELEASE" = "${RELEASE}"
+      }
+      template {
+        data = <<EOH
+        SSL_CHECK_STATUS  = {{range service "certbot-web-certificate-file-check"}}{{.Status}}{{end}}
+        EOH
+        destination   = "${NOMAD_TASK_DIR}/env"
+        change_mode   = "noop"
+        perms         = "0775"
+        env = true
+      }
+      template {
+        data = <<EOH
+        WEB_DOMAIN = "{{key "service/root/web/domain"}}"
+        EOH
+        destination   = "${NOMAD_TASK_DIR}/domain"
+        change_mode   = "restart"
+        perms         = "0775"
+        env = true
+      }
+      template {
+        data = <<EOH
+        #!/bin/sh
+        trap exit TERM;
+        while :;
+        do certbot --cert-name ${WEB_DOMAIN} \
+        --email nedim@clearview.team \
+        --agree-tos --no-eff-email certonly \
+        --renew-by-default --webroot -w /var/www/certbot/ \
+        --preferred-challenges http -d ${WEB_DOMAIN}; sleep 15h & wait ${!}; done;
+        EOH
+        destination   = "${NOMAD_TASK_DIR}/entrypoint.sh"
+        change_mode   = "noop"
+        perms         = "0775"
+      }
+      config {
+        image = "certbot/certbot"
+        auth {
+          server_address = "hub.docker.com"
+        }
+        entrypoint = [
+        "/bin/sh",
+        "-c",
+        "ls /var/www/certbot && cat ${NOMAD_TASK_DIR}/entrypoint.sh && exec ${NOMAD_TASK_DIR}/entrypoint.sh"
+        ]
+        extra_hosts = [
+          "host:${attr.unique.network.ip-address}",
+          "consul:${attr.unique.network.ip-address}"
+        ]
+      }
+      config {
+        volumes = [
+          "root_letsencrypt:/etc/letsencrypt",
+          "root_certbot:/var/www/certbot"
+        ]
+        volume_driver = "local"
+      }
+      service {
+        name = "certbot-web-certificate-file-check"
+        tags = ["cerbot","root/web"]
+        meta {
+          domain_name = "${WEB_DOMAIN}"
+        }
+        check {
+          type     = "script"
+          name     = "certbot-web-certificate-file-check"
+          command  = "/bin/sh"
+          args     = ["-c", "test -f /etc/letsencrypt/live/${WEB_DOMAIN}/fullchain.pem"]
+          interval = "60s"
+          timeout  = "5s"
+        }
+     }
+    }
   }
 }
