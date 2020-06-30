@@ -79,7 +79,7 @@ job "root_web" {
     }
     resources {
       cpu    = 256
-      memory = 512
+      memory = 768
       network {
         mbits = 1
         port "web" {
