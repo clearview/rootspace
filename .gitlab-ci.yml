@@ -38,7 +38,12 @@ build_proxy:
   stage: build_proxy
   script:
     - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
-    - docker build -t $PROXY_REPOSITORY_URL:latest . --file ./docker/Dockerfile.proxy --target copy_root_proxy_conf_files
+    - >
+        docker build .
+        --cache-from="PROXY_REPOSITORY_URL:latest"
+        -t $PROXY_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.proxy
+        --target copy_root_proxy_conf_files
     - docker push $PROXY_REPOSITORY_URL:latest
   only:
    - master
@@ -49,7 +54,11 @@ build_web:
   stage: build_web
   script:
     - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
-    - docker build -t $WEB_REPOSITORY_URL:latest . --file ./docker/Dockerfile.web
+    - >
+        docker build .
+        --cache-from="WEB_REPOSITORY_URL:latest"
+        -t $WEB_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.web
     - docker push $WEB_REPOSITORY_URL:latest
   only:
    - master
