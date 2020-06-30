@@ -53,7 +53,6 @@ export default class DocumentService {
   static async destroy (id: number) {
     try {
       const res = await api.delete(`docs/${id}`)
-
       return res
     } catch (error) {
       let err = error

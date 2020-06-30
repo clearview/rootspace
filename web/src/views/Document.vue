@@ -35,7 +35,7 @@
       :loading="deleteDoc.loading"
       confirmText="Yes"
       @cancel="deleteDoc.visible = false"
-      @confirm="deleteDocument(id)"
+      @confirm="deleteDocument(deleteDoc)"
     >
       <div class="modal-body text-center">
         Are you sure you want to delete this document?
@@ -74,7 +74,7 @@ type ComponentData = {
   deleteDoc: {
     visible: boolean;
     loading: boolean;
-    data: number | null;
+    id: number | null;
     alert: Alert | null;
   };
 }
@@ -99,7 +99,7 @@ export default Vue.extend({
       deleteDoc: {
         visible: false,
         loading: false,
-        data: null,
+        id: null,
         alert: null
       }
     }
@@ -180,7 +180,6 @@ export default Vue.extend({
       // })
 
       if (val) {
-        console.log(this.value)
         this.valueEditor = readOnly(this.value)
       }
     },
@@ -247,12 +246,14 @@ export default Vue.extend({
     },
     deleteDocConfirm () {
       this.deleteDoc.visible = true
+      this.deleteDoc.id = this.id
     },
-    async deleteDocument (id: number) {
+    async deleteDocument (data: Partial<DocumentResource>) {
       this.deleteDoc.loading = true
 
       try {
-        await DocumentService.destroy(id)
+        await this.$store.dispatch('document/destroy', data)
+        await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
 
         this.$router.push({ name: 'Main' })
       } catch (err) {
