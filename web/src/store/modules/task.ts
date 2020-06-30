@@ -5,6 +5,7 @@ import { createServiceModule } from '@/store/utils/createServiceModule'
 import { BoardService, CommentService, ItemService, ListService, TagService } from '@/services/task'
 import { createChildServiceModule } from '@/store/utils/createChildServiceModule'
 import api from '@/utils/api'
+import { TaskItemResource } from '@/types/resource'
 
 const tag = createChildServiceModule(TagService, (root: RootState) => root.task.board.current?.id)
 if (tag.actions) {
@@ -24,6 +25,25 @@ if (tag.actions) {
 
 const item = createServiceModule(ItemService)
 if (item.actions) {
+  item.actions.upload = async ({ commit, rootState }, params: { task: TaskItemResource; file: File}) => {
+    if (!rootState.auth.currentSpace) {
+      throw new Error('Not in an active space')
+    }
+    if (!params.task.id) {
+      throw new Error('Invalid task ID')
+    }
+    const formData = new FormData()
+    formData.append('file', params.file)
+    commit('setProcessing', true)
+    const res = await api.post(`/upload?spaceId=${rootState.auth.currentSpace.id}`, formData)
+    if (!params.task.attachments) {
+      params.task.attachments = []
+    }
+    params.task.attachments.push(res.data)
+    await ItemService.update(params.task.id, params.task)
+    commit('setProcessing', false)
+    return res
+  }
   item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number }) => {
     commit('setProcessing', true)
     const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/add`)

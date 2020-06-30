@@ -11,6 +11,11 @@
           </div>
         </li>
       </ul>
+      <div class="tag-empty" v-if="!isIntentNewTag && filteredTags.length === 0">
+        <div class="tag tag-null">
+          You have no tags, create one by typing above
+        </div>
+      </div>
       <div class="tag-empty" v-if="isIntentNewTag">
         <div class="tag" @click="addTag">
           <div class="tag-color" :style="{background: colorInput}">
@@ -103,6 +108,11 @@ export default class TagsPopover extends Vue {
     &:hover {
       background: theme("colors.gray.100");
     }
+  }
+  .tag-null {
+    @apply pb-3;
+    font-size: 0.85rem;
+    opacity: 0.5;
   }
 
   .tag-color {

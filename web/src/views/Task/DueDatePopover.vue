@@ -68,6 +68,7 @@ export default class DueDatePopover extends Vue {
 
     @Emit('input')
     input () {
+      this.date.setHours(this.hour, this.minute, 0, 0)
       return this.date
     }
 

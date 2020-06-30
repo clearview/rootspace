@@ -10,6 +10,17 @@ export interface LinkResource {
   };
 }
 
+export interface UploadResource {
+  created: Date;
+  id: number;
+  size: 386397;
+  path: string;
+  spaceId: number;
+  type: string;
+  updated: Date;
+  userId: number;
+}
+
 export interface ApiResource {
   id: number | null;
   createdAt: Date | null;
@@ -41,7 +52,7 @@ export interface TaskItemResource extends ApiResource {
   description: string | null;
   status: TaskItemStatus;
   tags: TagResource[] | null;
-  attachments: never[] | null;
+  attachments: UploadResource[] | null;
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;

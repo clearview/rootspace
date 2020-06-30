@@ -41,10 +41,12 @@
           <div class="action-label">
             Add To Card
           </div>
+          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile">
           <div class="actions">
-            <button class="btn btn-mute">
+            <button class="btn btn-mute" @click="pickFile" :disabled="isUploading">
               <v-icon name="attachment" viewbox="20" size="1rem"/>
-              <span>Attach</span>
+              <span v-if="!isUploading">Attach</span>
+              <span v-else>Uploading…</span>
             </button>
             <TagsPopover @input="handleTagMenu">
               <template v-slot:trigger>
@@ -113,7 +115,7 @@
         <div class="right-field">
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
-            <ul class="tags" v-if="item.tags.length > 0">
+            <ul class="tags" v-if="item.tags && item.tags.length > 0">
               <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color}"
                   @click="handleTagMenu(tag)">
                 <span>{{tag.label}}</span>
@@ -128,7 +130,7 @@
         <div class="right-field">
           <div class="right-field-title">Members</div>
           <div class="right-field-content">
-            <ul class="assignees" v-if="item.assignees.length > 0">
+            <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
               <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id"
                   @click="handleMemberMenu(assignee)">
                 <avatar :username="memberName(assignee)"></avatar>
@@ -143,7 +145,29 @@
         <div class="right-field">
           <div class="right-field-title">Attachments</div>
           <div class="right-field-content">
-            None
+            <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">
+              <li class="attachment" v-for="attachment in item.attachments" :key="attachment.id">
+                <a :href="attachment.path" class="attachment-link" target="_blank" rel="noreferrer noopener">
+                  <div class="attachment-media" v-if="attachment.type === 'image/jpeg' || attachment.type === 'image/png'">
+                    <img :src="attachment.path" :alt="attachment.id">
+                  </div>
+                  <div v-else class=attachment-media>
+                    <img src="../../assets/images/workspace.png" :alt="attachment.id">
+                  </div>
+                  <div class="attachment-close">
+                    <button class="btn btn-icon" @click.prevent="handleRemoveFile(attachment)">
+                      <v-icon name="close"/>
+                    </button>
+                  </div>
+                  <div class="attachment-name">
+                    {{attachment.path | formatAttachmentName}}
+                  </div>
+                </a>
+              </li>
+            </ul>
+            <template v-else>
+              None
+            </template>
           </div>
         </div>
         <div class="right-field">
@@ -158,9 +182,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TagResource, TaskCommentResource, TaskItemResource, UserResource } from '@/types/resource'
+import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { Optional } from '@/types/core'
@@ -198,6 +222,11 @@ import Avatar from 'vue-avatar'
           const typedDate = new Date(dateOrString)
           return dateOrString ? dateFormat.format(typedDate) : 'None'
         }
+      },
+      formatAttachmentName (path: string) {
+        const splits = path.split('/')
+        const name = splits[splits.length - 1]
+        return name
       }
     }
   })
@@ -208,9 +237,13 @@ export default class TaskModal extends Vue {
     @Prop({ type: Object, required: true })
     private readonly item!: TaskItemResource;
 
+    @Ref('attachmentFile')
+    private readonly attachmentFileRef!: HTMLInputElement
+
     private itemCopy = { ...this.item }
     private isEditingDescription = false;
     private commentInput = '';
+    private isUploading = false
 
     @Emit('cancel')
     cancel () {
@@ -220,6 +253,31 @@ export default class TaskModal extends Vue {
     @Emit('close')
     close () {
 
+    }
+
+    pickFile () {
+      this.attachmentFileRef.click()
+    }
+
+    async handleAttachFile () {
+      const file = this.attachmentFileRef.files?.item(0)
+      if (file) {
+        this.isUploading = true
+        const res = await this.$store.dispatch('task/item/upload', {
+          task: this.itemCopy,
+          file
+        })
+        this.isUploading = false
+        await this.$store.dispatch('task/board/refresh')
+      }
+    }
+
+    async handleRemoveFile (attachment: UploadResource) {
+      if (this.itemCopy.attachments) {
+        this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
+        await this.$store.dispatch('task/item/update', this.itemCopy)
+        await this.$store.dispatch('task/board/refresh')
+      }
     }
 
     async saveDescription () {
@@ -505,6 +563,57 @@ export default class TaskModal extends Vue {
       right: 5px;
       border-radius: 10px;
     }
+  }
+
+  .attachment-file {
+    @apply hidden;
+  }
+
+  .attachments {
+    @apply flex items-center flex-wrap;
+  }
+  .attachment {
+    @apply mr-2 mb-2 rounded overflow-hidden relative;
+    flex: 0 1 auto;
+  }
+  .attachment-media {
+    img {
+      @apply rounded;
+      width: 96px;
+      height: 96px;
+      object-fit: cover;
+    }
+  }
+  .attachment-name {
+    @apply absolute p-2;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to bottom, #0000, #000a);
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .attachment-close {
+    @apply absolute p-2;
+    visibility: hidden;
+    top: 0;
+    right: 0;
+    text-align: right;
+    background: transparent;
+    color: #fff;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  .attachment:hover .attachment-close {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .attachment-close .btn:hover{
+    background: rgba(170,177,197, 1);
   }
 
 </style>
