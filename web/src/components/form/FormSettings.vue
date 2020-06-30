@@ -159,12 +159,12 @@ import Vue from 'vue'
 import { mapState } from 'vuex'
 import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
 
-import { SettingsResource, PasswordResource } from '@/types/resource'
+import { UserResource, PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 
 type ComponentData = {
-  payload: SettingsResource;
+  payload: UserResource;
   password: PasswordResource;
 }
 

@@ -62,10 +62,14 @@
                 </button>
               </template>
             </DueDatePopover>
-            <button class="btn btn-mute">
-              <v-icon name="plus2" size="1rem" viewbox="16"/>
-              <span>Member</span>
-            </button>
+            <MemberPopover @input="handleMemberMenu">
+              <template v-slot:trigger>
+                <button class="btn btn-mute">
+                  <v-icon name="plus2" size="1rem" viewbox="16"/>
+                  <span>Member</span>
+                </button>
+              </template>
+            </MemberPopover>
           </div>
         </div>
         <div class="task-description">
@@ -124,7 +128,16 @@
         <div class="right-field">
           <div class="right-field-title">Members</div>
           <div class="right-field-content">
-            None
+            <ul class="assignees" v-if="item.assignees.length > 0">
+              <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id"
+                  @click="handleMemberMenu(assignee)">
+                <avatar :username="memberName(assignee)"></avatar>
+                <v-icon name="close"/>
+              </li>
+            </ul>
+            <template v-else>
+              None
+            </template>
           </div>
         </div>
         <div class="right-field">
@@ -147,23 +160,27 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TagResource, TaskCommentResource, TaskItemResource } from '@/types/resource'
+import { TagResource, TaskCommentResource, TaskItemResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
+import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
+import Avatar from 'vue-avatar'
 
   @Component({
     name: 'TaskModal',
     components: {
       DueDatePopover,
       TagsPopover,
+      MemberPopover,
       TaskComment,
       PopoverList,
       Modal,
-      Field
+      Field,
+      Avatar
     },
     filters: {
       formatDateOrNone (dateOrString: Date | string) {
@@ -250,6 +267,22 @@ export default class TaskModal extends Vue {
       await this.$store.dispatch('task/board/refresh')
     }
 
+    async handleMemberMenu (member: UserResource) {
+      const exist = this.item.assignees?.find(itemAssignee => itemAssignee.id === member.id)
+      if (exist) {
+        await this.$store.dispatch('task/item/removeAssigneeFromTask', {
+          taskId: this.item.id,
+          userId: member.id
+        })
+      } else {
+        await this.$store.dispatch('task/item/addAssigneeToTask', {
+          taskId: this.item.id,
+          userId: member.id
+        })
+      }
+      await this.$store.dispatch('task/board/refresh')
+    }
+
     async handleDateMenu (date: Date) {
       this.itemCopy.dueDate = date
       await this.$store.dispatch('task/item/update', this.itemCopy)
@@ -260,6 +293,10 @@ export default class TaskModal extends Vue {
       this.itemCopy.dueDate = null
       await this.$store.dispatch('task/item/update', this.itemCopy)
       await this.$store.dispatch('task/board/refresh')
+    }
+
+    memberName (member: UserResource) {
+      return `${member.firstName} ${member.lastName}`
     }
 }
 </script>
@@ -427,12 +464,14 @@ export default class TaskModal extends Vue {
     color: rgba(theme("colors.gray.800"), 0.5);
   }
 
-  .tags {
+  .tags,
+  .assignees {
     @apply flex flex-wrap justify-start;
     max-width: 200px;
   }
 
-  .tag {
+  .tag,
+  .assignee {
     @apply p-2 mr-2 rounded inline-flex items-center mb-2;
     color: #fff;
     cursor: pointer;
@@ -445,6 +484,26 @@ export default class TaskModal extends Vue {
       svg {
         visibility: visible;
       }
+    }
+  }
+
+  .assignee {
+    margin: 0;
+    position: relative;
+
+    .vue-avatar--wrapper {
+      width: 30px !important;
+      height: 30px !important;
+      font: 10px / 20px Helvetica, Arial, sans-serif !important;
+    }
+
+    svg {
+      position: absolute;
+      background: theme("colors.gray.100");
+      color: theme("colors.gray.900");
+      top: 5px;
+      right: 5px;
+      border-radius: 10px;
     }
   }
 
