@@ -1,6 +1,7 @@
 FROM node:12 as base
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
+COPY ./web/. .
 
 FROM base as nginx
 RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && < /dev/null > /dev/null \
