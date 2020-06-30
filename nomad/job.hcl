@@ -209,8 +209,8 @@ job "root_api_web" {
       env = true
     }
     resources {
-      cpu    = 200
-      memory = 256
+      cpu    = 256
+      memory = 512
       network {
         mbits = 1
         port "web" {
