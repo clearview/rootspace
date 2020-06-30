@@ -7,6 +7,12 @@ server {
 
 	      access_log off;
 
+        location ~ /\.well-known/acme-challenge/ {
+           root /var/www/certbot/;
+           index index.html index.htm;
+           try_files $uri $uri/ =404;
+        }
+        
         location / {
                 try_files $uri /index.html;
             }
