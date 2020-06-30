@@ -24,8 +24,9 @@ build_api:
   script:
     - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
     - >
-        docker build
-        -t $API_REPOSITORY_URL:latest .
+        docker build .
+        --cache-from="API_REPOSITORY_URL:latest"
+        -t $API_REPOSITORY_URL:latest
         --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
   only:
