@@ -59,6 +59,7 @@ job "root_web" {
       data = <<EOH
       #SSL_CHECK_STATUS  = {{range service "certbot-hodor-api-certificate-file-check"}}{{.Status}}{{end}}
       WEB_DOMAIN = "{{key "service/root/web/domain"}}"
+      API_DOMAIN = "{{key "service/root/web/domain"}}"
       EOH
       destination   = "${NOMAD_TASK_DIR}/web_env"
       change_mode   = "noop"
@@ -69,7 +70,7 @@ job "root_web" {
       data = <<EOH
       API_IP_FROM_CONSUL={{range service "api"}}{{.Address}}{{end}}
 
-      VUE_APP_API_URL=//{{range service "api"}}{{.Address}}{{end}}:{{range service "api"}}{{.Port}}{{end}}
+      VUE_APP_API_URL=http://{{key "service/root/web/domain"}}
       VUE_APP_PORT=3000
 
       EOH
