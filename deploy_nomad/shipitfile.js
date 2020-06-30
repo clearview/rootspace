@@ -32,6 +32,12 @@ module.exports = shipit => {
       servers: 'rut@server.root.prod.clearviewdev.io',
       branch: 'dockerize'
     },
+    staging_proxy: {
+      deployTo: '/srv/root',
+      verboseSSHLevel: 0,
+      servers: 'rut@server.root.prod.clearviewdev.io',
+      branch: 'dockerize'
+    },
     staging_certbot: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
@@ -95,6 +101,26 @@ module.exports = shipit => {
         console.log('Nomad deploying')
         console.log('\n')
         await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
+        //await shipit.remote(`exec nomad status flow-group`)
+        console.log('\n\n')
+        console.log('Listing all Docker containers')
+        console.log('\n')
+        await shipit.remote(`docker ps -a`)
+      });
+    }
+
+    if (env === 'staging_proxy') {
+      shipit.on('deployed', async() => {
+        console.log('\n\n')
+        const releaseDir = path.join(shipit.releasesPath, shipit.releaseDirname)
+        console.log('\n\n')
+        console.log('Building Docker containers')
+        console.log('\n')
+        // await shipit.remote(`cd /srv/root/current/ && exec /srv/root/current/build_nomad.sh`)
+        console.log('\n\n')
+        console.log('Nomad deploying')
+        console.log('\n')
+        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_proxy.hcl > run_job_proxy.hcl && exec nomad job run run_job_proxy.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
