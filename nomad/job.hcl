@@ -199,6 +199,10 @@ job "root_api_web" {
     template {
       data = <<EOH
       API_IP_FROM_CONSUL={{range service "api"}}{{.Address}}{{end}}
+
+      VUE_APP_API_URL=//{{range service "api"}}{{.Address}}{{end}}:{{range service "api"}}{{.Port}}{{end}}
+      VUE_APP_PORT={{range service "api"}}{{.Port}}{{end}}
+
       EOH
       destination   = "${NOMAD_TASK_DIR}/.env"
       change_mode   = "restart"
