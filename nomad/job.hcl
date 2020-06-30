@@ -135,7 +135,7 @@ job "root_api_web" {
      }
     }
   }
-  group "flow-web" {
+  group "root-web" {
 
     # Specify the number of these tasks we want.
     count = 1
@@ -180,7 +180,7 @@ job "root_api_web" {
         "host:${attr.unique.network.ip-address}",
       ]
       port_map {
-        org = 80
+        web = 80
       }
     }
     env {
@@ -191,7 +191,7 @@ job "root_api_web" {
       #SSL_CHECK_STATUS  = {{range service "certbot-hodor-api-certificate-file-check"}}{{.Status}}{{end}}
       WEB_DOMAIN = "{{key "service/root/web/domain"}}"
       EOH
-      destination   = "${NOMAD_TASK_DIR}/org_env"
+      destination   = "${NOMAD_TASK_DIR}/web_env"
       change_mode   = "noop"
       perms         = "0775"
       env = true
@@ -209,14 +209,14 @@ job "root_api_web" {
       memory = 256
       network {
         mbits = 1
-        port "org" {
+        port "web" {
           }
         }
       }
     service {
-      name = "org"
-      port = "org"
-      tags = ["flow","web","org"]
+      name = "web"
+      port = "web"
+      tags = ["root","web"]
       meta {
         domain_name = "${WEB_DOMAIN}"
       }
