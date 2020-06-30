@@ -28,6 +28,10 @@ job "root_certbot" {
       env {
         "RELEASE" = "${RELEASE}"
       }
+      lifecycle {
+         hook    = "prestart"
+         sidecar = true
+      }
       template {
         data = <<EOH
         SSL_CHECK_STATUS  = {{range service "certbot-api-certificate-file-check"}}{{.Status}}{{end}}
