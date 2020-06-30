@@ -9,14 +9,14 @@ import { LinksCommand } from './src/commands/LinksCommand'
 yargs
   .command({
     command: 'links <command>',
-    aliases: ['x'],
+    aliases: ['l'],
     handler: async (argv) => {
       await new LinksCommand().run(String(argv.command))
       process.exit()
     },
     builder: (args) =>
       args.positional('command', {
-        alias: 'c',
+        alias: 'n',
         type: 'string',
         describe: 'command',
         choices: ['normalize-positions'],
@@ -25,7 +25,8 @@ yargs
   })
   .demandCommand(1, chalk.red('Input command before moving on!'))
   .version('1.0')
-  .help().argv
+  .help()
+  .argv
 
 process.on('unhandledRejection', (reason, p) =>
   // tslint:disable-next-line:no-console
