@@ -25,7 +25,7 @@ export default class LinkService {
   }
 
   static async view (id: number) {
-    const res = await api.get(`links/view/${id}`)
+    const res = await api.get(`links/${id}`)
 
     return res.data
   }

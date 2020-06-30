@@ -1,58 +1,60 @@
 import api from '@/utils/api'
 import store from '@/store'
 
-async function create (data: object) {
-  try {
-    const res = await api.post('docs', { data })
-    await store.dispatch('link/fetch')
+export default class DocumentService {
+  static async create (data: object) {
+    try {
+      const res = await api.post('docs', { data })
+      await store.dispatch('link/fetch')
 
-    return res
-  } catch (error) {
-    let err = error
-    if (error.response) {
-      const body = {
-        code: error.response.status,
-        message: error.response.data
+      return res
+    } catch (error) {
+      let err = error
+      if (error.response) {
+        const body = {
+          code: error.response.status,
+          message: error.response.data
+        }
+        err = body
       }
-      err = body
+      throw err
     }
-    throw err
-  }
-}
-
-async function view (id: string) {
-  const { data } = await api.get(`docs/${id}`)
-
-  if (data.status === 'error') {
-    throw new Error(data)
   }
 
-  return data
-}
+  static async view (id: string) {
+    const { data } = await api.get(`docs/${id}`)
 
-async function update (id: string, data: object) {
-  try {
-    const res = await api.patch(`docs/${id}`, { data })
-
-    return res
-  } catch (error) {
-    let err = error
-
-    if (error.response) {
-      const body = {
-        code: error.response.status,
-        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
-        fields: error.response.data.error.fields
-      }
-      err = body
+    if (data.status === 'error') {
+      throw new Error(data)
     }
 
-    throw err
+    return data
   }
-}
 
-export default {
-  create,
-  view,
-  update
+  static async update (id: string, data: object) {
+    try {
+      const res = await api.patch(`docs/${id}`, { data })
+
+      return res
+    } catch (error) {
+      let err = error
+
+      if (error.response) {
+        const body = {
+          code: error.response.status,
+          message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+          fields: error.response.data.error.fields
+        }
+        err = body
+      }
+
+      throw err
+    }
+  }
+
+  static async destroy (id: number) {
+    const res = await api.delete(`docs/${id}`)
+
+    return res.data
+  }
 }

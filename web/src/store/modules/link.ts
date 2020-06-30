@@ -10,60 +10,37 @@ const LinkModule: Module<LinkState, RootState> = {
 
   state () {
     return {
-      payload: [],
-      folded: {},
-      active: null
+      item: null
     }
   },
 
   mutations: {
-    setPayload (state, payload) {
-      state.payload = payload
-    },
-    setActive (state, link) {
-      state.active = link
-    },
-    setFolded (state, path) {
-      state.folded = {
-        ...state.folded,
-        ...path
-      }
+    setItem (state, view) {
+      state.item = view
     }
   },
 
   actions: {
-    async fetch ({ commit, rootState }, params) {
-      const currentSpace = rootState.auth.currentSpace
+    async view ({ commit }, id: number) {
+      const { data } = await LinkService.view(id)
 
-      if (!currentSpace) {
-        throw new Error('There is no currently active space')
-      }
-
-      const res = await LinkService.fetch({
-        ...params,
-        spaceId: currentSpace.id
-      })
-
-      commit('setPayload', res.data)
+      commit('setItem', data)
     },
 
-    async create ({ dispatch }, data: LinkResource) {
+    async create (_, data: LinkResource) {
       await LinkService.create(data)
-      await dispatch('fetch')
     },
 
-    async update ({ dispatch }, data: LinkResource) {
+    async update (_, data: LinkResource) {
       await LinkService.update(data.id, data)
-      await dispatch('fetch')
     },
 
-    async destroy ({ dispatch }, data: LinkResource) {
+    async destroy (_, data: LinkResource) {
       if (!data.id) {
         throw new Error('ID is not defined')
       }
 
       await LinkService.destroy(data.id)
-      await dispatch('fetch')
     }
   }
 }
