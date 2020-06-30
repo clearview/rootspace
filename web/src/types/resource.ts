@@ -36,7 +36,7 @@ export interface TaskItemResource extends ApiResource {
   userId: number | null;
   spaceId: number | null;
   listId: number | null;
-  assignedTo: never[] | null;
+  assignees: UserResource[] | null;
   title: string;
   description: string | null;
   status: TaskItemStatus;
@@ -90,12 +90,6 @@ export interface SigninResource {
   password: string;
 }
 
-export interface SettingsResource {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export interface PasswordResource {
   password: string;
   newPassword: string;
@@ -110,16 +104,17 @@ export interface WorkspaceResource {
 }
 
 export interface UserResource {
-  active: boolean;
-  authProvider: string;
+  id?: number;
+  active?: boolean;
   email: string;
-  emailConfirmed: boolean;
   firstName: string;
-  id: number;
   lastName: string;
-  token: string;
-  created: string;
-  updated: string;
+  avatar?: string;
+  authProvider?: string;
+  emailConfirmed?: boolean;
+  token?: string;
+  created?: string;
+  updated?: string;
 }
 
 export interface DocumentResource {

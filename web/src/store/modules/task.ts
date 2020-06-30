@@ -22,13 +22,29 @@ if (tag.actions) {
   }
 }
 
+const item = createServiceModule(ItemService)
+if (item.actions) {
+  item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number }) => {
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/add`)
+    commit('setProcessing', false)
+    return res
+  }
+  item.actions.removeAssigneeFromTask = async ({ commit }, params: { taskId: number; userId: number }) => {
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/remove`)
+    commit('setProcessing', false)
+    return res
+  }
+}
+
 const TaskModule: Module<TaskState, RootState> = {
   namespaced: true,
   modules: {
     board: createServiceModule(BoardService),
     list: createServiceModule(ListService),
-    item: createServiceModule(ItemService),
     comment: createServiceModule(CommentService),
+    item,
     tag
   }
 }

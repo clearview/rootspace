@@ -24,7 +24,7 @@ export default class PopoverList extends Vue {
     private readonly items!: { label: string; value: string }[]
 
     @Emit('input')
-    input (value: string, slotApi: any) {
+    input (value: string, slotApi: any) { // eslint-disable-line
       if (slotApi.hide) {
         slotApi.hide()
       }

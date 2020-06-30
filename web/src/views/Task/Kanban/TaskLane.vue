@@ -188,7 +188,7 @@ export default class TaskLane extends Vue {
     addCard () {
       this.isInputtingNewItem = true
       this.newItem = {
-        assignedTo: null,
+        assignees: null,
         attachments: null,
         description: null,
         dueDate: null,
