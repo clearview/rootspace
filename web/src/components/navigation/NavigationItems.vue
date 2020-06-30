@@ -136,7 +136,8 @@ export default Vue.extend({
       get () {
         return {
           doc: 'file',
-          link: 'link'
+          link: 'link',
+          taskBoard: 'file'
         }
       }
     }
@@ -169,6 +170,11 @@ export default Vue.extend({
         case 'doc':
           this.$router
             .push({ name: 'Document', params: { id: node.value } })
+            .catch(err => err)
+          break
+        case 'taskBoard':
+          this.$router
+            .push({ name: 'TaskPage', params: { id: node.value } })
             .catch(err => err)
           break
 
