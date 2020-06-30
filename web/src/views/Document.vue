@@ -153,6 +153,7 @@ export default Vue.extend({
           const getDocument = document.data
 
           this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
+          await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
         }
 
         this.loading = false

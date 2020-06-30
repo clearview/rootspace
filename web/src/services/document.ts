@@ -1,11 +1,9 @@
 import api from '@/utils/api'
-import store from '@/store'
 
 export default class DocumentService {
   static async create (data: object) {
     try {
       const res = await api.post('docs', { data })
-      await store.dispatch('link/fetch')
 
       return res
     } catch (error) {
