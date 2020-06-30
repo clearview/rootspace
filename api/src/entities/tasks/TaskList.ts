@@ -20,7 +20,6 @@ export class TaskList {
   id: number
 
   @Column('integer')
-  @Index()
   userId: number
 
   @ManyToOne((type) => User)
@@ -29,7 +28,6 @@ export class TaskList {
   user!: User
 
   @Column('integer')
-  @Index()
   spaceId: number
 
   @ManyToOne((type) => Space)
@@ -38,7 +36,6 @@ export class TaskList {
   space!: Space
 
   @Column('integer')
-  @Index()
   boardId: number
 
   @ManyToOne(type => TaskBoard, board => board.taskLists, {onDelete: 'CASCADE'})
