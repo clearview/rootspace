@@ -3,7 +3,7 @@ server {
 
         server_name _;
 
-        root   /srv/web/build;
+        root   /srv/build;
 
 	      access_log off;
 
