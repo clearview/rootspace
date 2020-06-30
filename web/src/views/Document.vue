@@ -16,6 +16,8 @@
         @delete-document="deleteDocConfirm"/>
     </div>
 
+    {{ initialize }}
+
     <editor
       id="editor"
       v-if="!initialize && !readOnly"
@@ -27,7 +29,7 @@
       @update-editor="onUpdateEditor"
     />
 
-    <editor-readonly v-if="readOnly" :value="this.value" />
+    <editor-readonly v-if="readOnly" :value="value" />
 
     <v-modal
       title="Delete Document"
@@ -45,9 +47,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import config from '@/utils/config'
-import readOnly from '@/utils/editor/readOnly'
 
 import { DocumentResource, WorkspaceResource } from '@/types/resource'
 
@@ -55,219 +55,202 @@ import DocumentService from '@/services/document'
 
 import Editor from '@/components/Editor.vue'
 import EditorMenu from '@/components/editor/EditorMenu.vue'
+import EditorReadonly from '@/components/editor/ReadOnly.vue'
 import VModal from '@/components/Modal.vue'
 
-type Alert = {
-  type: string;
-  message: string;
-};
+import { Component, Ref, Watch, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  value: object;
-  valueEditor: string;
-  title: string;
-  timer: undefined | number;
-  initialize: boolean;
-  loading: boolean;
-  isFromLoad: boolean;
-  readOnly: boolean;
-  deleteDoc: {
-    visible: boolean;
-    loading: boolean;
-    id: number | null;
-    alert: Alert | null;
-  };
-}
-
-export default Vue.extend({
+@Component({
   name: 'Document',
   components: {
     Editor,
     EditorMenu,
+    EditorReadonly,
     VModal
-  },
-  data (): ComponentData {
-    return {
-      value: {},
-      valueEditor: '',
-      title: '',
-      timer: undefined,
-      initialize: false,
-      loading: false,
-      isFromLoad: false,
-      readOnly: false,
-      deleteDoc: {
-        visible: false,
-        loading: false,
-        id: null,
-        alert: null
-      }
-    }
-  },
-  computed: {
-    currentSpace (): WorkspaceResource {
-      return this.$store.state.auth.currentSpace || {}
-    },
-    id (): number {
-      return Number(this.$route.params.id) || 0
-    },
-    refs: {
-      cache: false,
-      get (this: Vue) {
-        return {
-          title: this.$refs.title as HTMLInputElement
-        }
-      }
-    }
-  },
-  watch: {
-    title () {
-      clearTimeout(this.timer)
-      if (this.isFromLoad) {
-        this.isFromLoad = false
-        return
-      }
-      this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
-      this.textareaResize()
-    },
-    currentSpace (val, oldVal) {
-      if (val.id !== oldVal.id) {
-        this.$router.push({ name: 'Main' })
-      }
-    },
-    id: {
-      immediate: true,
-      async handler (id) {
-        if (!id) {
-          this.title = ''
-          this.value = {}
-        } else {
-          await this.loadDocument()
-        }
+  }
+})
 
-        this.titleFocus()
-        this.textareaResize()
-      }
+export default class Document extends Vue {
+  private value: any = {}
+  private title = ''
+  private timer?: any = undefined
+  private initialize = false
+  private loading = false
+  private isFromLoad = false
+  private readOnly = false
+  private deleteDoc: any = {
+    visible: false,
+    loading: false,
+    id: null,
+    alert: null
+  }
+
+  get currentSpace (): WorkspaceResource {
+    return this.$store.state.auth.currentSpace || {}
+  }
+
+  get id (): number {
+    return Number(this.$route.params.id) || 0
+  }
+
+  @Ref('title')
+  private readonly titleRef!: HTMLInputElement
+
+  @Watch('title')
+  watchTitle () {
+    console.log('1')
+    clearTimeout(this.timer)
+    console.log('2')
+    if (this.isFromLoad) {
+      console.log('3')
+      this.isFromLoad = false
+      return
     }
-  },
+
+    console.log('4')
+    this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
+    console.log('5')
+    this.textareaResize()
+  }
+
+  @Watch('currentSpace')
+  watchCurrentSpace (val: WorkspaceResource, oldVal: WorkspaceResource) {
+    if (val.id !== oldVal.id) {
+      this.$router.push({ name: 'Main' })
+    }
+  }
+
+  @Watch('id', { immediate: true })
+  async watchId (id: number) {
+    console.log('a')
+    if (!id) {
+      console.log('b')
+      this.title = ''
+      this.value = {}
+    } else {
+      console.log('c')
+      await this.loadDocument()
+    }
+
+    console.log('d')
+    this.titleFocus()
+    this.textareaResize()
+  }
+
+  textareaResize () {
+    const title = this.titleRef
+
+    if (title === undefined) return
+
+    title.style.minHeight = '50px'
+    if (this.title === '') return
+
+    title.style.minHeight = title.scrollHeight + 'px'
+  }
+
+  onUpdateEditor (value: object) {
+    this.value = value
+    console.log('update')
+    this.saveDocument()
+  }
+
+  changeReadonlyStatus (val: boolean) {
+    this.readOnly = val
+  }
+
+  async loadDocument () {
+    const id = this.$route.params.id
+
+    if (id) {
+      this.initialize = true
+      try {
+        this.isFromLoad = true
+        const viewDoc = await DocumentService.view(id)
+
+        this.title = viewDoc.data.title
+        this.value = viewDoc.data.content
+      } catch (e) {
+        this.$router.replace({ name: 'Document' })
+      }
+      this.initialize = false
+    }
+  }
+
+  saveDocument () {
+    if (this.title) {
+      console.log('save doc')
+      const payload = {
+        spaceId: this.currentSpace.id,
+        title: this.title,
+        content: this.value,
+        access: 2
+      }
+
+      this.createUpdateDocument(payload)
+    }
+  }
+
+  async createUpdateDocument (data: Partial<DocumentResource>) {
+    try {
+      const id = this.$route.params.id
+      this.loading = true
+
+      if (id) {
+        await DocumentService.update(id, data)
+      } else {
+        const document = await DocumentService.create(data)
+        const getDocument = document.data
+        this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
+        await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
+      }
+
+      this.loading = false
+    } catch (err) {
+      this.loading = false
+    }
+  }
+
+  titleFocus () {
+    if (!this.titleRef) {
+      return
+    }
+
+    if (this.id) {
+      this.titleRef.blur()
+    } else {
+      this.titleRef.focus()
+    }
+  }
+
+  deleteDocConfirm () {
+    this.deleteDoc.visible = true
+    this.deleteDoc.id = this.id
+  }
+
+  async deleteDocument (data: Partial<DocumentResource>) {
+    this.deleteDoc.loading = true
+
+    try {
+      await this.$store.dispatch('document/destroy', data)
+      await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
+
+      this.$router.push({ name: 'Main' })
+    } catch (err) {
+      this.deleteDoc.alert = {
+        type: 'danger',
+        message: err.message
+      }
+    } finally {
+      this.deleteDoc.loading = false
+      this.deleteDoc.visible = false
+    }
+  }
+
   mounted () {
     this.titleFocus()
     this.textareaResize()
-  },
-  methods: {
-    textareaResize () {
-      const title = this.$refs.title as HTMLInputElement
-
-      if (title === undefined) return
-
-      title.style.minHeight = '50px'
-      if (this.title === '') return
-
-      title.style.minHeight = title.scrollHeight + 'px'
-    },
-    onUpdateEditor (value: object) {
-      this.value = value
-
-      this.saveDocument()
-    },
-    changeReadonlyStatus (val: boolean) {
-      this.readOnly = val
-
-      // const elements = document.querySelectorAll(`[contenteditable=${val}]`)
-      // const state = !val
-      // elements.forEach(element => {
-      //   element.setAttribute('contenteditable', state.toString())
-      // })
-
-      if (val) {
-        this.valueEditor = readOnly(this.value)
-      }
-    },
-    async loadDocument () {
-      const id = this.$route.params.id
-
-      if (id) {
-        this.initialize = true
-        try {
-          this.isFromLoad = true
-          const viewDoc = await DocumentService.view(id)
-
-          this.title = viewDoc.data.title
-          this.value = viewDoc.data.content
-        } catch (e) {
-          this.$router.replace({ name: 'Document' })
-        }
-        this.initialize = false
-      }
-    },
-    saveDocument () {
-      if (this.title) {
-        const payload = {
-          spaceId: this.currentSpace.id,
-          title: this.title,
-          content: this.value,
-          access: 2
-        }
-
-        this.createUpdateDocument(payload)
-      }
-    },
-    async createUpdateDocument (data: Partial<DocumentResource>) {
-      try {
-        let document
-        const id = this.$route.params.id
-        this.loading = true
-
-        if (id) {
-          document = await DocumentService.update(id, data)
-        } else {
-          document = await DocumentService.create(data)
-          const getDocument = document.data
-
-          this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
-          await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
-        }
-
-        this.loading = false
-      } catch (err) {
-        this.loading = false
-      }
-    },
-    titleFocus () {
-      if (!this.refs.title) {
-        return
-      }
-
-      if (this.id) {
-        this.refs.title.blur()
-      } else {
-        this.refs.title.focus()
-      }
-    },
-    deleteDocConfirm () {
-      this.deleteDoc.visible = true
-      this.deleteDoc.id = this.id
-    },
-    async deleteDocument (data: Partial<DocumentResource>) {
-      this.deleteDoc.loading = true
-
-      try {
-        await this.$store.dispatch('document/destroy', data)
-        await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
-
-        this.$router.push({ name: 'Main' })
-      } catch (err) {
-        this.deleteDoc.alert = {
-          type: 'danger',
-          message: err.message
-        }
-      } finally {
-        this.deleteDoc.loading = false
-        this.deleteDoc.visible = false
-      }
-    }
   }
-})
+}
 </script>
 
 <style lang="postcss" scoped>

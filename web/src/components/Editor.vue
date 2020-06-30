@@ -1,61 +1,68 @@
 <template>
-  <div class="editor" />
+  <div>
+    {{ content }}
+    <hr/>
+    {{ readonly }}
+    <div class="editor" />
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import EditorJS from '@editorjs/editorjs'
 
 import { createEditor } from '@/utils/editor'
+import { Component, Prop, PropSync, Watch, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  editor: EditorJS | null;
-  documentChanged: boolean;
-}
+@Component({
+  name: 'DocumentEditor'
+})
 
-export default Vue.extend({
-  name: 'DocumentEditor',
-  props: {
-    content: {
-      type: Object
-    },
-    readonly: {
-      type: Boolean
-    }
-  },
-  data (): ComponentData {
-    return {
-      editor: null,
-      documentChanged: false
-    }
-  },
-  computed: {
-    data: {
-      get (): EditorJS.OutputData {
-        return this.content
-      },
-      set (data: EditorJS.OutputData) {
-        this.$emit('update-editor', data)
-      }
-    }
-  },
+export default class Editor extends Vue {
+  // @Prop({ type: Object })
+  // private readonly content!: EditorJS.OutputData;
+
+  @PropSync('content', { type: Object }) syncedContent!: EditorJS.OutputData
+
+  @Prop({ type: Boolean })
+  private readonly readonly!: boolean;
+
+  private editor: EditorJS | null = null;
+  private documentChanged = false
+
+  // get data (): EditorJS.OutputData {
+  //   return this.content
+  // }
+
+  // set data (data: EditorJS.OutputData) {
+  //   this.$emit('update-editor', data)
+  // }
+
+  @Watch('syncedContent')
+  watchSyncContent (data: EditorJS.OutputData) {
+    console.log('update Content')
+    this.$emit('update-editor', data)
+  }
+
   async mounted () {
+    console.log('mounted', this.syncedContent)
     this.editor = createEditor({
       holder: this.$el as HTMLElement,
-      data: this.data,
+      data: this.syncedContent,
       onChange: this.save.bind(this)
     })
 
-    await this.editor.isReady
-  },
-  methods: {
-    async save (api: EditorJS.API) {
-      if (this.readonly) return
+    console.log('this.editor', this.editor)
 
-      this.data = await api.saver.save()
-    }
+    await this.editor.isReady
   }
-})
+
+  async save (api: EditorJS.API) {
+    if (this.readonly) return
+
+    this.syncedContent = await api.saver.save()
+    console.log(this.syncedContent)
+  }
+}
 </script>
 
 <style lang="postcss">

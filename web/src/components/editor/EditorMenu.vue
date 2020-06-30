@@ -95,78 +95,72 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import ContextMenu from '@/components/base/ContextMenu.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
-type ComponentData = {
-  lockEditor: boolean;
-  lockShare: boolean;
-  showMenu: boolean;
-  showShareMenu: boolean;
-}
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 
-export default Vue.extend({
+@Component({
   name: 'EditorMenu',
   components: {
     ContextMenu,
     ButtonSwitch
-  },
-  props: {
-    loading: {
-      type: Boolean
-    }
-  },
-  data (): ComponentData {
-    return {
-      lockEditor: false,
-      lockShare: false,
-      showMenu: false,
-      showShareMenu: false
-    }
-  },
-  watch: {
-    lockEditor (newVal) {
-      this.$emit('change-readonly', newVal)
-      this.showMenu = false
-    }
-  },
-  methods: {
-    share () {
-      this.showMenu = false
-      this.showShareMenu = true
-    },
-    shareMenuOutside (event: Event) {
-      // console.log('shareMenuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
-
-      if (event && event.srcElement.id !== 'doc-share-button' &&
-          event.srcElement.id !== 'doc-share-button-span'
-      ) {
-        this.showShareMenu = false
-      }
-    },
-    backMenu () {
-      this.showShareMenu = false
-      this.showMenu = true
-    },
-    menuOutside (event: Event) {
-      // console.log('menuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
-
-      if (event.srcElement.id !== 'doc-share-button-back' &&
-          event.srcElement.id !== 'doc-share-button-svg'
-      ) {
-        this.showMenu = false
-      }
-    },
-    history () {
-      console.log('history')
-    },
-    trash () {
-      this.$emit('delete-document')
-      console.log('delete')
-    }
   }
 })
+
+export default class EditorMenu extends Vue {
+  @Prop({ type: Boolean })
+  private readonly loading!: boolean;
+
+  private lockEditor = false
+  private lockShare = false
+  private showMenu = false
+  private showShareMenu = false
+
+  @Watch('lockEditor')
+  watchLockEditor (newVal: boolean) {
+    this.$emit('change-readonly', newVal)
+    this.showMenu = false
+  }
+
+  share () {
+    this.showMenu = false
+    this.showShareMenu = true
+  }
+
+  backMenu () {
+    this.showShareMenu = false
+    this.showMenu = true
+  }
+
+  shareMenuOutside (event: Event) {
+    const srcElement = event.srcElement as HTMLInputElement
+
+    if (srcElement.id !== 'doc-share-button' &&
+        srcElement.id !== 'doc-share-button-span'
+    ) {
+      this.showShareMenu = false
+    }
+  }
+
+  menuOutside (event: Event) {
+    const srcElement = event.srcElement as HTMLInputElement
+
+    if (srcElement.id !== 'doc-share-button-back' &&
+        srcElement.id !== 'doc-share-button-svg'
+    ) {
+      this.showMenu = false
+    }
+  }
+
+  history () {
+    console.log('history')
+  }
+
+  trash () {
+    this.$emit('delete-document')
+  }
+}
 </script>
 
 <style lang="postcss" scoped>
