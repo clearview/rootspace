@@ -189,7 +189,7 @@ job "root_api_web" {
     template {
       data = <<EOH
       #SSL_CHECK_STATUS  = {{range service "certbot-hodor-api-certificate-file-check"}}{{.Status}}{{end}}
-      ORG_DOMAIN = "{{key "service/root/web/domain"}}"
+      WEB_DOMAIN = "{{key "service/root/web/domain"}}"
       EOH
       destination   = "${NOMAD_TASK_DIR}/org_env"
       change_mode   = "noop"
@@ -218,7 +218,7 @@ job "root_api_web" {
       port = "org"
       tags = ["flow","web","org"]
       meta {
-        domain_name = "${ORG_DOMAIN}"
+        domain_name = "${WEB_DOMAIN}"
       }
       address_mode = "host"
       check {
