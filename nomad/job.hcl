@@ -4,7 +4,7 @@ job "root_api_web" {
 
   datacenters = ["dc1"]
 
-  group "root-api-group" {
+  group "root-api" {
 
     count = 1
 
@@ -135,7 +135,7 @@ job "root_api_web" {
      }
     }
   }
-  group "flow-web-group" {
+  group "flow-web" {
 
     # Specify the number of these tasks we want.
     count = 1
