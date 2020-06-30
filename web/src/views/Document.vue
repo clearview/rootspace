@@ -27,9 +27,7 @@
       @update-editor="onUpdateEditor"
     />
 
-    <div v-if="readOnly" class="editor content">
-      <div class="codex-editor" v-html="valueEditor"></div>
-    </div>
+    <editor-readonly v-if="readOnly" :value="this.value" />
 
     <v-modal
       title="Delete Document"

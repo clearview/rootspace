@@ -136,10 +136,10 @@ export default Vue.extend({
       this.showMenu = false
       this.showShareMenu = true
     },
-    shareMenuOutside (event) {
-      console.log('shareMenuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
+    shareMenuOutside (event: Event) {
+      // console.log('shareMenuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
 
-      if (event.srcElement.id !== 'doc-share-button' &&
+      if (event && event.srcElement.id !== 'doc-share-button' &&
           event.srcElement.id !== 'doc-share-button-span'
       ) {
         this.showShareMenu = false
@@ -149,8 +149,8 @@ export default Vue.extend({
       this.showShareMenu = false
       this.showMenu = true
     },
-    menuOutside (event) {
-      console.log('menuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
+    menuOutside (event: Event) {
+      // console.log('menuOutside event', event, event.srcElement.id, event.toElement.id, event.target.id)
 
       if (event.srcElement.id !== 'doc-share-button-back' &&
           event.srcElement.id !== 'doc-share-button-svg'
