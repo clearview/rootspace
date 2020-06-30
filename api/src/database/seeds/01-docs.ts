@@ -1,14 +1,17 @@
 import { Connection } from 'typeorm'
 import { Factory, Seeder } from 'typeorm-seeding'
-import { Link, LinkType } from '../../entities/Link'
+import { SeederBase } from '../base/SeederBase'
 import { Doc } from '../../entities/Doc'
-import { UserSpace } from '../base/userSpace'
+import { Node } from '../../entities/Node'
+import { NodeType } from '../../types/node'
 
 export default class DocsSeeder implements Seeder {
-    protected base: UserSpace
+  protected base: SeederBase
 
-    public async run(factory: Factory, connection: Connection): Promise<any> {
-        this.base = await UserSpace.getInstance(factory)
+  public async run(factory: Factory, connection: Connection): Promise<any> {
+    this.base = await SeederBase.getInstance(factory)
+    await this.seedDocuments(3, this.base.rootNode, 2)
+  }
 
   async seedDocuments(count: number, parentNode: Node, treeDepth: number) {
     const nodes = await this.createDocuments(count, parentNode)

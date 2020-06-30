@@ -1,16 +1,16 @@
 import { Connection } from 'typeorm'
 import { Factory, Seeder } from 'typeorm-seeding'
-import { BaseSeeder } from './base'
+import { SeederBase } from '../base/SeederBase'
 import { Link } from '../../entities/Link'
 import { Node } from '../../entities/Node'
 import { NodeType } from '../../types/node'
 
 export default class LinksSeeder implements Seeder {
-  protected base: BaseSeeder
+  protected base: SeederBase
 
   public async run(factory: Factory, connection: Connection): Promise<any> {
-    this.base = await new BaseSeeder().run(factory, connection)
-    await this.seedLinks(3, this.base.spaceRootNode, 2)
+    this.base = await SeederBase.getInstance(factory)
+    await this.seedLinks(3, this.base.rootNode, 2)
   }
 
   async seedLinks(count: number, parentNode: Node, treeDepth: number) {

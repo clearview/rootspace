@@ -1,39 +1,49 @@
-import { Connection } from 'typeorm'
-import { Factory, Seeder } from 'typeorm-seeding'
+import { Factory } from 'typeorm-seeding'
 import { User } from '../../entities/User'
 import { Space } from '../../entities/Space'
 import { UserToSpace } from '../../entities/UserToSpace'
 import { Node } from '../../entities/Node'
 import { NodeType } from '../../types/node'
 
-export class BaseSeeder implements Seeder {
+export class SeederBase {
   public factory: Factory
   public user: User
   public space: Space
-  public spaceRootNode: Node
+  public rootNode: Node
 
-  private static instance: BaseSeeder
+  private static instance: SeederBase
 
-  public async run(factory: Factory, connection: Connection): Promise<any> {
-    if (BaseSeeder.instance) {
-      return BaseSeeder.instance
-    }
-
+  private constructor(factory: Factory) {
     this.factory = factory
-
-    this.user = await this.createUser()
-    this.space = await this.createSpace()
-    this.spaceRootNode = await this.createSpaceRootNode()
-
-    return (BaseSeeder.instance = this)
   }
 
-  async createUser() {
+  static async getInstance(
+    factory: Factory,
+    initNew: boolean = false
+  ): Promise<SeederBase> {
+    if (SeederBase.instance && initNew !== true) {
+      return SeederBase.instance
+    }
+
+    const i = new SeederBase(factory)
+    await i.init()
+
+    return (this.instance = i)
+  }
+
+  private async init() {
+    this.user = await this.createUser()
+    this.space = await this.createSpace()
+    this.rootNode = await this.createRootNode()
+  }
+
+  private async createUser() {
     return this.factory(User)().create()
   }
 
-  async createSpace() {
+  private async createSpace() {
     const space = await this.factory(Space)().create({ userId: this.user.id })
+
     await this.factory(UserToSpace)().create({
       userId: this.user.id,
       spaceId: space.id,
@@ -42,14 +52,14 @@ export class BaseSeeder implements Seeder {
     return space
   }
 
-  async createSpaceRootNode() {
+  private async createRootNode() {
     return this.factory(Node)().create({
-      parent: null,
       userId: this.user.id,
       spaceId: this.space.id,
       contentId: this.space.id,
       title: 'root',
       type: NodeType.Root,
+      position: 0,
     })
   }
 }

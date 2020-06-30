@@ -1,12 +1,12 @@
-import { getCustomRepository, UpdateResult, DeleteResult, SelectQueryBuilder } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
+import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
-import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { SpaceRepository } from '../../../repositories/SpaceRepository'
-import { NodeContentService } from '../NodeContentService'
-import { NodeType } from '../../../types/node'
-import { NodeService } from '../NodeService'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { NodeContentService } from '../NodeContentService'
+import { NodeService } from '../NodeService'
+import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
 
 export class TaskBoardService extends NodeContentService {

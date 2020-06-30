@@ -3,8 +3,8 @@ import { BaseCtrl } from './BaseCtrl'
 import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/content/LinkService'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 import { Actions } from '../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 
@@ -17,9 +17,7 @@ export class LinksCtrl extends BaseCtrl {
   }
 
   public async view(req: Request, res: Response, next: NextFunction) {
-    try {
-      const link = await this.linkSrvice.getLinkById(Number(req.params.id))
-      ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
+    const link = await this.linkSrvice.getLinkById(Number(req.params.id))
 
     if (!link) {
       throw clientError(
@@ -28,6 +26,9 @@ export class LinksCtrl extends BaseCtrl {
         HttpStatusCode.NotFound
       )
     }
+    s
+
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
 
     const resData = this.responseData(link)
     res.send(resData)

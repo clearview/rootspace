@@ -11,7 +11,11 @@ import PromiseRouter from 'express-promise-router'
 const router = PromiseRouter()
 router.use(authenticate)
 
-router.get('/links/:id', mapRoute(LinksCtrl, 'view'))
+router.get(
+  '/links/:id',
+  authorize(Subjects.Link, Actions.Read),
+  mapRoute(LinksCtrl, 'view')
+)
 router.post('/links', mapRoute(LinksCtrl, 'create'))
 router.patch('/links/:id', mapRoute(LinksCtrl, 'update'))
 router.delete('/links/:id', mapRoute(LinksCtrl, 'delete'))

@@ -4,17 +4,14 @@ import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardReposi
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
-import { ContentManager } from '../ContentManager'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
-  private contentManager: ContentManager
 
   private constructor() {
-    this.contentManager = ContentManager.getInstance()
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
   }
