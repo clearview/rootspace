@@ -5,6 +5,7 @@
   >
     <router-view />
     <portal-target name="default" />
+    <portal-target name="secondary" />
   </div>
 </template>
 
