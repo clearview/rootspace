@@ -123,7 +123,6 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import { pick } from 'lodash'
 
 import { LinkResource, TaskBoardResource, WorkspaceResource } from '@/types/resource'
@@ -141,192 +140,137 @@ import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
 import { Module } from 'vuex'
 import { LinkState, RootState } from '@/types/state'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
-type Alert = {
-  type: string;
-  message: string;
-};
+  @Component({
+    name: 'Navigation',
+    components: {
+      NavigationHeader,
+      NavigationItems,
+      NavigationFooter,
+      FormLink,
+      FormTask,
+      SelectLinkType,
+      FormWorkspace,
+      VModal
+    }
+  })
+export default class Navigation extends Vue {
+    private editable = false;
+    private addNew = {
+      visible: false
+    }
 
-type ComponentData = {
-  editable: boolean;
-  addNew: {
-    visible: boolean;
-  };
-  link: {
-    fetch: {
-      loading: boolean;
-      alert: Alert | null;
-    };
-    add: {
-      visible: boolean;
-      loading: boolean;
-      alert: Alert | null;
-    };
-    update: {
-      visible: boolean;
-      loading: boolean;
-      data: LinkResource | null;
-      alert: Alert | null;
-    };
-    destroy: {
-      visible: boolean;
-      loading: boolean;
-      data: LinkResource | null;
-      alert: Alert | null;
-    };
-  };
-  task: {
-    fetch: {
-      loading: boolean;
-      alert: Alert | null;
-    };
-    add: {
-      visible: boolean;
-      loading: boolean;
-      alert: Alert | null;
-    };
-    update: {
-      visible: boolean;
-      loading: boolean;
-      data: LinkResource | null;
-      alert: Alert | null;
-    };
-    destroy: {
-      visible: boolean;
-      loading: boolean;
-      data: LinkResource | null;
-      alert: Alert | null;
-    };
-  };
-  workspace: {
-    add: {
-      visible: boolean;
-      loading: boolean;
-      alert: Alert | null;
-    };
-  };
-};
-
-export default Vue.extend({
-  name: 'Navigation',
-  components: {
-    NavigationHeader,
-    NavigationItems,
-    NavigationFooter,
-    FormLink,
-    FormTask,
-    SelectLinkType,
-    FormWorkspace,
-    VModal
-  },
-  data (): ComponentData {
-    return {
-      editable: false,
-      addNew: {
-        visible: false
+    private link: any = {
+      fetch: {
+        loading: false,
+        alert: null
       },
-      link: {
-        fetch: {
-          loading: false,
-          alert: null
-        },
-        add: {
-          visible: false,
-          loading: false,
-          alert: null
-        },
-        update: {
-          visible: false,
-          loading: false,
-          data: null,
-          alert: null
-        },
-        destroy: {
-          visible: false,
-          loading: false,
-          data: null,
-          alert: null
-        }
+      add: {
+        visible: false,
+        loading: false,
+        alert: null
       },
-      task: {
-        fetch: {
-          loading: false,
-          alert: null
-        },
-        add: {
-          visible: false,
-          loading: false,
-          alert: null
-        },
-        update: {
-          visible: false,
-          loading: false,
-          data: null,
-          alert: null
-        },
-        destroy: {
-          visible: false,
-          loading: false,
-          data: null,
-          alert: null
-        }
+      update: {
+        visible: false,
+        loading: false,
+        data: null,
+        alert: null
       },
-      workspace: {
-        add: {
-          visible: false,
-          loading: false,
-          alert: null
-        }
+      destroy: {
+        visible: false,
+        loading: false,
+        data: null,
+        alert: null
       }
     }
-  },
-  computed: {
-    links (): Module<LinkState, RootState> {
+
+    private task: any = {
+      fetch: {
+        loading: false,
+        alert: null
+      },
+      add: {
+        visible: false,
+        loading: false,
+        alert: null
+      },
+      update: {
+        visible: false,
+        loading: false,
+        data: null,
+        alert: null
+      },
+      destroy: {
+        visible: false,
+        loading: false,
+        data: null,
+        alert: null
+      }
+    }
+
+    private workspace: any = {
+      add: {
+        visible: false,
+        loading: false,
+        alert: null
+      }
+    }
+
+    get links (): Module<LinkState, RootState> {
       return this.$store.state.link
-    },
-    collapse () {
+    }
+
+    get collapse () {
       return this.$store.state.nav.collapse
-    },
-    hasSpace () {
+    }
+
+    get hasSpace () {
       const spaces = this.$store.state.auth.spaces
 
       return spaces && spaces.length > 0
-    },
-    currentSpace () {
-      return this.$store.state.auth.currentSpace || {}
-    }
-  },
-  watch: {
-    async currentSpace (val) {
-      await this.fetchLink(val)
-    }
-  },
-  async created () {
-    if (!this.hasSpace) {
-      return this.$router.replace({ name: 'WorkspaceInit' })
     }
 
-    await this.fetchLink(this.currentSpace)
-  },
-  methods: {
+    get currentSpace () {
+      return this.$store.state.auth.currentSpace || {}
+    }
+
+    @Watch('currentSpace')
+    async watchCurrentSpace (val: any) {
+      await this.fetchLink(val)
+    }
+
+    async created () {
+      if (!this.hasSpace) {
+        return this.$router.replace({ name: 'WorkspaceInit' })
+      }
+
+      await this.fetchLink(this.currentSpace)
+    }
+
     toggleCollapse () {
       this.$store.commit('nav/setCollapse', !this.collapse)
-    },
+    }
+
     startAddLink () {
       this.addNew.visible = false
       this.link.add.visible = true
-    },
+    }
+
     startAddTask () {
       this.addNew.visible = false
       this.task.add.visible = true
-    },
+    }
+
     startAddDocument () {
       this.$router.push({ name: 'Document' })
       this.addNew.visible = false
-    },
+    }
+
     startAddNew () {
       this.addNew.visible = true
-    },
+    }
+
     startUpdateLink (data: LinkResource, modal: boolean) {
       this.link.update.data = data
 
@@ -335,24 +279,29 @@ export default Vue.extend({
       } else {
         this.updateLink(data)
       }
-    },
+    }
+
     startDestroyLink (data: LinkResource) {
       this.link.destroy.visible = true
       this.link.destroy.data = data
-    },
+    }
+
     startAddWorkspace () {
       this.workspace.add.visible = true
-    },
+    }
+
     toggleFold (data: object) {
       this.$store.commit('link/setFolded', data)
-    },
+    }
+
     async fetchLink (space: WorkspaceResource) {
       this.link.fetch.loading = true
 
       await this.$store.dispatch('link/fetch', { spaceId: space.id })
 
       this.link.fetch.loading = false
-    },
+    }
+
     async addLink (data: LinkResource) {
       this.link.add.loading = true
 
@@ -367,12 +316,13 @@ export default Vue.extend({
 
       this.link.add.loading = false
       this.link.add.visible = false
-    },
+    }
+
     async addTask (data: TaskBoardResource) {
       this.link.add.loading = true
 
       try {
-        const res = await this.$store.dispatch('task/board/create', data) as {data: TaskBoardResource}
+        const res = await this.$store.dispatch('task/board/create', data) as { data: TaskBoardResource }
         await this.$store.dispatch('link/fetch')
         if (res.data.id) {
           await this.$router.push({
@@ -391,7 +341,8 @@ export default Vue.extend({
 
       this.task.add.loading = false
       this.task.add.visible = false
-    },
+    }
+
     async updateLink (data: LinkResource) {
       this.link.update.loading = true
 
@@ -407,7 +358,8 @@ export default Vue.extend({
       this.link.update.loading = false
       this.link.update.visible = false
       this.link.update.data = null
-    },
+    }
+
     async destroyLink (data: LinkResource) {
       this.link.destroy.loading = true
 
@@ -429,7 +381,8 @@ export default Vue.extend({
       this.link.destroy.loading = false
       this.link.destroy.visible = false
       this.link.destroy.data = null
-    },
+    }
+
     async addWorkspace (data: WorkspaceResource) {
       this.workspace.add.loading = true
 
@@ -452,12 +405,11 @@ export default Vue.extend({
       this.workspace.add.loading = false
       this.workspace.add.visible = false
     }
-  }
-})
+}
 </script>
 
 <style lang="postcss" scoped>
-.modal-body {
-  width: 456px;
-}
+  .modal-body {
+    width: 456px;
+  }
 </style>
