@@ -225,8 +225,7 @@ import Avatar from 'vue-avatar'
       },
       formatAttachmentName (path: string) {
         const splits = path.split('/')
-        const name = splits[splits.length - 1]
-        return name
+        return splits[splits.length - 1]
       }
     }
   })
@@ -263,7 +262,7 @@ export default class TaskModal extends Vue {
       const file = this.attachmentFileRef.files?.item(0)
       if (file) {
         this.isUploading = true
-        const res = await this.$store.dispatch('task/item/upload', {
+        await this.$store.dispatch('task/item/upload', {
           task: this.itemCopy,
           file
         })
