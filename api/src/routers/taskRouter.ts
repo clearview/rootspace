@@ -1,4 +1,4 @@
-import { authenticate, authorize, Objects } from '../middleware/AuthMiddleware'
+import { authenticate, authorize, Subjects } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import { TaskBoardCtrl, TaskBoardTagCtrl, TaskListCtrl , TaskCtrl, TaskCommentCtrl } from '../controllers/tasks'
 import PromiseRouter from 'express-promise-router'
@@ -7,10 +7,10 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 // Task Board
-router.get('/tasks/board/:id', authorize(Objects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
-router.post('/tasks/board', authorize(Objects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
-router.patch('/tasks/board/:id', authorize(Objects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
-router.delete('/tasks/board/:id', authorize(Objects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))
+router.get('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
+router.post('/tasks/board', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
+router.patch('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
+router.delete('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))
 
 router.get('/tasks/board/:taskBoardId/tags', mapRoute(TaskBoardTagCtrl, 'list'))
 router.post('/tasks/board/:taskBoardId/tags', mapRoute(TaskBoardTagCtrl, 'create'))

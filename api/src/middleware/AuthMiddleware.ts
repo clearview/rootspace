@@ -1,5 +1,4 @@
 import passport from '../passport'
-import { User } from '../entities/User'
 import { NextFunction, Request, Response } from 'express'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { SpaceService } from '../services'
@@ -12,18 +11,18 @@ export enum Actions {
     'Manage'= 'manage',
 }
 
-export enum Objects {
+export enum Subjects {
     'All' = 'all',
     'Doc' = 'Doc',
     'Link' = 'Link',
     'TaskBoard' = 'TaskBoard'
 }
 
-interface AuthorizationInfo { user: User, userSpaceIds: number[] }
+interface AuthorizationInfo { user: any, userSpaceIds: number[] }
 
 export const authenticate = passport.authenticate('jwt', { session: false })
 
-export function authorize (object: Objects, action?: Actions) {
+export function authorize (subject: Subjects, action?: Actions) {
     return async (req: Request, res: Response, next: NextFunction) => {
         const { can, cannot, rules } = new AbilityBuilder()
 
@@ -34,6 +33,7 @@ export function authorize (object: Objects, action?: Actions) {
         await applyGeneralRules(authorizationInfo, can, cannot)
         await applyClassSpecificRules(authorizationInfo, can, cannot, rules)
 
+        // @ts-ignore
         req.user.ability = new Ability(rules)
 
         next()
@@ -50,21 +50,21 @@ export function authorize (object: Objects, action?: Actions) {
     }
 
     async function applyGeneralRules(authorizationInfo: AuthorizationInfo, can, cannot) {
-        // User can manage any object they own
-        can(Actions.Manage, [object], { userId: authorizationInfo.user.id })
+        // User can manage any subject they own
+        can(Actions.Manage, [subject], { userId: authorizationInfo.user.id })
 
-        // User can read any object from the space they have access to
-        can(Actions.Read, [object], { spaceId: { $in: authorizationInfo.userSpaceIds } })
+        // User can read any subject from the space they have access to
+        can(Actions.Read, [subject], { spaceId: { $in: authorizationInfo.userSpaceIds } })
 
-        // User can not create objects outside spaces they belong to
-        cannot(Actions.Create, [object], { spaceId: { $nin: authorizationInfo.userSpaceIds } })
+        // User can not create subjects outside spaces they belong to
+        cannot(Actions.Create, [subject], { spaceId: { $nin: authorizationInfo.userSpaceIds } })
     }
 
     async function applyClassSpecificRules(authorizationInfo: AuthorizationInfo, can, cannot, rules) {
-        switch (object) {
-            case Objects.Doc:
+        switch (subject) {
+            case Subjects.Doc:
                 break
-            case Objects.TaskBoard:
+            case Subjects.TaskBoard:
                 break
         }
     }
