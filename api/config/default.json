@@ -24,5 +24,8 @@
   "domain": "@@DOMAIN",
   "domainSignupPath": "@@DOMAIN_SIGNUP_PATH",
   "domainEmailConfirmationPath": "@@DOMAIN_EMAIL_CONFIRMATION_PATH",
-  "domainInviteAcceptPath": "@@DOMAIN_INVITE_ACCEPT_PATH"
+  "domainInviteAcceptPath": "@@DOMAIN_INVITE_ACCEPT_PATH",
+  "sentry": {
+    "dsn": "@@SENTRY_DSN"
+  }
 }
