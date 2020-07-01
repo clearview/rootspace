@@ -17,24 +17,23 @@ export class SeederBase {
     this.factory = factory
   }
 
-  static async getInstance(
-    factory: Factory,
-    initNew: boolean = false
-  ): Promise<SeederBase> {
-    if (SeederBase.instance && initNew !== true) {
+  static async shared(factory: Factory): Promise<SeederBase> {
+    if (SeederBase.instance) {
       return SeederBase.instance
     }
 
-    const i = new SeederBase(factory)
-    await i.init()
+    return (SeederBase.instance = await SeederBase.create(factory))
+  }
 
-    return (this.instance = i)
+  static create(factory: Factory) {
+    return new SeederBase(factory).init()
   }
 
   private async init() {
     this.user = await this.createUser()
     this.space = await this.createSpace()
     this.rootNode = await this.createRootNode()
+    return this
   }
 
   private async createUser() {

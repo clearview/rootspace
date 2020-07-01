@@ -9,7 +9,7 @@ export default class LinksSeeder implements Seeder {
   protected base: SeederBase
 
   public async run(factory: Factory, connection: Connection): Promise<any> {
-    this.base = await SeederBase.getInstance(factory)
+    this.base = await SeederBase.shared(factory)
     await this.seedLinks(3, this.base.rootNode, 2)
   }
 

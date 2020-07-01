@@ -14,7 +14,7 @@ export default class TasksSeeder implements Seeder {
   protected base: SeederBase
 
   public async run(factory: Factory, connection: Connection): Promise<any> {
-    this.base = await SeederBase.getInstance(factory, true)
+    this.base = await SeederBase.create(factory)
 
     const taskBoards = await this.createTaskBoard(3)
     for (const taskBoard of taskBoards) {
