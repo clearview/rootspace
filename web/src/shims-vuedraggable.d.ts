@@ -37,17 +37,17 @@ declare module 'vuedraggable' {
   }
 
   export interface MovedEvent<T> {
-    moved: {
+    moved?: {
       element: T;
       newIndex: number;
       oldIndex: number;
     };
-    removed: {
+    removed?: {
       element: T;
       newIndex: number;
       oldIndex: number;
     };
-    added: {
+    added?: {
       element: T;
       newIndex: number;
       oldIndex: number;

@@ -49,14 +49,22 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         const task = await service.view(id)
         commit('setFetching', false)
 
-        commit('setCurrent', task)
+        commit('setCurrent', task?.data)
+      },
+
+      async refresh ({ commit, state }): Promise<void> {
+        if (state.current?.id) {
+          commit('setFetching', true)
+          const task = await service.view(state.current.id)
+          commit('setFetching', false)
+          commit('setCurrent', task?.data)
+        }
       },
 
       async create ({ commit }, data: TResource): Promise<TResource> {
         commit('setProcessing', true)
         const res = await service.create(data)
         commit('setProcessing', false)
-
         return res
       },
 
@@ -66,17 +74,6 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
         }
         commit('setProcessing', true)
         const res = await service.update(data.id, data)
-        commit('setProcessing', false)
-
-        return res
-      },
-
-      async move ({ commit }, data: {parentId: number; entryId: number; position: number}) {
-        if (data.entryId === null) {
-          throw new Error('Unable to update data without ID')
-        }
-        commit('setProcessing', true)
-        const res = await service.move(data.parentId, data.entryId, data.position)
         commit('setProcessing', false)
 
         return res

@@ -9,6 +9,7 @@ import {
   Generated
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
+import { Ability } from '@casl/ability'
 
 @Entity('users')
 export class User {
@@ -28,29 +29,31 @@ export class User {
   @Column('varchar', { select: false })
   password: string
 
-  @Column('varchar')
+  @Column('varchar', { length: 254, nullable: true })
+  avatar: string
+
+  @Column('varchar', { select: false })
   authProvider: string
 
   @Column('boolean')
   active: boolean
 
-  @Column('boolean', { default: false })
+  @Column('boolean', { default: false, select: false })
   emailConfirmed: boolean
 
-  @Column()
+  @Column({ select: false })
   @Generated('uuid')
   @Index()
   token: string
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created: string
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated: string
 
-  @OneToMany(
-    type => UserToSpace,
-    space => space.user
-  )
+  @OneToMany(type => UserToSpace, space => space.user)
   public spaces!: UserToSpace[]
+
+  public ability: Ability
 }

@@ -10,6 +10,17 @@ export interface LinkResource {
   };
 }
 
+export interface UploadResource {
+  created: Date;
+  id: number;
+  size: 386397;
+  path: string;
+  spaceId: number;
+  type: string;
+  updated: Date;
+  userId: number;
+}
+
 export interface ApiResource {
   id: number | null;
   createdAt: Date | null;
@@ -26,19 +37,33 @@ export enum TaskBoardType {
   Kanban = 2
 }
 
+export interface TagResource extends Omit<ApiResource, 'createdAt' | 'updatedAt'> {
+  board: TaskBoardResource | null;
+  label: string;
+  color: string;
+}
+
 export interface TaskItemResource extends ApiResource {
   userId: number | null;
   spaceId: number | null;
   listId: number | null;
-  assignedTo: never[] | null;
+  assignees: UserResource[] | null;
   title: string;
   description: string | null;
   status: TaskItemStatus;
-  tags: string[] | null;
-  attachments: never[] | null;
+  tags: TagResource[] | null;
+  attachments: UploadResource[] | null;
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;
+  taskComments: TaskCommentResource[];
+}
+
+export interface TaskCommentResource extends ApiResource{
+  userId: number | null;
+  taskId: number | null;
+  content: string;
+  task: TaskItemResource | null;
 }
 
 export interface TaskListResource extends ApiResource {
@@ -55,7 +80,7 @@ export interface TaskListResource extends ApiResource {
 export interface TaskBoardResource extends ApiResource {
   uuid: string | null;
   userId: number | null;
-  spaceId: number | null;
+  spaceId: number;
   title: string;
   description: string | null;
   type: TaskBoardType;
@@ -76,12 +101,6 @@ export interface SigninResource {
   password: string;
 }
 
-export interface SettingsResource {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export interface PasswordResource {
   password: string;
   newPassword: string;
@@ -96,16 +115,17 @@ export interface WorkspaceResource {
 }
 
 export interface UserResource {
-  active: boolean;
-  authProvider: string;
+  id?: number;
+  active?: boolean;
   email: string;
-  emailConfirmed: boolean;
   firstName: string;
-  id: number;
   lastName: string;
-  token: string;
-  created: string;
-  updated: string;
+  avatar?: string;
+  authProvider?: string;
+  emailConfirmed?: boolean;
+  token?: string;
+  created?: string;
+  updated?: string;
 }
 
 export interface DocumentResource {

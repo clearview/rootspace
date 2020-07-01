@@ -1,4 +1,6 @@
 import { getCustomRepository } from 'typeorm'
+import { SpaceRepository } from '../../../repositories/SpaceRepository'
+import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../entities/tasks/TaskList'
 import { ContentManager } from '../ContentManager'
@@ -20,6 +22,14 @@ export class TaskListService {
     return TaskListService.instance
   }
 
+  getSpaceRepository(): SpaceRepository {
+    return getCustomRepository(SpaceRepository)
+  }
+
+  getTaskBoardRepository(): TaskBoardRepository {
+    return getCustomRepository(TaskBoardRepository)
+  }
+
   getTaskListRepository(): TaskListRepository {
     return getCustomRepository(TaskListRepository)
   }
@@ -29,7 +39,12 @@ export class TaskListService {
   }
 
   async create(data: any): Promise<TaskList> {
-    return this.getTaskListRepository().save(data)
+    data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
+    data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
+
+    const taskList = await this.getTaskListRepository().save(data)
+
+    return this.getTaskListRepository().reload(taskList)
   }
 
   async update(id: number, data: any): Promise<TaskList> {
