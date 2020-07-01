@@ -1,10 +1,11 @@
-FROM nginx:1.17  as base
+FROM nginx:1.18 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
+WORKDIR /etc/nginx
 
 FROM base as install_packages
 RUN  apt-get -qq update  < /dev/null > /dev/null && \
-     apt install iputils-ping net-tools curl nano -y < /dev/null > /dev/null
+     apt-get install iputils-ping net-tools curl nano -y < /dev/null > /dev/null
 
 FROM install_packages as copy_nginx_conf_files
 #
@@ -14,3 +15,8 @@ COPY ./docker/proxy/nginx/conf/conf.d/* /etc/nginx/conf.d/
 FROM copy_nginx_conf_files as nomad
 COPY ./docker/proxy/nginx/nomad/default.conf /etc/nginx/conf.d/default.conf
 COPY ./docker/proxy/nginx/nomad/consul.conf /etc/nginx/conf.d/consul.conf
+
+FROM copy_nginx_conf_files as copy_root_proxy_conf_files
+COPY ./docker/proxy/nomad/default.conf /etc/nginx/conf.d/
+COPY ./docker/proxy/nomad/. /proxy/
+RUN ["chmod", "+x", "/proxy/entrypoint.sh"]

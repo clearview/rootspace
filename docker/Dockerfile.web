@@ -1,0 +1,21 @@
+FROM node:12 as base
+MAINTAINER nedim@clearview.team
+WORKDIR /srv
+COPY ./web/. .
+
+FROM base as nginx
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && < /dev/null > /dev/null \
+    DEBIAN_FRONTEND=noninteractive apt-get install nginx iputils-ping net-tools curl nano -y < /dev/null > /dev/null
+
+COPY ./docker/web/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/web/nginx/default /etc/nginx/sites-available/default
+COPY ./docker/web/nginx/conf.d/* /etc/nginx/conf.d/
+
+FROM nginx as web
+COPY ./docker/web/entrypoint.sh /entrypoint.sh
+
+RUN ["chmod", "+x", "/entrypoint.sh"]
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["nginx", "-g", "daemon off;"]
