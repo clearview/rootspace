@@ -14,7 +14,6 @@ job "root_web" {
       delay    = "30s"
     }
 
-    # Configure the job to do rolling updates
     update {
       # Stagger updates every 10 seconds
       stagger = "10s"
@@ -70,7 +69,7 @@ job "root_web" {
       data = <<EOH
       API_IP_FROM_CONSUL={{range service "api"}}{{.Address}}{{end}}
 
-      VUE_APP_API_URL=http://{{key "service/root/web/domain"}}
+      VUE_APP_API_URL=https://{{key "service/root/web/domain"}}
       VUE_APP_PORT=3000
 
       EOH
@@ -80,7 +79,7 @@ job "root_web" {
     }
     resources {
       cpu    = 256
-      memory = 1024
+      memory = 1000
       network {
         mbits = 1
         port "web" {

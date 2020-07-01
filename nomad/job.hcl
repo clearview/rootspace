@@ -109,7 +109,7 @@ job "root_api" {
       }
       resources {
         cpu    = 200
-        memory = 1024
+        memory = 1000
         network {
           mbits = 1
           port "api" {

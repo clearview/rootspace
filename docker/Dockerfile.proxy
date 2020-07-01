@@ -1,6 +1,7 @@
 FROM nginx:1.18 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
+WORKDIR /etc/nginx
 
 FROM base as install_packages
 RUN  apt-get -qq update  < /dev/null > /dev/null && \
