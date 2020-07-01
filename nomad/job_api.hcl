@@ -94,7 +94,7 @@ job "root_api" {
         GOOGLE_CLIENT_ID="{{key "service/root/api/GOOGLE_CLIENT_ID"}}"
         GOOGLE_CLIENT_SECRET="{{key "service/root/api/GOOGLE_CLIENT_SECRET"}}"
         GOOGLE_CALLBACK_PATH=/auth/google/callback
-        DOMAIN=https://"{{key "service/root/web/domain"}}"
+        DOMAIN=https://{{key "service/root/web/domain"}}
         DOMAIN_SIGNUP_PATH=/signup
         DOMAIN_EMAIL_CONFIRMATION_PATH=/confirm-email
         DOMAIN_INVITE_ACCEPT_PATH=/invitation
