@@ -69,7 +69,7 @@ job "root_web" {
       data = <<EOH
       API_IP_FROM_CONSUL={{range service "api"}}{{.Address}}{{end}}
 
-      VUE_APP_API_URL=https://{{key "service/api/web/domain"}}
+      VUE_APP_API_URL=https://{{key "service/root/api/domain"}}
       VUE_APP_PORT=3000
 
       EOH
