@@ -17,42 +17,42 @@ module.exports = shipit => {
       rsync: ['--no-perms --no-owner --no-group --rsync-path="/usr/bin/rsync"'],
       slack: {
         webhookUrl: 'https://hooks.slack.com/services/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',
-        message: 'flow app deployed',
+        message: 'root app deployed',
         triggerEvent: 'deployed'
       }
     },
     staging_api: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dockerize'
+      branch: 'develop'
     },
     staging_web: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dockerize'
+      branch: 'develop'
     },
     staging_postgres: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dockerize'
+      branch: 'develop'
     },
     staging_proxy: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dockerize'
+      branch: 'develop'
     },
     staging_certbot: {
       deployTo: '/srv/root',
       verboseSSHLevel: 0,
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'dockerize'
+      branch: 'develop'
     },
     production: {
       deployTo: '/srv/root',
       servers: 'rut@',
-      branch: 'dockerize'
+      branch: 'master'
     }
   })
 
