@@ -6,6 +6,8 @@ import { LinkType } from '../../../constants'
 import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
 import { ILinkContent } from '../../types'
 import { ContentManager } from '../ContentManager'
+import { DeepPartial } from 'typeorm/common/DeepPartial'
+import { SpaceRepository } from '../../../repositories/SpaceRepository'
 
 export class TaskBoardService implements ILinkContent<TaskBoard> {
   private contentManager: ContentManager
@@ -24,6 +26,10 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return TaskBoardService.instance
   }
 
+  getSpaceRepository(): SpaceRepository {
+    return getCustomRepository(SpaceRepository)
+  }
+
   getTaskBoardRepository(): TaskBoardRepository {
     return getCustomRepository(TaskBoardRepository)
   }
@@ -32,7 +38,12 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
 
-  async create(data: any): Promise<TaskBoard> {
+  async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {
+    return this.getTaskBoardRepository().create(data)
+  }
+
+  async save(data: any): Promise<TaskBoard> {
+    data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     const taskBoard = await this.getTaskBoardRepository().save(data)
     await this.createLinkByContent(taskBoard)
 
@@ -73,8 +84,8 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
 
   createLinkByContent(taskBoard: TaskBoard): Promise<Link> {
     const linkCreateData = LinkCreateValue.fromObject({
-      userId: taskBoard.userId,
-      spaceId: taskBoard.spaceId,
+      userId: taskBoard.user.id,
+      spaceId: taskBoard.space.id,
       title: taskBoard.title,
       type: LinkType.TaskBoard,
       value: String(taskBoard.id),

@@ -6,7 +6,7 @@
       </h3>
       <div class="header-actions">
         <div class="action action-search">
-          <Icon name="search" class="action-search-icon"/>
+          <v-icon name="search" class="action-search-icon"/>
           <input
             type="text"
             class="action-search-input"
@@ -14,19 +14,19 @@
           >
         </div>
         <div class="action action-filter">
-          <Icon name="filter" class="action-filter-icon" size="1.5em"/>
+          <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
           <div class="action-label">
             Filter
           </div>
         </div>
         <div class="action action-type">
-          <Icon
+          <v-icon
             name="list"
             size="2.5em"
             class="icon-circle"
             :class="{active: !isKanban}"
           />
-          <Icon
+          <v-icon
             name="kanban"
             size="2.5em"
             class="icon-circle"
@@ -45,7 +45,7 @@
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
 import { mapState } from 'vuex'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
@@ -77,8 +77,10 @@ export default class TaskPage extends Vue {
       return parseInt(this.$route.params.id)
     }
 
-    fetchTask (): void {
-      this.$store.dispatch('task/board/view', this.boardId)
+    @Watch('boardId')
+    async fetchTask () {
+      await this.$store.dispatch('task/board/view', this.boardId)
+      await this.$store.dispatch('task/tag/fetch', null)
     }
 
     mounted (): void {

@@ -5,7 +5,7 @@
              class="list-input-field"/>
       <div class="list-actions">
         <button class="btn btn-link" @click="cancel">
-          <Icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Add List</button>
       </div>
@@ -15,11 +15,15 @@
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
-        <Icon v-if="!isEditingLane" name="ellipsis" size="1.5rem" class="header-icon" @click="cancel"/>
+        <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
+          <template slot="trigger">
+            <v-icon v-if="!isEditingLane" name="ellipsis" size="1.5rem" class="header-icon" @click="cancel"/>
+          </template>
+        </PopoverList>
       </header>
       <div class="list-actions" v-if="isEditingLane">
         <button class="btn btn-link" @click="cancel">
-          <Icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
@@ -52,10 +56,16 @@ import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/reso
 import TaskCard from '@/views/Task/Kanban/TaskCard.vue'
 import { required } from 'vuelidate/lib/validators'
 import TaskAddCard from '@/views/Task/Kanban/TaskAddCard.vue'
+import { Optional } from '@/types/core'
+import Popover from '@/components/Popover.vue'
+import PopoverList from '@/components/PopoverList.vue'
+import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 
   @Component({
     name: 'TaskLane',
     components: {
+      PopoverList,
+      Popover,
       TaskAddCard,
       TaskCard,
       Icon,
@@ -69,7 +79,7 @@ import TaskAddCard from '@/views/Task/Kanban/TaskAddCard.vue'
   })
 export default class TaskLane extends Vue {
     @Prop({ type: Object, required: true })
-    private readonly list!: TaskListResource
+    private readonly list!: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'>
 
     @Prop({ type: Boolean, default: false })
     private readonly defaultInputting!: boolean
@@ -81,13 +91,13 @@ export default class TaskLane extends Vue {
     private readonly editInput!: HTMLInputElement;
 
     private isInputting = this.defaultInputting
-    private listCopy: TaskListResource = { ...this.list }
+    private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
     private isInputtingNewItem = false
-    private newItem: TaskItemResource | null = null
+    private newItem: Optional<TaskItemResource, 'createdAt' | 'updatedAt' | 'userId'> | null = null
     private drag = false
 
     private get orderedCards () {
-      return [...this.list.tasks].sort((a, b) => a.position - b.position)
+      return [...this.list.tasks].sort((a, b) => a.position - b.position).map(item => ({ ...item, list: this.list }))
     }
 
     private get canSave () {
@@ -110,24 +120,31 @@ export default class TaskLane extends Vue {
     }
 
     private async reorder (data: MovedEvent<TaskItemResource>) {
-      if (data.removed) {
-        await this.$store.dispatch('task/item/destroy', data.removed.element)
-      }
       if (data.added) {
-        await this.$store.dispatch('task/item/create', { ...data.added.element, listId: this.list.id, list: this.list })
-        await this.$store.dispatch('task/item/move', {
-          parentId: this.list.id,
-          entryId: data.added.element.id,
-          position: data.added.newIndex
+        const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
+        const prev = this.orderedCards[prevIndex]
+        const next = this.orderedCards[nextIndex]
+
+        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+
+        await this.$store.dispatch('task/item/update', {
+          id: data.added.element.id,
+          listId: this.list.id,
+          position: newPos
         })
       }
       if (data.moved) {
-        await this.$store.dispatch('task/item/move', {
-          parentId: this.list.id,
-          entryId: data.moved.element.id,
-          position: data.moved.newIndex
+        const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
+        const prev = this.orderedCards[prevIndex]
+        const next = this.orderedCards[nextIndex]
+        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+        await this.$store.dispatch('task/item/update', {
+          id: data.moved.element.id,
+          listId: this.list.id,
+          position: newPos
         })
       }
+      await this.$store.dispatch('task/board/refresh')
     }
 
     get dragOptions () {
@@ -149,6 +166,7 @@ export default class TaskLane extends Vue {
       } else {
         this.listCopy = await this.$store.dispatch('task/list/update', this.listCopy)
       }
+      await this.$store.dispatch('task/board/refresh')
       this.isInputting = false
       return this.listCopy
     }
@@ -170,22 +188,29 @@ export default class TaskLane extends Vue {
     addCard () {
       this.isInputtingNewItem = true
       this.newItem = {
-        assignedTo: null,
+        assignees: null,
         attachments: null,
-        createdAt: null,
         description: null,
         dueDate: null,
         id: null,
-        list: this.list,
+        list: this.list as TaskListResource,
         listId: this.list.id,
-        spaceId: null,
+        spaceId: this.list.spaceId,
         tags: null,
-        updatedAt: null,
-        userId: null,
+        taskComments: [],
         title: '',
         status: TaskItemStatus.Open,
-        position: this.list.tasks.length
+        position: getNextPosition(this.list.tasks.length)
       }
+    }
+
+    async handleMenu (value: string) {
+      switch (value) {
+        case 'delete':
+          await this.$store.dispatch('task/list/destroy', this.listCopy)
+          break
+      }
+      await this.$store.dispatch('task/board/refresh')
     }
 }
 </script>

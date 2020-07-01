@@ -1,14 +1,14 @@
-import {Connection} from 'typeorm'
-import {Factory, Seeder} from 'typeorm-seeding'
-import {Link, LinkType} from '../../entities/Link'
-import {Doc} from '../../entities/Doc'
-import {BaseSeeder} from './base'
+import { Connection } from 'typeorm'
+import { Factory, Seeder } from 'typeorm-seeding'
+import { Link, LinkType } from '../../entities/Link'
+import { Doc } from '../../entities/Doc'
+import { UserSpace } from '../base/userSpace'
 
 export default class DocsSeeder implements Seeder {
-    protected base: BaseSeeder
+    protected base: UserSpace
 
     public async run(factory: Factory, connection: Connection): Promise<any> {
-        this.base = await new BaseSeeder().run(factory)
+        this.base = await UserSpace.getInstance(factory)
 
         await this.createDocuments()
     }

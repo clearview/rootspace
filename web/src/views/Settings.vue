@@ -87,7 +87,7 @@ import { mapActions, mapMutations } from 'vuex'
 
 import { map, find, get } from 'lodash'
 
-import { SettingsResource, WorkspaceResource, PasswordResource } from '@/types/resource'
+import { UserResource, WorkspaceResource, PasswordResource } from '@/types/resource'
 
 import UserService from '@/services/user'
 import WorkspaceService from '@/services/workspace'
@@ -169,7 +169,7 @@ export default Vue.extend({
     }
   },
   methods: {
-    async updateAccount (...args: [SettingsResource, PasswordResource]) {
+    async updateAccount (...args: [UserResource, PasswordResource]) {
       this.isLoading = true
 
       try {

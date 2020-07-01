@@ -6,10 +6,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  Generated
+  Generated, ManyToOne, JoinColumn
 } from 'typeorm'
 import { TaskList } from './TaskList'
-import {IsDate, IsInt, Length, Max, Min} from 'class-validator'
+import { IsDate, IsInt, Length, Max, Min } from 'class-validator'
+import { Tag } from './Tag'
+import { User } from '../User'
+import { Space } from '../Space'
 
 export enum TaskBoardType {
   List = 1,
@@ -27,12 +30,20 @@ export class TaskBoard {
   uuid: string
 
   @Column('integer')
-  @Index()
   userId: number
 
-  @Column('integer')
+  @ManyToOne((type) => User)
+  @JoinColumn({ name: 'userId' })
   @Index()
+  user!: User
+
+  @Column('integer')
   spaceId: number
+
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
+  @Index()
+  space!: Space
 
   @Column('integer')
   @IsInt()
@@ -58,6 +69,9 @@ export class TaskBoard {
   @IsDate()
   updatedAt: Date
 
+  @OneToMany(type => Tag, tag => tag.board, {eager: true})
+  tags!: Tag[]
+
   @OneToMany(type => TaskList, taskList => taskList.board, {eager: true})
-  taskLists: TaskList[]
+  taskLists!: TaskList[]
 }

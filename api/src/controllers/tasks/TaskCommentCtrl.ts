@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import {TaskCommentService} from '../../services/content/tasks'
+import { TaskCommentService } from '../../services/content/tasks'
 import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCommentCtrl extends BaseCtrl {
@@ -22,7 +22,7 @@ export class TaskCommentCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    data.userId = req.user.id
+    data.user = req.user
 
     const taskComment = await this.taskCommentService.create(data)
     const resData = this.responseData(taskComment)
@@ -40,6 +40,7 @@ export class TaskCommentCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    return this.taskCommentService.delete(Number(req.params.id))
+    const result = await this.taskCommentService.delete(Number(req.params.id))
+    res.send(result)
   }
 }

@@ -1,5 +1,5 @@
 import { config } from 'node-config-ts'
-import {MailClientInterface} from './types'
+import { MailClientInterface } from './types'
 import nodemailer from 'nodemailer'
 
 export class MailhogClient implements MailClientInterface<any> {
