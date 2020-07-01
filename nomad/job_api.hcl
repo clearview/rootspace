@@ -84,8 +84,8 @@ job "root_api" {
         POSTGRES_PASSWORD = "{{key "service/postgres/credentials/password"}}"
         POSTGRES_DB = "{{key "service/postgres/credentials/db"}}"
 
-        NODE_ENV="{{key "service/root/api/NODE_ENV"}}"
-        ENV="{{key "service/root/api/ENV"}}"
+        NODE_ENV={{key "service/root/api/NODE_ENV"}}
+        ENV={{key "service/root/api/ENV"}}
         PORT=3001
         POSTGRES=postgresql://{{key "service/postgres/credentials/user"}}:{{key "service/postgres/credentials/password"}}@POSTGRES_HOST:5432/{{key "service/postgres/credentials/db"}}
         SENDGRID_API_KEY="{{key "service/root/api/SENDGRID_API_KEY"}}"
