@@ -1,4 +1,4 @@
-import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
+import { getCustomRepository, UpdateResult, DeleteResult, SelectQueryBuilder } from 'typeorm'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
 import { Link } from '../../../entities/Link'
@@ -36,6 +36,22 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
 
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
+  }
+
+  async getCompleteTaskboard(id: number, archived: boolean): Promise<TaskBoard | undefined> {
+    const queryBuilder =  this.getTaskBoardRepository()
+        .createQueryBuilder('taskBoard')
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+        .leftJoinAndSelect('taskList.tasks', 'task')
+        .where('taskBoard.id = :id', { id })
+
+        if (archived) {
+          queryBuilder.andWhere('task.deletedAt IS NOT NULL')
+          return queryBuilder.getOne()
+        }
+
+        queryBuilder.andWhere('task.deletedAt IS NULL')
+        return queryBuilder.getOne()
   }
 
   async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {
