@@ -98,6 +98,8 @@ job "root_api" {
         DOMAIN_SIGNUP_PATH=/signup
         DOMAIN_EMAIL_CONFIRMATION_PATH=/confirm-email
         DOMAIN_INVITE_ACCEPT_PATH=/invitation
+        SENDGRID_API_KEY={{key "service/root/api/SENDGRID_API_KEY"}}
+        SENTRY_DSN={{key "service/root/api/SENTRY_DSN"}}
 
         EOH
         # destination   = "${NOMAD_SECRETS_DIR}/ENV"
