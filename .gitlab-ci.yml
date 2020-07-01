@@ -2,6 +2,8 @@ image: docker:latest
 
 variables:
   API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
+  PROXY_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/proxy
+  WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 services:
 - docker:dind
@@ -10,19 +12,56 @@ before_script:
   - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
   - curl -O https://bootstrap.pypa.io/get-pip.py
   - python3 get-pip.py
-  -  pip install --upgrade six awscli awsebcli
   - pip install awscli
 
 stages:
-  - build
+  - build_api
+  - build_proxy
+  - build_web
 
-build:
-  stage: build
+build_api:
+  stage: build_api
   script:
-    - $(aws ecr get-login --no-include-email --region us-east-1)
-    - docker build -t $API_REPOSITORY_URL:latest . --file ./docker/Dockerfile.api
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - >
+        docker build .
+        --cache-from="API_REPOSITORY_URL:latest"
+        -t $API_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
-#  only:
-#    - master
+  only:
+   - master
+   - dockerize
+  tags:
+    - docker
+build_proxy:
+  stage: build_proxy
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - >
+        docker build .
+        --cache-from="PROXY_REPOSITORY_URL:latest"
+        -t $PROXY_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.proxy
+        --target copy_root_proxy_conf_files
+    - docker push $PROXY_REPOSITORY_URL:latest
+  only:
+   - master
+   - dockerize
+  tags:
+    - docker
+build_web:
+  stage: build_web
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - >
+        docker build .
+        --cache-from="WEB_REPOSITORY_URL:latest"
+        -t $WEB_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.web
+    - docker push $WEB_REPOSITORY_URL:latest
+  only:
+   - master
+   - dockerize
   tags:
     - docker
