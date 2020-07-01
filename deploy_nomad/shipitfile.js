@@ -21,7 +21,12 @@ module.exports = shipit => {
         triggerEvent: 'deployed'
       }
     },
-    staging: {
+    staging_api: {
+      deployTo: '/srv/root',
+      servers: 'rut@server.root.prod.clearviewdev.io',
+      branch: 'dockerize'
+    },
+    staging_web: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
       branch: 'dockerize'
@@ -65,7 +70,7 @@ module.exports = shipit => {
     const env = shipit.options.environment
     console.log(shipit.releaseDirname)
 
-    if (env === 'staging') {
+    if (env === 'staging_api') {
       shipit.on('deployed', async() => {
         console.log('\n\n')
         const releaseDir = path.join(shipit.releasesPath, shipit.releaseDirname)
@@ -80,7 +85,30 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job.hcl > run_job.hcl && exec nomad job run run_job.hcl`)
+        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_api.hcl > run_job_api.hcl && exec nomad job run run_job_api.hcl`)
+        //await shipit.remote(`exec nomad status flow-group`)
+        console.log('\n\n')
+        console.log('Listing all Docker containers')
+        console.log('\n')
+        await shipit.remote(`docker ps -a`)
+      });
+    }
+
+    if (env === 'staging_web') {
+      shipit.on('deployed', async() => {
+        console.log('\n\n')
+        const releaseDir = path.join(shipit.releasesPath, shipit.releaseDirname)
+        console.log('\n\n')
+        console.log('Listing releases and their permissions')
+        console.log('\n')
+        await shipit.remote(`ls -al  ${releaseDir}/web/`)
+        console.log('\n\n')
+        console.log('Building Docker containers')
+        console.log('\n')
+        // await shipit.remote(`cd /srv/root/current/ && exec /srv/root/current/build_nomad.sh`)
+        console.log('\n\n')
+        console.log('Nomad deploying')
+        console.log('\n')
         await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_web.hcl > run_job_web.hcl && exec nomad job run run_job_web.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
