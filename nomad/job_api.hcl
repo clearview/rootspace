@@ -94,13 +94,11 @@ job "root_api" {
         GOOGLE_CLIENT_ID="{{key "service/root/api/GOOGLE_CLIENT_ID"}}"
         GOOGLE_CLIENT_SECRET="{{key "service/root/api/GOOGLE_CLIENT_SECRET"}}"
         GOOGLE_CALLBACK_PATH=/auth/google/callback
-        DOMAIN=http://localhost:3000
+        DOMAIN=https://"{{key "service/root/web/domain"}}"
         DOMAIN_SIGNUP_PATH=/signup
         DOMAIN_EMAIL_CONFIRMATION_PATH=/confirm-email
         DOMAIN_INVITE_ACCEPT_PATH=/invitation
 
-        LOG_LEVEL="{{key "service/root/api/log-level"}}"
-        API_KEY="{{key "service/root/api/api-key"}}"
         EOH
         # destination   = "${NOMAD_SECRETS_DIR}/ENV"
         destination   = "${NOMAD_TASK_DIR}/.env"
