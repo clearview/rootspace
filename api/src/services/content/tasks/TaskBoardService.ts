@@ -42,6 +42,18 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
 
+  async getByTaskUid(uid: string): Promise<TaskBoard> {
+    const taskBoard = await this.getTaskBoardRepository()
+        .createQueryBuilder('taskBoard')
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+        .leftJoinAndSelect('taskList.tasks', 'task')
+        .where('task.shortUid = :uid', { uid })
+        .andWhere('task.deletedAt IS NULL')
+        .getOne()
+
+    return this.getCompleteTaskboard(taskBoard.id)
+  }
+
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
     const queryBuilder =  this.getTaskBoardRepository()
         .createQueryBuilder('taskBoard')

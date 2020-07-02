@@ -25,6 +25,13 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
+  async viewByTaskUid(req: Request, res: Response, next: NextFunction) {
+    const taskBoard = await this.taskBoardService.getByTaskUid(req.params.uid)
+
+    const resData = this.responseData(taskBoard)
+    res.send(resData)
+  }
+
   async viewArchivedTasks(req: Request, res: Response, next: NextFunction) {
     const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id), true)
 
