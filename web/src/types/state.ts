@@ -1,4 +1,12 @@
-import { LinkResource, WorkspaceResource, TaskBoardResource, TaskListResource, TaskItemResource } from './resource'
+import {
+  NodeResource,
+  LinkResource,
+  WorkspaceResource,
+  TaskBoardResource,
+  TaskListResource,
+  TaskItemResource,
+  DocumentResource
+} from './resource'
 
 export interface ResourceState<T>{
   processing: boolean;
@@ -28,12 +36,16 @@ export interface AuthState {
   currentSpace: WorkspaceResource | null;
 }
 
-export interface LinkState {
-  payload: LinkResource[];
+export interface TreeState {
+  list: NodeResource[];
   active: string | null;
   folded: {
     [key: string]: boolean;
   };
+}
+
+export interface LinkState {
+  item: LinkResource | null;
 }
 
 export interface TaskState {
@@ -64,4 +76,8 @@ export interface NavState {
 
 export interface OptionState {
   redirect: object | null;
+}
+
+export interface DocumentState {
+  payload: DocumentResource[];
 }

@@ -5,7 +5,7 @@
       triggerClass="tree-node-handle"
       :indent="16"
       :value="treeData"
-      @drop="update({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
+      @drop="updateNode({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
       <div
@@ -42,39 +42,88 @@
           <input
             v-show="isSelected(path)"
             v-model.lazy="node.title"
-            @change="update({ node, path, tree })"
+            @change="updateNode({ node, path, tree })"
             @keydown.esc="select(null)"
           />
         </div>
         <div class="tree-node-actions">
-          <button v-if="node.type !== 'doc'" @click="update({ node, path, tree }, true)">
-            <v-icon name="link-edit"/>
+          <button
+            v-if="node.type !== 'doc'"
+            @click="updateLink({ node, path, tree })"
+          >
+            <v-icon name="link-edit" />
           </button>
-          <button @click="destroy({ node, path, tree })">
-            <v-icon name="trash"/>
+          <button @click="destroyNode({ node, path, tree })">
+            <v-icon name="trash" />
           </button>
         </div>
       </div>
     </v-tree>
+
+    <v-modal
+      v-if="modal.type == 'Update'"
+      title="Update item"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      @cancel="$emit('modal:cancel')"
+      @confirm="() => $refs.formUpdate.submit()"
+    >
+      <div class="modal-body">
+        <form-link
+          notitle
+          :value="modal.data"
+          ref="formUpdate"
+          @submit="$emit('modal:confirm', $event)"
+        />
+      </div>
+    </v-modal>
+
+    <v-modal
+      v-if="modal.type == 'Destroy'"
+      title="Delete Item"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      confirmText="Yes"
+      @cancel="$emit('modal:cancel')"
+      @confirm="$emit('modal:confirm')"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this item?
+      </div>
+    </v-modal>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Draggable, Fold, Node, Tree, walkTreeData } from 'he-tree-vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
-import { LinkResource } from '@/types/resource'
-import { Component, Prop, Watch } from 'vue-property-decorator'
+import { LinkResource, NodeResource } from '@/types/resource'
 
-  type ComponentData = {
-    selected: string | null;
-  }
+import VModal from '@/components/Modal.vue'
+import FormLink from '@/components/form/FormLink.vue'
 
-  type NodeContext = {
-    node: Node;
-    path: number[];
-    tree: Tree & Fold & Draggable;
-  }
+enum ModalType {
+  Update = 'Update',
+  Destroy = 'Destroy'
+}
+
+type Modal = {
+  visible: boolean;
+  loading: boolean;
+  type: ModalType | null;
+  data: object | null;
+}
+
+type ComponentRef = {
+  formUpdate: HTMLFormElement;
+}
+
+type NodeContext = {
+  node: Node & NodeResource;
+  path: number[];
+  tree: Tree & Fold & Draggable;
+}
 
 const VTree = Vue.extend({
   name: 'Tree',
@@ -83,113 +132,120 @@ const VTree = Vue.extend({
 })
 
 @Component({
-  name: 'NavigationItems',
+  name: 'NavigationItem',
   components: {
-    VTree
+    VTree,
+    VModal,
+    FormLink
   }
 })
-export default class NavigationItems extends Vue {
-    @Prop({ type: Array })
-    private readonly value?: any[];
+export default class NavigationItem extends Vue {
+  @Prop(Array)
+  readonly value!: NodeResource[]
 
-    @Prop({ type: Object })
-    private readonly folded?: any;
+  @Prop(Object)
+  readonly folded!: { [key: string]: boolean }
 
-    @Prop({ type: String })
-    private readonly active?: string;
+  @Prop(String)
+  readonly active!: string
 
-    @Prop({ type: Boolean })
-    private readonly editable!: boolean;
+  @Prop(Boolean)
+  readonly editable!: boolean
 
-    @Watch('editable')
-    watchEditable (newVal: boolean) {
-      if (!newVal) this.select(null)
+  selected: string | null = null
+
+  modal: Modal = {
+    visible: false,
+    loading: false,
+    type: null,
+    data: null
+  }
+
+  get treeData (): NodeResource[] {
+    const treeData = [...this.value]
+
+    walkTreeData(treeData, (node, index, parent, path) => {
+      node.$folded = this.folded[path.join('.')] === true
+    })
+
+    return treeData
+  }
+
+  get iconName () {
+    return {
+      doc: 'file',
+      link: 'link',
+      taskBoard: 'file'
+    }
+  }
+
+  get nodeTypeRouteMap (): { [key: string]: string } {
+    return {
+      link: 'Link',
+      doc: 'Document',
+      taskBoard: 'TaskPage'
+    }
+  }
+
+  hasChildren (link: LinkResource) {
+    return link.children && link.children.length > 0
+  }
+
+  select (path: number[] | null) {
+    this.selected = !path ? path : path.join('.')
+  }
+
+  isSelected (path: number[]) {
+    return this.selected === path.join('.')
+  }
+
+  toggleFold ({ node, path, tree }: NodeContext) {
+    tree.toggleFold(node, path)
+
+    this.$emit('fold', {
+      [path.join('.')]: node.$folded === true
+    })
+  }
+
+  async open ({ path, node }: NodeContext) {
+    if (this.editable) {
+      return
     }
 
-    @Watch('active')
-    watchActive (val: string) {
-      const activeEls = this.$el.querySelectorAll('.tree-node-back.is-active')
-      const targetEl = this.$el.querySelector(`[data-tree-node-path="${val}"] .tree-node-back`)
+    this.$store.commit('tree/setActive', path.join(','))
 
-      if (activeEls) {
-        activeEls.forEach(el => el.classList.remove('is-active'))
-      }
+    const name = this.nodeTypeRouteMap[node.type]
 
-      if (targetEl) {
-        targetEl.classList.add('is-active')
-      }
+    if (!name) {
+      return
     }
 
-    private selected: any = null
-
-    get treeData () {
-      const treeData = this.value ? [...this.value] : []
-
-      walkTreeData(treeData, (node, index, parent, path) => {
-        node.$folded = this.folded[path.join('.')] === true
+    try {
+      await this.$router.push({
+        name,
+        params: {
+          id: node.contentId.toString()
+        }
       })
+    } catch { }
+  }
 
-      return treeData
-    }
+  async updateLink ({ node }: NodeContext) {
+    try {
+      await this.$store.dispatch('link/view', node.contentId)
 
-    get iconName () {
-      return {
-        doc: 'file',
-        link: 'link',
-        taskBoard: 'file'
-      }
-    }
+      const list = await this.modalOpen(ModalType.Update, this.$store.state.link.item)
 
-    hasChildren (link: LinkResource) {
-      return link.children && link.children.length > 0
-    }
+      await this.$store.dispatch('link/update', list)
+    } catch { }
+  }
 
-    select (path: number[] | null) {
-      this.selected = !path ? path : path.join('.')
-    }
-
-    isSelected (path: number[]) {
-      return this.selected === path.join('.')
-    }
-
-    toggleFold ({ node, path, tree }: NodeContext) {
-      tree.toggleFold(node, path)
-
-      this.$emit('fold', {
-        [path.join('.')]: node.$folded === true
-      })
-    }
-
-    open ({ path, node }: NodeContext) {
-      if (this.editable) {
-        return
-      }
-
-      this.$store.commit('link/setActive', path.join(','))
-
-      switch (node.type) {
-        case 'doc':
-          this.$router
-            .push({ name: 'Document', params: { id: node.value } })
-            .catch(err => err)
-          break
-        case 'taskBoard':
-          this.$router
-            .push({ name: 'TaskPage', params: { id: node.value } })
-            .catch(err => err)
-          break
-
-        default:
-          window.open(node.value, '_blank')
-          break
-      }
-    }
-
-    update ({ node, path, tree }: NodeContext, modal = false) {
+  async updateNode ({ node, path, tree }: NodeContext) {
+    try {
       const parent = tree.getNodeParentByPath(path)
       const position = path.slice(-1).pop() || 0
 
-      const _data = {
+      const data = {
         ...node,
         parent: (parent && parent.id) || null,
         position: position + 1,
@@ -199,11 +255,46 @@ export default class NavigationItems extends Vue {
       }
 
       this.select(null)
-      this.$emit('update', _data, modal)
+      this.$emit('update', data)
+    } catch { }
+  }
+
+  async destroyNode ({ node }: NodeContext) {
+    try {
+      await this.modalOpen(ModalType.Destroy)
+
+      this.$emit('destroy', node)
+    } catch { }
+  }
+
+  async modalOpen (type: ModalType, data?: object) {
+    this.modal = {
+      ...this.modal,
+
+      visible: true,
+      data: data || null,
+      type
     }
 
-    destroy ({ node }: NodeContext) {
-      this.$emit('destroy', node)
-    }
+    return new Promise((resolve, reject) => {
+      this.$once('modal:cancel', () => {
+        this.modal.visible = false
+
+        reject(new Error('Cancel'))
+      })
+
+      this.$once('modal:confirm', (data: object) => {
+        this.modal.visible = false
+
+        resolve(data)
+      })
+    })
+  }
 }
 </script>
+
+<style lang="postcss" scoped>
+.modal-body {
+  width: 456px;
+}
+</style>

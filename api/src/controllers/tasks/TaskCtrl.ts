@@ -1,16 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskService } from '../../services'
-import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCtrl extends BaseCtrl {
   private taskService: TaskService
-  private contentManager: ContentManager
 
   constructor() {
     super()
     this.taskService = TaskService.getInstance()
-    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {

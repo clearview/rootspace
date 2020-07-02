@@ -3,7 +3,6 @@ import { BaseCtrl } from './BaseCtrl'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { clientError, HttpErrName } from '../errors'
-import { InviteService } from '../services'
 import { SpaceFacade, InviteFacade } from '../services/facade'
 
 export class SpacesCtrl extends BaseCtrl {
@@ -14,6 +13,19 @@ export class SpacesCtrl extends BaseCtrl {
     super()
     this.inviteFacade = new InviteFacade()
     this.spaceFacade = new SpaceFacade()
+  }
+
+  async getTree(req: Request, res: Response) {
+    const spaceId = Number(req.params.id)
+
+    if (!spaceId) {
+      throw clientError('Error fetching tree')
+    }
+
+    const nodes = await this.spaceFacade.getNodesTree(spaceId)
+    const data = this.responseData(nodes)
+
+    res.send(data)
   }
 
   public async listAll(req: Request, res: Response, next: NextFunction) {

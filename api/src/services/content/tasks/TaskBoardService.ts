@@ -1,19 +1,19 @@
-import { getCustomRepository, UpdateResult, DeleteResult, SelectQueryBuilder } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
+import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
-import { Link } from '../../../entities/Link'
-import { LinkType } from '../../../constants'
-import { LinkCreateValue, LinkUpdateValue } from '../../../values/link'
-import { ILinkContent } from '../../types'
-import { ContentManager } from '../ContentManager'
-import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { SpaceRepository } from '../../../repositories/SpaceRepository'
+import { ServiceFactory } from '../../factory/ServiceFactory'
+import { NodeContentService } from '../NodeContentService'
+import { NodeService } from '../NodeService'
+import { NodeType } from '../../../types/node'
+import { NodeCreateValue } from '../../../values/node'
 
-export class TaskBoardService implements ILinkContent<TaskBoard> {
-  private contentManager: ContentManager
-
+export class TaskBoardService extends NodeContentService {
+  private nodeService: NodeService
   private constructor() {
-    this.contentManager = ContentManager.getInstance()
+    super()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
   private static instance: TaskBoardService
@@ -34,6 +34,10 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     return getCustomRepository(TaskBoardRepository)
   }
 
+  getNodeType() {
+    return NodeType.TaskBoard
+  }
+
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
@@ -43,6 +47,8 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
         .createQueryBuilder('taskBoard')
         .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
         .leftJoinAndSelect('taskList.tasks', 'task')
+        .leftJoinAndSelect('task.tags', 'tag')
+        .leftJoinAndSelect('task.taskComments', 'comment')
         .where('taskBoard.id = :id', { id })
 
         if (archived) {
@@ -61,7 +67,16 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
   async save(data: any): Promise<TaskBoard> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     const taskBoard = await this.getTaskBoardRepository().save(data)
-    await this.createLinkByContent(taskBoard)
+
+    await this.nodeService.create(
+      NodeCreateValue.fromObject({
+        userId: taskBoard.userId,
+        spaceId: taskBoard.spaceId,
+        contentId: taskBoard.id,
+        title: taskBoard.title,
+        type: this.getNodeType(),
+      })
+    )
 
     return taskBoard
   }
@@ -70,75 +85,23 @@ export class TaskBoardService implements ILinkContent<TaskBoard> {
     let taskBoard = await this.getById(id)
     taskBoard = await this.getTaskBoardRepository().save({
       ...taskBoard,
-      ...data
+      ...data,
     })
-
-    await this.updateLinkByContent(taskBoard)
 
     return this.getTaskBoardRepository().reload(taskBoard)
   }
 
   async delete(id: number) {
-    const taskBoard = await this.getById(id)
-
-    const res = await this.getTaskBoardRepository().delete({id})
+    const res = await this.getTaskBoardRepository().delete({ id })
 
     if (res.affected > 0) {
-      await this.deleteLinkByContent(taskBoard)
+      await this.mediator.contentDeleted(id, this.getNodeType())
     }
 
     return res
   }
 
-  /**
-   * ILinkContent methods
-   */
-
-  getLinkByContent(taskBoard: TaskBoard): Promise<Link> {
-    return this.contentManager.getLinkByValue(String(taskBoard.id))
-  }
-
-  createLinkByContent(taskBoard: TaskBoard): Promise<Link> {
-    const linkCreateData = LinkCreateValue.fromObject({
-      userId: taskBoard.user.id,
-      spaceId: taskBoard.space.id,
-      title: taskBoard.title,
-      type: LinkType.TaskBoard,
-      value: String(taskBoard.id),
-    })
-
-    return this.contentManager.createLinkByContent(linkCreateData)
-  }
-
-  async updateLinkByContent(taskBoard: TaskBoard): Promise<UpdateResult> {
-    const link = await this.contentManager.getLinkByValue(String(taskBoard.id))
-
-    const updateLinkData = LinkUpdateValue.fromObject({
-      title: taskBoard.title,
-    })
-
-    return this.contentManager.updateLinkByContent(updateLinkData, link.id)
-  }
-
-  async deleteLinkByContent(taskBoard: TaskBoard): Promise<DeleteResult> {
-    const link = await this.contentManager.getLinkByValue(String(taskBoard.id))
-    return this.contentManager.deleteLinkByContent(link.id)
-  }
-
-  getContentByLink(link: Link): Promise<TaskBoard> {
-    return this.getById(Number(link.value))
-  }
-
-  updateContentByLink(link: Link): Promise<UpdateResult> {
-    return this.getTaskBoardRepository().update(
-        Number(link.value),
-        {
-          title: link.title
-        }
-    )
-  }
-
-  deleteContentByLink(link: Link): Promise<DeleteResult> {
-    return this.getTaskBoardRepository().delete(String(link.value))
+  async nodeDeleted(contentId: number): Promise<void> {
+    await this.getTaskBoardRepository().delete({ id: contentId })
   }
 }

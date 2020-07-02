@@ -47,12 +47,12 @@ import { Component, Ref, Watch } from 'vue-property-decorator'
     isFromLoad: boolean;
   }
 
-  @Component({
-    name: 'Document',
-    components: {
-      Editor
-    }
-  })
+@Component({
+  name: 'Document',
+  components: {
+    Editor
+  }
+})
 export default class Document extends Vue {
     private value: any = {}
     private title = ''
@@ -138,7 +138,7 @@ export default class Document extends Vue {
       }
     }
 
-    async createUpdateDocument (data: DocumentResource) {
+    async createUpdateDocument (data: Partial<DocumentResource>) {
       try {
         const id = this.$route.params.id
         this.loading = true
@@ -149,6 +149,7 @@ export default class Document extends Vue {
           const document = await DocumentService.create(data)
           const getDocument = document.data
           this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
+          await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
         }
 
         this.loading = false

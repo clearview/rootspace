@@ -4,17 +4,14 @@ import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardReposi
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { Task } from '../../../entities/tasks/Task'
-import { ContentManager } from '../ContentManager'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
-  private contentManager: ContentManager
 
   private constructor() {
-    this.contentManager = ContentManager.getInstance()
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
   }
@@ -64,7 +61,7 @@ export class TaskService {
     let task = await this.getById(id)
     task = await this.getTaskRepository().save({
       ...task,
-      ...data
+      ...data,
     })
 
     await this.assigneesUpdate(task, data)
@@ -81,7 +78,7 @@ export class TaskService {
   }
 
   async delete(id: number) {
-    return this.getTaskRepository().delete({id})
+    return this.getTaskRepository().delete({ id })
   }
 
   async assigneesUpdate(task: Task, data: any): Promise<Task> {
