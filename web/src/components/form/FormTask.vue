@@ -139,7 +139,7 @@ export default class FormTask extends Vue {
     id: this.value.id || null,
     spaceId: this.value.spaceId || this.space,
     title: this.value.title || '',
-    type: this.value.type || TaskBoardType.List,
+    type: this.value.type || TaskBoardType.Kanban,
     isPublic: this.value.isPublic || false,
     taskLists: [],
     description: null

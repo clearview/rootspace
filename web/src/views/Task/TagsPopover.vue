@@ -48,7 +48,6 @@ export default class TagsPopover extends Vue {
     private colorInput = this.colors[0]
 
     get tags (): TagResource[] {
-      console.dir(this.$store.state.task)
       return this.$store.state.task.tag.data || []
     }
 
