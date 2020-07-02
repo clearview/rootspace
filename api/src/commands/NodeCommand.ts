@@ -2,9 +2,10 @@ import chalk from 'chalk'
 import db from '../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
 import { LinkRepository } from '../repositories/LinkRepository'
-import { Link } from '../entities/Link'
+import { Node } from '../entities/Node'
+import { NodeRepository } from '../repositories/NodeRepository'
 
-export class LinksCommand {
+export class NodeCommand {
   async run(command: string) {
     await db()
 
@@ -28,29 +29,29 @@ export class LinksCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Normalize positions...'))
 
-    await this.setRootPositions()
+    await NodeCommand.setRootPositions()
 
     const parents = await getCustomRepository(LinkRepository)
-      .createQueryBuilder('link')
-      .select(['link.parentId'])
-      .distinctOn(['link.parentId'])
-      .where('link.type != :type', { type: 'root' })
+      .createQueryBuilder('node')
+      .select(['node.parentId'])
+      .distinctOn(['node.parentId'])
+      .where('node.type != :type', { type: 'root' })
       .getRawMany()
 
     await Promise.all(
       parents.map(
         async function(parent: any) {
-          return this.setPositions(parent.link_parentId)
+          return this.setPositions(parent.node_parentId)
         }.bind(this)
       )
     )
   }
 
-  private async setRootPositions(): Promise<UpdateResult> {
+  private static async setRootPositions(): Promise<UpdateResult> {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Set space root links positions to 0'))
 
-    return getCustomRepository(LinkRepository)
+    return getCustomRepository(NodeRepository)
       .createQueryBuilder()
       .update()
       .set({
@@ -64,19 +65,19 @@ export class LinksCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Set positions for parent id ' + parentId))
 
-    const links = await getCustomRepository(LinkRepository)
-      .createQueryBuilder('link')
-      .where('link.parentId = :parentId', { parentId })
-      .orderBy('link.position')
+    const links = await getCustomRepository(NodeRepository)
+      .createQueryBuilder('node')
+      .where('node.parentId = :parentId', { parentId })
+      .orderBy('node.position')
       .orderBy('created')
       .getMany()
 
     let position = 1
 
     return Promise.all(
-      links.map(async (link: Link) => {
+      links.map(async (link: Node) => {
         link.position = position++
-        return getCustomRepository(LinkRepository).save(link)
+        return getCustomRepository(NodeRepository).save(link)
       })
     )
   }
