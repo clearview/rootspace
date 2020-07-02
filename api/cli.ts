@@ -4,14 +4,14 @@ dotenv.config()
 // @ts-ignore
 import chalk from 'chalk'
 import yargs = require('yargs')
-import { LinksCommand } from './src/commands/LinksCommand'
+import { NodeCommand } from './src/commands/NodeCommand'
 
-yargs
-  .command({
-    command: 'links <command>',
-    aliases: ['l'],
+const commands = yargs
+    .command({
+    command: 'node <command>',
+    aliases: ['n'],
     handler: async (argv) => {
-      await new LinksCommand().run(String(argv.command))
+      await new NodeCommand().run(String(argv.command))
       process.exit()
     },
     builder: (args) =>
@@ -24,8 +24,9 @@ yargs
       }),
   })
   .demandCommand(1, chalk.red('Input command before moving on!'))
-  .version('1.0')
   .help()
+  .wrap(72)
+  .recommendCommands()
   .argv
 
 process.on('unhandledRejection', (reason, p) =>
