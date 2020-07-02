@@ -50,6 +50,7 @@
     "pg": "^8.0.0",
     "pug": "^2.0.4",
     "reflect-metadata": "^0.1.13",
+    "short-unique-id": "^3.0.3",
     "typeorm": "^0.2.24",
     "typeorm-seeding": "^1.6.1",
     "yargs": "^15.3.1"

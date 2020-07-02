@@ -53,6 +53,9 @@ export class Task {
   title: string
 
   @Column('varchar')
+  shortUid: string
+
+  @Column('varchar')
   slug: string
 
   @Column('text', { nullable: true })

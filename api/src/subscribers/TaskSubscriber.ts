@@ -4,6 +4,7 @@ import {
   InsertEvent
 } from 'typeorm'
 import { Task } from '../entities/tasks/Task'
+import ShortUniqueId from 'short-unique-id'
 import slugify from '@sindresorhus/slugify'
 
 @EventSubscriber()
@@ -15,6 +16,9 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
   async beforeInsert(event: InsertEvent<Task>) {
     const task = event.entity
     task.slug = slugify(task.title)
+
+    const uuid = new ShortUniqueId()
+    task.shortUid = uuid(8)
   }
 
   async beforeUpdate(event: InsertEvent<Task>) {
