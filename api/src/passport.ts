@@ -1,5 +1,6 @@
 import { config } from 'node-config-ts'
 import passport from 'passport'
+import * as Sentry from '@sentry/node'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
@@ -81,6 +82,12 @@ passport.use(
 
           if (user.active !== true) {
             return done(unauthorized)
+          }
+
+          if (config.env === 'production') {
+            Sentry.configureScope((scope) => {
+                scope.setUser({id: user.id.toString(), email: user.email})
+            })
           }
 
           return done(null, user)

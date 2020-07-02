@@ -7,7 +7,7 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 // Task Board
-router.get('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
+router.get('/tasks/board/:id/:archived?', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
 router.post('/tasks/board', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
 router.patch('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
 router.delete('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))
@@ -28,6 +28,8 @@ router.delete('/tasks/list/:id', mapRoute(TaskListCtrl, 'delete'))
 router.get('/tasks/task/:id', mapRoute(TaskCtrl, 'view'))
 router.post('/tasks/task', mapRoute(TaskCtrl, 'create'))
 router.patch('/tasks/task/:id', mapRoute(TaskCtrl, 'update'))
+router.post('/tasks/task/:id/archive', mapRoute(TaskCtrl, 'archive'))
+router.post('/tasks/task/:id/restore', mapRoute(TaskCtrl, 'restore'))
 router.delete('/tasks/task/:id', mapRoute(TaskCtrl, 'delete'))
 
 router.post('/tasks/task/:id/assignee/:userId/add', mapRoute(TaskCtrl, 'assigneeAdd'))

@@ -11,19 +11,17 @@ define(Doc, (faker: typeof Faker) => {
         type: 'header',
         data: {
           text: 'Heading one',
-          level: 2
-        }
+          level: 2,
+        },
       },
       {
         type: 'paragraph',
         data: {
-          text: faker.lorem.paragraph()
-        }
-      }
-    ]
+          text: faker.lorem.paragraph(),
+        },
+      },
+    ],
   }
   doc.access = 2
   return doc
 })
-
-

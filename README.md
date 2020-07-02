@@ -59,5 +59,13 @@ Note: You can also run `docker-compose up` or `docker-compose up -d` from `tests
 ```
 
 # Infra related
+
 * http://consul.root.prod.clearviewdev.io:8080/
 * http://nomad.root.prod.clearviewdev.io:8080/
+
+## Credentials for Nomad and Consul
+
+````
+username: nomad
+password: 67ce7dd7dAa28f4835915d3c7fbfA27a4a8c83c1380f157453b469de01813c228_2020
+````

@@ -3,14 +3,9 @@ import { SpaceRepository } from '../../../repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../entities/tasks/TaskList'
-import { ContentManager } from '../ContentManager'
 
 export class TaskListService {
-  private contentManager: ContentManager
-
-  private constructor() {
-    this.contentManager = ContentManager.getInstance()
-  }
+  private constructor() {}
 
   private static instance: TaskListService
 
@@ -51,13 +46,13 @@ export class TaskListService {
     let taskList = await this.getById(id)
     taskList = await this.getTaskListRepository().save({
       ...taskList,
-      ...data
+      ...data,
     })
 
     return this.getTaskListRepository().reload(taskList)
   }
 
   async delete(id: number) {
-    return this.getTaskListRepository().delete({id})
+    return this.getTaskListRepository().delete({ id })
   }
 }

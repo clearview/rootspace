@@ -1,16 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskService } from '../../services'
-import { ContentManager } from '../../services/content/ContentManager'
 
 export class TaskCtrl extends BaseCtrl {
   private taskService: TaskService
-  private contentManager: ContentManager
 
   constructor() {
     super()
     this.taskService = TaskService.getInstance()
-    this.contentManager = ContentManager.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
@@ -34,6 +31,16 @@ export class TaskCtrl extends BaseCtrl {
     const task = await this.taskService.update(Number(req.params.id), req.body.data)
 
     res.send(this.responseData(task))
+  }
+
+  async archive(req: Request, res: Response, next: NextFunction) {
+    const result = await this.taskService.archive(Number(req.params.id))
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response, next: NextFunction) {
+    const result = await this.taskService.restore(Number(req.params.id))
+    res.send(result)
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {

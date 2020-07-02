@@ -1,3 +1,17 @@
+export interface NodeResource {
+  id: number;
+  parentId: number;
+  userId: number;
+  contentId: number;
+  title: string;
+  type: string;
+  config: object | null;
+  position: number;
+  created: string;
+  updated: string;
+  children: NodeResource[];
+}
+
 export interface LinkResource {
   id: number;
   spaceId: number;
@@ -129,6 +143,7 @@ export interface UserResource {
 }
 
 export interface DocumentResource {
+  id: number;
   spaceId: number;
   title: string;
   content: object;
