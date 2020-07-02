@@ -71,7 +71,7 @@ import { Component, Prop } from 'vue-property-decorator'
   }
 })
 export default class FormLink extends Vue {
-    @Prop({ type: Object, default: {} })
+    @Prop({ type: Object, default: () => ({}) })
     private readonly value!: any;
 
     @Prop({ type: Number, default: 0 })

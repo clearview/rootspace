@@ -38,23 +38,18 @@
 import { Component, Emit, Vue } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
-import { mapState } from 'vuex'
 
-  @Component({
-    name: 'TagsPopover',
-    components: { Popover },
-    computed: {
-      ...mapState('task/tag', {
-        tags: 'data'
-      })
-    }
-  })
+@Component({
+  name: 'TagsPopover',
+  components: { Popover }
+})
 export default class TagsPopover extends Vue {
     private tagInput = ''
     private colorInput = this.colors[0]
 
     get tags (): TagResource[] {
-      return this.$store.state.task.tag.data
+      console.dir(this.$store.state.task)
+      return this.$store.state.task.tag.data || []
     }
 
     get colors () {

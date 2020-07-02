@@ -15,8 +15,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'Searchbar'
@@ -25,7 +24,7 @@ export default class Searchbar extends Vue {
     @Prop({ type: String })
     private readonly value?: string;
 
-    private payload = this.value
+    private payload: string = this.value || ''
 
     submit (): void {
       this.$emit('input', this.payload)
