@@ -72,6 +72,6 @@ export class TaskBoard {
   @OneToMany(type => Tag, tag => tag.board, {eager: true})
   tags!: Tag[]
 
-  @OneToMany(type => TaskList, taskList => taskList.board, {eager: true})
+  @OneToMany(type => TaskList, taskList => taskList.board, {eager: false})
   taskLists!: TaskList[]
 }

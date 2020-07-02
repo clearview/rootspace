@@ -1,16 +1,16 @@
-{{ $DOMAIN := key "service/root/api/domain" }}
-{{ $SSL_REWRITE := key "service/root/api/ssl_rewrite" }}
+{{ $DOMAIN := key "service/root/web/domain" }}
+{{ $SSL_REWRITE := key "service/root/web/ssl_rewrite" }}
 
-upstream to_api {
+upstream to_web {
   least_conn;
-  {{range service "api"}}server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=5s weight=1;
+  {{range service "web"}}server {{.Address}}:{{.Port}} max_fails=3 fail_timeout=5s weight=1;
   {{else}}server 127.0.0.1:65535; # force a 502 {{end}}
 }
 
 server {
         listen 80;
 
-  {{range service "certbot-api-certificate-file-check"}}
+  {{range service "certbot-web-certificate-file-check"}}
   {{ $CERTIFICATE_EXIST_STATUS := .Status}}
   {{ if eq $CERTIFICATE_EXIST_STATUS "passing" }}
        listen 443 ssl;
@@ -37,7 +37,7 @@ server {
         }
 
         location / {
-          proxy_pass http://to_api;
+          proxy_pass http://to_web;
           proxy_http_version 1.1;
           proxy_set_header Upgrade $http_upgrade;
           proxy_set_header Connection 'upgrade';

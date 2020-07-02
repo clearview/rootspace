@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   UpdateDateColumn,
   ManyToOne,
   OneToMany, ManyToMany, JoinTable, JoinColumn, Index
@@ -71,6 +72,9 @@ export class Task {
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
+
+  @DeleteDateColumn({ type: 'timestamptz'})
+  deletedAt: Date
 
   @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true})
   taskComments: TaskComment[]

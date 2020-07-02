@@ -3,7 +3,7 @@
 job "root_pg" {
 
   datacenters = ["dc1"]
-
+  
   group "root_postgres" {
 
     # Specify the number of these tasks we want.

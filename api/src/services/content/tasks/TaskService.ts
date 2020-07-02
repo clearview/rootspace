@@ -72,6 +72,14 @@ export class TaskService {
     return this.getTaskRepository().reload(task)
   }
 
+  async archive(id: number) {
+    return this.getTaskRepository().softDelete({id})
+  }
+
+  async restore(id: number) {
+    return this.getTaskRepository().restore({id})
+  }
+
   async delete(id: number) {
     return this.getTaskRepository().delete({id})
   }

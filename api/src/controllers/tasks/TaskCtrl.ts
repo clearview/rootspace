@@ -36,6 +36,16 @@ export class TaskCtrl extends BaseCtrl {
     res.send(this.responseData(task))
   }
 
+  async archive(req: Request, res: Response, next: NextFunction) {
+    const result = await this.taskService.archive(Number(req.params.id))
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response, next: NextFunction) {
+    const result = await this.taskService.restore(Number(req.params.id))
+    res.send(result)
+  }
+
   async delete(req: Request, res: Response, next: NextFunction) {
     const result = await this.taskService.delete(Number(req.params.id))
     res.send(result)
