@@ -66,6 +66,7 @@ export class TaskBoardService extends NodeContentService {
         .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
         .leftJoinAndSelect('taskList.tasks', 'task')
         .leftJoinAndSelect('task.tags', 'tag')
+        .leftJoinAndSelect('task.assignees', 'assignee')
         .leftJoinAndSelect('task.taskComments', 'comment')
         .where('taskBoard.id = :id', { id })
 
@@ -77,16 +78,16 @@ export class TaskBoardService extends NodeContentService {
           }))
     }
 
-    if (filterParam && filterParam.status) {
-      queryBuilder.having('task.status = :status', { status: filterParam.status })
+    if (typeof filterParam?.status !== 'undefined' && filterParam?.status !== null) {
+      queryBuilder.andWhere('task.status = :status', { status: filterParam.status })
     }
 
-    if (filterParam && filterParam.assignees) {
-      // queryBuilder.andHaving('task.assignees IN (:...assignees)', { assignees: filterParam.assignees })
+    if (filterParam?.assignees?.length > 0) {
+      queryBuilder.andWhere('assignee.id IN (:...assignees)', { assignees: filterParam.assignees })
     }
 
-    if (filterParam && filterParam.tags) {
-      // queryBuilder.andHaving('task.tags IN (:...tags)', { tags: filterParam.tags })
+    if (filterParam?.tags?.length > 0) {
+      queryBuilder.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
     }
 
     queryBuilder.andWhere('task.deletedAt IS NULL')
