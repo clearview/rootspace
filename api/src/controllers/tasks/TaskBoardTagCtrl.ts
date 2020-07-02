@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskBoardTagService } from '../../services/content/tasks/TaskBoardTagService'
-import { Tag } from '../../entities/tasks/Tag'
 import { TaskBoardService } from '../../services/content/tasks'
 
 export class TaskBoardTagCtrl extends BaseCtrl {

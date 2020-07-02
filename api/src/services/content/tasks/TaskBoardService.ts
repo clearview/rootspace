@@ -47,6 +47,8 @@ export class TaskBoardService extends NodeContentService {
         .createQueryBuilder('taskBoard')
         .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
         .leftJoinAndSelect('taskList.tasks', 'task')
+        .leftJoinAndSelect('task.tags', 'tag')
+        .leftJoinAndSelect('task.taskComments', 'comment')
         .where('taskBoard.id = :id', { id })
 
         if (archived) {
