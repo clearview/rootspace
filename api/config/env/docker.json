@@ -5,7 +5,7 @@
     "google": {
         "clientID": "@@GOOGLE_CLIENT_ID",
         "clientSecret": "@@GOOGLE_CLIENT_SECRET",
-        "callbackPath": "@@GOOGLE_CALLBACK_PATH"
+        "callbackPath": "/auth/google/callback"
     },
     "mail": {
         "client": "@@MAIL_CLIENT",
@@ -21,7 +21,10 @@
     },
     "uploadDir": "../uploads",
     "domain": "@@DOMAIN",
-    "domainSignupPath": "@@DOMAIN_SIGNUP_PATH",
-    "domainEmailConfirmationPath": "@@DOMAIN_EMAIL_CONFIRMATION_PATH",
-    "domainInviteAcceptPath": "@@DOMAIN_INVITE_ACCEPT_PATH"
+    "domainSignupPath": "/signup",
+    "domainEmailConfirmationPath": "/confirm-email",
+    "domainInviteAcceptPath": "/invitation",
+    "sentry": {
+        "dsn": null
+    }
 }

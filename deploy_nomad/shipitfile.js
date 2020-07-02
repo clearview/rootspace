@@ -24,12 +24,12 @@ module.exports = shipit => {
     staging_api: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'develop'
+      branch: 'master'
     },
     staging_web: {
       deployTo: '/srv/root',
       servers: 'rut@server.root.prod.clearviewdev.io',
-      branch: 'develop'
+      branch: 'master'
     },
     staging_postgres: {
       deployTo: '/srv/root',

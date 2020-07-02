@@ -126,7 +126,7 @@ export class TaskService {
 
   async tagAdd(taskId: number, tagId: number): Promise<Task> {
     const task = await this.getById(taskId)
-    const boardTag = await this.tagService.getTagById(tagId)
+    const boardTag = await this.tagService.getById(tagId)
 
     if (!task.tags.includes(boardTag)) {
       const tags = task.tags
@@ -141,7 +141,7 @@ export class TaskService {
 
   async tagRemove(taskId: number, tagId: number): Promise<Task> {
     const task = await this.getById(taskId)
-    const boardTag = await this.tagService.getTagById(tagId)
+    const boardTag = await this.tagService.getById(tagId)
 
     task.tags = task.tags.filter(tag => {
       return tag.id !== boardTag.id

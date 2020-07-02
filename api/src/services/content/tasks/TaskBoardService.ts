@@ -42,7 +42,7 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
 
-  async getCompleteTaskboard(id: number, archived: boolean): Promise<TaskBoard | undefined> {
+  async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
     const queryBuilder =  this.getTaskBoardRepository()
         .createQueryBuilder('taskBoard')
         .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
