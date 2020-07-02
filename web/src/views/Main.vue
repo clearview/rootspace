@@ -5,14 +5,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
+import { Component, Vue } from 'vue-property-decorator'
 import LayoutMain from '@/components/LayoutMain.vue'
 
-export default Vue.extend({
+@Component({
   name: 'Main',
   components: {
     LayoutMain
   }
 })
+export default class Main extends Vue {
+
+}
 </script>

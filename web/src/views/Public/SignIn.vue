@@ -4,9 +4,9 @@
       <h2 class="text-center">Sign In</h2>
       <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
 
-      <v-alert v-model="alert" />
+      <v-alert v-model="alert"/>
 
-      <form-signin @submit="userSignin" />
+      <form-signin @submit="userSignin"/>
 
       <div class="my-10">
         <p class="separator">
@@ -14,14 +14,15 @@
         </p>
       </div>
 
-      <button-auth-google text="Sign In with Google" />
+      <button-auth-google text="Sign In with Google"/>
 
       <p class="w-full mt-16 mb-5 text-center">
         Don't have an account yet?
         <router-link
           :to="{ name: 'SignUp', query: redirectTo }"
           class="font-semibold text-primary"
-        >Sign Up</router-link>
+        >Sign Up
+        </router-link>
       </p>
     </div>
 
@@ -32,8 +33,6 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { mapState } from 'vuex'
 
 import { SigninResource } from '@/types/resource'
 
@@ -42,14 +41,15 @@ import LayoutPublic from '@/components/LayoutPublic.vue'
 import VLoading from '@/components/Loading.vue'
 import FormSignin from '@/components/resource/ResourceFormSignin.vue'
 import ButtonAuthGoogle from '@/components/ButtonAuthGoogle.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  isLoading: boolean;
-  alert: object | null;
-  redirectTo: object | null;
-};
+  type ComponentData = {
+    isLoading: boolean;
+    alert: object | null;
+    redirectTo: object | null;
+  };
 
-export default Vue.extend({
+@Component({
   name: 'Signin',
   components: {
     VAlert,
@@ -57,22 +57,22 @@ export default Vue.extend({
     VLoading,
     FormSignin,
     ButtonAuthGoogle
-  },
-  data (): ComponentData {
-    return {
-      isLoading: false,
-      alert: null,
-      redirectTo: null
+  }
+})
+export default class SignIn extends Vue {
+    private isLoading = false
+    private alert: any = null
+    private redirectTo: any = null
+
+    get spaces () {
+      return this.$store.state.auth.spaces
     }
-  },
-  computed: {
-    ...mapState('auth', ['spaces'])
-  },
-  mounted () {
-    this.redirectTo = this.$route.query ? this.$route.query : {}
-    this.$store.commit('option/setRedirect', this.redirectTo)
-  },
-  methods: {
+
+    mounted () {
+      this.redirectTo = this.$route.query ? this.$route.query : {}
+      this.$store.commit('option/setRedirect', this.redirectTo)
+    }
+
     async userSignin (data: SigninResource) {
       this.isLoading = true
 
@@ -97,6 +97,5 @@ export default Vue.extend({
         this.isLoading = false
       }
     }
-  }
-})
+}
 </script>

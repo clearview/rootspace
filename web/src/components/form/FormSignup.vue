@@ -13,14 +13,15 @@
           v-model.trim="$v.payload.firstName.$model"
         />
         <span class="icon">
-          <v-icon name="user" size="1.5em" />
+          <v-icon name="user" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.firstName.$dirty && !$v.payload.firstName.required"
-        >First Name is required.</div>
+        >First Name is required.
+        </div>
       </div>
     </v-field>
 
@@ -34,14 +35,15 @@
           v-model.trim="$v.payload.lastName.$model"
         />
         <span class="icon">
-          <v-icon name="user" size="1.5em" />
+          <v-icon name="user" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.lastName.$dirty && !$v.payload.lastName.required"
-        >Last Name is required.</div>
+        >Last Name is required.
+        </div>
       </div>
     </v-field>
 
@@ -55,18 +57,20 @@
           v-model.trim="$v.payload.email.$model"
         />
         <span class="icon">
-          <v-icon name="email" size="1.5em" />
+          <v-icon name="email" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.email.$dirty && !$v.payload.email.required"
-        >Email is required.</div>
+        >Email is required.
+        </div>
         <div
           class="error"
           v-if="$v.payload.email.$dirty && !$v.payload.email.email"
-        >Email format is not valid.</div>
+        >Email format is not valid.
+        </div>
       </div>
     </v-field>
 
@@ -80,18 +84,20 @@
           v-model.trim="$v.payload.password.$model"
         />
         <span class="icon">
-          <v-icon name="lock" size="1.5em" />
+          <v-icon name="lock" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.password.$dirty && !$v.payload.password.required"
-        >Password is required.</div>
+        >Password is required.
+        </div>
         <div
           class="error"
           v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
-        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.</div>
+        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
+        </div>
       </div>
     </v-field>
 
@@ -105,14 +111,15 @@
           v-model.trim="$v.payload.password_confirmation.$model"
         />
         <span class="icon">
-          <v-icon name="lock" size="1.5em" />
+          <v-icon name="lock" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="!$v.payload.password_confirmation.sameAsPassword"
-        >Passwords must be identical.</div>
+        >Passwords must be identical.
+        </div>
       </div>
     </v-field>
 
@@ -121,55 +128,50 @@
       type="button"
       :disabled="$v.payload.$invalid"
       @click="submit()"
-    >Sign Up</button>
+    >Sign Up
+    </button>
   </form>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+import { email, minLength, required, sameAs } from 'vuelidate/lib/validators'
 
 import { SignupResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  payload: SignupResource;
-}
-
-export default Vue.extend({
-  name: 'FormSignup',
-  components: {
-    VField
-  },
-  data (): ComponentData {
-    return {
+  @Component({
+    name: 'FormSignup',
+    components: {
+      VField
+    },
+    validations: {
       payload: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        password_confirmation: '' // eslint-disable-line
+        firstName: { required },
+        lastName: { required },
+        email: { required, email },
+        password: {
+          required,
+          minLength: minLength(6)
+        },
+        password_confirmation: { // eslint-disable-line
+          required,
+          minLength: minLength(6),
+          sameAsPassword: sameAs('password')
+        }
       }
     }
-  },
-  validations: {
-    payload: {
-      firstName: { required },
-      lastName: { required },
-      email: { required, email },
-      password: {
-        required,
-        minLength: minLength(6)
-      },
-      password_confirmation: { // eslint-disable-line
-        required,
-        minLength: minLength(6),
-        sameAsPassword: sameAs('password')
-      }
+  })
+export default class FormSignup extends Vue {
+    private payload: SignupResource = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      password_confirmation: '' // eslint-disable-line
     }
-  },
-  methods: {
+
     submit (): void {
       this.$v.payload.$touch()
 
@@ -177,6 +179,5 @@ export default Vue.extend({
         this.$emit('submit', this.payload)
       }
     }
-  }
-})
+}
 </script>

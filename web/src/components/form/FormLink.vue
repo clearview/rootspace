@@ -39,7 +39,7 @@
       label="Always open in new Tab"
       class="mb-0"
     >
-      <button-switch v-model="payload.config.alwaysOpen" />
+      <button-switch v-model="payload.config.alwaysOpen"/>
     </v-field>
 
     <button type="submit" class="hidden"/>
@@ -55,53 +55,44 @@ import { LinkResource } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
+import { Component, Prop } from 'vue-property-decorator'
 
-type ComponentData = {
-  payload: Omit<LinkResource, 'children'>;
-}
-
-export default Vue.extend({
+@Component({
   name: 'FormLink',
   components: {
     ButtonSwitch,
     VField
-  },
-  props: {
-    value: {
-      type: Object,
-      default: () => ({})
-    },
-    space: {
-      type: Number,
-      default: 0
-    },
-    notitle: {
-      type: Boolean
-    }
   },
   validations: {
     payload: {
       title: { required },
       value: { required }
     }
-  },
-  data (): ComponentData {
-    return {
-      payload: {
-        id: this.value.id || undefined,
-        spaceId: this.value.space || this.space,
-        title: this.value.title || '',
-        type: this.value.type || 'link',
-        value: this.value.value || '',
-        config: {
-          alwaysOpen: false,
+  }
+})
+export default class FormLink extends Vue {
+    @Prop({ type: Object, default: {} })
+    private readonly value!: any;
 
-          ...this.value.config
-        }
+    @Prop({ type: Number, default: 0 })
+    private readonly space!: number;
+
+    @Prop({ type: Boolean })
+    private readonly notitle!: boolean;
+
+    private payload: Omit<LinkResource, 'children'> = {
+      id: this.value.id || undefined,
+      spaceId: this.value.space || this.space,
+      title: this.value.title || '',
+      type: this.value.type || 'link',
+      value: this.value.value || '',
+      config: {
+        alwaysOpen: false,
+
+        ...this.value.config
       }
     }
-  },
-  methods: {
+
     submit (): void {
       this.$v.payload.$touch()
 
@@ -109,6 +100,5 @@ export default Vue.extend({
         this.$emit('submit', this.payload)
       }
     }
-  }
-})
+}
 </script>

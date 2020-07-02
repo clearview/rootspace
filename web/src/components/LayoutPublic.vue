@@ -20,9 +20,9 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
-export default Vue.extend({
-  name: 'LayoutPublic'
-})
+import { Vue } from 'vue-property-decorator'
+
+export default class LayoutPublic extends Vue {
+}
 </script>

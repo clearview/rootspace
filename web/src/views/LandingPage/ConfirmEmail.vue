@@ -15,30 +15,29 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
 import UserService from '@/services/user'
 
 import RootHeader from '@/components/RootHeader.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  isLoading: boolean;
-}
+  type ComponentData = {
+    isLoading: boolean;
+  }
 
-export default Vue.extend({
+@Component({
   name: 'ConfirmEmail',
   components: {
     RootHeader
-  },
-  data (): ComponentData {
-    return {
-      isLoading: false
+  }
+})
+export default class ConfirmEmail extends Vue {
+    private isLoading = false
+
+    created () {
+      this.submit()
     }
-  },
-  created () {
-    this.submit()
-  },
-  methods: {
+
     async submit () {
       const { token } = this.$route.params
       const { id } = this.$route.params
@@ -54,21 +53,22 @@ export default Vue.extend({
         this.isLoading = false
       }
     }
-  }
-})
+}
 </script>
 
 <style lang="postcss" scoped>
-#confirm-email-page {
-  @apply border-t-4;
-  border-color: theme("colors.primary.default");
-}
-#confirm-email-content {
-  height: calc(100vh - 100px);
-}
-a {
-  border-bottom: 1px dotted;
-  color: theme("colors.primary.default");
-  cursor: pointer;
-}
+  #confirm-email-page {
+    @apply border-t-4;
+    border-color: theme("colors.primary.default");
+  }
+
+  #confirm-email-content {
+    height: calc(100vh - 100px);
+  }
+
+  a {
+    border-bottom: 1px dotted;
+    color: theme("colors.primary.default");
+    cursor: pointer;
+  }
 </style>

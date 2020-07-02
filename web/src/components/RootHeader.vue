@@ -11,11 +11,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
-export default Vue.extend({
-  name: 'RootHeader'
-})
+import { Vue } from 'vue-property-decorator'
+
+export default class RootHeader extends Vue {
+}
 </script>
 
 <style lang="postcss" scoped>
