@@ -55,7 +55,7 @@ async function acceptInvitation (data: object) {
   try {
     const res = await api.post('invites/accept', { data })
 
-    return res
+    return res.data
   } catch (error) {
     let err = error
 
