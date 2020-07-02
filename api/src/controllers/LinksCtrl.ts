@@ -26,7 +26,6 @@ export class LinksCtrl extends BaseCtrl {
         HttpStatusCode.NotFound
       )
     }
-    s
 
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
 

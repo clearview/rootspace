@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
 import { LinkResource, NodeResource } from '@/types/resource'
@@ -108,14 +108,11 @@ enum ModalType {
   Destroy = 'Destroy'
 }
 
-type ComponentData = {
-  selected: string | null;
-  modal: {
-    visible: boolean;
-    loading: boolean;
-    type: ModalType | null;
-    data: object | null;
-  };
+type Modal = {
+  visible: boolean;
+  loading: boolean;
+  type: ModalType | null;
+  data: object | null;
 }
 
 type ComponentRef = {
@@ -123,7 +120,7 @@ type ComponentRef = {
 }
 
 type NodeContext = {
-  node: Node;
+  node: Node & NodeResource;
   path: number[];
   tree: Tree & Fold & Draggable;
 }
@@ -134,175 +131,166 @@ const VTree = Vue.extend({
   mixins: [Draggable, Fold]
 })
 
-export default Vue.extend({
-  name: 'NavigationItems',
+@Component({
+  name: 'NavigationItem',
   components: {
     VTree,
     VModal,
     FormLink
-  },
-  props: {
-    value: {
-      type: Array as PropType<NodeResource[]>
-    },
-    folded: {
-      type: Object
-    },
-    active: {
-      type: String
-    },
-    editable: {
-      type: Boolean
-    }
-  },
-  watch: {
-    editable (newVal) {
-      if (!newVal) this.select(null)
-    },
-    active (val) {
-      const activeEls = this.$el.querySelectorAll('.tree-node-back.is-active')
-      const targetEl = this.$el.querySelector(`[data-tree-node-path="${val}"] .tree-node-back`)
-
-      if (activeEls) {
-        activeEls.forEach(el => el.classList.remove('is-active'))
-      }
-
-      if (targetEl) {
-        targetEl.classList.add('is-active')
-      }
-    }
-  },
-  data (): ComponentData {
-    return {
-      selected: null,
-      modal: {
-        visible: false,
-        loading: false,
-        type: null,
-        data: null
-      }
-    }
-  },
-  computed: {
-    treeData (): NodeResource[] {
-      const treeData = [...this.value]
-
-      walkTreeData(treeData, (node, index, parent, path) => {
-        node.$folded = this.folded[path.join('.')] === true
-      })
-
-      return treeData
-    },
-    iconName: {
-      get () {
-        return {
-          doc: 'file',
-          link: 'link',
-          taskBoard: 'file'
-        }
-      }
-    }
-  },
-  methods: {
-    hasChildren (link: LinkResource) {
-      return link.children && link.children.length > 0
-    },
-    select (path: number[] | null) {
-      this.selected = !path ? path : path.join('.')
-    },
-    isSelected (path: number[]) {
-      return this.selected === path.join('.')
-    },
-    toggleFold ({ node, path, tree }: NodeContext) {
-      tree.toggleFold(node, path)
-
-      this.$emit('fold', {
-        [path.join('.')]: node.$folded === true
-      })
-    },
-    open ({ path, node }: NodeContext) {
-      if (this.editable) {
-        return
-      }
-
-      this.$store.commit('tree/setActive', path.join(','))
-
-      switch (node.type) {
-        case 'doc':
-          this.$router
-            .push({ name: 'Document', params: { id: node.value } })
-            .catch(err => err)
-          break
-        case 'taskBoard':
-          this.$router
-            .push({ name: 'TaskPage', params: { id: node.value } })
-            .catch(err => err)
-          break
-
-        default:
-          window.open(node.value, '_blank')
-          break
-      }
-    },
-    async updateLink ({ node }: NodeContext) {
-      try {
-        await this.$store.dispatch('link/view', node.contentId)
-
-        const list = await this.modalOpen(ModalType.Update, this.$store.state.link.item)
-
-        await this.$store.dispatch('link/update', list)
-      } catch { }
-    },
-    async updateNode ({ node, path, tree }: NodeContext) {
-      try {
-        const parent = tree.getNodeParentByPath(path)
-        const position = path.slice(-1).pop() || 0
-
-        const data = {
-          ...node,
-          parent: (parent && parent.id) || null,
-          position: position + 1,
-          children: undefined,
-          created: undefined,
-          updated: undefined
-        }
-
-        this.select(null)
-        this.$emit('update', data)
-      } catch { }
-    },
-    async destroyNode ({ node }: NodeContext) {
-      try {
-        await this.modalOpen(ModalType.Destroy)
-
-        this.$emit('destroy', node)
-      } catch { }
-    },
-    async modalOpen (type: ModalType, data?: object) {
-      this.modal = {
-        ...this.modal,
-
-        visible: true,
-        data: data || null,
-        type
-      }
-
-      return new Promise((resolve, reject) => {
-        this.$once('modal:cancel', () => {
-          this.modal.visible = false
-
-          reject(new Error('Cancel'))
-        })
-
-        this.$once('modal:confirm', (data: object) => {
-          this.modal.visible = false
-
-          resolve(data)
-        })
-      })
-    }
   }
 })
+export default class NavigationItem extends Vue {
+  @Prop(Array)
+  readonly value!: NodeResource[]
+
+  @Prop(Object)
+  readonly folded!: { [key: string]: boolean }
+
+  @Prop(String)
+  readonly active!: string
+
+  @Prop(Boolean)
+  readonly editable!: boolean
+
+  selected: string | null = null
+
+  modal: Modal = {
+    visible: false,
+    loading: false,
+    type: null,
+    data: null
+  }
+
+  get treeData (): NodeResource[] {
+    const treeData = [...this.value]
+
+    walkTreeData(treeData, (node, index, parent, path) => {
+      node.$folded = this.folded[path.join('.')] === true
+    })
+
+    return treeData
+  }
+
+  get iconName () {
+    return {
+      doc: 'file',
+      link: 'link',
+      taskBoard: 'file'
+    }
+  }
+
+  get nodeTypeRouteMap (): { [key: string]: string } {
+    return {
+      link: 'Link',
+      doc: 'Document',
+      taskBoard: 'TaskPage'
+    }
+  }
+
+  hasChildren (link: LinkResource) {
+    return link.children && link.children.length > 0
+  }
+
+  select (path: number[] | null) {
+    this.selected = !path ? path : path.join('.')
+  }
+
+  isSelected (path: number[]) {
+    return this.selected === path.join('.')
+  }
+
+  toggleFold ({ node, path, tree }: NodeContext) {
+    tree.toggleFold(node, path)
+
+    this.$emit('fold', {
+      [path.join('.')]: node.$folded === true
+    })
+  }
+
+  async open ({ path, node }: NodeContext) {
+    if (this.editable) {
+      return
+    }
+
+    this.$store.commit('tree/setActive', path.join(','))
+
+    const name = this.nodeTypeRouteMap[node.type]
+
+    if (!name) {
+      return
+    }
+
+    try {
+      await this.$router.push({
+        name,
+        params: {
+          id: node.contentId.toString()
+        }
+      })
+    } catch { }
+  }
+
+  async updateLink ({ node }: NodeContext) {
+    try {
+      await this.$store.dispatch('link/view', node.contentId)
+
+      const list = await this.modalOpen(ModalType.Update, this.$store.state.link.item)
+
+      await this.$store.dispatch('link/update', list)
+    } catch { }
+  }
+
+  async updateNode ({ node, path, tree }: NodeContext) {
+    try {
+      const parent = tree.getNodeParentByPath(path)
+      const position = path.slice(-1).pop() || 0
+
+      const data = {
+        ...node,
+        parent: (parent && parent.id) || null,
+        position: position + 1,
+        children: undefined,
+        created: undefined,
+        updated: undefined
+      }
+
+      this.select(null)
+      this.$emit('update', data)
+    } catch { }
+  }
+
+  async destroyNode ({ node }: NodeContext) {
+    try {
+      await this.modalOpen(ModalType.Destroy)
+
+      this.$emit('destroy', node)
+    } catch { }
+  }
+
+  async modalOpen (type: ModalType, data?: object) {
+    this.modal = {
+      ...this.modal,
+
+      visible: true,
+      data: data || null,
+      type
+    }
+
+    return new Promise((resolve, reject) => {
+      this.$once('modal:cancel', () => {
+        this.modal.visible = false
+
+        reject(new Error('Cancel'))
+      })
+
+      this.$once('modal:confirm', (data: object) => {
+        this.modal.visible = false
+
+        resolve(data)
+      })
+    })
+  }
+}
 </script>
 
 <style lang="postcss" scoped>
