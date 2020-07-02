@@ -7,7 +7,8 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 // Task Board
-router.get('/tasks/board/:id/:archived?', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
+router.get('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
+router.get('/tasks/board/:id/archived', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'viewArchivedTasks'))
 router.post('/tasks/board', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
 router.patch('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
 router.delete('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))

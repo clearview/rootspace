@@ -14,12 +14,23 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const archived = req.params.archived && req.params.archived === 'archived'
-    const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id), archived)
+    const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id))
 
     ForbiddenError.from(req.user.ability).throwUnlessCan(
       Actions.Read,
       taskBoard
+    )
+
+    const resData = this.responseData(taskBoard)
+    res.send(resData)
+  }
+
+  async viewArchivedTasks(req: Request, res: Response, next: NextFunction) {
+    const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id), true)
+
+    ForbiddenError.from(req.user.ability).throwUnlessCan(
+        Actions.Read,
+        taskBoard
     )
 
     const resData = this.responseData(taskBoard)
