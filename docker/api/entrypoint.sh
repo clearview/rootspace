@@ -8,6 +8,6 @@ fi
 cd /srv/api && \
 printenv | sort && \
 cat /srv/api/.env && \
-echo "Installing packages... $(yarn install)"
+echo "Installing packages... $(yarn install --production=false)"
 echo "Building... $(yarn build)"
 exec "$@"
