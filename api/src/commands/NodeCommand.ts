@@ -1,9 +1,8 @@
 import chalk from 'chalk'
 import db from '../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
-import { LinkRepository } from '../repositories/LinkRepository'
-import { Node } from '../entities/Node'
 import { NodeRepository } from '../repositories/NodeRepository'
+import { Node } from '../entities/Node'
 
 export class NodeCommand {
   async run(command: string) {
@@ -31,7 +30,7 @@ export class NodeCommand {
 
     await NodeCommand.setRootPositions()
 
-    const parents = await getCustomRepository(LinkRepository)
+    const parents = await getCustomRepository(NodeRepository)
       .createQueryBuilder('node')
       .select(['node.parentId'])
       .distinctOn(['node.parentId'])
@@ -49,7 +48,7 @@ export class NodeCommand {
 
   private static async setRootPositions(): Promise<UpdateResult> {
     // tslint:disable-next-line:no-console
-    console.log(chalk.yellow('Set space root links positions to 0'))
+    console.log(chalk.yellow('Set spaces root nodes positions to 0'))
 
     return getCustomRepository(NodeRepository)
       .createQueryBuilder()
@@ -65,7 +64,7 @@ export class NodeCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Set positions for parent id ' + parentId))
 
-    const links = await getCustomRepository(NodeRepository)
+    const nodes = await getCustomRepository(NodeRepository)
       .createQueryBuilder('node')
       .where('node.parentId = :parentId', { parentId })
       .orderBy('node.position')
@@ -75,9 +74,9 @@ export class NodeCommand {
     let position = 1
 
     return Promise.all(
-      links.map(async (link: Node) => {
-        link.position = position++
-        return getCustomRepository(NodeRepository).save(link)
+      nodes.map(async (node: Node) => {
+        node.position = position++
+        return getCustomRepository(NodeRepository).save(node)
       })
     )
   }
