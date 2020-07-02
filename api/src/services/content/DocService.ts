@@ -1,19 +1,19 @@
-import { getCustomRepository, UpdateResult, DeleteResult } from 'typeorm'
+import { getCustomRepository, DeleteResult } from 'typeorm'
 import { DocRepository } from '../../repositories/DocRepository'
 import { Doc } from '../../entities/Doc'
 import { DocCreateValue, DocUpdateValue } from '../../values/doc'
-import { Link } from '../../entities/Link'
-import { LinkType } from '../../constants'
-import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
-import { ILinkContent } from '../types'
-import { ContentManager } from './ContentManager'
-import { clientError } from '../../errors'
+import { NodeCreateValue } from '../../values/node'
+import { NodeType } from '../../types/node'
+import { NodeService } from './NodeService'
+import { NodeContentService } from './NodeContentService'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
-export class DocService implements ILinkContent<Doc> {
-  private contentManager: ContentManager
+export class DocService extends NodeContentService {
+  private nodeService: NodeService
 
   private constructor() {
-    this.contentManager = ContentManager.getInstance()
+    super()
+    this.nodeService = NodeService.getInstance()
   }
 
   private static instance: DocService
@@ -30,51 +30,8 @@ export class DocService implements ILinkContent<Doc> {
     return getCustomRepository(DocRepository)
   }
 
-  getLinkByContent(doc: Doc): Promise<Link> {
-    return this.contentManager.getLinkByValue(String(doc.id))
-  }
-
-  createLinkByContent(doc: Doc): Promise<Link> {
-    const linkCreateData = LinkCreateValue.fromObject({
-      userId: doc.userId,
-      spaceId: doc.spaceId,
-      title: doc.title,
-      type: LinkType.Doc,
-      value: String(doc.id),
-    })
-
-    return this.contentManager.createLinkByContent(linkCreateData)
-  }
-
-  async updateLinkByContent(doc: Doc): Promise<UpdateResult> {
-    const link = await this.contentManager.getLinkByValue(String(doc.id))
-
-    const updateLinkData = LinkUpdateValue.fromObject({
-      title: doc.title,
-    })
-
-    return this.contentManager.updateLinkByContent(updateLinkData, link.id)
-  }
-
-  async deleteLinkByContent(doc: Doc): Promise<DeleteResult> {
-    const link = await this.contentManager.getLinkByValue(String(doc.id))
-    return this.contentManager.deleteLinkByContent(link.id)
-  }
-
-  getContentByLink(link: Link): Promise<Doc> {
-    return this.getById(Number(link.value))
-  }
-
-  updateContentByLink(link: Link): Promise<UpdateResult> {
-    const data = DocUpdateValue.fromObject({
-      title: link.title,
-    })
-
-    return this.getDocRepository().update(Number(link.value), data.attributes)
-  }
-
-  deleteContentByLink(link: Link): Promise<DeleteResult> {
-    return this.getDocRepository().delete(Number(link.value))
+  getNodeType(): NodeType {
+    return NodeType.Document
   }
 
   async getById(id: number): Promise<Doc> {
@@ -82,8 +39,20 @@ export class DocService implements ILinkContent<Doc> {
   }
 
   async create(data: DocCreateValue): Promise<Doc> {
-    const doc = await this.getDocRepository().save(data.attributes)
-    await this.createLinkByContent(doc)
+    let doc = this.getDocRepository().create()
+
+    Object.assign(doc, data.attributes)
+    doc = await this.getDocRepository().save(doc)
+
+    await this.nodeService.create(
+      NodeCreateValue.fromObject({
+        userId: doc.userId,
+        spaceId: doc.spaceId,
+        contentId: doc.id,
+        title: doc.title,
+        type: NodeType.Document,
+      })
+    )
 
     return doc
   }
@@ -98,8 +67,6 @@ export class DocService implements ILinkContent<Doc> {
     Object.assign(doc, data.attributes)
     doc = await this.getDocRepository().save(doc)
 
-    await this.updateLinkByContent(doc)
-
     return doc
   }
 
@@ -107,17 +74,27 @@ export class DocService implements ILinkContent<Doc> {
     const doc = await this.getById(id)
 
     if (!doc) {
+      throw clientError(
+        'Error deleting doc',
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
+      )
+    }
+
+    if (!doc) {
       throw clientError('Error deleting document')
     }
 
-    const res = await this.getDocRepository().delete({
-      id,
-    })
+    const res = await this.getDocRepository().delete({ id })
 
     if (res.affected > 0) {
-      await this.deleteLinkByContent(doc)
+      this.mediator.contentDeleted(doc.id, this.getNodeType())
     }
 
     return res
+  }
+
+  async nodeDeleted(contentId: number): Promise<void> {
+    await this.getDocRepository().delete({ id: contentId })
   }
 }

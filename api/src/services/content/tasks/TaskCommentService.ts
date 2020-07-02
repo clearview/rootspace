@@ -2,14 +2,9 @@ import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { TaskCommentRepository } from '../../../repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../entities/tasks/TaskComment'
-import { ContentManager } from '../ContentManager'
 
 export class TaskCommentService {
-  private contentManager: ContentManager
-
-  private constructor() {
-    this.contentManager = ContentManager.getInstance()
-  }
+  private constructor() {}
 
   private static instance: TaskCommentService
 
@@ -44,13 +39,13 @@ export class TaskCommentService {
     let taskComment = await this.getById(id)
     taskComment = await this.getTaskCommentRepository().save({
       ...taskComment,
-      ...data
+      ...data,
     })
 
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
   async delete(id: number) {
-    return this.getTaskCommentRepository().delete({id})
+    return this.getTaskCommentRepository().delete({ id })
   }
 }

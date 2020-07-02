@@ -5,16 +5,14 @@
       'nav--collapse': collapse
     }"
   >
-    <navigation-header
-      @toggleCollapse="toggleCollapse"
-    />
+    <navigation-header @toggleCollapse="toggleCollapse" />
     <navigation-items
-      :value="links.payload"
-      :folded="links.folded"
-      :active="links.active"
+      :value="tree.list"
+      :folded="tree.folded"
+      :active="tree.active"
       :editable="editable"
-      @update="startUpdateLink"
-      @destroy="startDestroyLink"
+      @update="updateItem"
+      @destroy="destroyItem"
       @fold="toggleFold"
     />
     <navigation-footer
@@ -57,36 +55,6 @@
     </v-modal>
 
     <v-modal
-      title="Change Link"
-      :visible="link.update.visible"
-      :loading="link.update.loading"
-      @cancel="link.update.visible = false"
-      @confirm="() => $refs.formLinkUpdate.submit()"
-    >
-      <div class="modal-body">
-        <form-link
-          notitle
-          :value="link.update.data"
-          ref="formLinkUpdate"
-          @submit="updateLink"
-        />
-      </div>
-    </v-modal>
-
-    <v-modal
-      title="Delete Link/Document"
-      :visible="link.destroy.visible"
-      :loading="link.destroy.loading"
-      confirmText="Yes"
-      @cancel="link.destroy.visible = false"
-      @confirm="destroyLink(link.destroy.data)"
-    >
-      <div class="modal-body text-center">
-        Are you sure you want to delete this link/document?
-      </div>
-    </v-modal>
-
-    <v-modal
       title="Add Board"
       :visible="task.add.visible"
       :loading="task.add.loading"
@@ -123,9 +91,15 @@
 </template>
 
 <script lang="ts">
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
 
-import { LinkResource, TaskBoardResource, WorkspaceResource } from '@/types/resource'
+import {
+  WorkspaceResource,
+  LinkResource,
+  TaskBoardResource,
+  NodeResource
+} from '@/types/resource'
 
 import WorkspaceService from '@/services/workspace'
 
@@ -138,278 +112,260 @@ import VModal from '@/components/Modal.vue'
 import NavigationHeader from './NavigationHeader.vue'
 import NavigationItems from './NavigationItems.vue'
 import NavigationFooter from './NavigationFooter.vue'
-import { Module } from 'vuex'
-import { LinkState, RootState } from '@/types/state'
-import { Component, Vue, Watch } from 'vue-property-decorator'
 
-  @Component({
-    name: 'Navigation',
-    components: {
-      NavigationHeader,
-      NavigationItems,
-      NavigationFooter,
-      FormLink,
-      FormTask,
-      SelectLinkType,
-      FormWorkspace,
-      VModal
-    }
-  })
+type Alert = {
+  type: string;
+  message: string;
+}
+
+type NestedState = {
+  loading?: boolean;
+  visible?: boolean;
+  data?: object | null;
+  alert?: Alert | null;
+}
+
+type NestedStateMap = {
+  [key: string]: NestedState;
+}
+
+@Component({
+  name: 'Navigation',
+  components: {
+    NavigationHeader,
+    NavigationItems,
+    NavigationFooter,
+    FormLink,
+    FormTask,
+    SelectLinkType,
+    FormWorkspace,
+    VModal
+  }
+})
 export default class Navigation extends Vue {
-    private editable = false;
-    private addNew = {
-      visible: false
+  editable = false
+
+  addNew: NestedState = {
+    visible: false
+  }
+
+  link: NestedStateMap = {
+    fetch: {
+      loading: false,
+      alert: null
+    },
+    add: {
+      visible: false,
+      loading: false,
+      alert: null
+    },
+    update: {
+      visible: false,
+      loading: false,
+      data: null,
+      alert: null
+    },
+    destroy: {
+      visible: false,
+      loading: false,
+      data: null,
+      alert: null
+    }
+  }
+
+  task: NestedStateMap = {
+    fetch: {
+      loading: false,
+      alert: null
+    },
+    add: {
+      visible: false,
+      loading: false,
+      alert: null
+    },
+    update: {
+      visible: false,
+      loading: false,
+      data: null,
+      alert: null
+    },
+    destroy: {
+      visible: false,
+      loading: false,
+      data: null,
+      alert: null
+    }
+  }
+
+  workspace: NestedStateMap = {
+    add: {
+      visible: false,
+      loading: false,
+      alert: null
+    }
+  }
+
+  get tree () {
+    return this.$store.state.tree
+  }
+
+  get links () {
+    return this.$store.state.link
+  }
+
+  get collapse () {
+    return this.$store.state.nav.collapse
+  }
+
+  get hasSpace () {
+    const spaces = this.$store.state.auth.spaces
+
+    return spaces && spaces.length > 0
+  }
+
+  get currentSpace () {
+    return this.$store.state.auth.currentSpace || {}
+  }
+
+  @Watch('currentSpace')
+  async onCurrentSpaceChange (currentSpace: WorkspaceResource) {
+    await this.fetchTree(currentSpace)
+  }
+
+  async created () {
+    if (!this.hasSpace) {
+      return this.$router.replace({ name: 'WorkspaceInit' })
     }
 
-    private link: any = {
-      fetch: {
-        loading: false,
-        alert: null
-      },
-      add: {
-        visible: false,
-        loading: false,
-        alert: null
-      },
-      update: {
-        visible: false,
-        loading: false,
-        data: null,
-        alert: null
-      },
-      destroy: {
-        visible: false,
-        loading: false,
-        data: null,
-        alert: null
+    await this.fetchTree(this.currentSpace)
+  }
+
+  toggleCollapse () {
+    this.$store.commit('nav/setCollapse', !this.collapse)
+  }
+
+  startAddLink () {
+    this.addNew.visible = false
+    this.link.add.visible = true
+  }
+
+  startAddTask () {
+    this.addNew.visible = false
+    this.task.add.visible = true
+  }
+
+  startAddDocument () {
+    this.$router.push({ name: 'Document' })
+    this.addNew.visible = false
+  }
+
+  startAddNew () {
+    this.addNew.visible = true
+  }
+
+  startAddWorkspace () {
+    this.workspace.add.visible = true
+  }
+
+  toggleFold (data: object) {
+    this.$store.commit('tree/setFolded', data)
+  }
+
+  async fetchTree (space: WorkspaceResource) {
+    this.link.fetch.loading = true
+
+    await this.$store.dispatch('tree/fetch', { spaceId: space.id })
+
+    this.link.fetch.loading = false
+  }
+
+  async addLink (data: LinkResource) {
+    this.link.add.loading = true
+
+    try {
+      await this.$store.dispatch('link/create', data)
+      await this.fetchTree(this.currentSpace)
+    } catch (e) {
+      this.link.add.alert = {
+        type: 'danger',
+        message: e.message
       }
     }
 
-    private task: any = {
-      fetch: {
-        loading: false,
-        alert: null
-      },
-      add: {
-        visible: false,
-        loading: false,
-        alert: null
-      },
-      update: {
-        visible: false,
-        loading: false,
-        data: null,
-        alert: null
-      },
-      destroy: {
-        visible: false,
-        loading: false,
-        data: null,
-        alert: null
+    this.link.add.loading = false
+    this.link.add.visible = false
+  }
+
+  async addTask (data: TaskBoardResource) {
+    this.link.add.loading = true
+
+    try {
+      const res = await this.$store.dispatch('task/board/create', data) as {data: TaskBoardResource}
+      await this.fetchTree(this.currentSpace)
+      if (res.data.id) {
+        await this.$router.push({
+          name: 'TaskPage',
+          params: {
+            id: res.data.id.toString()
+          }
+        })
+      }
+    } catch (e) {
+      this.task.add.alert = {
+        type: 'danger',
+        message: e.message
       }
     }
 
-    private workspace: any = {
-      add: {
-        visible: false,
-        loading: false,
-        alert: null
+    this.task.add.loading = false
+    this.task.add.visible = false
+  }
+
+  async updateItem (data: NodeResource) {
+    try {
+      await this.$store.dispatch('tree/update', data)
+      await this.fetchTree(this.currentSpace)
+    } catch (err) {
+      this.link.update.alert = {
+        type: 'danger',
+        message: err.message
+      }
+    }
+  }
+
+  async destroyItem (data: NodeResource) {
+    await this.$store.dispatch('tree/destroy', data)
+
+    await this.fetchTree(this.currentSpace)
+  }
+
+  async addWorkspace (data: WorkspaceResource) {
+    this.workspace.add.loading = true
+
+    try {
+      const res = await WorkspaceService.create(data)
+
+      await this.$store.dispatch('auth/whoami')
+
+      this.$store.commit(
+        'auth/setCurrentSpace',
+        pick(res.data, ['id', 'title', 'settings'])
+      )
+    } catch (err) {
+      this.workspace.add.alert = {
+        type: 'danger',
+        message: err.message
       }
     }
 
-    get links (): Module<LinkState, RootState> {
-      return this.$store.state.link
-    }
-
-    get collapse () {
-      return this.$store.state.nav.collapse
-    }
-
-    get hasSpace () {
-      const spaces = this.$store.state.auth.spaces
-
-      return spaces && spaces.length > 0
-    }
-
-    get currentSpace () {
-      return this.$store.state.auth.currentSpace || {}
-    }
-
-    @Watch('currentSpace')
-    async watchCurrentSpace (val: any) {
-      await this.fetchLink(val)
-    }
-
-    async created () {
-      if (!this.hasSpace) {
-        return this.$router.replace({ name: 'WorkspaceInit' })
-      }
-
-      await this.fetchLink(this.currentSpace)
-    }
-
-    toggleCollapse () {
-      this.$store.commit('nav/setCollapse', !this.collapse)
-    }
-
-    startAddLink () {
-      this.addNew.visible = false
-      this.link.add.visible = true
-    }
-
-    startAddTask () {
-      this.addNew.visible = false
-      this.task.add.visible = true
-    }
-
-    startAddDocument () {
-      this.$router.push({ name: 'Document' })
-      this.addNew.visible = false
-    }
-
-    startAddNew () {
-      this.addNew.visible = true
-    }
-
-    startUpdateLink (data: LinkResource, modal: boolean) {
-      this.link.update.data = data
-
-      if (modal) {
-        this.link.update.visible = true
-      } else {
-        this.updateLink(data)
-      }
-    }
-
-    startDestroyLink (data: LinkResource) {
-      this.link.destroy.visible = true
-      this.link.destroy.data = data
-    }
-
-    startAddWorkspace () {
-      this.workspace.add.visible = true
-    }
-
-    toggleFold (data: object) {
-      this.$store.commit('link/setFolded', data)
-    }
-
-    async fetchLink (space: WorkspaceResource) {
-      this.link.fetch.loading = true
-
-      await this.$store.dispatch('link/fetch', { spaceId: space.id })
-
-      this.link.fetch.loading = false
-    }
-
-    async addLink (data: LinkResource) {
-      this.link.add.loading = true
-
-      try {
-        await this.$store.dispatch('link/create', data)
-      } catch (e) {
-        this.link.add.alert = {
-          type: 'danger',
-          message: e.message
-        }
-      }
-
-      this.link.add.loading = false
-      this.link.add.visible = false
-    }
-
-    async addTask (data: TaskBoardResource) {
-      this.link.add.loading = true
-
-      try {
-        const res = await this.$store.dispatch('task/board/create', data) as { data: TaskBoardResource }
-        await this.$store.dispatch('link/fetch')
-        if (res.data.id) {
-          await this.$router.push({
-            name: 'TaskPage',
-            params: {
-              id: res.data.id.toString()
-            }
-          })
-        }
-      } catch (e) {
-        this.task.add.alert = {
-          type: 'danger',
-          message: e.message
-        }
-      }
-
-      this.task.add.loading = false
-      this.task.add.visible = false
-    }
-
-    async updateLink (data: LinkResource) {
-      this.link.update.loading = true
-
-      try {
-        await this.$store.dispatch('link/update', data)
-      } catch (err) {
-        this.link.update.alert = {
-          type: 'danger',
-          message: err.message
-        }
-      }
-
-      this.link.update.loading = false
-      this.link.update.visible = false
-      this.link.update.data = null
-    }
-
-    async destroyLink (data: LinkResource) {
-      this.link.destroy.loading = true
-
-      try {
-        await this.$store.dispatch('link/destroy', data)
-
-        const route = this.$route
-        const isDoc = (data.type === 'doc' && route.name === 'Document')
-        if (isDoc && parseInt(data.value) === parseInt(route.params.id)) {
-          this.$router.push({ name: 'Main' })
-        }
-      } catch (err) {
-        this.link.destroy.alert = {
-          type: 'danger',
-          message: err.message
-        }
-      }
-
-      this.link.destroy.loading = false
-      this.link.destroy.visible = false
-      this.link.destroy.data = null
-    }
-
-    async addWorkspace (data: WorkspaceResource) {
-      this.workspace.add.loading = true
-
-      try {
-        const res = await WorkspaceService.create(data)
-
-        await this.$store.dispatch('auth/whoami')
-
-        this.$store.commit(
-          'auth/setCurrentSpace',
-          pick(res.data, ['id', 'title', 'settings'])
-        )
-      } catch (err) {
-        this.workspace.add.alert = {
-          type: 'danger',
-          message: err.message
-        }
-      }
-
-      this.workspace.add.loading = false
-      this.workspace.add.visible = false
-    }
+    this.workspace.add.loading = false
+    this.workspace.add.visible = false
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
-  .modal-body {
-    width: 456px;
-  }
+.modal-body {
+  width: 456px;
+}
 </style>

@@ -140,7 +140,7 @@ export default Vue.extend({
         this.createUpdateDocument(payload)
       }
     },
-    async createUpdateDocument (data: DocumentResource) {
+    async createUpdateDocument (data: Partial<DocumentResource>) {
       try {
         let document
         const id = this.$route.params.id
@@ -153,6 +153,7 @@ export default Vue.extend({
           const getDocument = document.data
 
           this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
+          await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
         }
 
         this.loading = false
