@@ -14,14 +14,14 @@ export class TaskBoardTagCtrl extends BaseCtrl {
   }
 
   async list(req: Request, res: Response, next: NextFunction) {
-    const tags = await this.taskBoardService.getTags(Number(req.params.taskBoardId))
+    const tags = await this.tagService.getByTaskboardId(Number(req.params.taskBoardId))
 
     const resData = this.responseData(tags)
     res.send(resData)
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const tag = await this.tagService.getTagById(Number(req.params.tagId))
+    const tag = await this.tagService.getById(Number(req.params.tagId))
 
     const resData = this.responseData(tag)
     res.send(resData)
@@ -36,7 +36,7 @@ export class TaskBoardTagCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    let tag = await this.tagService.getTagById(Number(req.params.tagId))
+    let tag = await this.tagService.getById(Number(req.params.tagId))
 
     const data = req.body.data
     tag = await this.tagService.update(tag.id, data)

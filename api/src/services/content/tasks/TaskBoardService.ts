@@ -8,7 +8,6 @@ import { NodeContentService } from '../NodeContentService'
 import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
-import {Tag} from "../../../entities/tasks/Tag";
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
@@ -41,12 +40,6 @@ export class TaskBoardService extends NodeContentService {
 
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
-  }
-
-  async getTags(id: number): Promise<Tag[]> {
-    const taskBoard = await this.getById(id)
-
-    return taskBoard.tags
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {

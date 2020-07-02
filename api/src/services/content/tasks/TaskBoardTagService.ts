@@ -22,8 +22,12 @@ export class TaskBoardTagService {
     return getCustomRepository(TaskBoardTagRepository)
   }
 
-  async getTagById(id: number): Promise<Tag> {
+  async getById(id: number): Promise<Tag> {
     return this.getTagRepository().findOneOrFail(id)
+  }
+
+  async getByTaskboardId(id: number): Promise<Tag[]> {
+    return this.getTagRepository().find({ boardId: id })
   }
 
   async create(data: any): Promise<Tag> {
@@ -40,7 +44,7 @@ export class TaskBoardTagService {
   }
 
   async update(id: number, data: any): Promise<Tag> {
-    let tag = await this.getTagById(id)
+    let tag = await this.getById(id)
     tag = await this.getTagRepository().save({
       ...tag,
       ...data
