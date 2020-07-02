@@ -10,6 +10,7 @@ router.use(authenticate)
 router.get('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'view'))
 router.get('/tasks/board/:id/archived', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'viewArchivedTasks'))
 router.post('/tasks/board', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
+router.post('/tasks/board/:id/search', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'searchTasks'))
 router.patch('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
 router.delete('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))
 
