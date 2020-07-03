@@ -1,6 +1,6 @@
 import * as faker from 'faker'
-import {User} from '../../src/entities/User'
-import {Space} from '../../src/entities/Space'
+import {User} from '../../src/database/entities/User'
+import {Space} from '../../src/database/entities/Space'
 import {SpaceCreateValue} from '../../src/values/space'
 import {SpaceFacade} from '../../src/services/facade'
 

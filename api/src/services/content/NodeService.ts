@@ -1,6 +1,6 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
 import { NodeRepository } from '../../repositories/NodeRepository'
-import { Node } from '../../entities/Node'
+import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { INodeContentMediator, IContentNodeUpdate } from './contracts'

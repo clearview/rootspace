@@ -1,5 +1,5 @@
 import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
-import { Invite } from '../../entities/Invite'
+import { Invite } from '../../database/entities/Invite'
 import { clientError } from '../../errors'
 
 export class InviteFacade {

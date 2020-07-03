@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
-import { TaskBoard } from '../../../entities/tasks/TaskBoard'
+import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
 import { SpaceRepository } from '../../../repositories/SpaceRepository'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { NodeContentService } from '../NodeContentService'

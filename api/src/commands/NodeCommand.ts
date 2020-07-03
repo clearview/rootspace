@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import db from '../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
 import { NodeRepository } from '../repositories/NodeRepository'
-import { Node } from '../entities/Node'
+import { Node } from '../database/entities/Node'
 
 export class NodeCommand {
   async run(command: string) {
