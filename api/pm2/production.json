@@ -2,13 +2,13 @@
   "apps": [
     {
       "name": "root_api",
-      "script": "index.js",
+      "script": "dist/index.js",
       "args": "",
       "instances": "2",
       "watch": false,
       "node_args": "",
       "merge_logs": true,
-      "cwd": "/srv/root/current/api/dist",
+      "cwd": "/srv/root/current/api",
       "env": {
         "NODE_ENV": "production"
       }
