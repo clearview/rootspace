@@ -1,15 +1,15 @@
 <template>
-  <div class="ce-paragraph cdx-block" v-html="value.data.text"></div>
+  <h3 class="ce-header" v-html="value.data.text"></h3>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'ReadOnlyParagraph'
+  name: 'ReadOnlyH3'
 })
 
-export default class ReadOnlyParagraph extends Vue {
+export default class ReadOnlyH3 extends Vue {
   @Prop({ type: Object })
   private readonly value!: object;
 }

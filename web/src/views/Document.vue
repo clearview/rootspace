@@ -16,8 +16,6 @@
         @delete-document="deleteDocConfirm"/>
     </div>
 
-    {{ initialize }}
-
     <editor
       id="editor"
       v-if="!initialize && !readOnly"
@@ -98,18 +96,13 @@ export default class Document extends Vue {
 
   @Watch('title')
   watchTitle () {
-    console.log('1')
     clearTimeout(this.timer)
-    console.log('2')
     if (this.isFromLoad) {
-      console.log('3')
       this.isFromLoad = false
       return
     }
 
-    console.log('4')
     this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
-    console.log('5')
     this.textareaResize()
   }
 
@@ -122,17 +115,13 @@ export default class Document extends Vue {
 
   @Watch('id', { immediate: true })
   async watchId (id: number) {
-    console.log('a')
     if (!id) {
-      console.log('b')
       this.title = ''
       this.value = {}
     } else {
-      console.log('c')
       await this.loadDocument()
     }
 
-    console.log('d')
     this.titleFocus()
     this.textareaResize()
   }
@@ -150,7 +139,6 @@ export default class Document extends Vue {
 
   onUpdateEditor (value: object) {
     this.value = value
-    console.log('update')
     this.saveDocument()
   }
 
@@ -178,7 +166,6 @@ export default class Document extends Vue {
 
   saveDocument () {
     if (this.title) {
-      console.log('save doc')
       const payload = {
         spaceId: this.currentSpace.id,
         title: this.title,

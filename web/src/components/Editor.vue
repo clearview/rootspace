@@ -1,27 +1,20 @@
 <template>
-  <div>
-    {{ content }}
-    <hr/>
-    {{ readonly }}
-    <div class="editor" />
-  </div>
+  <div class="editor" />
 </template>
 
 <script lang="ts">
 import EditorJS from '@editorjs/editorjs'
 
 import { createEditor } from '@/utils/editor'
-import { Component, Prop, PropSync, Watch, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'DocumentEditor'
 })
 
 export default class Editor extends Vue {
-  // @Prop({ type: Object })
-  // private readonly content!: EditorJS.OutputData;
-
-  @PropSync('content', { type: Object }) syncedContent!: EditorJS.OutputData
+  @Prop({ type: Object })
+  private readonly content!: EditorJS.OutputData;
 
   @Prop({ type: Boolean })
   private readonly readonly!: boolean;
@@ -29,29 +22,20 @@ export default class Editor extends Vue {
   private editor: EditorJS | null = null;
   private documentChanged = false
 
-  // get data (): EditorJS.OutputData {
-  //   return this.content
-  // }
+  get editorData (): EditorJS.OutputData {
+    return this.content
+  }
 
-  // set data (data: EditorJS.OutputData) {
-  //   this.$emit('update-editor', data)
-  // }
-
-  @Watch('syncedContent')
-  watchSyncContent (data: EditorJS.OutputData) {
-    console.log('update Content')
+  set editorData (data: EditorJS.OutputData) {
     this.$emit('update-editor', data)
   }
 
   async mounted () {
-    console.log('mounted', this.syncedContent)
     this.editor = createEditor({
       holder: this.$el as HTMLElement,
-      data: this.syncedContent,
+      data: this.editorData,
       onChange: this.save.bind(this)
     })
-
-    console.log('this.editor', this.editor)
 
     await this.editor.isReady
   }
@@ -59,8 +43,7 @@ export default class Editor extends Vue {
   async save (api: EditorJS.API) {
     if (this.readonly) return
 
-    this.syncedContent = await api.saver.save()
-    console.log(this.syncedContent)
+    this.editorData = await api.saver.save()
   }
 }
 </script>

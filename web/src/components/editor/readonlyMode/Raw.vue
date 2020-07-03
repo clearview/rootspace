@@ -1,15 +1,15 @@
 <template>
-  <div class="ce-paragraph cdx-block" v-html="value.data.text"></div>
+  <textarea class="ce-code__textarea cdx-input" readonly v-model="value.data.html"></textarea>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'ReadOnlyParagraph'
+  name: 'ReadOnlyRaw'
 })
 
-export default class ReadOnlyParagraph extends Vue {
+export default class ReadOnlyRaw extends Vue {
   @Prop({ type: Object })
   private readonly value!: object;
 }
