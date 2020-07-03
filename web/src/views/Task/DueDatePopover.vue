@@ -1,7 +1,7 @@
 <template>
   <Popover top="48px">
     <template>
-      <div class="due-field">
+      <div class="field">
         <label class="field-label">
           Time
         </label>
@@ -18,13 +18,13 @@
           </select>
         </div>
       </div>
-      <div class="due-field">
+      <div class="field">
         <label class="field-label">
           Date
         </label>
         <DatePicker v-model="date" @input="input" is-inline color="red"/>
       </div>
-      <div class="due-field">
+      <div class="field">
         <button class="btn btn-primary" @click="clear">Clear</button>
       </div>
     </template>
@@ -104,7 +104,7 @@ export default class DueDatePopover extends Vue {
 
 <style lang="postcss" scoped>
 
-  .due-field {
+  .field {
     @apply px-2;
     &:first-child{
       @apply mt-2;
