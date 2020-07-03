@@ -18,8 +18,8 @@ module.exports = shipit => {
       },
       rsync: ['--no-perms --no-owner --no-group --rsync-path="/usr/bin/rsync"'],
       slack: {
-        webhookUrl: 'https://hooks.slack.com/services/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',
-        message: 'root app deployed',
+        webhookUrl: 'https://hooks.slack.com/services/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',
+        message: 'Root app deployed',
         triggerEvent: 'deployed'
       }
     },
