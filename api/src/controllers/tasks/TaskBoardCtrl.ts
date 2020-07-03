@@ -37,6 +37,20 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
+  async searchTasks(req: Request, res: Response, next: NextFunction) {
+    let taskBoard = await this.taskBoardService.getById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
+
+    const data = req.body.data
+    const searchParam = data?.search
+    const filterParam = data?.filters
+
+    taskBoard = await this.taskBoardService.searchTaskboard(Number(req.params.id), searchParam, filterParam)
+
+    const resData = this.responseData(taskBoard)
+    res.send(resData)
+  }
+
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
     data.user = req.user
