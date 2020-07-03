@@ -141,28 +141,28 @@ import { SignupResource } from '@/types/resource'
 import VField from '@/components/Field.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  @Component({
-    name: 'FormSignup',
-    components: {
-      VField
-    },
-    validations: {
-      payload: {
-        firstName: { required },
-        lastName: { required },
-        email: { required, email },
-        password: {
-          required,
-          minLength: minLength(6)
-        },
-        password_confirmation: { // eslint-disable-line
-          required,
-          minLength: minLength(6),
-          sameAsPassword: sameAs('password')
-        }
+@Component({
+  name: 'FormSignup',
+  components: {
+    VField
+  },
+  validations: {
+    payload: {
+      firstName: { required },
+      lastName: { required },
+      email: { required, email },
+      password: {
+        required,
+        minLength: minLength(6)
+      },
+      password_confirmation: { // eslint-disable-line
+        required,
+        minLength: minLength(6),
+        sameAsPassword: sameAs('password')
       }
     }
-  })
+  }
+})
 export default class FormSignup extends Vue {
     private payload: SignupResource = {
       firstName: '',

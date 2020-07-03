@@ -55,10 +55,10 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 
-  @Component({
-    name: 'Modal',
-    inheritAttrs: false
-  })
+@Component({
+  name: 'Modal',
+  inheritAttrs: false
+})
 export default class Modal extends Vue {
     @Prop({ type: String, default: 'default' })
     private readonly portal!: string;

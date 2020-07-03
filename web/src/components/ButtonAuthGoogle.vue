@@ -12,16 +12,10 @@ import Vue from 'vue'
 import { isEmpty } from 'lodash'
 import { Component, Prop } from 'vue-property-decorator'
 
-  type ComponentData = {
-    query: {
-      redirectTo?: string;
-    };
-  };
+@Component({
+  name: 'ButtonLock'
 
-  @Component({
-    name: 'ButtonLock'
-
-  })
+})
 export default class ButtonAuthGoogle extends Vue {
     @Prop({ type: String, default: 'Google' })
     private readonly text!: string;

@@ -95,12 +95,6 @@ import { WorkspaceResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 
-  type ComponentData = {
-    payload: Omit<WorkspaceResource, 'id'>;
-    invitation: string;
-    duplicateMessage: string;
-  }
-
 @Component({
   name: 'FormWorkspace',
   components: {

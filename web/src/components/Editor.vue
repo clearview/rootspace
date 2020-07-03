@@ -8,19 +8,14 @@ import EditorJS from '@editorjs/editorjs'
 import { createEditor } from '@/utils/editor'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-  type ComponentData = {
-    editor: EditorJS | null;
-    documentChanged: boolean;
-  }
-
-  @Component({
-    name: 'DocumentEditor'
-  })
+@Component({
+  name: 'DocumentEditor'
+})
 export default class Editor extends Vue {
     @Prop({ type: Object })
     private readonly content!: EditorJS.OutputData;
 
-    private editor: any = null;
+    private editor: EditorJS | null = null;
     private documentChanged = false
 
     get data (): EditorJS.OutputData {

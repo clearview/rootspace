@@ -7,9 +7,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-  @Component({
-    name: 'Ghost'
-  })
+@Component({
+  name: 'Ghost'
+})
 export default class Ghost extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly active!: boolean;

@@ -103,19 +103,19 @@ import VField from '@/components/Field.vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Optional } from '@/types/core'
 
-  @Component({
-    name: 'FormTask',
-    components: {
-      ButtonSwitch,
-      VField
-    },
-    validations: {
-      payload: {
-        title: { required },
-        type: { required }
-      }
+@Component({
+  name: 'FormTask',
+  components: {
+    ButtonSwitch,
+    VField
+  },
+  validations: {
+    payload: {
+      title: { required },
+      type: { required }
     }
-  })
+  }
+})
 export default class FormTask extends Vue {
   get boardTypeKanban () {
     return TaskBoardType.Kanban
