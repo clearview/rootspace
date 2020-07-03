@@ -2,6 +2,8 @@ const path = require('path')
 
 module.exports = shipit => {
   require('shipit-deploy')(shipit)
+  require('shipit-pm2')(shipit)
+  require('shipit-slack')(shipit)
 
   shipit.initConfig({
     default: {
@@ -52,7 +54,10 @@ module.exports = shipit => {
     production: {
       deployTo: '/srv/root',
       servers: 'rut@api.root.production.clearviewdev.io',
-      branch: 'master'
+      branch: 'master',
+      pm2: {
+        json: '/srv/root/current/api/pm2/production.json'
+      }
     }
   })
 
@@ -180,7 +185,12 @@ module.exports = shipit => {
 
     if (env === 'production') {
       await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/api/.env ./api/.env`)
+      await shipit.remote(`cd ${releaseDir}/api && yarn install`)
+      await shipit.remote(`cd ${releaseDir}/api && NODE_ENV=${env} yarn run build`)
+
       await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/web/.env ./web/.env`)
+      await shipit.remote(`cd ${releaseDir}/web && yarn install`)
+      await shipit.remote(`cd ${releaseDir}/web && NODE_ENV=${env} yarn run build`)
     }
 
   })
