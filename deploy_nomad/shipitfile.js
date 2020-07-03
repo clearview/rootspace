@@ -51,7 +51,7 @@ module.exports = shipit => {
     },
     production: {
       deployTo: '/srv/root',
-      servers: 'rut@',
+      servers: 'rut@api.root.production.clearviewdev.io',
       branch: 'master'
     }
   })
@@ -180,6 +180,7 @@ module.exports = shipit => {
 
     if (env === 'production') {
       await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/api/.env ./api/.env`)
+      await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/web/.env ./web/.env`)
     }
 
   })
