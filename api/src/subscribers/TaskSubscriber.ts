@@ -4,7 +4,7 @@ import {
   InsertEvent
 } from 'typeorm'
 import { Task } from '../entities/tasks/Task'
-import ShortUniqueId from 'short-unique-id'
+import { customAlphabet } from 'nanoid'
 import slugify from '@sindresorhus/slugify'
 
 @EventSubscriber()
@@ -17,8 +17,8 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     const task = event.entity
     task.slug = slugify(task.title)
 
-    const uuid = new ShortUniqueId()
-    task.shortUid = uuid(8)
+    const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 8)
+    task.shortUid = nanoid()
   }
 
   async beforeUpdate(event: InsertEvent<Task>) {
