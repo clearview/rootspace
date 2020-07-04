@@ -126,11 +126,12 @@ passport.use(
         // User can manage any subject they own
         can(Actions.Manage, Subjects.All, { userId: user.id })
 
-        // User can read any subject from the space they have access to
-        can(Actions.Read, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
+        // User can manage any subject from the space they have access to
+        can(Actions.Manage, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
 
         // User can not manage subjects outside spaces they belong to
         cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } })
+            .because('Access to space not allowed')
 
         // @ts-ignore
         req.user.ability = new Ability<[Actions, Subjects]>(rules)
