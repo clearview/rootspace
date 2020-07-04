@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm'
+import {Brackets, getCustomRepository} from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../entities/tasks/TaskBoard'
@@ -58,6 +58,40 @@ export class TaskBoardService extends NodeContentService {
 
         queryBuilder.andWhere('task.deletedAt IS NULL')
         return queryBuilder.getOne()
+  }
+
+  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard | undefined> {
+    const queryBuilder =  this.getTaskBoardRepository()
+        .createQueryBuilder('taskBoard')
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+        .leftJoinAndSelect('taskList.tasks', 'task')
+        .leftJoinAndSelect('task.tags', 'tag')
+        .leftJoinAndSelect('task.assignees', 'assignee')
+        .leftJoinAndSelect('task.taskComments', 'comment')
+        .where('taskBoard.id = :id', { id })
+
+    if (searchParam) {
+      queryBuilder
+          .andWhere(new Brackets(qb => {
+            qb.where('LOWER(task.title) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
+                .orWhere('LOWER(task.description) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
+          }))
+    }
+
+    if (typeof filterParam?.status !== 'undefined' && filterParam?.status !== null) {
+      queryBuilder.andWhere('task.status = :status', { status: filterParam.status })
+    }
+
+    if (filterParam?.assignees?.length > 0) {
+      queryBuilder.andWhere('assignee.id IN (:...assignees)', { assignees: filterParam.assignees })
+    }
+
+    if (filterParam?.tags?.length > 0) {
+      queryBuilder.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
+    }
+
+    queryBuilder.andWhere('task.deletedAt IS NULL')
+    return queryBuilder.getOne()
   }
 
   async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {
