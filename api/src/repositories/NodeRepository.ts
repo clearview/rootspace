@@ -4,7 +4,7 @@ import {
   UpdateResult,
   getTreeRepository,
 } from 'typeorm'
-import { Node } from '../entities/Node'
+import { Node } from '../database/entities/Node'
 import { NodeType } from '../types/node'
 
 @EntityRepository(Node)

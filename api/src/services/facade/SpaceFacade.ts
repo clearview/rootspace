@@ -1,4 +1,4 @@
-import { Space } from '../../entities/Space'
+import { Space } from '../../database/entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'

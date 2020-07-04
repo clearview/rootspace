@@ -3,7 +3,7 @@ import { SpaceRepository } from '../../../repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
-import { Task } from '../../../entities/tasks/Task'
+import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 

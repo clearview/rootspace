@@ -5,7 +5,7 @@ import {
   getCustomRepository,
 } from 'typeorm'
 import { Node } from '../entities/Node'
-import { NodeRepository } from '../repositories/NodeRepository'
+import { NodeRepository } from '../../repositories/NodeRepository'
 
 @EventSubscriber()
 export class NodeSubscriber implements EntitySubscriberInterface<Node> {
