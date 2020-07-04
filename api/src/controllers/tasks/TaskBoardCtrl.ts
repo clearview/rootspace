@@ -21,8 +21,8 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async viewByTaskUid(req: Request, res: Response, next: NextFunction) {
-    const taskBoard = await this.taskBoardService.getByTaskUid(req.params.uid)
+  async viewByTaskId(req: Request, res: Response, next: NextFunction) {
+    const taskBoard = await this.taskBoardService.getByTaskId(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
 
     const resData = this.responseData(taskBoard)
