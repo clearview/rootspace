@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
-import { UserService } from './services'
+import { SpaceService, UserService } from './services'
 import { unauthorized } from './errors'
 import {
     Strategy as JwtStrategy,
@@ -13,6 +13,8 @@ import {
 } from 'passport-jwt'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from './repositories/UserRepository'
+import { Ability, AbilityBuilder } from '@casl/ability'
+import { Actions, Subjects } from './middleware/AuthMiddleware'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -84,12 +86,6 @@ passport.use(
             return done(unauthorized())
           }
 
-          if (config.env === 'production') {
-            Sentry.configureScope((scope) => {
-                scope.setUser({id: user.id.toString(), email: user.email})
-            })
-          }
-
           return done(null, user)
         })
       } catch (err) {
@@ -113,9 +109,32 @@ passport.use(
       return done(null, false, { message: 'Invalid payload' })
     }
 
-    const user = await getCustomRepository(UserRepository).findOne(userId)
+      const user = await getCustomRepository(UserRepository).findOne(userId)
     if (user) {
         req.user = user
+
+        if (config.env === 'production') {
+            Sentry.configureScope((scope) => {
+                scope.setUser({id: user.id.toString(), email: user.email})
+            })
+        }
+
+        const { can, cannot, rules } = new AbilityBuilder()
+        const userSpaces = await SpaceService.getInstance().getSpacesByUserId(req.user.id)
+        req.user.userSpaceIds = userSpaces.map(space => { return space.id })
+
+        // User can manage any subject they own
+        can(Actions.Manage, Subjects.All, { userId: user.id })
+
+        // User can read any subject from the space they have access to
+        can(Actions.Read, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
+
+        // User can not manage subjects outside spaces they belong to
+        cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } })
+
+        // @ts-ignore
+        req.user.ability = new Ability<[Actions, Subjects]>(rules)
+
         return done(null, user)
     }
 

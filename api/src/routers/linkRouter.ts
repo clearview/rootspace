@@ -13,7 +13,6 @@ router.use(authenticate)
 
 router.get(
   '/links/:id',
-  authorize(Subjects.Link, Actions.Read),
   mapRoute(LinksCtrl, 'view')
 )
 router.post('/links', mapRoute(LinksCtrl, 'create'))
