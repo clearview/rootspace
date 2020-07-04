@@ -21,7 +21,7 @@ export enum Subjects {
 
 export const authenticate = passport.authenticate('jwt', {session: false})
 
-export function authorize (subject: Subjects, action?: Actions) {
+export function authorize(subject: Subjects, action?: Actions) {
     return async (req: Request, res: Response, next: NextFunction) => {
         const { can, cannot, rules } = new AbilityBuilder()
 
