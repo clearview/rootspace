@@ -52,7 +52,7 @@ export class Task {
   @Column('varchar')
   title: string
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   slug: string
 
   @Column('text', { nullable: true })

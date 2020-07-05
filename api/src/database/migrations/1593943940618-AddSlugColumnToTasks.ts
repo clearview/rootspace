@@ -4,7 +4,7 @@ export class TaskSlug1593943940618 implements MigrationInterface {
     name = 'TaskSlug1593943940618'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`ALTER TABLE "tasks" ADD "slug" character varying NOT NULL`)
+        await queryRunner.query(`ALTER TABLE "tasks" ADD "slug" character varying`)
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
