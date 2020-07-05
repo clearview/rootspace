@@ -1,4 +1,4 @@
-import {Brackets, getCustomRepository} from 'typeorm'
+import { Brackets, getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
@@ -40,6 +40,18 @@ export class TaskBoardService extends NodeContentService {
 
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
+  }
+
+  async getByTaskId(id: number): Promise<TaskBoard> {
+    const taskBoard = await this.getTaskBoardRepository()
+        .createQueryBuilder('taskBoard')
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+        .leftJoinAndSelect('taskList.tasks', 'task')
+        .where('task.id = :id', { id })
+        .andWhere('task.deletedAt IS NULL')
+        .getOne()
+
+    return this.getCompleteTaskboard(taskBoard.id)
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
