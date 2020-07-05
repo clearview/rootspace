@@ -12,9 +12,6 @@ export default async function init() {
     entities: [`${__dirname}/database/entities/**/*{.ts,.js}`],
     subscribers: [`${__dirname}/database/subscribers/**/*{.ts,.js}`],
     migrations: [`${__dirname}/database/migrations/**/*{.ts,.js}`],
-    migrationsTableName: 'migrations',
-    cli: {
-      migrationsDir: 'migration'
-    }
+    migrationsTableName: 'migrations'
   })
 }

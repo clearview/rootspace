@@ -10,5 +10,8 @@ module.exports = {
   factories: ['src/database/seeder/seeds/factories/**/*{.ts,.js}'],
   entities: [`${__dirname}/src/database/entities/**/*{.ts,.js}`],
   subscribers: [`${__dirname}/src/database/subscribers/**/*{.ts,.js}`],
-  migrations: [`${__dirname}/src/database/migrations/**/*{.ts,.js}`]
+  migrations: [`${__dirname}/src/database/migrations/**/*{.ts,.js}`],
+  cli: {
+    migrationsDir: `./src/database/migrations`
+  }
 }
