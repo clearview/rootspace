@@ -1,4 +1,4 @@
-import {Brackets, getCustomRepository} from 'typeorm'
+import { Brackets, getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
