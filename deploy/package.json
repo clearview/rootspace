@@ -1,14 +1,13 @@
 {
-  "name": "root-nomad--deploy",
+  "name": "root-deploy",
   "version": "1.0.0",
-  "description": "root NOMAD deploy",
+  "description": "root deploy",
   "main": "index.js",
   "author": "ClearView",
   "license": "Unlicensed",
   "private": true,
   "scripts": {
-    "deploy:staging": "yarn shipit staging deploy",
-    "deploy:production": "yarn shipit production deploy"
+    "deploy": "yarn shipit production deploy"
   },
   "devDependencies": {
     "shipit-cli": "^5.3.0",
