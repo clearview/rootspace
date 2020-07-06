@@ -1,17 +1,18 @@
 <template>
   <Popover top="48px">
     <template>
-      <div class="member-input">
-        <input type="text" placeholder="Search members" class="input" v-model="memberInput"/>
+      <div class="add-member">
+        <h2>Add Member</h2>
+        <v-input @input="search" placeholder="Search members" :value="memberInput" class="member-input"/>
+        <ul class="members">
+          <li class="member" v-for="(member, index) in filteredMembers" :key="index" @click="input(member)">
+            <div class="member-name">
+              <avatar :username="memberName(member)"></avatar>
+              <span>{{ memberName(member) }}</span>
+            </div>
+          </li>
+        </ul>
       </div>
-      <ul class="members">
-        <li class="member" v-for="(member, index) in filteredMembers" :key="index" @click="input(member)">
-          <div class="member-name">
-            <avatar :username="memberName(member)"></avatar>
-            <span>{{ memberName(member) }}</span>
-          </div>
-        </li>
-      </ul>
     </template>
     <template v-slot:trigger>
       <slot name="trigger"></slot>
@@ -25,10 +26,11 @@ import Popover from '@/components/Popover.vue'
 import SpaceService from '@/services/space'
 import { UserResource } from '@/types/resource'
 import Avatar from 'vue-avatar'
+import VInput from '@/components/InputIcon.vue'
 
   @Component({
     name: 'MemberPopover',
-    components: { Popover, Avatar }
+    components: { Popover, Avatar, VInput }
   })
 export default class TagsPopover extends Vue {
     private memberInput = ''
@@ -57,6 +59,10 @@ export default class TagsPopover extends Vue {
       return `${member.firstName} ${member.lastName}`
     }
 
+    search (value) {
+      this.memberInput = value
+    }
+
     // async addMember () {
     //   await this.$store.dispatch('task/tag/create', {
     //     color: this.colorInput,
@@ -81,8 +87,17 @@ export default class TagsPopover extends Vue {
 </script>
 
 <style lang="postcss" scoped>
+  .add-member {
+    width: 240px;
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 15px;
+  }
+
   .member-input {
-    @apply p-2;
+    @apply py-2;
   }
 
   .members {
@@ -92,7 +107,7 @@ export default class TagsPopover extends Vue {
   }
 
   .member {
-    @apply py-2 px-6;
+    @apply p-2;
     transition: all 0.3s ease;
     cursor: pointer;
 
@@ -102,14 +117,10 @@ export default class TagsPopover extends Vue {
   }
 
   .member-name {
-    @apply p-2 rounded;
-    color: theme("colors.gray.900");
-
     .vue-avatar--wrapper {
-      width: 30px !important;
-      height: 30px !important;
+      width: 20px !important;
+      height: 20px !important;
       font: 10px / 20px Helvetica, Arial, sans-serif !important;
-      margin-top: -5px;
       float: left;
     }
 

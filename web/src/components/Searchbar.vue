@@ -7,7 +7,7 @@
     />
     <input
       type="text"
-      placeholder="Search"
+      :placeholder="placeholder"
       class="w-full ml-2 outline-none bg-transparent"
       v-model="payload"
     >
@@ -23,6 +23,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class Searchbar extends Vue {
     @Prop({ type: String })
     private readonly value?: string;
+
+    @Prop({ type: String, default: 'Search' })
+    private readonly placeholder?: string;
 
     private payload: string = this.value || ''
 
