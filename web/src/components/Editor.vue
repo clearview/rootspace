@@ -11,34 +11,40 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 @Component({
   name: 'DocumentEditor'
 })
+
 export default class Editor extends Vue {
-    @Prop({ type: Object })
-    private readonly content!: EditorJS.OutputData;
+  @Prop({ type: Object })
+  private readonly content!: EditorJS.OutputData;
 
-    private editor: EditorJS | null = null;
-    private documentChanged = false
+  @Prop({ type: Boolean })
+  private readonly readonly!: boolean;
 
-    get data (): EditorJS.OutputData {
-      return this.content
-    }
+  private editor: EditorJS | null = null;
+  private documentChanged = false
 
-    set data (data: EditorJS.OutputData) {
-      this.$emit('update-editor', data)
-    }
+  get editorData (): EditorJS.OutputData {
+    return this.content
+  }
 
-    async mounted () {
-      this.editor = createEditor({
-        holder: this.$el as HTMLElement,
-        data: this.data,
-        onChange: this.save.bind(this)
-      })
+  set editorData (data: EditorJS.OutputData) {
+    this.$emit('update-editor', data)
+  }
 
-      await this.editor.isReady
-    }
+  async mounted () {
+    this.editor = createEditor({
+      holder: this.$el as HTMLElement,
+      data: this.editorData,
+      onChange: this.save.bind(this)
+    })
 
-    async save (api: EditorJS.API) {
-      this.data = await api.saver.save()
-    }
+    await this.editor.isReady
+  }
+
+  async save (api: EditorJS.API) {
+    if (this.readonly) return
+
+    this.editorData = await api.saver.save()
+  }
 }
 </script>
 

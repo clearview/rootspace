@@ -13,3 +13,7 @@
     padding: 0 10px;
   }
 }
+
+.pointer {
+  cursor: pointer;
+}

@@ -51,8 +51,22 @@ export default class DocumentService {
   }
 
   static async destroy (id: number) {
-    const res = await api.delete(`docs/${id}`)
+    try {
+      const res = await api.delete(`docs/${id}`)
+      return res
+    } catch (error) {
+      let err = error
 
-    return res.data
+      if (error.response) {
+        const body = {
+          code: error.response.status,
+          message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+          fields: error.response.data.error.fields
+        }
+        err = body
+      }
+
+      throw err
+    }
   }
 }
