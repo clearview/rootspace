@@ -59,7 +59,7 @@ export default class TagsPopover extends Vue {
       return `${member.firstName} ${member.lastName}`
     }
 
-    search (value) {
+    search (value: string) {
       this.memberInput = value
     }
 
