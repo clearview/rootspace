@@ -17,12 +17,10 @@ export class DocsCtrl extends BaseCtrl {
     const doc = await this.docService.getById(Number(req.params.id))
 
     if (!doc) {
-      next(
-        clientError(
-          'Document not found',
-          HttpErrName.EntityNotFound,
-          HttpStatusCode.NotFound
-        )
+      throw clientError(
+        'Document not found',
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.NotFound
       )
     }
 
