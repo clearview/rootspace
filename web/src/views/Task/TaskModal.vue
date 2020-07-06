@@ -146,23 +146,8 @@
           <div class="right-field-title">Attachments</div>
           <div class="right-field-content">
             <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">
-              <li class="attachment" v-for="attachment in item.attachments" :key="attachment.id">
-                <a :href="attachment.path" class="attachment-link" target="_blank" rel="noreferrer noopener">
-                  <div class="attachment-media" v-if="attachment.type === 'image/jpeg' || attachment.type === 'image/png'">
-                    <img :src="attachment.path" :alt="attachment.id">
-                  </div>
-                  <div v-else class=attachment-media>
-                    <img src="../../assets/images/workspace.png" :alt="attachment.id">
-                  </div>
-                  <div class="attachment-close">
-                    <button class="btn btn-icon" @click.prevent="handleRemoveFile(attachment)">
-                      <v-icon name="close"/>
-                    </button>
-                  </div>
-                  <div class="attachment-name">
-                    {{attachment.path | formatAttachmentName}}
-                  </div>
-                </a>
+              <li v-for="attachment in item.attachments" :key="attachment.id" class="attachments-item">
+                <TaskAttachmentView :attachment="attachment" @remove="handleRemoveFile"/>
               </li>
             </ul>
             <template v-else>
@@ -193,10 +178,12 @@ import TagsPopover from '@/views/Task/TagsPopover.vue'
 import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
+import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
   @Component({
     name: 'TaskModal',
     components: {
+      TaskAttachmentView,
       DueDatePopover,
       TagsPopover,
       MemberPopover,
@@ -222,10 +209,6 @@ import Avatar from 'vue-avatar'
           const typedDate = new Date(dateOrString)
           return dateOrString ? dateFormat.format(typedDate) : 'None'
         }
-      },
-      formatAttachmentName (path: string) {
-        const splits = path.split('/')
-        return splits[splits.length - 1]
       }
     }
   })
@@ -570,49 +553,6 @@ export default class TaskModal extends Vue {
 
   .attachments {
     @apply flex items-center flex-wrap;
-  }
-  .attachment {
-    @apply mr-2 mb-2 rounded overflow-hidden relative;
-    flex: 0 1 auto;
-  }
-  .attachment-media {
-    img {
-      @apply rounded;
-      width: 96px;
-      height: 96px;
-      object-fit: cover;
-    }
-  }
-  .attachment-name {
-    @apply absolute p-2;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(to bottom, #0000, #000a);
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .attachment-close {
-    @apply absolute p-2;
-    visibility: hidden;
-    top: 0;
-    right: 0;
-    text-align: right;
-    background: transparent;
-    color: #fff;
-    opacity: 0;
-    transition: all 0.3s ease;
-  }
-  .attachment:hover .attachment-close {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  .attachment-close .btn:hover{
-    background: rgba(170,177,197, 1);
   }
 
 </style>

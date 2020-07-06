@@ -69,46 +69,46 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 import { omit, isEmpty } from 'lodash/fp'
 
 import { WorkspaceResource } from '@/types/resource'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'NavigationMenu',
-  props: {
-    value: {
-      type: Boolean
-    }
-  },
-  computed: {
-    user () {
-      return this.$store.state.auth.user || {}
-    },
-    spaces () {
-      const current = this.$store.state.auth.currentSpace
-      const list = this.$store.state.auth.spaces
+@Component({
+  name: 'NavigationWorkspace'
 
-      return !list || !current
-        ? []
-        : list.map((space: WorkspaceResource) => ({
-          ...space,
-          active: current.id === space.id
-        }))
-    }
-  },
-  methods: {
-    select (data: object) {
-      this.$store.commit('auth/setCurrentSpace', omit('active', data))
+})
+export default class NavigationWorkspace extends Vue {
+  @Prop({ type: Boolean })
+  private readonly value!: boolean;
 
-      this.$emit('input', null)
-      if (!isEmpty(this.$route.query)) {
-        this.$router.replace({ query: {} })
-      }
-    },
-    signout () {
-      this.$store.dispatch('auth/signout')
+  get user () {
+    return this.$store.state.auth.user || {}
+  }
+
+  get spaces () {
+    const current = this.$store.state.auth.currentSpace
+    const list = this.$store.state.auth.spaces
+
+    return !list || !current
+      ? []
+      : list.map((space: WorkspaceResource) => ({
+        ...space,
+        active: current.id === space.id
+      }))
+  }
+
+  select (data: object) {
+    this.$store.commit('auth/setCurrentSpace', omit('active', data))
+
+    this.$emit('input', null)
+    if (!isEmpty(this.$route.query)) {
+      this.$router.replace({ query: {} })
     }
   }
-})
+
+  signout () {
+    this.$store.dispatch('auth/signout')
+  }
+}
 </script>

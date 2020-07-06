@@ -27,10 +27,10 @@
           }"
           @click.stop="toggleFold({ node, path, tree })"
         >
-          <v-icon name="down" />
+          <v-icon name="down"/>
         </div>
         <div class="tree-node-icon">
-          <v-icon :name="iconName[node.type]" />
+          <v-icon :name="iconName[node.type]"/>
         </div>
         <div class="tree-node-text">
           <span

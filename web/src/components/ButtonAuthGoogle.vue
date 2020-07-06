@@ -1,7 +1,7 @@
 <template>
   <button class="btn w-full mx-0" type="button" @click="authWithGoogle()">
     <span class="mr-1">
-      <v-icon name="google" size="1.1em" />
+      <v-icon name="google" size="1.1em"/>
     </span>
     <span v-text="text"/>
   </button>
@@ -9,33 +9,25 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { isEmpty } from 'lodash/fp'
+import { isEmpty } from 'lodash'
+import { Component, Prop } from 'vue-property-decorator'
 
-type ComponentData = {
-  query: {
-    redirectTo?: string;
-  };
-};
+@Component({
+  name: 'ButtonLock'
 
-export default Vue.extend({
-  name: 'ButtonLock',
-  props: {
-    text: {
-      type: String,
-      default: 'Google'
+})
+export default class ButtonAuthGoogle extends Vue {
+    @Prop({ type: String, default: 'Google' })
+    private readonly text!: string;
+
+    private query: any = {
+      redirectTo: ''
     }
-  },
-  data (): ComponentData {
-    return {
-      query: {
-        redirectTo: ''
-      }
+
+    mounted () {
+      this.query = this.$route.query ? this.$route.query : {}
     }
-  },
-  mounted () {
-    this.query = this.$route.query ? this.$route.query : {}
-  },
-  methods: {
+
     authWithGoogle () {
       const API: string = process.env.VUE_APP_API_URL
       let queryRedirectTo = ''
@@ -46,6 +38,5 @@ export default Vue.extend({
 
       location.href = `${API}/auth/google${queryRedirectTo}`
     }
-  }
-})
+}
 </script>
