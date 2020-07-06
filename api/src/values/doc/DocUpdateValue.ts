@@ -5,6 +5,7 @@ export const DocUpdateAttributes = {
   title: undefined,
   content: undefined,
   access: undefined,
+  isLocked: undefined,
 }
 
 @attributes(DocUpdateAttributes)
