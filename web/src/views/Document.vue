@@ -251,6 +251,7 @@ export default class Document extends Vue {
   .title {
     font-size: 2rem;
     width: 100%;
+    resize: none;
 
     &:focus {
       outline: none;
