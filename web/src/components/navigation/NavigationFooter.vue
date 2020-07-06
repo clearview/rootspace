@@ -80,39 +80,34 @@
 import Vue from 'vue'
 
 import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
+import { Component, Prop } from 'vue-property-decorator'
 
-export default Vue.extend({
+@Component({
   name: 'NavigationFooter',
   components: {
     NavigationWorkspace
-  },
-  props: {
-    editable: {
-      type: Boolean
-    }
-  },
-  data () {
-    return {
-      showMenu: false
-    }
-  },
-  computed: {
-    currentSpace (): object {
+  }
+})
+export default class NavigationFooter extends Vue {
+    @Prop({ type: Boolean })
+    private readonly editable!: boolean;
+
+    private showMenu = false
+
+    get currentSpace (): object {
       return this.$store.state.auth.currentSpace || {}
     }
-  },
-  methods: {
+
     settingsPage () {
       this.$router.push({ name: 'Settings' })
     }
-  }
-})
+}
 </script>
 
 <style lang="postcss" scoped>
-.btn-active {
-  .icon {
-    @apply text-primary;
+  .btn-active {
+    .icon {
+      @apply text-primary;
+    }
   }
-}
 </style>

@@ -15,28 +15,19 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
-interface ComponentData {
-  payload: string;
-}
+@Component({
+  name: 'Searchbar'
+})
+export default class Searchbar extends Vue {
+    @Prop({ type: String })
+    private readonly value?: string;
 
-export default Vue.extend({
-  name: 'Searchbar',
-  props: {
-    value: {
-      type: String
-    }
-  },
-  data (): ComponentData {
-    return {
-      payload: this.value
-    }
-  },
-  methods: {
+    private payload: string = this.value || ''
+
     submit (): void {
       this.$emit('input', this.payload)
     }
-  }
-})
+}
 </script>

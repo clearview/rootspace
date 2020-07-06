@@ -32,19 +32,18 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
 import VSearchbar from '@/components/Searchbar.vue'
-
-export default Vue.extend({
+import { Component, Vue } from 'vue-property-decorator'
+@Component({
   name: 'NavigationHeader',
   components: {
     VSearchbar
-  },
-  methods: {
-    search (keyword: string): void {
-      this.$emit('search', keyword)
-    }
   }
 })
+export default class NavigationHeader extends Vue {
+  search (keyword: string): void {
+    this.$emit('search', keyword)
+  }
+}
 </script>

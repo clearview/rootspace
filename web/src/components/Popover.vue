@@ -12,9 +12,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
-  @Component({
-    name: 'Popover'
-  })
+@Component({
+  name: 'Popover'
+})
 export default class Popover extends Vue {
   @Prop({ type: String, default: '24px' })
   private readonly top!: number;

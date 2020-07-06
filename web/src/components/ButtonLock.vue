@@ -14,25 +14,23 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
-export default Vue.extend({
-  name: 'ButtonLock',
-  props: {
-    value: {
-      type: Boolean
-    }
-  },
-  methods: {
+@Component({
+  name: 'ButtonLock'
+})
+export default class ButtonLock extends Vue {
+    @Prop({ type: Boolean })
+    private readonly value!: boolean;
+
     toggle (): void {
       this.$emit('input', !this.value)
     }
-  }
-})
+}
 </script>
 
 <style lang="postcss" scoped>
-.btn {
-  @apply p-0 border-none;
-}
+  .btn {
+    @apply p-0 border-none;
+  }
 </style>

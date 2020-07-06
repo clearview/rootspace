@@ -13,18 +13,20 @@
           v-model.trim="$v.payload.email.$model"
         />
         <span class="icon">
-          <v-icon name="email" size="1.5em" />
+          <v-icon name="email" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.email.$dirty && !$v.payload.email.required"
-        >Email is required.</div>
+        >Email is required.
+        </div>
         <div
           class="error"
           v-if="$v.payload.email.$dirty && !$v.payload.email.email"
-        >Email format is not valid.</div>
+        >Email format is not valid.
+        </div>
       </div>
     </v-field>
 
@@ -38,18 +40,20 @@
           v-model.trim="$v.payload.password.$model"
         />
         <span class="icon">
-          <v-icon name="lock" size="1.5em" />
+          <v-icon name="lock" size="1.5em"/>
         </span>
       </div>
       <div class="error-group">
         <div
           class="error"
           v-if="$v.payload.password.$dirty && !$v.payload.password.required"
-        >Password is required.</div>
+        >Password is required.
+        </div>
         <div
           class="error"
           v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
-        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.</div>
+        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
+        </div>
       </div>
     </v-field>
 
@@ -67,29 +71,17 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { required, email, minLength } from 'vuelidate/lib/validators'
+import { email, minLength, required } from 'vuelidate/lib/validators'
 
 import { SigninResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  payload: SigninResource;
-}
-
-export default Vue.extend({
+@Component({
   name: 'FormSignin',
   components: {
     VField
-  },
-  data (): ComponentData {
-    return {
-      payload: {
-        email: '',
-        password: ''
-      }
-    }
   },
   validations: {
     payload: {
@@ -99,8 +91,14 @@ export default Vue.extend({
         minLength: minLength(6)
       }
     }
-  },
-  methods: {
+  }
+})
+export default class FormSignin extends Vue {
+    private payload: SigninResource = {
+      email: '',
+      password: ''
+    }
+
     submit (): void {
       this.$v.payload.$touch()
 
@@ -108,6 +106,5 @@ export default Vue.extend({
         this.$emit('submit', this.payload)
       }
     }
-  }
-})
+}
 </script>
