@@ -1,6 +1,6 @@
 import {connect, disconnect} from './connectors/db.testcontainers'
 import {getCustomRepository} from 'typeorm'
-import {TaskBoard, TaskBoardType} from '../src/entities/tasks/TaskBoard'
+import {TaskBoard, TaskBoardType} from '../src/database/entities/tasks/TaskBoard'
 import {TaskBoardRepository} from '../src/repositories/tasks/TaskBoardRepository'
 import {validate} from 'class-validator'
 

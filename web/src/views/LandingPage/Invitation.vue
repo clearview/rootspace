@@ -47,18 +47,20 @@ export default class Invitation extends Vue {
         }
 
         this.isLoading = true
+
         const data = await UserService.acceptInvitation(payload)
 
-        if (data.status === 200) {
-          await this.$store.dispatch('auth/whoami')
-          const listSpaces = this.$store.state.auth.spaces
-          const space = find(listSpaces, ['id', data.data.spaceId])
-          this.$store.commit('auth/setCurrentSpace', space)
-          await this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
-        }
+        await this.$store.dispatch('auth/whoami')
+
+        const spaces = this.$store.state.auth.spaces
+        const space = find(spaces, ['id', data.data.spaceId])
+
+        this.$store.commit('auth/setCurrentSpace', space)
+        this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         this.message = err.message
         this.code = err.code
+      } finally {
         this.isLoading = false
       }
     }

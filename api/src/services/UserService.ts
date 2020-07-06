@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../repositories/UserRepository'
-import { User } from '../entities/User'
+import { User } from '../database/entities/User'
 import {
   ISignupProvider,
   IUserUpdateProvider,

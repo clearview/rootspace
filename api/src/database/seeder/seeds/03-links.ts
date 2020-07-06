@@ -3,7 +3,7 @@ import { Factory, Seeder } from 'typeorm-seeding'
 import { SeederBase } from '../base/SeederBase'
 import { Link } from '../../entities/Link'
 import { Node } from '../../entities/Node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../../types/node'
 
 export default class LinksSeeder implements Seeder {
   protected base: SeederBase

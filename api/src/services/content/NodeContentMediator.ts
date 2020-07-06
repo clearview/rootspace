@@ -1,4 +1,4 @@
-import { Node } from '../../entities/Node'
+import { Node } from '../../database/entities/Node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentMediator, IContentNodeUpdate } from './contracts'

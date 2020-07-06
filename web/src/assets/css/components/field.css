@@ -1,4 +1,4 @@
-.due-field {
+.field {
   @apply flex flex-col;
 
   & + & {

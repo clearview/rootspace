@@ -1,5 +1,5 @@
 import * as faker from 'faker'
-import {User} from '../../src/entities/User'
+import {User} from '../../src/database/entities/User'
 import {UserService} from '../../src/services'
 
 async function createUser(email: string, password: string): Promise<User> {

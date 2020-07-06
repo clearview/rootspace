@@ -2,6 +2,8 @@ const path = require('path')
 
 module.exports = shipit => {
   require('shipit-deploy')(shipit)
+  require('shipit-pm2')(shipit)
+  require('shipit-slack')(shipit)
 
   shipit.initConfig({
     default: {
@@ -16,8 +18,8 @@ module.exports = shipit => {
       },
       rsync: ['--no-perms --no-owner --no-group --rsync-path="/usr/bin/rsync"'],
       slack: {
-        webhookUrl: 'https://hooks.slack.com/services/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',
-        message: 'root app deployed',
+        webhookUrl: 'https://hooks.slack.com/services/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',
+        message: 'Root app deployed by NOMAD',
         triggerEvent: 'deployed'
       }
     },
@@ -51,8 +53,11 @@ module.exports = shipit => {
     },
     production: {
       deployTo: '/srv/root',
-      servers: 'rut@',
-      branch: 'master'
+      servers: 'rut@api.root.production.clearviewdev.io',
+      branch: 'master',
+      pm2: {
+        json: '/srv/root/current/api/pm2/production.json'
+      }
     }
   })
 
@@ -85,7 +90,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_api.hcl > run_job_api.hcl && exec nomad job run run_job_api.hcl`)
+        await shipit.remote(`cd /srv/root/current/deploy_nomad/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_api.hcl > run_job_api.hcl && exec nomad job run run_job_api.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -109,7 +114,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_web.hcl > run_job_web.hcl && exec nomad job run run_job_web.hcl`)
+        await shipit.remote(`cd /srv/root/current/deploy_nomad/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_web.hcl > run_job_web.hcl && exec nomad job run run_job_web.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -129,7 +134,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
+        await shipit.remote(`cd /srv/root/current/deploy_nomad/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_postgres.hcl > run_job_postgres.hcl && exec nomad job run run_job_postgres.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -149,7 +154,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_proxy.hcl > run_job_proxy.hcl && exec nomad job run run_job_proxy.hcl`)
+        await shipit.remote(`cd /srv/root/current/deploy_nomad/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_proxy.hcl > run_job_proxy.hcl && exec nomad job run run_job_proxy.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -169,7 +174,7 @@ module.exports = shipit => {
         console.log('\n\n')
         console.log('Nomad deploying')
         console.log('\n')
-        await shipit.remote(`cd /srv/root/current/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_certbot.hcl > run_job_certbot.hcl && exec nomad job run run_job_certbot.hcl`)
+        await shipit.remote(`cd /srv/root/current/deploy_nomad/nomad && env RELEASE=${shipit.releaseDirname} envsubst '$RELEASE' < job_certbot.hcl > run_job_certbot.hcl && exec nomad job run run_job_certbot.hcl`)
         //await shipit.remote(`exec nomad status flow-group`)
         console.log('\n\n')
         console.log('Listing all Docker containers')
@@ -180,6 +185,12 @@ module.exports = shipit => {
 
     if (env === 'production') {
       await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/api/.env ./api/.env`)
+      await shipit.remote(`cd ${releaseDir}/api && yarn install`)
+      await shipit.remote(`cd ${releaseDir}/api && NODE_ENV=${env} yarn run build`)
+
+      await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/web/.env ./web/.env`)
+      await shipit.remote(`cd ${releaseDir}/web && yarn install`)
+      await shipit.remote(`cd ${releaseDir}/web && NODE_ENV=${env} yarn run build`)
     }
 
   })
