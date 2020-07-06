@@ -14,36 +14,29 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
 import { find } from 'lodash'
 
 import UserService from '@/services/user'
 
 import RootHeader from '@/components/RootHeader.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-type ComponentData = {
-  isLoading: boolean;
-  message: string;
-  code: number;
-}
-
-export default Vue.extend({
+@Component({
   name: 'ConfirmEmail',
   components: {
     RootHeader
-  },
-  data (): ComponentData {
-    return {
-      isLoading: false,
-      message: '',
-      code: 0
+  }
+})
+export default class Invitation extends Vue {
+    private isLoading = false;
+    private message = '';
+    private code = 0;
+
+    created () {
+      this.submit()
     }
-  },
-  created () {
-    this.submit()
-  },
-  methods: {
+
     async submit () {
       try {
         const { token } = this.$route.params
@@ -54,36 +47,39 @@ export default Vue.extend({
         }
 
         this.isLoading = true
+
         const data = await UserService.acceptInvitation(payload)
 
-        if (data.status === 200) {
-          await this.$store.dispatch('auth/whoami')
-          const listSpaces = this.$store.state.auth.spaces
-          const space = find(listSpaces, ['id', data.data.spaceId])
-          this.$store.commit('auth/setCurrentSpace', space)
-          this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
-        }
+        await this.$store.dispatch('auth/whoami')
+
+        const spaces = this.$store.state.auth.spaces
+        const space = find(spaces, ['id', data.data.spaceId])
+
+        this.$store.commit('auth/setCurrentSpace', space)
+        this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         this.message = err.message
         this.code = err.code
+      } finally {
         this.isLoading = false
       }
     }
-  }
-})
+}
 </script>
 
 <style lang="postcss" scoped>
-#confirm-email-page {
-  @apply border-t-4;
-  border-color: theme("colors.primary.default");
-}
-#confirm-email-content {
-  height: calc(100vh - 100px);
-}
-a {
-  border-bottom: 1px dotted;
-  color: theme("colors.primary.default");
-  cursor: pointer;
-}
+  #confirm-email-page {
+    @apply border-t-4;
+    border-color: theme("colors.primary.default");
+  }
+
+  #confirm-email-content {
+    height: calc(100vh - 100px);
+  }
+
+  a {
+    border-bottom: 1px dotted;
+    color: theme("colors.primary.default");
+    cursor: pointer;
+  }
 </style>

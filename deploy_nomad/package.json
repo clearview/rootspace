@@ -1,7 +1,7 @@
 {
-  "name": "flow-deploy",
+  "name": "root-nomad--deploy",
   "version": "1.0.0",
-  "description": "flow deploy",
+  "description": "root NOMAD deploy",
   "main": "index.js",
   "author": "ClearView",
   "license": "Unlicensed",

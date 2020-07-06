@@ -9,7 +9,7 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm'
-import { NodeType } from '../types/node'
+import { NodeType } from '../../types/node'
 
 @Entity('nodes')
 @Tree('nested-set')

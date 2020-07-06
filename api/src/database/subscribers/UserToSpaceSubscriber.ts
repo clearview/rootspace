@@ -4,7 +4,7 @@ import {
   EventSubscriber,
 } from 'typeorm'
 import { UserToSpace } from '../entities/UserToSpace'
-import { SpaceFacade } from '../services/facade'
+import { SpaceFacade } from '../../services/facade'
 
 @EventSubscriber()
 export class UserToSpaceSubscriber

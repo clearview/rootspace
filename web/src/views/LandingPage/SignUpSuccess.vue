@@ -11,24 +11,28 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
 import RootHeader from '@/components/RootHeader.vue'
+import { Component, Vue } from 'vue-property-decorator'
 
-export default Vue.extend({
+@Component({
   name: 'SignupSuccess',
   components: {
     RootHeader
   }
 })
+export default class SignUpSuccess extends Vue {
+
+}
 </script>
 
 <style lang="postcss" scoped>
-#signup-success-page {
-  @apply border-t-4;
-  border-color: theme("colors.primary.default");
-}
-#signup-success-content {
-  height: calc(100vh - 100px);
-}
+  #signup-success-page {
+    @apply border-t-4;
+    border-color: theme("colors.primary.default");
+  }
+
+  #signup-success-content {
+    height: calc(100vh - 100px);
+  }
 </style>

@@ -241,38 +241,38 @@ export default class Document extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-.page {
-  @apply max-w-2xl mx-auto p-0;
+  .page {
+    @apply max-w-2xl mx-auto p-0;
 
-  width: 43.8rem;
+    width: 43.8rem;
 
-}
+  }
 
-.title {
-  font-size: 2rem;
-  width: 100%;
+  .title {
+    font-size: 2rem;
+    width: 100%;
 
-  &:focus {
-    outline: none;
+    &:focus {
+      outline: none;
+    }
   }
 
   &::-webkit-resizer {
     display: none;
   }
-}
 
 .header {
   @apply flex justify-between border-b-2 w-full p-0 items-center;
 
-  border-color: theme("colors.secondary.default");
-  padding-bottom: 0.5rem;
-  max-width: 650px;
-  margin: 0 auto;
-}
+    border-color: theme("colors.secondary.default");
+    padding-bottom: 0.5rem;
+    max-width: 650px;
+    margin: 0 auto;
+  }
 
-.content {
-  padding-top: 0.5rem;
-}
+  .content {
+    padding-top: 0.5rem;
+  }
 </style>
 
 <style lang="postcss">

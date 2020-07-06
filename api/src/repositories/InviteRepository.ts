@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm'
-import { Invite } from '../entities/Invite'
+import { Invite } from '../database/entities/Invite'
 
 @EntityRepository(Invite)
 export class InviteRepository extends Repository<Invite> {

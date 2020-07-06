@@ -1,5 +1,5 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm'
-import { UserToSpace } from '../entities/UserToSpace'
+import { UserToSpace } from '../database/entities/UserToSpace'
 
 @EntityRepository(UserToSpace)
 export class UserToSpaceRepository extends Repository<UserToSpace> {

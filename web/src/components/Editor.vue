@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" />
+  <div class="editor"/>
 </template>
 
 <script lang="ts">
@@ -49,30 +49,30 @@ export default class Editor extends Vue {
 </script>
 
 <style lang="postcss">
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap');
 
-.editor {
-  font-family: 'Open Sans', sans-serif;
+  .editor {
+    font-family: 'Open Sans', sans-serif;
 
-  .ce-header {
-    padding: 0;
-    margin-bottom: 0;
+    .ce-header {
+      padding: 0;
+      margin-bottom: 0;
+    }
+
+    .cdx-settings-button--active,
+    .ce-toolbox__button--active,
+    .ce-toolbox__button:hover,
+    .ce-toolbar__plus--active,
+    .ce-toolbar__plus:hover {
+      color: theme("colors.primary.default");
+    }
+
+    .tc-toolbar {
+      background-color: theme("colors.primary.default");
+    }
+
+    .tc-toolbar__plus svg circle {
+      fill: theme("colors.primary.default");
+    }
   }
-
-  .cdx-settings-button--active,
-  .ce-toolbox__button--active,
-  .ce-toolbox__button:hover,
-  .ce-toolbar__plus--active,
-  .ce-toolbar__plus:hover {
-    color: theme("colors.primary.default");
-  }
-
-  .tc-toolbar {
-    background-color: theme("colors.primary.default");
-  }
-
-  .tc-toolbar__plus svg circle {
-    fill: theme("colors.primary.default");
-  }
-}
 </style>
