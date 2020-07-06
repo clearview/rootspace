@@ -1,14 +1,13 @@
 import { EntityValue, attributes } from '../entity'
 import { IDocCreateAttributes } from './types'
-import { DocAccess } from '../../constants'
 
 export const DocCreateAttributes: IDocCreateAttributes = {
   userId: null,
   spaceId: null,
   title: null,
   content: null,
-  access: DocAccess.All,
-  isLocked: false,
+  access: null,
+  isLocked: null,
 }
 
 @attributes(DocCreateAttributes)
