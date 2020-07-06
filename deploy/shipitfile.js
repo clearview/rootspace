@@ -51,6 +51,8 @@ module.exports = shipit => {
     await shipit.remote(`cd ${releaseDir}/api && yarn install`)
     await shipit.remote(`cd ${releaseDir}/api && NODE_ENV=${env} yarn run build`)
 
+    await shipit.remote(`cd ${releaseDir}/api && NODE_ENV=${env} yarn run typeorm migration:run`)
+
     await shipit.remote(`cd ${releaseDir} && cp /srv/root_prod/web/.env ./web/.env`)
     await shipit.remote(`cd ${releaseDir}/web && yarn install`)
     await shipit.remote(`cd ${releaseDir}/web && NODE_ENV=${env} yarn run build`)
