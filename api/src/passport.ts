@@ -62,7 +62,7 @@ passport.use(
         const user = await userService.getUserByEmail(email, true)
 
         if (!user) {
-          return done(unauthorized)
+          return done(unauthorized())
         }
 
         bcrypt.compare(password, user.password, (err, res) => {
@@ -76,12 +76,12 @@ passport.use(
 
           /* if (user.emailConfirmed !== true) {
             return done(
-              unauthorized
+              unauthorized()
             )
           } */
 
           if (user.active !== true) {
-            return done(unauthorized)
+            return done(unauthorized())
           }
 
           if (config.env === 'production') {
