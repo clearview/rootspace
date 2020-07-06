@@ -23,17 +23,13 @@ import VAlert from '@/components/Alert.vue'
 import VNavigation from '@/components/navigation/Navigation.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  type ComponentData = {
-    alert: object | null;
+@Component({
+  name: 'LayoutMain',
+  components: {
+    VAlert,
+    VNavigation
   }
-
-  @Component({
-    name: 'LayoutMain',
-    components: {
-      VAlert,
-      VNavigation
-    }
-  })
+})
 export default class LayoutMain extends Vue {
     private alert: any = null
 

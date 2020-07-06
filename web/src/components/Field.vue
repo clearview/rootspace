@@ -14,27 +14,26 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
-export default Vue.extend({
-  name: 'Field',
-  props: {
-    label: {
-      type: String
-    },
-    name: {
-      default: '',
-      type: String
-    },
-    inline: {
-      type: Boolean
-    },
-    border: {
-      type: Boolean
-    },
-    disabled: {
-      type: Boolean
-    }
-  }
+import { Component, Prop, Vue } from 'vue-property-decorator'
+
+@Component({
+  name: 'Field'
 })
+export default class Field extends Vue {
+  @Prop({ type: String })
+  private readonly label?: string;
+
+  @Prop({ type: String, default: '' })
+  private readonly name!: string;
+
+  @Prop({ type: Boolean })
+  private readonly inline?: boolean;
+
+  @Prop({ type: Boolean })
+  private readonly border?: boolean;
+
+  @Prop({ type: Boolean })
+  private readonly disabled?: boolean;
+}
 </script>

@@ -44,7 +44,6 @@
 
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
-import { mapState } from 'vuex'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
@@ -59,33 +58,30 @@ import Ghost from '@/components/Ghost.vue'
       Ghost,
       BoardManager,
       Icon
-    },
-    computed: {
-      ...mapState('task/board', {
-        board: 'current'
-      })
     }
   })
 export default class TaskPage extends Vue {
-    private readonly board?: TaskBoardResource;
+  get board (): TaskBoardResource | null {
+    return this.$store.state.task.board.current
+  }
 
-    get isKanban (): boolean {
-      return this.board?.type === TaskBoardType.Kanban
-    }
+  get isKanban (): boolean {
+    return this.board?.type === TaskBoardType.Kanban
+  }
 
-    get boardId (): number {
-      return parseInt(this.$route.params.id)
-    }
+  get boardId (): number {
+    return parseInt(this.$route.params.id)
+  }
 
-    @Watch('boardId')
-    async fetchTask () {
-      await this.$store.dispatch('task/board/view', this.boardId)
-      await this.$store.dispatch('task/tag/fetch', null)
-    }
+  @Watch('boardId')
+  async fetchTask () {
+    await this.$store.dispatch('task/board/view', this.boardId)
+    await this.$store.dispatch('task/tag/fetch', null)
+  }
 
-    mounted (): void {
-      this.fetchTask()
-    }
+  mounted (): void {
+    this.fetchTask()
+  }
 }
 </script>
 

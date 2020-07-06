@@ -42,11 +42,14 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
 
-export default Vue.extend({
+import { Component, Vue } from 'vue-property-decorator'
+
+@Component({
   name: 'SelectLinkType'
 })
+export default class SelectLinkType extends Vue {
+}
 </script>
 
 <style lang="postcss" scoped>

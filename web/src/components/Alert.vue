@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
 type AlertModel = {
   type: string;
@@ -36,24 +36,21 @@ type AlertModel = {
   fields: string[];
 }
 
-export default Vue.extend({
-  name: 'Alert',
-  props: {
-    value: {
-      type: Object as PropType<AlertModel>
-    }
-  },
-  computed: {
-    visible () {
-      return !!this.value
-    }
-  },
-  methods: {
-    close () {
-      this.$emit('input', null)
-    }
-  }
+@Component({
+  name: 'Alert'
 })
+export default class Alert extends Vue {
+  @Prop({ type: Object })
+  private readonly value!: AlertModel
+
+  get visible () {
+    return !!this.value
+  }
+
+  close () {
+    this.$emit('input', null)
+  }
+}
 </script>
 
 <style lang="postcss" scoped>

@@ -36,81 +36,77 @@ import { DocumentResource, WorkspaceResource } from '@/types/resource'
 import DocumentService from '@/services/document'
 
 import Editor from '@/components/Editor.vue'
+import { Component, Ref, Watch } from 'vue-property-decorator'
 
-type ComponentData = {
-  value: object;
-  title: string;
-  timer: undefined | number;
-  initialize: boolean;
-  loading: boolean;
-  isFromLoad: boolean;
-}
+  type ComponentData = {
+    value: object;
+    title: string;
+    timer: undefined | number;
+    initialize: boolean;
+    loading: boolean;
+    isFromLoad: boolean;
+  }
 
-export default Vue.extend({
+@Component({
   name: 'Document',
   components: {
     Editor
-  },
-  data (): ComponentData {
-    return {
-      value: {},
-      title: '',
-      timer: undefined,
-      initialize: false,
-      loading: false,
-      isFromLoad: false
-    }
-  },
-  computed: {
-    currentSpace (): WorkspaceResource {
+  }
+})
+export default class Document extends Vue {
+    private value: any = {}
+    private title = ''
+    private timer?: any = undefined
+    private initialize = false
+    private loading = false
+    private isFromLoad = false
+
+    get currentSpace (): WorkspaceResource {
       return this.$store.state.auth.currentSpace || {}
-    },
-    id (): number {
-      return Number(this.$route.params.id) || 0
-    },
-    refs: {
-      cache: false,
-      get (this: Vue) {
-        return {
-          title: this.$refs.title as HTMLInputElement
-        }
-      }
     }
-  },
-  watch: {
-    title () {
+
+    get id (): number {
+      return Number(this.$route.params.id) || 0
+    }
+
+    @Ref('title')
+    private readonly titleRef!: HTMLInputElement
+
+    @Watch('title')
+    watchTitle () {
       clearTimeout(this.timer)
       if (this.isFromLoad) {
         this.isFromLoad = false
         return
       }
       this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
-    },
-    currentSpace (val, oldVal) {
+    }
+
+    @Watch('currentSpace')
+    watchCurrentSpace (val: WorkspaceResource, oldVal: WorkspaceResource) {
       if (val.id !== oldVal.id) {
         this.$router.push({ name: 'Main' })
       }
-    },
-    id: {
-      immediate: true,
-      async handler (id) {
-        if (!id) {
-          this.title = ''
-          this.value = {}
-        } else {
-          await this.loadDocument()
-        }
-
-        this.titleFocus()
-      }
     }
-  },
-  methods: {
+
+    @Watch('id', { immediate: true })
+    async watchId (id: number) {
+      if (!id) {
+        this.title = ''
+        this.value = {}
+      } else {
+        await this.loadDocument()
+      }
+
+      this.titleFocus()
+    }
+
     onUpdateEditor (value: object) {
       this.value = value
 
       this.saveDocument()
-    },
+    }
+
     async loadDocument () {
       const id = this.$route.params.id
 
@@ -123,11 +119,12 @@ export default Vue.extend({
           this.title = viewDoc.data.title
           this.value = viewDoc.data.content
         } catch (e) {
-          this.$router.replace({ name: 'Document' })
+          await this.$router.replace({ name: 'Document' })
         }
         this.initialize = false
       }
-    },
+    }
+
     saveDocument () {
       if (this.title) {
         const payload = {
@@ -139,19 +136,18 @@ export default Vue.extend({
 
         this.createUpdateDocument(payload)
       }
-    },
+    }
+
     async createUpdateDocument (data: Partial<DocumentResource>) {
       try {
-        let document
         const id = this.$route.params.id
         this.loading = true
 
         if (id) {
-          document = await DocumentService.update(id, data)
+          await DocumentService.update(id, data)
         } else {
-          document = await DocumentService.create(data)
+          const document = await DocumentService.create(data)
           const getDocument = document.data
-
           this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
           await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
         }
@@ -160,52 +156,53 @@ export default Vue.extend({
       } catch (err) {
         this.loading = false
       }
-    },
+    }
+
     titleFocus () {
-      if (!this.refs.title) {
+      if (!this.titleRef) {
         return
       }
 
       if (this.id) {
-        this.refs.title.blur()
+        this.titleRef.blur()
       } else {
-        this.refs.title.focus()
+        this.titleRef.focus()
       }
     }
-  },
-  mounted () {
-    this.titleFocus()
-  }
-})
+
+    mounted () {
+      this.titleFocus()
+    }
+}
 </script>
 
 <style lang="postcss" scoped>
-.page {
-  @apply max-w-2xl mx-auto p-0;
+  .page {
+    @apply max-w-2xl mx-auto p-0;
 
-  width: 43.8rem;
+    width: 43.8rem;
 
-}
-
-.title {
-  font-size: 2rem;
-  width: 100%;
-
-  &:focus {
-    outline: none;
   }
-}
 
-.header {
-  @apply flex justify-between border-b-2 w-full p-0;
+  .title {
+    font-size: 2rem;
+    width: 100%;
 
-  border-color: theme("colors.secondary.default");
-  padding-bottom: 0.5rem;
-  max-width: 650px;
-  margin: 0 auto;
-}
+    &:focus {
+      outline: none;
+    }
+  }
 
-.content {
-  padding-top: 0.5rem;
-}
+  .header {
+    @apply flex justify-between border-b-2 w-full p-0;
+
+    border-color: theme("colors.secondary.default");
+    padding-bottom: 0.5rem;
+    max-width: 650px;
+    margin: 0 auto;
+  }
+
+  .content {
+    padding-top: 0.5rem;
+  }
 </style>

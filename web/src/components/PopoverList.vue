@@ -15,10 +15,10 @@
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 
-  @Component({
-    name: 'PopoverList',
-    components: { Popover }
-  })
+@Component({
+  name: 'PopoverList',
+  components: { Popover }
+})
 export default class PopoverList extends Vue {
     @Prop({ type: Array, required: true })
     private readonly items!: { label: string; value: string }[]
