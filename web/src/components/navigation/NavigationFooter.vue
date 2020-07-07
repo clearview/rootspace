@@ -61,10 +61,7 @@
     </div>
 
     <div class="nav-expand">
-      <button
-        class="btn btn-icon bg-transparent"
-        @click="$emit('toggleCollapse')"
-      >
+      <button class="btn btn-icon bg-transparent hover:bg-transparent">
         <v-icon
           name="right"
           size="1em"
@@ -89,25 +86,25 @@ import { Component, Prop } from 'vue-property-decorator'
   }
 })
 export default class NavigationFooter extends Vue {
-    @Prop({ type: Boolean })
-    private readonly editable!: boolean;
+  @Prop({ type: Boolean })
+  private readonly editable!: boolean;
 
-    private showMenu = false
+  private showMenu = false
 
-    get currentSpace (): object {
-      return this.$store.state.auth.currentSpace || {}
-    }
+  get currentSpace (): object {
+    return this.$store.state.auth.currentSpace || {}
+  }
 
-    settingsPage () {
-      this.$router.push({ name: 'Settings' })
-    }
+  settingsPage () {
+    this.$router.push({ name: 'Settings' })
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
-  .btn-active {
-    .icon {
-      @apply text-primary;
-    }
+.btn-active {
+  .icon {
+    @apply text-primary;
   }
+}
 </style>
