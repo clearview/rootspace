@@ -6,7 +6,7 @@
           <tr v-for="(content, index) in value.data.content" :key="index">
             <td class="tc-table__cell" v-for="(contentTd, indexTd) in content" :key="indexTd">
               <div class="tc-table__area">
-                <div class="tc-table__inp">{{ contentTd }}</div>
+                <div class="tc-table__inp" v-html="contentTd"></div>
               </div>
             </td>
           </tr>

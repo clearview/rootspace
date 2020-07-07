@@ -1,6 +1,6 @@
 <template>
   <ul class="cdx-block cdx-list" :class="listType(value.data.style)">
-    <li class="cdx-list__item" v-for="(list, index) in value.data.items" :key="index">{{ list }}</li>
+    <li class="cdx-list__item" v-for="(list, index) in value.data.items" :key="index" v-html="list"></li>
   </ul>
 </template>
 
