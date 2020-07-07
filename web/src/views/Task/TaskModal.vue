@@ -10,7 +10,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          {{ item.title }}
+          <input ref="inputTitle" :disabled="isUpdatingTitle" class="task-modal-title-editable" @keypress.enter.prevent="saveTitle" v-model="itemCopy.title"/>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -222,10 +222,14 @@ export default class TaskModal extends Vue {
     @Ref('attachmentFile')
     private readonly attachmentFileRef!: HTMLInputElement
 
+    @Ref('inputTitle')
+    private readonly inputTitleRef!: HTMLInputElement
+
     private itemCopy = { ...this.item }
     private isEditingDescription = false;
     private commentInput = '';
     private isUploading = false
+    private isUpdatingTitle = false
 
     @Emit('cancel')
     cancel () {
@@ -337,6 +341,14 @@ export default class TaskModal extends Vue {
 
     memberName (member: UserResource) {
       return `${member.firstName} ${member.lastName}`
+    }
+
+    async saveTitle () {
+      this.isUpdatingTitle = true
+      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/board/refresh')
+      this.isUpdatingTitle = false
+      this.inputTitleRef.blur()
     }
 }
 </script>
@@ -553,6 +565,12 @@ export default class TaskModal extends Vue {
 
   .attachments {
     @apply flex items-center flex-wrap;
+  }
+
+  .task-modal-title-editable {
+    &:focus {
+      background: theme("colors.gray.100");
+    }
   }
 
 </style>
