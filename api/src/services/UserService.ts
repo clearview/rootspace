@@ -5,11 +5,8 @@ import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../database/entities/User'
-import {
-  ISignupProvider,
-  IUserUpdateProvider,
-  IChangePasswordProvider,
-} from '../types/user'
+import { ISignupProvider, IChangePasswordProvider } from '../types/user'
+import { UserUpdateValue } from '../values/user'
 import {
   HttpErrName,
   HttpStatusCode,
@@ -102,7 +99,7 @@ export class UserService {
     return user
   }
 
-  async update(data: IUserUpdateProvider, userId: number): Promise<User> {
+  async update(data: UserUpdateValue, userId: number): Promise<User> {
     const user = await this.getUserById(userId)
 
     if (!user) {
@@ -121,11 +118,8 @@ export class UserService {
       )
     }
 
-    user.firstName = data.firstName
-    user.lastName = data.lastName
-    user.email = data.email
-
-    return await this.getUserRepository().save(user)
+    Object.assign(user, data.attributes)
+    return this.getUserRepository().save(user)
   }
 
   async changePassword(

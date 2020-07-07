@@ -12,7 +12,8 @@ import {
   validateUserUpdate,
   validateChangePassword,
 } from '../validation/user'
-import { IUserUpdateProvider, IChangePasswordProvider } from '../types/user'
+import { IChangePasswordProvider } from '../types/user'
+import { UserUpdateValue } from '../values/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -78,21 +79,17 @@ export class UsersCtrl extends BaseCtrl {
     res.send({ user, spaces })
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data: IUserUpdateProvider = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-      }
+  async update(req: Request, res: Response) {
+    const data = req.body.data
+    const userId = req.user.id
 
-      await validateUserUpdate(data, req.user.id)
+    await validateUserUpdate(data, userId)
+    const value = UserUpdateValue.fromObject(data)
 
-      const user = await this.userService.update(data, req.user.id)
-      res.send(user)
-    } catch (err) {
-      next(err)
-    }
+    const user = await this.userService.update(value, req.user.id)
+    const resData = this.responseData(user)
+
+    res.send(resData)
   }
 
   async changePassword(req: Request, res: Response, next: NextFunction) {

@@ -32,7 +32,7 @@ export class User {
   @Column('varchar', { length: 254, nullable: true })
   avatar: string
 
-  @Column('varchar', { select: false })
+  @Column('varchar')
   authProvider: string
 
   @Column('boolean')
