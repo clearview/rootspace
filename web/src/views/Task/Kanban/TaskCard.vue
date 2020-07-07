@@ -1,8 +1,8 @@
 <template>
   <div class="task-card">
     <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
-      <textarea ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…" rows="3"
-                class="item-textarea"></textarea>
+      <input ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…"
+                class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
           <v-icon name="close" size="1.5rem"/>
@@ -17,7 +17,7 @@
         {{itemCopy.title}}
       </div>
       <div class="actions">
-        <button class="btn btn-tiny btn-link" @click="edit">
+        <button class="btn btn-tiny btn-link" @click.stop="edit">
           <v-icon name="edit" size="1rem"/>
         </button>
       </div>
@@ -73,14 +73,15 @@ export default class TaskCard extends Vue {
     @Emit('save')
     async save () {
       if (this.itemCopy.id === null) {
-        this.itemCopy = await this.$store.dispatch('task/item/create', this.itemCopy)
+        this.itemCopy = (await this.$store.dispatch('task/item/create', this.itemCopy)).data
       } else {
-        this.itemCopy = await this.$store.dispatch('task/item/update', this.itemCopy)
+        this.itemCopy = (await this.$store.dispatch('task/item/update', this.itemCopy)).data
       }
       if (this.item.list) {
         await this.$store.dispatch('task/board/refresh')
       }
       this.isInputting = false
+      console.log(this.itemCopy)
       return this.itemCopy
     }
 
