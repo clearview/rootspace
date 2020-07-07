@@ -32,6 +32,10 @@
    @apply bg-transparent text-gray-900 border-transparent;
   }
 
+  &.btn-link-primary {
+   @apply bg-transparent text-primary border-transparent;
+  }
+
   &.btn-icon {
     @apply border-none p-1;
   }

@@ -28,6 +28,7 @@
     "@editorjs/warning": "^1.1.1",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
+    "date-fns": "^2.14.0",
     "he-tree-vue": "^1.2.3",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.15",
