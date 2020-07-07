@@ -8,12 +8,12 @@
     class="fill-current stroke-current"
   >
     <title>{{ name }}</title>
-    <component :is="`icon-${name}`" />
+    <component v-if="isIconValid" :is="`icon-${name}`" />
   </svg>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 import IconAdd from './IconAdd.vue'
 import IconClose from './IconClose.vue'
@@ -57,7 +57,7 @@ import IconShare from './IconShare.vue'
 import IconHistory from './IconHistory.vue'
 import IconShareGlobe from './IconShareGlobe.vue'
 
-export default Vue.extend({
+@Component({
   name: 'Icon',
   components: {
     IconAdd,
@@ -101,25 +101,27 @@ export default Vue.extend({
     IconShare,
     IconHistory,
     IconShareGlobe
-  },
-  props: {
-    name: {
-      type: String,
-      required: true
-    },
-    size: {
-      type: [String, Number],
-      default: '1em'
-    },
-    viewbox: {
-      type: [String, Number],
-      default: 32
-    }
-  },
-  computed: {
-    _viewbox () {
-      return `0 0 ${this.viewbox} ${this.viewbox}`
-    }
   }
 })
+export default class Icon extends Vue {
+  @Prop({ type: String, required: true })
+  private readonly name!: string;
+
+  @Prop({ type: [String, Number], default: '1em' })
+  private readonly size!: string | number;
+
+  @Prop({ type: [String, Number], default: 32 })
+  private readonly viewbox!: string | number;
+
+  get _viewbox () {
+    return `0 0 ${this.viewbox} ${this.viewbox}`
+  }
+
+  get isIconValid () {
+    const comps = this.$options.components as Record<string, any>
+    const icons = Object.keys(comps)
+    const cleanName = 'icon' + this.name.replace('-', '').toLowerCase()
+    return icons.findIndex(key => cleanName === key.toLowerCase()) !== -1
+  }
+}
 </script>
