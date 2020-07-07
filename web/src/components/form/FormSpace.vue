@@ -52,8 +52,9 @@
           v-if="$v.invitation.$dirty && !$v.invitation.email"
         >Email format is not valid.
         </div>
-
-        <div class="error" v-if="duplicateMessage">{{ duplicateMessage }}</div>
+      </div>
+      <div class="success-group">
+        <div class="success" v-if="duplicateMessage">{{ duplicateMessage }}</div>
       </div>
     </v-field>
 
@@ -155,11 +156,10 @@ export default class FormSpace extends Vue {
       })
 
       if (getUser) {
-        this.duplicateMessage = 'User is already exist on space'
-        return
+        this.duplicateMessage = 'Sending a new invitation to this user...'
+      } else {
+        this.payload.invites.push(email)
       }
-
-      this.payload.invites.push(email)
 
       if (this.isEdit
       ) {
