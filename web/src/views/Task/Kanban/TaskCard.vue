@@ -38,7 +38,7 @@
                 <v-icon name="attachment" viewbox="20" size="1rem"/>
               </button>
               <button class="btn btn-tiny btn-link">
-                <v-icon name="comment" viewbox="20" size="1rem"/>
+                <v-icon name="comment" viewbox="16" size="1rem"/>
               </button>
               <!-- taskComments
               attachments -->
@@ -241,9 +241,9 @@ export default class TaskCard extends Vue {
     }
 
     .content {
-      @apply pt-2 pb-4;
+      @apply pt-2 pb-5;
 
-      color: theme("colors.gray.400");
+      color: theme("colors.gray.800");
       font-size: .9rem;
       white-space: nowrap;
       overflow: hidden;
@@ -264,8 +264,13 @@ export default class TaskCard extends Vue {
 
             display: inline;
             color: #fff;
-            font-size: .9rem;
             margin-right: 5px;
+            font-size: 10px;
+            line-height: 12px;
+
+            /* identical to box height */
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
           }
         }
 
@@ -283,9 +288,9 @@ export default class TaskCard extends Vue {
           display: inline;
 
           .vue-avatar--wrapper {
-            width: 26px !important;
-            height: 26px !important;
-            font: 11px / 22px Helvetica, Arial, sans-serif !important;
+            width: 24px !important;
+            height: 24px !important;
+            font: 11px / 24px Helvetica, Arial, sans-serif !important;
             float: left;
           }
         }

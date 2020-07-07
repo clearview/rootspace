@@ -46,6 +46,7 @@ import IconList from '@/components/icon/IconList.vue'
 import IconTag from '@/components/icon/IconTag.vue'
 import IconTime from '@/components/icon/IconTime.vue'
 import IconAttachment from '@/components/icon/IconAttachment.vue'
+import IconComment from '@/components/icon/IconComment.vue'
 import IconDrag from '@/components/icon/IconDrag.vue'
 import IconUser2 from '@/components/icon/IconUser2.vue'
 import IconEllipsis from '@/components/icon/IconEllipsis.vue'
@@ -62,6 +63,7 @@ import IconShareGlobe from './IconShareGlobe.vue'
   components: {
     IconAdd,
     IconAttachment,
+    IconComment,
     IconClose,
     IconClose2,
     IconDots,
