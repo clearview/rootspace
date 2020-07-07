@@ -9,6 +9,7 @@ module.exports = shipit => {
     default: {
       repositoryUrl: 'git@gitlab.com:clearview/root.git',
       keepReleases: 10,
+      /*
       deploy: {
         remoteCopy: {
           copyAsDir: false, // Should we copy as the dir (true) or the content of the dir (false)
@@ -17,6 +18,7 @@ module.exports = shipit => {
         }
       },
       rsync: ['--no-perms --no-owner --no-group --rsync-path="/usr/bin/rsync"'],
+      */
       slack: {
         webhookUrl: 'https://hooks.slack.com/services/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',
         message: 'Root app deployed',
