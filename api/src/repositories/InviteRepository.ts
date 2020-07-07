@@ -12,4 +12,12 @@ export class InviteRepository extends Repository<Invite> {
       .andWhere('invite.accepted = false')
       .getOne()
   }
+
+  getBySpaceId(spaceId: number): Promise<Invite[]> {
+    return this.createQueryBuilder('invite')
+      .where('invite.accepted = false AND invite.spaceId = :spaceId', {
+        spaceId,
+      })
+      .getMany()
+  }
 }
