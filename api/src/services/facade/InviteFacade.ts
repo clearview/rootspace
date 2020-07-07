@@ -15,6 +15,10 @@ export class InviteFacade {
     this.userSpaceService = UserSpaceService.getInstance()
   }
 
+  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
+    return this.inviteService.getInvitesBySpaceId(spaceId)
+  }
+
   async sendToEmails(emails: string[], spaceId: number): Promise<Invite[]> {
     const space = await this.spaceService.requireSpaceById(spaceId)
     const invites = []
