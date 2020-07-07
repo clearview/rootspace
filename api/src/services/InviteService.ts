@@ -44,6 +44,10 @@ export class InviteService {
     return this.getInviteRepository().findOne(id, { where: { token } })
   }
 
+  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
+    return this.getInviteRepository().getBySpaceId(spaceId)
+  }
+
   async requireInviteByTokenAndId(token: string, id: number) {
     const invite = await this.getInviteByTokenAndId(token, id)
 
