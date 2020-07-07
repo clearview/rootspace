@@ -2,13 +2,13 @@
   <form
     @submit.prevent="submit"
   >
-    <v-field label="Workspace Name" name="workspacename">
+    <v-field label="Space Name" name="spacename">
       <div class="form-group">
         <input
           class="input w-full leading-tight mx-0"
-          id="workspacename"
+          id="spacename"
           type="text"
-          placeholder="My Workspace"
+          placeholder="My Space"
           v-model.trim="$v.payload.title.$model"
         />
       </div>
@@ -91,12 +91,12 @@ import { email, required } from 'vuelidate/lib/validators'
 
 import { find } from 'lodash'
 
-import { WorkspaceResource } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 
 @Component({
-  name: 'FormWorkspace',
+  name: 'FormSpace',
   components: {
     VField
   },
@@ -112,7 +112,7 @@ import VField from '@/components/Field.vue'
     }
   }
 })
-export default class FormWorkspace extends Vue {
+export default class FormSpace extends Vue {
     @Prop({ type: Object })
     private readonly value?: any;
 
@@ -125,7 +125,7 @@ export default class FormWorkspace extends Vue {
     @Prop({ type: Boolean })
     private readonly isEdit!: boolean;
 
-    private payload: Omit<WorkspaceResource, 'id'> = {
+    private payload: Omit<SpaceResource, 'id'> = {
       title: '',
       invites: []
     };
@@ -155,7 +155,7 @@ export default class FormWorkspace extends Vue {
       })
 
       if (getUser) {
-        this.duplicateMessage = 'User is already exist on workspace'
+        this.duplicateMessage = 'User is already exist on space'
         return
       }
 

@@ -10,6 +10,6 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  name: 'IconWorkspace'
+  name: 'IconSpace'
 })
 </script>

@@ -47,7 +47,7 @@
 <script lang="ts">
 import config from '@/utils/config'
 
-import { DocumentResource, WorkspaceResource } from '@/types/resource'
+import { DocumentResource, SpaceResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
@@ -83,7 +83,7 @@ export default class Document extends Vue {
     alert: null
   }
 
-  get currentSpace (): WorkspaceResource {
+  get currentSpace (): SpaceResource {
     return this.$store.state.auth.currentSpace || {}
   }
 
@@ -107,7 +107,7 @@ export default class Document extends Vue {
   }
 
   @Watch('currentSpace')
-  watchCurrentSpace (val: WorkspaceResource, oldVal: WorkspaceResource) {
+  watchCurrentSpace (val: SpaceResource, oldVal: SpaceResource) {
     if (val.id !== oldVal.id) {
       this.$router.push({ name: 'Main' })
     }

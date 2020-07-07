@@ -39,7 +39,7 @@ import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
 import IconWarning from './IconWarning.vue'
 import IconGoogle from './IconGoogle.vue'
-import IconWorkspace from './IconWorkspace.vue'
+import IconSpace from './IconSpace.vue'
 import IconLoading from './IconLoading.vue'
 import IconKanban from '@/components/icon/IconKanban.vue'
 import IconList from '@/components/icon/IconList.vue'
@@ -95,7 +95,7 @@ export default Vue.extend({
     IconUser2,
     IconWarning,
     IconGoogle,
-    IconWorkspace,
+    IconSpace,
     IconLoading,
     IconContextMenu,
     IconShare,

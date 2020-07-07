@@ -16,11 +16,11 @@
           <div class="nav-menu-item-logo">
             <img
               srcset="
-                @/assets/images/workspace.png 1x,
-                @/assets/images/workspace@2x.png 2x
+                @/assets/images/space.png 1x,
+                @/assets/images/space@2x.png 2x
               "
-              src="@/assets/images/workspace.png"
-              alt="Workspace"
+              src="@/assets/images/space.png"
+              alt="Space"
             >
           </div>
           <div class="nav-menu-item-label">
@@ -54,7 +54,7 @@
 
       <button class="nav-menu-create" @click="$emit('add')">
         <v-icon name="plus" />
-        <span>Add New Workspace</span>
+        <span>Add New Space</span>
       </button>
 
       <button
@@ -71,14 +71,14 @@
 <script lang="ts">
 import { omit, isEmpty } from 'lodash/fp'
 
-import { WorkspaceResource } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'NavigationWorkspace'
+  name: 'NavigationSpace'
 
 })
-export default class NavigationWorkspace extends Vue {
+export default class NavigationSpace extends Vue {
   @Prop({ type: Boolean })
   private readonly value!: boolean;
 
@@ -92,7 +92,7 @@ export default class NavigationWorkspace extends Vue {
 
     return !list || !current
       ? []
-      : list.map((space: WorkspaceResource) => ({
+      : list.map((space: SpaceResource) => ({
         ...space,
         active: current.id === space.id
       }))
