@@ -7,9 +7,8 @@ export class DocUpdateValidator extends BaseValidator {
     return {
       title: 'accepted',
       content: 'object',
-      access: [
-        validations.in(Object.values(DocAccess)),
-      ],
+      access: [validations.in(Object.values(DocAccess))],
+      isLocked: 'boolean',
     }
   }
 }
