@@ -6,12 +6,6 @@ export interface ISignupProvider {
   password_confirmation: string
 }
 
-export interface IUserUpdateProvider {
-  firstName: string
-  lastName: string
-  email: string
-}
-
 export interface IChangePasswordProvider {
   password: string
   newPassword: string
