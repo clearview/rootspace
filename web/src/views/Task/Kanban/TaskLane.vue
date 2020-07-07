@@ -27,7 +27,7 @@
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
-      <main class="cards">
+      <main class="cards" ref="cardContainer">
         <Draggable :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <TaskCard v-for="item in orderedCards"
                   :item="item" :key="item.id"/>
@@ -90,6 +90,9 @@ export default class TaskLane extends Vue {
     @Ref('editInput')
     private readonly editInput!: HTMLInputElement;
 
+    @Ref('cardContainer')
+    private readonly cardContainerRef!: HTMLInputElement;
+
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
     private isInputtingNewItem = false
@@ -149,10 +152,12 @@ export default class TaskLane extends Vue {
 
     get dragOptions () {
       return {
-        animation: 200,
-        group: 'description',
+        animation: 50,
+        group: 'cards',
         disabled: false,
-        ghostClass: 'ghost'
+        ghostClass: 'ghost',
+        forceFallback: true,
+        fallbackClass: 'ghost-floating'
       }
     }
 
@@ -202,6 +207,9 @@ export default class TaskLane extends Vue {
         status: TaskItemStatus.Open,
         position: getNextPosition(this.list.tasks.length)
       }
+      Vue.nextTick().then(() => {
+        this.cardContainerRef.scrollTop = this.cardContainerRef.scrollHeight
+      })
     }
 
     async handleMenu (value: string) {
@@ -225,9 +233,7 @@ export default class TaskLane extends Vue {
     @apply flex flex-col p-4 rounded;
     background: rgba(theme("colors.gray.100"), 0.25);
     width: 300px;
-    max-height: 80vh;
     flex: 0 0 auto;
-    overflow-y: scroll;
   }
 
   .task-lane ~ .task-lane {
@@ -270,6 +276,7 @@ export default class TaskLane extends Vue {
 
   .cards {
     @apply py-2 px-1;
+    max-height: 60vh;
     overflow-y: auto;
   }
   .card-input {
@@ -277,5 +284,13 @@ export default class TaskLane extends Vue {
   }
 
   .lane-transition-group {
+  }
+  .ghost {
+    opacity:0.5;
+  }
+  .ghost-floating {
+    @apply shadow shadow-xl;
+    opacity: 1 !important;
+    transform: rotate(-5deg);
   }
 </style>
