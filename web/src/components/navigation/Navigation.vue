@@ -20,7 +20,7 @@
       @add="startAddNew"
       @edit="editable = !editable"
       @toggleCollapse="toggleCollapse"
-      @addWorkspace="startAddWorkspace"
+      @addSpace="startAddSpace"
     />
 
     <v-modal
@@ -72,18 +72,18 @@
     </v-modal>
 
     <v-modal
-      title="Add Workspace"
-      :visible="workspace.add.visible"
-      :loading="workspace.add.loading"
+      title="Add Space"
+      :visible="space.add.visible"
+      :loading="space.add.loading"
       confirmText="Add"
-      @cancel="workspace.add.visible = false"
-      @confirm="() => $refs.formWorkspaceAdd.submit()"
+      @cancel="space.add.visible = false"
+      @confirm="() => $refs.formSpaceAdd.submit()"
     >
       <div class="modal-body">
-        <form-workspace
+        <form-space
           nobutton
-          ref="formWorkspaceAdd"
-          @submit="addWorkspace"
+          ref="formSpaceAdd"
+          @submit="addSpace"
         />
       </div>
     </v-modal>
@@ -95,18 +95,18 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
 
 import {
-  WorkspaceResource,
+  SpaceResource,
   LinkResource,
   TaskBoardResource,
   NodeResource
 } from '@/types/resource'
 
-import WorkspaceService from '@/services/workspace'
+import SpaceService from '@/services/space'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import SelectLinkType from '@/components/SelectLinkType.vue'
-import FormWorkspace from '@/components/form/FormWorkspace.vue'
+import FormSpace from '@/components/form/FormSpace.vue'
 import VModal from '@/components/Modal.vue'
 
 import NavigationHeader from './NavigationHeader.vue'
@@ -138,7 +138,7 @@ type NestedStateMap = {
     FormLink,
     FormTask,
     SelectLinkType,
-    FormWorkspace,
+    FormSpace,
     VModal
   }
 })
@@ -197,7 +197,7 @@ export default class Navigation extends Vue {
     }
   }
 
-  workspace: NestedStateMap = {
+  space: NestedStateMap = {
     add: {
       visible: false,
       loading: false,
@@ -228,13 +228,13 @@ export default class Navigation extends Vue {
   }
 
   @Watch('currentSpace')
-  async onCurrentSpaceChange (currentSpace: WorkspaceResource) {
+  async onCurrentSpaceChange (currentSpace: SpaceResource) {
     await this.fetchTree(currentSpace)
   }
 
   async created () {
     if (!this.hasSpace) {
-      return this.$router.replace({ name: 'WorkspaceInit' })
+      return this.$router.replace({ name: 'SpaceInit' })
     }
 
     await this.fetchTree(this.currentSpace)
@@ -263,15 +263,15 @@ export default class Navigation extends Vue {
     this.addNew.visible = true
   }
 
-  startAddWorkspace () {
-    this.workspace.add.visible = true
+  startAddSpace () {
+    this.space.add.visible = true
   }
 
   toggleFold (data: object) {
     this.$store.commit('tree/setFolded', data)
   }
 
-  async fetchTree (space: WorkspaceResource) {
+  async fetchTree (space: SpaceResource) {
     this.link.fetch.loading = true
 
     await this.$store.dispatch('tree/fetch', { spaceId: space.id })
@@ -339,11 +339,11 @@ export default class Navigation extends Vue {
     await this.fetchTree(this.currentSpace)
   }
 
-  async addWorkspace (data: WorkspaceResource) {
-    this.workspace.add.loading = true
+  async addSpace (data: SpaceResource) {
+    this.space.add.loading = true
 
     try {
-      const res = await WorkspaceService.create(data)
+      const res = await SpaceService.create(data)
 
       await this.$store.dispatch('auth/whoami')
 
@@ -352,14 +352,14 @@ export default class Navigation extends Vue {
         pick(res.data, ['id', 'title', 'settings'])
       )
     } catch (err) {
-      this.workspace.add.alert = {
+      this.space.add.alert = {
         type: 'danger',
         message: err.message
       }
     }
 
-    this.workspace.add.loading = false
-    this.workspace.add.visible = false
+    this.space.add.loading = false
+    this.space.add.visible = false
   }
 }
 </script>

@@ -5,7 +5,7 @@
     <div class="content">
       <div class="max-w-xs mx-auto p-4 mt-10">
         <h2 class="text-center">Welcome {{ name }}!</h2>
-        <p class="text-center mb-2 text-gray-800">Create your own workspace in few steps...</p>
+        <p class="text-center mb-2 text-gray-800">Create your own space in few steps...</p>
 
         <div class="avatar">
           <img
@@ -15,7 +15,7 @@
           />
         </div>
 
-        <form-workspace @submit="submit"/>
+        <form-space @submit="submit"/>
       </div>
     </div>
     <v-loading :loading="isLoading">
@@ -27,13 +27,13 @@
 <script lang="ts">
 import { mapState } from 'vuex'
 
-import { WorkspaceResource } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 
-import WorkspaceService from '@/services/workspace'
+import SpaceService from '@/services/space'
 
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
-import FormWorkspace from '@/components/form/FormWorkspace.vue'
+import FormSpace from '@/components/form/FormSpace.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
   type ComponentData = {
@@ -41,19 +41,19 @@ import { Component, Vue } from 'vue-property-decorator'
     loadingMessage: string;
   }
   @Component({
-    name: 'WorkspaceInit',
+    name: 'SpaceInit',
     components: {
       RootHeader,
       VLoading,
-      FormWorkspace
+      FormSpace
     },
     computed: {
       ...mapState('auth', ['user', 'spaces'])
     }
   })
-export default class WorkspaceInit extends Vue {
+export default class SpaceInit extends Vue {
     private isLoading = false;
-    private loadingMessage = 'Creating Workspace...';
+    private loadingMessage = 'Creating Space...';
 
     get user () {
       return this.$store.state.auth.user
@@ -77,11 +77,11 @@ export default class WorkspaceInit extends Vue {
       return this.spaces && this.spaces.length > 0
     }
 
-    async submit (data: WorkspaceResource) {
+    async submit (data: SpaceResource) {
       this.isLoading = true
 
       try {
-        await WorkspaceService.create(data)
+        await SpaceService.create(data)
         await this.$store.dispatch('auth/whoami', { updateSpace: true })
 
         await this.$router.push({ name: 'Main' })

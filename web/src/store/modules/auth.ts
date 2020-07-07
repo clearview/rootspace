@@ -1,7 +1,7 @@
 import { Module } from 'vuex'
 
 import { RootState, AuthState } from '@/types/state'
-import { WorkspaceResource } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 
 import AuthService from '@/services/auth'
 
@@ -49,11 +49,11 @@ const AuthModule: Module<AuthState, RootState> = {
         commit('setSpaces', data.spaces)
 
         if (opts.updateSpace) {
-          const spaces: WorkspaceResource[] = state.spaces || []
-          const cache: Partial<WorkspaceResource> = state.currentSpace || {}
+          const spaces: SpaceResource[] = state.spaces || []
+          const cache: Partial<SpaceResource> = state.currentSpace || {}
 
           const space = spaces.find(
-            (space: WorkspaceResource) => space.id === cache.id
+            (space: SpaceResource) => space.id === cache.id
           )
 
           commit('setCurrentSpace', space || spaces[0])

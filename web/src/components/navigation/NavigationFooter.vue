@@ -9,11 +9,11 @@
           <img
             class="bg-white rounded mr-2"
             srcset="
-              @/assets/images/workspace.png 1x,
-              @/assets/images/workspace@2x.png 2x
+              @/assets/images/space.png 1x,
+              @/assets/images/space@2x.png 2x
             "
-            src="@/assets/images/workspace.png"
-            alt="Workspace"
+            src="@/assets/images/space.png"
+            alt="Space"
           >
           <span class="truncate">{{ currentSpace.title }}</span>
         </div>
@@ -45,7 +45,7 @@
         </button>
       </div>
 
-      <navigation-workspace v-model="showMenu" @add="$emit('addWorkspace')"/>
+      <navigation-space v-model="showMenu" @add="$emit('addSpace')"/>
     </div>
     <div class="nav-actions">
       <button
@@ -79,13 +79,13 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import NavigationWorkspace from '@/components/navigation/NavigationWorkspace.vue'
+import NavigationSpace from '@/components/navigation/NavigationSpace.vue'
 import { Component, Prop } from 'vue-property-decorator'
 
 @Component({
   name: 'NavigationFooter',
   components: {
-    NavigationWorkspace
+    NavigationSpace
   }
 })
 export default class NavigationFooter extends Vue {

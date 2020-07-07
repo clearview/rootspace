@@ -7,8 +7,8 @@
         <li :class="{ active: (tab === 'account') }" @click="swichTab('account')">
           <a href="#">My Account</a>
         </li>
-        <li :class="{ active: (tab === 'workspace') }" @click="swichTab('workspace')">
-          <a href="#">Workspace</a>
+        <li :class="{ active: (tab === 'space') }" @click="swichTab('space')">
+          <a href="#">Space</a>
         </li>
       </ul>
 
@@ -32,22 +32,22 @@
           </div>
         </div>
 
-        <div class="settings-workspace" v-if="(tab === 'workspace')">
+        <div class="settings-space" v-if="(tab === 'space')">
           <div class="col-center">
-            <v-alert v-model="workspace.alert"/>
+            <v-alert v-model="space.alert"/>
 
-            <div class="workspace-avatar">
+            <div class="space-avatar">
               <img src="@/assets/logo@2x.png" alt="Root Logo"/>
             </div>
 
-            <form-workspace
-              @submit="updateWorkspace"
-              @addUser="addWorkspaceUser"
-              @deleteUser="deleteWorkspaceUser"
-              :value="workspaceData"
+            <form-space
+              @submit="updateSpace"
+              @addUser="addSpaceUser"
+              @deleteUser="deleteSpaceUser"
+              :value="spaceData"
               :is-edit="true"
               button="Save"
-              ref="workspace">
+              ref="space">
               <div class="form-border">
                 <p>Mobile push notifications</p>
                 <button-switch v-model="mobileNotifications"/>
@@ -57,7 +57,7 @@
                 <p>Email notifications</p>
                 <button-switch v-model="emailNotifications"/>
               </div>
-            </form-workspace>
+            </form-space>
           </div>
         </div>
       </div>
@@ -68,14 +68,14 @@
     </v-loading>
 
     <v-modal
-      title="User Workspace"
-      :visible="workspace.error"
+      title="User Space"
+      :visible="space.error"
       :nosubmit="true"
       cancel-text="Okay"
-      @cancel="workspace.error = false"
+      @cancel="space.error = false"
     >
       <div class="modal-body text-center">
-        {{ workspace.errorMessage }}
+        {{ space.errorMessage }}
       </div>
     </v-modal>
   </div>
@@ -85,15 +85,15 @@
 
 import { find, get, map } from 'lodash'
 
-import { PasswordResource, UserResource, WorkspaceResource } from '@/types/resource'
+import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
 
 import UserService from '@/services/user'
-import WorkspaceService from '@/services/workspace'
+import SpaceService from '@/services/space'
 
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import FormSettings from '@/components/form/FormSettings.vue'
-import FormWorkspace from '@/components/form/FormWorkspace.vue'
+import FormSpace from '@/components/form/FormSpace.vue'
 import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/Modal.vue'
 import { Component, Vue, Watch } from 'vue-property-decorator'
@@ -101,17 +101,17 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
   type ComponentData = {
     tab: string;
     errorAccount: object;
-    errorWorkspace: object;
+    errorSpace: object;
     mobileNotifications: boolean;
     emailNotifications: boolean;
     loadingMessage: string;
     isLoading: boolean;
-    workspaceData: object;
+    spaceData: object;
     userAtSpaceObj: object;
     account: {
       alert: object | null;
     };
-    workspace: {
+    space: {
       alert: object | null;
       error: boolean;
       errorMessage: string;
@@ -123,7 +123,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
     components: {
       ButtonSwitch,
       FormSettings,
-      FormWorkspace,
+      FormSpace,
       VAlert,
       VLoading,
       VModal
@@ -132,18 +132,18 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 export default class Settings extends Vue {
     private tab = 'account';
     private errorAccount = {};
-    private errorWorkspace = {};
+    private errorSpace = {};
     private mobileNotifications = false;
     private emailNotifications = true;
     private loadingMessage = 'Update Settings...';
     private isLoading = false;
-    private workspaceData = {};
+    private spaceData = {};
     private userAtSpaceObj = {};
     private account: any = {
       alert: null
     };
 
-    private workspace = {
+    private space = {
       alert: null,
       error: false,
       errorMessage: ''
@@ -163,8 +163,8 @@ export default class Settings extends Vue {
 
     @Watch('currentSpace')
     async watchCurrentSpace (val: any) {
-      if (this.tab === 'workspace') {
-        await this.viewWorkspace(val.id)
+      if (this.tab === 'space') {
+        await this.viewSpace(val.id)
       }
     }
 
@@ -193,20 +193,20 @@ export default class Settings extends Vue {
       }
     }
 
-    async updateWorkspace (data: WorkspaceResource) {
+    async updateSpace (data: SpaceResource) {
       this.isLoading = true
 
       try {
         const id = this.currentSpace.id
         this.isLoading = true
-        this.loadingMessage = 'Update Workspace Settings...'
+        this.loadingMessage = 'Update Space Settings...'
 
         const payload = { // for temporary
           title: data.title,
           invites: data.invites
         }
 
-        await WorkspaceService.update(id, payload)
+        await SpaceService.update(id, payload)
 
         this.$store.dispatch('auth/whoami', { updateSpace: true })
       } catch (err) {
@@ -220,11 +220,11 @@ export default class Settings extends Vue {
       }
     }
 
-    async addWorkspaceUser (email: string) {
+    async addSpaceUser (email: string) {
       console.log(this.currentSpace.id, email)
       try {
         this.isLoading = true
-        this.loadingMessage = 'Add user to workspace...'
+        this.loadingMessage = 'Add user to space...'
 
         const payload = {
           spaceId: this.currentSpace.id,
@@ -233,35 +233,35 @@ export default class Settings extends Vue {
         await UserService.addInvitation(payload)
       } catch (err) {
         if (err.code === 405) {
-          this.workspace.error = true
-          this.workspace.errorMessage = err.message
+          this.space.error = true
+          this.space.errorMessage = err.message
         }
       } finally {
         this.isLoading = false
       }
     }
 
-    async deleteWorkspaceUser (email: string) {
+    async deleteSpaceUser (email: string) {
       const getUser = find(this.userAtSpaceObj, ['email', email])
 
       if (getUser) {
         this.isLoading = true
-        this.loadingMessage = 'Remove user from workspace...'
+        this.loadingMessage = 'Remove user from space...'
 
         try {
           const getUserId = get(getUser, 'id')
-          await WorkspaceService.removeUser(this.currentSpace.id, getUserId)
+          await SpaceService.removeUser(this.currentSpace.id, getUserId)
 
           if (this.currentUser.id === getUserId) {
             await this.$store.dispatch('auth/whoami', { updateSpace: true })
           } else {
             const id = this.currentSpace.id
-            this.viewWorkspace(id)
+            this.viewSpace(id)
           }
         } catch (err) {
           if (err.code === 405) {
-            this.workspace.error = true
-            this.workspace.errorMessage = err.message
+            this.space.error = true
+            this.space.errorMessage = err.message
           }
         } finally {
           this.isLoading = false
@@ -269,20 +269,20 @@ export default class Settings extends Vue {
       }
     }
 
-    async viewWorkspace (id: number) {
+    async viewSpace (id: number) {
       this.isLoading = true
-      this.loadingMessage = 'Get Workspace Settings...'
+      this.loadingMessage = 'Get Space Settings...'
 
-      const viewUserAtSpace = await WorkspaceService.userAtSpace(id)
+      const viewUserAtSpace = await SpaceService.userAtSpace(id)
       // const currentUser = this.$store.state.auth.user.id
 
       // remove(viewUserAtSpace.data, (user: UserResource) => user.id === currentUser)
       this.userAtSpaceObj = viewUserAtSpace.data
       const userAtSpace = map(viewUserAtSpace.data, 'email')
 
-      const workspaceTitle = this.currentSpace.title
-      this.workspaceData = {
-        title: workspaceTitle,
+      const spaceTitle = this.currentSpace.title
+      this.spaceData = {
+        title: spaceTitle,
         invites: userAtSpace
       }
       this.isLoading = false
@@ -291,9 +291,9 @@ export default class Settings extends Vue {
     swichTab (tab: string) {
       this.tab = tab
 
-      if (tab === 'workspace') {
+      if (tab === 'space') {
         const id = this.currentSpace.id
-        this.viewWorkspace(id)
+        this.viewSpace(id)
       }
     }
 }
@@ -310,7 +310,7 @@ export default class Settings extends Vue {
   .settings-content {
     @apply p-8;
 
-    .settings-workspace, .settings-myaccount {
+    .settings-space, .settings-myaccount {
       @apply flex flex-row my-4;
     }
 
@@ -345,7 +345,7 @@ export default class Settings extends Vue {
       }
     }
 
-    .settings-workspace {
+    .settings-space {
       .col-center {
         @apply p-0;
       }
@@ -366,7 +366,7 @@ export default class Settings extends Vue {
     }
   }
 
-  .workspace-avatar {
+  .space-avatar {
     @apply mb-5;
 
     img {
