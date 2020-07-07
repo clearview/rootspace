@@ -1,5 +1,6 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import parseURL from 'url-parse'
 
 @Component({
   name: 'Link'
@@ -10,9 +11,20 @@ export default class Link extends Vue {
   }
 
   redirect () {
-    window.open(this.link.value, '_blank')
+    try {
+      const source = window.location
+      const target = parseURL(this.link.value)
 
-    this.$router.replace('/')
+      const isSameSite = target.origin === source.origin
+
+      if (isSameSite && target.pathname.includes('link')) {
+        return
+      }
+
+      window.open(target.href, '_blank')
+    } finally {
+      this.$router.replace('/')
+    }
   }
 
   async created () {
