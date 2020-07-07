@@ -1,6 +1,6 @@
 <template>
   <Modal
-    title="User Workspace"
+    title="User Space"
     :visible="visible"
     nosubmit
     nofooter

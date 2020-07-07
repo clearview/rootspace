@@ -22,7 +22,7 @@
 <script lang="ts">
 import { Component, Emit, Vue } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
-import WorkspaceService from '@/services/workspace'
+import SpaceService from '@/services/space'
 import { UserResource } from '@/types/resource'
 import Avatar from 'vue-avatar'
 
@@ -35,7 +35,7 @@ export default class TagsPopover extends Vue {
     private memberList: Array<UserResource> = []
 
     mounted () {
-      this.getWorkspaceMember()
+      this.getSpaceMember()
     }
 
     get currentSpace () {
@@ -66,9 +66,9 @@ export default class TagsPopover extends Vue {
     //   this.tagInput = ''
     // }
 
-    async getWorkspaceMember () {
+    async getSpaceMember () {
       const id = this.currentSpace.id
-      const viewUserAtSpace = await WorkspaceService.userAtSpace(id)
+      const viewUserAtSpace = await SpaceService.userAtSpace(id)
 
       this.memberList = viewUserAtSpace.data
     }

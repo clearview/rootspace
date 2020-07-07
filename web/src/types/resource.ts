@@ -121,7 +121,7 @@ export interface PasswordResource {
   newPassword_confirmation: string; // eslint-disable-line
 }
 
-export interface WorkspaceResource {
+export interface SpaceResource {
   id: number;
   title: string;
   invites: string[];

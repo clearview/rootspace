@@ -1,7 +1,7 @@
 import {
   NodeResource,
   LinkResource,
-  WorkspaceResource,
+  SpaceResource,
   TaskBoardResource,
   TaskListResource,
   TaskItemResource,
@@ -32,8 +32,8 @@ export interface RootState {
 export interface AuthState {
   token: string | null;
   user: object | null;
-  spaces: WorkspaceResource[] | null;
-  currentSpace: WorkspaceResource | null;
+  spaces: SpaceResource[] | null;
+  currentSpace: SpaceResource | null;
 }
 
 export interface TreeState {
