@@ -156,7 +156,7 @@ export default class FormSpace extends Vue {
       })
 
       if (getUser) {
-        this.duplicateMessage = 'Sending a new invitation to this user...'
+        this.duplicateMessage = `Sending a new invitation to ${email}...`
       } else {
         this.payload.invites.push(email)
       }
