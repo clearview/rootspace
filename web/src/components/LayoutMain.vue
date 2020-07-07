@@ -1,11 +1,11 @@
 <template>
   <div class="layout">
-    <v-navigation :style="paneStyle" :noanimate="resizing" />
+    <v-navigation :style="navStyle" :noanimate="resizing" />
     <div
       class="resizer"
       @mousedown="start"
     />
-    <div class="content">
+    <div class="content" :style="contentStyle">
       <v-alert v-model="alert" />
       <slot />
     </div>
@@ -13,6 +13,7 @@
 </template>
 
 <script lang="ts">
+import { throttle } from 'lodash'
 import VAlert from '@/components/Alert.vue'
 import VNavigation from '@/components/navigation/Navigation.vue'
 import { Component, Vue } from 'vue-property-decorator'
@@ -32,9 +33,15 @@ export default class LayoutMain extends Vue {
     return this.$store.state.nav.size
   }
 
-  get paneStyle (): object {
+  get navStyle (): object {
     return {
       width: `${this.size}px`
+    }
+  }
+
+  get contentStyle (): object {
+    return {
+      width: `calc(100% - ${this.size}px)`
     }
   }
 
@@ -66,7 +73,7 @@ export default class LayoutMain extends Vue {
   created () {
     this.start = this.start.bind(this)
     this.end = this.end.bind(this)
-    this.resize = this.resize.bind(this)
+    this.resize = throttle(this.resize.bind(this), 15)
 
     if (!this.$store.state.auth.user.emailConfirmed) {
       this.alert = {

@@ -2,6 +2,7 @@
   @apply flex flex-col items-start h-screen;
   width: 282px;
   min-width: 282px;
+  max-width: 70%;
   transition: 300ms;
   overflow: hidden;
 }
