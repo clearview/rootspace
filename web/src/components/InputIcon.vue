@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row flex-1">
     <v-icon
-      name="search"
+      :name="icon"
       size="1.5em"
       class="text-gray-400"
     />
@@ -16,32 +16,25 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
-interface ComponentData {
-  payload: string;
-}
+@Component({
+  name: 'InputIcon'
+})
+export default class InputIcon extends Vue {
+    @Prop({ type: String })
+    private readonly value?: string;
 
-export default Vue.extend({
-  name: 'InputIcon',
-  props: {
-    value: {
-      type: String
-    },
-    placeholder: {
-      type: String,
-      default: 'Search'
-    }
-  },
-  data (): ComponentData {
-    return {
-      payload: this.value
-    }
-  },
-  methods: {
+    @Prop({ type: String, default: 'Search' })
+    private readonly placeholder?: string;
+
+    @Prop({ type: String, default: 'search' })
+    private readonly icon?: string;
+
+    private payload: string = this.value || ''
+
     submit (): void {
       this.$emit('input', this.payload)
     }
-  }
-})
+}
 </script>
