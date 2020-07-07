@@ -5,6 +5,7 @@
       'nav--collapse': collapse,
       'nav--noanimate': noanimate
     }"
+    @click="collapse && toggleCollapse()"
   >
     <navigation-header @toggleCollapse="toggleCollapse" />
     <navigation-items

@@ -157,6 +157,7 @@
 
 .nav.nav--collapse {
   @apply bg-gray-900 text-white;
+  @apply cursor-pointer;
   width: 52px !important;
   min-width: 52px;
 

@@ -18,7 +18,7 @@
     <div class="nav-collapse">
       <button
         class="btn btn-icon bg-transparent"
-        @click="$emit('toggleCollapse')"
+        @click.stop="$emit('toggleCollapse')"
       >
         <v-icon
           name="left"
