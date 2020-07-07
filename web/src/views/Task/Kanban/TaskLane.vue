@@ -162,9 +162,9 @@ export default class TaskLane extends Vue {
         return
       }
       if (this.listCopy.id === null) {
-        this.listCopy = await this.$store.dispatch('task/list/create', this.listCopy)
+        this.listCopy = (await this.$store.dispatch('task/list/create', this.listCopy)).data
       } else {
-        this.listCopy = await this.$store.dispatch('task/list/update', this.listCopy)
+        this.listCopy = (await this.$store.dispatch('task/list/update', this.listCopy)).data
       }
       await this.$store.dispatch('task/board/refresh')
       this.isInputting = false
