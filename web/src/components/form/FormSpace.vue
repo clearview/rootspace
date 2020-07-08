@@ -58,14 +58,34 @@
       </div>
     </v-field>
 
-    <div class="list-invitation" v-if="payload.invites.length > 0">
+    <div class="list-invitation" v-if="payload.invites.length > 0 || invitationList.length > 0">
+      <div
+        class="invitation flex items-center"
+        v-for="(list, indexList) in invitationList"
+        :key="'l-' + indexList"
+      >
+        <div class="flex-grow">
+          <avatar :username="list.email"></avatar>
+          <span class="text-gray-900 pl-2">{{ list.email }}</span>
+          <div class="float-right" v-if="list.accepted == false">
+
+            <span class="not-accepted">Not accepted</span>
+            <span class="invite-again" @click="addInvitationList(list.email)">Invite again</span>
+          </div>
+        </div>
+        <span class="close-icon" @click="deleteInvitation(indexList, list.email)">
+          <v-icon name="close" size=".9em" viewbox="32"/>
+        </span>
+      </div>
+
       <div
         class="invitation flex items-center"
         v-for="(invitation, index) in payload.invites"
         :key="index"
       >
-        <div class="flex-grow text-sm">
-          <p class="text-gray-900">{{ invitation }}</p>
+        <div class="flex-grow">
+          <avatar :username="invitation"></avatar>
+          <span class="text-gray-900 pl-2">{{ invitation }}</span>
         </div>
         <span class="close-icon" @click="deleteInvitation(index, invitation)">
           <v-icon name="close" size=".9em" viewbox="32"/>
@@ -95,11 +115,13 @@ import { find } from 'lodash'
 import { SpaceResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
+import Avatar from 'vue-avatar'
 
 @Component({
   name: 'FormSpace',
   components: {
-    VField
+    VField,
+    Avatar
   },
   validations: {
     payload: {
@@ -133,13 +155,16 @@ export default class FormSpace extends Vue {
 
     private invitation = '';
     private duplicateMessage = '';
+    private invitationList = [];
 
     @Watch('value')
     watchValue (newVal: any) {
       this.payload = {
         title: newVal.title,
-        invites: newVal.invites
+        invites: []
       }
+
+      this.invitationList = newVal.invites
     }
 
     @Watch('invitation')
@@ -151,18 +176,21 @@ export default class FormSpace extends Vue {
 
     addInvitationList (email: string): void {
       this.invitation = ''
-      const getUser = find(this.payload.invites, (o) => {
+      let getUser = find(this.payload.invites, (o) => {
         return o === email
       })
 
+      getUser = find(this.invitationList, (o: any) => {
+        return o.email === email
+      })
+
       if (getUser) {
-        this.duplicateMessage = `Sending a new invitation to ${email}...`
+        this.duplicateMessage = `A new invitation send to ${email}...`
       } else {
         this.payload.invites.push(email)
       }
 
-      if (this.isEdit
-      ) {
+      if (this.isEdit) {
         this.$emit('addUser', email)
       }
     }
@@ -193,12 +221,32 @@ export default class FormSpace extends Vue {
     .invitation {
       @apply py-2;
 
-      cursor: pointer;
-
       &:hover {
         .close-icon {
           @apply visible;
         }
+      }
+
+      .vue-avatar--wrapper {
+        width: 30px !important;
+        height: 30px !important;
+        font: 10px / 20px Helvetica, Arial, sans-serif !important;
+        margin-top: -5px;
+        float: left;
+      }
+
+      .not-accepted {
+        @apply px-2 py-1 rounded mr-2 text-xs;
+
+        background: theme("colors.danger.default");
+        color: theme("colors.white.default");
+      }
+
+      .invite-again {
+        @apply mr-2 text-xs;
+
+        color: theme("colors.primary.default");
+        cursor: pointer;
       }
     }
 
@@ -209,6 +257,7 @@ export default class FormSpace extends Vue {
       /* transition: all .01s;
       transition-timing-function: ease; */
       padding: 0.15rem;
+      cursor: pointer;
     }
   }
 </style>
