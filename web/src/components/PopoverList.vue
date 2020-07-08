@@ -1,8 +1,15 @@
 <template>
-  <Popover>
+  <Popover :with-close="false">
     <template v-slot:default="slotApi">
       <ul class="list">
-        <li class="item" v-for="item in items" :key="item.value" @click="input(item.value, slotApi)">{{item.label}}</li>
+        <li class="item" v-for="item in items" :key="item.value" @click="input(item.value, slotApi)">
+          <div class="icon">
+            <v-icon v-if="item.icon " :name="item.icon"/>
+          </div>
+          <div class="label">
+            {{item.label}}
+          </div>
+        </li>
       </ul>
     </template>
     <template v-slot:trigger>
@@ -21,10 +28,10 @@ import Popover from '@/components/Popover.vue'
 })
 export default class PopoverList extends Vue {
     @Prop({ type: Array, required: true })
-    private readonly items!: { label: string; value: string }[]
+    private readonly items!: { label: string; value: string; icon: string }[]
 
     @Emit('input')
-    input (value: string, slotApi: any) { // eslint-disable-line
+    input (value: string, slotApi: any) {
       if (slotApi.hide) {
         slotApi.hide()
       }
@@ -40,13 +47,23 @@ export default class PopoverList extends Vue {
   }
 
   .item {
-    @apply py-2 px-6;
+    @apply py-2 px-6 flex items-center;
     transition: all 0.3s ease;
     cursor: pointer;
+    color: theme("colors.gray.800");
+    font-weight: 600;
 
     &:hover {
       background: theme("colors.gray.100");
     }
+  }
+  .icon {
+    flex: 0 0 auto;
+    width: 24px;
+  }
+  .label {
+    flex: 1 1 auto;
+    @apply pr-2;
   }
 
 </style>
