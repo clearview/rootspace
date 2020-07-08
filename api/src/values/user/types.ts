@@ -10,3 +10,8 @@ export type IUserUpdateAttributes = Omit<
   Partial<IUserCreateAttributes>,
   'password' | 'password_confirmation'
 >
+
+export interface IUserChangePasswordAttributes {
+  password: string
+  newPassword: string
+}

@@ -12,8 +12,7 @@ import {
   validateUserUpdate,
   validateChangePassword,
 } from '../validation/user'
-import { IChangePasswordProvider } from '../types/user'
-import { UserUpdateValue } from '../values/user'
+import { UserUpdateValue, UserChangePasswordValue } from '../values/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -92,24 +91,18 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data: IChangePasswordProvider = {
-        password: req.body.password,
-        newPassword: req.body.newPassword,
-        newPassword_confirmation: req.body.newPassword_confirmation,
+    const userId = req.user.id
+    const data = req.body.data
+
+    await validateChangePassword(data)
+    const value = UserChangePasswordValue.fromObject(data)
+
+    this.userService.changePassword(value, userId, (err, user) => {
+      if (err) {
+        return next(err)
       }
 
-      await validateChangePassword(data)
-
-      this.userService.changePassword(data, req.user.id, (err, user) => {
-        if (err) {
-          return next(err)
-        }
-
-        res.send(user)
-      })
-    } catch (err) {
-      next(err)
-    }
+      res.send(this.responseData(user))
+    })
   }
 }

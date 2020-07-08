@@ -24,10 +24,10 @@ router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 
 router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
-router.patch('/user', authenticate, mapRoute(UsersCtrl, 'update'))
-router.patch('/user/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
+router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
+router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 router.patch(
-  '/user/password/change',
+  '/users/password/change',
   authenticate,
   mapRoute(UsersCtrl, 'changePassword')
 )
