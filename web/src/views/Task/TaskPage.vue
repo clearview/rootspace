@@ -89,7 +89,6 @@ export default class TaskPage extends Vue {
   .task-board {
     @apply flex flex-col;
     flex: 1 0 auto;
-    margin: -1rem;
   }
 
   .board {
