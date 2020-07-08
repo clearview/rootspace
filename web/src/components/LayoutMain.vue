@@ -1,12 +1,19 @@
 <template>
   <div class="layout">
-    <v-navigation :style="navStyle" :noanimate="resizing" />
+    <v-navigation
+      class="pane-left"
+      :style="navStyle"
+      :noanimate="resizing"
+    />
     <div
-      class="resizer"
+      class="pane-resizer"
       @mousedown="start"
     />
-    <div class="content" :style="contentStyle">
-      <v-alert v-model="alert" />
+    <div
+      class="pane-right content"
+      :style="contentStyle"
+    >
+      <v-alert class="alert" v-model="alert" />
       <slot />
     </div>
   </div>
@@ -91,10 +98,18 @@ export default class LayoutMain extends Vue {
   @apply flex flex-row;
 }
 
-.resizer {
-  padding: 0 5px;
-  margin-left: -5px;
-  height: 100vh;
+.pane-left {
+  margin-right: -0.25rem;
+}
+
+.pane-right {
+  margin-left: -0.25rem;
+}
+
+.pane-resizer {
+  @apply h-screen px-1;
+  @apply z-10;
+
   cursor: col-resize;
 
   &:after {
@@ -110,6 +125,10 @@ export default class LayoutMain extends Vue {
 }
 
 .content {
-  @apply flex flex-col flex-grow p-4 h-screen overflow-scroll;
+  @apply flex flex-col flex-grow h-screen overflow-scroll;
+
+  .alert {
+    @apply mx-4;
+  }
 }
 </style>
