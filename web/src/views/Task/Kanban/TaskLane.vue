@@ -11,13 +11,15 @@
       </div>
     </div>
     <div class="lane" v-show="!isInputtingNewLane">
-      <header class="header">
+      <header class="header" >
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
         <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
           <template slot="trigger">
-            <v-icon v-if="!isEditingLane" name="ellipsis" size="1.5rem" class="header-icon" @click="cancel"/>
+            <button class="btn btn-icon bg-transparent" @click="cancel">
+              <v-icon v-if="!isEditingLane" name="ellipsis" size="1rem" class="header-icon" viewbox="20"/>
+            </button>
           </template>
         </PopoverList>
       </header>
@@ -27,7 +29,8 @@
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
-      <main class="cards" ref="cardContainer">
+      <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
+      :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom}">
         <Draggable :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <TaskCard v-for="item in orderedCards"
                   :item="item" :key="item.id"/>
@@ -61,22 +64,22 @@ import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 
-  @Component({
-    name: 'TaskLane',
-    components: {
-      PopoverList,
-      Popover,
-      TaskAddCard,
-      TaskCard,
-      Icon,
-      Draggable
-    },
-    validations: {
-      listCopy: {
-        title: { required }
-      }
+@Component({
+  name: 'TaskLane',
+  components: {
+    PopoverList,
+    Popover,
+    TaskAddCard,
+    TaskCard,
+    Icon,
+    Draggable
+  },
+  validations: {
+    listCopy: {
+      title: { required }
     }
-  })
+  }
+})
 export default class TaskLane extends Vue {
     @Prop({ type: Object, required: true })
     private readonly list!: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'>
@@ -98,6 +101,8 @@ export default class TaskLane extends Vue {
     private isInputtingNewItem = false
     private newItem: Optional<TaskItemResource, 'createdAt' | 'updatedAt' | 'userId'> | null = null
     private drag = false
+    private containerShadowTop = false
+    private containerShadowBottom = false
 
     private get orderedCards () {
       return [...this.list.tasks].sort((a, b) => a.position - b.position).map(item => ({ ...item, list: this.list }))
@@ -157,7 +162,8 @@ export default class TaskLane extends Vue {
         disabled: false,
         ghostClass: 'ghost',
         forceFallback: true,
-        fallbackClass: 'ghost-floating'
+        fallbackClass: 'ghost-floating',
+        emptyInsertThreshold: 64
       }
     }
 
@@ -220,6 +226,11 @@ export default class TaskLane extends Vue {
       }
       await this.$store.dispatch('task/board/refresh')
     }
+
+    handleCardContainerScroll () {
+      this.containerShadowTop = this.cardContainerRef.scrollTop > 0
+      this.containerShadowBottom = this.cardContainerRef.scrollTop < (this.cardContainerRef.scrollHeight - this.cardContainerRef.offsetHeight)
+    }
 }
 </script>
 
@@ -230,8 +241,7 @@ export default class TaskLane extends Vue {
   }
 
   .task-lane {
-    @apply flex flex-col p-4 rounded;
-    background: rgba(theme("colors.gray.100"), 0.25);
+    @apply flex flex-col h-full;
     width: 300px;
     flex: 0 0 auto;
   }
@@ -240,8 +250,20 @@ export default class TaskLane extends Vue {
     @apply ml-4;
   }
 
+  .lane {
+    @apply p-4 rounded;
+    background: rgba(theme("colors.gray.100"), 0.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
+
   .header {
-    @apply flex items-center;
+    @apply flex items-center pb-2;
+    &.with-shadow{
+      box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
+      z-index: 50;
+    }
   }
 
   .header-title {
@@ -275,8 +297,7 @@ export default class TaskLane extends Vue {
   }
 
   .cards {
-    @apply py-2 px-1;
-    max-height: 60vh;
+    @apply py-2 relative;
     overflow-y: auto;
   }
   .card-input {
@@ -293,4 +314,13 @@ export default class TaskLane extends Vue {
     opacity: 1 !important;
     transform: rotate(-5deg);
   }
+
+  .top-shadow{
+    border-top: solid 1px theme("colors.gray.100");
+  }
+
+  .bottom-shadow{
+    border-bottom: solid 1px theme("colors.gray.100");
+  }
+
 </style>
