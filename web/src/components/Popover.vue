@@ -6,7 +6,7 @@
           {{title}}
         </div>
         <div class="popover-close" v-if="withClose">
-          <button class="btn btn-icon">
+          <button class="btn btn-icon" @click="hide">
             <v-icon name="close2" size="1rem" viewbox="20"/>
           </button>
         </div>
