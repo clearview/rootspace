@@ -13,11 +13,11 @@ export class UserRepository extends Repository<User> {
       .getMany()
   }
 
-  getById(id: number, selectPassword = false): Promise<User> {
+  getById(id: number, additionalFields?: string[]): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
-    if (selectPassword === true) {
-      queryBuilder.addSelect('User.password', 'User_password')
+    for (const field of additionalFields) {
+      queryBuilder.addSelect(`User.${field}`, `User_${field}`)
     }
 
     return queryBuilder

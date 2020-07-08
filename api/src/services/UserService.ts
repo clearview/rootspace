@@ -46,8 +46,8 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, selectPassword = false): Promise<User | undefined> {
-    return this.getUserRepository().getById(id, selectPassword)
+  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
+    return this.getUserRepository().getById(id, additionalFields)
   }
 
   getUserByEmail(
@@ -133,7 +133,7 @@ export class UserService {
     userId: number,
     done: CallbackFunction
   ) {
-    let user = await this.getUserById(userId, true)
+    let user = await this.getUserById(userId, ['password'])
 
     if (!user) {
       return done(
