@@ -28,7 +28,11 @@
               class="truncate"
               v-text="item.title"
             />
-            <span class="text-gray-400">1 Member</span>
+            <span class="text-gray-400">
+              {{item.countMembers}}
+              <span v-if="item.countMembers > 1">members</span>
+              <span v-else>member</span>
+            </span>
           </div>
         </div>
 
