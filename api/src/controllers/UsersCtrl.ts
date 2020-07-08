@@ -71,10 +71,9 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async whoami(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).findOne(req.user.id)
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(
-      user.id
-    )
+    const user = await getCustomRepository(UserRepository).getById(req.user.id, ['emailConfirmed'])
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
+
     res.send({ user, spaces })
   }
 
