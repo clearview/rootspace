@@ -54,8 +54,8 @@ export default class BoardManager extends Vue {
 
     get dragOptions () {
       return {
-        animation: 200,
-        group: 'description',
+        animation: 50,
+        group: 'lists',
         disabled: false,
         ghostClass: 'ghost'
       }
