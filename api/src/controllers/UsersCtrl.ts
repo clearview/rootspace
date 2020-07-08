@@ -95,9 +95,9 @@ export class UsersCtrl extends BaseCtrl {
   async changePassword(req: Request, res: Response, next: NextFunction) {
     try {
       const data: IChangePasswordProvider = {
-        password: req.body.password,
-        newPassword: req.body.newPassword,
-        newPassword_confirmation: req.body.newPassword_confirmation,
+        password: req.body.data.password,
+        newPassword: req.body.data.newPassword,
+        newPassword_confirmation: req.body.data.newPassword_confirmation,
       }
 
       await validateChangePassword(data)
