@@ -1,10 +1,10 @@
 import request from 'supertest'
 import Server from '../../src/server'
-import {connect, disconnect} from '../connectors/db.testcontainers'
-import {createUser} from '../helpers/createUser'
-import {getJwt} from '../helpers/getJwt'
-import {createSpace} from '../helpers/createSpace'
-import {TaskBoardType} from '../../src/database/entities/tasks/TaskBoard'
+import { connect, disconnect } from '../connectors/db.testcontainers'
+import { createUser } from '../helpers/createUser'
+import { getJwt } from '../helpers/getJwt'
+import { createSpace } from '../helpers/createSpace'
+import { TaskBoardType } from '../../src/database/entities/tasks/TaskBoard'
 
 const server = new Server()
 const mockUser: any = {}
@@ -37,6 +37,7 @@ describe('Taskboard', () => {
     })
 
     it('should create a task board', async () => {
+        const taskBoardTitle = 'Awesome Task Board'
         const res = await request(server.app)
             .post('/tasks/board')
             .set('Authorization', `Bearer ${mockUser.jwt}`)
@@ -44,11 +45,13 @@ describe('Taskboard', () => {
                 data: {
                     spaceId: mockUser.spaceId,
                     type: TaskBoardType.Kanban,
-                    title: 'Awesome Task Board'
+                    title: taskBoardTitle
                 }
             })
 
         expect(res.statusCode).toEqual(200)
+        expect(res.body).toHaveProperty('data')
+        expect(res.body.data.title).toEqual(taskBoardTitle)
     })
 
 })

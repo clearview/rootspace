@@ -10,6 +10,7 @@ import {
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 import { Ability } from '@casl/ability'
+import { Length } from 'class-validator'
 
 @Entity('users')
 export class User {
@@ -27,6 +28,7 @@ export class User {
   email: string
 
   @Column('varchar', { select: false })
+  @Length(3)
   password: string
 
   @Column('varchar', { length: 254, nullable: true })
