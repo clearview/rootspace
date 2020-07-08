@@ -10,7 +10,10 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <input ref="inputTitle" :disabled="isUpdatingTitle" class="task-modal-title-editable" @keypress.enter.prevent="saveTitle" v-model="itemCopy.title"/>
+          <div class="task-modal-title" v-show="!isEditingTitle" @click="enterEditTitleMode">
+            {{itemCopy.title || 'Untitled'}}
+          </div>
+          <input v-show="isEditingTitle" ref="inputTitle" :disabled="isUpdatingTitle" class="task-modal-title-editable input" @blur="saveTitle"  @keypress.enter.prevent="saveTitle" v-model="itemCopy.title"/>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -180,38 +183,38 @@ import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
-  @Component({
-    name: 'TaskModal',
-    components: {
-      TaskAttachmentView,
-      DueDatePopover,
-      TagsPopover,
-      MemberPopover,
-      TaskComment,
-      PopoverList,
-      Modal,
-      Field,
-      Avatar
-    },
-    filters: {
-      formatDateOrNone (dateOrString: Date | string) {
-        const dateFormat = Intl.DateTimeFormat('default', {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric'
-        })
+@Component({
+  name: 'TaskModal',
+  components: {
+    TaskAttachmentView,
+    DueDatePopover,
+    TagsPopover,
+    MemberPopover,
+    TaskComment,
+    PopoverList,
+    Modal,
+    Field,
+    Avatar
+  },
+  filters: {
+    formatDateOrNone (dateOrString: Date | string) {
+      const dateFormat = Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      })
 
-        if (dateOrString instanceof Date) {
-          return dateOrString ? dateFormat.format(dateOrString) : 'None'
-        } else {
-          const typedDate = new Date(dateOrString)
-          return dateOrString ? dateFormat.format(typedDate) : 'None'
-        }
+      if (dateOrString instanceof Date) {
+        return dateOrString ? dateFormat.format(dateOrString) : 'None'
+      } else {
+        const typedDate = new Date(dateOrString)
+        return dateOrString ? dateFormat.format(typedDate) : 'None'
       }
     }
-  })
+  }
+})
 export default class TaskModal extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly visible!: boolean;
@@ -230,6 +233,7 @@ export default class TaskModal extends Vue {
     private commentInput = '';
     private isUploading = false
     private isUpdatingTitle = false
+    private isEditingTitle = false
 
     @Emit('cancel')
     cancel () {
@@ -343,12 +347,21 @@ export default class TaskModal extends Vue {
       return `${member.firstName} ${member.lastName}`
     }
 
+    enterEditTitleMode () {
+      this.isEditingTitle = true
+      Vue.nextTick().then(() => {
+        this.inputTitleRef.focus()
+      })
+    }
+
     async saveTitle () {
-      this.isUpdatingTitle = true
-      await this.$store.dispatch('task/item/update', this.itemCopy)
-      await this.$store.dispatch('task/board/refresh')
-      this.isUpdatingTitle = false
-      this.inputTitleRef.blur()
+      if (!this.isUpdatingTitle) {
+        this.isUpdatingTitle = true
+        this.itemCopy = (await this.$store.dispatch('task/item/update', this.itemCopy)).data
+        await this.$store.dispatch('task/board/refresh')
+        this.isUpdatingTitle = false
+        this.isEditingTitle = false
+      }
     }
 }
 </script>
@@ -381,7 +394,7 @@ export default class TaskModal extends Vue {
   }
 
   .list-title {
-    font-weight: bold;
+    font-weight: normal;
     text-decoration: underline;
     cursor: default;
   }
@@ -568,8 +581,8 @@ export default class TaskModal extends Vue {
   }
 
   .task-modal-title-editable {
+    width: 80%;
     &:focus {
-      background: theme("colors.gray.100");
     }
   }
 

@@ -49,17 +49,17 @@ import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
 
-  /**
-   * This component is responsible for displaying the board header and then pass it to board manager
-   */
-  @Component({
-    name: 'TaskPage',
-    components: {
-      Ghost,
-      BoardManager,
-      Icon
-    }
-  })
+/**
+ * This component is responsible for displaying the board header and then pass it to board manager
+ */
+@Component({
+  name: 'TaskPage',
+  components: {
+    Ghost,
+    BoardManager,
+    Icon
+  }
+})
 export default class TaskPage extends Vue {
   get board (): TaskBoardResource | null {
     return this.$store.state.task.board.current

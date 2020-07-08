@@ -14,7 +14,7 @@
     <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="title">
-        {{itemCopy.title}}
+        {{item.title}}
       </div>
       <div class="actions">
         <button class="btn btn-tiny btn-link" @click="edit">
@@ -33,17 +33,17 @@ import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 
-  @Component({
-    name: 'TaskCard',
-    components: {
-      TaskModal
-    },
-    validations: {
-      itemCopy: {
-        title: { required }
-      }
+@Component({
+  name: 'TaskCard',
+  components: {
+    TaskModal
+  },
+  validations: {
+    itemCopy: {
+      title: { required }
     }
-  })
+  }
+})
 export default class TaskCard extends Vue {
     @Prop({ type: Object, required: true })
     private readonly item!: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>
