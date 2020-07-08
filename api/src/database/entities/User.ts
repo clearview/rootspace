@@ -38,7 +38,7 @@ export class User {
   @Column('boolean')
   active: boolean
 
-  @Column('boolean', { default: false, select: false })
+  @Column('boolean', { default: false })
   emailConfirmed: boolean
 
   @Column({ select: false })
