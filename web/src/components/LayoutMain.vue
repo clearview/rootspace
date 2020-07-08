@@ -13,7 +13,7 @@
       class="pane-right content"
       :style="contentStyle"
     >
-      <v-alert v-model="alert" />
+      <v-alert class="alert" v-model="alert" />
       <slot />
     </div>
   </div>
@@ -125,6 +125,10 @@ export default class LayoutMain extends Vue {
 }
 
 .content {
-  @apply flex flex-col flex-grow p-4 h-screen overflow-scroll;
+  @apply flex flex-col flex-grow h-screen overflow-scroll;
+
+  .alert {
+    @apply mx-4;
+  }
 }
 </style>
