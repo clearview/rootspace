@@ -1,7 +1,7 @@
 import { config } from 'node-config-ts'
 import { Request, Response, NextFunction } from 'express'
 import { ForbiddenError } from '@casl/ability'
-import { HttpErrNames } from '../errors'
+import { HttpErrName, HttpErrNames } from '../errors'
 import { HttpError } from '../errors/HttpError'
 
 export function errorHandler(
@@ -18,6 +18,11 @@ export function errorHandler(
   }
 
   if (HttpErrNames.includes(err.name)) {
+    const e = err as HttpError
+    return res.status(e.statusCode).send(e.response())
+  }
+
+  if (HttpErrNames.includes(err.name) && err.name === HttpErrName.Unauthorized) {
     const e = err as HttpError
     return res.status(e.statusCode).send(e.response())
   }

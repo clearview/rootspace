@@ -11,8 +11,6 @@ import {
     ExtractJwt,
     StrategyOptions, VerifiedCallback,
 } from 'passport-jwt'
-import { getCustomRepository } from 'typeorm'
-import { UserRepository } from './repositories/UserRepository'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
 
@@ -28,13 +26,11 @@ passport.use(
       callbackURL: googleCallbackURL
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
-      const userRepository = getCustomRepository(UserRepository)
 
-      const existingUser = await userRepository.findOne({
-        email: profile.emails[0].value,
-      })
+      const existingUser = await UserService.getInstance().getUserByEmail(profile.emails[0].value)
+
       if (!existingUser) {
-        const user = await userRepository.create({
+        const newUser = await UserService.getInstance().signup({
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
           email: profile.emails[0].value,
@@ -42,8 +38,8 @@ passport.use(
           password: '',
           authProvider: 'google',
           active: true,
-        })
-        const newUser = await userRepository.save(user)
+        }, false)
+
         return done(null, newUser.id)
       }
 
@@ -109,8 +105,9 @@ passport.use(
       return done(null, false, { message: 'Invalid payload' })
     }
 
-      const user = await getCustomRepository(UserRepository).findOne(userId)
-    if (user) {
+    const user = await UserService.getInstance().getUserById(userId)
+
+      if (user) {
         req.user = user
 
         if (config.env === 'production') {

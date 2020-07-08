@@ -83,7 +83,7 @@ export class UserService {
     return await this.getUserRepository().save(user)
   }
 
-  async signup(data: ISignupProvider): Promise<User> {
+  async signup(data: ISignupProvider, sendEmailConfirmation: boolean = true): Promise<User> {
     const password = await hashPassword(data.password)
 
     let user = new User()
@@ -97,7 +97,9 @@ export class UserService {
     user = await this.getUserRepository().save(user)
     delete user.password
 
-    await this.sendConfirmationEmail(user)
+    if (sendEmailConfirmation) {
+      await this.sendConfirmationEmail(user)
+    }
 
     return user
   }

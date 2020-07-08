@@ -25,6 +25,6 @@ export class HttpError extends Error {
   }
 
   protected debug = (): boolean => {
-    return config.env !== 'production' ? true : false
+    return config.env !== 'production'
   }
 }
