@@ -16,8 +16,10 @@ export class UserRepository extends Repository<User> {
   getById(id: number, additionalFields?: string[]): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
-    for (const field of additionalFields) {
-      queryBuilder.addSelect(`User.${field}`, `User_${field}`)
+    if (additionalFields) {
+      for (const field of additionalFields) {
+        queryBuilder.addSelect(`User.${field}`, `User_${field}`)
+      }
     }
 
     return queryBuilder
