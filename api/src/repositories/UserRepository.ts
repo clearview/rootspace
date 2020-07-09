@@ -34,8 +34,8 @@ export class UserRepository extends Repository<User> {
     }
 
     return queryBuilder
-      .where('User.email = :email')
-      .setParameter('email', email)
+      .where('LOWER(User.email) = :email')
+      .setParameter('email', email.toLowerCase())
       .getOne()
   }
 }

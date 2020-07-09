@@ -89,7 +89,7 @@ export class UserService {
     let user = new User()
     user.firstName = data.firstName
     user.lastName = data.lastName
-    user.email = data.email
+    user.email = data.email.toLowerCase()
     user.password = String(password)
     user.authProvider = 'local'
     user.active = true
@@ -123,7 +123,7 @@ export class UserService {
 
     user.firstName = data.firstName
     user.lastName = data.lastName
-    user.email = data.email
+    user.email = data.email.toLowerCase()
 
     return await this.getUserRepository().save(user)
   }
