@@ -34,11 +34,17 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async archive(req: Request, res: Response, next: NextFunction) {
+    // const task = await this.taskService.getById(Number(req.params.id))
+    // ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
+
     const result = await this.taskService.archive(Number(req.params.id))
     res.send(result)
   }
 
   async restore(req: Request, res: Response, next: NextFunction) {
+    // const task = await this.taskService.getArchivedById(Number(req.params.id))
+    // ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
+
     const result = await this.taskService.restore(Number(req.params.id))
     res.send(result)
   }

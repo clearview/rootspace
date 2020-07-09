@@ -46,6 +46,14 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
+  async getArchivedById(id: number): Promise<Task> {
+    return this.getTaskRepository()
+        .createQueryBuilder()
+        .where('task.id = :id', { id })
+        .andWhere('task.deletedAt IS NOT NULL')
+        .getOne()
+  }
+
   async create(data: any): Promise<Task> {
     data.list = await this.getTaskListRepository().findOneOrFail(data.listId)
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.boardId)

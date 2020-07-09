@@ -79,14 +79,14 @@ export class Task {
   @DeleteDateColumn({ type: 'timestamptz'})
   deletedAt: Date
 
-  @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true})
+  @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true, onDelete: 'CASCADE'})
   taskComments: TaskComment[]
 
   @ManyToMany(type => User, {cascade: true, eager: true})
   @JoinTable()
   assignees: User[]
 
-  @ManyToMany(type => Tag, {eager: true})
+  @ManyToMany(type => Tag, {eager: true, onDelete: 'CASCADE'})
   @JoinTable()
   tags: Tag[]
 }

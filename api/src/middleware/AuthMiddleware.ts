@@ -15,7 +15,9 @@ export enum Subjects {
     'All' = 'all',
     'Doc' = 'Doc',
     'Link' = 'Link',
-    'TaskBoard' = 'TaskBoard'
+    'TaskBoard' = 'TaskBoard',
+    'TaskList' = 'TaskList',
+    'Task' = 'Task'
 }
 
 interface AuthorizationInfo { user: any, userSpaceIds: number[] }
