@@ -5,11 +5,12 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn, ManyToOne, JoinColumn
+  DeleteDateColumn, ManyToOne, JoinColumn, Unique
 } from 'typeorm'
 import { User } from './User'
 
 @Entity('notifications')
+@Unique('UQ_NOTIFICATIONS', ['userId', 'itemId', 'tableName', 'isRead'])
 export class Notification {
 
   @PrimaryGeneratedColumn()
@@ -23,9 +24,9 @@ export class Notification {
   itemId: number
 
   @Column('varchar')
-  itemTable: string
+  tableName: string
 
-  @Column('varchar')
+  @Column('varchar', { nullable: true })
   message: string
 
   @Column('boolean', { default: false })

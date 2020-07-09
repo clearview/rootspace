@@ -23,7 +23,7 @@ export class Subscription {
   itemId: number
 
   @Column('varchar')
-  itemTable: string
+  tableName: string
 
   @CreateDateColumn()
   created: string
