@@ -245,7 +245,7 @@ export default class Document extends Vue {
 
 <style lang="postcss" scoped>
   .page {
-    @apply max-w-2xl mx-auto p-0;
+    @apply max-w-2xl mx-auto pt-4;
 
     width: 43.8rem;
 
