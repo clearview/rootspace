@@ -6,14 +6,17 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
+import { SubscriptionService } from '../SubscriptionService'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
+  private subscriptionService: SubscriptionService
 
   private constructor() {
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
+    this.subscriptionService = SubscriptionService.getInstance()
   }
 
   private static instance: TaskService
@@ -116,6 +119,7 @@ export class TaskService {
       task.assignees = assignees
 
       await this.getTaskRepository().save(task)
+      await this.subscriptionService.subscribe(user, task)
     }
 
     return task
@@ -128,6 +132,8 @@ export class TaskService {
     task.assignees = task.assignees.filter(assignee => {
       return assignee.id !== user.id
     })
+
+    await this.subscriptionService.unsubscribe(user, task)
 
     return this.getTaskRepository().save(task)
   }
