@@ -89,6 +89,9 @@ export class TaskService {
   }
 
   async delete(id: number) {
+    const task = await this.getTaskRepository().findOneOrFail(id)
+    await this.subscriptionService.removeAllFromEntity(task)
+
     return this.getTaskRepository().delete({ id })
   }
 
