@@ -10,10 +10,9 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title" v-show="!isEditingTitle" @click="enterEditTitleMode">
-            {{itemCopy.title || 'Untitled'}}
+          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle">
+            {{itemCopy.title}}
           </div>
-          <input v-show="isEditingTitle" ref="inputTitle" :disabled="isUpdatingTitle" class="task-modal-title-editable input" @blur="saveTitle"  @keypress.enter.prevent="saveTitle" v-model="itemCopy.title"/>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -225,8 +224,8 @@ export default class TaskModal extends Vue {
     @Ref('attachmentFile')
     private readonly attachmentFileRef!: HTMLInputElement
 
-    @Ref('inputTitle')
-    private readonly inputTitleRef!: HTMLInputElement
+    @Ref('titleEditable')
+    private readonly titleEditableRef!: HTMLDivElement
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false;
@@ -347,16 +346,11 @@ export default class TaskModal extends Vue {
       return `${member.firstName} ${member.lastName}`
     }
 
-    enterEditTitleMode () {
-      this.isEditingTitle = true
-      Vue.nextTick().then(() => {
-        this.inputTitleRef.focus()
-      })
-    }
-
     async saveTitle () {
+      this.titleEditableRef.blur()
       if (!this.isUpdatingTitle) {
         this.isUpdatingTitle = true
+        this.itemCopy.title = this.titleEditableRef.innerText
         this.itemCopy = (await this.$store.dispatch('task/item/update', this.itemCopy)).data
         await this.$store.dispatch('task/board/refresh')
         this.isUpdatingTitle = false
@@ -369,7 +363,8 @@ export default class TaskModal extends Vue {
 <style lang="postcss" scoped>
 
   .task-modal-header {
-    @apply flex items-center py-8 px-12 pb-2;
+    @apply flex items-start py-8 px-12 pb-2;
+    width: 820px;
     font-weight: bold;
   }
 
@@ -401,8 +396,7 @@ export default class TaskModal extends Vue {
 
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
-    min-width: 720px;
-    max-width: 860px;
+    width: 820px;
   }
 
   .task-left {
@@ -581,8 +575,14 @@ export default class TaskModal extends Vue {
   }
 
   .task-modal-title-editable {
+    @apply py-2 px-4 rounded;
     width: 80%;
+    margin-left: -1rem;
+    border: 2px solid transparent;
     &:focus {
+      outline: none;
+      border: 2px solid rgba(47, 128, 237, 0.75);
+      box-shadow:0 0 0 2px rgba(47, 128, 237, 0.25);
     }
   }
 
