@@ -89,7 +89,7 @@ export class UserService {
     let user = new User()
     user.firstName = data.firstName
     user.lastName = data.lastName
-    user.email = data.email.toLowerCase()
+    user.email = data.email?.toLowerCase()
     user.password = String(password)
     user.authProvider = 'local'
     user.active = true

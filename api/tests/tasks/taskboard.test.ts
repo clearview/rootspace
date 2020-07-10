@@ -18,7 +18,7 @@ describe('Taskboard', () => {
         const space = await createSpace(user, 'Area 51')
 
         await server.bootstrap()
-        server.listen(3333)
+        server.listen(3334)
 
         mockUser.userId = user.id
         mockUser.spaceId = space.id
