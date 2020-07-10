@@ -7,6 +7,11 @@ export class HttpUnauthorizedError extends HttpError {
   }
 
   response = (): any => {
-    return 'Unauthorized'
+    return {
+      error: {
+        name: this.name,
+        message: this.message
+      }
+    }
   }
 }
