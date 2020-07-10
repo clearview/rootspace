@@ -11,6 +11,8 @@
             type="text"
             class="action-search-input"
             placeholder="Search"
+            v-model="search"
+            @keypress.enter="fetchTask"
           >
         </div>
         <div class="action action-filter">
@@ -58,6 +60,8 @@ import Ghost from '@/components/Ghost.vue'
   }
 })
 export default class TaskPage extends Vue {
+  private search = ''
+
   get board (): TaskBoardResource | null {
     return this.$store.state.task.board.current
   }
@@ -72,7 +76,7 @@ export default class TaskPage extends Vue {
 
   @Watch('boardId')
   async fetchTask () {
-    await this.$store.dispatch('task/board/view', this.boardId)
+    await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search })
     await this.$store.dispatch('task/tag/fetch', null)
   }
 
@@ -127,9 +131,13 @@ export default class TaskPage extends Vue {
     border-bottom: solid 1px transparent;
     flex: 1 1 auto;
     width: 72px;
+    transition: all 0.3s ease;
 
     &:focus, &:hover, &:active {
       border-bottom: solid 1px rgba(theme('colors.white.default'), 0.3);
+    }
+    &:focus {
+      width: 128px;
     }
   }
 
