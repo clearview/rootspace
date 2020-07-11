@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm'
 import { NotificationRepository } from '../repositories/NotificationRepository'
 import { Notification } from '../database/entities/Notification'
-import { IEventProvider } from '../types/event'
+import { IEventProvider } from './events/EventType'
 import { Follow } from '../database/entities/Follow'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 

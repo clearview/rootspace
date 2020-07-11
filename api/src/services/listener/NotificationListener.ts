@@ -1,14 +1,17 @@
 import { EventEmitter } from 'events'
-import { EventAction, EventType, IEventProvider } from '../../types/event'
-import { FollowService } from '../content/FollowService'
+import { EventAction, EventType, IEventProvider } from '../events/EventType'
+import { FollowService } from '../FollowService'
+import { NotificationService } from '../NotificationService'
 
 export class NotificationListener {
     private static instance: NotificationListener
     private followService: FollowService
+    private notificationService: NotificationService
     public emitter: EventEmitter
 
     private constructor(emitter: EventEmitter) {
         this.emitter = emitter
+        this.notificationService = NotificationService.getInstance()
         this.followService = FollowService.getInstance()
     }
 

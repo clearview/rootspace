@@ -6,7 +6,7 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
-import { FollowService } from '../FollowService'
+import { FollowService } from '../../FollowService'
 
 export class TaskService {
   private userService: UserService
@@ -122,7 +122,7 @@ export class TaskService {
       task.assignees = assignees
 
       await this.getTaskRepository().save(task)
-      await this.followService.subscribe(user, task)
+      await this.followService.follow(user, task)
     }
 
     return task
@@ -136,7 +136,7 @@ export class TaskService {
       return assignee.id !== user.id
     })
 
-    await this.followService.unsubscribe(user, task)
+    await this.followService.unfollow(user, task)
 
     return this.getTaskRepository().save(task)
   }
