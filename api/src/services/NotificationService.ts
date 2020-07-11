@@ -46,6 +46,7 @@ export class NotificationService {
     notification.actorId = event.actorId
     notification.tableName = event.tableName
     notification.targetName = event.targetName
+    notification.message = event.message
     notification.action = event.action
 
     return this.getNotificationRepository().save(notification)

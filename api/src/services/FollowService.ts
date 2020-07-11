@@ -37,6 +37,7 @@ export class FollowService {
     })
   }
 
+  // requires item of typeorm Entity type
   async follow(user: User, item: any): Promise<Follow> {
     const existingFollow = await this.getFollowRepository().findOne({
       userId: user.id,

@@ -40,6 +40,13 @@ export class NotificationListener {
     }
 
     async removeFollows(event: IEventProvider): Promise<void> {
-        await this.followService.removeAllFromEvent(event)
+        switch(event.targetName) {
+            case 'TaskComment':
+                break
+
+            default:
+                await this.followService.removeAllFromEvent(event)
+                break
+        }
     }
 }

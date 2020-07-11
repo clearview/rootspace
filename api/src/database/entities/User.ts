@@ -25,6 +25,14 @@ export class User {
   @Column('varchar', { length: 100 })
   lastName: string
 
+  fullName(): string | undefined {
+    if (this.firstName && this.lastName) {
+      return `${this.firstName} ${this.lastName}`
+    }
+
+    return this.email
+  }
+
   @Column('varchar', { length: 100 })
   @Index({ unique: true })
   email: string
