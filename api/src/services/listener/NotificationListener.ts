@@ -1,15 +1,15 @@
 import { EventEmitter } from 'events'
 import { EventAction, EventType, IEventProvider } from '../../types/event'
-import { SubscriptionService } from '../content/SubscriptionService'
+import { FollowService } from '../content/FollowService'
 
 export class NotificationListener {
     private static instance: NotificationListener
-    private subscriptionService: SubscriptionService
+    private followService: FollowService
     public emitter: EventEmitter
 
     private constructor(emitter: EventEmitter) {
         this.emitter = emitter
-        this.subscriptionService = SubscriptionService.getInstance()
+        this.followService = FollowService.getInstance()
     }
 
     static getInstance() {
@@ -35,15 +35,15 @@ export class NotificationListener {
                 return this.createNotifications(event)
 
             case EventAction.Deleted:
-                return this.removeSubscriptions(event)
+                return this.removeFollows(event)
         }
     }
 
     async createNotifications(event: IEventProvider): Promise<void> {
-        await this.subscriptionService.createNotifications(event)
+        await this.followService.createNotifications(event)
     }
 
-    async removeSubscriptions(event: IEventProvider): Promise<void> {
-        await this.subscriptionService.removeAllFromEvent(event)
+    async removeFollows(event: IEventProvider): Promise<void> {
+        await this.followService.removeAllFromEvent(event)
     }
 }

@@ -10,7 +10,7 @@ import {
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 import { Ability } from '@casl/ability'
-import { Subscription } from './Subscription'
+import { Follow } from './Follow'
 import { Notification } from './Notification'
 import { Length } from 'class-validator'
 
@@ -62,8 +62,8 @@ export class User {
   )
   public spaces!: UserToSpace[]
 
-  @OneToMany(type => Subscription, subscription => subscription.user, {eager: false, onDelete: 'CASCADE'})
-  public subscriptions!: Subscription[]
+  @OneToMany(type => Follow, follow => follow.user, {eager: false, onDelete: 'CASCADE'})
+  public follows!: Follow[]
 
   @OneToMany(type => Notification, notification => notification.user, {eager: false, onDelete: 'CASCADE'})
   public notifications!: Notification[]

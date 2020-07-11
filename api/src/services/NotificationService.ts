@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm'
 import { NotificationRepository } from '../repositories/NotificationRepository'
 import { Notification } from '../database/entities/Notification'
 import { IEventProvider } from '../types/event'
-import { Subscription } from '../database/entities/Subscription'
+import { Follow } from '../database/entities/Follow'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 
 export class NotificationService {
@@ -36,9 +36,9 @@ export class NotificationService {
     return notification
   }
 
-  async getExistingNotification(event: IEventProvider, subscription: Subscription) {
+  async getExistingNotification(event: IEventProvider, follow: Follow) {
     return this.getNotificationRepository().findOne({
-      userId: subscription.userId,
+      userId: follow.userId,
       itemId: event.id,
       tableName: event.tableName,
       isRead: false

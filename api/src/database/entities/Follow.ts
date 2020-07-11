@@ -9,8 +9,8 @@ import {
 } from 'typeorm'
 import { User } from './User'
 
-@Entity('subscriptions')
-export class Subscription {
+@Entity('follows')
+export class Follow {
 
   @PrimaryGeneratedColumn()
   id: number
@@ -34,7 +34,7 @@ export class Subscription {
   @DeleteDateColumn({ type: 'timestamptz'})
   deletedAt: Date
 
-  @ManyToOne(type => User, user => user.subscriptions, {onDelete: 'CASCADE'})
+  @ManyToOne(type => User, user => user.follows, {onDelete: 'CASCADE'})
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User

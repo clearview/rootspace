@@ -6,17 +6,17 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
-import { SubscriptionService } from '../SubscriptionService'
+import { FollowService } from '../FollowService'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
-  private subscriptionService: SubscriptionService
+  private followService: FollowService
 
   private constructor() {
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
-    this.subscriptionService = SubscriptionService.getInstance()
+    this.followService = FollowService.getInstance()
   }
 
   private static instance: TaskService
@@ -90,7 +90,7 @@ export class TaskService {
 
   async delete(id: number) {
     const task = await this.getTaskRepository().findOneOrFail(id)
-    await this.subscriptionService.removeAllFromEntity(task)
+    await this.followService.removeAllFromEntity(task)
 
     return this.getTaskRepository().delete({ id })
   }
@@ -122,7 +122,7 @@ export class TaskService {
       task.assignees = assignees
 
       await this.getTaskRepository().save(task)
-      await this.subscriptionService.subscribe(user, task)
+      await this.followService.subscribe(user, task)
     }
 
     return task
@@ -136,7 +136,7 @@ export class TaskService {
       return assignee.id !== user.id
     })
 
-    await this.subscriptionService.unsubscribe(user, task)
+    await this.followService.unsubscribe(user, task)
 
     return this.getTaskRepository().save(task)
   }
