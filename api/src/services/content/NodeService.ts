@@ -64,7 +64,7 @@ export class NodeService {
   }
 
   async create(data: NodeCreateValue): Promise<Node> {
-    let node = this.getNodeRepository().create()
+    const node = this.getNodeRepository().create()
 
     const parent = data.parent
       ? await this.getNodeById(data.parent)
@@ -77,14 +77,7 @@ export class NodeService {
     Object.assign(node, data.attributes)
     node.parent = parent
 
-    node = await this.getNodeRepository().save(node)
-
-    if (node.type === NodeType.Folder) {
-      node.contentId = node.id
-      await this.getNodeRepository().save(node)
-    }
-
-    return node
+    return this.getNodeRepository().save(node)
   }
 
   async update(data: NodeUpdateValue, id: number): Promise<Node> {
