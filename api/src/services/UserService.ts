@@ -43,7 +43,10 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
+  getUserById(
+    id: number,
+    additionalFields?: string[]
+  ): Promise<User | undefined> {
     return this.getUserRepository().getById(id, additionalFields)
   }
 
@@ -100,7 +103,7 @@ export class UserService {
   }
 
   async update(data: UserUpdateValue, userId: number): Promise<User> {
-    const user = await this.getUserById(userId)
+    const user = await this.getUserById(userId, ['authProvider'])
 
     if (!user) {
       throw clientError(

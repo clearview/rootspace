@@ -17,7 +17,7 @@ async function confirmEmail (payload: object) {
 
 async function update (data: object) {
   try {
-    const res = await api.patch('user', { data })
+    const res = await api.patch('users', { data })
 
     return res
   } catch (err) {
@@ -35,7 +35,7 @@ async function update (data: object) {
 
 async function passwordChange (data: object) {
   try {
-    const res = await api.patch('user/password/change', { data })
+    const res = await api.patch('users/password', { data })
 
     return res
   } catch (err) {

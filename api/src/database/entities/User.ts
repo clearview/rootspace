@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-  Generated
+  Generated,
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 import { Ability } from '@casl/ability'
@@ -32,7 +32,7 @@ export class User {
   @Column('varchar', { length: 254, nullable: true })
   avatar: string
 
-  @Column('varchar')
+  @Column('varchar', { select: false })
   authProvider: string
 
   @Column('boolean')
@@ -52,7 +52,10 @@ export class User {
   @UpdateDateColumn({ select: false })
   updated: string
 
-  @OneToMany(type => UserToSpace, space => space.user)
+  @OneToMany(
+    (type) => UserToSpace,
+    (space) => space.user
+  )
   public spaces!: UserToSpace[]
 
   public ability: Ability

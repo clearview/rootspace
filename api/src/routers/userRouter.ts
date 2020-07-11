@@ -27,7 +27,7 @@ router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
 router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 router.patch(
-  '/users/password/change',
+  '/users/password',
   authenticate,
   mapRoute(UsersCtrl, 'changePassword')
 )
