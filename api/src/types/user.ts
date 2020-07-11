@@ -9,12 +9,6 @@ export interface ISignupProvider {
   emailConfirmed?: boolean
 }
 
-export interface IUserUpdateProvider {
-  firstName: string
-  lastName: string
-  email: string
-}
-
 export interface IChangePasswordProvider {
   password: string
   newPassword: string

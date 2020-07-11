@@ -15,9 +15,9 @@ async function confirmEmail (payload: object) {
   }
 }
 
-async function update (payload: object) {
+async function update (data: object) {
   try {
-    const res = await api.patch('user/update', payload)
+    const res = await api.patch('users', { data })
 
     return res
   } catch (err) {
@@ -33,9 +33,9 @@ async function update (payload: object) {
   }
 }
 
-async function passwordChange (payload: object) {
+async function passwordChange (data: object) {
   try {
-    const res = await api.patch('user/password/change', payload)
+    const res = await api.patch('users/password', { data })
 
     return res
   } catch (err) {

@@ -1,10 +1,10 @@
 import {
   ISignupProvider,
-  IUserUpdateProvider,
   IChangePasswordProvider,
 } from '../../types/user'
 import { UserSignupValidator } from './UserSignupValidator'
 import { UserUpdateValidator } from './UserUpdateValidator'
+import { UserUpdateValue } from '../../values/user'
 import { ChangePasswordValidator } from './ChangePasswordValidator'
 
 export function validateUserSignup(input: ISignupProvider): Promise<any> {
@@ -12,7 +12,7 @@ export function validateUserSignup(input: ISignupProvider): Promise<any> {
 }
 
 export function validateUserUpdate(
-  input: IUserUpdateProvider,
+  input: UserUpdateValue,
   userId: number
 ): Promise<any> {
   return new UserUpdateValidator(userId).validate(input)

@@ -5,11 +5,8 @@ import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../repositories/UserRepository'
 import { User } from '../database/entities/User'
-import {
-  ISignupProvider,
-  IUserUpdateProvider,
-  IChangePasswordProvider,
-} from '../types/user'
+import { ISignupProvider } from '../types/user'
+import { UserUpdateValue, UserChangePasswordValue } from '../values/user'
 import {
   HttpErrName,
   HttpStatusCode,
@@ -46,7 +43,10 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
+  getUserById(
+    id: number,
+    additionalFields?: string[]
+  ): Promise<User | undefined> {
     return this.getUserRepository().getById(id, additionalFields)
   }
 
@@ -104,8 +104,8 @@ export class UserService {
     return user
   }
 
-  async update(data: IUserUpdateProvider, userId: number): Promise<User> {
-    const user = await this.getUserById(userId)
+  async update(data: UserUpdateValue, userId: number): Promise<User> {
+    const user = await this.getUserById(userId, ['authProvider'])
 
     if (!user) {
       throw clientError(
@@ -123,15 +123,12 @@ export class UserService {
       )
     }
 
-    user.firstName = data.firstName
-    user.lastName = data.lastName
-    user.email = data.email.toLowerCase()
-
-    return await this.getUserRepository().save(user)
+    Object.assign(user, data.attributes)
+    return this.getUserRepository().save(user)
   }
 
   async changePassword(
-    data: IChangePasswordProvider,
+    data: UserChangePasswordValue,
     userId: number,
     done: CallbackFunction
   ) {
@@ -148,23 +145,27 @@ export class UserService {
       )
     }
 
-    bcrypt.compare(data.password, user.password, async (err, res) => {
-      if (err) {
-        return done(err, null)
+    bcrypt.compare(
+      data.attributes.password,
+      user.password,
+      async (err, res) => {
+        if (err) {
+          return done(err, null)
+        }
+
+        if (res !== true) {
+          return done(unauthorized(), null)
+        }
+
+        const newPassword = await hashPassword(data.attributes.newPassword)
+        user.password = String(newPassword)
+
+        user = await this.getUserRepository().save(user)
+        delete user.password
+
+        return done(null, user)
       }
-
-      if (res !== true) {
-        return done(unauthorized(), null)
-      }
-
-      const newPassword = await hashPassword(data.newPassword)
-      user.password = String(newPassword)
-
-      user = await this.getUserRepository().save(user)
-      delete user.password
-
-      return done(null, user)
-    })
+    )
   }
 
   private async sendConfirmationEmail(user: User): Promise<boolean> {
