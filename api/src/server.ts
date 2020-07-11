@@ -10,6 +10,7 @@ import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { Ability } from '@casl/ability'
 import { NotificationListener } from './services'
+import httpContext from 'express-http-context'
 
 declare global {
   namespace Express {
@@ -41,6 +42,7 @@ export default class Server {
 
   async bootstrap() {
     if (config.env !== 'test') {
+      this.app.use(httpContext.middleware)
       await db()
     }
 

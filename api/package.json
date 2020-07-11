@@ -37,6 +37,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-http-context": "^1.2.3",
     "express-promise-router": "^3.0.3",
     "indicative": "^7.4.4",
     "ioredis": "^4.16.0",
