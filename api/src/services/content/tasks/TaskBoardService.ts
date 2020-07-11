@@ -88,7 +88,7 @@ export class TaskBoardService extends NodeContentService {
           .andWhere(new Brackets(qb => {
             qb.where('LOWER(task.title) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
                 .orWhere('LOWER(task.description) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
-          }))
+          })).orWhere('task.id IS NULL')
     }
 
     if (typeof filterParam?.status !== 'undefined' && filterParam?.status !== null) {
