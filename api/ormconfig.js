@@ -7,12 +7,14 @@ module.exports = {
   logging: false,
   synchronize: false,
   migrationsRun: true,
+  seeds: [`${__dirname}/src/database/seeder/seeds/**/*{.ts,.js}`],
+  factories: [`${__dirname}/src/database/seeder/factories/**/*{.ts,.js}`],
   entities: [`${__dirname}/src/database/entities/**/*{.ts,.js}`],
   subscribers: [`${__dirname}/src/database/subscribers/**/*{.ts,.js}`],
   migrations: [`${__dirname}/src/database/migrations/**/*{.ts,.js}`],
   cli: {
-    entitiesDir: '/src/database/entities',
-    migrationsDir: '/src/database/migrations',
-    subscribersDir: '/src/database/subscribers'
+    entitiesDir: `${__dirname}/src/database/entities`,
+    migrationsDir: `${__dirname}/src/database/migrations`,
+    subscribersDir: `${__dirname}/src/database/subscribers`
   }
 }
