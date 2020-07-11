@@ -53,7 +53,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
       action: EventAction.Created
     }
 
-    NotificationService.getInstance().emitter.emit( EventType.Notification, event)
+    NotificationService.emit(EventType.Notification, event)
     return Promise.resolve(undefined)
   }
 
@@ -66,7 +66,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
       action: EventAction.Updated
     }
 
-    NotificationService.getInstance().emitter.emit( EventType.Notification, event)
+    NotificationService.emit(EventType.Notification, event)
     return Promise.resolve(undefined)
   }
 

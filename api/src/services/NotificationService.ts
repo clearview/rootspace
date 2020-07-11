@@ -8,7 +8,7 @@ import { EventEmitter } from 'events'
 
 export class NotificationService {
   private static instance: NotificationService
-  public emitter: EventEmitter
+  private emitter: EventEmitter
 
   static getInstance() {
     if (!NotificationService.instance) {
@@ -17,6 +17,14 @@ export class NotificationService {
     }
 
     return NotificationService.instance
+  }
+
+  static emitter() {
+    return NotificationService.instance.emitter
+  }
+
+  static emit(eventName: string, event: IEventProvider): boolean {
+    return this.getInstance().emitter.emit(eventName, event)
   }
 
   getNotificationRepository(): NotificationRepository {
@@ -31,15 +39,20 @@ export class NotificationService {
     return this.getNotificationRepository().find({ id: userId })
   }
 
-  create(event: IEventProvider): Notification {
+  create(event: IEventProvider): Promise<Notification> {
     const notification = this.getNotificationRepository().create()
     notification.itemId = event.itemId
+    notification.userId = event.userId
     notification.actorId = event.actorId
     notification.tableName = event.tableName
     notification.targetName = event.targetName
     notification.action = event.action
 
-    return notification
+    return this.getNotificationRepository().save(notification)
+  }
+
+  save(notifications: Notification[]): Promise<Notification[]> {
+    return this.getNotificationRepository().save(notifications)
   }
 
   async getExistingNotification(event: IEventProvider, follow: Follow): Promise<Notification | undefined> {

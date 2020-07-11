@@ -103,15 +103,14 @@ export class FollowService {
       const existingNotification = await this.notificationService.getExistingNotification(event, follow)
       if (existingNotification) { break }
 
+      event.userId = follow.userId
+
       const notification = this.notificationService.create(event)
-      notification.userId = follow.userId
 
       notifications.push(notification)
     }
 
-    if (notifications.length > 0) {
-      return this.notificationService.getNotificationRepository().save(notifications)
-    }
+    return this.notificationService.save(notifications)
   }
 
   async removeAllFromEvent(event: IEventProvider): Promise<DeleteResult> {

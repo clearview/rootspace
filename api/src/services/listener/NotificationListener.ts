@@ -14,7 +14,7 @@ export class NotificationListener {
         if (!NotificationListener.instance) {
             NotificationListener.instance = new NotificationListener()
 
-            NotificationService.getInstance().emitter.on(EventType.Notification, (event: IEventProvider) => {
+            NotificationService.emitter().on(EventType.Notification, (event: IEventProvider) => {
                 NotificationListener.instance.processEvent(event)
             })
         }
