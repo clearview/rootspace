@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import 'dotenv/config'
 import db from './db'
 import { config } from 'node-config-ts'
@@ -10,7 +11,6 @@ import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { Ability } from '@casl/ability'
 import { NotificationListener } from './services'
-import httpContext from 'express-http-context'
 
 declare global {
   namespace Express {
@@ -31,6 +31,8 @@ export default class Server {
 
   constructor() {
     this.app = express()
+    this.app.use(httpRequestContext.middleware())
+
     this.instance = null
     this.listener = NotificationListener.getInstance()
 
@@ -42,7 +44,6 @@ export default class Server {
 
   async bootstrap() {
     if (config.env !== 'test') {
-      this.app.use(httpContext.middleware)
       await db()
     }
 

@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import {
   EntityMetadata,
   EntitySubscriberInterface,
@@ -6,10 +7,9 @@ import {
 } from 'typeorm'
 import { Task } from '../entities/tasks/Task'
 import slugify from '@sindresorhus/slugify'
-import { NotificationListener } from '../../services'
+import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
 import { FollowableInterface } from '../../services/Followable'
-import httpContext from 'express-http-context'
 import { User } from '../entities/User'
 
 @EventSubscriber()
@@ -27,7 +27,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
   }
 
   async afterInsert(event: InsertEvent<Task>) {
-    const user = httpContext.get('user')
+    const user = httpRequestContext.get('user')
     await this.onCreated(user, event.entity, event.metadata)
   }
 
@@ -37,35 +37,36 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
   }
 
   async afterUpdate(event: UpdateEvent<Task>) {
-    const user = httpContext.get('user')
+    const user = httpRequestContext.get('user')
     await this.onUpdated(user, event.entity, event.metadata)
   }
 
   /**
    * FollowableInterface
    */
-  async onCreated(user: User, entity: Task, metaData: EntityMetadata): Promise<void> {
+  async onCreated(actor: User, entity: Task, metaData: EntityMetadata): Promise<void> {
     const event: IEventProvider = {
-      id: entity.id,
-      userId: user.id,
+      itemId: entity.id,
+      actorId: actor.id,
+      targetName: metaData.targetName,
       tableName: metaData.tableName,
       action: EventAction.Created
     }
 
-    NotificationListener.getInstance().emitter.emit( EventType.Notification, event)
+    NotificationService.getInstance().emitter.emit( EventType.Notification, event)
     return Promise.resolve(undefined)
   }
 
-  async onUpdated(user: User, entity: Task, metaData: EntityMetadata): Promise<void> {
+  async onUpdated(actor: User, entity: Task, metaData: EntityMetadata): Promise<void> {
     const event: IEventProvider = {
-      id: entity.id,
-      userId: user.id,
+      itemId: entity.id,
+      actorId: actor.id,
+      targetName: metaData.targetName,
       tableName: metaData.tableName,
       action: EventAction.Updated
     }
 
-    NotificationListener.getInstance().emitter.emit( EventType.Notification, event)
-
+    NotificationService.getInstance().emitter.emit( EventType.Notification, event)
     return Promise.resolve(undefined)
   }
 

@@ -68,5 +68,8 @@ export class User {
   @OneToMany(type => Notification, notification => notification.user, {eager: false, onDelete: 'CASCADE'})
   public notifications!: Notification[]
 
+  @OneToMany(type => Notification, action => action.user, {eager: false, onDelete: 'CASCADE'})
+  public actions!: Notification[]
+
   public ability: Ability
 }

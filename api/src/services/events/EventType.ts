@@ -9,8 +9,11 @@ export enum EventAction {
 }
 
 export interface IEventProvider {
-  id: number
+  itemId: number
   userId?: number
+  actorId?: number
+  targetName?: string
   tableName: string
+  message?: string
   action?: EventAction
 }

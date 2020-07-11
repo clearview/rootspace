@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import passport from 'passport'
 import * as Sentry from '@sentry/node'
@@ -13,7 +14,6 @@ import {
 } from 'passport-jwt'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
-import httpContext from 'express-http-context'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -83,7 +83,7 @@ passport.use(
             return done(unauthorized())
           }
 
-          httpContext.set('user', user)
+          httpRequestContext.set('user', user)
           return done(null, user)
         })
       } catch (err) {
@@ -135,7 +135,7 @@ passport.use(
         // @ts-ignore
         req.user.ability = new Ability<[Actions, Subjects]>(rules)
 
-        httpContext.set('user', user)
+        httpRequestContext.set('user', user)
         return done(null, user)
     }
 

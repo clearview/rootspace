@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events'
 import { EventAction, EventType, IEventProvider } from '../events/EventType'
 import { FollowService } from '../FollowService'
 import { NotificationService } from '../NotificationService'
@@ -6,24 +5,18 @@ import { NotificationService } from '../NotificationService'
 export class NotificationListener {
     private static instance: NotificationListener
     private followService: FollowService
-    private notificationService: NotificationService
-    public emitter: EventEmitter
 
-    private constructor(emitter: EventEmitter) {
-        this.emitter = emitter
-        this.notificationService = NotificationService.getInstance()
+    private constructor() {
         this.followService = FollowService.getInstance()
     }
 
     static getInstance() {
         if (!NotificationListener.instance) {
-            const eventEmitter = new EventEmitter()
+            NotificationListener.instance = new NotificationListener()
 
-            eventEmitter.on(EventType.Notification, (event: IEventProvider) => {
+            NotificationService.getInstance().emitter.on(EventType.Notification, (event: IEventProvider) => {
                 NotificationListener.instance.processEvent(event)
             })
-
-            NotificationListener.instance = new NotificationListener(eventEmitter)
         }
 
         return NotificationListener.instance

@@ -10,7 +10,6 @@ import {
 import { User } from './User'
 
 @Entity('notifications')
-@Unique('UQ_NOTIFICATIONS', ['userId', 'itemId', 'tableName', 'isRead'])
 export class Notification {
 
   @PrimaryGeneratedColumn()
@@ -20,11 +19,20 @@ export class Notification {
   userId: number
 
   @Column('integer')
+  actorId: number
+
+  @Column('integer')
   @Index()
   itemId: number
 
   @Column('varchar')
+  targetName: string
+
+  @Column('varchar')
   tableName: string
+
+  @Column('varchar', { nullable: true })
+  action: string
 
   @Column('varchar', { nullable: true })
   message: string
@@ -45,4 +53,9 @@ export class Notification {
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
+
+  @ManyToOne(type => User, actor => actor.actions, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'actorId' })
+  @Index()
+  actor!: User
 }

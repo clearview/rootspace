@@ -32,7 +32,7 @@ export class FollowService {
 
   async getFollows(event: IEventProvider): Promise<Follow[]> {
     return this.getFollowRepository().find({
-      itemId: event.id,
+      itemId: event.itemId,
       tableName: event.tableName
     })
   }
@@ -89,7 +89,7 @@ export class FollowService {
 
   async removeAllNotificationsFromEntity(entity: any): Promise<DeleteResult> {
     return this.notificationService.delete({
-      id: entity.id,
+      itemId: entity.itemId,
       tableName: getConnection().getMetadata(entity.constructor.name).tableName
     })
   }
@@ -109,11 +109,13 @@ export class FollowService {
       notifications.push(notification)
     }
 
-    return this.notificationService.getNotificationRepository().save(notifications)
+    if (notifications.length > 0) {
+      return this.notificationService.getNotificationRepository().save(notifications)
+    }
   }
 
   async removeAllFromEvent(event: IEventProvider): Promise<DeleteResult> {
-    const itemId = event.id
+    const itemId = event.itemId
     const tableName = event.tableName
 
     const existingFollow = await this.getFollowRepository().find({ itemId, tableName })
@@ -132,7 +134,7 @@ export class FollowService {
 
   async removeAllNotificationsFromEvent(event: IEventProvider): Promise<DeleteResult> {
     return this.notificationService.delete({
-      id: event.id,
+      itemId: event.itemId,
       tableName: event.tableName
     })
   }
