@@ -7,6 +7,7 @@ import { linkRouter } from './linkRouter'
 import taskBoardRouters from './tasks'
 import { inviteRouter } from './inviteRouter'
 import { uploadRouter } from './uploadRouter'
+import { folderRouter } from './folderRouter'
 
 const routers = [
   defaultRouter,
@@ -18,6 +19,7 @@ const routers = [
   ...taskBoardRouters,
   inviteRouter,
   uploadRouter,
+  folderRouter,
 ]
 
 export default routers
