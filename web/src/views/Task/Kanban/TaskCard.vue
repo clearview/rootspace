@@ -75,7 +75,10 @@ export default class TaskCard extends Vue {
       if (this.itemCopy.id === null) {
         this.itemCopy = await this.$store.dispatch('task/item/create', this.itemCopy)
       } else {
-        this.itemCopy = await this.$store.dispatch('task/item/update', this.itemCopy)
+        this.itemCopy = await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          title: this.itemCopy.title
+        })
       }
       if (this.item.list) {
         await this.$store.dispatch('task/board/refresh')

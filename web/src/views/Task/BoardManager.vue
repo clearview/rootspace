@@ -28,13 +28,10 @@ import TaskAddLane from '@/views/Task/Kanban/TaskAddLane.vue'
 import { Optional } from '@/types/core'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 
-  /**
-   * Responsible for managing CRUD operations on board and determining how to render the board
-   */
-  @Component({
-    name: 'BoardManager',
-    components: { TaskAddLane, TaskLane, TaskList, Draggable }
-  })
+@Component({
+  name: 'BoardManager',
+  components: { TaskAddLane, TaskLane, TaskList, Draggable }
+})
 export default class BoardManager extends Vue {
     @Prop({ type: Object, required: true })
     private readonly board!: TaskBoardResource;

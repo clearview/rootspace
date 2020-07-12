@@ -264,13 +264,19 @@ export default class TaskModal extends Vue {
     async handleRemoveFile (attachment: UploadResource) {
       if (this.itemCopy.attachments) {
         this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
-        await this.$store.dispatch('task/item/update', this.itemCopy)
+        await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          attachments: this.itemCopy.attachments
+        })
         await this.$store.dispatch('task/board/refresh')
       }
     }
 
     async saveDescription () {
-      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        description: this.itemCopy.description
+      })
       await this.$store.dispatch('task/board/refresh')
       this.isEditingDescription = false
     }
@@ -332,13 +338,19 @@ export default class TaskModal extends Vue {
 
     async handleDateMenu (date: Date) {
       this.itemCopy.dueDate = date
-      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        dueDate: this.itemCopy.dueDate
+      })
       await this.$store.dispatch('task/board/refresh')
     }
 
     async handleDateClear () {
       this.itemCopy.dueDate = null
-      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        dueDate: null
+      })
       await this.$store.dispatch('task/board/refresh')
     }
 
@@ -351,7 +363,10 @@ export default class TaskModal extends Vue {
       if (!this.isUpdatingTitle) {
         this.isUpdatingTitle = true
         this.itemCopy.title = this.titleEditableRef.innerText
-        this.itemCopy = (await this.$store.dispatch('task/item/update', this.itemCopy)).data
+        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          title: this.itemCopy.title
+        })).data
         await this.$store.dispatch('task/board/refresh')
         this.isUpdatingTitle = false
         this.isEditingTitle = false
@@ -400,13 +415,13 @@ export default class TaskModal extends Vue {
   }
 
   .task-left {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
   }
 
   .task-right {
     @apply ml-8;
-    flex: 0 0 auto;
-    min-width: 200px;
+    flex: 0 1 auto;
+    width: 210px;
   }
 
   .action-label {
