@@ -27,4 +27,12 @@ form {
     line-height: 1;
     color: theme('colors.primary.default');
   }
+
+  .success-group {
+    @apply ml-2 mt-1;
+
+    font-size: 0.75rem;
+    line-height: 1;
+    color: theme('colors.success.default');
+  }
 }

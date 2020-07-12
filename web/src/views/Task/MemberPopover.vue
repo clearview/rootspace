@@ -68,9 +68,9 @@ export default class TagsPopover extends Vue {
 
     async getSpaceMember () {
       const id = this.currentSpace.id
-      const viewUserAtSpace = await SpaceService.userAtSpace(id)
+      const viewSpaceUsers = await SpaceService.spaceUsers(id)
 
-      this.memberList = viewUserAtSpace.data
+      this.memberList = viewSpaceUsers.data
     }
 
     @Emit('input')
