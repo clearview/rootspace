@@ -14,42 +14,53 @@
     <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="card-item">
-        <div class="header">
+        <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
           <div class="title">
             {{itemCopy.title}}
           </div>
-          <div class="date">
-            {{ formatDate(itemCopy.createdAt) }}
+          <div class="date" v-if="itemCopy.dueDate">
+            <tippy :content="formatDateReadable(itemCopy.dueDate)" arrow>
+              <template v-slot:trigger>
+                  {{ formatDate(itemCopy.dueDate) }}
+              </template>
+            </tippy>
           </div>
         </div>
-        <div class="content">
-          {{ itemCopy.description }}
-        </div>
-        <div class="footer">
+        <div class="footer" v-if="isHasFooter(itemCopy)">
           <div class="tags">
             <ul>
-              <li v-for="(tag, index) in itemCopy.tags" :key="index" :style="{ 'background-color': tag.color }" class="tag">
-                {{ tag.label }}
+              <li v-for="(tag, index) in itemCopy.tags" :key="index">
+                <div :style="{background: opacityColor(tag.color), color: tag.color}" class="tag">
+                  {{ tag.label }}
+                </div>
+              </li>
+              <li v-if="itemCopy.attachments">
+                <tippy content="Attachment(s)" arrow>
+                  <template v-slot:trigger>
+                    <span class="icon">
+                      <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false"/>
+                    </span>
+                  </template>
+                </tippy>
+              </li>
+              <li v-if="itemCopy.taskComments.length > 0">
+                <tippy content="Comment(s)" arrow>
+                  <template v-slot:trigger>
+                    <span class="icon">
+                      <v-icon name="comment" viewbox="16" size="1rem" :withTitle="false"/>
+                    </span>
+                  </template>
+                </tippy>
               </li>
             </ul>
-
-            <div class="actions">
-              <button class="btn btn-tiny btn-link">
-                <v-icon name="attachment" viewbox="20" size="1rem"/>
-              </button>
-              <button class="btn btn-tiny btn-link">
-                <v-icon name="comment" viewbox="16" size="1rem"/>
-              </button>
-              <!-- taskComments
-              attachments -->
-              <button class="btn btn-tiny btn-link edit-link" @click="edit">
-                <v-icon name="edit" size="1rem"/>
-              </button>
-            </div>
           </div>
           <ul class="assignees">
             <li v-for="(assignee, index) in itemCopy.assignees" :key="index" class="assignee">
-              <avatar :username="memberName(assignee)"></avatar>
+              <tippy :content="memberName(assignee)" arrow>
+                <template v-slot:trigger>
+                  <avatar :username="memberName(assignee)"></avatar>
+                </template>
+              </tippy>
             </li>
           </ul>
         </div>
@@ -142,11 +153,26 @@ export default class TaskCard extends Vue {
     }
 
     formatDate (taskDate: string) {
-      return moment(String(taskDate)).format('MM.DD.YYYY')
+      return moment(String(taskDate)).format('DD.MM.YYYY')
+    }
+
+    formatDateReadable (taskDate: string) {
+      return moment(String(taskDate)).format('MMMM Do, YYYY')
     }
 
     memberName (member: UserResource) {
       return `${member.firstName} ${member.lastName}`
+    }
+
+    isHasFooter (itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
+      return (itemCopy.tags && itemCopy.tags.length > 0) ||
+      itemCopy.attachments ||
+      (itemCopy.taskComments && itemCopy.taskComments.length > 0) ||
+      (itemCopy.assignees && itemCopy.assignees.length > 0)
+    }
+
+    opacityColor (color: string) {
+      return `${color}33`
     }
 }
 </script>
@@ -230,6 +256,8 @@ export default class TaskCard extends Vue {
 
       .title {
         @apply flex-1;
+
+        word-break: break-word;
       }
 
       .date {
@@ -240,7 +268,7 @@ export default class TaskCard extends Vue {
       }
     }
 
-    .content {
+    /* .content {
       @apply pt-2 pb-5;
 
       color: theme("colors.gray.800");
@@ -249,17 +277,27 @@ export default class TaskCard extends Vue {
       overflow: hidden;
       text-overflow: ellipsis;
       width: 220px;
-    }
+    } */
 
     .footer {
-      @apply flex justify-between flex-1;
+      /* @apply flex justify-between flex-1; */
+      @apply block;
+
+      width: 240px;
 
       .tags {
         @apply flex-1 flex justify-start;
 
+        float: left;
+
         ul {
-          @apply flex;
+          @apply block;
+
           li {
+            display: inline-block;
+          }
+
+          .tag {
             @apply px-2 py-1 rounded self-start;
 
             display: inline;
@@ -274,24 +312,38 @@ export default class TaskCard extends Vue {
           }
         }
 
-        .actions {
+        /* .actions {
           @apply flex self-start;
+        } */
+
+        .icon {
+          @apply p-1 cursor-auto;
+
+          width: 26px;
+          height: 26px;
+          display: block;
+          color: theme("colors.gray.400");
+
+          svg {
+            display: inline;
+          }
         }
       }
 
       .assignees {
-        @apply flex flex-wrap justify-start;
+        @apply flex flex-wrap justify-start flex-row-reverse;
+
+        float: right;
+        margin-top: 4px;
 
         li {
-          @apply px-1;
-
-          display: inline;
-
           .vue-avatar--wrapper {
             width: 24px !important;
             height: 24px !important;
-            font: 11px / 24px Helvetica, Arial, sans-serif !important;
+            font: 7px / 10px Helvetica, Arial, sans-serif !important;
             float: left;
+            border: 2px solid #FFF;
+            margin-left: -5px;
           }
         }
       }
