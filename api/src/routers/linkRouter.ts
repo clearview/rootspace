@@ -1,8 +1,5 @@
 import {
-  authenticate,
-  authorize,
-  Actions,
-  Subjects,
+  authenticate
 } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import { LinksCtrl } from '../controllers/LinksCtrl'
@@ -13,7 +10,6 @@ router.use(authenticate)
 
 router.get(
   '/links/:id',
-  authorize(Subjects.Link, Actions.Read),
   mapRoute(LinksCtrl, 'view')
 )
 router.post('/links', mapRoute(LinksCtrl, 'create'))

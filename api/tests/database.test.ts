@@ -1,12 +1,12 @@
-import {connect, disconnect} from './connectors/db.testcontainers'
-import {getCustomRepository} from 'typeorm'
-import {TaskBoard, TaskBoardType} from '../src/database/entities/tasks/TaskBoard'
-import {TaskBoardRepository} from '../src/repositories/tasks/TaskBoardRepository'
-import {validate} from 'class-validator'
+import { connect, disconnect } from './connectors/db.testcontainers'
+import { getCustomRepository } from 'typeorm'
+import { validate } from 'class-validator'
+import { createUser } from './helpers/createUser'
+import { UserRepository } from '../src/repositories/UserRepository'
 
 describe('Database', () => {
     beforeAll(async () => {
-        await connect( true)
+        await connect(true)
     })
 
     afterAll(async () => {
@@ -14,56 +14,38 @@ describe('Database', () => {
     })
 
     it('should save and retrieve a record', async () => {
-        const taskBoard = createTaskBoard()
-        const taskBoardRepository = getCustomRepository(TaskBoardRepository)
+        const email = 'betty@boop.com'
+        const user = await createUser(email, '123123')
 
-        const savedTaskBoard = await taskBoardRepository.save(taskBoard)
-        expect(savedTaskBoard.title).toBe('Timber')
-        expect(savedTaskBoard.type).toBe(TaskBoardType.Kanban)
+        const userRepository = getCustomRepository(UserRepository)
 
-        const loadedTaskBoard = await taskBoardRepository.findOne({ title: 'Timber' })
-        expect(loadedTaskBoard.title).toBe('Timber')
-        expect(loadedTaskBoard.type).toBe(TaskBoardType.Kanban)
+        const loadedUser = await userRepository.findOne({ email })
+        expect(loadedUser.email).toBe(user.email)
     })
 
     it('should fail with constraint error', async () => {
-        const taskBoard = createTaskBoard()
-        delete taskBoard.title
-
-        const taskBoardRepository = getCustomRepository(TaskBoardRepository)
-
-        await expect(taskBoardRepository.save(taskBoard))
+        await expect(createUser(null, '123123'))
             .rejects
             .toMatchObject({
                 name: 'QueryFailedError',
-                message: 'null value in column "title" violates not-null constraint'
+                message: 'null value in column "email" violates not-null constraint'
             })
     })
 
     it('should fail with validation error', async () => {
-        const taskBoard = createTaskBoard()
-        taskBoard.title = '?'
+        const user = await createUser('donald@duck.com', '12')
 
-        await expect(validate(taskBoard))
+        await expect(validate(user))
             .resolves
             .toMatchObject(
                 expect.arrayContaining([
                     expect.objectContaining({
                         constraints: {
-                            length: 'title must be longer than or equal to 2 characters'
+                            length: 'password must be longer than or equal to 3 characters'
                         }
                     })
                 ])
             )
     })
 
-    function createTaskBoard(): TaskBoard {
-        const taskBoard = new TaskBoard()
-        taskBoard.userId = 1
-        taskBoard.spaceId = 1
-        taskBoard.title = 'Timber'
-        taskBoard.type = TaskBoardType.Kanban
-
-        return taskBoard
-    }
 })

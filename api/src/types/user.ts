@@ -3,13 +3,10 @@ export interface ISignupProvider {
   lastName: string
   email: string
   password: string
-  password_confirmation: string
-}
-
-export interface IUserUpdateProvider {
-  firstName: string
-  lastName: string
-  email: string
+  password_confirmation?: string
+  authProvider: string
+  active: boolean
+  emailConfirmed?: boolean
 }
 
 export interface IChangePasswordProvider {
