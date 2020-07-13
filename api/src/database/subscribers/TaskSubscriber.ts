@@ -3,7 +3,7 @@ import {
   EntityMetadata,
   EntitySubscriberInterface,
   EventSubscriber,
-  InsertEvent, UpdateEvent
+  InsertEvent, RemoveEvent, UpdateEvent
 } from 'typeorm'
 import { Task } from '../entities/tasks/Task'
 import slugify from '@sindresorhus/slugify'
@@ -51,6 +51,11 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
     await this.onUpdated(actor, event.entity, event.metadata)
   }
 
+  async beforeRemove(event: RemoveEvent<Task>) {
+    const actor = httpRequestContext.get('user')
+    await this.onRemoved(actor, event.entity, event.metadata)
+  }
+
   /**
    * FollowableInterface
    */
@@ -66,6 +71,20 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
       tableName: metaData?.tableName,
       action: EventAction?.Updated,
       message: `${actor.fullName()} edited ${entity.title}`
+    }
+
+    NotificationService.emit(EventType.Notification, event)
+    return Promise.resolve(undefined)
+  }
+
+  async onRemoved(actor: User, entity: Task, metaData?: EntityMetadata): Promise<void> {
+    const event: IEventProvider = {
+      itemId: entity.id,
+      actorId: actor.id,
+      targetName: metaData?.targetName,
+      tableName: metaData?.tableName,
+      action: EventAction?.Deleted,
+      message: `${actor.fullName()} removed ${entity.title}`
     }
 
     NotificationService.emit(EventType.Notification, event)

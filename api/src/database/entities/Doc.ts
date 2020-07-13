@@ -17,7 +17,7 @@ export class Doc {
   @Column('integer')
   userId: number
 
-  @ManyToOne((type) => User)
+  @ManyToOne((type) => User, {eager: true})
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User

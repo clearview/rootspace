@@ -34,8 +34,8 @@ export class NodeContentMediator implements INodeContentMediator {
     }
   }
 
-  async contentDeleted(contentId: number, nodeType: NodeType): Promise<void> {
-    return this.nodeService.contentDeleted(contentId, nodeType)
+  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentRemoved(contentId, nodeType)
   }
 
   async contentUpdated(

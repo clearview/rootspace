@@ -22,21 +22,11 @@ export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComm
 
   async afterInsert(event: InsertEvent<TaskComment>) {
     const actor = httpRequestContext.get('user')
-
-    if (actor.id === event.entity.task.userId) {
-      return
-    }
-
     await this.onCreated(actor, event.entity, event.metadata)
   }
 
   async afterUpdate(event: UpdateEvent<TaskComment>) {
     const actor = httpRequestContext.get('user')
-
-    if (actor.id === event.entity.task.userId) {
-      return
-    }
-
     await this.onUpdated(actor, event.entity, event.metadata)
   }
 

@@ -88,7 +88,7 @@ export class LinkService extends NodeContentService {
     })
 
     if (res.affected > 0) {
-      this.mediator.contentDeleted(link.id, this.getNodeType())
+      this.mediator.contentRemoved(link.id, this.getNodeType())
     }
 
     return res

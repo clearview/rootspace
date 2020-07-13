@@ -39,7 +39,7 @@ export class NotificationService {
     return this.getNotificationRepository().find({ id: userId })
   }
 
-  create(event: IEventProvider): Promise<Notification> {
+  async create(event: IEventProvider): Promise<Notification> {
     const notification = this.getNotificationRepository().create()
     notification.itemId = event.itemId
     notification.userId = event.userId

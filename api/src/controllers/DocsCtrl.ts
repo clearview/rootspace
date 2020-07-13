@@ -3,7 +3,6 @@ import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -15,14 +14,6 @@ export class DocsCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response, next: NextFunction) {
     const doc = await this.docService.getById(Number(req.params.id))
-
-    if (!doc) {
-      throw clientError(
-        'Document not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
-    }
 
     const resData = this.responseData(doc)
     res.send(resData)
@@ -53,7 +44,7 @@ export class DocsCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.docService.delete(Number(req.params.id))
+    const result = await this.docService.remove(Number(req.params.id))
     res.send(result)
   }
 }

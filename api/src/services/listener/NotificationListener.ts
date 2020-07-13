@@ -31,7 +31,7 @@ export class NotificationListener {
                 return this.createNotifications(event)
 
             case EventAction.Deleted:
-                return this.removeFollows(event)
+                return this.removeFollowsAndNotifications(event)
         }
     }
 
@@ -39,13 +39,13 @@ export class NotificationListener {
         await this.followService.createNotifications(event)
     }
 
-    async removeFollows(event: IEventProvider): Promise<void> {
+    async removeFollowsAndNotifications(event: IEventProvider): Promise<void> {
         switch(event.targetName) {
             case 'TaskComment':
                 break
 
             default:
-                await this.followService.removeAllFromEvent(event)
+                await this.followService.removeFollowsAndNotifications(event)
                 break
         }
     }

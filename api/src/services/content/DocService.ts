@@ -6,7 +6,6 @@ import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -35,7 +34,7 @@ export class DocService extends NodeContentService {
   }
 
   async getById(id: number): Promise<Doc> {
-    return this.getDocRepository().findOne(id)
+    return this.getDocRepository().findOneOrFail(id)
   }
 
   async create(data: DocCreateValue): Promise<Doc> {
@@ -54,44 +53,25 @@ export class DocService extends NodeContentService {
       })
     )
 
-    return doc
+    return this.getDocRepository().reload(doc)
   }
 
   async update(data: DocUpdateValue, id: number): Promise<Doc> {
     let doc = await this.getById(id)
 
-    if (!doc) {
-      throw clientError('Error updating document')
-    }
-
     Object.assign(doc, data.attributes)
     doc = await this.getDocRepository().save(doc)
 
-    return doc
+    return this.getDocRepository().reload(doc)
   }
 
-  async delete(id: number) {
+  async remove(id: number) {
     const doc = await this.getById(id)
+    const removedDoc = await this.getDocRepository().remove(doc)
 
-    if (!doc) {
-      throw clientError(
-        'Error deleting doc',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
-    }
+    this.mediator.contentRemoved(removedDoc.id, this.getNodeType())
 
-    if (!doc) {
-      throw clientError('Error deleting document')
-    }
-
-    const res = await this.getDocRepository().delete({ id })
-
-    if (res.affected > 0) {
-      this.mediator.contentDeleted(doc.id, this.getNodeType())
-    }
-
-    return res
+    return removedDoc
   }
 
   async nodeDeleted(contentId: number): Promise<void> {

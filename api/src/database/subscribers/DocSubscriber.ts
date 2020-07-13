@@ -3,7 +3,7 @@ import {
   EntityMetadata,
   EntitySubscriberInterface,
   EventSubscriber,
-  InsertEvent, UpdateEvent
+  InsertEvent, RemoveEvent, UpdateEvent
 } from 'typeorm'
 import { Doc } from '../entities/Doc'
 import { NotificationService } from '../../services'
@@ -12,7 +12,6 @@ import { FollowableInterface } from '../../services/Followable'
 import { User } from '../entities/User'
 import { FollowService } from '../../services/FollowService'
 import { DocRepository } from '../../repositories/DocRepository'
-import { UserRepository } from '../../repositories/UserRepository'
 
 @EventSubscriber()
 export class DocSubscriber implements EntitySubscriberInterface<Doc>, FollowableInterface<Doc> {
@@ -24,25 +23,21 @@ export class DocSubscriber implements EntitySubscriberInterface<Doc>, Followable
   }
 
   async afterInsert(event: InsertEvent<Doc>) {
-    const user = await event.manager
-        .getCustomRepository(UserRepository)
-        .findOneOrFail({ id: event.entity.userId})
-
     const entity = await event.manager
         .getCustomRepository(DocRepository)
         .findOneOrFail({ id: event.entity.id})
 
-    await this.onCreated(user, entity)
+    await this.onCreated(entity.user, entity)
   }
 
   async afterUpdate(event: UpdateEvent<Doc>) {
     const actor = httpRequestContext.get('user')
-
-    if (actor.id === event.entity.userId) {
-      return
-    }
-
     await this.onUpdated(actor, event.entity, event.metadata)
+  }
+
+  async beforeRemove(event: RemoveEvent<Doc>) {
+    const actor = httpRequestContext.get('user')
+    await this.onRemoved(actor, event.entity, event.metadata)
   }
 
   /**
@@ -66,4 +61,17 @@ export class DocSubscriber implements EntitySubscriberInterface<Doc>, Followable
     return Promise.resolve(undefined)
   }
 
+  async onRemoved(actor: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {
+    const event: IEventProvider = {
+      itemId: entity.id,
+      actorId: actor.id,
+      targetName: metaData?.targetName,
+      tableName: metaData?.tableName,
+      action: EventAction?.Deleted,
+      message: `${actor.fullName()} removed ${entity.title}`
+    }
+
+    NotificationService.emit(EventType.Notification, event)
+    return Promise.resolve(undefined)
+  }
 }

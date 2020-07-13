@@ -88,11 +88,11 @@ export class TaskService {
     return this.getTaskRepository().restore({id})
   }
 
-  async delete(id: number) {
+  async remove(id: number) {
     const task = await this.getTaskRepository().findOneOrFail(id)
     await this.followService.removeAllFromEntity(task)
 
-    return this.getTaskRepository().delete({ id })
+    return this.getTaskRepository().remove(task)
   }
 
   async assigneesUpdate(task: Task, data: any): Promise<Task> {

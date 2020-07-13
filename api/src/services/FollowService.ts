@@ -31,10 +31,12 @@ export class FollowService {
   }
 
   async getFollows(event: IEventProvider): Promise<Follow[]> {
-    return this.getFollowRepository().find({
+    const follows = await this.getFollowRepository().find({
       itemId: event.itemId,
       tableName: event.tableName
     })
+
+    return follows.filter((follow) => { return follow.userId !== event.actorId})
   }
 
   // requires item of typeorm Entity type
@@ -106,7 +108,7 @@ export class FollowService {
 
       event.userId = follow.userId
 
-      const notification = this.notificationService.create(event)
+      const notification = await this.notificationService.create(event)
 
       notifications.push(notification)
     }
@@ -114,22 +116,21 @@ export class FollowService {
     return this.notificationService.save(notifications)
   }
 
-  async removeAllFromEvent(event: IEventProvider): Promise<DeleteResult> {
-    const itemId = event.itemId
-    const tableName = event.tableName
+  async removeFollowsAndNotifications(event: IEventProvider): Promise<DeleteResult | void> {
+    await this.removeAllNotificationsFromEvent(event)
 
-    const existingFollow = await this.getFollowRepository().find({ itemId, tableName })
+    const existingFollows = await this.getFollowRepository().find({
+      itemId: event.itemId,
+      tableName: event.tableName
+    })
 
-    if (!existingFollow) {
-      return
+    const followIds = existingFollows.map((follow) => { return follow.id })
+
+    if (!followIds) {
+      return null
     }
 
-    const followIds = existingFollow.map((follow) => { return follow.id })
-
-    if (followIds.length > 0) {
-      await this.removeAllNotificationsFromEvent(event)
-      return this.getFollowRepository().delete(followIds)
-    }
+    return this.getFollowRepository().delete(followIds)
   }
 
   async removeAllNotificationsFromEvent(event: IEventProvider): Promise<DeleteResult> {

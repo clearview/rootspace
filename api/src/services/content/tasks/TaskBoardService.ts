@@ -91,7 +91,7 @@ export class TaskBoardService extends NodeContentService {
     const res = await this.getTaskBoardRepository().delete({ id })
 
     if (res.affected > 0) {
-      await this.mediator.contentDeleted(id, this.getNodeType())
+      await this.mediator.contentRemoved(id, this.getNodeType())
     }
 
     return res
