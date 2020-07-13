@@ -46,9 +46,12 @@ export default class Popover extends Vue {
 <style lang="postcss" scoped>
 
   .popover-header {
-    @apply flex items-center p-2;
+    @apply flex items-center p-4;
   }
   .popover-title {
+    @apply text-base;
+    color: theme("colors.gray.900");
+    font-weight: bold;
     flex: 1 1 auto;
   }
   .popover-close {

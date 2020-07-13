@@ -1,8 +1,8 @@
 <template>
   <section class="task-board">
-    <header class="header" v-if="board">
+    <header class="header" v-if="board || boardCache">
       <h3 class="header-title">
-        {{board.title}}
+        {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
       <div class="header-actions">
         <div class="action action-search">
@@ -16,10 +16,52 @@
           >
         </div>
         <div class="action action-filter">
-          <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
-          <div class="action-label">
-            Filter
-          </div>
+          <Popover title="Filter" with-close>
+            <template #default>
+              <div class="filters">
+                <div class="filter-field" v-if="tags">
+                  <label class="filter-field-label">Filter by tag</label>
+                  <v-select :options="tags" multiple  class="select filter-field-select" placeholder="Select Tag">
+                    <template slot="option" slot-scope="option">
+                      <div class="tag-color" :style="{background: option.color}">
+                      {{ option.label }}
+                      </div>
+                    </template>
+                    <template #selected-option-container="{ option, deselect}">
+                      <div class="tag-color" :style="{background: option.color}">
+                        <span>{{ option.label }}</span>
+                        <v-icon class="icon" name="close2" viewbox="20" @click.capture.prevent.stop="deselect()"></v-icon>
+                      </div>
+                    </template>
+                  </v-select>
+                </div>
+                <div class="filter-field" v-if="tags">
+                  <label class="filter-field-label">Filter by tag</label>
+                  <v-select :options="tags" multiple  class="select filter-field-select" placeholder="Select Tag">
+                    <template slot="option" slot-scope="option">
+                      <div class="tag-color" :style="{background: option.color}">
+                        {{ option.label }}
+                      </div>
+                    </template>
+                    <template #selected-option-container="{ option, deselect}">
+                      <div class="tag-color" :style="{background: option.color}">
+                        <span>{{ option.label }}</span>
+                        <v-icon class="icon" name="close2" viewbox="20" @click.capture.prevent.stop="deselect()"></v-icon>
+                      </div>
+                    </template>
+                  </v-select>
+                </div>
+              </div>
+            </template>
+            <template #trigger>
+              <div class="action-wrapper">
+                <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
+                <div class="action-label">
+                  Filter
+                </div>
+              </div>
+            </template>
+          </Popover>
         </div>
         <div class="action action-type">
           <v-icon
@@ -38,7 +80,10 @@
       </div>
     </header>
     <main class="board">
-      <Ghost v-if="!board" active></Ghost>
+      <div class="empty" v-if="!board && search.trim().length > 0">
+        No cards that matched the "{{search}}" query
+      </div>
+      <Ghost v-else-if="isFetching || !board" active></Ghost>
       <BoardManager v-else :board="board"/>
     </main>
   </section>
@@ -47,20 +92,33 @@
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { TaskBoardResource, TaskBoardType } from '@/types/resource'
+import { TagResource, TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
+import Popover from '@/components/Popover.vue'
+import VSelect from 'vue-select'
 
 @Component({
   name: 'TaskPage',
   components: {
     Ghost,
     BoardManager,
-    Icon
+    Icon,
+    Popover,
+    VSelect
   }
 })
 export default class TaskPage extends Vue {
   private search = ''
+  private boardCache: TaskBoardResource | null = null
+
+  get tags (): TagResource[] | null {
+    return this.$store.state.task.tag.data
+  }
+
+  get isFetching (): boolean {
+    return this.$store.state.task.board.isFetching
+  }
 
   get board (): TaskBoardResource | null {
     return this.$store.state.task.board.current
@@ -78,6 +136,9 @@ export default class TaskPage extends Vue {
   async fetchTask () {
     await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search })
     await this.$store.dispatch('task/tag/fetch', null)
+    if (this.board) {
+      this.boardCache = this.board
+    }
   }
 
   mounted (): void {
@@ -157,4 +218,42 @@ export default class TaskPage extends Vue {
       background: theme("colors.primary.default");
     }
   }
+
+  .empty {
+    @apply m-4 p-4 rounded shadow text-center;
+    color: theme('colors.gray.800');
+    background: rgba(theme("colors.gray.100"),0.25);
+  }
+  .action-wrapper {
+    @apply flex items-center;
+    cursor: pointer;
+  }
+
+  .filter-field {
+    @apply m-4 mt-0;
+    color: theme('colors.gray.900');
+    & ~ & {
+      @apply mb-4;
+    }
+  }
+  .filters {
+    min-width:320px;
+  }
+  .tag-color {
+    @apply p-2 rounded flex items-center;
+    color: #fff;
+    & ~ & {
+      @apply ml-2;
+    }
+    span {
+      flex: 1 1 auto;
+    }
+    .icon {
+      @apply ml-4;
+      cursor: pointer;
+      flex: 0 0 auto;
+      stroke: white;
+    }
+  }
+
 </style>
