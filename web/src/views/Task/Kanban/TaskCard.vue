@@ -128,7 +128,6 @@ export default class TaskCard extends Vue {
         await this.$store.dispatch('task/board/refresh')
       }
       this.isInputting = false
-      console.log(this.itemCopy)
       return this.itemCopy
     }
 

@@ -1,8 +1,7 @@
 <template>
-  <Popover top="48px">
+  <Popover top="48px" title="Add Member">
     <template>
       <div class="add-member">
-        <h2>Add Member</h2>
         <v-input @input="search" placeholder="Search members" :value="memberInput" class="member-input"/>
         <ul class="members">
           <li class="member" v-for="(member, index) in filteredMembers" :key="index" @click="input(member)">
@@ -90,10 +89,7 @@ export default class TagsPopover extends Vue {
   .add-member {
     width: 240px;
     padding: 1rem;
-  }
-
-  h2 {
-    font-size: 15px;
+    padding-top: 0;
   }
 
   .member-input {
