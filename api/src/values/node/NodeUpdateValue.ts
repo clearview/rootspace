@@ -1,11 +1,11 @@
 import { EntityValue, attributes } from '../entity'
 import { INodeUpdateAttributes } from './types'
 
-export const LinkUpdateAttributes: INodeUpdateAttributes = {
+export const NodeUpdateAttributes: INodeUpdateAttributes = {
   title: undefined,
 }
 
-@attributes(LinkUpdateAttributes)
+@attributes(NodeUpdateAttributes)
 export class NodeUpdateValue extends EntityValue<INodeUpdateAttributes> {
   private _parent: number = undefined
   private _position: number = undefined

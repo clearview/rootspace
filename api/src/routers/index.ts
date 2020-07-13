@@ -4,9 +4,10 @@ import { docRouter } from './docRouter'
 import { spaceRouter } from './spaceRouter'
 import { nodeRouter } from './nodeRouter'
 import { linkRouter } from './linkRouter'
-import { taskRouter } from './taskRouter'
+import taskBoardRouters from './tasks'
 import { inviteRouter } from './inviteRouter'
 import { uploadRouter } from './uploadRouter'
+import { folderRouter } from './folderRouter'
 
 const routers = [
   defaultRouter,
@@ -15,9 +16,10 @@ const routers = [
   spaceRouter,
   nodeRouter,
   linkRouter,
-  taskRouter,
+  ...taskBoardRouters,
   inviteRouter,
   uploadRouter,
+  folderRouter,
 ]
 
 export default routers

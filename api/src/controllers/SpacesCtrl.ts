@@ -28,44 +28,45 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(data)
   }
 
-  public async listAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
-      res.send(spaces)
-    } catch (err) {
-      next(err)
+  async listAll(req: Request, res: Response, next: NextFunction) {
+    const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
+    res.send(spaces)
+  }
+
+  async invites(req: Request, res: Response, next: NextFunction) {
+    const spaceId = Number(req.params.id)
+
+    if (!spaceId) {
+      throw clientError('Invalid request')
     }
+
+    const invites = await this.inviteFacade.getInvitesBySpaceId(spaceId)
+    const resData = this.responseData(invites)
+
+    res.send(resData)
   }
 
   async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      await validateSpaceCreate(req.body)
+    await validateSpaceCreate(req.body)
 
-      const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
-      const space = await this.spaceFacade.createSpace(data)
+    const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
+    const space = await this.spaceFacade.createSpace(data)
 
-      if (req.body.invites) {
-        this.inviteFacade.sendToEmails(req.body.invites, space.id)
-      }
-
-      res.send(space)
-    } catch (err) {
-      next(err)
+    if (req.body.invites) {
+      this.inviteFacade.sendToEmails(req.body.invites, space.id)
     }
+
+    res.send(space)
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const id = Number(req.params.id)
-      const data = SpaceUpdateValue.fromObject(req.body)
+    const id = Number(req.params.id)
+    const data = SpaceUpdateValue.fromObject(req.body)
 
-      await validateSpaceUpdate(data)
-      const space = await this.spaceFacade.updateSpace(data, id)
+    await validateSpaceUpdate(data)
+    const space = await this.spaceFacade.updateSpace(data, id)
 
-      res.send(space)
-    } catch (err) {
-      next(err)
-    }
+    res.send(space)
   }
 
   public async delete(req: Request, res: Response) {

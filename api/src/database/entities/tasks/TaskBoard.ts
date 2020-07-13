@@ -69,9 +69,9 @@ export class TaskBoard {
   @IsDate()
   updatedAt: Date
 
-  @OneToMany(type => Tag, tag => tag.board, {eager: true})
+  @OneToMany(type => Tag, tag => tag.board, {eager: true, onDelete: 'CASCADE'})
   tags!: Tag[]
 
-  @OneToMany(type => TaskList, taskList => taskList.board, {eager: false})
+  @OneToMany(type => TaskList, taskList => taskList.board, {eager: false, onDelete: 'CASCADE'})
   taskLists!: TaskList[]
 }

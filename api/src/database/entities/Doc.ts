@@ -1,8 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm'
 
 @Entity('docs')
 export class Doc {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -23,6 +29,9 @@ export class Doc {
   @Column('integer')
   access: number
 
+  @Column('boolean', { default: false })
+  isLocked: boolean
+
   @Column('integer', { default: 0 })
   revision: number
 
@@ -31,5 +40,4 @@ export class Doc {
 
   @UpdateDateColumn()
   updated: string
-
 }

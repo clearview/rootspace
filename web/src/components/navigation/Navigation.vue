@@ -2,8 +2,10 @@
   <div
     class="nav"
     :class="{
-      'nav--collapse': collapse
+      'nav--collapse': collapse,
+      'nav--noanimate': noanimate
     }"
+    @click="collapse && toggleCollapse()"
   >
     <navigation-header @toggleCollapse="toggleCollapse" />
     <navigation-items
@@ -91,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
 import { pick } from 'lodash'
 
 import {
@@ -143,7 +145,10 @@ type NestedStateMap = {
   }
 })
 export default class Navigation extends Vue {
-  editable = false
+  private editable = false
+
+  @Prop(Boolean)
+  private readonly noanimate!: boolean
 
   addNew: NestedState = {
     visible: false

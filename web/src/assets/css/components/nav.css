@@ -2,7 +2,7 @@
   @apply flex flex-col items-start h-screen;
   width: 282px;
   min-width: 282px;
-
+  max-width: 70%;
   transition: 300ms;
   overflow: hidden;
 }
@@ -14,12 +14,13 @@
 
 .nav-header {
   @apply flex flex-row items-center;
+
   @apply w-full p-4;
 
   .nav-logo {
     @apply flex flex-none;
-    @apply bg-primary rounded;
 
+    @apply bg-primary rounded;
     transition: 300ms;
   }
 
@@ -63,30 +64,35 @@
 
 .nav-menu {
   @apply absolute z-10;
-  @apply w-full p-4;
-  @apply bg-white;
-  @apply border rounded border-gray-400;
 
+  @apply w-full p-4;
+
+  @apply bg-white;
+
+  @apply border rounded border-gray-400;
   bottom: calc(100% + 16px);
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 
   &::after {
     @apply absolute block;
-    @apply bg-white;
-    @apply border-r border-b border-gray-400;
 
+    @apply bg-white;
+
+    @apply border-r border-b border-gray-400;
     content: '';
     left: 1.5em;
     width: 1em;
     height: 1em;
-
     transform: translateY(.7em) rotate(45deg);
   }
 
   .nav-menu-item {
     @apply flex flex-row justify-between items-center;
+
     @apply border-b border-gray-100;
+
     @apply pb-3 mb-3;
+
     @apply cursor-pointer;
   }
 
@@ -98,6 +104,7 @@
 
   .nav-menu-item-content {
     @apply flex flex-row flex-1 items-center;
+
     @apply truncate;
   }
 
@@ -107,24 +114,28 @@
 
   .nav-menu-item-label {
     @apply flex flex-col;
+
     @apply ml-2;
+
     @apply truncate;
   }
 
   .nav-menu-item-check {
     @apply flex justify-center items-center;
-    @apply border rounded-full border-gray-100;
 
+    @apply border rounded-full border-gray-100;
     width: 20px;
     height: 20px;
   }
 
   .nav-menu-create {
     @apply flex flex-row items-center justify-center;
-    @apply border rounded border-dashed border-gray-400;
-    @apply w-full p-3 mb-3;
-    @apply outline-none;
 
+    @apply border rounded border-dashed border-gray-400;
+
+    @apply w-full p-3 mb-3;
+
+    @apply outline-none;
     transition: .3s;
 
     &:hover {
@@ -141,9 +152,13 @@
   }
 }
 
+.nav.nav--noanimate {
+  transition: none;
+}
+
 .nav.nav--collapse {
   @apply bg-gray-900 text-white;
-
+  @apply cursor-pointer;
   width: 52px !important;
   min-width: 52px;
 

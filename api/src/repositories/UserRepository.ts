@@ -13,11 +13,13 @@ export class UserRepository extends Repository<User> {
       .getMany()
   }
 
-  getById(id: number, selectPassword = false): Promise<User> {
+  getById(id: number, additionalFields?: string[]): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
-    if (selectPassword === true) {
-      queryBuilder.addSelect('User.password', 'User_password')
+    if (additionalFields) {
+      for (const field of additionalFields) {
+        queryBuilder.addSelect(`User.${field}`, `User_${field}`)
+      }
     }
 
     return queryBuilder
@@ -34,8 +36,8 @@ export class UserRepository extends Repository<User> {
     }
 
     return queryBuilder
-      .where('User.email = :email')
-      .setParameter('email', email)
+      .where('LOWER(User.email) = :email')
+      .setParameter('email', email.toLowerCase())
       .getOne()
   }
 }

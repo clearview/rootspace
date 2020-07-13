@@ -11,10 +11,9 @@ export class UserUpdateValidator extends BaseValidator {
 
   rules() {
     return {
-      firstName: 'required',
-      lastName: 'required',
+      firstName: 'accepted',
+      lastName: 'accepted',
       email: [
-        validations.required(),
         validations.email(),
         validations.dbUnique(['User', 'user', 'email', this.userId]),
       ],

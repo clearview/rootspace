@@ -12,6 +12,7 @@ export class DocCreateValidator extends BaseValidator {
         validations.required(),
         validations.in(Object.values(DocAccess)),
       ],
+      isLocked: 'boolean'
     }
   }
 }

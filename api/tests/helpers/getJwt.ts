@@ -1,4 +1,4 @@
-import {Application} from 'express'
+import { Application } from 'express'
 import request from 'supertest'
 
 async function getJwt(app: Application, email: string, password: string): Promise<string> {

@@ -4,6 +4,7 @@ export interface IDocCreateAttributes {
   title: string
   content: object
   access: number
+  isLocked: boolean
 }
 
 export type IDocUpdateAttributes = Omit<

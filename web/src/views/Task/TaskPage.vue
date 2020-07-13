@@ -49,9 +49,6 @@ import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
 
-/**
- * This component is responsible for displaying the board header and then pass it to board manager
- */
 @Component({
   name: 'TaskPage',
   components: {
@@ -87,13 +84,13 @@ export default class TaskPage extends Vue {
 
 <style lang="postcss" scoped>
   .task-board {
-    @apply flex flex-col;
+    @apply flex flex-col h-full;
     flex: 1 0 auto;
-    margin: -1rem;
   }
 
   .board {
     flex: 1 0 auto;
+    height: 0;
   }
 
   .header {

@@ -58,7 +58,7 @@
                 </button>
               </template>
             </TagsPopover>
-            <DueDatePopover @input="handleDateMenu" @clear="handleDateClear">
+            <DueDatePopover :initial-date="itemCopy.dueDate ? new Date(itemCopy.dueDate) : new Date()" @input="handleDateMenu" @clear="handleDateClear">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <v-icon name="time" size="1rem" viewbox="20"/>
@@ -159,8 +159,13 @@
         </div>
         <div class="right-field">
           <div class="right-field-title">Due Date</div>
-          <div class="right-field-content">
-            {{item.dueDate | formatDateOrNone}}
+          <div class="right-field-content" >
+            <div class="due-date-box" v-if="item.dueDate">
+              {{item.dueDate | formatDate}}
+            </div>
+            <template v-else>
+              None
+            </template>
           </div>
         </div>
       </div>
@@ -181,6 +186,7 @@ import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
+import formatRelative from 'date-fns/formatRelative'
 
 @Component({
   name: 'TaskModal',
@@ -196,21 +202,9 @@ import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
     Avatar
   },
   filters: {
-    formatDateOrNone (dateOrString: Date | string) {
-      const dateFormat = Intl.DateTimeFormat('default', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric'
-      })
-
-      if (dateOrString instanceof Date) {
-        return dateOrString ? dateFormat.format(dateOrString) : 'None'
-      } else {
-        const typedDate = new Date(dateOrString)
-        return dateOrString ? dateFormat.format(typedDate) : 'None'
-      }
+    formatDate (date: Date | string) {
+      const dueDate = date instanceof Date ? date : new Date(date)
+      return formatRelative(dueDate, new Date())
     }
   }
 })
@@ -594,11 +588,18 @@ export default class TaskModal extends Vue {
     width: 80%;
     margin-left: -1rem;
     border: 2px solid transparent;
+
     &:focus {
       outline: none;
       border: 2px solid rgba(47, 128, 237, 0.75);
-      box-shadow:0 0 0 2px rgba(47, 128, 237, 0.25);
+      box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
     }
+  }
+  .due-date-box {
+    @apply rounded p-2;
+    background: rgba(theme("colors.gray.100"), 0.3);
+    color: theme("colors.gray.900");
+    font-weight: 600;
   }
 
 </style>

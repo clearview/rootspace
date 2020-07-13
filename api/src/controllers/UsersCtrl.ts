@@ -12,7 +12,7 @@ import {
   validateUserUpdate,
   validateChangePassword,
 } from '../validation/user'
-import { IUserUpdateProvider, IChangePasswordProvider } from '../types/user'
+import { UserUpdateValue, UserChangePasswordValue } from '../values/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -71,49 +71,43 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async whoami(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).findOne(req.user.id)
+    const user = await getCustomRepository(UserRepository).getById(
+      req.user.id,
+      ['emailConfirmed']
+    )
     const spaces = await getCustomRepository(SpaceRepository).getByUserId(
       user.id
     )
+
     res.send({ user, spaces })
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data: IUserUpdateProvider = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-      }
+  async update(req: Request, res: Response) {
+    const data = req.body.data
+    const userId = req.user.id
 
-      await validateUserUpdate(data, req.user.id)
+    await validateUserUpdate(data, userId)
+    const value = UserUpdateValue.fromObject(data)
 
-      const user = await this.userService.update(data, req.user.id)
-      res.send(user)
-    } catch (err) {
-      next(err)
-    }
+    const user = await this.userService.update(value, req.user.id)
+    const resData = this.responseData(user)
+
+    res.send(resData)
   }
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data: IChangePasswordProvider = {
-        password: req.body.password,
-        newPassword: req.body.newPassword,
-        newPassword_confirmation: req.body.newPassword_confirmation,
+    const userId = req.user.id
+    const data = req.body.data
+
+    await validateChangePassword(data)
+    const value = UserChangePasswordValue.fromObject(data)
+
+    this.userService.changePassword(value, userId, (err, user) => {
+      if (err) {
+        return next(err)
       }
 
-      await validateChangePassword(data)
-
-      this.userService.changePassword(data, req.user.id, (err, user) => {
-        if (err) {
-          return next(err)
-        }
-
-        res.send(user)
-      })
-    } catch (err) {
-      next(err)
-    }
+      res.send(this.responseData(user))
+    })
   }
 }

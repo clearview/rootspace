@@ -7,11 +7,13 @@ import PromiseRouter from 'express-promise-router'
 const router = PromiseRouter()
 router.use(authenticate)
 
-router.get('/spaces/:id/tree', mapRoute(SpacesCtrl, 'getTree'))
 router.get('/spaces', mapRoute(SpacesCtrl, 'listAll'))
 router.post('/spaces', mapRoute(SpacesCtrl, 'create'))
 router.patch('/spaces/:id', mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', mapRoute(SpacesCtrl, 'delete'))
+
+router.get('/spaces/:id/tree', mapRoute(SpacesCtrl, 'getTree'))
+router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
 
 router.get('/spaces/:spaceId/users', mapRoute(SpacesUsersCtrl, 'listAll'))
 router.delete(

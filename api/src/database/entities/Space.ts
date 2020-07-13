@@ -24,7 +24,7 @@ export class Space {
   @Column('json', { nullable: true })
   settings: object
 
-  @Column('integer', { default: 0 })
+  @Column('integer', { default: 1 })
   countMembers: number
 
   @Column('boolean', { default: true })

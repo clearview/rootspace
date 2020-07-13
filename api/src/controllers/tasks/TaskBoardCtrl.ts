@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { Actions } from '../../middleware/AuthMiddleware'
+import { Actions, Subjects } from '../../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 import { TaskBoardService } from '../../services'
@@ -15,7 +15,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response, next: NextFunction) {
     const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard ? taskBoard : Subjects.TaskBoard)
 
     const resData = this.responseData(taskBoard)
     res.send(resData)
@@ -23,7 +23,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async viewByTaskId(req: Request, res: Response, next: NextFunction) {
     const taskBoard = await this.taskBoardService.getByTaskId(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard ? taskBoard : Subjects.TaskBoard)
 
     const resData = this.responseData(taskBoard)
     res.send(resData)
@@ -31,7 +31,7 @@ export class TaskBoardCtrl extends BaseCtrl {
 
   async viewArchivedTasks(req: Request, res: Response, next: NextFunction) {
     const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id), true)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard ? taskBoard : Subjects.TaskBoard)
 
     const resData = this.responseData(taskBoard)
     res.send(resData)

@@ -144,6 +144,7 @@ export default class Document extends Vue {
 
   changeReadonlyStatus (val: boolean) {
     this.readOnly = val
+    this.saveDocument()
   }
 
   async loadDocument () {
@@ -157,6 +158,7 @@ export default class Document extends Vue {
 
         this.title = viewDoc.data.title
         this.value = viewDoc.data.content
+        this.readOnly = viewDoc.data.isLocked
       } catch (e) {
         this.$router.replace({ name: 'Document' })
       }
@@ -170,7 +172,8 @@ export default class Document extends Vue {
         spaceId: this.currentSpace.id,
         title: this.title,
         content: this.value,
-        access: 2
+        access: 2,
+        isLocked: this.readOnly
       }
 
       this.createUpdateDocument(payload)
@@ -242,7 +245,7 @@ export default class Document extends Vue {
 
 <style lang="postcss" scoped>
   .page {
-    @apply max-w-2xl mx-auto p-0;
+    @apply max-w-2xl mx-auto pt-4;
 
     width: 43.8rem;
 
