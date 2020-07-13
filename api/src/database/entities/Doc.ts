@@ -4,21 +4,31 @@ import {
   Column,
   Index,
   CreateDateColumn,
-  UpdateDateColumn,
+  UpdateDateColumn, ManyToOne, JoinColumn,
 } from 'typeorm'
+import { User } from './User'
+import { Space } from './Space'
 
 @Entity('docs')
 export class Doc {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column('integer', { nullable: true })
-  @Index()
+  @Column('integer')
   userId: number
 
-  @Column('integer')
+  @ManyToOne((type) => User)
+  @JoinColumn({ name: 'userId' })
   @Index()
+  user!: User
+
+  @Column('integer')
   spaceId: number
+
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
+  @Index()
+  space!: Space
 
   @Column('varchar')
   title: string

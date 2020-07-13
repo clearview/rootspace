@@ -64,7 +64,6 @@ export default class Server {
       port = config.port
     }
 
-    const domain = config.domain
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: http://localhost:${port}`) // tslint:disable-line
     })
