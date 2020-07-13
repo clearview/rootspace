@@ -7,7 +7,7 @@
     :viewBox="_viewbox"
     class="fill-current stroke-current"
   >
-    <title>{{ name }}</title>
+    <title v-if="withTitle">{{ name }}</title>
     <component v-if="isIconValid" :is="`icon-${name}`" />
   </svg>
 </template>
@@ -46,6 +46,7 @@ import IconList from '@/components/icon/IconList.vue'
 import IconTag from '@/components/icon/IconTag.vue'
 import IconTime from '@/components/icon/IconTime.vue'
 import IconAttachment from '@/components/icon/IconAttachment.vue'
+import IconComment from '@/components/icon/IconComment.vue'
 import IconDrag from '@/components/icon/IconDrag.vue'
 import IconUser2 from '@/components/icon/IconUser2.vue'
 import IconEllipsis from '@/components/icon/IconEllipsis.vue'
@@ -62,6 +63,7 @@ import IconShareGlobe from './IconShareGlobe.vue'
   components: {
     IconAdd,
     IconAttachment,
+    IconComment,
     IconClose,
     IconClose2,
     IconDots,
@@ -112,6 +114,9 @@ export default class Icon extends Vue {
 
   @Prop({ type: [String, Number], default: 32 })
   private readonly viewbox!: string | number;
+
+  @Prop({ type: Boolean, default: true })
+  private readonly withTitle?: boolean
 
   get _viewbox () {
     return `0 0 ${this.viewbox} ${this.viewbox}`
