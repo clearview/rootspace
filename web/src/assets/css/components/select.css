@@ -8,6 +8,15 @@
     @apply flex flex-1 flex-row items-center;
   }
 
+  &.grid {
+    .vs__selected-options {
+      @apply mr-4;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 8px;
+    }
+  }
+
   .vs__selected-options {
     @apply flex flex-row flex-1;
 
@@ -26,7 +35,7 @@
 
   .vs__dropdown-menu {
     @apply absolute left-0;
-    @apply m-0 p-0 w-full;
+    @apply m-0 p-2 w-full;
     @apply bg-white shadow;
     @apply overflow-scroll z-10;
 
