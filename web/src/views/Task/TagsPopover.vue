@@ -1,9 +1,9 @@
 <template>
   <Popover top="48px">
     <template>
-      <div class="tag-input">
+      <!-- <div class="tag-input">
         <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
-      </div>
+      </div> -->
       <ul class="tags">
         <li class="tag" v-for="tag in filteredTags" :key="tag.label" @click="input(tag)">
           <div class="tag-color" :style="{background: opacityColor(tag.color), color: tag.color}">
@@ -13,10 +13,10 @@
       </ul>
       <div class="tag-empty" v-if="!isIntentNewTag && filteredTags.length === 0">
         <div class="tag tag-null">
-          You have no tags, create one by typing above
+          You have no tags, create one at Manage Tags
         </div>
       </div>
-      <div class="tag-empty" v-if="isIntentNewTag">
+      <!-- <div class="tag-empty" v-if="isIntentNewTag">
         <div class="tag" @click="addTag">
           <div class="tag-color" :style="{background: opacityColor(colorInput), color: colorInput}">
             New "{{tagInput}}"
@@ -26,7 +26,7 @@
           <div class="color-box" v-for="color in colors" :key="color" :style="{background: opacityColor(color)}"
                @click="selectColor(color)" :class="{'checked': color === colorInput}"></div>
         </div>
-      </div>
+      </div> -->
     </template>
     <template v-slot:trigger>
       <slot name="trigger"></slot>
