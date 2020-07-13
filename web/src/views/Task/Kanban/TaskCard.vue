@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
@@ -173,6 +173,11 @@ export default class TaskCard extends Vue {
 
     opacityColor (color: string) {
       return `${color}33`
+    }
+
+    @Watch('item')
+    updateItem (val: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
+      this.itemCopy = val
     }
 }
 </script>

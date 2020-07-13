@@ -62,11 +62,6 @@ export default class TaskPage extends Vue {
     return this.$store.state.task.board.current
   }
 
-  // set board (value: TaskBoardResource | null) {
-  //   console.log('boardset', value)
-  //   this.board = value
-  // }
-
   get isKanban (): boolean {
     return this.board?.type === TaskBoardType.Kanban
   }
@@ -80,12 +75,6 @@ export default class TaskPage extends Vue {
     await this.$store.dispatch('task/board/view', this.boardId)
     await this.$store.dispatch('task/tag/fetch', null)
   }
-
-  // @Watch('board')
-  // updateBoard (val: TaskBoardResource | null) {
-  //   console.log(val)
-  //   this.board = val
-  // }
 
   mounted (): void {
     this.fetchTask()
