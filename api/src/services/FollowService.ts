@@ -5,13 +5,16 @@ import { User } from '../database/entities/User'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { IEventProvider } from './events/EventType'
 import { NotificationService } from './NotificationService'
+import { UserService } from './UserService'
 
 export class FollowService {
   private static instance: FollowService
   private notificationService: NotificationService
+  private userService: UserService
 
   private constructor() {
     this.notificationService = NotificationService.getInstance()
+    this.userService = UserService.getInstance()
   }
 
   static getInstance() {
@@ -37,6 +40,16 @@ export class FollowService {
     })
 
     return follows.filter((follow) => { return follow.userId !== event.actorId})
+  }
+
+  async followFromRequest(userId: number, entity: any): Promise<Follow> {
+    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    return this.follow(user, entity)
+  }
+
+  async unfollowFromRequest(userId: number, entity: any): Promise<DeleteResult> {
+    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    return this.unfollow(user, entity)
   }
 
   // requires item of typeorm Entity type
@@ -92,7 +105,7 @@ export class FollowService {
 
   async removeAllNotificationsFromEntity(entity: any): Promise<DeleteResult> {
     return this.notificationService.delete({
-      itemId: entity.itemId,
+      itemId: entity.id,
       tableName: getConnection().getMetadata(entity.constructor.name).tableName
     })
   }

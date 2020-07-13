@@ -1,13 +1,18 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskService } from '../../services'
+import { FollowService } from '../../services/FollowService'
+import { Actions, Subjects } from '../../middleware/AuthMiddleware'
+import { ForbiddenError } from '@casl/ability'
 
 export class TaskCtrl extends BaseCtrl {
   private taskService: TaskService
+  private followService: FollowService
 
   constructor() {
     super()
     this.taskService = TaskService.getInstance()
+    this.followService = FollowService.getInstance()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
@@ -33,17 +38,32 @@ export class TaskCtrl extends BaseCtrl {
     res.send(this.responseData(task))
   }
 
+  async follow(req: Request, res: Response, next: NextFunction) {
+    const task = await this.taskService.getById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, task ? task : Subjects.Task)
+
+    const result = await this.followService.followFromRequest(Number(req.user.id), task)
+    res.send(result)
+  }
+
+  async unfollow(req: Request, res: Response, next: NextFunction) {
+    const task = await this.taskService.getById(Number(req.params.id))
+
+    const result = await this.followService.unfollowFromRequest(Number(req.user.id), task)
+    res.send(result)
+  }
+
   async archive(req: Request, res: Response, next: NextFunction) {
-    // const task = await this.taskService.getById(Number(req.params.id))
-    // ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
+    const task = await this.taskService.getById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
     const result = await this.taskService.archive(Number(req.params.id))
     res.send(result)
   }
 
   async restore(req: Request, res: Response, next: NextFunction) {
-    // const task = await this.taskService.getArchivedById(Number(req.params.id))
-    // ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
+    const task = await this.taskService.getArchivedById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
     const result = await this.taskService.restore(Number(req.params.id))
     res.send(result)
