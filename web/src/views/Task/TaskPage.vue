@@ -35,18 +35,18 @@
                     </template>
                   </v-select>
                 </div>
-                <div class="filter-field" v-if="tags">
+                <div class="filter-field" v-if="memberList">
                   <label class="filter-field-label">Filter by tag</label>
-                  <v-select :options="tags" multiple  class="select filter-field-select" placeholder="Select Tag">
+                  <v-select :options="memberList" multiple  class="select filter-field-select" placeholder="Select Tag">
                     <template slot="option" slot-scope="option">
-                      <div class="tag-color" :style="{background: option.color}">
-                        {{ option.label }}
+                      <div class="member-option">
+                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
+                        <span>{{ `${option.firstName}  ${option.lastName}`}}</span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option, deselect}">
-                      <div class="tag-color" :style="{background: option.color}">
-                        <span>{{ option.label }}</span>
-                        <v-icon class="icon" name="close2" viewbox="20" @click.capture.prevent.stop="deselect()"></v-icon>
+                      <div class="member-option-display">
+                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`" @click="deselect()"></avatar>
                       </div>
                     </template>
                   </v-select>
@@ -92,11 +92,13 @@
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { TagResource, TaskBoardResource, TaskBoardType } from '@/types/resource'
+import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
 import Popover from '@/components/Popover.vue'
 import VSelect from 'vue-select'
+import SpaceService from '@/services/space'
+import Avatar from 'vue-avatar'
 
 @Component({
   name: 'TaskPage',
@@ -105,12 +107,25 @@ import VSelect from 'vue-select'
     BoardManager,
     Icon,
     Popover,
-    VSelect
+    VSelect,
+    Avatar
   }
 })
 export default class TaskPage extends Vue {
   private search = ''
   private boardCache: TaskBoardResource | null = null
+  private memberList: Array<UserResource> = []
+
+  get currentSpace () {
+    return this.$store.state.auth.currentSpace || {}
+  }
+
+  async getSpaceMember () {
+    const id = this.currentSpace.id
+    const viewUserAtSpace = await SpaceService.userAtSpace(id)
+
+    this.memberList = viewUserAtSpace.data
+  }
 
   get tags (): TagResource[] | null {
     return this.$store.state.task.tag.data
@@ -134,6 +149,7 @@ export default class TaskPage extends Vue {
 
   @Watch('boardId')
   async fetchTask () {
+    await this.getSpaceMember()
     await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search })
     await this.$store.dispatch('task/tag/fetch', null)
     if (this.board) {
@@ -254,6 +270,17 @@ export default class TaskPage extends Vue {
       flex: 0 0 auto;
       stroke: white;
     }
+  }
+
+  .member-option {
+    @apply flex items-center;
+    span {
+      @apply ml-2;
+      flex:1 1 auto;
+    }
+  }
+  .member-option-display {
+
   }
 
 </style>
