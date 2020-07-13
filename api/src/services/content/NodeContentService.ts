@@ -14,7 +14,7 @@ export abstract class NodeContentService {
 
   abstract getNodeType(): NodeType
 
-  abstract nodeDeleted(contentId: number): Promise<void>
+  abstract nodeRemoved(contentId: number): Promise<void>
 
   async nodeUpdated(
     contentId: number,

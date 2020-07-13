@@ -108,7 +108,8 @@ export class LinkService extends NodeContentService {
     await this.getLinkRepository().save(link)
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getLinkRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const link = await this.getLinkRepository().findOne({id: contentId})
+    await this.getLinkRepository().remove(link)
   }
 }

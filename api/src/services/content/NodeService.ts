@@ -180,7 +180,7 @@ export class NodeService {
 
     const removedNode = await this._remove(node)
 
-    await this.mediator.nodeDeleted(removedNode)
+    await this.mediator.nodeRemoved(removedNode)
 
     return node
   }

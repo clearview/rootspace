@@ -97,7 +97,8 @@ export class TaskBoardService extends NodeContentService {
     return res
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getTaskBoardRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const taskBoard = await this.getTaskBoardRepository().findOne({id: contentId})
+    await this.getTaskBoardRepository().remove(taskBoard)
   }
 }

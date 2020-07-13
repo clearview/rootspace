@@ -74,7 +74,8 @@ export class DocService extends NodeContentService {
     return removedDoc
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getDocRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const doc = await this.getDocRepository().findOne({id: contentId})
+    await this.getDocRepository().remove(doc)
   }
 }
