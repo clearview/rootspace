@@ -8,6 +8,15 @@
     @apply flex flex-1 flex-row items-center;
   }
 
+  &.grid {
+    .vs__selected-options {
+      @apply mr-4;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 8px;
+    }
+  }
+
   .vs__selected-options {
     @apply flex flex-row flex-1;
 

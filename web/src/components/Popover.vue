@@ -14,7 +14,7 @@
       <slot v-bind="{ hide, visible }"></slot>
     </div>
     <div @click="visible = !visible">
-      <slot name="trigger" v-bind="{ hide }"></slot>
+      <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>
   </div>
 </template>

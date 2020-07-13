@@ -21,23 +21,25 @@
               <div class="filters">
                 <div class="filter-field" v-if="tags">
                   <label class="filter-field-label">Filter by tag</label>
-                  <v-select :options="tags" multiple  class="select filter-field-select" placeholder="Select Tag">
+                  <v-select :reduce="(opt)=>opt.id" :options="tags" multiple  class="select grid filter-field-select"
+                            placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
                     <template slot="option" slot-scope="option">
-                      <div class="tag-color" :style="{background: option.color}">
+                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
                       {{ option.label }}
                       </div>
                     </template>
-                    <template #selected-option-container="{ option, deselect}">
-                      <div class="tag-color" :style="{background: option.color}">
+                    <template #selected-option-container="{ option}">
+                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
                         <span>{{ option.label }}</span>
-                        <v-icon class="icon" name="close2" viewbox="20" @click.capture.prevent.stop="deselect()"></v-icon>
                       </div>
                     </template>
                   </v-select>
                 </div>
                 <div class="filter-field" v-if="memberList">
-                  <label class="filter-field-label">Filter by tag</label>
-                  <v-select :options="memberList" multiple  class="select filter-field-select" placeholder="Select Tag">
+                  <label class="filter-field-label">Filter by member</label>
+                  <v-select label="id" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
+                            class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
+                            @input="fetchTask">
                     <template slot="option" slot-scope="option">
                       <div class="member-option">
                         <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
@@ -51,10 +53,13 @@
                     </template>
                   </v-select>
                 </div>
+                <div class="filter-action">
+                  <button class="btn btn-link" @click="resetFilters">Reset Filters</button>
+                </div>
               </div>
             </template>
-            <template #trigger>
-              <div class="action-wrapper">
+            <template #trigger="{ visible }">
+              <div class="action-wrapper" :class="{'active': visible}">
                 <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
                 <div class="action-label">
                   Filter
@@ -113,6 +118,11 @@ import Avatar from 'vue-avatar'
 })
 export default class TaskPage extends Vue {
   private search = ''
+  private filters = {
+    tags: [],
+    assignees: []
+  }
+
   private boardCache: TaskBoardResource | null = null
   private memberList: Array<UserResource> = []
 
@@ -122,7 +132,7 @@ export default class TaskPage extends Vue {
 
   async getSpaceMember () {
     const id = this.currentSpace.id
-    const viewUserAtSpace = await SpaceService.userAtSpace(id)
+    const viewUserAtSpace = await SpaceService.spaceUsers(id)
 
     this.memberList = viewUserAtSpace.data
   }
@@ -149,16 +159,28 @@ export default class TaskPage extends Vue {
 
   @Watch('boardId')
   async fetchTask () {
-    await this.getSpaceMember()
-    await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search })
+    if (this.memberList.length === 0) {
+      await this.getSpaceMember()
+    }
+    await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
     await this.$store.dispatch('task/tag/fetch', null)
     if (this.board) {
       this.boardCache = this.board
     }
   }
 
+  async resetFilters () {
+    this.filters.assignees = []
+    this.filters.tags = []
+    await this.fetchTask()
+  }
+
   mounted (): void {
     this.fetchTask()
+  }
+
+  opacityColor (color: string) {
+    return `${color}33`
   }
 }
 </script>
@@ -175,9 +197,10 @@ export default class TaskPage extends Vue {
   }
 
   .header {
-    background: theme('colors.gray.900');
-    color: theme('colors.white.default');
     @apply flex flex-row px-6 py-2 items-center;
+    background: #FFFFFF;
+    color: theme('colors.gray.900');
+    border-bottom: solid 1px theme("colors.gray.100");
   }
 
   .header-title {
@@ -192,7 +215,7 @@ export default class TaskPage extends Vue {
 
   .action {
     @apply px-4;
-    border-right: solid 1px rgba(theme('colors.white.default'), 0.3);
+    border-right: solid 1px theme('colors.gray.100');
   }
 
   .action-search {
@@ -229,6 +252,7 @@ export default class TaskPage extends Vue {
   .icon-circle {
     @apply rounded-full p-2;
     color: transparent;
+    stroke: theme('colors.gray.900');
 
     &.active {
       background: theme("colors.primary.default");
@@ -243,6 +267,10 @@ export default class TaskPage extends Vue {
   .action-wrapper {
     @apply flex items-center;
     cursor: pointer;
+    font-weight: 600;
+    &.active{
+      color: theme("colors.primary.default");
+    }
   }
 
   .filter-field {
@@ -255,12 +283,19 @@ export default class TaskPage extends Vue {
   .filters {
     min-width:320px;
   }
-  .tag-color {
-    @apply p-2 rounded flex items-center;
-    color: #fff;
-    & ~ & {
-      @apply ml-2;
+  .filter-action {
+    text-align: right;
+    @apply m-4;
+    .btn {
+      @apply m-0 p-4 inline-block;
+      opacity: 0.3;
     }
+  }
+  .tag-color {
+    @apply py-1 px-2 rounded flex items-center;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
     span {
       flex: 1 1 auto;
     }
