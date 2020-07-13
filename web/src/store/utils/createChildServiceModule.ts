@@ -35,7 +35,7 @@ export function createChildServiceModule<TResource extends ApiResource | Omit<Ap
         const parentId = parentResolver(rootState)
 
         if (!parentId) {
-          throw new Error('No parent ID')
+          return
         }
         if (!currentSpace) {
           throw new Error('There is no currently active space')

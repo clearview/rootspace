@@ -14,7 +14,7 @@
       <slot v-bind="{ hide, visible }"></slot>
     </div>
     <div @click="visible = !visible">
-      <slot name="trigger" v-bind="{ hide }"></slot>
+      <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>
   </div>
 </template>
@@ -46,9 +46,12 @@ export default class Popover extends Vue {
 <style lang="postcss" scoped>
 
   .popover-header {
-    @apply flex items-center py-2 px-4;
+    @apply flex items-center p-4;
   }
   .popover-title {
+    @apply text-base;
+    color: theme("colors.gray.900");
+    font-weight: bold;
     flex: 1 1 auto;
     font-size: 15px;
   }

@@ -1,8 +1,8 @@
 <template>
   <section class="task-board">
-    <header class="header" v-if="board">
+    <header class="header" v-if="board || boardCache">
       <h3 class="header-title">
-        {{board.title}}
+        {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
       <div class="header-actions">
         <div class="action action-search">
@@ -11,13 +11,62 @@
             type="text"
             class="action-search-input"
             placeholder="Search"
+            v-model="search"
+            @keypress.enter="fetchTask"
           >
         </div>
         <div class="action action-filter">
-          <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
-          <div class="action-label">
-            Filter
-          </div>
+          <Popover title="Filter" with-close>
+            <template #default>
+              <div class="filters">
+                <div class="filter-field" v-if="tags">
+                  <label class="filter-field-label">Filter by tag</label>
+                  <v-select :reduce="(opt)=>opt.id" :options="tags" multiple  class="select grid filter-field-select"
+                            placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
+                    <template slot="option" slot-scope="option">
+                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
+                      {{ option.label }}
+                      </div>
+                    </template>
+                    <template #selected-option-container="{ option}">
+                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
+                        <span>{{ option.label }}</span>
+                      </div>
+                    </template>
+                  </v-select>
+                </div>
+                <div class="filter-field" v-if="memberList">
+                  <label class="filter-field-label">Filter by member</label>
+                  <v-select label="id" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
+                            class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
+                            @input="fetchTask">
+                    <template slot="option" slot-scope="option">
+                      <div class="member-option">
+                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
+                        <span>{{ `${option.firstName}  ${option.lastName}`}}</span>
+                      </div>
+                    </template>
+                    <template #selected-option-container="{ option, deselect}">
+                      <div class="member-option-display">
+                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`" @click="deselect()"></avatar>
+                      </div>
+                    </template>
+                  </v-select>
+                </div>
+                <div class="filter-action">
+                  <button class="btn btn-link" @click="resetFilters">Reset Filters</button>
+                </div>
+              </div>
+            </template>
+            <template #trigger="{ visible }">
+              <div class="action-wrapper" :class="{'active': visible}">
+                <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
+                <div class="action-label">
+                  Filter
+                </div>
+              </div>
+            </template>
+          </Popover>
         </div>
         <div class="action action-type">
           <v-icon
@@ -36,7 +85,10 @@
       </div>
     </header>
     <main class="board">
-      <Ghost v-if="!board" active></Ghost>
+      <div class="empty" v-if="!board && search.trim().length > 0">
+        No cards that matched the "{{search}}" query
+      </div>
+      <Ghost v-else-if="isFetching || !board" active></Ghost>
       <BoardManager v-else :board="board"/>
     </main>
   </section>
@@ -45,19 +97,54 @@
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { TaskBoardResource, TaskBoardType } from '@/types/resource'
+import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Ghost from '@/components/Ghost.vue'
+import Popover from '@/components/Popover.vue'
+import VSelect from 'vue-select'
+import SpaceService from '@/services/space'
+import Avatar from 'vue-avatar'
 
 @Component({
   name: 'TaskPage',
   components: {
     Ghost,
     BoardManager,
-    Icon
+    Icon,
+    Popover,
+    VSelect,
+    Avatar
   }
 })
 export default class TaskPage extends Vue {
+  private search = ''
+  private filters = {
+    tags: [],
+    assignees: []
+  }
+
+  private boardCache: TaskBoardResource | null = null
+  private memberList: Array<UserResource> = []
+
+  get currentSpace () {
+    return this.$store.state.auth.currentSpace || {}
+  }
+
+  async getSpaceMember () {
+    const id = this.currentSpace.id
+    const viewUserAtSpace = await SpaceService.spaceUsers(id)
+
+    this.memberList = viewUserAtSpace.data
+  }
+
+  get tags (): TagResource[] | null {
+    return this.$store.state.task.tag.data
+  }
+
+  get isFetching (): boolean {
+    return this.$store.state.task.board.isFetching
+  }
+
   get board (): TaskBoardResource | null {
     return this.$store.state.task.board.current
   }
@@ -72,12 +159,28 @@ export default class TaskPage extends Vue {
 
   @Watch('boardId')
   async fetchTask () {
-    await this.$store.dispatch('task/board/view', this.boardId)
+    if (this.memberList.length === 0) {
+      await this.getSpaceMember()
+    }
+    await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
     await this.$store.dispatch('task/tag/fetch', null)
+    if (this.board) {
+      this.boardCache = this.board
+    }
+  }
+
+  async resetFilters () {
+    this.filters.assignees = []
+    this.filters.tags = []
+    await this.fetchTask()
   }
 
   mounted (): void {
     this.fetchTask()
+  }
+
+  opacityColor (color: string) {
+    return `${color}33`
   }
 }
 </script>
@@ -94,9 +197,10 @@ export default class TaskPage extends Vue {
   }
 
   .header {
-    background: theme('colors.gray.900');
-    color: theme('colors.white.default');
     @apply flex flex-row px-6 py-2 items-center;
+    background: #FFFFFF;
+    color: theme('colors.gray.900');
+    border-bottom: solid 1px theme("colors.gray.100");
   }
 
   .header-title {
@@ -111,7 +215,7 @@ export default class TaskPage extends Vue {
 
   .action {
     @apply px-4;
-    border-right: solid 1px rgba(theme('colors.white.default'), 0.3);
+    border-right: solid 1px theme('colors.gray.100');
   }
 
   .action-search {
@@ -127,9 +231,13 @@ export default class TaskPage extends Vue {
     border-bottom: solid 1px transparent;
     flex: 1 1 auto;
     width: 72px;
+    transition: all 0.3s ease;
 
     &:focus, &:hover, &:active {
       border-bottom: solid 1px rgba(theme('colors.white.default'), 0.3);
+    }
+    &:focus {
+      width: 128px;
     }
   }
 
@@ -144,9 +252,70 @@ export default class TaskPage extends Vue {
   .icon-circle {
     @apply rounded-full p-2;
     color: transparent;
+    stroke: theme('colors.gray.900');
 
     &.active {
       background: theme("colors.primary.default");
     }
   }
+
+  .empty {
+    @apply m-4 p-4 rounded shadow text-center;
+    color: theme('colors.gray.800');
+    background: rgba(theme("colors.gray.100"),0.25);
+  }
+  .action-wrapper {
+    @apply flex items-center;
+    cursor: pointer;
+    font-weight: 600;
+    &.active{
+      color: theme("colors.primary.default");
+    }
+  }
+
+  .filter-field {
+    @apply m-4 mt-0;
+    color: theme('colors.gray.900');
+    & ~ & {
+      @apply mb-4;
+    }
+  }
+  .filters {
+    min-width:320px;
+  }
+  .filter-action {
+    text-align: right;
+    @apply m-4;
+    .btn {
+      @apply m-0 p-4 inline-block;
+      opacity: 0.3;
+    }
+  }
+  .tag-color {
+    @apply py-1 px-2 rounded flex items-center;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    span {
+      flex: 1 1 auto;
+    }
+    .icon {
+      @apply ml-4;
+      cursor: pointer;
+      flex: 0 0 auto;
+      stroke: white;
+    }
+  }
+
+  .member-option {
+    @apply flex items-center;
+    span {
+      @apply ml-2;
+      flex:1 1 auto;
+    }
+  }
+  .member-option-display {
+
+  }
+
 </style>
