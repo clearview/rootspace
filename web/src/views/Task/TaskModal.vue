@@ -118,7 +118,7 @@
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color}"
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: opacityColor(tag.color), color: tag.color}"
                   @click="handleTagMenu(tag)">
                 <span>{{tag.label}}</span>
                 <v-icon name="close"/>
@@ -135,8 +135,12 @@
             <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
               <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id"
                   @click="handleMemberMenu(assignee)">
-                <avatar :username="memberName(assignee)"></avatar>
-                <v-icon name="close"/>
+                  <tippy :content="memberName(assignee)" arrow>
+                    <template v-slot:trigger>
+                      <avatar :username="memberName(assignee)"></avatar>
+                      <v-icon name="close"/>
+                    </template>
+                  </tippy>
               </li>
             </ul>
             <template v-else>
@@ -328,6 +332,8 @@ export default class TaskModal extends Vue {
         })
       }
       await this.$store.dispatch('task/board/refresh')
+      const currentBoard = this.$store.state.task.board.current
+      this.$emit('getUpdate', currentBoard)
     }
 
     async handleDateMenu (date: Date) {
@@ -365,6 +371,10 @@ export default class TaskModal extends Vue {
         this.isUpdatingTitle = false
         this.isEditingTitle = false
       }
+    }
+
+    opacityColor (color: string) {
+      return `${color}33`
     }
 }
 </script>

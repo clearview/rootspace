@@ -83,7 +83,7 @@
 
 <script lang="ts">
 
-import { find, get, map } from 'lodash'
+import { find, get } from 'lodash'
 
 import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
 
@@ -107,7 +107,8 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
     loadingMessage: string;
     isLoading: boolean;
     spaceData: object;
-    userAtSpaceObj: object;
+    spaceUsersObj: object;
+    spaceUsersPendingObj: object;
     account: {
       alert: object | null;
     };
@@ -138,7 +139,8 @@ export default class Settings extends Vue {
     private loadingMessage = 'Update Settings...';
     private isLoading = false;
     private spaceData = {};
-    private userAtSpaceObj = {};
+    private spaceUsersObj = {};
+    private spaceUsersPendingObj = {};
     private account: any = {
       alert: null
     };
@@ -242,7 +244,7 @@ export default class Settings extends Vue {
     }
 
     async deleteSpaceUser (email: string) {
-      const getUser = find(this.userAtSpaceObj, ['email', email])
+      const getUser = find(this.spaceUsersObj, ['email', email])
 
       if (getUser) {
         this.isLoading = true
@@ -273,17 +275,16 @@ export default class Settings extends Vue {
       this.isLoading = true
       this.loadingMessage = 'Get Space Settings...'
 
-      const viewUserAtSpace = await SpaceService.userAtSpace(id)
-      // const currentUser = this.$store.state.auth.user.id
+      const viewSpaceUsers = await SpaceService.spaceUsers(id)
+      const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
 
-      // remove(viewUserAtSpace.data, (user: UserResource) => user.id === currentUser)
-      this.userAtSpaceObj = viewUserAtSpace.data
-      const userAtSpace = map(viewUserAtSpace.data, 'email')
+      const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
+      console.log(concatSpaceUsers)
 
       const spaceTitle = this.currentSpace.title
       this.spaceData = {
         title: spaceTitle,
-        invites: userAtSpace
+        invites: concatSpaceUsers
       }
       this.isLoading = false
     }
