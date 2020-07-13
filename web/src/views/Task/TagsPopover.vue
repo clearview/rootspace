@@ -6,7 +6,7 @@
       </div>
       <ul class="tags">
         <li class="tag" v-for="tag in filteredTags" :key="tag.label" @click="input(tag)">
-          <div class="tag-color" :style="{background: tag.color}">
+          <div class="tag-color" :style="{background: opacityColor(tag.color), color: tag.color}">
             {{tag.label}}
           </div>
         </li>
@@ -18,12 +18,12 @@
       </div>
       <div class="tag-empty" v-if="isIntentNewTag">
         <div class="tag" @click="addTag">
-          <div class="tag-color" :style="{background: colorInput}">
+          <div class="tag-color" :style="{background: opacityColor(colorInput), color: colorInput}">
             New "{{tagInput}}"
           </div>
         </div>
         <div class="color-boxes">
-          <div class="color-box" v-for="color in colors" :key="color" :style="{background: color}"
+          <div class="color-box" v-for="color in colors" :key="color" :style="{background: opacityColor(color)}"
                @click="selectColor(color)" :class="{'checked': color === colorInput}"></div>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default class TagsPopover extends Vue {
     }
 
     get colors () {
-      return ['#409240', '#29839f', '#b1a447', '#a05138', '#a73f5d', '#7d579f']
+      return ['#37D88B', '#FF5A5A', '#FFBA68', '#56CCF2', '#BB6BD9', '#F2C94C']
     }
 
     get filteredTags () {
@@ -75,6 +75,10 @@ export default class TagsPopover extends Vue {
 
     selectColor (color: string) {
       this.colorInput = color
+    }
+
+    opacityColor (color: string) {
+      return `${color}33`
     }
 
     @Emit('input')
