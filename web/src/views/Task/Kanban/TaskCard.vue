@@ -16,7 +16,7 @@
       <div class="card-item">
         <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
           <div class="title">
-            {{itemCopy.title}}
+            {{item.title}}
           </div>
           <div class="date" v-if="itemCopy.dueDate">
             <tippy :content="formatDateReadable(itemCopy.dueDate)" arrow>
@@ -79,18 +79,18 @@ import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
 
-  @Component({
-    name: 'TaskCard',
-    components: {
-      TaskModal,
-      Avatar
-    },
-    validations: {
-      itemCopy: {
-        title: { required }
-      }
+@Component({
+  name: 'TaskCard',
+  components: {
+    TaskModal,
+    Avatar
+  },
+  validations: {
+    itemCopy: {
+      title: { required }
     }
-  })
+  }
+})
 export default class TaskCard extends Vue {
     @Prop({ type: Object, required: true })
     private readonly item!: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>
@@ -122,7 +122,10 @@ export default class TaskCard extends Vue {
       if (this.itemCopy.id === null) {
         this.itemCopy = (await this.$store.dispatch('task/item/create', this.itemCopy)).data
       } else {
-        this.itemCopy = (await this.$store.dispatch('task/item/update', this.itemCopy)).data
+        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          title: this.itemCopy.title
+        })).data
       }
       if (this.item.list) {
         await this.$store.dispatch('task/board/refresh')
