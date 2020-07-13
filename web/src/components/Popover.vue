@@ -53,6 +53,7 @@ export default class Popover extends Vue {
     color: theme("colors.gray.900");
     font-weight: bold;
     flex: 1 1 auto;
+    font-size: 15px;
   }
   .popover-close {
     flex: 0 0 auto;

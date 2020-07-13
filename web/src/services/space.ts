@@ -59,8 +59,18 @@ async function view (id: number) {
   return data
 }
 
-async function userAtSpace (id: number) {
+async function spaceUsers (id: number) {
   const { data } = await api.get(`spaces/${id}/users`)
+
+  if (data.status === 'error') {
+    throw new Error(data)
+  }
+
+  return data
+}
+
+async function spaceUsersPending (id: number) {
+  const { data } = await api.get(`spaces/${id}/invites`)
 
   if (data.status === 'error') {
     throw new Error(data)
@@ -95,6 +105,7 @@ export default {
   update,
   my,
   view,
-  userAtSpace,
+  spaceUsers,
+  spaceUsersPending,
   removeUser
 }

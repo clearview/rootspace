@@ -10,7 +10,9 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          {{ item.title }}
+          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle">
+            {{itemCopy.title}}
+          </div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -116,7 +118,7 @@
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color}"
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: opacityColor(tag.color), color: tag.color}"
                   @click="handleTagMenu(tag)">
                 <span>{{tag.label}}</span>
                 <v-icon name="close"/>
@@ -133,8 +135,12 @@
             <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
               <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id"
                   @click="handleMemberMenu(assignee)">
-                <avatar :username="memberName(assignee)"></avatar>
-                <v-icon name="close"/>
+                  <tippy :content="memberName(assignee)" arrow>
+                    <template v-slot:trigger>
+                      <avatar :username="memberName(assignee)"></avatar>
+                      <v-icon name="close"/>
+                    </template>
+                  </tippy>
               </li>
             </ul>
             <template v-else>
@@ -186,26 +192,26 @@ import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 import formatRelative from 'date-fns/formatRelative'
 
-  @Component({
-    name: 'TaskModal',
-    components: {
-      TaskAttachmentView,
-      DueDatePopover,
-      TagsPopover,
-      MemberPopover,
-      TaskComment,
-      PopoverList,
-      Modal,
-      Field,
-      Avatar
-    },
-    filters: {
-      formatDate (date: Date | string) {
-        const dueDate = date instanceof Date ? date : new Date(date)
-        return formatRelative(dueDate, new Date())
-      }
+@Component({
+  name: 'TaskModal',
+  components: {
+    TaskAttachmentView,
+    DueDatePopover,
+    TagsPopover,
+    MemberPopover,
+    TaskComment,
+    PopoverList,
+    Modal,
+    Field,
+    Avatar
+  },
+  filters: {
+    formatDate (date: Date | string) {
+      const dueDate = date instanceof Date ? date : new Date(date)
+      return formatRelative(dueDate, new Date())
     }
-  })
+  }
+})
 export default class TaskModal extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly visible!: boolean;
@@ -216,10 +222,15 @@ export default class TaskModal extends Vue {
     @Ref('attachmentFile')
     private readonly attachmentFileRef!: HTMLInputElement
 
+    @Ref('titleEditable')
+    private readonly titleEditableRef!: HTMLDivElement
+
     private itemCopy = { ...this.item }
     private isEditingDescription = false;
     private commentInput = '';
     private isUploading = false
+    private isUpdatingTitle = false
+    private isEditingTitle = false
 
     @Emit('cancel')
     cancel () {
@@ -251,13 +262,19 @@ export default class TaskModal extends Vue {
     async handleRemoveFile (attachment: UploadResource) {
       if (this.itemCopy.attachments) {
         this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
-        await this.$store.dispatch('task/item/update', this.itemCopy)
+        await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          attachments: this.itemCopy.attachments
+        })
         await this.$store.dispatch('task/board/refresh')
       }
     }
 
     async saveDescription () {
-      await this.$store.dispatch('task/item/update', { id: this.itemCopy.id, description: this.itemCopy.description })
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        description: this.itemCopy.description
+      })
       await this.$store.dispatch('task/board/refresh')
       this.isEditingDescription = false
     }
@@ -315,22 +332,49 @@ export default class TaskModal extends Vue {
         })
       }
       await this.$store.dispatch('task/board/refresh')
+      const currentBoard = this.$store.state.task.board.current
+      this.$emit('getUpdate', currentBoard)
     }
 
     async handleDateMenu (date: Date) {
       this.itemCopy.dueDate = date
-      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        dueDate: this.itemCopy.dueDate
+      })
       await this.$store.dispatch('task/board/refresh')
     }
 
     async handleDateClear () {
       this.itemCopy.dueDate = null
-      await this.$store.dispatch('task/item/update', this.itemCopy)
+      await this.$store.dispatch('task/item/update', {
+        id: this.item.id,
+        dueDate: null
+      })
       await this.$store.dispatch('task/board/refresh')
     }
 
     memberName (member: UserResource) {
       return `${member.firstName} ${member.lastName}`
+    }
+
+    async saveTitle () {
+      this.titleEditableRef.blur()
+      if (!this.isUpdatingTitle) {
+        this.isUpdatingTitle = true
+        this.itemCopy.title = this.titleEditableRef.innerText
+        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+          id: this.item.id,
+          title: this.itemCopy.title
+        })).data
+        await this.$store.dispatch('task/board/refresh')
+        this.isUpdatingTitle = false
+        this.isEditingTitle = false
+      }
+    }
+
+    opacityColor (color: string) {
+      return `${color}33`
     }
 }
 </script>
@@ -338,7 +382,8 @@ export default class TaskModal extends Vue {
 <style lang="postcss" scoped>
 
   .task-modal-header {
-    @apply flex items-center py-8 px-12 pb-2;
+    @apply flex items-start py-8 px-12 pb-2;
+    width: 820px;
     font-weight: bold;
   }
 
@@ -363,25 +408,24 @@ export default class TaskModal extends Vue {
   }
 
   .list-title {
-    font-weight: bold;
+    font-weight: normal;
     text-decoration: underline;
     cursor: default;
   }
 
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
-    min-width: 720px;
-    max-width: 860px;
+    width: 820px;
   }
 
   .task-left {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
   }
 
   .task-right {
     @apply ml-8;
-    flex: 0 0 auto;
-    min-width: 200px;
+    flex: 0 1 auto;
+    width: 210px;
   }
 
   .action-label {
@@ -549,6 +593,18 @@ export default class TaskModal extends Vue {
     @apply flex items-center flex-wrap;
   }
 
+  .task-modal-title-editable {
+    @apply py-2 px-4 rounded;
+    width: 80%;
+    margin-left: -1rem;
+    border: 2px solid transparent;
+
+    &:focus {
+      outline: none;
+      border: 2px solid rgba(47, 128, 237, 0.75);
+      box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
+    }
+  }
   .due-date-box {
     @apply rounded p-2;
     background: rgba(theme("colors.gray.100"), 0.3);

@@ -1,7 +1,7 @@
 <template>
-  <form class="flex flex-row flex-1" @submit.prevent="submit">
+  <div class="flex flex-row flex-1">
     <v-icon
-      name="search"
+      :name="icon"
       size="1.5em"
       class="text-gray-400"
     />
@@ -10,22 +10,26 @@
       :placeholder="placeholder"
       class="w-full ml-2 outline-none bg-transparent"
       v-model="payload"
+      @keyup="submit"
     >
-  </form>
+  </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'Searchbar'
+  name: 'InputIcon'
 })
-export default class Searchbar extends Vue {
+export default class InputIcon extends Vue {
     @Prop({ type: String })
     private readonly value?: string;
 
     @Prop({ type: String, default: 'Search' })
     private readonly placeholder?: string;
+
+    @Prop({ type: String, default: 'search' })
+    private readonly icon?: string;
 
     private payload: string = this.value || ''
 

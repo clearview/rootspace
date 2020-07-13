@@ -72,7 +72,10 @@ export default class TaskComment extends Vue {
 
     async updateComment () {
       this.exitEditMode()
-      await this.$store.dispatch('task/comment/update', this.commentCopy)
+      await this.$store.dispatch('task/comment/update', {
+        id: this.comment.id,
+        content: this.comment.content
+      })
       await this.$store.dispatch('task/board/refresh')
     }
 
