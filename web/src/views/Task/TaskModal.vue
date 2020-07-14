@@ -280,7 +280,7 @@ export default class TaskModal extends Vue {
     }
 
     async saveComment () {
-      const commentResource: Optional<TaskCommentResource, 'userId' | 'createdAt' | 'updatedAt'> = {
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
         id: null,
         content: this.commentInput,
         taskId: this.item.id,
@@ -416,6 +416,8 @@ export default class TaskModal extends Vue {
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
     width: 820px;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
 
   .task-left {
@@ -515,8 +517,6 @@ export default class TaskModal extends Vue {
 
   .comments {
     @apply py-2;
-    max-height: 40vh;
-    overflow-y: auto;
     overflow-x: visible;
   }
 

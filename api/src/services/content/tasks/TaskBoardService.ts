@@ -62,6 +62,7 @@ export class TaskBoardService extends NodeContentService {
         .leftJoinAndSelect('task.tags', 'tag')
         .leftJoinAndSelect('task.assignees', 'assignee')
         .leftJoinAndSelect('task.taskComments', 'comment')
+        .leftJoinAndSelect('comment.user', 'user')
         .where('taskBoard.id = :id', { id })
 
         if (archived) {
@@ -81,6 +82,7 @@ export class TaskBoardService extends NodeContentService {
         .leftJoinAndSelect('task.tags', 'tag')
         .leftJoinAndSelect('task.assignees', 'assignee')
         .leftJoinAndSelect('task.taskComments', 'comment')
+        .leftJoinAndSelect('comment.user', 'user')
         .where('taskBoard.id = :id', { id })
 
     if (searchParam) {
@@ -103,7 +105,7 @@ export class TaskBoardService extends NodeContentService {
       queryBuilder.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
     }
 
-    queryBuilder.andWhere('task.deletedAt IS NULL')
+    queryBuilder.andWhere('task.deletedAt IS NULL')    
     return queryBuilder.getOne()
   }
 
