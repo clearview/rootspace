@@ -59,7 +59,7 @@ export class LinksCtrl extends BaseCtrl {
   }
 
   public async delete(req: Request, res: Response, next: NextFunction) {
-    const link = await this.linkSrvice.delete(Number(req.params.id))
+    const link = await this.linkSrvice.remove(Number(req.params.id))
     res.send(this.responseData(link))
   }
 }

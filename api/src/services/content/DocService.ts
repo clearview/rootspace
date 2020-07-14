@@ -42,7 +42,7 @@ export class DocService extends NodeContentService {
     const doc = await this.getById(id)
 
     if (!doc) {
-      throw clientError('Error deleting document', HttpErrName.EntityNotFound)
+      throw clientError('Document not found', HttpErrName.EntityNotFound)
     }
 
     return doc
