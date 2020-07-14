@@ -12,7 +12,7 @@ import { EventAction, EventType, IEventProvider } from '../../services/events/Ev
 import { FollowableInterface } from '../../services/Followable'
 import { User } from '../entities/User'
 import { FollowService } from '../../services/FollowService'
-import { TaskRepository } from '../../repositories/tasks/TaskRepository'
+import { TaskRepository } from '../repositories/tasks/TaskRepository'
 
 @EventSubscriber()
 export class TaskSubscriber implements EntitySubscriberInterface<Task>, FollowableInterface<Task> {

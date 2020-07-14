@@ -5,7 +5,7 @@ import {
   RemoveEvent
 } from 'typeorm'
 import { TaskBoard } from '../entities/tasks/TaskBoard'
-import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
+import { EventAction, IEventProvider } from '../../services/events/EventType'
 import { FollowService } from '../../services/FollowService'
 
 @EventSubscriber()

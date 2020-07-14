@@ -1,5 +1,5 @@
 import { getConnection, getCustomRepository, In } from 'typeorm'
-import { FollowRepository } from '../repositories/FollowRepository'
+import { FollowRepository } from '../database/repositories/FollowRepository'
 import { Follow } from '../database/entities/Follow'
 import { User } from '../database/entities/User'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'

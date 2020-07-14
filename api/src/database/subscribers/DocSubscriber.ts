@@ -11,7 +11,7 @@ import { EventAction, EventType, IEventProvider } from '../../services/events/Ev
 import { FollowableInterface } from '../../services/Followable'
 import { User } from '../entities/User'
 import { FollowService } from '../../services/FollowService'
-import { DocRepository } from '../../repositories/DocRepository'
+import { DocRepository } from '../repositories/DocRepository'
 
 @EventSubscriber()
 export class DocSubscriber implements EntitySubscriberInterface<Doc>, FollowableInterface<Doc> {
