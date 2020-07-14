@@ -223,7 +223,7 @@ export default class Navigation extends Vue {
   }
 
   get hasSpace () {
-    const spaces = this.$store.state.auth.spaces
+    const spaces = this.$store.state.space.list
 
     return spaces && spaces.length > 0
   }
