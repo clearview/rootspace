@@ -1,4 +1,4 @@
-import { getConnection, getCustomRepository } from 'typeorm'
+import { getConnection, getCustomRepository, In } from 'typeorm'
 import { FollowRepository } from '../repositories/FollowRepository'
 import { Follow } from '../database/entities/Follow'
 import { User } from '../database/entities/User'
@@ -6,15 +6,21 @@ import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { IEventProvider } from './events/EventType'
 import { NotificationService } from './NotificationService'
 import { UserService } from './UserService'
+import { TaskBoardService } from './content/tasks'
+import { Task } from '../database/entities/tasks/Task'
+import { Node } from '../database/entities/Node'
+import { NodeRepository } from '../repositories/NodeRepository'
 
 export class FollowService {
   private static instance: FollowService
   private notificationService: NotificationService
   private userService: UserService
+  private taskBoardService: TaskBoardService
 
   private constructor() {
     this.notificationService = NotificationService.getInstance()
     this.userService = UserService.getInstance()
+    this.taskBoardService = TaskBoardService.getInstance()
   }
 
   static getInstance() {
@@ -137,7 +143,7 @@ export class FollowService {
       tableName: event.tableName
     })
 
-    const followIds = existingFollows.map((follow) => { return follow.id })
+    const followIds = existingFollows.map((follow) => follow.id)
 
     if (!followIds) {
       return null
@@ -151,6 +157,32 @@ export class FollowService {
       itemId: event.itemId,
       tableName: event.tableName
     })
+  }
+
+  async removeFollowsAndNotificationsForTaskBoard(event: IEventProvider): Promise<DeleteResult | void> {
+    const tasks = await this.taskBoardService.getAllTasks(event.itemId)
+
+    await Promise.all(
+        tasks.map(async (task: Task) => {
+          return this.notificationService.delete({
+            itemId: task.id,
+            tableName: 'tasks'
+          })
+        })
+    )
+
+    const existingFollows = await this.getFollowRepository().find({
+      itemId: In(tasks.filter((task) => task.id)),
+      tableName: 'tasks'
+    })
+
+    const followIds = existingFollows.map((follow) => follow.id)
+
+    if (!followIds) {
+      return null
+    }
+
+    return this.getFollowRepository().delete(followIds)
   }
 
 }

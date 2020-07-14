@@ -44,6 +44,10 @@ export class NotificationListener {
             case 'TaskComment':
                 break
 
+            case 'TaskBoard':
+                await this.followService.removeFollowsAndNotificationsForTaskBoard(event)
+                break
+
             default:
                 await this.followService.removeFollowsAndNotifications(event)
                 break

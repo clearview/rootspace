@@ -67,17 +67,9 @@ export class DocService extends NodeContentService {
   }
 
   async remove(id: number) {
-    let doc = await this.getById(id)
+    const doc = await this.getById(id)
+    await this.getDocRepository().remove(doc)
 
-    if (!doc) {
-      throw clientError(
-        'Error deleting document',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
-    }
-
-    doc = await this.getDocRepository().remove(doc)
     await this.mediator.contentRemoved(id, this.getNodeType())
 
     return doc

@@ -8,6 +8,8 @@ import { NodeContentService } from '../NodeContentService'
 import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
+import { Task } from '../../../database/entities/tasks/Task'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
@@ -40,6 +42,17 @@ export class TaskBoardService extends NodeContentService {
 
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
+  }
+
+  async getAllTasks(id: number): Promise<Task[]> {
+    const taskBoard = await this.getById(id)
+    const tasks: Task[] = []
+
+    for (const taskList of taskBoard.taskLists) {
+      tasks.push(...taskList.tasks)
+    }
+
+    return tasks
   }
 
   async getByTaskId(id: number): Promise<TaskBoard> {
@@ -87,14 +100,13 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().reload(taskBoard)
   }
 
-  async delete(id: number) {
-    const res = await this.getTaskBoardRepository().delete({ id })
+  async remove(id: number) {
+    const taskBoard = await this.getById(id)
+    await this.getTaskBoardRepository().remove(taskBoard)
 
-    if (res.affected > 0) {
-      await this.mediator.contentRemoved(id, this.getNodeType())
-    }
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
-    return res
+    return taskBoard
   }
 
   async nodeRemoved(contentId: number): Promise<void> {
