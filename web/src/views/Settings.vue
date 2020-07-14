@@ -155,16 +155,16 @@ export default class Settings extends Vue {
       return this.$store.state.link.active
     }
 
-    get currentSpace () {
-      return this.$store.state.auth.currentSpace || {}
+    get activeSpace () {
+      return this.$store.getters['space/activeSpace'] || {}
     }
 
     get currentUser () {
       return this.$store.state.auth.user
     }
 
-    @Watch('currentSpace')
-    async watchCurrentSpace (val: any) {
+    @Watch('activeSpace')
+    async watchActiveSpace (val: any) {
       if (this.tab === 'space') {
         await this.viewSpace(val.id)
       }
@@ -199,18 +199,14 @@ export default class Settings extends Vue {
       this.isLoading = true
 
       try {
-        const id = this.currentSpace.id
         this.isLoading = true
         this.loadingMessage = 'Update Space Settings...'
 
-        const payload = { // for temporary
+        await this.$store.dispatch('space/update', {
+          id: this.activeSpace.id,
           title: data.title,
           invites: data.invites
-        }
-
-        await SpaceService.update(id, payload)
-
-        this.$store.dispatch('auth/whoami', { updateSpace: true })
+        })
       } catch (err) {
         this.account.alert = {
           type: 'danger',
@@ -223,13 +219,12 @@ export default class Settings extends Vue {
     }
 
     async addSpaceUser (email: string) {
-      console.log(this.currentSpace.id, email)
       try {
         this.isLoading = true
         this.loadingMessage = 'Add user to space...'
 
         const payload = {
-          spaceId: this.currentSpace.id,
+          spaceId: this.activeSpace.id,
           emails: [email]
         }
         await UserService.addInvitation(payload)
@@ -252,12 +247,12 @@ export default class Settings extends Vue {
 
         try {
           const getUserId = get(getUser, 'id')
-          await SpaceService.removeUser(this.currentSpace.id, getUserId)
+          await SpaceService.removeUser(this.activeSpace.id, getUserId)
 
           if (this.currentUser.id === getUserId) {
             await this.$store.dispatch('auth/whoami', { updateSpace: true })
           } else {
-            const id = this.currentSpace.id
+            const id = this.activeSpace.id
             this.viewSpace(id)
           }
         } catch (err) {
@@ -281,7 +276,7 @@ export default class Settings extends Vue {
       const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
       console.log(concatSpaceUsers)
 
-      const spaceTitle = this.currentSpace.title
+      const spaceTitle = this.activeSpace.title
       this.spaceData = {
         title: spaceTitle,
         invites: concatSpaceUsers
@@ -293,7 +288,7 @@ export default class Settings extends Vue {
       this.tab = tab
 
       if (tab === 'space') {
-        const id = this.currentSpace.id
+        const id = this.activeSpace.id
         this.viewSpace(id)
       }
     }

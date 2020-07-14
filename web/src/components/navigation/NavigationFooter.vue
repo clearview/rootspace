@@ -15,7 +15,7 @@
             src="@/assets/images/space.png"
             alt="Space"
           >
-          <span class="truncate">{{ currentSpace.title }}</span>
+          <span class="truncate">{{ activeSpace.title }}</span>
         </div>
         <v-icon
           name="down"
@@ -74,10 +74,11 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+
+import { SpaceResource } from '@/types/resource'
 
 import NavigationSpace from '@/components/navigation/NavigationSpace.vue'
-import { Component, Prop } from 'vue-property-decorator'
 
 @Component({
   name: 'NavigationFooter',
@@ -91,8 +92,8 @@ export default class NavigationFooter extends Vue {
 
   private showMenu = false
 
-  get currentSpace (): object {
-    return this.$store.state.auth.currentSpace || {}
+  get activeSpace (): SpaceResource {
+    return this.$store.getters['space/activeSpace']
   }
 
   settingsPage () {

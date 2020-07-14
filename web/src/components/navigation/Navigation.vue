@@ -50,7 +50,7 @@
       <div class="modal-body">
         <form-link
           @submit="addLink"
-          :space="currentSpace.id"
+          :space="activeSpace.id"
           ref="formLinkAdd"
         />
       </div>
@@ -67,7 +67,7 @@
       <div class="modal-body">
         <form-task
           @submit="addTask"
-          :space="currentSpace.id"
+          :space="activeSpace.id"
           ref="formTaskAdd"
         />
       </div>
@@ -228,13 +228,15 @@ export default class Navigation extends Vue {
     return spaces && spaces.length > 0
   }
 
-  get currentSpace () {
-    return this.$store.state.auth.currentSpace || {}
+  get activeSpace () {
+    return this.$store.getters['space/activeSpace']
   }
 
-  @Watch('currentSpace')
-  async onCurrentSpaceChange (currentSpace: SpaceResource) {
-    await this.fetchTree(currentSpace)
+  @Watch('activeSpace')
+  async watchActiveSpace (activeSpace: SpaceResource) {
+    if (activeSpace.id) {
+      await this.fetchTree(activeSpace)
+    }
   }
 
   async created () {
@@ -242,7 +244,7 @@ export default class Navigation extends Vue {
       return this.$router.replace({ name: 'SpaceInit' })
     }
 
-    await this.fetchTree(this.currentSpace)
+    await this.fetchTree(this.activeSpace)
   }
 
   toggleCollapse () {
@@ -289,7 +291,7 @@ export default class Navigation extends Vue {
 
     try {
       await this.$store.dispatch('link/create', data)
-      await this.fetchTree(this.currentSpace)
+      await this.fetchTree(this.activeSpace)
     } catch (e) {
       this.link.add.alert = {
         type: 'danger',
@@ -306,7 +308,7 @@ export default class Navigation extends Vue {
 
     try {
       const res = await this.$store.dispatch('task/board/create', data) as {data: TaskBoardResource}
-      await this.fetchTree(this.currentSpace)
+      await this.fetchTree(this.activeSpace)
       if (res.data.id) {
         await this.$router.push({
           name: 'TaskPage',
@@ -329,7 +331,7 @@ export default class Navigation extends Vue {
   async updateItem (data: NodeResource) {
     try {
       await this.$store.dispatch('tree/update', data)
-      await this.fetchTree(this.currentSpace)
+      await this.fetchTree(this.activeSpace)
     } catch (err) {
       this.link.update.alert = {
         type: 'danger',
@@ -341,21 +343,14 @@ export default class Navigation extends Vue {
   async destroyItem (data: NodeResource) {
     await this.$store.dispatch('tree/destroy', data)
 
-    await this.fetchTree(this.currentSpace)
+    await this.fetchTree(this.activeSpace)
   }
 
   async addSpace (data: SpaceResource) {
     this.space.add.loading = true
 
     try {
-      const res = await SpaceService.create(data)
-
-      await this.$store.dispatch('auth/whoami')
-
-      this.$store.commit(
-        'auth/setCurrentSpace',
-        pick(res.data, ['id', 'title', 'settings'])
-      )
+      await this.$store.dispatch('space/create', data)
     } catch (err) {
       this.space.add.alert = {
         type: 'danger',
