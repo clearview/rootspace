@@ -18,10 +18,10 @@
         size="1.5em"
       />
 
-      <template #help v-if="$v.payload.firstName.$error">
+      <template #feedback v-if="$v.payload.firstName.$error">
         <p
           v-if="!$v.payload.firstName.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           First Name is required.
         </p>
@@ -46,10 +46,10 @@
         size="1.5em"
       />
 
-      <template #help v-if="$v.payload.lastName.$error">
+      <template #feedback v-if="$v.payload.lastName.$error">
         <div
           v-if="!$v.payload.lastName.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Last Name is required.
         </div>
@@ -73,16 +73,16 @@
         size="1.5em"
       />
 
-      <template #help v-if="$v.payload.email.$error">
+      <template #feedback v-if="$v.payload.email.$error">
         <p
           v-if="!$v.payload.email.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Email is required.
         </p>
         <p
           v-if="!$v.payload.email.email"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Email format is not valid.
         </p>
@@ -108,16 +108,16 @@
         />
       </span>
 
-      <template #help v-if="$v.payload.password.$dirty">
+      <template #feedback v-if="$v.payload.password.$dirty">
         <p
           v-if="!$v.payload.password.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Password is required.
         </p>
         <div
           v-if="!$v.payload.password.minLength"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
         </div>
@@ -142,10 +142,10 @@
         size="1.5em"
       />
 
-      <template #help v-if="$v.payload.password_confirmation.$error">
+      <template #feedback v-if="$v.payload.password_confirmation.$error">
         <p
           v-if="!$v.payload.password_confirmation.sameAsPassword"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Passwords must be identical.
         </p>

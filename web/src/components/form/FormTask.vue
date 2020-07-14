@@ -4,14 +4,12 @@
     @submit.prevent="submit"
   >
     <v-field label="Board Name">
-      <div class="flex flow-row items-center">
-        <input
-          type="text"
-          class="input"
-          placeholder="E.g. Weekly Groceries"
-          v-model="payload.title"
-        >
-      </div>
+      <input
+        type="text"
+        class="input"
+        placeholder="E.g. Weekly Groceries"
+        v-model="payload.title"
+      >
     </v-field>
 
     <v-field label="Select Board Type">
@@ -53,6 +51,7 @@
       inline
       border
       label="Make Board Private"
+      align="right"
       class="mb-0"
     >
       <button-switch v-model="payload.isPublic" />

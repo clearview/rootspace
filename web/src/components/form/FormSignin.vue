@@ -19,16 +19,16 @@
         name="email"
       />
 
-      <template #help>
+      <template #feedback>
         <p
           v-if="$v.payload.email.$error && !$v.payload.email.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Field is required.
         </p>
         <p
           v-if="$v.payload.email.$error && !$v.payload.email.email"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Email format is not valid.
         </p>
@@ -51,16 +51,16 @@
         name="lock"
       />
 
-      <template #help>
+      <template #feedback>
         <p
           v-if="$v.payload.password.$error && !$v.payload.password.required"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Password is required.
         </p>
         <p
           v-if="$v.payload.password.$error && !$v.payload.password.minLength"
-          class="help is-danger"
+          class="feedback is-danger"
         >
           Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
         </p>

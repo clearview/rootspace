@@ -7,19 +7,17 @@
       v-if="!notitle"
       label="Title"
     >
-      <div class="flex flow-row items-center">
-        <input
-          type="text"
-          class="input"
-          placeholder="Enter title"
-          v-model="payload.title"
-        >
-        <v-icon
-          name="folder"
-          size="2em"
-          class="ml-2 text-gray-400"
-        />
-      </div>
+      <input
+        type="text"
+        class="input"
+        placeholder="Enter title"
+        v-model="payload.title"
+      >
+      <v-icon
+        name="folder"
+        size="2em"
+        class="flex-none ml-2 text-gray-400"
+      />
     </v-field>
 
     <v-field label="Link">
@@ -35,6 +33,7 @@
       inline
       border
       label="Always open in new Tab"
+      align="right"
       class="mb-0"
     >
       <button-switch v-model="payload.config.alwaysOpen" />
