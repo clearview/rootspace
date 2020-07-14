@@ -130,6 +130,10 @@ export interface SpaceResource {
   settings?: object;
 }
 
+export interface SpaceMetaResource {
+  activePage: string;
+}
+
 export interface UserResource {
   id?: number;
   active?: boolean;

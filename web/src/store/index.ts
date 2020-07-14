@@ -16,6 +16,7 @@ import task from '@/store/modules/task/task'
 import nav from '@/store/modules/nav'
 import option from '@/store/modules/option'
 import tree from '@/store/modules/tree'
+import space from '@/store/modules/space'
 
 Vue.use(Vuex)
 
@@ -27,7 +28,8 @@ export default new Vuex.Store<RootState>({
     task,
     nav,
     option,
-    tree
+    tree,
+    space
   },
   plugins: [
     local.plugin,
