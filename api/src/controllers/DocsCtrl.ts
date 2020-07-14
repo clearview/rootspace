@@ -49,8 +49,8 @@ export class DocsCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.docService.remove(Number(req.params.id))
-    res.send(result)
+    const doc = await this.docService.remove(Number(req.params.id))
+    res.send(this.responseData(doc))
   }
 
   async follow(req: Request, res: Response, next: NextFunction) {

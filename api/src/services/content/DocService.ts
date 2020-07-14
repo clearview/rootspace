@@ -34,8 +34,18 @@ export class DocService extends NodeContentService {
     return NodeType.Document
   }
 
-  async getById(id: number): Promise<Doc> {
-    return this.getDocRepository().findOneOrFail(id)
+  async getById(id: number): Promise<Doc | undefined> {
+    return this.getDocRepository().findOne(id)
+  }
+
+  async requiereById(id: number): Promise<Doc> {
+    const doc = await this.getById(id)
+
+    if (!doc) {
+      throw clientError('Error deleting document', HttpErrName.EntityNotFound)
+    }
+
+    return doc
   }
 
   async create(data: DocCreateValue): Promise<Doc> {
@@ -67,9 +77,9 @@ export class DocService extends NodeContentService {
   }
 
   async remove(id: number) {
-    const doc = await this.getById(id)
-    await this.getDocRepository().remove(doc)
+    let doc = await this.requiereById(id)
 
+    doc = await this.getDocRepository().remove(doc)
     await this.mediator.contentRemoved(id, this.getNodeType())
 
     return doc

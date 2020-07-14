@@ -1,4 +1,4 @@
-import { getCustomRepository, DeleteResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { LinkRepository } from '../../database/repositories/LinkRepository'
 import { Link } from '../../database/entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
@@ -72,8 +72,8 @@ export class LinkService extends NodeContentService {
     return link
   }
 
-  async delete(id: number): Promise<DeleteResult> {
-    const link = await this.getLinkById(id)
+  async delete(id: number): Promise<Link> {
+    let link = await this.getLinkById(id)
 
     if (!link) {
       throw clientError(
@@ -83,15 +83,10 @@ export class LinkService extends NodeContentService {
       )
     }
 
-    const res = await this.getLinkRepository().delete({
-      id,
-    })
+    link = await this.getLinkRepository().remove(link)
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
-    if (res.affected > 0) {
-      this.mediator.contentRemoved(link.id, this.getNodeType())
-    }
-
-    return res
+    return link
   }
 
   async nodeUpdated(
@@ -109,7 +104,7 @@ export class LinkService extends NodeContentService {
   }
 
   async nodeRemoved(contentId: number): Promise<void> {
-    const link = await this.getLinkRepository().findOne({id: contentId})
+    const link = await this.getLinkRepository().findOne({ id: contentId })
     await this.getLinkRepository().remove(link)
   }
 }
