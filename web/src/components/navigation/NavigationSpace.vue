@@ -106,9 +106,7 @@ export default class NavigationSpace extends Vue {
     this.$store.commit('auth/setCurrentSpace', omit('active', data))
 
     this.$emit('input', null)
-    if (!isEmpty(this.$route.query)) {
-      this.$router.replace({ query: {} })
-    }
+    this.$router.replace({ path: '/' })
   }
 
   signout () {
