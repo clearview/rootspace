@@ -6,6 +6,8 @@
   @apply font-bold leading-none;
   @apply outline-none !important;
 
+  height: 40px;
+
   transition: 300ms;
 
   & ~ & {
@@ -26,6 +28,10 @@
 
   &.btn-mute {
     @apply bg-gray-100 text-gray-900 border-gray-100;
+  }
+
+  &.btn-white {
+    @apply bg-white text-gray-400 border-gray-400;
   }
 
   &.btn-link {
@@ -65,6 +71,12 @@
 
   &.btn-mute {
     background-color: rgba(theme('colors.gray.100'), 0.5);
+  }
+
+  &.btn-white {
+    @apply bg-white border-gray-400;
+
+    color: rgba(theme('colors.gray.400'), 0.5);
   }
 
   &.btn-link {

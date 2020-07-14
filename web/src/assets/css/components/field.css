@@ -19,19 +19,38 @@
     .input {
       @apply pointer-events-none !important;
     }
-
-    .label {
-      @apply text-gray-400;
-    }
   }
 
-  .label + .control {
-    @apply mt-2;
+  &.has-addon {
+    @apply flex-row flex-wrap;
+  }
+}
+
+.label ~ .control,
+ .label ~ .control-addon {
+  @apply mt-2;
+
+  .is-inline & {
+    @apply mt-0;
   }
 }
 
 .label {
   @apply text-gray-800;
+
+  .is-disabled & {
+    @apply text-gray-400;
+  }
+
+  .has-addon & {
+    @apply w-full;
+  }
+}
+
+.input {
+  .has-addon & {
+    @apply rounded-tr-none rounded-br-none;
+  }
 }
 
 .control {
@@ -65,7 +84,15 @@
   }
 }
 
-.help {
+.control-addon {
+  .btn {
+    @apply flex-initial px-6;
+    @apply border-l-0;
+    @apply rounded-tl-none rounded-bl-none;
+  }
+}
+
+.feedback {
   @apply mt-1;
 
   &.is-danger {

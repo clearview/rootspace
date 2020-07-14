@@ -4,7 +4,8 @@
     :class="{
       'is-inline': inline,
       'is-bordered': border,
-      'is-disabled': disabled
+      'is-disabled': disabled,
+      'has-addon': $slots.addon
     }"
   >
     <label
@@ -13,6 +14,7 @@
       class="label"
       :for="name"
     />
+
     <div
       class="control"
       :class="{
@@ -25,7 +27,11 @@
       <slot />
     </div>
 
-    <slot name="help" />
+    <div v-if="$slots.addon" class="control-addon">
+      <slot name="addon" />
+    </div>
+
+    <slot name="feedback" />
   </div>
 </template>
 
