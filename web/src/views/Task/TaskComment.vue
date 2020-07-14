@@ -134,7 +134,7 @@ export default class TaskComment extends Vue {
     @apply flex items-start;
 
     & ~ & {
-      @apply mt-4;
+      @apply mt-6;
     }
   }
 
@@ -214,6 +214,7 @@ export default class TaskComment extends Vue {
     min-width: 120px;
     color: theme("colors.gray.900");
     stroke-width: 3px;
+    cursor: pointer;
 
     &:hover{
       background: #F0F2F5;
