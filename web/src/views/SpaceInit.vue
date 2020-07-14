@@ -3,9 +3,9 @@
     <root-header></root-header>
 
     <div class="content">
-      <div class="max-w-xs mx-auto p-4 mt-10">
+      <div class="max-w-sm mx-auto p-4 mt-10">
         <h2 class="text-center">Welcome {{ name }}!</h2>
-        <p class="text-center mb-2 text-gray-800">Create your own space in few steps...</p>
+        <p class="text-center mb-2 text-gray-400">Create your own space in few steps...</p>
 
         <div class="avatar">
           <img
