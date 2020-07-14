@@ -8,7 +8,6 @@ import { NodeContentService } from '../NodeContentService'
 import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
-import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
 import { Task } from '../../../database/entities/tasks/Task'
 
 export class TaskBoardService extends NodeContentService {
@@ -45,7 +44,8 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getAllTasks(id: number): Promise<Task[]> {
-    const taskBoard = await this.getById(id)
+    const taskBoard = await this.getCompleteTaskboard(id)
+
     const tasks: Task[] = []
 
     for (const taskList of taskBoard.taskLists) {
@@ -62,7 +62,8 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
+    return this.getTaskBoardRepository()
+        .getCompleteTaskboard(id, archived)
   }
 
   async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {

@@ -7,9 +7,6 @@ import { IEventProvider } from './events/EventType'
 import { NotificationService } from './NotificationService'
 import { UserService } from './UserService'
 import { TaskBoardService } from './content/tasks'
-import { Task } from '../database/entities/tasks/Task'
-import { Node } from '../database/entities/Node'
-import { NodeRepository } from '../repositories/NodeRepository'
 
 export class FollowService {
   private static instance: FollowService
@@ -161,20 +158,18 @@ export class FollowService {
 
   async removeFollowsAndNotificationsForTaskBoard(event: IEventProvider): Promise<DeleteResult | void> {
     const tasks = await this.taskBoardService.getAllTasks(event.itemId)
+    const taskIds = tasks.map((task) => task.id)
 
-    await Promise.all(
-        tasks.map(async (task: Task) => {
-          return this.notificationService.delete({
-            itemId: task.id,
-            tableName: 'tasks'
-          })
-        })
-    )
+    const notifications = await this.notificationService.getNotifications(taskIds, 'tasks')
+    if (notifications.length > 0) {
+      await this.notificationService.getNotificationRepository().remove(notifications)
+    }
 
-    const existingFollows = await this.getFollowRepository().find({
-      itemId: In(tasks.filter((task) => task.id)),
-      tableName: 'tasks'
-    })
+    const existingFollows = await this.getFollowRepository()
+        .createQueryBuilder('follow')
+        .where('follow.itemId IN (:...itemIds)', { itemIds: taskIds })
+        .andWhere('follow.tableName = :tableName', { tableName: 'tasks'})
+        .getMany()
 
     const followIds = existingFollows.map((follow) => follow.id)
 

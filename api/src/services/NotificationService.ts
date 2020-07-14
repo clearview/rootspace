@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm'
+import {getCustomRepository, In} from 'typeorm'
 import { NotificationRepository } from '../repositories/NotificationRepository'
 import { Notification } from '../database/entities/Notification'
 import { IEventProvider } from './events/EventType'
@@ -37,6 +37,14 @@ export class NotificationService {
 
   getNotificationsByUserId(userId: number): Promise<Notification[]> {
     return this.getNotificationRepository().find({ id: userId })
+  }
+
+  async getNotifications(itemIds: number[], tableName: string): Promise<Notification[]> {
+    return this.getNotificationRepository()
+        .createQueryBuilder('notification')
+        .where('notification.itemId IN (:...itemIds)', { itemIds })
+        .andWhere('notification.tableName = :tableName', { tableName })
+        .getMany()
   }
 
   async create(event: IEventProvider): Promise<Notification> {

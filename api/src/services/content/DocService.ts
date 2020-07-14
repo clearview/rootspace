@@ -1,4 +1,4 @@
-import { getCustomRepository, DeleteResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../database/repositories/DocRepository'
 import { Doc } from '../../database/entities/Doc'
 import { DocCreateValue, DocUpdateValue } from '../../values/doc'
@@ -6,7 +6,7 @@ import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName } from '../../errors'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -38,7 +38,7 @@ export class DocService extends NodeContentService {
     return this.getDocRepository().findOne(id)
   }
 
-  async requiereById(id: number): Promise<Doc> {
+  async requireById(id: number): Promise<Doc> {
     const doc = await this.getById(id)
 
     if (!doc) {
@@ -77,7 +77,7 @@ export class DocService extends NodeContentService {
   }
 
   async remove(id: number) {
-    let doc = await this.requiereById(id)
+    let doc = await this.requireById(id)
 
     doc = await this.getDocRepository().remove(doc)
     await this.mediator.contentRemoved(id, this.getNodeType())
