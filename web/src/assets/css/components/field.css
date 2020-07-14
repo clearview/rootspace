@@ -5,31 +5,70 @@
     @apply mt-3;
   }
 
-  &.field-inline {
+  &.is-inline {
     @apply flex-row justify-between mt-6;
   }
 
-  &.field-border {
+  &.is-bordered {
     @apply border rounded border-gray-100;
     @apply py-2 px-3;
   }
 
-  &.field-disabled {
-    label,
-    input {
+  &.is-disabled {
+    .label,
+    .input {
       @apply pointer-events-none !important;
     }
 
-    .field-label {
+    .label {
       @apply text-gray-400;
     }
   }
 
-  .input {
+  .label + .control {
     @apply mt-2;
   }
 }
 
-.field-label {
+.label {
   @apply text-gray-800;
+}
+
+.control {
+  @apply flex flex-1 flex-row items-center;
+  @apply relative;
+
+  &.has-icon-left {
+    .input {
+      @apply pl-12;
+    }
+  }
+
+  &.has-icon-right {
+    .input {
+      @apply pr-12;
+    }
+  }
+
+  .icon {
+    @apply absolute z-10;
+    @apply w-6 h-6 mx-3;
+    @apply text-gray-400;
+
+    &.is-left {
+      @apply left-0;
+    }
+
+    &.is-right {
+      @apply right-0;
+    }
+  }
+}
+
+.help {
+  @apply mt-1;
+
+  &.is-danger {
+    @apply text-danger;
+  }
 }
