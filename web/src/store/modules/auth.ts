@@ -1,17 +1,12 @@
 import { Module } from 'vuex'
 
 import { RootState, AuthState } from '@/types/state'
-import { SpaceResource } from '@/types/resource'
 
 import AuthService from '@/services/auth'
 
 type SigninContext = {
   type: string;
   payload: object;
-}
-
-type WhoamiOptions = {
-  updateSpace?: boolean;
 }
 
 const AuthModule: Module<AuthState, RootState> = {
@@ -35,12 +30,12 @@ const AuthModule: Module<AuthState, RootState> = {
   },
 
   actions: {
-    async whoami ({ commit, dispatch }, opts: WhoamiOptions = {}) {
+    async whoami ({ commit, dispatch }) {
       try {
         const { data } = await AuthService.whoami()
 
         commit('setUser', data.user)
-        commit('space/setList', data.spaces, { root: true })
+        commit('space/setSpaces', data, { root: true })
       } catch (err) {
         dispatch('signout')
       }

@@ -86,6 +86,6 @@ export interface DocumentState {
 
 export interface SpaceState {
   activeIndex: number;
-  list: SpaceResource[];
-  meta: SpaceMetaResource[];
+  spaces: SpaceResource[];
+  spacesMeta: SpaceMetaResource[];
 }

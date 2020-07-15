@@ -73,8 +73,6 @@
 </template>
 
 <script lang="ts">
-import { omit, isEmpty } from 'lodash/fp'
-
 import { SpaceResource } from '@/types/resource'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
@@ -95,11 +93,11 @@ export default class NavigationSpace extends Vue {
   }
 
   get spaces () {
-    return this.$store.state.space.list
+    return this.$store.state.space.spaces
   }
 
-  select (data: SpaceResource) {
-    this.$store.commit('space/setActive', data)
+  select (space: SpaceResource) {
+    this.$store.commit('space/setActive', { space })
 
     this.$emit('input', null)
   }

@@ -4,57 +4,78 @@ import { Module } from 'vuex'
 import { RootState, SpaceState } from '@/types/state'
 import { SpaceResource, SpaceMetaResource } from '@/types/resource'
 
+type SpaceCollectionPayload = {
+  spaces: SpaceResource[];
+}
+
+type SpacePayload = {
+  index: number;
+  space: SpaceResource;
+}
+
+type SpaceMetaPayload = {
+  index: number;
+  meta: SpaceMetaResource;
+}
+
 const SpaceModule: Module<SpaceState, RootState> = {
   namespaced: true,
 
   state () {
     return {
       activeIndex: 0,
-      list: [],
-      meta: []
+      spaces: [],
+      spacesMeta: []
     }
   },
 
   getters: {
-    activeSpace (state): SpaceResource & SpaceMetaResource {
+    activeSpace (state): SpaceResource {
       const index = state.activeIndex
 
-      return {
-        ...state.list[index] || {},
-        ...state.meta[index] || {}
-      }
+      return state.spaces[index] || {}
+    },
+    activeSpaceMeta (state): SpaceMetaResource {
+      const index = state.activeIndex
+
+      return state.spacesMeta[index] || {}
+    },
+    hasSpace (state): boolean {
+      return state.spaces.length > 0
     }
   },
 
   mutations: {
-    setActive (state, space: SpaceResource) {
-      state.activeIndex = state.list.findIndex(
+    setActive (state, { space }: SpacePayload) {
+      state.activeIndex = state.spaces.findIndex(
         (item) => item.id === space.id
       )
     },
 
-    setList (state, list: SpaceResource[]) {
-      state.list = list
+    setSpaces (state, { spaces }: SpaceCollectionPayload) {
+      state.spaces = spaces
     },
 
-    pushList (state, space) {
-      state.list.push(space)
+    addSpace (state, { space }: SpacePayload) {
+      state.spaces.push(space)
     },
 
-    patchList (state, { index, space }) {
-      state.list.splice(index, 1, space)
+    updateSpace (state, { index, space }: SpacePayload) {
+      const _space = {
+        ...state.spaces[index],
+        ...space
+      }
+
+      state.spaces.splice(index, 1, _space)
     },
 
-    setActivetList (state, space: SpaceResource) {
-      const index = state.activeIndex
+    updateMeta (state, { index, meta }: SpaceMetaPayload) {
+      const _meta = {
+        ...state.spacesMeta[index],
+        ...meta
+      }
 
-      state.list.splice(index, 1, space)
-    },
-
-    setActiveMeta (state, meta: SpaceMetaResource) {
-      const index = state.activeIndex
-
-      state.meta.splice(index, 1, meta)
+      state.spacesMeta.splice(index, 1, _meta)
     }
   },
 
@@ -62,27 +83,27 @@ const SpaceModule: Module<SpaceState, RootState> = {
     async fetch ({ commit }, params) {
       const res = await api.get('/spaces', { params })
 
-      commit('setList', res.data)
+      commit('setSpaces', { spaces: res.data })
     },
 
     async create ({ commit, state }, space) {
-      commit('pushList', space)
-      commit('setActive', space)
+      commit('addSpace', { space })
+      commit('setActive', { space })
 
       const res = await api.post('/spaces', space)
 
-      commit('patchList', {
+      commit('updateSpace', {
         index: state.activeIndex,
         space: res.data
       })
     },
 
     async update ({ commit, state }, space) {
-      const index = state.list.findIndex(
+      const index = state.spaces.findIndex(
         (item) => item.id === space.id
       )
 
-      commit('patchList', { index, space })
+      commit('updateList', { index, space })
 
       await api.patch(`/spaces/${space.id}`, space)
     }

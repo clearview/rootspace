@@ -94,7 +94,6 @@
 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
-import { pick } from 'lodash'
 
 import {
   SpaceResource,
@@ -102,8 +101,6 @@ import {
   TaskBoardResource,
   NodeResource
 } from '@/types/resource'
-
-import SpaceService from '@/services/space'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
@@ -223,9 +220,7 @@ export default class Navigation extends Vue {
   }
 
   get hasSpace () {
-    const spaces = this.$store.state.space.list
-
-    return spaces && spaces.length > 0
+    return this.$store.getters['space/hasSpace']
   }
 
   get activeSpace () {
