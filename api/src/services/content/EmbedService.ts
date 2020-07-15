@@ -40,7 +40,7 @@ export class EmbedService extends NodeContentService {
   }
 
   async requireEmbedById(id: number): Promise<Embed> {
-    const embed = this.getEmbedById(id)
+    const embed = await this.getEmbedById(id)
 
     if (!embed) {
       throw clientError(

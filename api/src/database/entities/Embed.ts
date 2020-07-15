@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-@Entity('embed')
+@Entity('embeds')
 export class Embed {
   @PrimaryGeneratedColumn()
   id: number

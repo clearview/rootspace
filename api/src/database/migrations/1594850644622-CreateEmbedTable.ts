@@ -12,6 +12,8 @@ export class CreateEmbedTable1594850644622 implements MigrationInterface {
             name: 'id',
             type: 'int',
             isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
           },
           {
             name: 'userId',
@@ -31,11 +33,13 @@ export class CreateEmbedTable1594850644622 implements MigrationInterface {
           },
           {
             name: 'created',
-            type: 'timestamptz',
+            type: 'timestamp',
+            default: 'now()',
           },
           {
             name: 'updated',
-            type: 'timestamptz',
+            type: 'timestamp',
+            default: 'now()',
           },
         ],
       }),
