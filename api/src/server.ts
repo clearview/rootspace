@@ -25,12 +25,13 @@ declare global {
 
 export default class Server {
   app: Application
-  instance: http.Server
+  server: http.Server
 
   constructor() {
     this.app = express()
+    this.server = http.createServer(this.app)
+
     this.app.use(httpRequestContext.middleware())
-    this.instance = null
 
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
@@ -60,14 +61,14 @@ export default class Server {
       port = config.port
     }
 
-    this.instance = this.app.listen(port, () => {
+    this.server.listen(port, () => {
       console.log(`🚀 Server ready at: http://localhost:${port}`) // tslint:disable-line
     })
   }
 
   close() {
-    if (this.instance) {
-      this.instance.close()
+    if (this.server) {
+      this.server.close()
     }
   }
 }
