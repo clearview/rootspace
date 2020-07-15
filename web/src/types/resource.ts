@@ -131,7 +131,7 @@ export interface SpaceResource {
 }
 
 export interface SpaceMetaResource {
-  activeNode?: NodeResource;
+  activePage?: string;
 }
 
 export interface UserResource {

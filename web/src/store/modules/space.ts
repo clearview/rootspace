@@ -62,7 +62,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
     updateSpace (state, { index, space }: SpacePayload) {
       const _space = {
-        ...state.spaces[index],
+        ...state.spaces[index] || {},
         ...space
       }
 
@@ -71,7 +71,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
     updateMeta (state, { index, meta }: SpaceMetaPayload) {
       const _meta = {
-        ...state.spacesMeta[index],
+        ...state.spacesMeta[index] || {},
         ...meta
       }
 

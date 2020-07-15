@@ -238,21 +238,28 @@ export default class NavigationItem extends Vue {
       return
     }
 
-    this.$store.commit('tree/setActive', path.join(','))
+    // const name = this.nodeTypeRouteMap[node.type]
+    const to = this.$router.resolve({
+      name: this.nodeTypeRouteMap[node.type],
+      params: {
+        id: node.contentId.toString()
+      }
+    })
 
-    const name = this.nodeTypeRouteMap[node.type]
-
-    if (!name) {
+    if (to.href === '/') {
       return
     }
 
     try {
-      await this.$router.push({
-        name,
-        params: {
-          id: node.contentId.toString()
+      this.$store.commit('tree/setActive', path.join(','))
+      this.$store.commit('space/updateMeta', {
+        index: this.$store.state.space.activeIndex,
+        meta: {
+          activePage: to.href
         }
       })
+
+      await this.$router.push(to.href)
     } catch { }
   }
 
