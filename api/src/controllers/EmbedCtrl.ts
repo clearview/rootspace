@@ -2,8 +2,8 @@ import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { EmbedService } from '../services'
-import { validateEmbedCreate } from '../validation/embed'
-import { EmbedCreateValue } from '../values/embed'
+import { validateEmbedCreate, validateEmbedUpdate } from '../validation/embed'
+import { EmbedCreateValue, EmbedUpdateValue } from '../values/embed'
 import { Actions } from '../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 
@@ -35,7 +35,20 @@ export class EmbedCtrl extends BaseCtrl {
     res.send(this.responseData(embed))
   }
 
-  async update(req: Request, res: Response) {}
+  async update(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const data = req.body.data
 
-  async delete(req: Request, res: Response) {}
+    await validateEmbedUpdate(data)
+
+    const value = EmbedUpdateValue.fromObject(data)
+    const embed = await this.embedService.update(value, id)
+
+    res.send(this.responseData(embed))
+  }
+
+  async delete(req: Request, res: Response) {
+    const emebd = await this.embedService.remove(Number(req.params.id))
+    res.send(this.responseData(emebd))
+  }
 }
