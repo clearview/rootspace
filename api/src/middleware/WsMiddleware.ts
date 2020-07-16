@@ -4,6 +4,7 @@ import Primus = require('primus')
 import { Spark } from 'primus'
 import jwt from 'jsonwebtoken'
 import { UserService } from '../services'
+import { Request } from 'express'
 
 export enum WsEvent {
   'Error'= 'error',
@@ -13,15 +14,10 @@ export enum WsEvent {
 }
 
 export function wsServerHooks(primus: Primus) {
-  primus.authorize(async (req, done) => {
-    const authHeader = String(req.headers?.authorization)
-    if (!authHeader || typeof authHeader === 'undefined' || authHeader === 'undefined') {
+  primus.authorize(async (req: Request, done) => {
+    const token = String(req.query?.token)
+    if (!token || typeof token === 'undefined' || token === 'undefined') {
       return done(new Error('Missing authorization header'))
-    }
-
-    const token = authHeader.replace('Bearer ','')
-    if (!token) {
-      return done(new Error('Invalid authorization header'))
     }
 
     const decoded: any = jwt.verify(token, config.jwtSecretKey)
