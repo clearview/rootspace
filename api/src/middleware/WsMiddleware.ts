@@ -14,10 +14,14 @@ export enum WsEvent {
 
 export function wsServerHooks(primus: Primus) {
   primus.authorize(async (req, done) => {
-    const token = String(req.headers?.token)
+    const authHeader = String(req.headers?.authorization)
+    if (!authHeader || typeof authHeader === 'undefined' || authHeader === 'undefined') {
+      return done(new Error('Missing authorization header'))
+    }
 
-    if (!token || typeof token === 'undefined' || token === 'undefined') {
-      return done(new Error('Missing token'))
+    const token = authHeader.replace('Bearer ','')
+    if (!token) {
+      return done(new Error('Invalid authorization header'))
     }
 
     const decoded: any = jwt.verify(token, config.jwtSecretKey)
