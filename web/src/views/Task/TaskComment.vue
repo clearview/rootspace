@@ -32,7 +32,7 @@
             </template>
             <template #trigger="{ visible }">
               <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-                <v-icon name="ellipsis" viewbox="20" size="1.5rem"/>
+                <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
               </button>
             </template>
           </Popover>
@@ -69,8 +69,8 @@ import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
-import formatRelative from 'date-fns/formatRelative'
 import Popover from '@/components/Popover.vue'
+import { formatRelativeTo } from '@/utils/date'
 
   @Component({
     name: 'TaskComment',
@@ -86,7 +86,7 @@ import Popover from '@/components/Popover.vue'
     filters: {
       formatDate (date: Date | string) {
         const dueDate = date instanceof Date ? date : new Date(date)
-        return formatRelative(dueDate, new Date())
+        return formatRelativeTo(dueDate, new Date())
       }
     }
   })
@@ -143,7 +143,7 @@ export default class TaskComment extends Vue {
   }
 
   .comment-right {
-    @apply ml-4;
+    @apply ml-2;
     flex: 1 1 auto;
   }
 
@@ -159,7 +159,9 @@ export default class TaskComment extends Vue {
   }
 
   .comment-content {
-    @apply p-3 text-base leading-tight rounded;
+    @apply p-2 leading-tight rounded;
+    font-size: 14px;
+    line-height: 17px;
     color: theme("colors.gray.900");
     background: rgba(theme("colors.gray.100"), 0.3);
   }
@@ -204,14 +206,18 @@ export default class TaskComment extends Vue {
     @apply ml-auto;
     flex: 0 0 auto;
     .btn {
-      @apply p-1;
+      @apply p-0;
+      color: theme("colors.gray.400");
+    }
+    .btn-link-primary {
+      color: theme("colors.primary.default");
     }
   }
   .action-line {
-    @apply flex items-center py-2 px-4;
+    @apply flex items-center py-2 px-4 my-1;
     font-size: 14px;
     font-weight: 600;
-    min-width: 120px;
+    min-width: 168px;
     color: theme("colors.gray.900");
     stroke-width: 3px;
     cursor: pointer;
