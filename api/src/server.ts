@@ -9,7 +9,9 @@ import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
+import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
+import Primus = require('primus')
 
 declare global {
   namespace Express {
@@ -26,11 +28,14 @@ declare global {
 export default class Server {
   app: Application
   server: http.Server
+  primus: Primus
 
   constructor() {
     this.app = express()
     this.server = http.createServer(this.app)
 
+    this.primus = new Primus(this.server, { transformer: 'websockets' })
+    wsServerHooks(this.primus)
     this.app.use(httpRequestContext.middleware())
 
     if (config.env === 'production') {

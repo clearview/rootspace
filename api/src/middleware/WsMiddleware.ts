@@ -1,34 +1,38 @@
 import { Message } from '../services/models/message'
-import { Server } from 'sockjs-node'
+import Primus = require('primus')
+import { Spark } from 'primus'
 
 export enum WsEvent {
   'Error'= 'error',
-  'Connect'= 'connect',
-  'Message'= 'message',
-  'Disconnect'= 'disconnect'
+  'Connect'= 'connection',
+  'Data'= 'data',
+  'Disconnect'= 'disconnection'
 }
 
-export function wsServerHooks(wsServer: Server) {
-   wsServer.on(WsEvent.Connect, (conn) => {
-     onConnect(wsServer, conn)
+export function wsServerHooks(primus: Primus) {
+   primus.on(WsEvent.Connect, (spark: Spark) => {
+     onConnect(spark)
    })
 
-  wsServer.on(WsEvent.Disconnect, (conn) => {
-    onDisconnect(wsServer, conn)
+  primus.on(WsEvent.Disconnect, (spark: Spark) => {
+    onDisconnect(spark)
   })
 }
 
-function onConnect(wsServer: Server, socket: any): any {
-  socket.on(WsEvent.Message, (m: Message) => {
+function onConnect(spark: Spark): any {
+  spark.write('Client connected')
+  onData(spark)
+}
+
+function onDisconnect(spark: Spark): any {
+  // tslint:disable-next-line:no-console
+  console.log('Client disconnected')
+  spark.write('Client disconnected')
+}
+
+function onData(spark: Spark): any {
+  spark.on(WsEvent.Data, (m: Message) => {
     // tslint:disable-next-line:no-console
     console.log('[server](message): %s', JSON.stringify(m))
-    wsServer.emit(WsEvent.Message, m)
-  })
-}
-
-function onDisconnect(wsServer: Server, socket: any): any {
-  socket.on(WsEvent.Disconnect, () => {
-    // tslint:disable-next-line:no-console
-    console.log('Client disconnected')
   })
 }
