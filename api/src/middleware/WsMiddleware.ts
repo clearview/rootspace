@@ -1,4 +1,4 @@
-import { Message } from '../services/models/message'
+import { Message } from '../services/models/Message'
 import Primus = require('primus')
 import { Spark } from 'primus'
 
@@ -13,6 +13,17 @@ export function wsServerHooks(primus: Primus) {
    primus.on(WsEvent.Connect, (spark: Spark) => {
      onConnect(spark)
    })
+
+  primus.authorize((req, done) => {
+    // try { auth = authParser(req.headers['authorization']) }
+    // catch (ex) { return done(ex) }
+    //
+    // //
+    // // Do some async auth check
+    // //
+    // authCheck(auth, done)
+    done()
+  })
 
   primus.on(WsEvent.Disconnect, (spark: Spark) => {
     onDisconnect(spark)
@@ -31,8 +42,8 @@ function onDisconnect(spark: Spark): any {
 }
 
 function onData(spark: Spark): any {
-  spark.on(WsEvent.Data, (m: Message) => {
+  spark.on(WsEvent.Data, (message: Message) => {
     // tslint:disable-next-line:no-console
-    console.log('[server](message): %s', JSON.stringify(m))
+    console.log('[server](message): %s', JSON.stringify(message))
   })
 }

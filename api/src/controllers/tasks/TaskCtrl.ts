@@ -3,6 +3,7 @@ import { BaseCtrl } from '../BaseCtrl'
 import { FollowService, TaskService } from '../../services'
 import { Actions, Subjects } from '../../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
+import { WsService } from '../../services/content/WsService'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 
 export class TaskCtrl extends BaseCtrl {
@@ -30,6 +31,8 @@ export class TaskCtrl extends BaseCtrl {
     data.user = req.user
 
     const task = await this.taskService.create(data)
+
+    WsService.fromRequest(req).onCreated(task)
 
     const resData = this.responseData(task)
     res.send(resData)

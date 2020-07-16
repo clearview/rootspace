@@ -23,3 +23,14 @@ export interface INodeContentUpdate {
 export interface IContentNodeUpdate {
   title?: string
 }
+
+export enum WsAction {
+  Undefined = 'undefined',
+  Created = 'created',
+  Updated = 'updated',
+  Deleted = 'deleted'
+}
+
+export interface WssInterface<Entity> {
+  onCreated(action: WsAction, entity: Entity): void
+}

@@ -1,4 +1,4 @@
-import { Message } from './message'
+import { Message } from './Message'
 import { User } from '../../database/entities/User'
 
 export class NodeMessage extends Message {

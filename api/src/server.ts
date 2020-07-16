@@ -38,6 +38,8 @@ export default class Server {
     wsServerHooks(this.primus)
     this.app.use(httpRequestContext.middleware())
 
+    this.app.set('wss', this.primus)
+
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
       this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
