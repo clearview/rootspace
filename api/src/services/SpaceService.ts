@@ -56,19 +56,4 @@ export class SpaceService {
     Object.assign(space, data.attributes)
     return this.getSpaceRepository().save(space)
   }
-
-  async updateCountMembers(count: number, spaceId: number): Promise<Space> {
-    const space = await this.getSpaceById(spaceId)
-
-    if (!space) {
-      throw clientError(
-        'Space not found ' + spaceId,
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
-    }
-
-    space.countMembers = count
-    return this.getSpaceRepository().save(space)
-  }
 }
