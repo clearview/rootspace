@@ -109,7 +109,7 @@
           >
         </div>
         <ul class="comments">
-          <TaskComment v-for="comment in item.taskComments" :comment="comment" :key="comment.id"/>
+          <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
 
       </div>
@@ -231,6 +231,14 @@ export default class TaskModal extends Vue {
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
+
+    get orderedComments () {
+      return [...this.item.taskComments].sort((a, b) => {
+        const x = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const y = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return x - y
+      })
+    }
 
     @Emit('cancel')
     cancel () {
@@ -421,7 +429,7 @@ export default class TaskModal extends Vue {
   }
 
   .task-left {
-    flex: 0 0 auto;
+    flex: 1 0 0;
   }
 
   .task-right {
