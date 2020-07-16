@@ -32,7 +32,7 @@ export class TaskCtrl extends BaseCtrl {
 
     const task = await this.taskService.create(data)
 
-    WsService.fromRequest(req).onCreated(task)
+    await WsService.fromRequest(req).onCreated(task)
 
     const resData = this.responseData(task)
     res.send(resData)

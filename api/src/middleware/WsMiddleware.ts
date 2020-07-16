@@ -1,6 +1,9 @@
+import { config } from 'node-config-ts'
 import { Message } from '../services/models/Message'
 import Primus = require('primus')
 import { Spark } from 'primus'
+import jwt from 'jsonwebtoken'
+import { UserService } from '../services'
 
 export enum WsEvent {
   'Error'= 'error',
@@ -10,20 +13,35 @@ export enum WsEvent {
 }
 
 export function wsServerHooks(primus: Primus) {
-   primus.on(WsEvent.Connect, (spark: Spark) => {
-     onConnect(spark)
-   })
+  primus.authorize(async (req, done) => {
+    const token = String(req.headers?.token)
 
-  primus.authorize((req, done) => {
-    // try { auth = authParser(req.headers['authorization']) }
-    // catch (ex) { return done(ex) }
-    //
-    // //
-    // // Do some async auth check
-    // //
-    // authCheck(auth, done)
+    if (!token || typeof token === 'undefined' || token === 'undefined') {
+      return done(new Error('Missing token'))
+    }
+
+    const decoded: any = jwt.verify(token, config.jwtSecretKey)
+    if (!decoded) {
+      return done(new Error('Invalid token'))
+    }
+
+    const userId = decoded.id
+
+    if (typeof userId !== 'number') {
+      return done(new Error('Invalid payload'))
+    }
+
+    const user = await UserService.getInstance().getUserById(userId)
+    if (!user) {
+      return done(new Error('Wrong token'))
+    }
+
     done()
   })
+
+  primus.on(WsEvent.Connect, (spark: Spark) => {
+     onConnect(spark)
+   })
 
   primus.on(WsEvent.Disconnect, (spark: Spark) => {
     onDisconnect(spark)
