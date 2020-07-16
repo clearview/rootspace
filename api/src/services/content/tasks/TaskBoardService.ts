@@ -1,7 +1,6 @@
-import { Brackets, getCustomRepository } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
-import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
 import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
 import { SpaceRepository } from '../../../repositories/SpaceRepository'
 import { ServiceFactory } from '../../factory/ServiceFactory'
@@ -35,10 +34,6 @@ export class TaskBoardService extends NodeContentService {
     return getCustomRepository(TaskBoardRepository)
   }
 
-  getTaskRepository(): TaskRepository {
-    return getCustomRepository(TaskRepository)
-  }
-
   getNodeType() {
     return NodeType.TaskBoard
   }
@@ -48,112 +43,17 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getByTaskId(id: number): Promise<TaskBoard> {
-    const taskBoard = await this.getTaskBoardRepository()
-      .createQueryBuilder('taskBoard')
-      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-      .leftJoinAndSelect('taskList.tasks', 'task')
-      .where('task.id = :id', { id })
-      .andWhere('task.deletedAt IS NULL')
-      .getOne()
+    const taskBoard = await this.getTaskBoardRepository().getByTaskId(id)
 
     return this.getCompleteTaskboard(taskBoard.id)
   }
 
-  async getCompleteTaskboard(
-    id: number,
-    archived?: boolean
-  ): Promise<TaskBoard | undefined> {
-    const queryBuilder = this.getTaskBoardRepository()
-      .createQueryBuilder('taskBoard')
-      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-      .leftJoinAndSelect('taskList.tasks', 'task')
-      .leftJoinAndSelect('task.tags', 'tag')
-      .leftJoinAndSelect('task.assignees', 'assignee')
-      .leftJoinAndSelect('task.taskComments', 'comment')
-      .where('taskBoard.id = :id', { id })
-
-    if (archived) {
-      queryBuilder.andWhere('task.deletedAt IS NOT NULL')
-      return queryBuilder.getOne()
-    }
-
-    queryBuilder.andWhere('task.deletedAt IS NULL')
-    return queryBuilder.getOne()
+  async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
+    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
   }
 
-  async searchTaskboard(
-    id: number,
-    searchParam?: string,
-    filterParam?: any
-  ): Promise<TaskBoard | undefined> {
-    const board = await this.getTaskBoardRepository()
-      .createQueryBuilder('taskBoard')
-      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-      .where('taskBoard.id = :id', { id })
-      .getOne()
-
-    const taskQuery = this.getTaskRepository()
-      .createQueryBuilder('task')
-      .leftJoinAndSelect('task.tags', 'tag')
-      .leftJoinAndSelect('task.assignees', 'assignee')
-      .leftJoinAndSelect('task.taskComments', 'comment')
-      .innerJoin('task.list', 'taskList')
-      .innerJoin('taskList.board', 'taskBoard')
-      .where('taskBoard.id = :id', { id })
-      .andWhere('task.deletedAt IS NULL')
-
-    if (searchParam) {
-      taskQuery.andWhere(
-        new Brackets((qb) => {
-          qb.where('LOWER(task.title) LIKE :searchParam', {
-            searchParam: `%${searchParam.toLowerCase()}%`,
-          })
-            .orWhere('LOWER(task.description) LIKE :searchParam', {
-              searchParam: `%${searchParam.toLowerCase()}%`,
-            })
-            .orWhere('task.id IS NULL')
-        })
-      )
-    }
-
-    if (
-      typeof filterParam?.status !== 'undefined' &&
-      filterParam?.status !== null
-    ) {
-      taskQuery.andWhere('task.status = :status', {
-        status: filterParam.status,
-      })
-    }
-
-    if (filterParam?.assignees?.length > 0) {
-      taskQuery.andWhere('assignee.id IN (:...assignees)', {
-        assignees: filterParam.assignees,
-      })
-    }
-
-    if (filterParam?.tags?.length > 0) {
-      taskQuery.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
-    }
-
-    const tasks = await taskQuery.getMany()
-
-    if (tasks.length === 0 || board.taskLists.length === 0) {
-      return board
-    }
-
-    for (const list of board.taskLists) {
-      if (!list.tasks) {
-        list.tasks = []
-      }
-
-      for (const task of tasks) {
-        if (task.listId === list.id) {
-          list.tasks.push(task)
-        }
-      }
-    }
-
-    return board
+  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
+    return this.getTaskBoardRepository().searchTaskboard(id, searchParam, filterParam)
   }
 
   async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {
@@ -174,7 +74,7 @@ export class TaskBoardService extends NodeContentService {
       })
     )
 
-    return board
+    return taskBoard
   }
 
   async update(id: number, data: any): Promise<TaskBoard> {
