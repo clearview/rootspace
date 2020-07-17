@@ -1,6 +1,6 @@
 import { Request } from 'express'
-import { WsAction, WssInterface } from './contracts'
-import { Message } from '../models/Message'
+import { WsOutAction, WssInterface } from './contracts'
+import { OutMessage } from '../models/OutMessage'
 import { UserService } from '../UserService'
 import { SpaceService } from '../SpaceService'
 import Primus = require('primus')
@@ -27,14 +27,14 @@ export class WsService implements WssInterface<any> {
   }
 
   async onCreated(entity: any): Promise<void> {
-    const message = await this.createMessageFromEntity(WsAction.Created, entity)
+    const message = await this.createMessageFromEntity(WsOutAction.Created, entity)
     return this.write(message)
   }
 
-  async createMessageFromEntity(action: WsAction, entity: any): Promise<Message> {
+  async createMessageFromEntity(action: WsOutAction, entity: any): Promise<OutMessage> {
     const user = await this.userService.getUserById(entity.userId)
     const space = await this.spaceService.getSpaceById(entity.spaceId)
 
-    return new Message(action, user, space, entity)
+    return new OutMessage(action, user, space, entity)
   }
 }

@@ -24,7 +24,14 @@ export interface IContentNodeUpdate {
   title?: string
 }
 
-export enum WsAction {
+export enum WsInAction {
+  Join = 'join',
+  List = 'list',
+  Leave = 'leave',
+  LeaveAll = 'leaveAll',
+}
+
+export enum WsOutAction {
   Undefined = 'undefined',
   Created = 'created',
   Updated = 'updated',
@@ -32,5 +39,5 @@ export enum WsAction {
 }
 
 export interface WssInterface<Entity> {
-  onCreated(action: WsAction, entity: Entity): void
+  onCreated(action: WsOutAction, entity: Entity): void
 }

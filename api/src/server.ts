@@ -12,6 +12,7 @@ import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
 import Primus = require('primus')
+import Rooms = require('primus-rooms')
 
 declare global {
   namespace Express {
@@ -35,10 +36,11 @@ export default class Server {
     this.server = http.createServer(this.app)
 
     this.primus = new Primus(this.server, { transformer: 'websockets' })
+    this.primus.plugin('rooms', Rooms)
     wsServerHooks(this.primus)
-    this.app.use(httpRequestContext.middleware())
-
     this.app.set('wss', this.primus)
+
+    this.app.use(httpRequestContext.middleware())
 
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
