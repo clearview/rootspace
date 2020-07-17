@@ -5,14 +5,22 @@ import { UserToSpace } from '../database/entities/UserToSpace'
 export class UserToSpaceRepository extends Repository<UserToSpace> {
   getByUserIdAndSpaceId(
     userId: number,
-    spaceId: number
+    spaceId: number,
+    active?: boolean
   ): Promise<UserToSpace | undefined> {
-    return this.createQueryBuilder('userSpace')
-      .where('userSpace.userId = :userId AND userSpace.spaceId = :spaceId', {
+    const query = this.createQueryBuilder('userSpace').where(
+      'userSpace.userId = :userId AND userSpace.spaceId = :spaceId',
+      {
         userId,
         spaceId,
-      })
-      .getOne()
+      }
+    )
+
+    if (active !== undefined) {
+      query.andWhere('userSpace.active = :active', { active })
+    }
+
+    return query.getOne()
   }
 
   async getCountUsersBySpaceId(spaceId: number): Promise<number> {

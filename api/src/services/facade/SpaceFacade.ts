@@ -1,18 +1,23 @@
 import { Space } from '../../database/entities/Space'
+import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
-import { SpaceService, UserSpaceService, NodeService } from '../'
+import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
+import { ServiceFactory } from '../factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 
 export class SpaceFacade {
   private spaceService: SpaceService
+  private userService: UserService
   private userSpaceService: UserSpaceService
   private nodeService: NodeService
 
   constructor() {
     this.spaceService = SpaceService.getInstance()
+    this.userService = UserService.getInstance()
     this.userSpaceService = UserSpaceService.getInstance()
-    this.nodeService = NodeService.getInstance()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
   getNodesTree(spaceId: number) {
@@ -42,5 +47,23 @@ export class SpaceFacade {
 
   updateSpace(data: SpaceUpdateValue, spaceId: number): Promise<Space> {
     return this.spaceService.update(data, spaceId)
+  }
+
+  async removeUserFromSpace(
+    userId: number,
+    spaceId: number
+  ): Promise<UserToSpace> {
+    const user = await this.userService.requireUserById(userId)
+    const space = await this.spaceService.requireSpaceById(spaceId)
+
+    if (user.id === space.userId) {
+      throw clientError(
+        'Can not remove space owner from space',
+        HttpErrName.InvalidRequest,
+        HttpStatusCode.NotAllowed
+      )
+    }
+
+    return this.userSpaceService.remove(userId, spaceId)
   }
 }

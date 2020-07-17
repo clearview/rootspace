@@ -1,4 +1,4 @@
-import { getCustomRepository, DeleteResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 import { UserToSpace } from '../database/entities/UserToSpace'
 import { clientError, HttpErrName } from '../errors'
@@ -20,10 +20,15 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
-  getByUserIdAndSpaceId(userId: number, spaceId: number): Promise<UserToSpace> {
+  getByUserIdAndSpaceId(
+    userId: number,
+    spaceId: number,
+    active?: boolean
+  ): Promise<UserToSpace> {
     return this.getUserToSpaceRepository().getByUserIdAndSpaceId(
       userId,
-      spaceId
+      spaceId,
+      active
     )
   }
 
@@ -32,9 +37,9 @@ export class UserSpaceService {
   }
 
   async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
-    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId)
+    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
 
-    if (userSpace && userSpace.active === true) {
+    if (userSpace) {
       return true
     }
 
@@ -53,7 +58,10 @@ export class UserSpaceService {
     return this.getUserToSpaceRepository().save(userToSpace)
   }
 
-  remove(userId: number, spaceId: number): Promise<DeleteResult> {
-    return this.getUserToSpaceRepository().setInactive(userId, spaceId)
+  async remove(userId: number, spaceId: number): Promise<UserToSpace> {
+    const userToSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
+    userToSpace.active = false
+
+    return this.getUserToSpaceRepository().save(userToSpace)
   }
 }

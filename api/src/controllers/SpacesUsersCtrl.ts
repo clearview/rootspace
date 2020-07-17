@@ -1,18 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { UserService, UserSpaceService, SpaceService } from '../services'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { UserService } from '../services'
+import { clientError } from '../errors'
+import { SpaceFacade } from '../services/facade'
 
 export class SpacesUsersCtrl extends BaseCtrl {
   private userService: UserService
-  private userSpaceService: UserSpaceService
-  private spaceService: SpaceService
+  private spaceFacade: SpaceFacade
 
   constructor() {
     super()
     this.userService = UserService.getInstance()
-    this.userSpaceService = UserSpaceService.getInstance()
-    this.spaceService = SpaceService.getInstance()
+    this.spaceFacade = new SpaceFacade()
   }
 
   async listAll(req: Request, res: Response, next: NextFunction) {
@@ -33,30 +32,14 @@ export class SpacesUsersCtrl extends BaseCtrl {
   }
 
   async remove(req: Request, res: Response, next: NextFunction) {
-    try {
-      const spaceId = Number(req.params.spaceId)
-      const userId = Number(req.params.userId)
+    const spaceId = Number(req.params.spaceId)
+    const userId = Number(req.params.userId)
 
-      if (!spaceId || !userId) {
-        throw clientError('Invalid request')
-      }
-
-      const space = await this.spaceService.getSpaceById(spaceId)
-
-      if (userId === space.userId) {
-        throw clientError(
-          'Can not remove space owner from space',
-          HttpErrName.InvalidRequest,
-          HttpStatusCode.NotAllowed
-        )
-      }
-
-      const result = await this.userSpaceService.remove(userId, spaceId)
-      const resData = this.responseData(result)
-
-      res.send(resData)
-    } catch (err) {
-      next(err)
+    if (!spaceId || !userId) {
+      throw clientError('Invalid request')
     }
+
+    const result = await this.spaceFacade.removeUserFromSpace(userId, spaceId)
+    res.send(this.responseData(result))
   }
 }

@@ -50,6 +50,23 @@ export class UserService {
     return this.getUserRepository().getById(id, additionalFields)
   }
 
+  async requireUserById(
+    id: number,
+    additionalFields?: string[]
+  ): Promise<User> {
+    const user = await this.getUserById(id, additionalFields)
+
+    if (!user) {
+      throw clientError(
+        'User not found',
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.BadRequest
+      )
+    }
+
+    return user
+  }
+
   getUserByEmail(
     email: string,
     selectPassword = false
@@ -83,7 +100,10 @@ export class UserService {
     return await this.getUserRepository().save(user)
   }
 
-  async signup(data: ISignupProvider, sendEmailConfirmation: boolean = true): Promise<User> {
+  async signup(
+    data: ISignupProvider,
+    sendEmailConfirmation: boolean = true
+  ): Promise<User> {
     const password = await hashPassword(data.password)
 
     let user = new User()
