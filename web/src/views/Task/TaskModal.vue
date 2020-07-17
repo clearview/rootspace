@@ -109,7 +109,7 @@
           >
         </div>
         <ul class="comments">
-          <TaskComment v-for="comment in item.taskComments" :comment="comment" :key="comment.id"/>
+          <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
 
       </div>
@@ -232,6 +232,14 @@ export default class TaskModal extends Vue {
     private isUpdatingTitle = false
     private isEditingTitle = false
 
+    get orderedComments () {
+      return [...this.item.taskComments].sort((a, b) => {
+        const x = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const y = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return y - x
+      })
+    }
+
     @Emit('cancel')
     cancel () {
 
@@ -255,7 +263,6 @@ export default class TaskModal extends Vue {
           file
         })
         this.isUploading = false
-        await this.$store.dispatch('task/board/refresh')
       }
     }
 
@@ -266,7 +273,6 @@ export default class TaskModal extends Vue {
           id: this.item.id,
           attachments: this.itemCopy.attachments
         })
-        await this.$store.dispatch('task/board/refresh')
       }
     }
 
@@ -275,12 +281,11 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         description: this.itemCopy.description
       })
-      await this.$store.dispatch('task/board/refresh')
       this.isEditingDescription = false
     }
 
     async saveComment () {
-      const commentResource: Optional<TaskCommentResource, 'userId' | 'createdAt' | 'updatedAt'> = {
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
         id: null,
         content: this.commentInput,
         taskId: this.item.id,
@@ -288,8 +293,6 @@ export default class TaskModal extends Vue {
       }
       await this.$store.dispatch('task/comment/create', commentResource)
       this.commentInput = ''
-
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleMenu (value: string) {
@@ -299,7 +302,6 @@ export default class TaskModal extends Vue {
           break
       }
       this.close()
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleTagMenu (tag: TagResource) {
@@ -315,7 +317,6 @@ export default class TaskModal extends Vue {
           tagId: tag.id
         })
       }
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleMemberMenu (member: UserResource) {
@@ -331,7 +332,6 @@ export default class TaskModal extends Vue {
           userId: member.id
         })
       }
-      await this.$store.dispatch('task/board/refresh')
       const currentBoard = this.$store.state.task.board.current
       this.$emit('getUpdate', currentBoard)
     }
@@ -342,7 +342,6 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         dueDate: this.itemCopy.dueDate
       })
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleDateClear () {
@@ -351,7 +350,6 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         dueDate: null
       })
-      await this.$store.dispatch('task/board/refresh')
     }
 
     memberName (member: UserResource) {
@@ -363,11 +361,10 @@ export default class TaskModal extends Vue {
       if (!this.isUpdatingTitle) {
         this.isUpdatingTitle = true
         this.itemCopy.title = this.titleEditableRef.innerText
-        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+        await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
-        })).data
-        await this.$store.dispatch('task/board/refresh')
+        })
         this.isUpdatingTitle = false
         this.isEditingTitle = false
       }
@@ -416,10 +413,12 @@ export default class TaskModal extends Vue {
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
     width: 820px;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
 
   .task-left {
-    flex: 0 0 auto;
+    flex: 1 0 0;
   }
 
   .task-right {
@@ -515,8 +514,6 @@ export default class TaskModal extends Vue {
 
   .comments {
     @apply py-2;
-    max-height: 40vh;
-    overflow-y: auto;
     overflow-x: visible;
   }
 

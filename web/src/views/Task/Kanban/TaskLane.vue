@@ -152,7 +152,6 @@ export default class TaskLane extends Vue {
           position: newPos
         })
       }
-      await this.$store.dispatch('task/board/refresh')
     }
 
     get dragOptions () {
@@ -173,14 +172,13 @@ export default class TaskLane extends Vue {
         return
       }
       if (this.listCopy.id === null) {
-        this.listCopy = (await this.$store.dispatch('task/list/create', this.listCopy)).data
+        await this.$store.dispatch('task/list/create', this.listCopy)
       } else {
-        this.listCopy = (await this.$store.dispatch('task/list/update', {
+        await this.$store.dispatch('task/list/update', {
           id: this.list.id,
           title: this.listCopy.title
-        })).data
+        })
       }
-      await this.$store.dispatch('task/board/refresh')
       this.isInputting = false
       return this.listCopy
     }
@@ -227,7 +225,6 @@ export default class TaskLane extends Vue {
           await this.$store.dispatch('task/list/destroy', this.listCopy)
           break
       }
-      await this.$store.dispatch('task/board/refresh')
     }
 
     handleCardContainerScroll () {
@@ -283,6 +280,11 @@ export default class TaskLane extends Vue {
   .btn-link .stroke-current {
     stroke-width: 3px;
     color: theme("colors.gray.400");
+  }
+
+  .list-input {
+    @apply rounded p-4 rounded;
+    background: rgba(theme("colors.gray.100"), 0.25);
   }
 
   .list-input-field {

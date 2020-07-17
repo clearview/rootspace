@@ -2,7 +2,7 @@ import { connect, disconnect } from './connectors/db.testcontainers'
 import { getCustomRepository } from 'typeorm'
 import { validate } from 'class-validator'
 import { createUser } from './helpers/createUser'
-import { UserRepository } from '../src/repositories/UserRepository'
+import { UserRepository } from '../src/database/repositories/UserRepository'
 
 describe('Database', () => {
     beforeAll(async () => {

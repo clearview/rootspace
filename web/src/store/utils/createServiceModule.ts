@@ -1,10 +1,18 @@
 import { ResourceState, RootState } from '@/types/state'
 
 import { ApiService } from '@/services/task'
-import { Module } from 'vuex'
+import { ActionContext, Module } from 'vuex'
 import { ApiResource } from '@/types/resource'
 
-export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>): Module<ResourceState<TResource>, RootState> {
+export interface Hooks<TResource> {
+  afterFetch?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource[]): void;
+  afterView?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  afterCreate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  afterUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  afterDestroy?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+}
+
+export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>, hooks?: Hooks<TResource>): Module<ResourceState<TResource>, RootState> {
   return {
     namespaced: true,
     state (): ResourceState<TResource> {
@@ -27,65 +35,85 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
       },
       setProcessing (state, payload: boolean): void {
         state.processing = payload
+      },
+      operate (state, operator: (board: ResourceState<TResource>) => void): void {
+        operator(state)
       }
     },
     actions: {
-      async fetch ({ commit, rootState }, params: TParams): Promise<void> {
-        const currentSpace = rootState.auth.currentSpace
+      async fetch (context, params: TParams): Promise<void> {
+        const currentSpace = context.rootState.auth.currentSpace
 
         if (!currentSpace) {
           throw new Error('There is no currently active space')
         }
 
-        commit('setFetching', true)
+        context.commit('setFetching', true)
         const res = await service.fetch(params)
-        commit('setFetching', false)
+        context.commit('setFetching', false)
 
-        commit('setData', res)
-      },
+        context.commit('setData', res)
 
-      async view ({ commit }, id: number): Promise<void> {
-        commit('setFetching', true)
-        const task = await service.view(id)
-        commit('setFetching', false)
-
-        commit('setCurrent', task?.data)
-      },
-
-      async refresh ({ commit, state }): Promise<void> {
-        if (state.current?.id) {
-          commit('setFetching', true)
-          const task = await service.view(state.current.id)
-          commit('setFetching', false)
-          commit('setCurrent', task?.data)
+        if (hooks && hooks.afterFetch) {
+          hooks.afterFetch(context, res)
         }
       },
 
-      async create ({ commit }, data: TResource): Promise<TResource> {
-        commit('setProcessing', true)
+      async view (context, id: number): Promise<void> {
+        context.commit('setFetching', true)
+        const task = await service.view(id)
+        context.commit('setFetching', false)
+
+        context.commit('setCurrent', task?.data)
+        if (task?.data && hooks && hooks.afterView) {
+          hooks.afterView(context, task.data)
+        }
+      },
+
+      async refresh (context): Promise<void> {
+        if (context.state.current?.id) {
+          context.commit('setFetching', true)
+          const task = await service.view(context.state.current.id)
+          context.commit('setFetching', false)
+          context.commit('setCurrent', task?.data)
+        }
+      },
+
+      async create (context, data: TResource): Promise<TResource> {
+        context.commit('setProcessing', true)
         const res = await service.create(data)
-        commit('setProcessing', false)
+        context.commit('setProcessing', false)
+        if (hooks && hooks.afterCreate) {
+          hooks.afterCreate(context, res)
+        }
         return res
       },
 
-      async update ({ commit }, data: TResource): Promise<TResource> {
+      async update (context, data: TResource): Promise<TResource> {
         if (data.id === null) {
           throw new Error('Unable to update data without ID')
         }
-        commit('setProcessing', true)
+        context.commit('setProcessing', true)
         const res = await service.update(data.id, data)
-        commit('setProcessing', false)
+        context.commit('setProcessing', false)
 
+        if (hooks && hooks.afterUpdate) {
+          hooks.afterUpdate(context, res)
+        }
         return res
       },
 
-      async destroy ({ commit }, data: TResource): Promise<void> {
+      async destroy (context, data: TResource): Promise<void> {
         if (data.id === null) {
           throw new Error('Unable to delete data without ID')
         }
-        commit('setProcessing', true)
+        context.commit('setProcessing', true)
         await service.destroy(data.id)
-        commit('setProcessing', false)
+        context.commit('setProcessing', false)
+
+        if (hooks && hooks.afterDestroy) {
+          hooks.afterDestroy(context, data)
+        }
       }
     }
   }

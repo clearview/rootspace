@@ -1,5 +1,5 @@
 import { getCustomRepository } from 'typeorm'
-import { SpaceRepository } from '../repositories/SpaceRepository'
+import { SpaceRepository } from '../database/repositories/SpaceRepository'
 import { Space } from '../database/entities/Space'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'

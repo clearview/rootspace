@@ -1,6 +1,6 @@
 import { getCustomRepository } from 'typeorm'
 import { Tag } from '../../../database/entities/tasks/Tag'
-import { TaskBoardTagRepository } from '../../../repositories/tasks/TaskBoardTagRepository'
+import { TaskBoardTagRepository } from '../../../database/repositories/tasks/TaskBoardTagRepository'
 import { TaskBoardService } from './TaskBoardService'
 
 export class TaskBoardTagService {

@@ -7,24 +7,20 @@
       v-if="!notitle"
       label="Title"
     >
-      <div class="flex flow-row items-center">
-        <input
-          type="text"
-          class="input"
-          placeholder="Enter title"
-          v-model="payload.title"
-        >
-        <v-icon
-          name="folder"
-          size="2em"
-          class="ml-2 text-gray-400"
-        />
-      </div>
+      <input
+        type="text"
+        class="input"
+        placeholder="Enter title"
+        v-model="payload.title"
+      >
+      <v-icon
+        name="folder"
+        size="2em"
+        class="flex-none ml-2 text-gray-400"
+      />
     </v-field>
 
-    <v-field
-      label="Link"
-    >
+    <v-field label="Link">
       <input
         type="text"
         class="input"
@@ -37,12 +33,16 @@
       inline
       border
       label="Always open in new Tab"
+      align="right"
       class="mb-0"
     >
-      <button-switch v-model="payload.config.alwaysOpen"/>
+      <button-switch v-model="payload.config.alwaysOpen" />
     </v-field>
 
-    <button type="submit" class="hidden"/>
+    <button
+      type="submit"
+      class="hidden"
+    />
   </form>
 </template>
 
@@ -71,34 +71,34 @@ import { Component, Prop } from 'vue-property-decorator'
   }
 })
 export default class FormLink extends Vue {
-    @Prop({ type: Object, default: () => ({}) })
-    private readonly value!: any;
+  @Prop({ type: Object, default: () => ({}) })
+  private readonly value!: any;
 
-    @Prop({ type: Number, default: 0 })
-    private readonly space!: number;
+  @Prop({ type: Number, default: 0 })
+  private readonly space!: number;
 
-    @Prop({ type: Boolean })
-    private readonly notitle!: boolean;
+  @Prop({ type: Boolean })
+  private readonly notitle!: boolean;
 
-    private payload: Omit<LinkResource, 'children'> = {
-      id: this.value.id || undefined,
-      spaceId: this.value.space || this.space,
-      title: this.value.title || '',
-      type: this.value.type || 'link',
-      value: this.value.value || '',
-      config: {
-        alwaysOpen: false,
+  private payload: Omit<LinkResource, 'children'> = {
+    id: this.value.id || undefined,
+    spaceId: this.value.space || this.space,
+    title: this.value.title || '',
+    type: this.value.type || 'link',
+    value: this.value.value || '',
+    config: {
+      alwaysOpen: false,
 
-        ...this.value.config
-      }
+      ...this.value.config
     }
+  }
 
-    submit (): void {
-      this.$v.payload.$touch()
+  submit (): void {
+    this.$v.payload.$touch()
 
-      if (!this.$v.payload.$invalid) {
-        this.$emit('submit', this.payload)
-      }
+    if (!this.$v.payload.$invalid) {
+      this.$emit('submit', this.payload)
     }
+  }
 }
 </script>

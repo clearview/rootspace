@@ -1,6 +1,6 @@
 import { getCustomRepository } from 'typeorm'
-import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
-import { TaskCommentRepository } from '../../../repositories/tasks/TaskCommentRepository'
+import { TaskRepository } from '../../../database/repositories/tasks/TaskRepository'
+import { TaskCommentRepository } from '../../../database/repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../database/entities/tasks/TaskComment'
 
 export class TaskCommentService {

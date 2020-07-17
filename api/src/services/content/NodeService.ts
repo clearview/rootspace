@@ -1,5 +1,5 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
-import { NodeRepository } from '../../repositories/NodeRepository'
+import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'

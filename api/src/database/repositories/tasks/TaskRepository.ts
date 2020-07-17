@@ -1,5 +1,5 @@
 import { Brackets, EntityRepository } from 'typeorm'
-import { Task } from '../../database/entities/tasks/Task'
+import { Task } from '../../entities/tasks/Task'
 import { BaseRepository } from '../BaseRepository'
 
 @EntityRepository(Task)
@@ -9,10 +9,12 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndSelect('task.taskComments', 'comment')
+      .leftJoinAndSelect('comment.user', 'user')
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')
       .where('taskBoard.id = :taskBoardId', { taskBoardId })
       .andWhere('task.deletedAt IS NULL')
+      .orderBy('comment.createdAt', 'DESC')
 
     if (searchParam) {
       searchQuery.andWhere(

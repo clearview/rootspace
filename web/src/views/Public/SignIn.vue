@@ -2,11 +2,11 @@
   <layout-public>
     <div class="max-w-xs mx-auto p-4 mt-10">
       <h2 class="text-center">Sign In</h2>
-      <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
+      <p class="text-center mb-2 text-gray-400">Enter your information below to continue</p>
 
       <v-alert v-model="alert"/>
 
-      <form-signin @submit="userSignin"/>
+      <form-signin class="mt-10" @submit="userSignin"/>
 
       <div class="my-10">
         <p class="separator">
@@ -39,7 +39,7 @@ import { SigninResource } from '@/types/resource'
 import VAlert from '@/components/Alert.vue'
 import LayoutPublic from '@/components/LayoutPublic.vue'
 import VLoading from '@/components/Loading.vue'
-import FormSignin from '@/components/resource/ResourceFormSignin.vue'
+import FormSignin from '@/components/form/FormSignin.vue'
 import ButtonAuthGoogle from '@/components/ButtonAuthGoogle.vue'
 import { Component, Vue } from 'vue-property-decorator'
 

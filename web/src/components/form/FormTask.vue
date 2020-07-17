@@ -3,24 +3,22 @@
     class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
-    <v-field
-      label="Board Name"
-    >
-      <div class="flex flow-row items-center">
-        <input
-          type="text"
-          class="input"
-          placeholder="E.g. Weekly Groceries"
-          v-model="payload.title"
-        >
-      </div>
+    <v-field label="Board Name">
+      <input
+        type="text"
+        class="input"
+        placeholder="E.g. Weekly Groceries"
+        v-model="payload.title"
+      >
     </v-field>
 
-    <v-field
-      label="Select Board Type"
-    >
+    <v-field label="Select Board Type">
       <div class="type-list mt-2">
-        <a class="type-item mr-4" :class="{'active': !isKanban}" @click="payload.type = boardTypeList">
+        <a
+          class="type-item mr-4"
+          :class="{'active': !isKanban}"
+          @click="payload.type = boardTypeList"
+        >
           <v-icon
             name="list"
             size="3.5em"
@@ -31,7 +29,11 @@
             <h5>List</h5>
           </div>
         </a>
-        <a class="type-item" :class="{'active': isKanban}" @click="payload.type = boardTypeKanban">
+        <a
+          class="type-item"
+          :class="{'active': isKanban}"
+          @click="payload.type = boardTypeKanban"
+        >
           <v-icon
             name="kanban"
             size="3.5em"
@@ -49,47 +51,51 @@
       inline
       border
       label="Make Board Private"
+      align="right"
       class="mb-0"
     >
       <button-switch v-model="payload.isPublic" />
     </v-field>
 
-    <button type="submit" class="hidden"/>
+    <button
+      type="submit"
+      class="hidden"
+    />
   </form>
 </template>
 
 <style lang="postcss" scoped>
-  .type-list{
-    @apply flex flex-row;
+.type-list {
+  @apply flex flex-row;
+}
+.type-item {
+  @apply flex flex-row border p-3 rounded items-center;
+  flex: 1 1 auto;
+
+  border-color: theme("colors.gray.400");
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(theme("colors.gray.100"), 0.5);
   }
-  .type-item {
-    @apply flex flex-row border p-3 rounded items-center;
-    flex: 1 1 auto;
 
-    border-color: theme("colors.gray.400");
-    cursor: pointer;
-
-    &:hover {
-      background-color: rgba(theme('colors.gray.100'), 0.5);
-    }
-
-    &.active {
-      background-color: rgba(theme("colors.primary.default"), 0.08);
-      border-color: #D83750;
-    }
-
-    .icon-list {
-      @apply rounded-full p-2;
-      color: transparent;
-
-      background: theme("colors.primary.default");
-    }
-    .desc-list {
-      @apply pl-2;
-
-      font-size: 12px;
-    }
+  &.active {
+    background-color: rgba(theme("colors.primary.default"), 0.08);
+    border-color: #d83750;
   }
+
+  .icon-list {
+    @apply rounded-full p-2;
+    color: transparent;
+
+    background: theme("colors.primary.default");
+  }
+  .desc-list {
+    @apply pl-2;
+
+    font-size: 12px;
+  }
+}
 </style>
 
 <script lang="ts">

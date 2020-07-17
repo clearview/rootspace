@@ -1,6 +1,6 @@
 import { config } from 'node-config-ts'
 import { getCustomRepository } from 'typeorm'
-import { UploadRepository } from '../repositories/UploadRepository'
+import { UploadRepository } from '../database/repositories/UploadRepository'
 import { Upload } from '../database/entities/Upload'
 import { nanoid } from 'nanoid'
 import S3 from 'aws-sdk/clients/s3'

@@ -85,7 +85,7 @@
       </div>
     </header>
     <main class="board">
-      <div class="empty" v-if="!board && search.trim().length > 0">
+      <div class="empty" v-if="!board && !isFetching">
         No cards that matched the "{{search}}" query
       </div>
       <Ghost v-else-if="isFetching || !board" active></Ghost>
