@@ -25,6 +25,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndSelect('task.taskComments', 'comment')
+      .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
 
     if (archived) {
@@ -32,7 +33,10 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       return queryBuilder.getOne()
     }
 
-    queryBuilder.andWhere('task.deletedAt IS NULL')
+    queryBuilder
+      .andWhere('task.deletedAt IS NULL')
+      .orderBy('comment.createdAt', 'DESC')
+
     return queryBuilder.getOne()
   }
 
