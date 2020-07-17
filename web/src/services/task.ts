@@ -45,7 +45,7 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
   return new class implements ApiService<T, TFetch> {
     async create (data: T): Promise<T> {
       const res = await api.post(url, { data })
-      return res.data
+      return res.data.data
     }
 
     async destroy (id: number): Promise<void> {
@@ -59,7 +59,7 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
 
     async update (id: number, data: Partial<T>): Promise<T> {
       const res = await api.patch(`${url}/${id}`, { data })
-      return res.data
+      return res.data.data
     }
 
     async view (id: number): Promise<ApiResponse<T> | null> {
