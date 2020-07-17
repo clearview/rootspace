@@ -1,9 +1,9 @@
-import {Request} from 'express'
-import {WsAction, WssInterface} from './contracts'
-import {Message} from '../models/Message'
-import {UserService} from '../UserService'
-import {SpaceService} from '../SpaceService'
-import Primus = require('primus');
+import { Request } from 'express'
+import { WsAction, WssInterface } from './contracts'
+import { Message } from '../models/Message'
+import { UserService } from '../UserService'
+import { SpaceService } from '../SpaceService'
+import Primus = require('primus')
 
 export class WsService implements WssInterface<any> {
   private static instance: WsService
