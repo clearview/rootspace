@@ -8,7 +8,8 @@
     <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
       <div class="container-tag">
-        <div class="tag-color" :style="{background: tag.color, color: textColor(tag.color)}" @click="input(tag)">
+        <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
+          @click="tagsState !== 'manage' ? input(tag) : null">
           {{tag.label}}
           <span class="icon-checkmark" v-if="isSelectedTag(tag)"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
         </div>
@@ -269,6 +270,10 @@ export default class TagsPopover extends Vue {
 
     &:hover {
       background: theme("colors.gray.100");
+    }
+
+    &.manage {
+      cursor: default;
     }
   }
 
