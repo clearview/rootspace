@@ -65,6 +65,7 @@ export default class Popover extends Vue {
 
   .popover {
     @apply rounded absolute shadow shadow-lg z-50;
+    border: 1px solid #E4E4E4;
     background: theme('colors.white.default');
     top: 24px;
     right: 0;

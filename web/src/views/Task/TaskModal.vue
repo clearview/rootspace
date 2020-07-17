@@ -109,7 +109,7 @@
           >
         </div>
         <ul class="comments">
-          <TaskComment v-for="comment in item.taskComments" :comment="comment" :key="comment.id"/>
+          <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
 
       </div>
@@ -232,6 +232,14 @@ export default class TaskModal extends Vue {
     private isUpdatingTitle = false
     private isEditingTitle = false
 
+    get orderedComments () {
+      return [...this.item.taskComments].sort((a, b) => {
+        const x = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const y = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return x - y
+      })
+    }
+
     @Emit('cancel')
     cancel () {
 
@@ -280,7 +288,7 @@ export default class TaskModal extends Vue {
     }
 
     async saveComment () {
-      const commentResource: Optional<TaskCommentResource, 'userId' | 'createdAt' | 'updatedAt'> = {
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
         id: null,
         content: this.commentInput,
         taskId: this.item.id,
@@ -416,10 +424,12 @@ export default class TaskModal extends Vue {
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
     width: 820px;
+    max-height: 80vh;
+    overflow-y: scroll;
   }
 
   .task-left {
-    flex: 0 0 auto;
+    flex: 1 0 0;
   }
 
   .task-right {
@@ -515,8 +525,6 @@ export default class TaskModal extends Vue {
 
   .comments {
     @apply py-2;
-    max-height: 40vh;
-    overflow-y: auto;
     overflow-x: visible;
   }
 
