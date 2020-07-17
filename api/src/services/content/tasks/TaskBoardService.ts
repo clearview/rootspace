@@ -70,8 +70,11 @@ export class TaskBoardService extends NodeContentService {
           return queryBuilder.getOne()
         }
 
-        queryBuilder.andWhere('task.deletedAt IS NULL')
-        return queryBuilder.getOne()
+        queryBuilder
+          .andWhere('task.deletedAt IS NULL')
+          .orderBy('comment.createdAt', 'DESC')
+
+    return queryBuilder.getOne()
   }
 
   async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard | undefined> {
@@ -105,7 +108,10 @@ export class TaskBoardService extends NodeContentService {
       queryBuilder.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
     }
 
-    queryBuilder.andWhere('task.deletedAt IS NULL')    
+    queryBuilder
+      .andWhere('task.deletedAt IS NULL')
+      .orderBy('comment.createdAt', 'DESC')
+
     return queryBuilder.getOne()
   }
 
