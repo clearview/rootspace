@@ -17,6 +17,7 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 
 import IconAdd from './IconAdd.vue'
 import IconClose from './IconClose.vue'
+import IconCheckmark from './IconCheckmark.vue'
 import IconDots from './IconDots.vue'
 import IconDown from './IconDown.vue'
 import IconEdit from './IconEdit.vue'
@@ -64,6 +65,7 @@ import IconShareGlobe from './IconShareGlobe.vue'
     IconAdd,
     IconAttachment,
     IconComment,
+    IconCheckmark,
     IconClose,
     IconClose2,
     IconDots,

@@ -17,3 +17,9 @@
 .pointer {
   cursor: pointer;
 }
+
+.icon-checkmark {
+  @apply self-center;
+
+  color: theme("colors.primary.default");
+}

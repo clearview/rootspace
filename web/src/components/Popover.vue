@@ -2,6 +2,9 @@
   <div class="popover-container" v-click-outside="hide">
     <div class="popover" v-if="visible" :style="{ top }">
       <header class="popover-header" v-if="title || withClose">
+        <div v-if="backButtonState" @click="back">
+            <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
+        </div>
         <div class="popover-title">
           {{title}}
         </div>
@@ -35,10 +38,28 @@ export default class Popover extends Vue {
   @Prop({ type: Boolean, default: true })
   private readonly withClose!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly backButton!: boolean;
+
   private visible = false
 
-  hide () {
-    this.visible = false
+  get backButtonState () {
+    return this.backButton
+  }
+
+  hide (event: Event) {
+    const srcElement = event.srcElement as HTMLInputElement
+    const textContent = srcElement.textContent ? srcElement.textContent.replace(/\s/g, '') : ''
+
+    if (srcElement.id !== 'back-button' &&
+    textContent !== 'edit' &&
+    textContent !== 'trash') {
+      this.visible = false
+    }
+  }
+
+  back () {
+    this.$emit('back', false)
   }
 }
 </script>
@@ -49,7 +70,6 @@ export default class Popover extends Vue {
     @apply flex items-center p-4;
   }
   .popover-title {
-    @apply text-base;
     color: theme("colors.gray.900");
     font-weight: bold;
     flex: 1 1 auto;
@@ -68,7 +88,11 @@ export default class Popover extends Vue {
     border: 1px solid #E4E4E4;
     background: theme('colors.white.default');
     top: 24px;
-    right: 0;
+    /* right: 0; */
+  }
+
+  #back-button {
+    cursor: pointer;
   }
 
 </style>

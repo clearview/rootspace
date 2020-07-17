@@ -50,7 +50,7 @@
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
             </button>
-            <TagsPopover @input="handleTagMenu">
+            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <v-icon name="tag" size="1rem" viewbox="20"/>
@@ -118,7 +118,7 @@
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: opacityColor(tag.color), color: tag.color}"
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}"
                   @click="handleTagMenu(tag)">
                 <span>{{tag.label}}</span>
                 <v-icon name="close"/>
@@ -370,8 +370,15 @@ export default class TaskModal extends Vue {
       }
     }
 
-    opacityColor (color: string) {
-      return `${color}33`
+    get colors () {
+      return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+    }
+
+    textColor (bgColor: string) {
+      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const getBgPosition = this.colors.indexOf(bgColor)
+
+      return textColor[getBgPosition]
     }
 }
 </script>

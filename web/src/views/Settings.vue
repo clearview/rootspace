@@ -223,7 +223,6 @@ export default class Settings extends Vue {
     }
 
     async addSpaceUser (email: string) {
-      console.log(this.currentSpace.id, email)
       try {
         this.isLoading = true
         this.loadingMessage = 'Add user to space...'
@@ -279,7 +278,6 @@ export default class Settings extends Vue {
       const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
 
       const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
-      console.log(concatSpaceUsers)
 
       const spaceTitle = this.currentSpace.title
       this.spaceData = {
