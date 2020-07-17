@@ -167,7 +167,7 @@ export class NodeService {
     return this.getNodeRepository().save(node)
   }
 
-  async delete(id: number) {
+  async remove(id: number) {
     const node = await this.getNodeById(id)
 
     if (!node) {
@@ -178,13 +178,11 @@ export class NodeService {
       )
     }
 
-    const res = await this._delete(node)
+    const removedNode = await this._remove(node)
 
-    if (res.affected > 0) {
-      await this.mediator.nodeDeleted(node)
-    }
+    await this.mediator.nodeRemoved(removedNode)
 
-    return res
+    return node
   }
 
   async contentUpdated(
@@ -205,15 +203,15 @@ export class NodeService {
     await this.getNodeRepository().save(node)
   }
 
-  async contentDeleted(contentId: number, type: NodeType): Promise<void> {
+  async contentRemoved(contentId: number, type: NodeType): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (node) {
-      await this._delete(node)
+      await this._remove(node)
     }
   }
 
-  private async _delete(node: Node): Promise<DeleteResult> {
+  private async _remove(node: Node): Promise<Node> {
     if (node.type === NodeType.Root) {
       throw clientError(
         'Can not delete space root link',
@@ -244,12 +242,10 @@ export class NodeService {
       )
     }
 
-    const res = await this.getNodeRepository().delete({
-      id: node.id,
-    })
+    const removedNode = await this.getNodeRepository().remove(node)
 
-    this.getNodeRepository().decreasePositions(node.parentId, node.position)
+    this.getNodeRepository().decreasePositions(removedNode.parentId, removedNode.position)
 
-    return res
+    return removedNode
   }
 }

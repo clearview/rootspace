@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import passport from 'passport'
 import * as Sentry from '@sentry/node'
@@ -82,6 +83,7 @@ passport.use(
             return done(unauthorized())
           }
 
+          httpRequestContext.set('user', user)
           return done(null, user)
         })
       } catch (err) {
@@ -133,6 +135,7 @@ passport.use(
         // @ts-ignore
         req.user.ability = new Ability<[Actions, Subjects]>(rules)
 
+        httpRequestContext.set('user', user)
         return done(null, user)
     }
 

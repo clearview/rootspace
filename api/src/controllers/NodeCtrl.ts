@@ -35,7 +35,7 @@ export class NodeCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response) {
-    const result = await this.nodeService.delete(Number(req.params.id))
+    const result = await this.nodeService.remove(Number(req.params.id))
     res.send(result)
   }
 }

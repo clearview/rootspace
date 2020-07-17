@@ -5,53 +5,37 @@ import {
   EventSubscriber,
   InsertEvent, RemoveEvent, UpdateEvent
 } from 'typeorm'
-import { Task } from '../entities/tasks/Task'
-import slugify from '@sindresorhus/slugify'
+import { Doc } from '../entities/Doc'
 import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
 import { FollowableInterface } from '../../services/Followable'
 import { User } from '../entities/User'
 import { FollowService } from '../../services/FollowService'
-import { TaskRepository } from '../repositories/tasks/TaskRepository'
+import { DocRepository } from '../repositories/DocRepository'
 
 @EventSubscriber()
-export class TaskSubscriber implements EntitySubscriberInterface<Task>, FollowableInterface<Task> {
+export class DocSubscriber implements EntitySubscriberInterface<Doc>, FollowableInterface<Doc> {
   /**
    * EntitySubscriberInterface
    */
   listenTo() {
-    return Task
+    return Doc
   }
 
-  async beforeInsert(event: InsertEvent<Task>) {
-    const task = event.entity
-    task.slug = slugify(task.title)
-  }
-
-  async afterInsert(event: InsertEvent<Task>) {
+  async afterInsert(event: InsertEvent<Doc>) {
     const entity = await event.manager
-        .getCustomRepository(TaskRepository)
+        .getCustomRepository(DocRepository)
         .findOneOrFail({ id: event.entity.id})
 
-    await this.onCreated(event.entity.user, entity)
+    await this.onCreated(entity.user, entity)
   }
 
-  async beforeUpdate(event: UpdateEvent<Task>) {
-    const task = event.entity
-    task.slug = slugify(task.title)
-  }
-
-  async afterUpdate(event: UpdateEvent<Task>) {
+  async afterUpdate(event: UpdateEvent<Doc>) {
     const actor = httpRequestContext.get('user')
-
-    if (actor.id === event.entity.userId) {
-      return
-    }
-
     await this.onUpdated(actor, event.entity, event.metadata)
   }
 
-  async beforeRemove(event: RemoveEvent<Task>) {
+  async beforeRemove(event: RemoveEvent<Doc>) {
     const actor = httpRequestContext.get('user')
     await this.onRemoved(actor, event.entity, event.metadata)
   }
@@ -59,11 +43,11 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
   /**
    * FollowableInterface
    */
-  async onCreated(user: User, entity: Task): Promise<void> {
+  async onCreated(user: User, entity: Doc): Promise<void> {
     await FollowService.getInstance().follow(user, entity)
   }
 
-  async onUpdated(actor: User, entity: Task, metaData?: EntityMetadata): Promise<void> {
+  async onUpdated(actor: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {
     const event: IEventProvider = {
       itemId: entity.id,
       actorId: actor.id,
@@ -77,7 +61,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
     return Promise.resolve(undefined)
   }
 
-  async onRemoved(actor: User, entity: Task, metaData?: EntityMetadata): Promise<void> {
+  async onRemoved(actor: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {
     const event: IEventProvider = {
       itemId: entity.id,
       actorId: actor.id,
@@ -90,5 +74,4 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
     NotificationService.emit(EventType.Notification, event)
     return Promise.resolve(undefined)
   }
-
 }

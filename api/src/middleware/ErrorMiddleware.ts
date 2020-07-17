@@ -32,7 +32,7 @@ export function errorHandler(
       error: {
         name: err.name,
         message: err.message,
-        stack: config.env === 'dev' ? err.stack.split('\n') : null,
+        stack: config.env !== 'production' ? err.stack.split('\n') : null,
       },
     })
   }

@@ -10,6 +10,8 @@ import {
 } from 'typeorm'
 import { UserToSpace } from './UserToSpace'
 import { Ability } from '@casl/ability'
+import { Follow } from './Follow'
+import { Notification } from './Notification'
 import { Length } from 'class-validator'
 
 @Entity('users')
@@ -22,6 +24,14 @@ export class User {
 
   @Column('varchar', { length: 100 })
   lastName: string
+
+  fullName(): string | undefined {
+    if (this.firstName && this.lastName) {
+      return `${this.firstName} ${this.lastName}`
+    }
+
+    return this.email
+  }
 
   @Column('varchar', { length: 100 })
   @Index({ unique: true })
@@ -59,6 +69,15 @@ export class User {
     (space) => space.user
   )
   public spaces!: UserToSpace[]
+
+  @OneToMany(type => Follow, follow => follow.user, {eager: false, onDelete: 'CASCADE'})
+  public follows!: Follow[]
+
+  @OneToMany(type => Notification, notification => notification.user, {eager: false, onDelete: 'CASCADE'})
+  public notifications!: Notification[]
+
+  @OneToMany(type => Notification, action => action.user, {eager: false, onDelete: 'CASCADE'})
+  public actions!: Notification[]
 
   public ability: Ability
 }

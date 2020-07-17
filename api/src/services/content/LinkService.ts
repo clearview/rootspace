@@ -1,4 +1,4 @@
-import { getCustomRepository, DeleteResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { LinkRepository } from '../../database/repositories/LinkRepository'
 import { Link } from '../../database/entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
@@ -39,6 +39,16 @@ export class LinkService extends NodeContentService {
     return this.getLinkRepository().getById(id, spaceId)
   }
 
+  async requireLinkById(id: number, spaceId?: number): Promise<Link> {
+    const link = await this.getLinkById(id, spaceId)
+
+    if (!link) {
+      throw clientError('Link not found', HttpErrName.EntityNotFound)
+    }
+
+    return link
+  }
+
   async create(data: LinkCreateValue): Promise<Link> {
     const link = await this.getLinkRepository().save(data.attributes)
 
@@ -72,26 +82,13 @@ export class LinkService extends NodeContentService {
     return link
   }
 
-  async delete(id: number): Promise<DeleteResult> {
-    const link = await this.getLinkById(id)
+  async remove(id: number): Promise<Link> {
+    let link = await this.requireLinkById(id)
 
-    if (!link) {
-      throw clientError(
-        'Error deleting link',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
-    }
+    link = await this.getLinkRepository().remove(link)
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
-    const res = await this.getLinkRepository().delete({
-      id,
-    })
-
-    if (res.affected > 0) {
-      this.mediator.contentDeleted(link.id, this.getNodeType())
-    }
-
-    return res
+    return link
   }
 
   async nodeUpdated(
@@ -108,7 +105,8 @@ export class LinkService extends NodeContentService {
     await this.getLinkRepository().save(link)
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getLinkRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const link = await this.getLinkRepository().findOne({ id: contentId })
+    await this.getLinkRepository().remove(link)
   }
 }

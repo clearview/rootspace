@@ -2869,6 +2869,11 @@ http-errors@~1.7.2:
     statuses ">= 1.5.0 < 2"
     toidentifier "1.0.0"
 
+http-request-context@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/http-request-context/-/http-request-context-0.3.1.tgz#936c3b86c84bca32b90e91cedb9cbf74a30baa7b"
+  integrity sha512-/3K1JtVP34kqtrHGdSRt8hm8KeLdyEXHiCDzlAsNdrQWNkKUTvyg14yZsWFXX1pgfYtMy/K/aaysYZUbpuH7ZA==
+
 http-signature@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/http-signature/-/http-signature-1.2.0.tgz#9aecd925114772f3d95b65a60abb8f7c18fbace1"

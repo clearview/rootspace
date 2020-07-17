@@ -8,6 +8,7 @@ import { NodeContentService } from '../NodeContentService'
 import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
+import { Task } from '../../../database/entities/tasks/Task'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
@@ -42,6 +43,18 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
 
+  async getAllTasks(id: number): Promise<Task[]> {
+    const taskBoard = await this.getCompleteTaskboard(id)
+
+    const tasks: Task[] = []
+
+    for (const taskList of taskBoard.taskLists) {
+      tasks.push(...taskList.tasks)
+    }
+
+    return tasks
+  }
+
   async getByTaskId(id: number): Promise<TaskBoard> {
     const taskBoard = await this.getTaskBoardRepository().getByTaskId(id)
 
@@ -49,7 +62,8 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
+    return this.getTaskBoardRepository()
+        .getCompleteTaskboard(id, archived)
   }
 
   async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
@@ -87,17 +101,17 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().reload(taskBoard)
   }
 
-  async delete(id: number) {
-    const res = await this.getTaskBoardRepository().delete({ id })
+  async remove(id: number) {
+    const taskBoard = await this.getById(id)
+    await this.getTaskBoardRepository().remove(taskBoard)
 
-    if (res.affected > 0) {
-      await this.mediator.contentDeleted(id, this.getNodeType())
-    }
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
-    return res
+    return taskBoard
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getTaskBoardRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const taskBoard = await this.getTaskBoardRepository().findOne({id: contentId})
+    await this.getTaskBoardRepository().remove(taskBoard)
   }
 }

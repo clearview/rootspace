@@ -79,7 +79,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard)
 
-    const result = await this.taskBoardService.delete(taskBoard.id)
+    const result = await this.taskBoardService.remove(taskBoard.id)
     res.send(result)
   }
 }
