@@ -236,7 +236,7 @@ export default class TaskModal extends Vue {
       return [...this.item.taskComments].sort((a, b) => {
         const x = a.createdAt ? new Date(a.createdAt).getTime() : 0
         const y = b.createdAt ? new Date(b.createdAt).getTime() : 0
-        return x - y
+        return y - x
       })
     }
 
