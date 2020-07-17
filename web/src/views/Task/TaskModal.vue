@@ -263,7 +263,6 @@ export default class TaskModal extends Vue {
           file
         })
         this.isUploading = false
-        await this.$store.dispatch('task/board/refresh')
       }
     }
 
@@ -274,7 +273,6 @@ export default class TaskModal extends Vue {
           id: this.item.id,
           attachments: this.itemCopy.attachments
         })
-        await this.$store.dispatch('task/board/refresh')
       }
     }
 
@@ -283,7 +281,6 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         description: this.itemCopy.description
       })
-      await this.$store.dispatch('task/board/refresh')
       this.isEditingDescription = false
     }
 
@@ -296,8 +293,6 @@ export default class TaskModal extends Vue {
       }
       await this.$store.dispatch('task/comment/create', commentResource)
       this.commentInput = ''
-
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleMenu (value: string) {
@@ -307,7 +302,6 @@ export default class TaskModal extends Vue {
           break
       }
       this.close()
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleTagMenu (tag: TagResource) {
@@ -323,7 +317,6 @@ export default class TaskModal extends Vue {
           tagId: tag.id
         })
       }
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleMemberMenu (member: UserResource) {
@@ -339,7 +332,6 @@ export default class TaskModal extends Vue {
           userId: member.id
         })
       }
-      await this.$store.dispatch('task/board/refresh')
       const currentBoard = this.$store.state.task.board.current
       this.$emit('getUpdate', currentBoard)
     }
@@ -350,7 +342,6 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         dueDate: this.itemCopy.dueDate
       })
-      await this.$store.dispatch('task/board/refresh')
     }
 
     async handleDateClear () {
@@ -359,7 +350,6 @@ export default class TaskModal extends Vue {
         id: this.item.id,
         dueDate: null
       })
-      await this.$store.dispatch('task/board/refresh')
     }
 
     memberName (member: UserResource) {
@@ -371,11 +361,10 @@ export default class TaskModal extends Vue {
       if (!this.isUpdatingTitle) {
         this.isUpdatingTitle = true
         this.itemCopy.title = this.titleEditableRef.innerText
-        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+        await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
-        })).data
-        await this.$store.dispatch('task/board/refresh')
+        })
         this.isUpdatingTitle = false
         this.isEditingTitle = false
       }

@@ -26,15 +26,15 @@
             </tippy>
           </div>
         </div>
-        <div class="footer" v-if="isHasFooter(itemCopy)">
+        <div class="footer" v-if="isHasFooter(item)">
           <div class="tags">
             <ul>
-              <li v-for="(tag, index) in itemCopy.tags" :key="index">
+              <li v-for="(tag, index) in item.tags" :key="index">
                 <div :style="{background: opacityColor(tag.color), color: tag.color}" class="tag">
                   {{ tag.label }}
                 </div>
               </li>
-              <li v-if="itemCopy.attachments">
+              <li v-if="item.attachments && item.attachments > 0">
                 <tippy content="Attachment(s)" arrow>
                   <template v-slot:trigger>
                     <span class="icon">
@@ -43,7 +43,7 @@
                   </template>
                 </tippy>
               </li>
-              <li v-if="itemCopy.taskComments.length > 0">
+              <li v-if="item.taskComments.length > 0">
                 <tippy content="Comment(s)" arrow>
                   <template v-slot:trigger>
                     <span class="icon">
@@ -54,8 +54,8 @@
               </li>
             </ul>
           </div>
-          <ul class="assignees">
-            <li v-for="(assignee, index) in itemCopy.assignees" :key="index" class="assignee">
+          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
+            <li v-for="(assignee, index) in item.assignees" :key="index" class="assignee">
               <tippy :content="memberName(assignee)" arrow>
                 <template v-slot:trigger>
                   <avatar :username="memberName(assignee)"></avatar>
@@ -120,15 +120,12 @@ export default class TaskCard extends Vue {
     @Emit('save')
     async save () {
       if (this.itemCopy.id === null) {
-        this.itemCopy = (await this.$store.dispatch('task/item/create', this.itemCopy)).data
+        await this.$store.dispatch('task/item/create', this.itemCopy)
       } else {
-        this.itemCopy = (await this.$store.dispatch('task/item/update', {
+        await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
-        })).data
-      }
-      if (this.item.list) {
-        await this.$store.dispatch('task/board/refresh')
+        })
       }
       this.isInputting = false
       return this.itemCopy
@@ -168,7 +165,7 @@ export default class TaskCard extends Vue {
 
     isHasFooter (itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
       return (itemCopy.tags && itemCopy.tags.length > 0) ||
-      itemCopy.attachments ||
+        (itemCopy.attachments && itemCopy.attachments.length > 0) ||
       (itemCopy.taskComments && itemCopy.taskComments.length > 0) ||
       (itemCopy.assignees && itemCopy.assignees.length > 0)
     }
