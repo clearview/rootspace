@@ -1,5 +1,5 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
-import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
+import { UserToSpaceRepository } from '../database/repositories/UserToSpaceRepository'
 import { UserToSpace } from '../database/entities/UserToSpace'
 import { clientError, HttpErrName } from '../errors'
 

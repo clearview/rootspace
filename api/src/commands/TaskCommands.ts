@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import db from '../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
-import { TaskRepository } from '../repositories/tasks/TaskRepository'
+import { TaskRepository } from '../database/repositories/tasks/TaskRepository'
 import slugify from '@sindresorhus/slugify'
 
 export class TaskCommands {

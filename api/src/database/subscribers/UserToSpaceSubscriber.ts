@@ -4,8 +4,8 @@ import {
   EventSubscriber,
 } from 'typeorm'
 import { UserToSpace } from '../entities/UserToSpace'
-import { SpaceRepository } from '../../repositories/SpaceRepository'
-import { UserToSpaceRepository } from '../../repositories/UserToSpaceRepository'
+import { SpaceRepository } from '../repositories/SpaceRepository'
+import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 
 @EventSubscriber()
 export class UserToSpaceSubscriber
