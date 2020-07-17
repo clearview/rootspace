@@ -2,11 +2,11 @@
   <layout-public>
     <div class="max-w-xs mx-auto p-4 mt-10">
       <h2 class="text-center">Sign Up</h2>
-      <p class="text-center mb-2 text-gray-800">Enter your information below to continue</p>
+      <p class="text-center mb-2 text-gray-400">Enter your information below to continue</p>
 
       <v-alert v-model="alert"/>
 
-      <form-signup @submit="userSignup"/>
+      <form-signup class="mt-10" @submit="userSignup"/>
 
       <div class="my-10">
         <p class="separator">
@@ -40,7 +40,7 @@ import { SignupResource } from '@/types/resource'
 import VAlert from '@/components/Alert.vue'
 import LayoutPublic from '@/components/LayoutPublic.vue'
 import VLoading from '@/components/Loading.vue'
-import FormSignup from '@/components/resource/ResourceFormSignup.vue'
+import FormSignup from '@/components/form/FormSignup.vue'
 import ButtonAuthGoogle from '@/components/ButtonAuthGoogle.vue'
 import { Component, Vue } from 'vue-property-decorator'
 

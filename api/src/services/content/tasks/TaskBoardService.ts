@@ -1,8 +1,8 @@
-import { Brackets, getCustomRepository } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
-import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
+import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
-import { SpaceRepository } from '../../../repositories/SpaceRepository'
+import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { NodeContentService } from '../NodeContentService'
 import { NodeService } from '../NodeService'
@@ -43,76 +43,17 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getByTaskId(id: number): Promise<TaskBoard> {
-    const taskBoard = await this.getTaskBoardRepository()
-        .createQueryBuilder('taskBoard')
-        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-        .leftJoinAndSelect('taskList.tasks', 'task')
-        .where('task.id = :id', { id })
-        .andWhere('task.deletedAt IS NULL')
-        .getOne()
+    const taskBoard = await this.getTaskBoardRepository().getByTaskId(id)
 
     return this.getCompleteTaskboard(taskBoard.id)
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    const queryBuilder =  this.getTaskBoardRepository()
-        .createQueryBuilder('taskBoard')
-        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-        .leftJoinAndSelect('taskList.tasks', 'task')
-        .leftJoinAndSelect('task.tags', 'tag')
-        .leftJoinAndSelect('task.assignees', 'assignee')
-        .leftJoinAndSelect('task.taskComments', 'comment')
-        .leftJoinAndSelect('comment.user', 'user')
-        .where('taskBoard.id = :id', { id })
-
-        if (archived) {
-          queryBuilder.andWhere('task.deletedAt IS NOT NULL')
-          return queryBuilder.getOne()
-        }
-
-        queryBuilder
-          .andWhere('task.deletedAt IS NULL')
-          .orderBy('comment.createdAt', 'DESC')
-
-    return queryBuilder.getOne()
+    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
   }
 
-  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard | undefined> {
-    const queryBuilder =  this.getTaskBoardRepository()
-        .createQueryBuilder('taskBoard')
-        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-        .leftJoinAndSelect('taskList.tasks', 'task')
-        .leftJoinAndSelect('task.tags', 'tag')
-        .leftJoinAndSelect('task.assignees', 'assignee')
-        .leftJoinAndSelect('task.taskComments', 'comment')
-        .leftJoinAndSelect('comment.user', 'user')
-        .where('taskBoard.id = :id', { id })
-
-    if (searchParam) {
-      queryBuilder
-          .andWhere(new Brackets(qb => {
-            qb.where('LOWER(task.title) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
-                .orWhere('LOWER(task.description) LIKE :searchParam', { searchParam: `%${searchParam.toLowerCase()}%` })
-          }))
-    }
-
-    if (typeof filterParam?.status !== 'undefined' && filterParam?.status !== null) {
-      queryBuilder.andWhere('task.status = :status', { status: filterParam.status })
-    }
-
-    if (filterParam?.assignees?.length > 0) {
-      queryBuilder.andWhere('assignee.id IN (:...assignees)', { assignees: filterParam.assignees })
-    }
-
-    if (filterParam?.tags?.length > 0) {
-      queryBuilder.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
-    }
-
-    queryBuilder
-      .andWhere('task.deletedAt IS NULL')
-      .orderBy('comment.createdAt', 'DESC')
-
-    return queryBuilder.getOne()
+  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
+    return this.getTaskBoardRepository().searchTaskboard(id, searchParam, filterParam)
   }
 
   async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {

@@ -1,5 +1,5 @@
 import { getCustomRepository, DeleteResult } from 'typeorm'
-import { LinkRepository } from '../../repositories/LinkRepository'
+import { LinkRepository } from '../../database/repositories/LinkRepository'
 import { Link } from '../../database/entities/Link'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 import { NodeType } from '../../types/node'

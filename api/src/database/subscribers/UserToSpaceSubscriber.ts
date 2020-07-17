@@ -4,22 +4,25 @@ import {
   EventSubscriber,
 } from 'typeorm'
 import { UserToSpace } from '../entities/UserToSpace'
-import { SpaceFacade } from '../../services/facade'
+import { SpaceRepository } from '../repositories/SpaceRepository'
+import { UserToSpaceRepository } from '../repositories/UserToSpaceRepository'
 
 @EventSubscriber()
 export class UserToSpaceSubscriber
-    implements EntitySubscriberInterface<UserToSpace> {
-  spaceFacade: SpaceFacade
-
-  constructor() {
-    this.spaceFacade = new SpaceFacade()
-  }
-
+  implements EntitySubscriberInterface<UserToSpace> {
   listenTo() {
     return UserToSpace
   }
 
   async afterInsert(event: InsertEvent<UserToSpace>) {
-    return this.spaceFacade.updateSpaceCountMembers(event.entity.spaceId)
+    const entity = event.entity
+
+    const membersCount = await event.manager
+      .getCustomRepository(UserToSpaceRepository)
+      .getCountUsersBySpaceId(entity.spaceId)
+
+    await event.manager
+      .getCustomRepository(SpaceRepository)
+      .updateCountMembers(entity.spaceId, membersCount)
   }
 }

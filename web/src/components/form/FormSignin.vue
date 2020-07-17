@@ -1,69 +1,80 @@
 <template>
-  <form
-    class="mt-10"
-    @submit.prevent="submit"
-  >
-    <v-field label="Email" name="email">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="email"
-          type="text"
-          placeholder="Email"
-          v-model.trim="$v.payload.email.$model"
-        />
-        <span class="icon">
-          <v-icon name="email" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.required"
-        >Email is required.
-        </div>
-        <div
-          class="error"
-          v-if="$v.payload.email.$dirty && !$v.payload.email.email"
-        >Email format is not valid.
-        </div>
-      </div>
+  <form class="form" @submit.prevent="submit">
+    <v-field
+      label="Email"
+      name="email"
+      has-icon-right
+    >
+      <input
+        class="input"
+        :class="{
+          'is-danger': $v.payload.email.$error
+        }"
+        type="text"
+        placeholder="Enter your email"
+        v-model.lazy.trim="$v.payload.email.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="email"
+      />
+
+      <template #feedback>
+        <p
+          v-if="$v.payload.email.$error && !$v.payload.email.required"
+          class="feedback is-danger"
+        >
+          Field is required.
+        </p>
+        <p
+          v-if="$v.payload.email.$error && !$v.payload.email.email"
+          class="feedback is-danger"
+        >
+          Email format is not valid.
+        </p>
+      </template>
     </v-field>
 
-    <v-field label="Password" name="password">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="password"
-          type="password"
-          placeholder="******"
-          v-model.trim="$v.payload.password.$model"
-        />
-        <span class="icon">
-          <v-icon name="lock" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.required"
-        >Password is required.
-        </div>
-        <div
-          class="error"
-          v-if="$v.payload.password.$dirty && !$v.payload.password.minLength"
-        >Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
-        </div>
-      </div>
+    <v-field
+      label="Password"
+      name="password"
+      has-icon-right
+    >
+      <input
+        class="input"
+        type="password"
+        placeholder="Enter your password"
+        v-model.lazy.trim="$v.payload.password.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="lock"
+      />
+
+      <template #feedback>
+        <p
+          v-if="$v.payload.password.$error && !$v.payload.password.required"
+          class="feedback is-danger"
+        >
+          Password is required.
+        </p>
+        <p
+          v-if="$v.payload.password.$error && !$v.payload.password.minLength"
+          class="feedback is-danger"
+        >
+          Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
+        </p>
+      </template>
     </v-field>
 
-    <a class="forgot-password float-right mb-8">Forgot Password?</a>
+    <v-field align="right">
+      <a href="#" class="text-primary font-bold">Forgot Password?</a>
+    </v-field>
 
     <button
-      class="btn btn-primary w-full mx-0"
-      type="button"
+      class="btn btn-primary w-full mx-0 mt-8"
+      type="submit"
       :disabled="$v.payload.$invalid"
-      @click="submit()"
     >
       Sign In
     </button>
@@ -94,17 +105,17 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class FormSignin extends Vue {
-    private payload: SigninResource = {
-      email: '',
-      password: ''
-    }
+  private payload: SigninResource = {
+    email: '',
+    password: ''
+  }
 
-    submit (): void {
-      this.$v.payload.$touch()
+  submit (): void {
+    this.$v.payload.$touch()
 
-      if (!this.$v.payload.$invalid) {
-        this.$emit('submit', this.payload)
-      }
+    if (!this.$v.payload.$invalid) {
+      this.$emit('submit', this.payload)
     }
+  }
 }
 </script>

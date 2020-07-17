@@ -1,6 +1,6 @@
-import { EntityRepository, Repository } from 'typeorm'
-import { UserToSpace } from '../database/entities/UserToSpace'
-import { Space } from '../database/entities/Space'
+import { EntityRepository, Repository, UpdateResult } from 'typeorm'
+import { UserToSpace } from '../entities/UserToSpace'
+import { Space } from '../entities/Space'
 
 @EntityRepository(Space)
 export class SpaceRepository extends Repository<Space> {
@@ -11,5 +11,9 @@ export class SpaceRepository extends Repository<Space> {
         userId,
       })
       .getMany()
+  }
+
+  updateCountMembers(spaceId: number, count: number): Promise<UpdateResult> {
+    return this.update(spaceId, { countMembers: count })
   }
 }

@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm'
-import { SpaceRepository } from '../../../repositories/SpaceRepository'
-import { TaskBoardRepository } from '../../../repositories/tasks/TaskBoardRepository'
-import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
+import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
+import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
+import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../database/entities/tasks/TaskList'
 
 export class TaskListService {

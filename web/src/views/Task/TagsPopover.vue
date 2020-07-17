@@ -69,7 +69,6 @@ export default class TagsPopover extends Vue {
         color: this.colorInput,
         label: this.tagInput
       } as TagResource)
-      await this.$store.dispatch('task/tag/fetch', null)
       this.tagInput = ''
     }
 

@@ -7,7 +7,7 @@
         <img src="../../assets/images/space.png" :alt="attachment.id">
       </div>
       <div class="attachment-close">
-        <button class="btn btn-icon" @click.prevent="remove(attachment)">
+        <button class="btn btn-icon" @click.stop="remove(attachment)">
           <v-icon name="close"/>
         </button>
       </div>

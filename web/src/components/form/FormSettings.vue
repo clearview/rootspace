@@ -1,165 +1,211 @@
 <template>
-  <form
-    @submit.prevent="submit"
-  >
-    <v-field label="First Name" name="firstname">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="firstName"
-          type="text"
-          placeholder="Enter your first name"
-          v-model.trim="$v.payload.firstName.$model"
-        />
-        <span class="icon">
-          <v-icon name="user" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
-          v-if="$v.payload.firstName.$error && !$v.payload.firstName.required"
-        >First Name is required.
-        </div>
-      </div>
+  <form @submit.prevent="submit">
+    <v-field
+      label="First Name"
+      name="firstname"
+      has-icon-right
+    >
+      <input
+        class="input"
+        id="firstName"
+        type="text"
+        placeholder="Enter your first name"
+        v-model.lazy.trim="$v.payload.firstName.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="user"
+        size="1.5em"
+      />
+
+      <template
+        #feedback
+        v-if="$v.payload.firstName.$error"
+      >
+        <p
+          v-if="!$v.payload.firstName.required"
+          class="feedback is-danger"
+        >
+          First Name is required.
+        </p>
+      </template>
     </v-field>
 
-    <v-field label="Last Name" name="lastName">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="lastName"
-          type="text"
-          placeholder="Enter your last name"
-          v-model.trim="$v.payload.lastName.$model"
-        />
-        <span class="icon">
-          <v-icon name="user" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
-          v-if="$v.payload.lastName.$error && !$v.payload.lastName.required"
-        >Last Name is required.
-        </div>
-      </div>
+    <v-field
+      label="Last Name"
+      name="lastName"
+      has-icon-right
+    >
+      <input
+        class="input"
+        id="lastName"
+        type="text"
+        placeholder="Enter your last name"
+        v-model.lazy.trim="$v.payload.lastName.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="user"
+        size="1.5em"
+      />
+
+      <template
+        #feedback
+        v-if="$v.payload.lastName.$error"
+      >
+        <p
+          v-if="!$v.payload.lastName.required"
+          class="feedback is-danger"
+        >
+          Last Name is required.
+        </p>
+      </template>
     </v-field>
 
-    <v-field label="Email" name="email">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="email"
-          type="text"
-          placeholder="Enter your email"
-          v-model.trim="$v.payload.email.$model"
-        />
-        <span class="icon">
-          <v-icon name="email" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
+    <v-field
+      label="Email"
+      name="email"
+      has-icon-right
+    >
+      <input
+        class="input"
+        id="email"
+        type="text"
+        placeholder="Enter your email"
+        v-model.lazy.trim="$v.payload.email.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="email"
+        size="1.5em"
+      />
+
+      <template
+        #feedback
+        v-if="$v.payload.email.$error"
+      >
         <div
-          class="error"
-          v-if="$v.payload.email.$error && !$v.payload.email.required"
-        >Email is required.
+          v-if="!$v.payload.email.required"
+          class="feedback is-danger"
+        >
+          Email is required.
         </div>
         <div
           class="error"
           v-if="$v.payload.email.$error && !$v.payload.email.email"
-        >Email format is not valid.
+        >
+          Email format is not valid.
         </div>
-      </div>
+      </template>
     </v-field>
 
     <div class="divider"></div>
 
-    <v-field label="Old Password" name="oldpassword">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="oldpassword"
-          type="password"
-          placeholder="******"
-          v-model.trim="$v.password.password.$model"
-        />
-        <span class="icon">
-          <v-icon name="lock" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
+    <v-field
+      label="Old Password"
+      name="oldpassword"
+      has-icon-right
+    >
+      <input
+        class="input w-full leading-tight mx-0"
+        id="oldpassword"
+        type="password"
+        placeholder="Enter current password"
+        v-model.trim="$v.password.password.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="lock"
+        size="1.5em"
+      />
+
+      <template #feedback>
+        <p
           v-if="$v.password.password.$error && !$v.password.password.required"
-        >Password is required.
-        </div>
-        <div
-          class="error"
+          class="feedback is-danger"
+        >
+          Password is required.
+        </p>
+        <p
           v-if="$v.password.password.$error && !$v.password.password.minLength"
-        >Password must have at least {{ $v.password.password.$params.minLength.min }} letters.
-        </div>
-      </div>
+          class="feedback is-danger"
+        >
+          Password must have at least {{ $v.password.password.$params.minLength.min }} letters.
+        </p>
+      </template>
     </v-field>
 
-    <v-field label="New Password" name="password">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="password"
-          type="password"
-          placeholder="******"
-          v-model.trim="$v.password.newPassword.$model"
-        />
-        <span class="icon">
-          <v-icon name="lock" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
-          v-if="$v.password.newPassword.$error && !$v.password.newPassword.required"
-        >Password is required.
-        </div>
+    <v-field
+      label="New Password"
+      name="password"
+      has-icon-right
+    >
+      <input
+        class="input"
+        id="password"
+        type="password"
+        placeholder="Enter new password"
+        v-model.trim="$v.password.newPassword.$model"
+      />
+      <v-icon
+        class="icon is-right"
+        name="lock"
+        size="1.5em"
+      />
 
-        <div
-          class="error"
-          v-if="$v.password.newPassword.$error && !$v.password.newPassword.minLength"
-        >Password must have at least {{ $v.password.newPassword.$params.minLength.min }} letters.
-        </div>
-      </div>
+      <template #feedback v-if="$v.password.newPassword.$error">
+        <p
+          v-if="!$v.password.newPassword.required"
+          class="feedback is-danger"
+        >
+          Password is required.
+        </p>
+
+        <p
+          v-if="!$v.password.newPassword.minLength"
+          class="feedback is-danger"
+        >
+          Password must have at least {{ $v.password.newPassword.$params.minLength.min }} letters.
+        </p>
+      </template>
     </v-field>
 
-    <v-field label="Repeat New Password" name="repeatpassword">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="repeatpassword"
-          type="password"
-          placeholder="******"
-          v-model.trim="$v.password.newPassword_confirmation.$model"
+    <v-field
+      label="Repeat New Password"
+      name="repeatpassword"
+      has-icon-right
+    >
+      <input
+        class="input"
+        id="repeatpassword"
+        type="password"
+        placeholder="Enter new password again"
+        v-model.trim="$v.password.newPassword_confirmation.$model"
+      />
+        <v-icon
+          class="icon is-right"
+          name="lock"
+          size="1.5em"
         />
-        <span class="icon">
-          <v-icon name="lock" size="1.5em"/>
-        </span>
-      </div>
-      <div class="error-group">
-        <div
-          class="error"
+
+      <template #feedback v-if="$v.password.newPassword_confirmation.$error">
+        <p
           v-if="!$v.password.newPassword_confirmation.sameAsPassword"
-        >Passwords must be identical.
-        </div>
-      </div>
+          class="feedback is-danger"
+        >
+          Passwords must be identical.
+        </p>
+      </template>
     </v-field>
 
     <p class="password-hint">Password must contain at least 8 characters</p>
 
     <button
       class="btn btn-primary w-full mx-0 mt-5"
-      type="button"
+      type="submit"
       :disabled="$v.payload.$invalid"
-      @click="submit()"
-    >Save
+    >
+      Save
     </button>
   </form>
 </template>
@@ -172,90 +218,89 @@ import { PasswordResource, UserResource } from '@/types/resource'
 import VField from '@/components/Field.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  @Component({
-    name: 'FormSettings',
-    components: {
-      VField
+@Component({
+  name: 'FormSettings',
+  components: {
+    VField
+  },
+  validations: {
+    payload: {
+      firstName: { required },
+      lastName: { required },
+      email: { required, email }
     },
-    validations: {
-      payload: {
-        firstName: { required },
-        lastName: { required },
-        email: { required, email }
-      },
+    password: {
       password: {
-        password: {
-          required,
-          minLength: minLength(6)
-        },
-        newPassword: {
-          required,
-          minLength: minLength(6)
-        },
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        newPassword_confirmation: {
-          required,
-          minLength: minLength(6),
-          sameAsPassword: sameAs('newPassword')
-        }
-      }
-    }
-  })
-export default class FormSettings extends Vue {
-    private payload: UserResource = {
-      firstName: '',
-      lastName: '',
-      email: ''
-    }
-
-    private password: PasswordResource = {
-      password: '',
-      newPassword: '',
+        required,
+        minLength: minLength(6)
+      },
+      newPassword: {
+        required,
+        minLength: minLength(6)
+      },
       // eslint-disable-next-line @typescript-eslint/camelcase
-      newPassword_confirmation: ''
-    }
-
-    get user () {
-      return this.$store.state.auth.user
-    }
-
-    created () {
-      this.payload = {
-        firstName: this.user.firstName,
-        lastName: this.user.lastName,
-        email: this.user.email
+      newPassword_confirmation: {
+        required,
+        minLength: minLength(6),
+        sameAsPassword: sameAs('newPassword')
       }
     }
+  }
+})
+export default class FormSettings extends Vue {
+  private payload: UserResource = {
+    firstName: '',
+    lastName: '',
+    email: ''
+  }
 
-    submit (): void {
-      this.$v.payload.$touch()
+  private password: PasswordResource = {
+    password: '',
+    newPassword: '',
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    newPassword_confirmation: ''
+  }
 
-      if (!this.$v.payload.$invalid) {
-        this.$emit('submit', this.payload, this.password)
+  get user () {
+    return this.$store.state.auth.user
+  }
 
-        this.$v.password.$reset()
-        this.password = {
-          password: '',
-          newPassword: '',
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          newPassword_confirmation: ''
-        }
+  created () {
+    this.payload = {
+      firstName: this.user.firstName,
+      lastName: this.user.lastName,
+      email: this.user.email
+    }
+  }
+
+  submit (): void {
+    this.$v.payload.$touch()
+
+    if (!this.$v.payload.$invalid) {
+      this.$emit('submit', this.payload, this.password)
+
+      this.$v.password.$reset()
+      this.password = {
+        password: '',
+        newPassword: '',
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        newPassword_confirmation: ''
       }
     }
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
-  .divider {
-    @apply my-8 border-b-2;
+.divider {
+  @apply my-8 border-b-2;
 
-    border-color: theme("colors.secondary.default");
-  }
+  border-color: theme("colors.secondary.default");
+}
 
-  .password-hint {
-    @apply mb-8 mt-5;
+.password-hint {
+  @apply mb-8 mt-5;
 
-    color: theme("colors.gray.400");
-  }
-
+  color: theme("colors.gray.400");
+}
 </style>

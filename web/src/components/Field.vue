@@ -1,15 +1,37 @@
 <template>
-  <div :class="['field', {
-    'field-inline': inline,
-    'field-border': border,
-    'field-disabled': disabled
-  }]">
+  <div
+    class="field"
+    :class="{
+      'is-inline': inline,
+      'is-bordered': border,
+      'is-disabled': disabled,
+      'has-addon': $slots.addon
+    }"
+  >
     <label
-      class="field-label"
+      v-if="label"
       v-text="label"
+      class="label"
       :for="name"
     />
-    <slot />
+
+    <div
+      class="control"
+      :class="{
+        'has-icon-left': hasIconLeft,
+        'has-icon-right': hasIconRight,
+        'justify-start': align === 'left',
+        'justify-end': align === 'right'
+      }"
+    >
+      <slot />
+    </div>
+
+    <div v-if="$slots.addon" class="control-addon">
+      <slot name="addon" />
+    </div>
+
+    <slot name="feedback" />
   </div>
 </template>
 
@@ -25,7 +47,7 @@ export default class Field extends Vue {
   private readonly label?: string;
 
   @Prop({ type: String, default: '' })
-  private readonly name!: string;
+  private readonly name?: string;
 
   @Prop({ type: Boolean })
   private readonly inline?: boolean;
@@ -35,5 +57,14 @@ export default class Field extends Vue {
 
   @Prop({ type: Boolean })
   private readonly disabled?: boolean;
+
+  @Prop({ type: String })
+  private readonly align?: string;
+
+  @Prop({ type: Boolean })
+  private readonly hasIconLeft?: boolean;
+
+  @Prop({ type: Boolean })
+  private readonly hasIconRight?: boolean;
 }
 </script>

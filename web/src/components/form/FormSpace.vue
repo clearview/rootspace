@@ -3,59 +3,61 @@
     @submit.prevent="submit"
   >
     <v-field label="Space Name" name="spacename">
-      <div class="form-group">
-        <input
-          class="input w-full leading-tight mx-0"
-          id="spacename"
-          type="text"
-          placeholder="My Space"
-          v-model.trim="$v.payload.title.$model"
-        />
-      </div>
-      <div class="error-group">
+      <input
+        class="input"
+        id="spacename"
+        type="text"
+        placeholder="My Space"
+        v-model.trim="$v.payload.title.$model"
+      />
+      <template #feedback v-if="$v.payload.title.$error">
         <div
-          class="error"
-          v-if="$v.payload.title.$dirty && !$v.payload.title.required"
-        >Title is required.
+          v-if="!$v.payload.title.required"
+          class="feedback is-danger"
+        >
+          Field is required.
         </div>
-      </div>
+      </template>
     </v-field>
 
-    <v-field label="Team" name="team">
-      <div class="input-group">
-        <div class="flex -mr-px">
-          <span class="input-group-component flex items-center">
-            <v-icon name="plus" size="1.3em" viewbox="32"/>
-          </span>
-        </div>
-        <input
-          type="email"
-          class="input-group-component flex-grow w-px flex-1 border h- px-3 relative text-inherit"
-          v-model.trim="$v.invitation.$model"
-          @keyup.enter="addInvitationList($v.invitation.$model)"
-        />
-        <div class="flex">
-          <button
-            type="button"
-            class="button input-group-component flex items-center justify-center"
-            :class="{ filled: !$v.invitation.$invalid }"
-            :disabled="$v.invitation.$invalid"
-            @click="addInvitationList($v.invitation.$model)"
-          >Add
-          </button>
-        </div>
-      </div>
+    <v-field label="Team" name="team" has-addon has-icon-left>
+      <v-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+      <input
+        type="email"
+        class="input"
+        v-model.trim="$v.invitation.$model"
+        @keyup.enter="addInvitationList($v.invitation.$model)"
+      />
 
-      <div class="error-group">
+      <template #addon>
+        <button
+          type="button"
+          class="btn"
+          :class="{
+            'btn-white': $v.invitation.$invalid,
+            'btn-success': !$v.invitation.$invalid
+          }"
+          :disabled="$v.invitation.$invalid"
+          @click="addInvitationList($v.invitation.$model)"
+        >
+          Add
+        </button>
+      </template>
+
+      <template #feedback v-if="$v.invitation.$error">
         <div
-          class="error"
-          v-if="$v.invitation.$dirty && !$v.invitation.email"
-        >Email format is not valid.
+          v-if="!$v.invitation.email"
+          class="feedback is-error"
+        >
+          Email format is not valid.
         </div>
-      </div>
-      <div class="success-group">
-        <div class="success" v-if="duplicateMessage">{{ duplicateMessage }}</div>
-      </div>
+      </template>
+
+      <template #feedback v-if="duplicateMessage">
+        <p class="feedback is-success">
+          {{ duplicateMessage }}
+        </p>
+      </template>
     </v-field>
 
     <div class="list-invitation" v-if="payload.invites.length > 0 || invitationList.length > 0">
@@ -98,10 +100,10 @@
     <button
       v-show="!nobutton"
       class="btn btn-primary w-full mx-0 mt-5"
-      type="button"
+      type="submit"
       :disabled="$v.payload.$invalid"
-      @click="submit()"
-    >{{ button }}
+    >
+      {{ button }}
     </button>
   </form>
 </template>
@@ -139,7 +141,7 @@ export default class FormSpace extends Vue {
     @Prop({ type: Object })
     private readonly value?: any;
 
-    @Prop({ type: String, default: 'create' })
+    @Prop({ type: String, default: 'Create' })
     private readonly button!: string;
 
     @Prop({ type: Boolean })

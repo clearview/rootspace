@@ -59,8 +59,8 @@ export default class BoardManager extends Vue {
     }
 
     clearNewList () {
-      this.newList = null
       this.isInputtingNewList = false
+      this.newList = null
     }
 
     addList () {
@@ -89,7 +89,6 @@ export default class BoardManager extends Vue {
           id: data.moved.element.id,
           position: newPos
         })
-        await this.$store.dispatch('task/board/refresh')
       }
     }
 }

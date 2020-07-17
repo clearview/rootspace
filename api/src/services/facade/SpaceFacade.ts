@@ -43,9 +43,4 @@ export class SpaceFacade {
   updateSpace(data: SpaceUpdateValue, spaceId: number): Promise<Space> {
     return this.spaceService.update(data, spaceId)
   }
-
-  async updateSpaceCountMembers(spaceId: number): Promise<Space> {
-    const count = await this.userSpaceService.getCountSpaceUsers(spaceId)
-    return this.spaceService.updateCountMembers(count, spaceId)
-  }
 }

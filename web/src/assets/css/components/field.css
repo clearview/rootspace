@@ -5,31 +5,97 @@
     @apply mt-3;
   }
 
-  &.field-inline {
+  &.is-inline {
     @apply flex-row justify-between mt-6;
   }
 
-  &.field-border {
+  &.is-bordered {
     @apply border rounded border-gray-100;
     @apply py-2 px-3;
   }
 
-  &.field-disabled {
-    label,
-    input {
+  &.is-disabled {
+    .label,
+    .input {
       @apply pointer-events-none !important;
-    }
-
-    .field-label {
-      @apply text-gray-400;
     }
   }
 
-  .input {
-    @apply mt-2;
+  &.has-addon {
+    @apply flex-row flex-wrap;
   }
 }
 
-.field-label {
+.label ~ .control,
+ .label ~ .control-addon {
+  @apply mt-2;
+
+  .is-inline & {
+    @apply mt-0;
+  }
+}
+
+.label {
   @apply text-gray-800;
+
+  .is-disabled & {
+    @apply text-gray-400;
+  }
+
+  .has-addon & {
+    @apply w-full;
+  }
+}
+
+.input {
+  .has-addon & {
+    @apply rounded-tr-none rounded-br-none;
+  }
+}
+
+.control {
+  @apply flex flex-1 flex-row items-center;
+  @apply relative;
+
+  &.has-icon-left {
+    .input {
+      @apply pl-12;
+    }
+  }
+
+  &.has-icon-right {
+    .input {
+      @apply pr-12;
+    }
+  }
+
+  .icon {
+    @apply absolute z-10;
+    @apply w-6 h-6 mx-3;
+    @apply text-gray-400;
+
+    &.is-left {
+      @apply left-0;
+    }
+
+    &.is-right {
+      @apply right-0;
+    }
+  }
+}
+
+.control-addon {
+  .btn {
+    @apply flex-initial px-6;
+    @apply border-l-0;
+    @apply rounded-tl-none rounded-bl-none;
+  }
+}
+
+.feedback {
+  @apply mt-1;
+
+  &.is-danger {
+    @apply text-danger;
+  }
 }
