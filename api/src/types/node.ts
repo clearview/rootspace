@@ -4,5 +4,6 @@ export enum NodeType {
   Folder = 'folder',
   Link = 'link',
   Document = 'doc',
+  Embed = 'embed',
   TaskBoard = 'taskBoard',
 }
