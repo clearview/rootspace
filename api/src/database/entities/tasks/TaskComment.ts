@@ -19,8 +19,8 @@ export class TaskComment {
   @Column('integer')
   userId: number
 
-  @ManyToOne((type) => User)
-  @JoinColumn({ name: 'userId' })
+  @ManyToOne((type) => User, { eager: true })
+  @JoinColumn({ name: 'userId'})
   @Index()
   user!: User
 
