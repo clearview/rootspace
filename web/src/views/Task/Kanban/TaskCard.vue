@@ -349,12 +349,13 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 24px !important;
-            height: 24px !important;
-            font: 7px / 10px Helvetica, Arial, sans-serif !important;
+            width: 35px !important;
+            height: 35px !important;
+            font: 13px / 24px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
-            margin-left: -5px;
+            letter-spacing: 0.03em;
+            margin-left: -7px;
           }
         }
       }

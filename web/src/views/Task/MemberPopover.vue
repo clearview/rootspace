@@ -5,9 +5,9 @@
         <v-input @input="search" placeholder="Search members" :value="memberInput" class="member-input"/>
         <ul class="members">
           <li class="member" v-for="(member, index) in filteredMembers" :key="index" @click="input(member)">
-            <div class="member-name" :class="{selected : isSelectedTag(member)}">
+            <div class="member-name flex" :class="{selected : isSelectedTag(member)}">
               <avatar :username="memberName(member)"></avatar>
-              <span>{{ memberName(member) }}</span>
+              <span class="self-center">{{ memberName(member) }}</span>
               <span class="icon-checkmark"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
             </div>
           </li>
@@ -105,11 +105,15 @@ export default class TagsPopover extends Vue {
   }
 
   .member-name {
+    color: theme("colors.gray.800");
+
     .vue-avatar--wrapper {
-      width: 20px !important;
-      height: 20px !important;
-      font: 10px / 20px Helvetica, Arial, sans-serif !important;
+      width: 35px !important;
+      height: 35px !important;
+      font: 13px / 24px theme("fontFamily.primary") !important;
       float: left;
+      border: 2px solid #FFF;
+      letter-spacing: 0.03em;
     }
 
     span {

@@ -580,7 +580,7 @@ export default class TaskModal extends Vue {
     background: rgba(216, 55, 80, 0.16);
     color: theme("colors.primary.default");
     border-radius: 32px;
-    padding: 7px 7px 7px 7.5px;
+    padding: 7px 7px 7px 8px;
     cursor: pointer;
     margin-top: 3px;
     margin-right: 10px;
