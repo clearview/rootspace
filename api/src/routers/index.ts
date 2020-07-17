@@ -8,6 +8,7 @@ import taskBoardRouters from './tasks'
 import { inviteRouter } from './inviteRouter'
 import { uploadRouter } from './uploadRouter'
 import { folderRouter } from './folderRouter'
+import { embedRouter } from './embedRouter'
 
 const routers = [
   defaultRouter,
@@ -20,6 +21,7 @@ const routers = [
   inviteRouter,
   uploadRouter,
   folderRouter,
+  embedRouter,
 ]
 
 export default routers
