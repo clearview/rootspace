@@ -2,7 +2,7 @@ import { ResourceState, RootState } from '@/types/state'
 
 import { ApiService } from '@/services/task'
 import { ActionContext, Module } from 'vuex'
-import { ApiResource, TaskBoardResource } from '@/types/resource'
+import { ApiResource } from '@/types/resource'
 
 export interface Hooks<TResource> {
   afterFetch?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource[]): void;

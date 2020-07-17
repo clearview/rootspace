@@ -1,7 +1,7 @@
 import { ResourceState, RootState } from '@/types/state'
 
 import { ChildApiService } from '@/services/task'
-import { ActionContext, Module } from 'vuex'
+import { Module } from 'vuex'
 import { ApiResource } from '@/types/resource'
 import { Hooks } from '@/store/utils/createServiceModule'
 
