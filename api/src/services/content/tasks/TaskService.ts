@@ -6,14 +6,17 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
+import { FollowService } from '../../FollowService'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
+  private followService: FollowService
 
   private constructor() {
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
+    this.followService = FollowService.getInstance()
   }
 
   private static instance: TaskService
@@ -85,8 +88,11 @@ export class TaskService {
     return this.getTaskRepository().restore({id})
   }
 
-  async delete(id: number) {
-    return this.getTaskRepository().delete({ id })
+  async remove(id: number) {
+    const task = await this.getTaskRepository().findOneOrFail(id)
+    await this.followService.removeAllFromEntity(task)
+
+    return this.getTaskRepository().remove(task)
   }
 
   async assigneesUpdate(task: Task, data: any): Promise<Task> {
@@ -116,6 +122,7 @@ export class TaskService {
       task.assignees = assignees
 
       await this.getTaskRepository().save(task)
+      await this.followService.follow(user, task)
     }
 
     return task
@@ -128,6 +135,8 @@ export class TaskService {
     task.assignees = task.assignees.filter(assignee => {
       return assignee.id !== user.id
     })
+
+    await this.followService.unfollow(user, task)
 
     return this.getTaskRepository().save(task)
   }

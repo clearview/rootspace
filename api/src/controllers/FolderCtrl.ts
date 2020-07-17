@@ -48,7 +48,7 @@ export class FolderCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response) {
-    const result = await this.nodeService.delete(Number(req.params.id))
-    res.send(result)
+    const node = await this.nodeService.remove(Number(req.params.id))
+    res.send(this.responseData(node))
   }
 }

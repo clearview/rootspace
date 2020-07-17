@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import 'dotenv/config'
 import db from './db'
 import { config } from 'node-config-ts'
@@ -9,6 +10,7 @@ import routers from './routers'
 import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { Ability } from '@casl/ability'
+import { NotificationListener } from './services'
 
 declare global {
   namespace Express {
@@ -25,10 +27,14 @@ declare global {
 export default class Server {
   app: Application
   instance: http.Server
+  listener: NotificationListener
 
   constructor() {
     this.app = express()
+    this.app.use(httpRequestContext.middleware())
+
     this.instance = null
+    this.listener = NotificationListener.getInstance()
 
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
@@ -58,7 +64,6 @@ export default class Server {
       port = config.port
     }
 
-    const domain = config.domain
     this.instance = this.app.listen(port, () => {
       console.log(`🚀 Server ready at: http://localhost:${port}`) // tslint:disable-line
     })

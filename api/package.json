@@ -38,6 +38,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-promise-router": "^3.0.3",
+    "http-request-context": "^0.3.1",
     "indicative": "^7.4.4",
     "ioredis": "^4.16.0",
     "jsonwebtoken": "^8.5.1",

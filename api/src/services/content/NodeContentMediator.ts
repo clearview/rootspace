@@ -18,10 +18,10 @@ export class NodeContentMediator implements INodeContentMediator {
     this.contentServices.push(service)
   }
 
-  async nodeDeleted(node: Node): Promise<void> {
+  async nodeRemoved(node: Node): Promise<void> {
     for (const service of this.contentServices) {
       if (node.type === service.getNodeType()) {
-        return service.nodeDeleted(node.contentId)
+        return service.nodeRemoved(node.contentId)
       }
     }
   }
@@ -34,8 +34,8 @@ export class NodeContentMediator implements INodeContentMediator {
     }
   }
 
-  async contentDeleted(contentId: number, nodeType: NodeType): Promise<void> {
-    return this.nodeService.contentDeleted(contentId, nodeType)
+  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentRemoved(contentId, nodeType)
   }
 
   async contentUpdated(
