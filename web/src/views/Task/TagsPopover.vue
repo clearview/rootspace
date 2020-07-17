@@ -33,7 +33,7 @@
     </ul>
     <div class="tag-empty" v-if="filteredTags.length === 0">
       <div class="tag tag-null">
-      You have no tags, create one at Manage Tags
+        You have no tags, create one at Manage Tags
       </div>
     </div>
     <div class="add-tag" v-if="['add', 'edit'].includes(tagsState)">
