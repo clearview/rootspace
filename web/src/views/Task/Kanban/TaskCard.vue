@@ -5,7 +5,7 @@
                 class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
         <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>

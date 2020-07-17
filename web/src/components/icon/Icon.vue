@@ -7,7 +7,7 @@
     :viewBox="_viewbox"
     class="fill-current stroke-current"
   >
-    <title v-if="withTitle">{{ name }}</title>
+    <title v-if="withTitle">{{ titleIcon }}</title>
     <component v-if="isIconValid" :is="`icon-${name}`" />
   </svg>
 </template>
@@ -120,6 +120,9 @@ export default class Icon extends Vue {
   @Prop({ type: Boolean, default: true })
   private readonly withTitle?: boolean
 
+  @Prop({ type: String })
+  private readonly title?: string;
+
   get _viewbox () {
     return `0 0 ${this.viewbox} ${this.viewbox}`
   }
@@ -129,6 +132,10 @@ export default class Icon extends Vue {
     const icons = Object.keys(comps)
     const cleanName = 'icon' + this.name.replace('-', '').toLowerCase()
     return icons.findIndex(key => cleanName === key.toLowerCase()) !== -1
+  }
+
+  get titleIcon () {
+    return this.title ? this.title : this.name
   }
 }
 </script>

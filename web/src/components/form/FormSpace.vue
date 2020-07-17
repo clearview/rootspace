@@ -76,7 +76,7 @@
           </div>
         </div>
         <span class="close-icon" @click="deleteInvitation(indexList, list.email)">
-          <v-icon name="close" size=".9em" viewbox="32"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
         </span>
       </div>
 
@@ -90,7 +90,7 @@
           <span class="text-gray-900 pl-2">{{ invitation }}</span>
         </div>
         <span class="close-icon" @click="deleteInvitation(index, invitation)">
-          <v-icon name="close" size=".9em" viewbox="32"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
         </span>
       </div>
     </div>
