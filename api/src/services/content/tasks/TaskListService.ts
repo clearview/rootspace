@@ -3,6 +3,8 @@ import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../database/entities/tasks/TaskList'
+import {Task} from "../../../database/entities/tasks/Task";
+import {TaskBoard} from "../../../database/entities/tasks/TaskBoard";
 
 export class TaskListService {
   private constructor() {}
@@ -33,6 +35,15 @@ export class TaskListService {
     return this.getTaskListRepository().findOneOrFail(id)
   }
 
+  async getAllTasks(id: number): Promise<Task[]> {
+    const taskList = await this.getCompleteTasklist(id)
+    return taskList.tasks
+  }
+
+  async getCompleteTasklist(id: number, archived?: boolean): Promise<TaskList | undefined> {
+    return this.getTaskListRepository().getCompleteTasklist(id)
+  }
+
   async create(data: any): Promise<TaskList> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
@@ -52,7 +63,8 @@ export class TaskListService {
     return this.getTaskListRepository().reload(taskList)
   }
 
-  async delete(id: number) {
-    return this.getTaskListRepository().delete({ id })
+  async remove(id: number) {
+    const taskList = await this.getById(id)
+    return this.getTaskListRepository().remove(taskList)
   }
 }

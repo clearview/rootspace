@@ -6,18 +6,20 @@ import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { IEventProvider } from './events/EventType'
 import { NotificationService } from './NotificationService'
 import { UserService } from './UserService'
-import { TaskBoardService } from './content/tasks'
+import { TaskBoardService, TaskListService } from './content/tasks'
 
 export class FollowService {
   private static instance: FollowService
   private notificationService: NotificationService
   private userService: UserService
   private taskBoardService: TaskBoardService
+  private taskListService: TaskListService
 
   private constructor() {
     this.notificationService = NotificationService.getInstance()
     this.userService = UserService.getInstance()
     this.taskBoardService = TaskBoardService.getInstance()
+    this.taskListService = TaskListService.getInstance()
   }
 
   static getInstance() {
@@ -160,16 +162,24 @@ export class FollowService {
     const tasks = await this.taskBoardService.getAllTasks(event.itemId)
     const taskIds = tasks.map((task) => task.id)
 
-    const notifications = await this.notificationService.getNotifications(taskIds, 'tasks')
-    if (notifications.length > 0) {
-      await this.notificationService.getNotificationRepository().remove(notifications)
-    }
+    await this.removeNotificationsForTasks(taskIds)
+    return this.removeFollowsForTasks(taskIds)
+  }
 
-    const existingFollows = await this.getFollowRepository()
-        .createQueryBuilder('follow')
-        .where('follow.itemId IN (:...itemIds)', { itemIds: taskIds })
-        .andWhere('follow.tableName = :tableName', { tableName: 'tasks'})
-        .getMany()
+  async removeFollowsAndNotificationsForTaskBoardList(event: IEventProvider): Promise<DeleteResult | void> {
+    const tasks = await this.taskListService.getAllTasks(event.itemId)
+    const taskIds = tasks.map((task) => task.id)
+
+    await this.removeNotificationsForTasks(taskIds)
+    return this.removeFollowsForTasks(taskIds)
+  }
+
+  async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
+    return this.notificationService.removeNotificationsForTasks(taskIds)
+  }
+
+  async removeFollowsForTasks(taskIds: number[]): Promise<DeleteResult | void> {
+    const existingFollows = await this.getFollowRepository().getFollowsForTasks(taskIds)
 
     const followIds = existingFollows.map((follow) => follow.id)
 

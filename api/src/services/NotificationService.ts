@@ -40,11 +40,7 @@ export class NotificationService {
   }
 
   async getNotifications(itemIds: number[], tableName: string): Promise<Notification[]> {
-    return this.getNotificationRepository()
-        .createQueryBuilder('notification')
-        .where('notification.itemId IN (:...itemIds)', { itemIds })
-        .andWhere('notification.tableName = :tableName', { tableName })
-        .getMany()
+    return this.getNotificationRepository().getNotifications(itemIds, tableName)
   }
 
   async create(event: IEventProvider): Promise<Notification> {
@@ -73,6 +69,13 @@ export class NotificationService {
       tableName: event.tableName,
       isRead: false
     })
+  }
+
+  async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
+    const notifications = await this.getNotifications(taskIds, 'tasks')
+    if (notifications.length > 0) {
+      await this.getNotificationRepository().remove(notifications)
+    }
   }
 
   async delete(event: IEventProvider): Promise<DeleteResult> {

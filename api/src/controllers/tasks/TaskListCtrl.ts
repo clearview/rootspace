@@ -34,7 +34,7 @@ export class TaskListCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.taskListService.delete(Number(req.params.id))
+    const result = await this.taskListService.remove(Number(req.params.id))
     res.send(result)
   }
 }
