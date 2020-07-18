@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
-export class Notifications1594309815429 implements MigrationInterface {
-    name = 'Notifications1594309815429'
+export class Notifications1594400781497 implements MigrationInterface {
+    name = 'Notifications1594400781497'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "notifications" ("id" SERIAL NOT NULL, "userId" integer NOT NULL, "actorId" integer NOT NULL, "itemId" integer NOT NULL, "tableName" character varying NOT NULL, "targetName" character varying NOT NULL, "action" character varying, "message" character varying, "isRead" boolean NOT NULL DEFAULT false, "created" TIMESTAMP NOT NULL DEFAULT now(), "updated" TIMESTAMP NOT NULL DEFAULT now(), "deletedAt" TIMESTAMP WITH TIME ZONE, CONSTRAINT "PK_6a72c3c0f683f6462415e653c3a" PRIMARY KEY ("id"))`)
