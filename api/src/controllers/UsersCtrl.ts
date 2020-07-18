@@ -82,6 +82,15 @@ export class UsersCtrl extends BaseCtrl {
     res.send({ user, spaces })
   }
 
+  async notifications(req: Request, res: Response) {
+    const user = await getCustomRepository(UserRepository).getByIdWithNotifications(
+      req.user.id,
+      req.params?.read ? req.params.read : 'all'
+    )
+
+    res.send(user.notifications)
+  }
+
   async update(req: Request, res: Response) {
     const data = req.body.data
     const userId = req.user.id

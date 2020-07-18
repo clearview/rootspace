@@ -28,6 +28,27 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
+  getByIdWithNotifications(id: number, read: string): Promise<User> {
+    const queryBuilder = this.createQueryBuilder('User')
+      .leftJoinAndSelect('User.notifications', 'notification')
+      .where('User.id = :id', { id })
+
+    switch (read) {
+      case 'read':
+        queryBuilder.andWhere(`notification.isRead = :read`, { read: true })
+        break
+
+      case 'unread':
+        queryBuilder.andWhere(`notification.isRead = :read`, { read: false })
+        break
+
+      case 'all':
+        break
+    }
+
+    return queryBuilder.getOne()
+  }
+
   getByEmail(email: string, selectPassword = false): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
