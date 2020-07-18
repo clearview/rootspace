@@ -43,8 +43,12 @@ export class DocSubscriber implements EntitySubscriberInterface<Doc>, Followable
   /**
    * FollowableInterface
    */
-  async onCreated(user: User, entity: Doc): Promise<void> {
-    await FollowService.getInstance().follow(user, entity)
+  async onCreated(owner: User, entity: Doc): Promise<void> {
+    if (!owner) {
+      return
+    }
+
+    await FollowService.getInstance().follow(owner, entity)
   }
 
   async onUpdated(actor: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {

@@ -6,13 +6,13 @@ import {
   InsertEvent, RemoveEvent, UpdateEvent
 } from 'typeorm'
 import { Task } from '../entities/tasks/Task'
-import slugify from '@sindresorhus/slugify'
 import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
 import { FollowableInterface } from '../../services/Followable'
 import { User } from '../entities/User'
 import { FollowService } from '../../services/FollowService'
 import { TaskRepository } from '../repositories/tasks/TaskRepository'
+import slugify from '@sindresorhus/slugify'
 
 @EventSubscriber()
 export class TaskSubscriber implements EntitySubscriberInterface<Task>, FollowableInterface<Task> {
@@ -59,8 +59,12 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
   /**
    * FollowableInterface
    */
-  async onCreated(user: User, entity: Task): Promise<void> {
-    await FollowService.getInstance().follow(user, entity)
+  async onCreated(owner: User, entity: Task): Promise<void> {
+    if (!owner) {
+      return
+    }
+
+    await FollowService.getInstance().follow(owner, entity)
   }
 
   async onUpdated(actor: User, entity: Task, metaData?: EntityMetadata): Promise<void> {

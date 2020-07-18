@@ -3,7 +3,7 @@ import {
   InsertEvent,
   EventSubscriber,
   EntityManager,
-  UpdateEvent,
+  UpdateEvent, UpdateResult,
 } from 'typeorm'
 import { UserToSpace } from '../entities/UserToSpace'
 import { SpaceRepository } from '../repositories/SpaceRepository'
@@ -16,23 +16,20 @@ export class UserToSpaceSubscriber
     return UserToSpace
   }
 
-  async afterInsert(event: InsertEvent<UserToSpace>) {
-    await this.updateSpaceCountMemebers(event.entity.spaceId, event.manager)
+  async afterInsert(event: InsertEvent<UserToSpace>): Promise<UpdateResult> {
+    return UserToSpaceSubscriber.updateSpaceCountMembers(event.entity.spaceId, event.manager)
   }
 
-  async afterUpdate(event: UpdateEvent<UserToSpace>) {
-    await this.updateSpaceCountMemebers(event.entity.spaceId, event.manager)
+  async afterUpdate(event: UpdateEvent<UserToSpace>): Promise<UpdateResult> {
+    return UserToSpaceSubscriber.updateSpaceCountMembers(event.entity.spaceId, event.manager)
   }
 
-  private async updateSpaceCountMemebers(
-    spaceId: number,
-    manager: EntityManager
-  ) {
+  private static async updateSpaceCountMembers(spaceId: number, manager: EntityManager): Promise<UpdateResult> {
     const membersCount = await manager
       .getCustomRepository(UserToSpaceRepository)
       .getCountUsersBySpaceId(spaceId)
 
-    await manager
+    return manager
       .getCustomRepository(SpaceRepository)
       .updateCountMembers(spaceId, membersCount)
   }

@@ -34,6 +34,10 @@ export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComm
    * FollowableInterface
    */
   async onCreated(actor: User, entity: TaskComment, metaData?: EntityMetadata): Promise<void> {
+    if (!actor) {
+      return
+    }
+
     const event: IEventProvider = {
       itemId: entity.task.id,
       actorId: actor.id,

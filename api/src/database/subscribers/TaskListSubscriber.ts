@@ -1,5 +1,6 @@
 import httpRequestContext from 'http-request-context'
 import {
+  DeleteResult,
   EntitySubscriberInterface,
   EventSubscriber,
   RemoveEvent
@@ -32,7 +33,7 @@ export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
     return TaskList
   }
 
-  async beforeRemove(event: RemoveEvent<TaskList>) {
+  async beforeRemove(event: RemoveEvent<TaskList>): Promise<void | DeleteResult> {
     const actor = httpRequestContext.get('user')
     const entity = event.entity
 
