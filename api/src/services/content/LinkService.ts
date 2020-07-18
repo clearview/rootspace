@@ -7,7 +7,7 @@ import { NodeCreateValue } from '../../values/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentUpdate } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName } from '../../errors'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService
@@ -75,7 +75,7 @@ export class LinkService extends NodeContentService {
     Object.assign(link, data.attributes)
     link = await this.getLinkRepository().save(link)
 
-    this.mediator.contentUpdated(link.id, this.getNodeType(), {
+    await this.mediator.contentUpdated(link.id, this.getNodeType(), {
       title: link.title,
     })
 

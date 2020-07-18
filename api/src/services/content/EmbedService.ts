@@ -75,7 +75,7 @@ export class EmbedService extends NodeContentService {
     Object.assign(embed, data.attributes)
     embed = await this.getEmbedRepository().save(embed)
 
-    this.mediator.contentUpdated(embed.id, this.getNodeType(), {
+    await this.mediator.contentUpdated(embed.id, this.getNodeType(), {
       title: embed.title,
     })
 
@@ -86,7 +86,7 @@ export class EmbedService extends NodeContentService {
     let embed = await this.requireEmbedById(id)
 
     embed = await this.getEmbedRepository().remove(embed)
-    this.mediator.contentDeleted(id, this.getNodeType())
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
     return embed
   }
@@ -105,7 +105,8 @@ export class EmbedService extends NodeContentService {
     await this.getEmbedRepository().save(embed)
   }
 
-  async nodeDeleted(contentId: number): Promise<void> {
-    await this.getEmbedRepository().delete({ id: contentId })
+  async nodeRemoved(contentId: number): Promise<void> {
+    const embed = await this.getEmbedRepository().findOne({ id: contentId })
+    await this.getEmbedRepository().remove(embed)
   }
 }
