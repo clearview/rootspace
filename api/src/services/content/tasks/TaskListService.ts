@@ -3,8 +3,7 @@ import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../database/entities/tasks/TaskList'
-import {Task} from "../../../database/entities/tasks/Task";
-import {TaskBoard} from "../../../database/entities/tasks/TaskBoard";
+import { Task } from '../../../database/entities/tasks/Task'
 
 export class TaskListService {
   private constructor() {}
