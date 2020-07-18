@@ -35,14 +35,8 @@ export class UserRepository extends Repository<User> {
 
     switch (read) {
       case 'read':
-        queryBuilder.andWhere(`notification.isRead = :read`, { read: true })
-        break
-
       case 'unread':
-        queryBuilder.andWhere(`notification.isRead = :read`, { read: false })
-        break
-
-      case 'all':
+        queryBuilder.andWhere(`notification.isRead = :read`, { read: read === 'read' })
         break
     }
 
