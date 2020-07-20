@@ -31,7 +31,7 @@
       </div>
       <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom}">
-        <Draggable :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
+        <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <TaskCard v-for="item in orderedCards"
                   :item="item" :key="item.id"/>
         </Draggable>
@@ -96,6 +96,9 @@ export default class TaskLane extends Vue {
     @Ref('cardContainer')
     private readonly cardContainerRef!: HTMLInputElement;
 
+    @Prop({ type: Boolean, default: true })
+    private readonly canDrag!: boolean
+
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
     private isInputtingNewItem = false
@@ -105,6 +108,9 @@ export default class TaskLane extends Vue {
     private containerShadowBottom = false
 
     private get orderedCards () {
+      if (!this.list.tasks) {
+        return []
+      }
       return [...this.list.tasks].sort((a, b) => a.position - b.position).map(item => ({ ...item, list: this.list }))
     }
 
@@ -211,6 +217,7 @@ export default class TaskLane extends Vue {
         tags: null,
         taskComments: [],
         title: '',
+        slug: null,
         status: TaskItemStatus.Open,
         position: getNextPosition(this.list.tasks.length)
       }

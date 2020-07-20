@@ -5,6 +5,9 @@
         {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
       <div class="header-actions">
+        <div class="action search-notice" v-if="isSearching">
+          You can not rearrange list or cards during search
+        </div>
         <div class="action action-search">
           <v-icon name="search" class="action-search-icon"/>
           <input
@@ -37,7 +40,7 @@
                 </div>
                 <div class="filter-field" v-if="memberList">
                   <label class="filter-field-label">Filter by member</label>
-                  <v-select label="id" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
+                  <v-select label="id" :filter-by="filterMember" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
                             class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
                             @input="fetchTask">
                     <template slot="option" slot-scope="option">
@@ -85,11 +88,8 @@
       </div>
     </header>
     <main class="board">
-      <div class="empty" v-if="!board && !isFetching">
-        No cards that matched the "{{search}}" query
-      </div>
-      <Ghost v-else-if="isFetching || !board" active></Ghost>
-      <BoardManager v-else :board="board"/>
+      <Ghost v-if="isFetching || !board" active></Ghost>
+      <BoardManager :can-drag="!isSearching" v-else :board="board"/>
     </main>
   </section>
 </template>
@@ -125,6 +125,7 @@ export default class TaskPage extends Vue {
 
   private boardCache: TaskBoardResource | null = null
   private memberList: Array<UserResource> = []
+  private isSearching = false
 
   get currentSpace () {
     return this.$store.state.auth.currentSpace || {}
@@ -164,6 +165,11 @@ export default class TaskPage extends Vue {
     }
     await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
     await this.$store.dispatch('task/tag/fetch', null)
+    if (this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0) {
+      this.isSearching = true
+    } else {
+      this.isSearching = false
+    }
     if (this.board) {
       this.boardCache = this.board
     }
@@ -173,6 +179,11 @@ export default class TaskPage extends Vue {
     this.filters.assignees = []
     this.filters.tags = []
     await this.fetchTask()
+  }
+
+  filterMember (option: UserResource, label: string, search: string) {
+    const rx = new RegExp(search, 'gi')
+    return rx.test(option.firstName) || rx.test(option.lastName)
   }
 
   mounted (): void {
@@ -316,6 +327,12 @@ export default class TaskPage extends Vue {
   }
   .member-option-display {
 
+  }
+
+  .search-notice{
+    @apply mr-4 p-2 rounded;
+    background: theme("colors.danger.default");
+    color: white;
   }
 
 </style>

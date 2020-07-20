@@ -64,6 +64,7 @@ export interface TaskItemResource extends ApiResource {
   assignees: UserResource[] | null;
   title: string;
   description: string | null;
+  slug: string | null;
   status: TaskItemStatus;
   tags: TagResource[] | null;
   attachments: UploadResource[] | null;
