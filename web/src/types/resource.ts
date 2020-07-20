@@ -132,6 +132,7 @@ export interface SpaceResource {
 
 export interface SpaceMetaResource {
   activePage?: string;
+  activeNodePath?: number[];
 }
 
 export interface UserResource {

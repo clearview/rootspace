@@ -12,7 +12,7 @@
         class="tree-node-content"
         :class="{
           'is-editable': editable,
-          'is-active': path.join('.') === activeNodePath,
+          'is-active': path.join('.') === activeSpaceMeta.activeNodePath,
         }"
         @click="open({ node, path, tree })"
       >
@@ -124,7 +124,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
-import { LinkResource, NodeResource, TaskBoardResource } from '@/types/resource'
+import { LinkResource, NodeResource, TaskBoardResource, SpaceMetaResource } from '@/types/resource'
 
 import VModal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
@@ -216,8 +216,8 @@ export default class NavigationItem extends Vue {
     }
   }
 
-  get activeNodePath (): string {
-    return this.$store.state.tree.active
+  get activeSpaceMeta (): SpaceMetaResource {
+    return this.$store.getters['space/activeSpaceMeta']
   }
 
   hasChildren (link: LinkResource) {
@@ -245,7 +245,6 @@ export default class NavigationItem extends Vue {
       return
     }
 
-    // const name = this.nodeTypeRouteMap[node.type]
     const to = this.$router.resolve({
       name: this.nodeTypeRouteMap[node.type],
       params: {
@@ -257,15 +256,14 @@ export default class NavigationItem extends Vue {
       return
     }
 
-    if (node.type !== 'link') {
-      this.$store.commit('tree/setActive', path.join(','))
-    }
-
     try {
       this.$store.commit('space/updateMeta', {
         index: this.$store.state.space.activeIndex,
         meta: {
-          activePage: to.href
+          activePage: to.href,
+          activeNodePath: (node.type !== 'link')
+            ? path.join('.')
+            : this.activeSpaceMeta.activeNodePath
         }
       })
 
