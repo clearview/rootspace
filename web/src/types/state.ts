@@ -29,6 +29,7 @@ export interface RootState {
   task: TaskState;
   option: OptionState;
   space: SpaceState;
+  tree: TreeState;
 }
 
 export interface AuthState {

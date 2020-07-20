@@ -10,7 +10,10 @@
     >
       <div
         class="tree-node-content"
-        :class="{ 'is-editable': editable }"
+        :class="{
+          'is-editable': editable,
+          'is-active': path.join('.') === activeNodePath,
+        }"
         @click="open({ node, path, tree })"
       >
         <div class="tree-node-handle">
@@ -213,6 +216,10 @@ export default class NavigationItem extends Vue {
     }
   }
 
+  get activeNodePath (): string {
+    return this.$store.state.tree.active
+  }
+
   hasChildren (link: LinkResource) {
     return link.children && link.children.length > 0
   }
@@ -250,8 +257,11 @@ export default class NavigationItem extends Vue {
       return
     }
 
-    try {
+    if (node.type !== 'link') {
       this.$store.commit('tree/setActive', path.join(','))
+    }
+
+    try {
       this.$store.commit('space/updateMeta', {
         index: this.$store.state.space.activeIndex,
         meta: {
