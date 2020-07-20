@@ -157,7 +157,7 @@ export default class TaskCard extends Vue {
           params: {
             id: this.board.id.toString(),
             item: this.item.id.toString(),
-            slug: this.item.slug || ''
+            slug: this.item.slug || '-'
           }
         })
         this.$store.commit('task/item/setCurrent', this.item)
