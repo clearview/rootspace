@@ -80,7 +80,7 @@ export class DocService extends NodeContentService {
     let doc = await this.requireById(id)
 
     doc = await this.getDocRepository().remove(doc)
-    await this.mediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return doc
   }

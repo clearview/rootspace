@@ -75,7 +75,7 @@ export class LinkService extends NodeContentService {
     Object.assign(link, data.attributes)
     link = await this.getLinkRepository().save(link)
 
-    await this.mediator.contentUpdated(link.id, this.getNodeType(), {
+    await this.nodeContentMediator.contentUpdated(link.id, this.getNodeType(), {
       title: link.title,
     })
 
@@ -86,7 +86,7 @@ export class LinkService extends NodeContentService {
     let link = await this.requireLinkById(id)
 
     link = await this.getLinkRepository().remove(link)
-    await this.mediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return link
   }

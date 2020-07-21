@@ -14,7 +14,13 @@ export class NodeContentMediator implements INodeContentMediator {
   }
 
   addContentService(service: NodeContentService) {
-    service.setMediator(this)
+    for (const contentService of this.contentServices) {
+      if (service.getNodeType() === contentService.getNodeType()) {
+        return
+      }
+    }
+
+    service.setNodeContentMediator(this)
     this.contentServices.push(service)
   }
 

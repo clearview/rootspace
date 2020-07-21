@@ -105,7 +105,7 @@ export class TaskBoardService extends NodeContentService {
     const taskBoard = await this.getById(id)
     await this.getTaskBoardRepository().remove(taskBoard)
 
-    await this.mediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return taskBoard
   }

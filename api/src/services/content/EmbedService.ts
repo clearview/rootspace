@@ -75,7 +75,7 @@ export class EmbedService extends NodeContentService {
     Object.assign(embed, data.attributes)
     embed = await this.getEmbedRepository().save(embed)
 
-    await this.mediator.contentUpdated(embed.id, this.getNodeType(), {
+    await this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), {
       title: embed.title,
     })
 
@@ -86,7 +86,7 @@ export class EmbedService extends NodeContentService {
     let embed = await this.requireEmbedById(id)
 
     embed = await this.getEmbedRepository().remove(embed)
-    await this.mediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return embed
   }
