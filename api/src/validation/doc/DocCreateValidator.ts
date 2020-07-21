@@ -1,6 +1,6 @@
 import { validations } from 'indicative/validator'
 import { BaseValidator } from '../BaseValidator'
-import { DocAccess } from '../../constants'
+import { DocAccess } from '../../types/doc'
 
 export class DocCreateValidator extends BaseValidator {
   rules() {
@@ -12,7 +12,7 @@ export class DocCreateValidator extends BaseValidator {
         validations.required(),
         validations.in(Object.values(DocAccess)),
       ],
-      isLocked: 'boolean'
+      isLocked: 'boolean',
     }
   }
 }
