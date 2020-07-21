@@ -5,7 +5,7 @@
         <div v-if="backButtonState" @click="back">
             <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
         </div>
-        <div class="popover-title">
+        <div class="popover-title" :class="{ pointer: backButtonState }">
           {{title}}
         </div>
         <div class="popover-close" v-if="withClose">

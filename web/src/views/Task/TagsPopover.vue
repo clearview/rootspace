@@ -11,7 +11,7 @@
         <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
           @click="tagsState !== 'manage' ? input(tag) : null">
           {{tag.label}}
-          <span class="icon-checkmark" v-if="isSelectedTag(tag)"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+          <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
         </div>
         <div class="action" v-if="tagsState === 'manage'">
         <span id="edit-button" @click="editTagButton(tag)" >
