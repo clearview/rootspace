@@ -151,7 +151,7 @@ export class DocService extends NodeContentService {
     doc = await this._remove(doc)
 
     await this.registerActivityForDoc(DocActivities.Deleted, doc)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
     return doc
   }

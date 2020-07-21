@@ -2,14 +2,14 @@ import { NodeType } from '../../types/node'
 import { INodeContentMediator, INodeContentUpdate } from './contracts'
 
 export abstract class NodeContentService {
-  protected nodeContentMediator: INodeContentMediator
+  protected mediator: INodeContentMediator
 
   constructor(mediator: INodeContentMediator = null) {
-    this.nodeContentMediator = mediator
+    this.mediator = mediator
   }
 
-  public setNodeContentMediator(mediator: INodeContentMediator): void {
-    this.nodeContentMediator = mediator
+  public setMediator(mediator: INodeContentMediator): void {
+    this.mediator = mediator
   }
 
   abstract getNodeType(): NodeType
