@@ -52,6 +52,12 @@ export class FollowService {
     return this.follow(user, entity)
   }
 
+  async followFromEvent(event: IEventProvider): Promise<Follow> {
+    const user = await this.userService.getUserRepository().findOneOrFail(event.userId)
+    const entity = await this.getFollowRepository().getOneFromEvent(event)
+    return this.follow(user, entity)
+  }
+
   async unfollowFromRequest(userId: number, entity: any): Promise<DeleteResult> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     return this.unfollow(user, entity)
@@ -134,7 +140,7 @@ export class FollowService {
     return this.notificationService.save(notifications)
   }
 
-  async removeFollowsAndNotifications(event: IEventProvider): Promise<DeleteResult | void> {
+  async removeFollowsFromEvent(event: IEventProvider): Promise<DeleteResult | void> {
     await this.removeAllNotificationsFromEvent(event)
 
     const existingFollows = await this.getFollowRepository().find({
@@ -144,7 +150,7 @@ export class FollowService {
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds) {
+    if (!followIds || followIds.length < 1) {
       return null
     }
 
@@ -183,7 +189,7 @@ export class FollowService {
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds) {
+    if (!followIds || followIds.length < 1) {
       return null
     }
 

@@ -8,9 +8,8 @@ import {
 import { Task } from '../entities/tasks/Task'
 import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from '../../services/Followable'
+import { FollowableInterface } from './FollowableInterface'
 import { User } from '../entities/User'
-import { FollowService } from '../../services/FollowService'
 import { TaskRepository } from '../repositories/tasks/TaskRepository'
 import slugify from '@sindresorhus/slugify'
 
@@ -33,7 +32,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
         .getCustomRepository(TaskRepository)
         .findOneOrFail({ id: event.entity.id})
 
-    await this.onCreated(event.entity.user, entity)
+    await this.onCreated(event.entity.user, entity, event.metadata)
   }
 
   async beforeUpdate(event: UpdateEvent<Task>) {
@@ -59,12 +58,22 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task>, Followab
   /**
    * FollowableInterface
    */
-  async onCreated(owner: User, entity: Task): Promise<void> {
+  async onCreated(owner: User, entity: Task, metaData?: EntityMetadata): Promise<void> {
     if (!owner) {
       return
     }
 
-    await FollowService.getInstance().follow(owner, entity)
+    const event: IEventProvider = {
+      itemId: entity.id,
+      actorId: owner.id,
+      targetName: metaData?.targetName,
+      tableName: metaData?.tableName,
+      action: EventAction?.Created,
+      message: `${owner.fullName()} created ${entity.title}`
+    }
+
+    NotificationService.emit(EventType.Notification, event)
+    return Promise.resolve(undefined)
   }
 
   async onUpdated(actor: User, entity: Task, metaData?: EntityMetadata): Promise<void> {

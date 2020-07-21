@@ -33,6 +33,11 @@ export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
     return TaskList
   }
 
+  /**
+   * Remove events cannot use Followable interface here
+   * Entity and related children (tasks etc.) are deleted from database
+   * before NotificationListener gets a chance to act on them
+   */
   async beforeRemove(event: RemoveEvent<TaskList>): Promise<void | DeleteResult> {
     const actor = httpRequestContext.get('user')
     const entity = event.entity
