@@ -8,7 +8,7 @@ import {
 import { TaskComment } from '../entities/tasks/TaskComment'
 import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from '../../services/Followable'
+import { FollowableInterface } from './FollowableInterface'
 import { User } from '../entities/User'
 
 @EventSubscriber()
@@ -38,6 +38,7 @@ export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComm
       return
     }
 
+    // Dispatch Task event
     const event: IEventProvider = {
       itemId: entity.task.id,
       actorId: actor.id,

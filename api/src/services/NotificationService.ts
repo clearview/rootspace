@@ -39,10 +39,6 @@ export class NotificationService {
     return this.getNotificationRepository().find({ id: userId })
   }
 
-  async getNotifications(itemIds: number[], tableName: string): Promise<Notification[]> {
-    return this.getNotificationRepository().getNotifications(itemIds, tableName)
-  }
-
   async create(event: IEventProvider): Promise<Notification> {
     const notification = this.getNotificationRepository().create()
     notification.itemId = event.itemId
@@ -72,13 +68,20 @@ export class NotificationService {
   }
 
   async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
-    const notifications = await this.getNotifications(taskIds, 'tasks')
+    const notifications = await this.getNotificationRepository().getNotificationsForItems(taskIds, 'tasks')
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }
   }
 
-  async delete(event: IEventProvider): Promise<DeleteResult> {
+  async removeUserNotificationsForItem(userId: number, itemId: number, tableName: string): Promise<void> {
+    const notifications = await this.getNotificationRepository().getUserNotificationsForItem(userId, itemId, tableName)
+    if (notifications.length > 0) {
+      await this.getNotificationRepository().remove(notifications)
+    }
+  }
+
+  async deleteFromEvent(event: IEventProvider): Promise<DeleteResult> {
     return this.getNotificationRepository().delete({
       itemId: event.itemId,
       tableName: event.tableName

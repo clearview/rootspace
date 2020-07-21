@@ -8,9 +8,8 @@ import {
 import { Doc } from '../entities/Doc'
 import { NotificationService } from '../../services'
 import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from '../../services/Followable'
+import { FollowableInterface } from './FollowableInterface'
 import { User } from '../entities/User'
-import { FollowService } from '../../services/FollowService'
 import { DocRepository } from '../repositories/DocRepository'
 
 @EventSubscriber()
@@ -27,7 +26,7 @@ export class DocSubscriber implements EntitySubscriberInterface<Doc>, Followable
         .getCustomRepository(DocRepository)
         .findOneOrFail({ id: event.entity.id})
 
-    await this.onCreated(entity.user, entity)
+    await this.onCreated(entity.user, entity, event.metadata)
   }
 
   async afterUpdate(event: UpdateEvent<Doc>) {
@@ -43,12 +42,22 @@ export class DocSubscriber implements EntitySubscriberInterface<Doc>, Followable
   /**
    * FollowableInterface
    */
-  async onCreated(owner: User, entity: Doc): Promise<void> {
-    if (!owner) {
+  async onCreated(owner: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {
+      if (!owner) {
       return
     }
 
-    await FollowService.getInstance().follow(owner, entity)
+    const event: IEventProvider = {
+      itemId: entity.id,
+      actorId: owner.id,
+      targetName: metaData?.targetName,
+      tableName: metaData?.tableName,
+      action: EventAction?.Created,
+      message: `${owner.fullName()} created ${entity.title}`
+    }
+
+    NotificationService.emit(EventType.Notification, event)
+    return Promise.resolve(undefined)
   }
 
   async onUpdated(actor: User, entity: Doc, metaData?: EntityMetadata): Promise<void> {

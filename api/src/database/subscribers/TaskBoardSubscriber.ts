@@ -1,11 +1,12 @@
 import httpRequestContext from 'http-request-context'
 import {
+  EntityMetadata,
   EntitySubscriberInterface,
   EventSubscriber,
   RemoveEvent
 } from 'typeorm'
 import { TaskBoard } from '../entities/tasks/TaskBoard'
-import { EventAction, IEventProvider } from '../../services/events/EventType'
+import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
 import { FollowService } from '../../services/FollowService'
 
 @EventSubscriber()
@@ -32,6 +33,11 @@ export class TaskBoardSubscriber implements EntitySubscriberInterface<TaskBoard>
     return TaskBoard
   }
 
+  /**
+   * Remove events cannot use Followable interface here
+   * Entity and related children (taskLists, tasks, etc.) are deleted from database
+   * before NotificationListener gets a chance to act on them
+   */
   async beforeRemove(event: RemoveEvent<TaskBoard>) {
     const actor = httpRequestContext.get('user')
     const entity = event.entity
@@ -47,5 +53,4 @@ export class TaskBoardSubscriber implements EntitySubscriberInterface<TaskBoard>
 
     await this.followService.removeFollowsAndNotificationsForTaskBoard(notificationEvent)
   }
-
 }
