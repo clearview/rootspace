@@ -76,6 +76,11 @@ export default class Popover extends Vue {
   }
   .popover-close {
     flex: 0 0 auto;
+
+    .btn-icon {
+      height: 24px;
+      width: 24px;
+    }
   }
 
   .popover-container {

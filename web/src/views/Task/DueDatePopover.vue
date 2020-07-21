@@ -1,11 +1,13 @@
 <template>
-  <Popover top="48px">
-    <template #default="slotApi">
-      <div class="field">
-        <label class="field-label">
-          Due Date
-        </label>
-        <DatePicker v-model="date" @input="input" is-inline color="red"/>
+  <Popover top="48px" title="Due Date">
+    <template>
+      <div class="duedate-calendar">
+        <DatePicker
+          v-model="date"
+          @input="input"
+          is-inline
+          color="red"
+          :first-day-of-week="2"/>
       </div>
       <div class="bottom-field">
         <div class="field">
@@ -37,7 +39,7 @@
       </div>
       <div class="actions">
         <button class="btn btn-link" @click="clear">Clear</button>
-        <button class="btn btn-link-primary" @click="save(slotApi)">Save</button>
+        <button class="btn btn-link-primary" @click="save()">Save</button>
       </div>
     </template>
     <template v-slot:trigger>
@@ -90,8 +92,8 @@ export default class DueDatePopover extends Vue {
     }
 
     @Emit('input')
-    save (slotApi: any) {
-      slotApi.hide()
+    save () {
+      // slotApi.hide()
       return this.date
     }
 
@@ -127,6 +129,10 @@ export default class DueDatePopover extends Vue {
 
 <style lang="postcss" scoped>
 
+  .duedate-calendar {
+    @apply px-2;
+  }
+
   .field {
     @apply px-2;
     &:first-child{
@@ -139,7 +145,6 @@ export default class DueDatePopover extends Vue {
 
   .field-label{
     @apply mb-2 text-base;
-    font-weight: bold;
     color: theme("colors.gray.900")
   }
   .time-input {
