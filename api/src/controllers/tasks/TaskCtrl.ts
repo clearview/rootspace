@@ -42,14 +42,14 @@ export class TaskCtrl extends BaseCtrl {
     const task = await this.taskService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, task ? task : Subjects.Task)
 
-    const result = await this.followService.followFromRequest(Number(req.user.id), task.id)
+    const result = await this.followService.followFromRequest(Number(req.user.id), task)
     res.send(result)
   }
 
   async unfollow(req: Request, res: Response, next: NextFunction) {
     const task = await this.taskService.getById(Number(req.params.id))
 
-    const result = await this.followService.unfollowFromRequest(Number(req.user.id), task.id)
+    const result = await this.followService.unfollowFromRequest(Number(req.user.id), task)
     res.send(result)
   }
 
