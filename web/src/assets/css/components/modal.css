@@ -1,18 +1,19 @@
+
 .modal {
   @apply fixed top-0 left-0;
-  @apply w-full h-full;
-  @apply flex items-center justify-center;
+  @apply w-full;
   @apply z-10;
-}
-
-.modal-background {
-  @apply absolute w-full h-full;
-
+  @apply overflow-y-scroll;
+  /* Flex is broken when used for centering overflowing modal*/
+  height: 100vh;
+  display: grid;
+  justify-items: center;
+  align-items: center;
   background-color: rgba(theme("colors.gray.900"), 0.5);
 }
 
 .modal-inner {
-  @apply absolute bg-white rounded;
+  @apply bg-white rounded relative my-12;
 }
 
 .modal-header,
