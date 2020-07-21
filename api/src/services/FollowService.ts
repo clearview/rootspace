@@ -87,13 +87,22 @@ export class FollowService {
   async unfollow(user: User, entity: any): Promise<DeleteResult> {
     const existingFollow = await this.getFollowRepository().findOne({
       userId: user.id,
-      itemId: entity.id
+      itemId: entity.id,
+      tableName: getConnection().getMetadata(entity.constructor.name).tableName
     })
 
     if (existingFollow) {
-      await this.removeAllNotificationsFromEntity(entity)
+      await this.removeAllItemNotificationsForUser(user, entity)
       return this.getFollowRepository().delete(existingFollow.id)
     }
+  }
+
+  async removeAllItemNotificationsForUser(user: User, entity: any): Promise<void> {
+    return this.notificationService.removeUserNotificationsForItem(
+      user.id,
+      entity.id,
+      getConnection().getMetadata(entity.constructor.name).tableName
+    )
   }
 
   async removeAllFromEntity(entity: any): Promise<DeleteResult> {
@@ -115,7 +124,7 @@ export class FollowService {
   }
 
   async removeAllNotificationsFromEntity(entity: any): Promise<DeleteResult> {
-    return this.notificationService.delete({
+    return this.notificationService.deleteFromEvent({
       itemId: entity.id,
       tableName: getConnection().getMetadata(entity.constructor.name).tableName
     })
@@ -150,18 +159,13 @@ export class FollowService {
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds || followIds.length < 1) {
-      return null
-    }
+    if (!followIds || followIds.length < 1) { return null }
 
     return this.getFollowRepository().delete(followIds)
   }
 
   async removeAllNotificationsFromEvent(event: IEventProvider): Promise<DeleteResult> {
-    return this.notificationService.delete({
-      itemId: event.itemId,
-      tableName: event.tableName
-    })
+    return this.notificationService.deleteFromEvent(event)
   }
 
   async removeFollowsAndNotificationsForTaskBoard(event: IEventProvider): Promise<DeleteResult | void> {
@@ -176,6 +180,8 @@ export class FollowService {
     const tasks = await this.taskListService.getAllTasks(event.itemId)
     const taskIds = tasks.map((task) => task.id)
 
+    if (!taskIds || taskIds.length < 1) { return null }
+
     await this.removeNotificationsForTasks(taskIds)
     return this.removeFollowsForTasks(taskIds)
   }
@@ -189,9 +195,7 @@ export class FollowService {
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds || followIds.length < 1) {
-      return null
-    }
+    if (!followIds || followIds.length < 1) { return null }
 
     return this.getFollowRepository().delete(followIds)
   }
