@@ -2,10 +2,10 @@
   <div class="popover-container" v-click-outside="hide">
     <div class="popover" v-if="visible" :style="{ top }">
       <header class="popover-header" v-if="title || withClose">
-        <div v-if="backButtonState" @click="back">
+        <div v-if="backButton" @click="back">
             <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
         </div>
-        <div class="popover-title" :class="{ pointer: backButtonState }" @click="backButtonState ? back : null">
+        <div class="popover-title" :class="{ pointer: backButton }" @click="back">
           {{title}}
         </div>
         <div class="popover-close" v-if="withClose">
@@ -43,10 +43,6 @@ export default class Popover extends Vue {
 
   private visible = false
 
-  get backButtonState () {
-    return this.backButton
-  }
-
   hide (event: Event) {
     const srcElement = event.srcElement as HTMLInputElement
     const textContent = srcElement.textContent ? srcElement.textContent.replace(/\s/g, '') : ''
@@ -55,11 +51,14 @@ export default class Popover extends Vue {
     textContent !== 'edit' &&
     textContent !== 'trash') {
       this.visible = false
+      this.$emit('hide', true)
     }
   }
 
   back () {
-    this.$emit('back', false)
+    if (this.backButton) {
+      this.$emit('back', false)
+    }
   }
 }
 </script>

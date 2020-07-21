@@ -1,5 +1,10 @@
 <template>
-  <Popover top="48px" :title="tagsTitle" :backButton="backButtonState" @back="backButtonAction">
+  <Popover
+    top="48px"
+    :title="tagsTitle"
+    :backButton="backButtonState"
+    @back="backButtonAction"
+    @hide="hideButtonAction">
   <template>
     <div class="manage-tags">
     <!-- <div class="tag-input">
@@ -46,6 +51,7 @@
         placeholder="Enter name"
         v-model="tagInput"
         required
+        @keyup.enter="saveTag"
       >
 
       <h4 class="tag-subtitle">Select tag color</h4>
@@ -138,15 +144,14 @@ export default class TagsPopover extends Vue {
         tagId: this.idEditedTag,
         data: data
       } as object)
-
-      this.tagsTitle = 'Manage Tags'
-      this.tagsState = 'manage'
     } else {
       const url = 'task/tag/create'
       await this.$store.dispatch(url, data)
     }
 
     this.tagInput = ''
+    this.tagsTitle = 'Manage Tags'
+    this.tagsState = 'manage'
   }
 
   selectColor (color: string) {
@@ -206,6 +211,14 @@ export default class TagsPopover extends Vue {
 
       default:
         break
+    }
+  }
+
+  hideButtonAction (val: boolean) {
+    if (val) {
+      this.tagsState = 'list'
+      this.tagsTitle = 'Select Tag'
+      this.backButtonState = false
     }
   }
 
