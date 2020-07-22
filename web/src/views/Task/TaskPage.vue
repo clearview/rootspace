@@ -5,9 +5,6 @@
         {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
       <div class="header-actions">
-        <div class="action search-notice" v-if="isSearching">
-          You can not rearrange list or cards during search
-        </div>
         <div class="action action-search">
           <v-icon name="search" class="action-search-icon"/>
           <input

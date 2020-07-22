@@ -1,5 +1,5 @@
 <template>
-  <div class="task-lane">
+  <div class="task-lane" @dragstart="tryDrag" draggable>
     <div class="list-input" v-show="isInputtingNewLane">
       <input ref="newInput" v-model="listCopy.title" placeholder="Enter a title for this list…"
              class="list-input-field"/>
@@ -32,8 +32,7 @@
       <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom}">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-            <TaskCard v-for="item in orderedCards"
-                  :item="item" :key="item.id"/>
+            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"/>
         </Draggable>
 
         <TaskCard default-inputting
@@ -46,6 +45,9 @@
       <footer class="footer">
         <TaskAddCard v-if="!isInputtingNewItem" @click="addCard"/>
       </footer>
+    </div>
+    <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
+      It's not possible to move tasks and lists in search results
     </div>
   </div>
 </template>
@@ -87,6 +89,9 @@ export default class TaskLane extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly defaultInputting!: boolean
 
+    @Prop({ type: Boolean, default: true })
+    private readonly canDrag!: boolean
+
     @Ref('newInput')
     private readonly newInput!: HTMLInputElement;
 
@@ -96,8 +101,10 @@ export default class TaskLane extends Vue {
     @Ref('cardContainer')
     private readonly cardContainerRef!: HTMLInputElement;
 
-    @Prop({ type: Boolean, default: true })
-    private readonly canDrag!: boolean
+    @Ref('dragBlock')
+    private readonly dragBlock!: HTMLDivElement;
+
+    private isDragBlocked = false
 
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
@@ -124,6 +131,20 @@ export default class TaskLane extends Vue {
 
     private get isEditingLane () {
       return this.isInputting && this.listCopy.id !== null
+    }
+
+    private tryDrag (e: DragEvent) {
+      e.preventDefault()
+      if (!this.canDrag) {
+        if (!this.isDragBlocked) {
+          this.isDragBlocked = true
+          this.dragBlock.style.top = e.clientY - 5 + 'px'
+          this.dragBlock.style.left = e.clientX - 5 + 'px'
+          setTimeout(() => {
+            this.isDragBlocked = false
+          }, 3000)
+        }
+      }
     }
 
     private enterEditMode () {
@@ -333,6 +354,40 @@ export default class TaskLane extends Vue {
 
   .bottom-shadow{
     border-bottom: solid 1px theme("colors.gray.100");
+  }
+
+  .drag-block {
+    @apply p-2 fixed z-50 rounded shadow shadow-lg;
+    animation: shake 0.5s ease, fadeOut 0.5s 2.5s ease-out;
+    background: theme("colors.danger.default");
+    color: #fff;
+  }
+
+  @keyframes fadeOut {
+    from{
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes shake {
+    0% {
+      transform: translateX(0%)
+    }
+    25% {
+      transform: translateX(-1%)
+    }
+    50% {
+      transform: translateX(1%)
+    }
+    75% {
+      transform: translateX(-1%)
+    }
+    100% {
+      transform: translateX(0%)
+    }
   }
 
 </style>
