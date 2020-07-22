@@ -198,13 +198,15 @@ export class TaskService {
       tags.push(boardTag)
       task.tags = tags
 
+      const savedTask = await this.getTaskRepository().save(task)
+
       await this.activityService.create({
         userId: actorId,
         taskId,
         content: TaskActivities.Tag_Added
       })
 
-      await this.getTaskRepository().save(task)
+      return savedTask
     }
 
     return task
@@ -218,12 +220,14 @@ export class TaskService {
       return tag.id !== boardTag.id
     })
 
+    const savedTask = await this.getTaskRepository().save(task)
+
     await this.activityService.create({
       userId: actorId,
-      taskId: task.id,
+      taskId: savedTask.id,
       content: TaskActivities.Tag_Removed
     })
 
-    return this.getTaskRepository().save(task)
+    return savedTask
   }
 }
