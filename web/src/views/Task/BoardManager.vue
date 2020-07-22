@@ -1,8 +1,8 @@
 <template>
   <div class="board-manager">
     <div v-if="isKanban" class="board-kanban">
-      <Draggable class="board-kanban-draggable" v-bind="dragOptions" :value="orderedLanes" group="lists" @start="drag=true" @end="drag=false" @change="reorder">
-          <TaskLane v-for="list in orderedLanes" :list="list" :key="list.id"></TaskLane>
+      <Draggable class="board-kanban-draggable" :disabled="!canDrag" v-bind="dragOptions" :value="orderedLanes" group="lists" @start="drag=true" @end="drag=false" @change="reorder">
+          <TaskLane :can-drag="canDrag" v-for="list in orderedLanes" :list="list" :key="list.id"></TaskLane>
       </Draggable>
       <TaskLane class="lane-input" default-inputting
                 v-if="isInputtingNewList"
@@ -35,6 +35,9 @@ import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/re
 export default class BoardManager extends Vue {
     @Prop({ type: Object, required: true })
     private readonly board!: TaskBoardResource;
+
+    @Prop({ type: Boolean, default: true })
+    private readonly canDrag!: boolean
 
     private readonly lists!: TaskListResource[];
     private isInputtingNewList = false
