@@ -125,7 +125,7 @@
           <div class="right-field-title">Members</div>
           <div class="right-field-content">
             <div class="member-list">
-              <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
+              <ul class="assignees">
                 <li class="addmember-button">
                   <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
                     <template v-slot:trigger>
@@ -147,9 +147,6 @@
                     </tippy>
                 </li>
               </ul>
-              <template v-else>
-                None
-              </template>
             </div>
           </div>
         </div>

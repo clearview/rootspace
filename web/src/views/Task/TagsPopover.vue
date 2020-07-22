@@ -37,7 +37,7 @@
       </div>
       </li>
     </ul>
-    <div class="tag-empty" v-if="filteredTags.length === 0">
+    <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
         You have no tags, create one at Manage Tags
       </div>
