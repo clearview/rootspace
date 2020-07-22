@@ -128,6 +128,5 @@ export default class BoardManager extends Vue {
 
   .lane-floating {
     opacity: 1 !important;
-    transform: rotate(-5deg);
   }
 </style>

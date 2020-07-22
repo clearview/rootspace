@@ -240,7 +240,7 @@ export default class TaskLane extends Vue {
         title: '',
         slug: null,
         status: TaskItemStatus.Open,
-        position: getNextPosition(this.list.tasks.length, this.orderedCards[this.orderedCards.length - 1].position)
+        position: getNextPosition(this.list.tasks ? this.list.tasks.length : 1, this.orderedCards && this.orderedCards.length > 0 ? this.orderedCards[this.orderedCards.length - 1].position : 0)
       }
       Vue.nextTick().then(() => {
         this.cardContainerRef.scrollTop = this.cardContainerRef.scrollHeight
