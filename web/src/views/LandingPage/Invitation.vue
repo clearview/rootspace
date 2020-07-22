@@ -55,7 +55,7 @@ export default class Invitation extends Vue {
         const spaces = this.$store.state.auth.spaces
         const space = find(spaces, ['id', data.data.spaceId])
 
-        this.$store.commit('auth/setCurrentSpace', space)
+        this.$store.commit('space/setActive', space)
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         this.message = err.message

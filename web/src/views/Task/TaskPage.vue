@@ -124,12 +124,12 @@ export default class TaskPage extends Vue {
   private memberList: Array<UserResource> = []
   private isSearching = false
 
-  get currentSpace () {
-    return this.$store.state.auth.currentSpace || {}
+  get activeSpace () {
+    return this.$store.getters['space/activeSpace'] || {}
   }
 
   async getSpaceMember () {
-    const id = this.currentSpace.id
+    const id = this.activeSpace.id
     const viewUserAtSpace = await SpaceService.spaceUsers(id)
 
     this.memberList = viewUserAtSpace.data
