@@ -158,6 +158,15 @@ export default class TaskPage extends Vue {
   }
 
   @Watch('boardId')
+  async clearAndFetchTask () {
+    this.search = ''
+    this.filters = {
+      tags: [],
+      assignees: []
+    }
+    await this.fetchTask()
+  }
+
   async fetchTask () {
     if (this.memberList.length === 0) {
       await this.getSpaceMember()

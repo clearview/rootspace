@@ -413,8 +413,6 @@ export default class TaskModal extends Vue {
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4;
     width: 820px;
-    max-height: 80vh;
-    overflow-y: scroll;
   }
 
   .task-left {
