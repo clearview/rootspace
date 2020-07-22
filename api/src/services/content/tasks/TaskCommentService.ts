@@ -2,11 +2,16 @@ import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../database/repositories/tasks/TaskRepository'
 import { TaskCommentRepository } from '../../../database/repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../database/entities/tasks/TaskComment'
+import { TaskActivityService } from './TaskActivityService'
+import { TaskActivities } from '../../../database/entities/tasks/TaskActivity'
 
 export class TaskCommentService {
-  private constructor() {}
-
   private static instance: TaskCommentService
+  private activityService: TaskActivityService
+
+  private constructor() {
+    this.activityService = TaskActivityService.getInstance()
+  }
 
   static getInstance() {
     if (!TaskCommentService.instance) {
@@ -32,6 +37,13 @@ export class TaskCommentService {
     data.task = await this.getTaskRepository().findOneOrFail(data.taskId)
 
     const taskComment = await this.getTaskCommentRepository().save(data)
+
+    await this.activityService.create({
+      userId: data.user.id,
+      taskId: taskComment.taskId,
+      content: TaskActivities.Comment_Created
+    })
+
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
@@ -45,7 +57,13 @@ export class TaskCommentService {
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
-  async delete(id: number) {
-    return this.getTaskCommentRepository().delete({ id })
+  async delete(actorId: number, taskCommentId: number) {
+    await this.activityService.create({
+      userId: actorId,
+      taskId: taskCommentId,
+      content: TaskActivities.Comment_Deleted
+    })
+
+    return this.getTaskCommentRepository().delete({ id: taskCommentId })
   }
 }

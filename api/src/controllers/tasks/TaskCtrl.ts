@@ -33,7 +33,10 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.update(Number(req.params.id), req.body.data)
+    const actorId = Number(req.user.id)
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.update(actorId, taskId, req.body.data)
 
     res.send(this.responseData(task))
   }
@@ -55,57 +58,70 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async archive(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.getById(Number(req.params.id))
+    const actorId = Number(req.user.id)
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.getById(taskId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
-    const result = await this.taskService.archive(Number(req.params.id))
+    const result = await this.taskService.archive(actorId, taskId)
     res.send(result)
   }
 
   async restore(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.getArchivedById(Number(req.params.id))
+    const actorId = Number(req.user.id)
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.getArchivedById(taskId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
-    const result = await this.taskService.restore(Number(req.params.id))
+    const result = await this.taskService.restore(actorId, taskId)
     res.send(result)
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.taskService.remove(Number(req.params.id))
+    const actorId = Number(req.user.id)
+    const taskId = Number(req.params.id)
+
+    const result = await this.taskService.remove(actorId, taskId)
     res.send(result)
   }
 
   // Assignees
   async assigneeAdd(req: Request, res: Response, next: NextFunction) {
+    const actorId = Number(req.user.id)
     const taskId = Number(req.params.id)
     const userId = Number(req.params.userId)
 
-    const task = await this.taskService.assigneeAdd(taskId, userId)
+    const task = await this.taskService.assigneeAdd(actorId, taskId, userId)
     res.send(this.responseData(task))
   }
 
   async assigneeRemove(req: Request, res: Response, next: NextFunction) {
+    const actorId = Number(req.user.id)
     const taskId = Number(req.params.id)
     const userId = Number(req.params.userId)
 
-    const task = await this.taskService.assigneeRemove(taskId, userId)
+    const task = await this.taskService.assigneeRemove(actorId, taskId, userId)
     res.send(this.responseData(task))
   }
 
   // Tags
   async tagAdd(req: Request, res: Response, next: NextFunction) {
+    const actorId = Number(req.user.id)
     const taskId = Number(req.params.id)
     const tagId = Number(req.params.tagId)
 
-    const task = await this.taskService.tagAdd(taskId, tagId)
+    const task = await this.taskService.tagAdd(actorId, taskId, tagId)
     res.send(this.responseData(task))
   }
 
   async tagRemove(req: Request, res: Response, next: NextFunction) {
+    const actorId = Number(req.user.id)
     const taskId = Number(req.params.id)
     const tagId = Number(req.params.tagId)
 
-    const task = await this.taskService.tagRemove(taskId, tagId)
+    const task = await this.taskService.tagRemove(actorId, taskId, tagId)
     res.send(this.responseData(task))
   }
 }
