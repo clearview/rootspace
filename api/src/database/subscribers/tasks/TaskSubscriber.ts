@@ -5,12 +5,12 @@ import {
   EventSubscriber,
   InsertEvent, RemoveEvent, UpdateEvent
 } from 'typeorm'
-import { Task } from '../entities/tasks/Task'
-import { NotificationService } from '../../services'
-import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from './FollowableInterface'
-import { User } from '../entities/User'
-import { TaskRepository } from '../repositories/tasks/TaskRepository'
+import { Task } from '../../entities/tasks/Task'
+import { NotificationService } from '../../../services'
+import { EventAction, EventType, IEventProvider } from '../../../services/events/EventType'
+import { FollowableInterface } from '../FollowableInterface'
+import { User } from '../../entities/User'
+import { TaskRepository } from '../../repositories/tasks/TaskRepository'
 import slugify from '@sindresorhus/slugify'
 
 @EventSubscriber()

@@ -5,11 +5,11 @@ import {
   EventSubscriber,
   InsertEvent, UpdateEvent
 } from 'typeorm'
-import { TaskComment } from '../entities/tasks/TaskComment'
-import { NotificationService } from '../../services'
-import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from './FollowableInterface'
-import { User } from '../entities/User'
+import { TaskComment } from '../../entities/tasks/TaskComment'
+import { NotificationService } from '../../../services'
+import { EventAction, EventType, IEventProvider } from '../../../services/events/EventType'
+import { FollowableInterface } from '../FollowableInterface'
+import { User } from '../../entities/User'
 
 @EventSubscriber()
 export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComment>, FollowableInterface<TaskComment> {

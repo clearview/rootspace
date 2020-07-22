@@ -1,5 +1,5 @@
 import { getCustomRepository } from 'typeorm'
-import { EmbedRepository } from '../../repositories/EmbedRepository'
+import { EmbedRepository } from '../../database/repositories/EmbedRepository'
 import { Embed } from '../../database/entities/Embed'
 import { EmbedCreateValue, EmbedUpdateValue } from '../../values/embed'
 import { NodeCreateValue } from '../../values/node'
