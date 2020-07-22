@@ -120,7 +120,7 @@ export default class LayoutMain extends Vue {
   }
 
   .nav--collapse ~ & {
-    @apply hidden;
+    pointer-events: none;
   }
 }
 
