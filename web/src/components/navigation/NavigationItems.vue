@@ -48,8 +48,14 @@
         </div>
         <div class="tree-node-actions">
           <button
-            v-if="node.type !== 'doc'"
+            v-if="node.type === 'link'"
             @click="updateLink({ node, path, tree })"
+          >
+            <v-icon name="link-edit" />
+          </button>
+          <button
+            v-if="node.type === 'taskBoard'"
+            @click="updateTask({ node, path, tree })"
           >
             <v-icon name="link-edit" />
           </button>
@@ -61,7 +67,7 @@
     </v-tree>
 
     <v-modal
-      v-if="modal.type == 'Update'"
+      v-if="modal.type === 'UpdateLink'"
       title="Update item"
       :visible="modal.visible"
       :loading="modal.loading"
@@ -70,6 +76,23 @@
     >
       <div class="modal-body">
         <form-link
+          notitle
+          :value="modal.data"
+          ref="formUpdate"
+          @submit="$emit('modal:confirm', $event)"
+        />
+      </div>
+    </v-modal>
+    <v-modal
+      v-if="modal.type === 'UpdateTask'"
+      title="Update item"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      @cancel="$emit('modal:cancel')"
+      @confirm="() => $refs.formUpdate.submit()"
+    >
+      <div class="modal-body">
+        <form-task
           notitle
           :value="modal.data"
           ref="formUpdate"
@@ -98,13 +121,15 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
-import { LinkResource, NodeResource } from '@/types/resource'
+import { LinkResource, NodeResource, TaskBoardResource } from '@/types/resource'
 
 import VModal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
+import FormTask from '@/components/form/FormTask.vue'
 
 enum ModalType {
-  Update = 'Update',
+  UpdateLink = 'UpdateLink',
+  UpdateTask = 'UpdateTask',
   Destroy = 'Destroy'
 }
 
@@ -136,7 +161,8 @@ const VTree = Vue.extend({
   components: {
     VTree,
     VModal,
-    FormLink
+    FormLink,
+    FormTask
   }
 })
 export default class NavigationItem extends Vue {
@@ -234,9 +260,26 @@ export default class NavigationItem extends Vue {
     try {
       await this.$store.dispatch('link/view', node.contentId)
 
-      const list = await this.modalOpen(ModalType.Update, this.$store.state.link.item)
+      const list = await this.modalOpen(ModalType.UpdateLink, this.$store.state.link.item)
 
       await this.$store.dispatch('link/update', list)
+    } catch { }
+  }
+
+  async updateTask ({ node }: NodeContext) {
+    try {
+      await this.$store.dispatch('task/board/view', node.contentId)
+
+      const board = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
+
+      console.log(board)
+
+      await this.$store.dispatch('task/board/update', {
+        id: board.id,
+        title: board.title,
+        isPublic: board.isPublic,
+        type: board.type
+      })
     } catch { }
   }
 
@@ -270,7 +313,6 @@ export default class NavigationItem extends Vue {
   async modalOpen (type: ModalType, data?: object) {
     this.modal = {
       ...this.modal,
-
       visible: true,
       data: data || null,
       type
