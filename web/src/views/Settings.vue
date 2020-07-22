@@ -49,11 +49,6 @@
               button="Save"
               ref="space">
               <div class="form-border">
-                <p>Mobile push notifications</p>
-                <button-switch v-model="mobileNotifications"/>
-              </div>
-
-              <div class="form-border">
                 <p>Email notifications</p>
                 <button-switch v-model="emailNotifications"/>
               </div>
