@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card">
+  <div class="task-card" @dragstart="tryDrag" draggable>
     <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
       <input ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…"
                 class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
@@ -66,13 +66,16 @@
         </div>
       </div>
     </div>
-    <TaskModal @close="showModal = false" :item="item" :visible="showModal"></TaskModal>
+    <TaskModal @close="closeModal" :item="item" :visible="showModal"></TaskModal>
+    <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
+      It's not possible to move tasks and lists in search results
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
-import { TaskItemResource, UserResource } from '@/types/resource'
+import { TaskBoardResource, TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
@@ -98,12 +101,19 @@ export default class TaskCard extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly defaultInputting!: boolean
 
+    @Prop({ type: Boolean, default: true })
+    private readonly canDrag!: boolean
+
     @Ref('textarea')
     private readonly textarea!: HTMLTextAreaElement;
+
+    @Ref('dragBlock')
+    private readonly dragBlock!: HTMLDivElement;
 
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
+    private isDragBlocked = false
 
     private get isInputtingNewCard () {
       return this.isInputting && this.itemCopy.id === null
@@ -115,6 +125,20 @@ export default class TaskCard extends Vue {
 
     private get canSave () {
       return !this.$v.$invalid
+    }
+
+    tryDrag (e: DragEvent) {
+      e.preventDefault()
+      if (!this.canDrag) {
+        if (!this.isDragBlocked) {
+          this.isDragBlocked = true
+          this.dragBlock.style.top = e.clientY - 5 + 'px'
+          this.dragBlock.style.left = e.clientX - 5 + 'px'
+          setTimeout(() => {
+            this.isDragBlocked = false
+          }, 3000)
+        }
+      }
     }
 
     @Emit('save')
@@ -146,9 +170,36 @@ export default class TaskCard extends Vue {
       })
     }
 
+    get board (): TaskBoardResource | null {
+      return this.$store.state.task.board.current
+    }
+
     openModal () {
-      this.$store.commit('task/item/setCurrent', this.item)
-      this.showModal = true
+      if (this.board?.id && this.item.id) {
+        this.$router.push({
+          name: 'TaskPageWithItem',
+          params: {
+            id: this.board.id.toString(),
+            item: this.item.id.toString(),
+            slug: this.item.slug || '-'
+          }
+        })
+        this.$store.commit('task/item/setCurrent', this.item)
+        this.showModal = true
+      }
+    }
+
+    closeModal () {
+      if (this.board?.id && this.item.id) {
+        this.$router.replace({
+          name: 'TaskPage',
+          params: {
+            id: this.board.id.toString()
+          }
+        })
+      }
+      this.$store.commit('task/item/setCurrent', null)
+      this.showModal = false
     }
 
     formatDate (taskDate: string) {
@@ -177,6 +228,16 @@ export default class TaskCard extends Vue {
     @Watch('item')
     updateItem (val: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
       this.itemCopy = val
+    }
+
+    mounted () {
+      if (this.$route.name === 'TaskPageWithItem') {
+        const itemId = parseInt(this.$route.params.item)
+        if (itemId === this.item.id) {
+          this.$store.commit('task/item/setCurrent', this.item)
+          this.showModal = true
+        }
+      }
     }
 }
 </script>
@@ -354,8 +415,37 @@ export default class TaskCard extends Vue {
     }
   }
 
-  .overed-container{
-    height: 40px;
-    background: red;
+  .drag-block {
+    @apply p-2 fixed z-50 rounded shadow shadow-lg;
+    animation: shake 0.5s ease, fadeOut 0.5s 2.5s ease-out;
+    background: theme("colors.danger.default");
+    color: #fff;
+  }
+
+  @keyframes fadeOut {
+    from{
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes shake {
+    0% {
+      transform: translateX(0%)
+    }
+    25% {
+      transform: translateX(-1%)
+    }
+    50% {
+      transform: translateX(1%)
+    }
+    75% {
+      transform: translateX(-1%)
+    }
+    100% {
+      transform: translateX(0%)
+    }
   }
 </style>
