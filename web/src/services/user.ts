@@ -19,7 +19,7 @@ async function update (data: object) {
   try {
     const res = await api.patch('users', { data })
 
-    return res
+    return res.data
   } catch (err) {
     const { response } = err
 
