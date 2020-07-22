@@ -10,7 +10,7 @@
         id="firstName"
         type="text"
         placeholder="Enter your first name"
-        v-model.lazy.trim="$v.payload.firstName.$model"
+        v-model.trim="$v.payload.firstName.$model"
       />
       <v-icon
         class="icon is-right"
@@ -38,7 +38,7 @@
         id="lastName"
         type="text"
         placeholder="Enter your last name"
-        v-model.lazy.trim="$v.payload.lastName.$model"
+        v-model.trim="$v.payload.lastName.$model"
       />
       <v-icon
         class="icon is-right"
@@ -65,7 +65,7 @@
         id="email"
         type="text"
         placeholder="Enter your email"
-        v-model.lazy.trim="$v.payload.email.$model"
+        v-model.trim="$v.payload.email.$model"
       />
       <v-icon
         class="icon is-right"

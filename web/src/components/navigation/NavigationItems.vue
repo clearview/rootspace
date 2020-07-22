@@ -41,7 +41,7 @@
           />
           <input
             v-show="isSelected(path)"
-            v-model.lazy="node.title"
+            v-model="node.title"
             @change="updateNode({ node, path, tree })"
             @keydown.esc="select(null)"
           />
