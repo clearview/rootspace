@@ -2,6 +2,7 @@ import {
   NodeResource,
   LinkResource,
   SpaceResource,
+  SpaceMetaResource,
   TaskBoardResource,
   TaskListResource,
   TaskItemResource,
@@ -27,6 +28,8 @@ export interface RootState {
   nav: NavState;
   task: TaskState;
   option: OptionState;
+  space: SpaceState;
+  tree: TreeState;
 }
 
 export interface AuthState {
@@ -80,4 +83,10 @@ export interface OptionState {
 
 export interface DocumentState {
   payload: DocumentResource[];
+}
+
+export interface SpaceState {
+  activeIndex: number;
+  spaces: SpaceResource[];
+  spacesMeta: SpaceMetaResource[];
 }

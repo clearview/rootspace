@@ -29,28 +29,22 @@ import { mapState } from 'vuex'
 
 import { SpaceResource } from '@/types/resource'
 
-import SpaceService from '@/services/space'
-
 import RootHeader from '@/components/RootHeader.vue'
 import VLoading from '@/components/Loading.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  type ComponentData = {
-    isLoading: boolean;
-    loadingMessage: string;
+@Component({
+  name: 'SpaceInit',
+  components: {
+    RootHeader,
+    VLoading,
+    FormSpace
+  },
+  computed: {
+    ...mapState('auth', ['user', 'spaces'])
   }
-  @Component({
-    name: 'SpaceInit',
-    components: {
-      RootHeader,
-      VLoading,
-      FormSpace
-    },
-    computed: {
-      ...mapState('auth', ['user', 'spaces'])
-    }
-  })
+})
 export default class SpaceInit extends Vue {
     private isLoading = false;
     private loadingMessage = 'Creating Space...';
@@ -60,7 +54,7 @@ export default class SpaceInit extends Vue {
     }
 
     get spaces () {
-      return this.$store.state.auth.spaces
+      return this.$store.state.space.list
     }
 
     get name (): string {
@@ -81,8 +75,7 @@ export default class SpaceInit extends Vue {
       this.isLoading = true
 
       try {
-        await SpaceService.create(data)
-        await this.$store.dispatch('auth/whoami', { updateSpace: true })
+        await this.$store.dispatch('space/create', data)
 
         await this.$router.push({ name: 'Main' })
       } catch (err) {

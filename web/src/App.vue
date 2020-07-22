@@ -14,7 +14,7 @@ import Vue from 'vue'
 
 export default Vue.extend({
   name: 'App',
-  created () {
+  async created () {
     this.$store.subscribe((mutation, state) => {
       if (mutation.type === 'auth/setToken' && !state.auth.token) {
         this.$router.push({ name: 'SignIn' })

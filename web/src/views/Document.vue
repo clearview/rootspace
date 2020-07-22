@@ -83,8 +83,8 @@ export default class Document extends Vue {
     alert: null
   }
 
-  get currentSpace (): SpaceResource {
-    return this.$store.state.auth.currentSpace || {}
+  get activeSpace (): SpaceResource {
+    return this.$store.getters['space/activeSpace']
   }
 
   get id (): number {
@@ -106,8 +106,8 @@ export default class Document extends Vue {
     this.textareaResize()
   }
 
-  @Watch('currentSpace')
-  watchCurrentSpace (val: SpaceResource, oldVal: SpaceResource) {
+  @Watch('activeSpace')
+  onSpaceChange (val: SpaceResource, oldVal: SpaceResource) {
     if (val.id !== oldVal.id) {
       this.$router.push({ name: 'Main' })
     }
@@ -169,7 +169,7 @@ export default class Document extends Vue {
   saveDocument () {
     if (this.title) {
       const payload = {
-        spaceId: this.currentSpace.id,
+        spaceId: this.activeSpace.id,
         title: this.title,
         content: this.value,
         access: 2,
@@ -191,7 +191,7 @@ export default class Document extends Vue {
         const document = await DocumentService.create(data)
         const getDocument = document.data
         this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
-        await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
+        await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
       }
 
       this.loading = false
@@ -222,7 +222,7 @@ export default class Document extends Vue {
 
     try {
       await this.$store.dispatch('document/destroy', data)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.currentSpace.id })
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
 
       this.$router.push({ name: 'Main' })
     } catch (err) {

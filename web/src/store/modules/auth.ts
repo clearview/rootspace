@@ -1,17 +1,12 @@
 import { Module } from 'vuex'
 
 import { RootState, AuthState } from '@/types/state'
-import { SpaceResource } from '@/types/resource'
 
 import AuthService from '@/services/auth'
 
 type SigninContext = {
   type: string;
   payload: object;
-}
-
-type WhoamiOptions = {
-  updateSpace?: boolean;
 }
 
 const AuthModule: Module<AuthState, RootState> = {
@@ -31,33 +26,16 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     setUser (state, user) {
       state.user = user
-    },
-    setSpaces (state, spaces) {
-      state.spaces = spaces
-    },
-    setCurrentSpace (state, space) {
-      state.currentSpace = space
     }
   },
 
   actions: {
-    async whoami ({ commit, dispatch, state }, opts: WhoamiOptions = {}) {
+    async whoami ({ commit, dispatch }) {
       try {
         const { data } = await AuthService.whoami()
 
         commit('setUser', data.user)
-        commit('setSpaces', data.spaces)
-
-        if (opts.updateSpace) {
-          const spaces: SpaceResource[] = state.spaces || []
-          const cache: Partial<SpaceResource> = state.currentSpace || {}
-
-          const space = spaces.find(
-            (space: SpaceResource) => space.id === cache.id
-          )
-
-          commit('setCurrentSpace', space || spaces[0])
-        }
+        commit('space/setSpaces', data, { root: true })
       } catch (err) {
         dispatch('signout')
       }
@@ -73,8 +51,6 @@ const AuthModule: Module<AuthState, RootState> = {
     async signout ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
-      commit('setSpaces', null)
-      commit('setCurrentSpace', null)
     }
   }
 }

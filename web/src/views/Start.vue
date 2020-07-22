@@ -41,7 +41,7 @@ export default class Start extends Vue {
       if (query.from === 'invitation' && query.accept === '1') {
         this.alert = {
           type: 'success',
-          message: `Welcome to ${this.currentSpace.title}, you are invited to this space`,
+          message: `Welcome to ${this.activeSpace.title}, you are invited to this space`,
           noicon: true
         }
       }
@@ -54,8 +54,8 @@ export default class Start extends Vue {
       }
     }
 
-    get currentSpace () {
-      return this.$store.state.auth.currentSpace || {}
+    get activeSpace () {
+      return this.$store.getters['space/activeSpace'] || {}
     }
 }
 </script>

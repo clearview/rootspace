@@ -27,10 +27,10 @@ import { UserResource } from '@/types/resource'
 import Avatar from 'vue-avatar'
 import VInput from '@/components/InputIcon.vue'
 
-  @Component({
-    name: 'MemberPopover',
-    components: { Popover, Avatar, VInput }
-  })
+@Component({
+  name: 'MemberPopover',
+  components: { Popover, Avatar, VInput }
+})
 export default class TagsPopover extends Vue {
     private memberInput = ''
     private memberList: Array<UserResource> = []
@@ -39,8 +39,8 @@ export default class TagsPopover extends Vue {
       this.getSpaceMember()
     }
 
-    get currentSpace () {
-      return this.$store.state.auth.currentSpace || {}
+    get activeSpace () {
+      return this.$store.getters['space/activeSpace'] || {}
     }
 
     get filteredMembers () {
@@ -72,7 +72,7 @@ export default class TagsPopover extends Vue {
     // }
 
     async getSpaceMember () {
-      const id = this.currentSpace.id
+      const id = this.activeSpace.id
       const viewSpaceUsers = await SpaceService.spaceUsers(id)
 
       this.memberList = viewSpaceUsers.data
