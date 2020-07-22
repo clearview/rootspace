@@ -2,7 +2,8 @@ import { createServiceModule } from '@/store/utils/createServiceModule'
 import { ItemService } from '@/services/task'
 import { TaskBoardResource, TaskItemResource, TaskListResource } from '@/types/resource'
 import api from '@/utils/api'
-import { ResourceState } from '@/types/state'
+import { ResourceState, RootState } from '@/types/state'
+import { ActionContext } from 'vuex'
 
 const item = createServiceModule(ItemService, {
   afterCreate (context, data: TaskItemResource) {
@@ -52,6 +53,43 @@ const item = createServiceModule(ItemService, {
                   return {
                     ...data
                   }
+                }
+                return task
+              })
+            }
+          }
+        }
+      }
+    }, { root: true })
+  },
+  beforeUpdate (context: ActionContext<ResourceState<TaskItemResource>, RootState>, data: TaskItemResource) {
+    context.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const list = board.current.taskLists.find(list => list.id === data.listId)
+        if (list) {
+          let oldItem: TaskItemResource | null = null
+          let oldList: TaskListResource | null = null
+          for (const lst of board.current.taskLists) {
+            for (const tsk of lst.tasks) {
+              if (tsk.id === data.id) {
+                oldItem = tsk
+                oldList = lst
+                break
+              }
+            }
+          }
+          if (oldItem && oldList) {
+            // Moved to another lane
+            if (oldItem.listId !== data.listId) {
+              oldList.tasks = oldList.tasks.filter(task => task.id !== data.id)
+              const targetList = board.current.taskLists.find(list => list.id === data.listId)
+              if (targetList) {
+                targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+              }
+            } else {
+              list.tasks = list.tasks.map(task => {
+                if (task.id === data.id) {
+                  return { ...oldItem, listId: data.listId, position: data.position } as TaskItemResource
                 }
                 return task
               })

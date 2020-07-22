@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" @dragstart="tryDrag" draggable>
+  <div class="task-card" @dragstart="tryDrag" :draggable="!canDrag">
     <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
       <input ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…"
                 class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
