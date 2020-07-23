@@ -86,7 +86,7 @@
           </div>
           <div class="description-input" v-if="isEditingDescription">
             <textarea
-              class="input"
+              class="input input-description"
               placeholder="Write a description…"
               v-model="itemCopy.description"
             />
@@ -231,6 +231,7 @@ export default class TaskModal extends Vue {
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
+    private isCommenting = false
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
@@ -285,14 +286,24 @@ export default class TaskModal extends Vue {
     }
 
     async saveComment () {
-      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
-        id: null,
-        content: this.commentInput,
-        taskId: this.item.id,
-        task: this.item
+      if (this.commentInput.trim().length <= 0 || this.isCommenting) {
+        return
       }
-      await this.$store.dispatch('task/comment/create', commentResource)
-      this.commentInput = ''
+      try {
+        this.isCommenting = true
+        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
+          id: null,
+          content: this.commentInput,
+          taskId: this.item.id,
+          task: this.item
+        }
+        await this.$store.dispatch('task/comment/create', commentResource)
+        this.commentInput = ''
+      } catch (e) {
+
+      } finally {
+        this.isCommenting = false
+      }
     }
 
     async handleMenu (value: string) {
@@ -605,6 +616,11 @@ export default class TaskModal extends Vue {
     background: rgba(theme("colors.gray.100"), 0.3);
     color: theme("colors.gray.900");
     font-weight: 600;
+  }
+
+  .input-description {
+    height: 5rem;
+    transition: none;
   }
 
 </style>
