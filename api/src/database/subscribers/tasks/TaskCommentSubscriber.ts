@@ -40,7 +40,7 @@ export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComm
 
     // Dispatch Task event
     const event: IEventProvider = {
-      itemId: entity.task.id,
+      itemId: entity.taskId,
       actorId: actor.id,
       targetName: metaData?.targetName,
       tableName: 'tasks',

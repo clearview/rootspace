@@ -91,14 +91,14 @@ export class TaskService {
   async archive(taskId: number): Promise<UpdateResult> {
     const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
 
-    await this.noteActivityForTaskId(taskId, TaskActivities.Task_Archived)
+    await this.noteActivityForId(taskId, TaskActivities.Task_Archived)
 
     return archivedTask
   }
 
   async restore(taskId: number): Promise<UpdateResult> {
     const restoredTask = this.getTaskRepository().restore({id: taskId})
-    await this.noteActivityForTaskId(taskId, TaskActivities.Task_Restored)
+    await this.noteActivityForId(taskId, TaskActivities.Task_Restored)
 
     return restoredTask
   }
@@ -195,9 +195,8 @@ export class TaskService {
     return savedTask
   }
 
-  async noteActivityForTaskId(taskId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
+  async noteActivityForId(taskId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
     const task = await this.getById(taskId)
-
     return this.noteActivityForTask(task, taskActivity)
   }
 

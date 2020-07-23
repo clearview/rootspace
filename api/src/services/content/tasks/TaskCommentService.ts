@@ -44,6 +44,8 @@ export class TaskCommentService {
       ...data,
     })
 
+    await this.noteActivityForTaskComment(taskComment, TaskActivities.Comment_Updated)
+
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
@@ -54,8 +56,11 @@ export class TaskCommentService {
 
   async noteActivityForId(taskCommentId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
     const taskComment = await this.getById(taskCommentId)
-    const task = await this.taskService.getById(taskComment.taskId)
+    return this.noteActivityForTaskComment(taskComment, taskActivity)
+  }
 
+  async noteActivityForTaskComment(taskComment: TaskComment, taskActivity: TaskActivities): Promise<TaskActivity> {
+    const task = await this.taskService.getById(taskComment.taskId)
     return this.taskService.noteActivityForTask(task, taskActivity)
   }
 }
