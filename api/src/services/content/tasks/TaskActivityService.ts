@@ -4,9 +4,10 @@ import { TaskActivityRepository } from '../../../database/repositories/tasks/Tas
 import { TaskActivity } from '../../../database/entities/tasks/TaskActivity'
 
 export class TaskActivityService {
-  private constructor() {}
 
   private static instance: TaskActivityService
+
+  private constructor() {}
 
   static getInstance() {
     if (!TaskActivityService.instance) {
@@ -33,19 +34,5 @@ export class TaskActivityService {
 
     const taskActivity = await this.getTaskActivityRepository().save(data)
     return this.getTaskActivityRepository().reload(taskActivity)
-  }
-
-  async update(id: number, data: any): Promise<TaskActivity> {
-    let taskActivity = await this.getById(id)
-    taskActivity = await this.getTaskActivityRepository().save({
-      ...taskActivity,
-      ...data,
-    })
-
-    return this.getTaskActivityRepository().reload(taskActivity)
-  }
-
-  async delete(id: number) {
-    return this.getTaskActivityRepository().delete({ id })
   }
 }
