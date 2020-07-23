@@ -37,10 +37,9 @@ export class TaskCommentCtrl extends BaseCtrl {
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const actorId = Number(req.user.id)
     const taskCommentId = Number(req.params.id)
 
-    const result = await this.taskCommentService.delete(actorId, taskCommentId)
+    const result = await this.taskCommentService.delete(taskCommentId)
     res.send(result)
   }
 }

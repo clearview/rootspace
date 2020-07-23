@@ -1,4 +1,5 @@
 import { getCustomRepository } from 'typeorm'
+import httpRequestContext from 'http-request-context'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
@@ -79,7 +80,9 @@ export class TaskService {
     return this.getTaskRepository().reload(task)
   }
 
-  async update(actorId: number, id: number, data: any): Promise<Task> {
+  async update(id: number, data: any): Promise<Task> {
+    const actor = httpRequestContext.get('user')
+
     let task = await this.getById(id)
     task = await this.getTaskRepository().save({
       ...task,
@@ -89,7 +92,7 @@ export class TaskService {
     await this.assigneesUpdate(task, data)
 
     await this.activityService.create({
-      userId: actorId,
+      userId: actor.id,
       taskId: task.id,
       content: TaskActivities.Task_Updated
     })
@@ -97,32 +100,37 @@ export class TaskService {
     return this.getTaskRepository().reload(task)
   }
 
-  async archive(actorId: number, taskId: number) {
+  async archive(taskId: number) {
+    const actor = httpRequestContext.get('user')
+
     await this.activityService.create({
-      userId: actorId,
+      userId: actor.id,
       taskId,
       content: TaskActivities.Task_Archived
     })
 
-    return this.getTaskRepository().softDelete({id})
+    return this.getTaskRepository().softDelete({id: taskId})
   }
 
-  async restore(actorId: number, taskId: number) {
+  async restore(taskId: number) {
+    const actor = httpRequestContext.get('user')
+
     await this.activityService.create({
-      userId: actorId,
+      userId: actor.id,
       taskId,
       content: TaskActivities.Task_Restored
     })
 
-    return this.getTaskRepository().restore({id})
+    return this.getTaskRepository().restore({id: taskId})
   }
 
-  async remove(actorId: number, taskId: number) {
+  async remove(taskId: number) {
+    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneOrFail(taskId)
     await this.followService.removeAllFromEntity(task)
 
     await this.activityService.create({
-      userId: actorId,
+      userId: actor.id,
       taskId,
       content: TaskActivities.Task_Deleted
     })
@@ -147,7 +155,8 @@ export class TaskService {
     return this.getTaskRepository().save(task)
   }
 
-  async assigneeAdd(actorId: number, taskId: number, userId: number): Promise<Task> {
+  async assigneeAdd(taskId: number, userId: number): Promise<Task> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -156,11 +165,11 @@ export class TaskService {
       assignees.push(user)
       task.assignees = assignees
 
-      await this.getTaskRepository().save(task)
+      const savedTask = await this.getTaskRepository().save(task)
 
       await this.activityService.create({
-        userId: actorId,
-        taskId: task.id,
+        userId: actor.id,
+        taskId: savedTask.id,
         content: TaskActivities.Assignee_Added
       })
 
@@ -170,7 +179,8 @@ export class TaskService {
     return task
   }
 
-  async assigneeRemove(actorId: number, taskId: number, userId: number): Promise<Task> {
+  async assigneeRemove(taskId: number, userId: number): Promise<Task> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -178,18 +188,21 @@ export class TaskService {
       return assignee.id !== user.id
     })
 
+    await this.followService.unfollow(user, task)
+
+    const savedTask = await this.getTaskRepository().save(task)
+
     await this.activityService.create({
-      userId: actorId,
-      taskId: task.id,
+      userId: actor.id,
+      taskId: savedTask.id,
       content: TaskActivities.Assignee_Removed
     })
 
-    await this.followService.unfollow(user, task)
-
-    return this.getTaskRepository().save(task)
+    return savedTask
   }
 
-  async tagAdd(actorId: number, taskId: number, tagId: number): Promise<Task> {
+  async tagAdd(taskId: number, tagId: number): Promise<Task> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -201,7 +214,7 @@ export class TaskService {
       const savedTask = await this.getTaskRepository().save(task)
 
       await this.activityService.create({
-        userId: actorId,
+        userId: actor.id,
         taskId,
         content: TaskActivities.Tag_Added
       })
@@ -212,7 +225,8 @@ export class TaskService {
     return task
   }
 
-  async tagRemove(actorId: number, taskId: number, tagId: number): Promise<Task> {
+  async tagRemove(taskId: number, tagId: number): Promise<Task> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -223,7 +237,7 @@ export class TaskService {
     const savedTask = await this.getTaskRepository().save(task)
 
     await this.activityService.create({
-      userId: actorId,
+      userId: actor.id,
       taskId: savedTask.id,
       content: TaskActivities.Tag_Removed
     })

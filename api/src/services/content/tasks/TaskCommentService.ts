@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../../database/repositories/tasks/TaskRepository'
 import { TaskCommentRepository } from '../../../database/repositories/tasks/TaskCommentRepository'
@@ -57,10 +58,13 @@ export class TaskCommentService {
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
-  async delete(actorId: number, taskCommentId: number) {
+  async delete(taskCommentId: number) {
+    const actor = httpRequestContext.get('user')
+    const taskComment = await this.getById(taskCommentId)
+
     await this.activityService.create({
-      userId: actorId,
-      taskId: taskCommentId,
+      userId: actor.id,
+      taskId: taskComment.taskId,
       content: TaskActivities.Comment_Deleted
     })
 
