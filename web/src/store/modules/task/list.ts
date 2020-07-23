@@ -23,6 +23,17 @@ const list = createServiceModule(ListService, {
       }
     }, { root: true })
   },
+  beforeUpdate (context, data: TaskListResource) {
+    context.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const index = board.current.taskLists.findIndex(list => list.id === data.id)
+        if (index !== -1) {
+          const old = board.current.taskLists[index]
+          Vue.set(board.current.taskLists, index, { ...old, position: data.position })
+        }
+      }
+    }, { root: true })
+  },
   afterDestroy (context, data: TaskListResource) {
     context.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
