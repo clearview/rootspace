@@ -215,6 +215,10 @@ export default class TaskPage extends Vue {
     this.isSearching = this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0
     if (this.board) {
       this.boardCache = this.board
+
+      this.$store.commit('space/setActive', {
+        space: { id: this.board.spaceId }
+      })
     }
     this.isFetching = false
   }

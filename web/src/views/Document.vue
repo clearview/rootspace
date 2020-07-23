@@ -106,13 +106,6 @@ export default class Document extends Vue {
     this.textareaResize()
   }
 
-  @Watch('activeSpace')
-  onSpaceChange (val: SpaceResource, oldVal: SpaceResource) {
-    if (val.id !== oldVal.id) {
-      this.$router.push({ name: 'Main' })
-    }
-  }
-
   @Watch('id', { immediate: true })
   async watchId (id: number) {
     if (!id) {
@@ -159,6 +152,10 @@ export default class Document extends Vue {
         this.title = viewDoc.data.title
         this.value = viewDoc.data.content
         this.readOnly = viewDoc.data.isLocked
+
+        this.$store.commit('space/setActive', {
+          space: { id: viewDoc.data.spaceId }
+        })
       } catch (e) {
         this.$router.replace({ name: 'Document' })
       }
