@@ -33,7 +33,9 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.update(Number(req.params.id), req.body.data)
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.update(taskId, req.body.data)
 
     res.send(this.responseData(task))
   }
@@ -55,23 +57,29 @@ export class TaskCtrl extends BaseCtrl {
   }
 
   async archive(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.getById(Number(req.params.id))
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.getById(taskId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
-    const result = await this.taskService.archive(Number(req.params.id))
+    const result = await this.taskService.archive(taskId)
     res.send(result)
   }
 
   async restore(req: Request, res: Response, next: NextFunction) {
-    const task = await this.taskService.getArchivedById(Number(req.params.id))
+    const taskId = Number(req.params.id)
+
+    const task = await this.taskService.getArchivedById(taskId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, task ? task : Subjects.Task)
 
-    const result = await this.taskService.restore(Number(req.params.id))
+    const result = await this.taskService.restore(taskId)
     res.send(result)
   }
 
   async delete(req: Request, res: Response, next: NextFunction) {
-    const result = await this.taskService.remove(Number(req.params.id))
+    const taskId = Number(req.params.id)
+
+    const result = await this.taskService.remove(taskId)
     res.send(result)
   }
 

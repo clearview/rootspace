@@ -1,17 +1,17 @@
 import httpRequestContext from 'http-request-context'
 import {
-  DeleteResult,
+  EntityMetadata,
   EntitySubscriberInterface,
   EventSubscriber,
   RemoveEvent
 } from 'typeorm'
-import { TaskList } from '../entities/tasks/TaskList'
-import { EventAction, IEventProvider } from '../../services/events/EventType'
-import { FollowService } from '../../services/FollowService'
+import { TaskBoard } from '../../entities/tasks/TaskBoard'
+import { EventAction, EventType, IEventProvider } from '../../../services/events/EventType'
+import { FollowService } from '../../../services/FollowService'
 
 @EventSubscriber()
-export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
-  private static instance: TaskListSubscriber
+export class TaskBoardSubscriber implements EntitySubscriberInterface<TaskBoard> {
+  private static instance: TaskBoardSubscriber
   private followService: FollowService
 
   private constructor() {
@@ -19,26 +19,26 @@ export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
   }
 
   static getInstance() {
-    if (!TaskListSubscriber.instance) {
-      TaskListSubscriber.instance = new TaskListSubscriber()
+    if (!TaskBoardSubscriber.instance) {
+      TaskBoardSubscriber.instance = new TaskBoardSubscriber()
     }
 
-    return TaskListSubscriber.instance
+    return TaskBoardSubscriber.instance
   }
 
   /**
    * EntitySubscriberInterface
    */
   listenTo() {
-    return TaskList
+    return TaskBoard
   }
 
   /**
    * Remove events cannot use Followable interface here
-   * Entity and related children (tasks etc.) are deleted from database
+   * Entity and related children (taskLists, tasks, etc.) are deleted from database
    * before NotificationListener gets a chance to act on them
    */
-  async beforeRemove(event: RemoveEvent<TaskList>): Promise<void | DeleteResult> {
+  async beforeRemove(event: RemoveEvent<TaskBoard>) {
     const actor = httpRequestContext.get('user')
     const entity = event.entity
 
@@ -51,7 +51,6 @@ export class TaskListSubscriber implements EntitySubscriberInterface<TaskList> {
       message: `${actor.fullName()} removed ${entity.title}`
     }
 
-    await this.followService.removeFollowsAndNotificationsForTaskBoardList(notificationEvent)
+    await this.followService.removeFollowsAndNotificationsForTaskBoard(notificationEvent)
   }
-
 }
