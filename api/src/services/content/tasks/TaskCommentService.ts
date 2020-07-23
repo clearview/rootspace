@@ -1,17 +1,15 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
-import { TaskRepository } from '../../../database/repositories/tasks/TaskRepository'
 import { TaskCommentRepository } from '../../../database/repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../database/entities/tasks/TaskComment'
-import { TaskActivityService } from './TaskActivityService'
-import { TaskActivities } from '../../../database/entities/tasks/TaskActivity'
+import { TaskActivities, TaskActivity } from '../../../database/entities/tasks/TaskActivity'
+import { TaskService } from './TaskService'
 
 export class TaskCommentService {
   private static instance: TaskCommentService
-  private activityService: TaskActivityService
+  private taskService: TaskService
 
   private constructor() {
-    this.activityService = TaskActivityService.getInstance()
+    this.taskService = TaskService.getInstance()
   }
 
   static getInstance() {
@@ -20,10 +18,6 @@ export class TaskCommentService {
     }
 
     return TaskCommentService.instance
-  }
-
-  getTaskRepository(): TaskRepository {
-    return getCustomRepository(TaskRepository)
   }
 
   getTaskCommentRepository(): TaskCommentRepository {
@@ -35,15 +29,10 @@ export class TaskCommentService {
   }
 
   async create(data: any): Promise<TaskComment> {
-    data.task = await this.getTaskRepository().findOneOrFail(data.taskId)
+    data.task = await this.taskService.getById(data.taskId)
 
     const taskComment = await this.getTaskCommentRepository().save(data)
-
-    await this.activityService.create({
-      userId: data.user.id,
-      taskId: taskComment.taskId,
-      content: TaskActivities.Comment_Created
-    })
+    await this.noteActivityForId(taskComment.taskId, TaskActivities.Comment_Created)
 
     return this.getTaskCommentRepository().reload(taskComment)
   }
@@ -59,15 +48,14 @@ export class TaskCommentService {
   }
 
   async delete(taskCommentId: number) {
-    const actor = httpRequestContext.get('user')
-    const taskComment = await this.getById(taskCommentId)
-
-    await this.activityService.create({
-      userId: actor.id,
-      taskId: taskComment.taskId,
-      content: TaskActivities.Comment_Deleted
-    })
-
+    await this.noteActivityForId(taskCommentId, TaskActivities.Comment_Deleted)
     return this.getTaskCommentRepository().delete({ id: taskCommentId })
+  }
+
+  async noteActivityForId(taskCommentId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
+    const taskComment = await this.getById(taskCommentId)
+    const task = await this.taskService.getById(taskComment.taskId)
+
+    return this.taskService.noteActivityForTask(task, taskActivity)
   }
 }

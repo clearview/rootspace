@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, UpdateResult } from 'typeorm'
 import httpRequestContext from 'http-request-context'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
@@ -9,7 +9,7 @@ import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 import { FollowService } from '../../FollowService'
 import { TaskActivityService } from './TaskActivityService'
-import { TaskActivities } from '../../../database/entities/tasks/TaskActivity'
+import { TaskActivities, TaskActivity } from '../../../database/entities/tasks/TaskActivity'
 
 export class TaskService {
   private userService: UserService
@@ -69,20 +69,13 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.activityService.create({
-      userId: task.userId,
-      taskId: task.id,
-      content: TaskActivities.Task_Created
-    })
-
+    await this.noteActivityForTask(task, TaskActivities.Task_Created)
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().reload(task)
   }
 
   async update(id: number, data: any): Promise<Task> {
-    const actor = httpRequestContext.get('user')
-
     let task = await this.getById(id)
     task = await this.getTaskRepository().save({
       ...task,
@@ -90,50 +83,31 @@ export class TaskService {
     })
 
     await this.assigneesUpdate(task, data)
-
-    await this.activityService.create({
-      userId: actor.id,
-      taskId: task.id,
-      content: TaskActivities.Task_Updated
-    })
+    await this.noteActivityForTask(task, TaskActivities.Task_Updated)
 
     return this.getTaskRepository().reload(task)
   }
 
-  async archive(taskId: number) {
-    const actor = httpRequestContext.get('user')
+  async archive(taskId: number): Promise<UpdateResult> {
+    const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
 
-    await this.activityService.create({
-      userId: actor.id,
-      taskId,
-      content: TaskActivities.Task_Archived
-    })
+    await this.noteActivityForTaskId(taskId, TaskActivities.Task_Archived)
 
-    return this.getTaskRepository().softDelete({id: taskId})
+    return archivedTask
   }
 
-  async restore(taskId: number) {
-    const actor = httpRequestContext.get('user')
+  async restore(taskId: number): Promise<UpdateResult> {
+    const restoredTask = this.getTaskRepository().restore({id: taskId})
+    await this.noteActivityForTaskId(taskId, TaskActivities.Task_Restored)
 
-    await this.activityService.create({
-      userId: actor.id,
-      taskId,
-      content: TaskActivities.Task_Restored
-    })
-
-    return this.getTaskRepository().restore({id: taskId})
+    return restoredTask
   }
 
   async remove(taskId: number) {
-    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneOrFail(taskId)
-    await this.followService.removeAllFromEntity(task)
 
-    await this.activityService.create({
-      userId: actor.id,
-      taskId,
-      content: TaskActivities.Task_Deleted
-    })
+    await this.followService.removeAllFromEntity(task)
+    await this.noteActivityForTask(task, TaskActivities.Task_Deleted)
 
     return this.getTaskRepository().remove(task)
   }
@@ -156,7 +130,6 @@ export class TaskService {
   }
 
   async assigneeAdd(taskId: number, userId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -166,12 +139,7 @@ export class TaskService {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-
-      await this.activityService.create({
-        userId: actor.id,
-        taskId: savedTask.id,
-        content: TaskActivities.Assignee_Added
-      })
+      await this.noteActivityForTask(savedTask, TaskActivities.Assignee_Added)
 
       await this.followService.follow(user, task)
     }
@@ -180,7 +148,6 @@ export class TaskService {
   }
 
   async assigneeRemove(taskId: number, userId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -191,18 +158,12 @@ export class TaskService {
     await this.followService.unfollow(user, task)
 
     const savedTask = await this.getTaskRepository().save(task)
-
-    await this.activityService.create({
-      userId: actor.id,
-      taskId: savedTask.id,
-      content: TaskActivities.Assignee_Removed
-    })
+    await this.noteActivityForTask(savedTask, TaskActivities.Assignee_Removed)
 
     return savedTask
   }
 
   async tagAdd(taskId: number, tagId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -213,12 +174,7 @@ export class TaskService {
 
       const savedTask = await this.getTaskRepository().save(task)
 
-      await this.activityService.create({
-        userId: actor.id,
-        taskId,
-        content: TaskActivities.Tag_Added
-      })
-
+      await this.noteActivityForTask(savedTask, TaskActivities.Tag_Added)
       return savedTask
     }
 
@@ -226,7 +182,6 @@ export class TaskService {
   }
 
   async tagRemove(taskId: number, tagId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -235,13 +190,24 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-
-    await this.activityService.create({
-      userId: actor.id,
-      taskId: savedTask.id,
-      content: TaskActivities.Tag_Removed
-    })
+    await this.noteActivityForTask(savedTask, TaskActivities.Tag_Removed)
 
     return savedTask
+  }
+
+  async noteActivityForTaskId(taskId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
+    const task = await this.getById(taskId)
+
+    return this.noteActivityForTask(task, taskActivity)
+  }
+
+  async noteActivityForTask(task: Task, taskActivity: TaskActivities): Promise<TaskActivity> {
+    const actor = httpRequestContext.get('user')
+
+    return this.activityService.create({
+      userId: actor.id,
+      taskId: task.id,
+      content: taskActivity
+    })
   }
 }
