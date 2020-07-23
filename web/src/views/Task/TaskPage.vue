@@ -85,8 +85,8 @@
       </div>
     </header>
     <main class="board">
-      <Ghost v-if="isFetching || !board" active></Ghost>
-      <BoardManager :can-drag="!isSearching" v-else :board="board"/>
+      <TaskGhost v-if="isFetching" active></TaskGhost>
+      <BoardManager :can-drag="!isSearching" v-if="!isFetching && board" :board="board"/>
     </main>
   </section>
 </template>
@@ -96,16 +96,16 @@ import Icon from '@/components/icon/Icon.vue'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
-import Ghost from '@/components/Ghost.vue'
 import Popover from '@/components/Popover.vue'
 import VSelect from 'vue-select'
 import SpaceService from '@/services/space'
 import Avatar from 'vue-avatar'
+import TaskGhost from '@/components/TaskGhost.vue'
 
 @Component({
   name: 'TaskPage',
   components: {
-    Ghost,
+    TaskGhost,
     BoardManager,
     Icon,
     Popover,
@@ -123,6 +123,7 @@ export default class TaskPage extends Vue {
   private boardCache: TaskBoardResource | null = null
   private memberList: Array<UserResource> = []
   private isSearching = false
+  private isFetching = false
 
   get activeSpace () {
     return this.$store.getters['space/activeSpace'] || {}
@@ -137,10 +138,6 @@ export default class TaskPage extends Vue {
 
   get tags (): TagResource[] | null {
     return this.$store.state.task.tag.data
-  }
-
-  get isFetching (): boolean {
-    return this.$store.state.task.board.isFetching
   }
 
   get board (): TaskBoardResource | null {
@@ -166,19 +163,18 @@ export default class TaskPage extends Vue {
   }
 
   async fetchTask () {
+    // Don't show ghost unless it took more than a 500ms to load
+    this.isFetching = true
     if (this.memberList.length === 0) {
       await this.getSpaceMember()
     }
     await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
     await this.$store.dispatch('task/tag/fetch', null)
-    if (this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0) {
-      this.isSearching = true
-    } else {
-      this.isSearching = false
-    }
+    this.isSearching = this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0
     if (this.board) {
       this.boardCache = this.board
     }
+    this.isFetching = false
   }
 
   async resetFilters () {
