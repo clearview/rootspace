@@ -186,7 +186,8 @@ export default class TaskPage extends Vue {
     this.search = ''
     this.filters = {
       tags: [],
-      assignees: []
+      assignees: [],
+      unassigned: false
     }
     await this.fetchTask()
   }
