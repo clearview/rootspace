@@ -8,7 +8,7 @@
       <div
         v-for="(item, key) in spaces"
         class="nav-menu-item"
-        :class="{ 'nav-menu-item--active': item.active }"
+        :class="{ 'nav-menu-item--active': key === spaceActiveIndex }"
         :key="key"
         @click="select(item)"
       >
@@ -73,8 +73,6 @@
 </template>
 
 <script lang="ts">
-import { omit, isEmpty } from 'lodash/fp'
-
 import { SpaceResource } from '@/types/resource'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
@@ -90,29 +88,31 @@ export default class NavigationSpace extends Vue {
     return this.$store.state.auth.user || {}
   }
 
-  get spaces () {
-    const current = this.$store.state.auth.currentSpace
-    const list = this.$store.state.auth.spaces
-
-    return !list || !current
-      ? []
-      : list.map((space: SpaceResource) => ({
-        ...space,
-        active: current.id === space.id
-      }))
+  get spaceActiveIndex () {
+    return this.$store.state.space.activeIndex
   }
 
-  select (data: object) {
-    this.$store.commit('auth/setCurrentSpace', omit('active', data))
+  get spaces () {
+    return this.$store.state.space.spaces
+  }
 
+  async select (space: SpaceResource) {
+    this.$store.commit('space/setActive', { space })
     this.$emit('input', null)
-    if (!isEmpty(this.$route.query)) {
-      this.$router.replace({ query: {} })
-    }
+
+    const { activePage } = this.$store.getters['space/activeSpaceMeta']
+
+    try {
+      await this.$router.push(activePage || '/')
+    } catch { }
   }
 
   signout () {
     this.$store.dispatch('auth/signout')
+  }
+
+  async created () {
+    await this.$store.dispatch('space/fetch')
   }
 }
 </script>

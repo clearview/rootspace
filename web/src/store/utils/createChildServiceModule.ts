@@ -32,13 +32,13 @@ export function createChildServiceModule<TResource extends ApiResource | Omit<Ap
     },
     actions: {
       async fetch (context, params: TParams): Promise<void> {
-        const currentSpace = context.rootState.auth.currentSpace
+        const activeSpace = context.rootGetters['space/activeSpace']
         const parentId = parentResolver(context.rootState)
 
         if (!parentId) {
           return
         }
-        if (!currentSpace) {
+        if (!activeSpace) {
           throw new Error('There is no currently active space')
         }
 

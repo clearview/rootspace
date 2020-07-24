@@ -10,7 +10,10 @@
     >
       <div
         class="tree-node-content"
-        :class="{ 'is-editable': editable }"
+        :class="{
+          'is-editable': editable,
+          'is-active': path.join('.') === activeSpaceMeta.activeNodePath,
+        }"
         @click="open({ node, path, tree })"
       >
         <div class="tree-node-handle">
@@ -41,7 +44,7 @@
           />
           <input
             v-show="isSelected(path)"
-            v-model.lazy="node.title"
+            v-model="node.title"
             @change="updateNode({ node, path, tree })"
             @keydown.esc="select(null)"
           />
@@ -121,7 +124,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
-import { LinkResource, NodeResource, TaskBoardResource } from '@/types/resource'
+import { LinkResource, NodeResource, TaskBoardResource, SpaceMetaResource } from '@/types/resource'
 
 import VModal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
@@ -213,6 +216,10 @@ export default class NavigationItem extends Vue {
     }
   }
 
+  get activeSpaceMeta (): SpaceMetaResource {
+    return this.$store.getters['space/activeSpaceMeta']
+  }
+
   hasChildren (link: LinkResource) {
     return link.children && link.children.length > 0
   }
@@ -238,21 +245,29 @@ export default class NavigationItem extends Vue {
       return
     }
 
-    this.$store.commit('tree/setActive', path.join(','))
+    const to = this.$router.resolve({
+      name: this.nodeTypeRouteMap[node.type],
+      params: {
+        id: node.contentId.toString()
+      }
+    })
 
-    const name = this.nodeTypeRouteMap[node.type]
-
-    if (!name) {
+    if (to.href === '/') {
       return
     }
 
     try {
-      await this.$router.push({
-        name,
-        params: {
-          id: node.contentId.toString()
+      this.$store.commit('space/updateMeta', {
+        index: this.$store.state.space.activeIndex,
+        meta: {
+          activePage: to.href,
+          activeNodePath: (node.type !== 'link')
+            ? path.join('.')
+            : this.activeSpaceMeta.activeNodePath
         }
       })
+
+      await this.$router.push(to.href)
     } catch { }
   }
 

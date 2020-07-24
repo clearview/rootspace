@@ -1,5 +1,5 @@
 <template>
-  <div class="task-lane" @dragstart="tryDrag" draggable>
+  <div class="task-lane" @dragstart="tryDrag" :draggable="!canDrag">
     <div class="list-input" v-show="isInputtingNewLane">
       <input ref="newInput" v-model="listCopy.title" placeholder="Enter a title for this list…"
              class="list-input-field"/>
@@ -134,8 +134,8 @@ export default class TaskLane extends Vue {
     }
 
     private tryDrag (e: DragEvent) {
-      e.preventDefault()
       if (!this.canDrag) {
+        e.preventDefault()
         if (!this.isDragBlocked) {
           this.isDragBlocked = true
           this.dragBlock.style.top = e.clientY - 5 + 'px'
@@ -240,7 +240,7 @@ export default class TaskLane extends Vue {
         title: '',
         slug: null,
         status: TaskItemStatus.Open,
-        position: getNextPosition(this.list.tasks.length)
+        position: getNextPosition(this.list.tasks ? this.list.tasks.length : 1, this.orderedCards && this.orderedCards.length > 0 ? this.orderedCards[this.orderedCards.length - 1].position : 0)
       }
       Vue.nextTick().then(() => {
         this.cardContainerRef.scrollTop = this.cardContainerRef.scrollHeight
@@ -280,7 +280,8 @@ export default class TaskLane extends Vue {
 
   .lane {
     @apply p-4 rounded;
-    background: rgba(theme("colors.gray.100"), 0.25);
+    /*To prevent transparency during drag and drop*/
+    background: rgba(247, 248,250, 1);
     display: flex;
     flex-direction: column;
     max-height: 100%;

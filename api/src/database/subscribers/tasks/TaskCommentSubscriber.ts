@@ -5,11 +5,11 @@ import {
   EventSubscriber,
   InsertEvent, UpdateEvent
 } from 'typeorm'
-import { TaskComment } from '../entities/tasks/TaskComment'
-import { NotificationService } from '../../services'
-import { EventAction, EventType, IEventProvider } from '../../services/events/EventType'
-import { FollowableInterface } from './FollowableInterface'
-import { User } from '../entities/User'
+import { TaskComment } from '../../entities/tasks/TaskComment'
+import { NotificationService } from '../../../services'
+import { EventAction, EventType, IEventProvider } from '../../../services/events/EventType'
+import { FollowableInterface } from '../FollowableInterface'
+import { User } from '../../entities/User'
 
 @EventSubscriber()
 export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComment>, FollowableInterface<TaskComment> {
@@ -40,7 +40,7 @@ export class TaskCommentSubscriber implements EntitySubscriberInterface<TaskComm
 
     // Dispatch Task event
     const event: IEventProvider = {
-      itemId: entity.task.id,
+      itemId: entity.taskId,
       actorId: actor.id,
       targetName: metaData?.targetName,
       tableName: 'tasks',

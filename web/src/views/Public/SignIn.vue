@@ -64,10 +64,6 @@ export default class SignIn extends Vue {
     private alert: any = null
     private redirectTo: any = null
 
-    get spaces () {
-      return this.$store.state.auth.spaces
-    }
-
     mounted () {
       this.redirectTo = this.$route.query ? this.$route.query : {}
       this.$store.commit('option/setRedirect', this.redirectTo)

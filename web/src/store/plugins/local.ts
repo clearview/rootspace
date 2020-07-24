@@ -12,7 +12,11 @@ const vuexSession = new VuexPersist<RootState>({
         spaces: state.auth.spaces,
         currentSpace: state.auth.currentSpace
       },
-      option: state.option
+      option: state.option,
+      space: state.space,
+      tree: {
+        folded: state.tree.folded
+      }
     }
   }
 })

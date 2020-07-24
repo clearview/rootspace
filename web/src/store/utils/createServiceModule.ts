@@ -9,6 +9,7 @@ export interface Hooks<TResource> {
   afterView?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterCreate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  beforeUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterDestroy?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
 }
 
@@ -42,9 +43,9 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
     },
     actions: {
       async fetch (context, params: TParams): Promise<void> {
-        const currentSpace = context.rootState.auth.currentSpace
+        const activeSpace = context.rootGetters['space/activeSpace']
 
-        if (!currentSpace) {
+        if (!activeSpace) {
           throw new Error('There is no currently active space')
         }
 
@@ -92,6 +93,9 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
       async update (context, data: TResource): Promise<TResource> {
         if (data.id === null) {
           throw new Error('Unable to update data without ID')
+        }
+        if (hooks && hooks.beforeUpdate) {
+          hooks.beforeUpdate(context, data)
         }
         context.commit('setProcessing', true)
         const res = await service.update(data.id, data)

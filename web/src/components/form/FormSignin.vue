@@ -12,7 +12,7 @@
         }"
         type="text"
         placeholder="Enter your email"
-        v-model.lazy.trim="$v.payload.email.$model"
+        v-model.trim="$v.payload.email.$model"
       />
       <v-icon
         class="icon is-right"
@@ -44,7 +44,7 @@
         class="input"
         type="password"
         placeholder="Enter your password"
-        v-model.lazy.trim="$v.payload.password.$model"
+        v-model.trim="$v.payload.password.$model"
       />
       <v-icon
         class="icon is-right"

@@ -57,7 +57,9 @@ export default class BoardManager extends Vue {
         animation: 50,
         group: 'lists',
         disabled: false,
-        ghostClass: 'ghost'
+        ghostClass: 'ghost',
+        forceFallback: true,
+        fallbackClass: 'lane-floating'
       }
     }
 
@@ -124,4 +126,7 @@ export default class BoardManager extends Vue {
     @apply flex flex-row overflow-x-scroll items-start;
   }
 
+  .lane-floating {
+    opacity: 1 !important;
+  }
 </style>

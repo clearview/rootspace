@@ -1,5 +1,5 @@
 <template>
-  <div class="task-card" @dragstart="tryDrag" draggable>
+  <div class="task-card" @dragstart="tryDrag" :draggable="!canDrag">
     <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
       <input ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…"
                 class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
@@ -115,6 +115,10 @@ export default class TaskCard extends Vue {
     private showModal = false
     private isDragBlocked = false
 
+    private get isProcessing () {
+      return this.$store.state.task.item.processing
+    }
+
     private get isInputtingNewCard () {
       return this.isInputting && this.itemCopy.id === null
     }
@@ -124,7 +128,7 @@ export default class TaskCard extends Vue {
     }
 
     private get canSave () {
-      return !this.$v.$invalid
+      return !this.$v.$invalid && !this.isProcessing
     }
 
     tryDrag (e: DragEvent) {
@@ -141,8 +145,10 @@ export default class TaskCard extends Vue {
       }
     }
 
-    @Emit('save')
     async save () {
+      if (this.isProcessing) {
+        return
+      }
       if (this.itemCopy.id === null) {
         await this.$store.dispatch('task/item/create', this.itemCopy)
       } else {
@@ -152,6 +158,7 @@ export default class TaskCard extends Vue {
         })
       }
       this.isInputting = false
+      this.$emit('save', this.itemCopy)
       return this.itemCopy
     }
 
