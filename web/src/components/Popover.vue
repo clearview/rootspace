@@ -1,5 +1,6 @@
 <template>
-  <div class="popover-container" v-click-outside="hide">
+  <div class="popover-container">
+    <div class="popover-cloak" v-if="visible" @click.self="hide"></div>
     <div class="popover" v-if="visible" :style="{ top }">
       <header class="popover-header" v-if="title || withClose">
         <div class="popover-title">
@@ -45,6 +46,11 @@ export default class Popover extends Vue {
 
 <style lang="postcss" scoped>
 
+  .popover-cloak {
+    @apply fixed top-0 left-0 w-full;
+    height: 100vh;
+    z-index: 49;
+  }
   .popover-header {
     @apply flex items-center p-4;
   }
