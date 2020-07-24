@@ -24,34 +24,51 @@
                   <v-select :reduce="(opt)=>opt.id" :options="tags" multiple  class="select grid filter-field-select"
                             placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
                     <template slot="option" slot-scope="option">
-                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
-                      {{ option.label }}
+                      <div class="tag-container">
+                        <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
+                          {{ option.label }}
+                        </div>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option}">
-                      <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
-                        <span>{{ option.label }}</span>
+                      <div class="tag-container">
+                        <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}" @click="removeTag(option)">
+                          <span>{{ option.label }}</span>
+                        </div>
                       </div>
                     </template>
                   </v-select>
                 </div>
                 <div class="filter-field" v-if="memberList">
                   <label class="filter-field-label">Filter by member</label>
-                  <v-select label="id" :filter-by="filterMember" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
+                  <v-select :disabled="filters.unassigned" label="id" :filter-by="filterMember" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
                             class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
                             @input="fetchTask">
                     <template slot="option" slot-scope="option">
                       <div class="member-option">
                         <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
-                        <span>{{ `${option.firstName}  ${option.lastName}`}}</span>
+                        <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
                       </div>
                     </template>
-                    <template #selected-option-container="{ option, deselect}">
-                      <div class="member-option-display">
-                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`" @click="deselect()"></avatar>
+                    <template #selected-option-container="{ option }">
+                      <div class="member-option-display" @click="removeMember(option)">
+                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                       </div>
                     </template>
                   </v-select>
+                </div>
+                <div class="filter-field">
+                  <v-field
+                    inline
+                    border
+                    label="Non assigned tasks"
+                    align="right"
+                    class="mb-0"
+                  >
+                    <button-switch v-model="filters.unassigned" @input="clearMembers" />
+                  </v-field>
                 </div>
                 <div class="filter-action">
                   <button class="btn btn-link" @click="resetFilters">Reset Filters</button>
@@ -101,6 +118,8 @@ import VSelect from 'vue-select'
 import SpaceService from '@/services/space'
 import Avatar from 'vue-avatar'
 import TaskGhost from '@/components/TaskGhost.vue'
+import VField from '@/components/Field.vue'
+import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
 @Component({
   name: 'TaskPage',
@@ -110,6 +129,8 @@ import TaskGhost from '@/components/TaskGhost.vue'
     Icon,
     Popover,
     VSelect,
+    VField,
+    ButtonSwitch,
     Avatar
   }
 })
@@ -117,7 +138,8 @@ export default class TaskPage extends Vue {
   private search = ''
   private filters = {
     tags: [],
-    assignees: []
+    assignees: [],
+    unassigned: false
   }
 
   private boardCache: TaskBoardResource | null = null
@@ -152,6 +174,13 @@ export default class TaskPage extends Vue {
     return parseInt(this.$route.params.id)
   }
 
+  async clearMembers (payload: boolean) {
+    if (payload) {
+      this.filters.assignees = []
+    }
+    await this.fetchTask()
+  }
+
   @Watch('boardId')
   async clearAndFetchTask () {
     this.search = ''
@@ -160,6 +189,18 @@ export default class TaskPage extends Vue {
       assignees: []
     }
     await this.fetchTask()
+  }
+
+  idExistsOn (array: number[], id: number) {
+    return array.findIndex(v => v === id) !== -1
+  }
+
+  removeTag (tag: TagResource) {
+    this.filters.tags = this.filters.tags.filter((t: number) => t !== tag.id)
+  }
+
+  removeMember (member: UserResource) {
+    this.filters.assignees = this.filters.assignees.filter((m: number) => m !== member.id)
   }
 
   async fetchTask () {
@@ -304,31 +345,53 @@ export default class TaskPage extends Vue {
       opacity: 0.3;
     }
   }
-  .tag-color {
-    @apply py-1 px-2 rounded flex items-center;
-    color: #fff;
-    text-transform: uppercase;
-    font-weight: bold;
-    span {
+  .tag-container{
+    @apply flex items-center;
+    .tag-color {
+      @apply py-1 px-2 rounded;
       flex: 1 1 auto;
+      color: #fff;
+      text-transform: uppercase;
+      font-weight: bold;
+      span {
+        flex: 1 1 auto;
+      }
+      .icon {
+        @apply ml-4;
+        cursor: pointer;
+        flex: 0 0 auto;
+        stroke: white;
+        opacity:0.75;
+        &:hover{
+          opacity: 1;
+        }
+      }
     }
-    .icon {
-      @apply ml-4;
-      cursor: pointer;
-      flex: 0 0 auto;
-      stroke: white;
+    .icon-checkmark {
+      @apply ml-2;
+      width: 32px;
     }
   }
 
   .member-option {
     @apply flex items-center;
-    span {
+    .member-option-name {
       @apply ml-2;
-      flex:1 1 auto;
+      flex: 1 1 auto;
+      font-weight: 600;
+      color: theme("colors.gray.800");
+      &.selected {
+        color: theme("colors.gray.900");
+      }
+    }
+    .icon-checkmark {
+      @apply ml-2;
+      width: 32px;
     }
   }
-  .member-option-display {
 
+  .member-option-display {
+    @apply relative z-50;
   }
 
   .search-notice{

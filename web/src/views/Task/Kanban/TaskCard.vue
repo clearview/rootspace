@@ -410,9 +410,9 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 24px !important;
-            height: 24px !important;
-            font: 7px / 10px Helvetica, Arial, sans-serif !important;
+            width: 32px !important;
+            height: 32px !important;
+            font: 12px Helvetica, Arial, sans-serif !important;
             float: left;
             border: 2px solid #FFF;
             margin-left: -5px;

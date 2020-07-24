@@ -57,12 +57,14 @@ import IconContextMenu from './IconContextMenu.vue'
 import IconShare from './IconShare.vue'
 import IconHistory from './IconHistory.vue'
 import IconShareGlobe from './IconShareGlobe.vue'
+import IconCheckmark from '@/components/icon/IconCheckmark.vue'
 
 @Component({
   name: 'Icon',
   components: {
     IconAdd,
     IconAttachment,
+    IconCheckmark,
     IconComment,
     IconClose,
     IconClose2,
