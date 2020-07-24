@@ -36,7 +36,10 @@ export class TaskRepository extends BaseRepository<Task> {
       })
     }
 
-    if (filterParam?.assignees?.length > 0) {
+    if(filterParam?.unassigned){
+      searchQuery.andWhere('assignee IS NULL')
+    }
+    else if (filterParam?.assignees?.length > 0) {
       searchQuery.andWhere('assignee.id IN (:...assignees)', {
         assignees: filterParam.assignees,
       })
