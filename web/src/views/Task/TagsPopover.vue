@@ -10,7 +10,7 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
+    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)" :class="{ 'py-6': filteredTags.length === 1}">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
       <div class="container-tag">
         <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"

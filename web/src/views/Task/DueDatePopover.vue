@@ -1,6 +1,6 @@
 <template>
   <Popover top="48px" title="Due Date">
-    <template>
+    <template v-slot:default="slotApi">
       <div class="duedate-calendar">
         <DatePicker
           v-model="date"
@@ -39,7 +39,7 @@
       </div>
       <div class="actions">
         <button class="btn btn-link" @click="clear">Clear</button>
-        <button class="btn btn-link-primary" @click="save()">Save</button>
+        <button class="btn btn-link-primary" @click="save(slotApi)">Save</button>
       </div>
     </template>
     <template v-slot:trigger>
@@ -67,7 +67,7 @@ import { mapState } from 'vuex'
       return String(value).padStart(2, '0')
     },
     formatDateDisplay (date: Date) {
-      return `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`
+      return date ? `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}` : ''
     }
   }
 })
@@ -87,13 +87,18 @@ export default class DueDatePopover extends Vue {
     }
 
     input () {
-      this.date.setHours(this.hour, this.minute, 0, 0)
+      if (this.date) {
+        this.date.setHours(this.hour, this.minute, 0, 0)
+      }
+
       return this.date
     }
 
     @Emit('input')
-    save () {
-      // slotApi.hide()
+    save (slotApi: any) {
+      if (slotApi.hide) {
+        slotApi.hide()
+      }
       return this.date
     }
 

@@ -45,15 +45,22 @@ export default class Popover extends Vue {
   private visible = false
 
   hide (event: Event) {
-    const srcElement = event.srcElement as HTMLInputElement
-    const textContent = srcElement.textContent ? srcElement.textContent.replace(/\s/g, '') : ''
+    if (event) {
+      const srcElement = event.srcElement as HTMLInputElement
+      const textContent = srcElement.textContent ? srcElement.textContent.replace(/\s/g, '') : ''
 
-    if (srcElement.id !== 'back-button' &&
-    textContent !== 'edit' &&
-    textContent !== 'trash') {
-      this.visible = false
-      this.$emit('hide', true)
+      if (srcElement.id !== 'back-button' &&
+      textContent !== 'edit' &&
+      textContent !== 'trash') {
+        this.visible = false
+        this.$emit('hide', true)
+      }
+
+      return
     }
+
+    this.visible = false
+    this.$emit('hide', true)
   }
 
   back () {
