@@ -32,8 +32,7 @@ export class TaskCommentService {
     data.task = await this.taskService.getById(data.taskId)
 
     const taskComment = await this.getTaskCommentRepository().save(data)
-    await this.noteActivityForId(taskComment.taskId, TaskActivities.Comment_Created)
-
+    await this.noteActivityForId(taskComment.id, TaskActivities.Comment_Created)
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
