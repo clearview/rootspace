@@ -73,13 +73,11 @@
             <span class="description-title-placeholder">Description</span>
             <v-icon name="edit"/>
           </div>
-          <div class="description-content" v-if="!isEditingDescription">
-            {{itemCopy.description}}
-          </div>
+          <div class="description-content" v-if="!isEditingDescription" v-html="itemCopy.description"></div>
           <div class="description-input" v-if="isEditingDescription">
-            <textarea
-              class="input input-description"
-              placeholder="Write a description…"
+            <quill-editor
+              ref="myQuillEditor"
+              :options="editorOption"
               v-model="itemCopy.description"
             />
             <div class="description-input-actions">
@@ -194,6 +192,12 @@ import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 import formatRelative from 'date-fns/formatRelative'
 
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+import { quillEditor } from 'vue-quill-editor'
+
 @Component({
   name: 'TaskModal',
   components: {
@@ -205,7 +209,8 @@ import formatRelative from 'date-fns/formatRelative'
     PopoverList,
     Modal,
     Field,
-    Avatar
+    Avatar,
+    quillEditor
   },
   filters: {
     formatDate (date: Date | string) {
@@ -234,6 +239,22 @@ export default class TaskModal extends Vue {
     private isUpdatingTitle = false
     private isEditingTitle = false
     private isCommenting = false
+    private toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+
+      [{ header: 1 }, { header: 2 }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ script: 'sub' }, { script: 'super' }]
+    ]
+
+    private editorOption = {
+      modules: {
+        toolbar: this.toolbarOptions
+      },
+      theme: 'snow',
+      placeholder: 'Write a description...'
+    }
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
