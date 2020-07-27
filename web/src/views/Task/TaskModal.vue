@@ -32,7 +32,7 @@
             class="btn btn-icon rounded-full"
             @click="close"
           >
-            <v-icon viewbox="20" size="1.5rem" name="close2"/>
+            <v-icon viewbox="20" size="1.5rem" name="close2" title="Close"/>
           </button>
         </div>
       </div>
@@ -50,7 +50,7 @@
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
             </button>
-            <TagsPopover @input="handleTagMenu">
+            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <v-icon name="tag" size="1rem" viewbox="20"/>
@@ -66,14 +66,6 @@
                 </button>
               </template>
             </DueDatePopover>
-            <MemberPopover @input="handleMemberMenu">
-              <template v-slot:trigger>
-                <button class="btn btn-mute">
-                  <v-icon name="plus2" size="1rem" viewbox="16"/>
-                  <span>Member</span>
-                </button>
-              </template>
-            </MemberPopover>
           </div>
         </div>
         <div class="task-description">
@@ -92,7 +84,7 @@
             />
             <div class="description-input-actions">
               <button class="btn btn-link" @click="isEditingDescription = false">
-                <v-icon name="close2" viewbox="20"/>
+                <v-icon name="close2" viewbox="20" title="Close"/>
               </button>
               <button class="btn btn-primary" @click="saveDescription">Save</button>
             </div>
@@ -118,10 +110,10 @@
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: opacityColor(tag.color), color: tag.color}"
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}"
                   @click="handleTagMenu(tag)">
                 <span>{{tag.label}}</span>
-                <v-icon name="close"/>
+                <v-icon name="close" title="Close"/>
               </li>
             </ul>
             <template v-else>
@@ -132,20 +124,30 @@
         <div class="right-field">
           <div class="right-field-title">Members</div>
           <div class="right-field-content">
-            <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
-              <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id"
-                  @click="handleMemberMenu(assignee)">
-                  <tippy :content="memberName(assignee)" arrow>
+            <div class="member-list">
+              <ul class="assignees">
+                <li class="addmember-button">
+                  <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
                     <template v-slot:trigger>
-                      <avatar :username="memberName(assignee)"></avatar>
-                      <v-icon name="close"/>
+                      <tippy content="Add Member" arrow>
+                        <template v-slot:trigger>
+                          <span>
+                            <v-icon name="plus2" size="1rem" viewbox="16"/>
+                          </span>
+                        </template>
+                      </tippy>
                     </template>
-                  </tippy>
-              </li>
-            </ul>
-            <template v-else>
-              None
-            </template>
+                  </MemberPopover>
+                </li>
+                <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id">
+                    <tippy :content="memberName(assignee)" arrow>
+                      <template v-slot:trigger>
+                        <avatar :username="memberName(assignee)"></avatar>
+                      </template>
+                    </tippy>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
         <div class="right-field">
@@ -381,8 +383,15 @@ export default class TaskModal extends Vue {
       }
     }
 
-    opacityColor (color: string) {
-      return `${color}33`
+    get colors () {
+      return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+    }
+
+    textColor (bgColor: string) {
+      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const getBgPosition = this.colors.indexOf(bgColor)
+
+      return textColor[getBgPosition]
     }
 }
 </script>
@@ -554,8 +563,7 @@ export default class TaskModal extends Vue {
     max-width: 200px;
   }
 
-  .tag,
-  .assignee {
+  .tag {
     @apply p-2 mr-2 rounded inline-flex items-center mb-2;
     color: #fff;
     cursor: pointer;
@@ -571,23 +579,45 @@ export default class TaskModal extends Vue {
     }
   }
 
-  .assignee {
-    margin: 0;
-    position: relative;
+  .addmember-button {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: rgba(216, 55, 80, 0.16);
+    color: theme("colors.primary.default");
+    border-radius: 32px;
+    padding: 7px 7px 7px 8px;
+    cursor: pointer;
+    margin-top: 3px;
+    margin-right: 10px;
 
-    .vue-avatar--wrapper {
-      width: 30px !important;
-      height: 30px !important;
-      font: 10px / 20px Helvetica, Arial, sans-serif !important;
+    div, span, svg {
+      &:focus {
+        outline: none;
+      }
     }
+  }
 
-    svg {
-      position: absolute;
-      background: theme("colors.gray.100");
-      color: theme("colors.gray.900");
-      top: 5px;
-      right: 5px;
-      border-radius: 10px;
+  .member-list {
+    @apply py-2;
+
+    display: inline-block;
+    width: 170px;
+  }
+
+  .assignees {
+    @apply flex flex-wrap justify-start;
+
+    li {
+      .vue-avatar--wrapper {
+        width: 35px !important;
+        height: 35px !important;
+        font: 14px / 24px theme("fontFamily.primary") !important;
+        float: left;
+        border: 2px solid #FFF;
+        margin-left: -7px;
+        letter-spacing: 0.03em;
+      }
     }
   }
 

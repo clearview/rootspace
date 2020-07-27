@@ -269,7 +269,6 @@ export default class Settings extends Vue {
       const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
 
       const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
-      console.log(concatSpaceUsers)
 
       const spaceTitle = this.activeSpace.title
       this.spaceData = {

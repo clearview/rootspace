@@ -25,7 +25,7 @@
                             placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
                     <template slot="option" slot-scope="option">
                       <div class="tag-container">
-                        <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}">
+                        <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}">
                           {{ option.label }}
                         </div>
                         <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
@@ -33,7 +33,7 @@
                     </template>
                     <template #selected-option-container="{ option}">
                       <div class="tag-container">
-                        <div class="tag-color" :style="{background: opacityColor(option.color), color: option.color}" @click="removeTag(option)">
+                        <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}" @click="removeTag(option)">
                           <span>{{ option.label }}</span>
                         </div>
                       </div>
@@ -234,8 +234,15 @@ export default class TaskPage extends Vue {
     this.fetchTask()
   }
 
-  opacityColor (color: string) {
-    return `${color}33`
+  get colors () {
+    return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+  }
+
+  textColor (bgColor: string) {
+    const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+    const getBgPosition = this.colors.indexOf(bgColor)
+
+    return textColor[getBgPosition]
   }
 }
 </script>

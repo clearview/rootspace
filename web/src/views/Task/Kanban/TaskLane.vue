@@ -5,7 +5,7 @@
              class="list-input-field"/>
       <div class="list-actions">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Add List</button>
       </div>
@@ -25,7 +25,7 @@
       </header>
       <div class="list-actions" v-if="isEditingLane">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>

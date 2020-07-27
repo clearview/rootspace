@@ -4,6 +4,7 @@ import { ResourceState, RootState } from '@/types/state'
 import api from '@/utils/api'
 import { ActionContext } from 'vuex'
 import { TagResource, TaskBoardResource } from '@/types/resource'
+import { merge, remove } from 'lodash'
 
 const tag = createChildServiceModule(TagService, (root: RootState) => root.task.board.current?.id, {
   afterCreate (context: ActionContext<ResourceState<TagResource>, RootState>, data: TagResource) {
@@ -59,6 +60,58 @@ if (tag.actions) {
           }
           return list
         })
+      }
+    }, { root: true })
+    return res
+  }
+  tag.actions.updateTag = async ({ state, commit }, params: { tagId: number; data: object }) => {
+    commit('setProcessing', true)
+    const res = await api.patch(`tasks/board/tags/${params.tagId}`, { data: params.data })
+    commit('setProcessing', false)
+
+    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks.map(task => {
+            if (task.tags) {
+              const findIndex = task.tags.findIndex(t => t.id === params.tagId)
+              task.tags[findIndex] = merge(task.tags[findIndex], params.data)
+            }
+
+            return tag
+          })
+          return list
+        })
+      }
+      if (state) {
+        const findIndex = state.data.findIndex(t => t.id === params.tagId)
+        state.data[findIndex] = merge(state.data[findIndex], params.data)
+      }
+    }, { root: true })
+    return res
+  }
+  tag.actions.deleteTag = async ({ state, commit }, params: { tagId: number }) => {
+    commit('setProcessing', true)
+    const res = await api.delete(`tasks/board/tags/${params.tagId}`)
+    commit('setProcessing', false)
+
+    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks.map(task => {
+            if (task.tags) {
+              const findIndex = task.tags.findIndex(t => t.id === params.tagId)
+              remove(task.tags, findIndex)
+            }
+
+            return tag
+          })
+          return list
+        })
+      }
+      if (state) {
+        const findIndex = state.data.findIndex(t => t.id === params.tagId)
+        remove(state.data, findIndex)
       }
     }, { root: true })
     return res
