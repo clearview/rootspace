@@ -241,6 +241,8 @@ export default class TaskModal extends Vue {
     private isCommenting = false
     private toolbarOptions = [
       ['bold', 'italic', 'underline', 'strike'],
+      ['link'],
+
       ['blockquote', 'code-block'],
 
       [{ header: 1 }, { header: 2 }],
@@ -542,7 +544,6 @@ export default class TaskModal extends Vue {
   .description-content {
     @apply my-2;
     font-size: 14px;
-    line-height: 1.2;
     white-space: pre-line;
     word-break: break-word;
   }
