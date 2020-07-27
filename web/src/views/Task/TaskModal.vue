@@ -73,13 +73,11 @@
             <span class="description-title-placeholder">Description</span>
             <v-icon name="edit"/>
           </div>
-          <div class="description-content" v-if="!isEditingDescription">
-            {{itemCopy.description}}
-          </div>
+          <div class="description-content" v-if="!isEditingDescription" v-html="itemCopy.description"></div>
           <div class="description-input" v-if="isEditingDescription">
-            <textarea
-              class="input input-description"
-              placeholder="Write a description…"
+            <quill-editor
+              ref="myQuillEditor"
+              :options="editorOption"
               v-model="itemCopy.description"
             />
             <div class="description-input-actions">
@@ -194,6 +192,12 @@ import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 import formatRelative from 'date-fns/formatRelative'
 
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
+import { quillEditor } from 'vue-quill-editor'
+
 @Component({
   name: 'TaskModal',
   components: {
@@ -205,7 +209,8 @@ import formatRelative from 'date-fns/formatRelative'
     PopoverList,
     Modal,
     Field,
-    Avatar
+    Avatar,
+    quillEditor
   },
   filters: {
     formatDate (date: Date | string) {
@@ -234,6 +239,22 @@ export default class TaskModal extends Vue {
     private isUpdatingTitle = false
     private isEditingTitle = false
     private isCommenting = false
+    private toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['link'],
+
+      ['blockquote', 'code-block'],
+
+      [{ list: 'ordered' }, { list: 'bullet' }]
+    ]
+
+    private editorOption = {
+      modules: {
+        toolbar: this.toolbarOptions
+      },
+      theme: 'snow',
+      placeholder: 'Write a description...'
+    }
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
@@ -437,6 +458,7 @@ export default class TaskModal extends Vue {
 
   .task-left {
     flex: 1 0 0;
+    width: 480px;
   }
 
   .task-right {
@@ -519,9 +541,8 @@ export default class TaskModal extends Vue {
 
   .description-content {
     @apply my-2;
-    font-size: 14px;
-    line-height: 1.2;
     white-space: pre-line;
+    word-break: break-word;
   }
 
   .comment-separator {
@@ -653,4 +674,56 @@ export default class TaskModal extends Vue {
     transition: none;
   }
 
+</style>
+
+<style>
+.ql-editor, .description-content {
+  line-height: 1.5rem;
+  font-size: 15px;
+}
+
+.ql-editor {
+  font-size: 15px;
+  min-height: 180px;
+  max-height: 650px;
+}
+
+.description-content {
+  a {
+    border-bottom: 1px dashed theme("colors.primary.default");
+  }
+
+  ol, ul {
+    padding-left: 1.5em;
+
+    li {
+      padding-left: 1.5em;
+
+      &::before {
+          margin-left: -1.5em;
+          margin-right: 0.3em;
+          text-align: right;
+      }
+    }
+  }
+
+  ol {
+    li {
+      counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+      counter-increment: list-0;
+
+      &::before {
+        content: counter(list-0, decimal) '. ';
+      }
+    }
+  }
+
+  ul {
+    li {
+      &::before {
+        content: '\2022';
+      }
+    }
+  }
+}
 </style>
