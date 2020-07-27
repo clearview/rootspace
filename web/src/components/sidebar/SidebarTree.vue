@@ -30,10 +30,10 @@
           }"
           @click.stop="toggleFold({ node, path, tree })"
         >
-          <v-icon name="down"/>
+          <v-icon name="down" />
         </div>
         <div class="tree-node-icon">
-          <v-icon :name="iconName[node.type]"/>
+          <v-icon :name="iconName[node.type]" />
         </div>
         <div class="tree-node-text">
           <span
@@ -124,7 +124,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node } from 'he-tree-vue'
 
 import { SpaceMetaResource, LinkResource, NodeResource, TaskBoardResource, SpaceResource } from '@/types/resource'
@@ -245,15 +245,17 @@ export default class SidebarTree extends Vue {
     }
 
     try {
-      this.$store.commit('space/updateMeta', {
-        index: this.$store.state.space.activeIndex,
-        meta: {
-          activePage: to.href,
-          activeNodePath: (node.type !== 'link')
-            ? path.join('.')
-            : this.activeSpaceMeta.activeNodePath
-        }
-      })
+      if (node.type !== 'link') {
+        this.$store.commit('space/updateMeta', {
+          index: this.$store.state.space.activeIndex,
+          meta: {
+            activePage: to.href,
+            activeNodePath: (node.type !== 'link')
+              ? path.join('.')
+              : this.activeSpaceMeta.activeNodePath
+          }
+        })
+      }
 
       await this.$router.push(to.href)
     } catch { }
@@ -334,6 +336,19 @@ export default class SidebarTree extends Vue {
         resolve(data)
       })
     })
+  }
+
+  @Watch('activeSpace')
+  async watchActiveSpace () {
+    try {
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    } catch { }
+  }
+
+  async created () {
+    try {
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    } catch { }
   }
 }
 </script>
