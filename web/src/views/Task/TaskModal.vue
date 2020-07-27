@@ -245,9 +245,7 @@ export default class TaskModal extends Vue {
 
       ['blockquote', 'code-block'],
 
-      [{ header: 1 }, { header: 2 }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ script: 'sub' }, { script: 'super' }]
+      [{ list: 'ordered' }, { list: 'bullet' }]
     ]
 
     private editorOption = {
@@ -543,7 +541,6 @@ export default class TaskModal extends Vue {
 
   .description-content {
     @apply my-2;
-    font-size: 14px;
     white-space: pre-line;
     word-break: break-word;
   }
@@ -677,4 +674,56 @@ export default class TaskModal extends Vue {
     transition: none;
   }
 
+</style>
+
+<style>
+.ql-editor, .description-content {
+  line-height: 1.5rem;
+  font-size: 15px;
+}
+
+.ql-editor {
+  font-size: 15px;
+  min-height: 180px;
+  max-height: 650px;
+}
+
+.description-content {
+  a {
+    border-bottom: 1px dashed theme("colors.primary.default");
+  }
+
+  ol, ul {
+    padding-left: 1.5em;
+
+    li {
+      padding-left: 1.5em;
+
+      &::before {
+          margin-left: -1.5em;
+          margin-right: 0.3em;
+          text-align: right;
+      }
+    }
+  }
+
+  ol {
+    li {
+      counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+      counter-increment: list-0;
+
+      &::before {
+        content: counter(list-0, decimal) '. ';
+      }
+    }
+  }
+
+  ul {
+    li {
+      &::before {
+        content: '\2022';
+      }
+    }
+  }
+}
 </style>
