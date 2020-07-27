@@ -458,6 +458,7 @@ export default class TaskModal extends Vue {
 
   .task-left {
     flex: 1 0 0;
+    width: 480px;
   }
 
   .task-right {
@@ -543,6 +544,7 @@ export default class TaskModal extends Vue {
     font-size: 14px;
     line-height: 1.2;
     white-space: pre-line;
+    word-break: break-word;
   }
 
   .comment-separator {
