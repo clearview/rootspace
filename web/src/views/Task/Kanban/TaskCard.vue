@@ -5,7 +5,7 @@
                 class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem"/>
+          <v-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
         <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
@@ -29,8 +29,8 @@
         <div class="footer" v-if="isHasFooter(item)">
           <div class="tags">
             <ul>
-              <li v-for="(tag, index) in item.tags" :key="index">
-                <div :style="{background: opacityColor(tag.color), color: tag.color}" class="tag">
+              <li v-for="(tag, index) in itemCopy.tags" :key="index">
+                <div :style="{background: tag.color, color: textColor(tag.color)}" class="tag">
                   {{ tag.label }}
                 </div>
               </li>
@@ -228,8 +228,15 @@ export default class TaskCard extends Vue {
       (itemCopy.assignees && itemCopy.assignees.length > 0)
     }
 
-    opacityColor (color: string) {
-      return `${color}33`
+    get colors () {
+      return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+    }
+
+    textColor (bgColor: string) {
+      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const getBgPosition = this.colors.indexOf(bgColor)
+
+      return textColor[getBgPosition]
     }
 
     @Watch('item')
@@ -410,12 +417,13 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 32px !important;
-            height: 32px !important;
-            font: 12px Helvetica, Arial, sans-serif !important;
+            width: 35px !important;
+            height: 35px !important;
+            font: 13px / 24px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
-            margin-left: -5px;
+            letter-spacing: 0.03em;
+            margin-left: -7px;
           }
         }
       }

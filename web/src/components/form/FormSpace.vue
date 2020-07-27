@@ -62,35 +62,35 @@
 
     <div class="list-invitation" v-if="payload.invites.length > 0 || invitationList.length > 0">
       <div
-        class="invitation flex items-center"
+        class="invitation flex"
         v-for="(list, indexList) in invitationList"
         :key="'l-' + indexList"
       >
-        <div class="flex-grow">
+        <div class="flex flex-grow">
           <avatar :username="list.email"></avatar>
-          <span class="text-gray-900 pl-2">{{ list.email }}</span>
-          <div class="float-right" v-if="list.accepted == false">
+          <span class="text-gray-900 pl-2 self-center flex-grow">{{ list.email }}</span>
+          <div class="float-right self-center" v-if="list.accepted == false">
 
             <span class="not-accepted">Not accepted</span>
             <span class="invite-again" @click="addInvitationList(list.email)">Invite again</span>
           </div>
         </div>
         <span class="close-icon" @click="deleteInvitation(indexList, list.email)">
-          <v-icon name="close" size=".9em" viewbox="32"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
         </span>
       </div>
 
       <div
-        class="invitation flex items-center"
+        class="invitation flex"
         v-for="(invitation, index) in payload.invites"
         :key="index"
       >
-        <div class="flex-grow">
+        <div class="flex flex-grow">
           <avatar :username="invitation"></avatar>
-          <span class="text-gray-900 pl-2">{{ invitation }}</span>
+          <span class="text-gray-900 pl-2 self-center flex-grow">{{ invitation }}</span>
         </div>
         <span class="close-icon" @click="deleteInvitation(index, invitation)">
-          <v-icon name="close" size=".9em" viewbox="32"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
         </span>
       </div>
     </div>
@@ -230,11 +230,12 @@ export default class FormSpace extends Vue {
       }
 
       .vue-avatar--wrapper {
-        width: 30px !important;
-        height: 30px !important;
-        font: 10px / 20px Helvetica, Arial, sans-serif !important;
-        margin-top: -5px;
+        width: 35px !important;
+        height: 35px !important;
+        font: 13px / 24px theme("fontFamily.primary") !important;
         float: left;
+        border: 2px solid #FFF;
+        letter-spacing: 0.03em;
       }
 
       .not-accepted {
@@ -253,7 +254,7 @@ export default class FormSpace extends Vue {
     }
 
     .close-icon {
-      @apply rounded-full bg-gray-100;
+      @apply rounded-full bg-gray-100 self-center;
       @apply invisible;
 
       /* transition: all .01s;

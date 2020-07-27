@@ -1,11 +1,13 @@
 <template>
-  <Popover top="48px">
-    <template #default="slotApi">
-      <div class="field">
-        <label class="field-label">
-          Due Date
-        </label>
-        <DatePicker v-model="date" @input="input" is-inline color="red"/>
+  <Popover top="48px" title="Due Date">
+    <template v-slot:default="slotApi">
+      <div class="duedate-calendar">
+        <DatePicker
+          v-model="date"
+          @input="input"
+          is-inline
+          color="red"
+          :first-day-of-week="2"/>
       </div>
       <div class="bottom-field">
         <div class="field">
@@ -65,7 +67,7 @@ import { mapState } from 'vuex'
       return String(value).padStart(2, '0')
     },
     formatDateDisplay (date: Date) {
-      return `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`
+      return date ? `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}` : ''
     }
   }
 })
@@ -85,13 +87,18 @@ export default class DueDatePopover extends Vue {
     }
 
     input () {
-      this.date.setHours(this.hour, this.minute, 0, 0)
+      if (this.date) {
+        this.date.setHours(this.hour, this.minute, 0, 0)
+      }
+
       return this.date
     }
 
     @Emit('input')
     save (slotApi: any) {
-      slotApi.hide()
+      if (slotApi.hide) {
+        slotApi.hide()
+      }
       return this.date
     }
 
@@ -127,6 +134,10 @@ export default class DueDatePopover extends Vue {
 
 <style lang="postcss" scoped>
 
+  .duedate-calendar {
+    @apply px-2;
+  }
+
   .field {
     @apply px-2;
     &:first-child{
@@ -139,7 +150,6 @@ export default class DueDatePopover extends Vue {
 
   .field-label{
     @apply mb-2 text-base;
-    font-weight: bold;
     color: theme("colors.gray.900")
   }
   .time-input {

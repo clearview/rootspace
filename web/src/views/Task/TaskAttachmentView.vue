@@ -8,7 +8,7 @@
       </div>
       <div class="attachment-close">
         <button class="btn btn-icon" @click.stop="remove(attachment)">
-          <v-icon name="close"/>
+          <v-icon name="close" title="Close"/>
         </button>
       </div>
       <div class="attachment-name">

@@ -54,7 +54,7 @@
       </div>
       <div v-if="isEditMode" class="comment-actions">
         <button class="btn btn-link" @click="exitEditMode">
-          <v-icon name="close2" viewbox="20"/>
+          <v-icon name="close2" viewbox="20" title="Close"/>
         </button>
         <button class="btn btn-primary" @click="updateComment">
           Save
