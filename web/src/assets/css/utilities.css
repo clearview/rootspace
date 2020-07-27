@@ -23,3 +23,7 @@
 
   color: theme("colors.primary.default");
 }
+
+a {
+  border-bottom: 1px dashed theme("colors.primary.default");
+}
