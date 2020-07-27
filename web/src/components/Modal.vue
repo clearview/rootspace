@@ -4,7 +4,7 @@
     v-if="visible"
   >
     <div class="modal" @click.self="cancel">
-      <div class="modal-inner">
+      <div class="modal-inner" :style="contentStyle">
         <slot
           name="header"
           v-if="!noheader"
@@ -78,6 +78,9 @@ export default class Modal extends Vue {
 
     @Prop({ type: Boolean })
     private readonly nosubmit!: boolean;
+
+    @Prop({ type: Object })
+    private readonly contentStyle!: object;
 
     @Emit('cancel')
     cancel () {

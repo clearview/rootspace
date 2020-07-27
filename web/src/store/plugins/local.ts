@@ -8,6 +8,7 @@ const vuexSession = new VuexPersist<RootState>({
   reducer (state) {
     return {
       nav: state.nav,
+      sidebar: state.sidebar,
       auth: {
         spaces: state.auth.spaces,
         currentSpace: state.auth.currentSpace

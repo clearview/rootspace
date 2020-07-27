@@ -17,6 +17,7 @@ import nav from '@/store/modules/nav'
 import option from '@/store/modules/option'
 import tree from '@/store/modules/tree'
 import space from '@/store/modules/space'
+import sidebar from '@/store/modules/sidebar'
 
 Vue.use(Vuex)
 
@@ -29,7 +30,8 @@ export default new Vuex.Store<RootState>({
     nav,
     option,
     tree,
-    space
+    space,
+    sidebar
   },
   plugins: [
     local.plugin,
