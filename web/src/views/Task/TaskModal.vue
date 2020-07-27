@@ -126,19 +126,19 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                <li class="addmember-button">
                   <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
                     <template v-slot:trigger>
                       <tippy content="Add Member" arrow>
                         <template v-slot:trigger>
-                          <span>
-                            <v-icon name="plus2" size="1rem" viewbox="16"/>
-                          </span>
+                          <li class="addmember-button">
+                            <span>
+                              <v-icon name="plus2" size="1rem" viewbox="16"/>
+                            </span>
+                          </li>
                         </template>
                       </tippy>
                     </template>
                   </MemberPopover>
-                </li>
                 <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id">
                     <tippy :content="memberName(assignee)" arrow>
                       <template v-slot:trigger>
@@ -589,7 +589,6 @@ export default class TaskModal extends Vue {
     padding: 7px 7px 7px 8px;
     cursor: pointer;
     margin-top: 3px;
-    margin-right: 10px;
 
     div, span, svg {
       &:focus {
@@ -609,6 +608,12 @@ export default class TaskModal extends Vue {
     @apply flex flex-wrap justify-start;
 
     li {
+      margin-left: 10px;
+
+      &.addmember-button {
+        margin-left: 0;
+      }
+
       .vue-avatar--wrapper {
         width: 35px !important;
         height: 35px !important;
