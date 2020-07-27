@@ -52,6 +52,9 @@ export class TaskList {
   @Column('double precision', { default: 0 })
   position: number
 
+  @Column('json', { default: {} })
+  settings: object
+
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
 
