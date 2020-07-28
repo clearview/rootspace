@@ -20,8 +20,11 @@ export class ActivityService {
     return ActivityService.instance
   }
 
-  async register(activityName: string, activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(activityName, activityEvent)
+  async register(activityEvent: ActivityEvent): Promise<Bull.Job> {
+    return this.queue.add(
+      `${activityEvent.entityTargetName} | ${activityEvent.action}`,
+      activityEvent.toObject()
+    )
   }
 
 }

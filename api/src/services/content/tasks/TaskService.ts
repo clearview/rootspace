@@ -8,7 +8,7 @@ import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 import { FollowService } from '../../FollowService'
-import { TaskActivities } from '../../../database/entities/activities/Task'
+import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
 import { ActivityService } from '../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
@@ -71,7 +71,7 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.registerActivityForTask(TaskActivities.Task_Created, task)
+    await this.registerActivityForTaskId(TaskActivities.Task_Created, task.id)
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().reload(task)
@@ -85,16 +85,14 @@ export class TaskService {
     })
 
     await this.assigneesUpdate(task, data)
-    await this.registerActivityForTask(TaskActivities.Task_Updated, task)
+    await this.registerActivityForTaskId(TaskActivities.Task_Updated, task.id)
 
     return this.getTaskRepository().reload(task)
   }
 
   async archive(taskId: number): Promise<UpdateResult> {
     const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
-
     await this.registerActivityForTaskId(TaskActivities.Task_Archived, taskId)
-
     return archivedTask
   }
 
@@ -141,9 +139,10 @@ export class TaskService {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.registerActivityForTask(TaskActivities.Assignee_Added, savedTask)
-
+      await this.registerActivityForTask(TaskActivities.Assignee_Added, task)
       await this.followService.follow(user, task)
+
+      return savedTask
     }
 
     return task
@@ -160,7 +159,7 @@ export class TaskService {
     await this.followService.unfollow(user, task)
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Assignee_Removed, savedTask)
+    await this.registerActivityForTask(TaskActivities.Assignee_Removed, task)
 
     return savedTask
   }
@@ -175,8 +174,8 @@ export class TaskService {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
+      await this.registerActivityForTask(TaskActivities.Tag_Added, task)
 
-      await this.registerActivityForTask(TaskActivities.Tag_Added, savedTask)
       return savedTask
     }
 
@@ -192,7 +191,7 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Tag_Removed, savedTask)
+    await this.registerActivityForTask(TaskActivities.Tag_Removed, task)
 
     return savedTask
   }
@@ -205,11 +204,12 @@ export class TaskService {
   async registerActivityForTask(taskActivity: TaskActivities, task: Task): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
-    const activityEvent = ActivityEvent
-      .withAction(TaskActivities.Task_Created)
+    return this.activityService.register(
+      ActivityEvent
+      .withAction(taskActivity)
       .fromUser(actor.id)
       .forEntity(task)
-
-    return this.activityService.register(TaskActivities.Task_Created, activityEvent)
+      .inSpace(task.spaceId)
+    )
   }
 }
