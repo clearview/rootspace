@@ -204,7 +204,7 @@ export class TaskService {
   async registerActivityForTask(taskActivity: TaskActivities, task: Task): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
-    return this.activityService.register(
+    return this.activityService.add(
       ActivityEvent
       .withAction(taskActivity)
       .fromUser(actor.id)

@@ -1,13 +1,17 @@
 import Bull, { Queue } from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
+import { TaskProcessor } from './processors/TaskProcessor'
 
 const QUEUE_NAME = 'Activities'
 
 export class ActivityService {
+  private redisConfig = { host: 'redis', port: 6379 }
   private queue: Queue
 
   private constructor() {
-    this.queue = new Bull(QUEUE_NAME, 'redis://redis:6379')
+    this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
+
+    this.addProcessors()
   }
 
   private static instance: ActivityService
@@ -20,11 +24,16 @@ export class ActivityService {
     return ActivityService.instance
   }
 
-  async register(activityEvent: ActivityEvent): Promise<Bull.Job> {
+  async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
     return this.queue.add(
-      `${activityEvent.entityTargetName} | ${activityEvent.action}`,
+      activityEvent.entityTargetName, // Match PROCESSOR
       activityEvent.toObject()
     )
   }
 
+  private addProcessors(): void {
+    this.queue.process('Task', async (job) => {
+      return TaskProcessor.process(job)
+    })
+  }
 }
