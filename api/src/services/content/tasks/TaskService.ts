@@ -207,7 +207,7 @@ export class TaskService {
     return this.activityService.add(
       ActivityEvent
       .withAction(taskActivity)
-      .fromUser(actor.id)
+      .fromActor(actor.id)
       .forEntity(task)
       .inSpace(task.spaceId)
     )

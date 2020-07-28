@@ -50,9 +50,8 @@ export class TaskCommentService {
   }
 
   async delete(taskCommentId: number): Promise<DeleteResult> {
-    const deleteResult = await this.getTaskCommentRepository().delete({ id: taskCommentId })
     await this.registerActivityForTaskCommentId(TaskActivities.Comment_Deleted, taskCommentId)
-    return deleteResult
+    return this.getTaskCommentRepository().delete({ id: taskCommentId })
   }
 
   async registerActivityForTaskCommentId(taskActivity: TaskActivities, taskCommentId: number): Promise<any> {

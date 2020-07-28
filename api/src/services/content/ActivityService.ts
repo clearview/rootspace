@@ -26,7 +26,7 @@ export class ActivityService {
 
   async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
     return this.queue.add(
-      activityEvent.entityTargetName, // Match PROCESSOR
+      activityEvent.targetName, // Match Queue name ('Doc', 'Task', etc.)
       activityEvent.toObject()
     )
   }

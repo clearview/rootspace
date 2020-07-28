@@ -4,9 +4,9 @@ export class ActivityEvent {
   private readonly _action: string
   private _actorId: number
   private _spaceId: number
-  private _entityId: number
-  private _entityTargetName: string
-  private _entityTableName: string
+  private _itemId: number
+  private _targetName: string
+  private _tableName: string
 
   private constructor(action: string) {
     this._action = action
@@ -16,15 +16,15 @@ export class ActivityEvent {
     return new ActivityEvent(action)
   }
 
-  fromUser(userId: number): ActivityEvent {
-    this._actorId = userId
+  fromActor(actorId: number): ActivityEvent {
+    this._actorId = actorId
     return this
   }
 
   forEntity(entity: any): ActivityEvent {
-    this._entityId = entity.id
-    this._entityTargetName = entity.constructor.name
-    this._entityTableName = getConnection().getMetadata(this._entityTargetName).tableName
+    this._itemId = entity.id
+    this._targetName = entity.constructor.name
+    this._tableName = getConnection().getMetadata(this._targetName).tableName
     return this
   }
 
@@ -45,26 +45,26 @@ export class ActivityEvent {
     return this._spaceId
   }
 
-  get entityId(): number {
-    return this._entityId
+  get itemId(): number {
+    return this._itemId
   }
 
-  get entityTargetName(): string {
-    return this._entityTargetName
+  get targetName(): string {
+    return this._targetName
   }
 
-  get entityTableName(): string {
-    return this._entityTableName
+  get tableName(): string {
+    return this._tableName
   }
 
   toObject(): object {
     return {
       action: this.action,
-      actorId: this.actorId,
+      actorId: this._actorId,
       spaceId: this.spaceId,
-      entityId: this.entityId,
-      entityTargetName: this.entityTargetName,
-      entityTableName: this.entityTableName,
+      itemId: this.itemId,
+      targetName: this.targetName,
+      tableName: this.tableName,
     }
   }
 }

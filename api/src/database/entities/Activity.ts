@@ -16,12 +16,12 @@ export class Activity {
   id: number
 
   @Column('integer')
-  userId: number
+  actorId: number
 
   @ManyToOne((type) => User, { eager: true })
-  @JoinColumn({ name: 'userId'})
+  @JoinColumn({ name: 'actorId'})
   @Index()
-  user!: User
+  actor!: User
 
   @Column('integer')
   spaceId: number

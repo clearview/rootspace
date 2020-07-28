@@ -16,7 +16,7 @@ export class CreateActivities1594850644900 implements MigrationInterface {
                       generationStrategy: 'increment',
                   },
                   {
-                      name: 'userId',
+                      name: 'actorId',
                       type: 'int',
                   },
                   {
@@ -46,7 +46,7 @@ export class CreateActivities1594850644900 implements MigrationInterface {
                       default: `'{}'`
                   },
                   {
-                      name: 'created',
+                      name: 'createdAt',
                       type: 'timestamp',
                       default: 'now()',
                   }
@@ -55,9 +55,9 @@ export class CreateActivities1594850644900 implements MigrationInterface {
           true
         )
 
-        await queryRunner.query(`CREATE INDEX "IDX_be77588a6727c9a27075b59115" ON "activities" ("userId") `)
+        await queryRunner.query(`CREATE INDEX "IDX_be77588a6727c9a27075b59115" ON "activities" ("actorId") `)
         await queryRunner.query(`CREATE INDEX "IDX_be77588a6727c9a27075b59125" ON "activities" ("spaceId") `)
-        await queryRunner.query(`ALTER TABLE "activities" ADD CONSTRAINT "FK_fbdba4e2ac694cf8c9dddf4dc85" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`)
+        await queryRunner.query(`ALTER TABLE "activities" ADD CONSTRAINT "FK_fbdba4e2ac694cf8c9dddf4dc85" FOREIGN KEY ("actorId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`)
         await queryRunner.query(`ALTER TABLE "activities" ADD CONSTRAINT "FK_fbdba4e2ac694cf8c9dddf4dc86" FOREIGN KEY ("spaceId") REFERENCES "spaces"("id") ON DELETE CASCADE ON UPDATE NO ACTION`)
     }
 
