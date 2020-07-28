@@ -98,6 +98,7 @@ export default class TagsPopover extends Vue {
     @apply p-2;
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
 
     &:hover {
       background: theme("colors.gray.100");

@@ -129,23 +129,15 @@
               <ul class="assignees">
                   <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
                     <template v-slot:trigger>
-                      <tippy content="Add Member" arrow>
-                        <template v-slot:trigger>
-                          <li class="addmember-button">
-                            <span>
-                              <v-icon name="plus2" size="1rem" viewbox="16"/>
-                            </span>
-                          </li>
-                        </template>
-                      </tippy>
+                      <li class="addmember-button" content="Add Member" v-tippy>
+                        <span>
+                          <v-icon name="plus2" size="1rem" viewbox="16"/>
+                        </span>
+                      </li>
                     </template>
                   </MemberPopover>
-                <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id">
-                    <tippy :content="memberName(assignee)" arrow>
-                      <template v-slot:trigger>
-                        <avatar :username="memberName(assignee)"></avatar>
-                      </template>
-                    </tippy>
+                <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id" :content="memberName(assignee)" v-tippy>
+                  <avatar :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>
@@ -688,7 +680,7 @@ export default class TaskModal extends Vue {
       margin-left: 10px;
 
       &.addmember-button {
-        margin-left: 0;
+        margin: 0;
       }
 
       .vue-avatar--wrapper {
@@ -795,6 +787,18 @@ export default class TaskModal extends Vue {
       &::before {
         content: '\2022';
       }
+    }
+  }
+}
+</style>
+
+<style lang="postcss">
+.assignees {
+  .popover-container {
+    margin-top: 2px;
+
+    .popover-trigger {
+      height: 32px;
     }
   }
 }

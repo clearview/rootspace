@@ -21,12 +21,8 @@
           <div class="title">
             {{item.title}}
           </div>
-          <div class="date" v-if="itemCopy.dueDate">
-            <tippy :content="formatDateReadable(itemCopy.dueDate)" arrow>
-              <template v-slot:trigger>
-                  {{ formatDate(itemCopy.dueDate) }}
-              </template>
-            </tippy>
+          <div class="date" v-if="itemCopy.dueDate" :content="formatDateReadable(itemCopy.dueDate)" v-tippy>
+            {{ formatDate(itemCopy.dueDate) }}
           </div>
         </div>
         <div class="footer" v-if="isHasFooter(item)">
@@ -38,32 +34,20 @@
                 </div>
               </li>
               <li v-if="item.attachments && item.attachments > 0">
-                <tippy content="Attachment(s)" arrow>
-                  <template v-slot:trigger>
-                    <span class="icon">
-                      <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false"/>
-                    </span>
-                  </template>
-                </tippy>
+                <span class="icon">
+                  <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false" content="Attachment(s)" v-tippy/>
+                </span>
               </li>
               <li v-if="item.taskComments.length > 0">
-                <tippy content="Comment(s)" arrow>
-                  <template v-slot:trigger>
-                    <span class="icon">
-                      <v-icon name="comment" viewbox="16" size="1rem" :withTitle="false"/>
-                    </span>
-                  </template>
-                </tippy>
+                <span class="icon">
+                  <v-icon name="comment" viewbox="16" size="1rem" :withTitle="false" content="Comment(s)" v-tippy/>
+                </span>
               </li>
             </ul>
           </div>
           <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
             <li v-for="(assignee, index) in item.assignees" :key="index" class="assignee">
-              <tippy :content="memberName(assignee)" arrow>
-                <template v-slot:trigger>
-                  <avatar :username="memberName(assignee)"></avatar>
-                </template>
-              </tippy>
+              <avatar :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
           </ul>
         </div>

@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Vuelidate from 'vuelidate'
 import PortalVue from 'portal-vue'
 import ClickOutside from 'vue-click-outside'
-import VueTippy, { TippyComponent } from 'vue-tippy'
+import { TippyComponent } from 'vue-tippy'
+import VueTippy from 'vue-tippy/dist/vue-tippy.esm'
 
 import App from './App.vue'
 import router from './router'
@@ -19,7 +20,14 @@ Vue.config.productionTip = false
 
 // Register plugins
 Vue.use(Vuelidate)
-Vue.use(VueTippy)
+Vue.use(VueTippy, {
+  placement: 'bottom',
+  arrow: true,
+  animation: 'perspective',
+  followCursor: true,
+  distance: 30,
+  a11y: false
+})
 Vue.use(PortalVue)
 
 // Register components
