@@ -99,12 +99,6 @@ export default class NavigationSpace extends Vue {
   async select (space: SpaceResource) {
     this.$store.commit('space/setActive', { space })
     this.$emit('input', null)
-
-    const { activePage } = this.$store.getters['space/activeSpaceMeta']
-
-    try {
-      await this.$router.push(activePage || '/')
-    } catch { }
   }
 
   signout () {

@@ -51,7 +51,9 @@ const SpaceModule: Module<SpaceState, RootState> = {
         (item) => item.id === space.id
       )
 
-      if (nextActiveIndex !== state.activeIndex) {
+      if (nextActiveIndex < 0) {
+        state.activeIndex = 0
+      } else {
         state.activeIndex = nextActiveIndex
       }
     },

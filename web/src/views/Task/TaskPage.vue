@@ -1,12 +1,18 @@
 <template>
   <section class="task-board">
-    <header class="header" v-if="board || boardCache">
+    <header
+      class="header"
+      v-if="board || boardCache"
+    >
       <h3 class="header-title">
         {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
       <div class="header-actions">
         <div class="action action-search">
-          <v-icon name="search" class="action-search-icon"/>
+          <v-icon
+            name="search"
+            class="action-search-icon"
+          />
           <input
             type="text"
             class="action-search-input"
@@ -19,7 +25,10 @@
           <Popover title="Filter" with-close position="bottom-end" :offset="16" :skid="16">
             <template #default>
               <div class="filters">
-                <div class="filter-field" v-if="tags">
+                <div
+                  class="filter-field"
+                  v-if="tags"
+                >
                   <label class="filter-field-label">Filter by tag</label>
                   <v-select :reduce="(opt)=>opt.id" :options="tags" multiple  class="select grid filter-field-select"
                             placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
@@ -40,7 +49,10 @@
                     </template>
                   </v-select>
                 </div>
-                <div class="filter-field" v-if="memberList">
+                <div
+                  class="filter-field"
+                  v-if="memberList"
+                >
                   <label class="filter-field-label">Filter by member</label>
                   <v-select :disabled="filters.unassigned" label="id" :filter-by="filterMember" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
                             class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
@@ -71,13 +83,23 @@
                   </v-field>
                 </div>
                 <div class="filter-action">
-                  <button class="btn btn-link" @click="resetFilters">Reset Filters</button>
+                  <button
+                    class="btn btn-link"
+                    @click="resetFilters"
+                  >Reset Filters</button>
                 </div>
               </div>
             </template>
             <template #trigger="{ visible }">
-              <div class="action-wrapper" :class="{'active': visible}">
-                <v-icon name="filter" class="action-filter-icon" size="1.5em"/>
+              <div
+                class="action-wrapper"
+                :class="{'active': visible}"
+              >
+                <v-icon
+                  name="filter"
+                  class="action-filter-icon"
+                  size="1.5em"
+                />
                 <div class="action-label">
                   Filter
                 </div>
@@ -110,7 +132,7 @@
 
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
 import BoardManager from '@/views/Task/BoardManager.vue'
 import Popover from '@/components/Popover.vue'
@@ -120,6 +142,8 @@ import Avatar from 'vue-avatar'
 import TaskGhost from '@/components/TaskGhost.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
+
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
   name: 'TaskPage',
@@ -134,7 +158,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
     Avatar
   }
 })
-export default class TaskPage extends Vue {
+export default class TaskPage extends Mixins(SpaceMixin) {
   private search = ''
   private filters = {
     tags: [],
@@ -146,10 +170,6 @@ export default class TaskPage extends Vue {
   private memberList: Array<UserResource> = []
   private isSearching = false
   private isFetching = false
-
-  get activeSpace () {
-    return this.$store.getters['space/activeSpace'] || {}
-  }
 
   async getSpaceMember () {
     const id = this.activeSpace.id
@@ -205,20 +225,26 @@ export default class TaskPage extends Vue {
   }
 
   async fetchTask () {
-    // Don't show ghost unless it took more than a 500ms to load
-    this.isFetching = true
-    if (this.memberList.length === 0) {
-      await this.getSpaceMember()
-    }
-    await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
-    await this.$store.dispatch('task/tag/fetch', null)
-    this.isSearching = this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0
-    if (this.board) {
-      this.boardCache = this.board
+    try {
+      if (this.memberList.length === 0) {
+        await this.getSpaceMember()
+      }
+      await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
+      await this.$store.dispatch('task/tag/fetch', null)
+      if (this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0) {
+        this.isSearching = true
+      } else {
+        this.isSearching = false
+      }
+      if (this.board) {
+        this.boardCache = this.board
 
-      this.$store.commit('space/setActive', {
-        space: { id: this.board.spaceId }
-      })
+        this.setActiveSpace(this.board.spaceId, {
+          activePage: this.$route.path
+        })
+      }
+    } catch (e) {
+      this.setActiveSpace(0)
     }
     this.isFetching = false
   }
@@ -252,110 +278,100 @@ export default class TaskPage extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-  .task-board {
-    @apply flex flex-col h-full;
-    flex: 1 0 auto;
-  }
+.task-board {
+  @apply flex flex-col h-full;
+  flex: 1 0 auto;
+}
 
-  .board {
-    flex: 1 0 auto;
-    height: 0;
-  }
+.board {
+  flex: 1 0 auto;
+  height: 0;
+}
 
-  .header {
-    @apply flex flex-row px-6 py-2 items-center;
-    background: #FFFFFF;
-    color: theme('colors.gray.900');
-    border-bottom: solid 1px theme("colors.gray.100");
-  }
+.header {
+  @apply flex flex-row px-6 py-2 items-center;
+  background: #ffffff;
+  color: theme("colors.gray.900");
+  border-bottom: solid 1px theme("colors.gray.100");
+}
 
-  .header-title {
-    @apply text-lg;
-    flex: 1 1 auto;
-  }
+.header-title {
+  @apply text-lg;
+  flex: 1 1 auto;
+}
 
-  .header-actions {
-    @apply flex flex-row items-center;
-    flex: 0 0 auto;
-  }
+.header-actions {
+  @apply flex flex-row items-center;
+  flex: 0 0 auto;
+}
 
-  .action {
-    @apply px-4;
-    border-right: solid 1px theme('colors.gray.100');
-  }
+.action {
+  @apply px-4;
+  border-right: solid 1px theme("colors.gray.100");
+}
 
-  .action-search {
-    @apply flex flex-row items-center;
-  }
+.action-search {
+  @apply flex flex-row items-center;
+}
 
-  .action-search-icon {
-    flex: 0 0 auto;
-  }
+.action-search-icon {
+  flex: 0 0 auto;
+}
 
-  .action-search-input {
-    @apply bg-transparent text-gray-400 px-2 py-2 outline-none w-auto;
-    border-bottom: solid 1px transparent;
-    flex: 1 1 auto;
-    width: 72px;
-    transition: all 0.3s ease;
+.action-search-input {
+  @apply bg-transparent text-gray-400 px-2 py-2 outline-none w-auto;
+  border-bottom: solid 1px transparent;
+  flex: 1 1 auto;
+  width: 72px;
+  transition: all 0.3s ease;
 
-    &:focus, &:hover, &:active {
-      border-bottom: solid 1px rgba(theme('colors.white.default'), 0.3);
-    }
-    &:focus {
-      width: 128px;
-    }
+  &:focus,
+  &:hover,
+  &:active {
+    border-bottom: solid 1px rgba(theme("colors.white.default"), 0.3);
   }
+  &:focus {
+    width: 128px;
+  }
+}
 
-  .action-filter {
-    @apply flex flex-row items-center py-2;
-  }
+.action-filter {
+  @apply flex flex-row items-center py-2;
+}
 
-  .action-type {
-    @apply flex flex-row items-center;
-  }
+.action-type {
+  @apply flex flex-row items-center;
+}
 
-  .icon-circle {
-    @apply rounded-full p-2;
-    color: transparent;
-    stroke: theme('colors.gray.900');
+.icon-circle {
+  @apply rounded-full p-2;
+  color: transparent;
+  stroke: theme("colors.gray.900");
 
-    &.active {
-      background: theme("colors.primary.default");
-    }
+  &.active {
+    background: theme("colors.primary.default");
   }
+}
 
-  .empty {
-    @apply m-4 p-4 rounded shadow text-center;
-    color: theme('colors.gray.800');
-    background: rgba(theme("colors.gray.100"),0.25);
+.empty {
+  @apply m-4 p-4 rounded shadow text-center;
+  color: theme("colors.gray.800");
+  background: rgba(theme("colors.gray.100"), 0.25);
+}
+.action-wrapper {
+  @apply flex items-center;
+  cursor: pointer;
+  font-weight: 600;
+  &.active {
+    color: theme("colors.primary.default");
   }
-  .action-wrapper {
-    @apply flex items-center;
-    cursor: pointer;
-    font-weight: 600;
-    &.active{
-      color: theme("colors.primary.default");
-    }
-  }
+}
 
-  .filter-field {
-    @apply m-4 mt-0;
-    color: theme('colors.gray.900');
-    & ~ & {
-      @apply mb-4;
-    }
-  }
-  .filters {
-    min-width:320px;
-  }
-  .filter-action {
-    text-align: right;
-    @apply m-4;
-    .btn {
-      @apply m-0 p-4 inline-block;
-      opacity: 0.3;
-    }
+.filter-field {
+  @apply m-4 mt-0;
+  color: theme("colors.gray.900");
+  & ~ & {
+    @apply mb-4;
   }
   .tag-container{
     @apply flex items-center;
@@ -405,11 +421,21 @@ export default class TaskPage extends Vue {
   .member-option-display {
     @apply relative;
   }
+}
 
-  .search-notice{
-    @apply mr-4 p-2 rounded;
-    background: theme("colors.danger.default");
-    color: white;
+.member-option {
+  @apply flex items-center;
+  span {
+    @apply ml-2;
+    flex: 1 1 auto;
   }
+}
+.member-option-display {
+}
 
+.search-notice {
+  @apply mr-4 p-2 rounded;
+  background: theme("colors.danger.default");
+  color: white;
+}
 </style>
