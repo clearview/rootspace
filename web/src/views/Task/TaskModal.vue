@@ -37,13 +37,16 @@
         </div>
       </div>
     </template>
-    <div class="task-modal-body">
+    <div class="task-modal-body" @dragenter="captureDragFile">
+      <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
+          Drop a file to upload as attachment
+      </div>
       <div class="task-left">
         <div class="task-actions">
           <div class="action-label">
             Add To Card
           </div>
-          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile">
+          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <div class="actions">
             <button class="btn btn-mute" @click="pickFile" :disabled="isUploading">
               <v-icon name="attachment" viewbox="20" size="1rem"/>
@@ -239,6 +242,7 @@ export default class TaskModal extends Vue {
     private isUpdatingTitle = false
     private isEditingTitle = false
     private isCommenting = false
+    private isCapturingFile = false
     private toolbarOptions = [
       ['bold', 'italic', 'underline', 'strike'],
       ['link'],
@@ -279,13 +283,18 @@ export default class TaskModal extends Vue {
     }
 
     async handleAttachFile () {
-      const file = this.attachmentFileRef.files?.item(0)
-      if (file) {
+      const files = this.attachmentFileRef.files
+      if (files) {
         this.isUploading = true
-        await this.$store.dispatch('task/item/upload', {
-          task: this.itemCopy,
-          file
-        })
+        for (let i = 0; i < files.length; i++) {
+          const file = files.item(i)
+          if (file) {
+            await this.$store.dispatch('task/item/upload', {
+              task: this.itemCopy,
+              file
+            })
+          }
+        }
         this.isUploading = false
       }
     }
@@ -414,6 +423,40 @@ export default class TaskModal extends Vue {
 
       return textColor[getBgPosition]
     }
+
+    captureDragFile () {
+      if (!this.isUploading) {
+        this.isCapturingFile = true
+      }
+    }
+
+    releaseDragFile () {
+      this.isCapturingFile = false
+    }
+
+    prepareDragFile (e: DragEvent) {
+      e.preventDefault()
+    }
+
+    async processDragFile (e: DragEvent) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.isCapturingFile = false
+      const files = e.dataTransfer?.files
+      if (files && files.length > 0) {
+        this.isUploading = true
+        for (let i = 0; i < files.length; i++) {
+          const file = files.item(i)
+          if (file) {
+            await this.$store.dispatch('task/item/upload', {
+              task: this.itemCopy,
+              file
+            })
+          }
+        }
+        this.isUploading = false
+      }
+    }
 }
 </script>
 
@@ -452,7 +495,7 @@ export default class TaskModal extends Vue {
   }
 
   .task-modal-body {
-    @apply flex items-start p-12 pb-8 pt-4;
+    @apply flex items-start p-12 pb-8 pt-4 relative;
     width: 820px;
   }
 
@@ -677,6 +720,17 @@ export default class TaskModal extends Vue {
   .input-description {
     height: 5rem;
     transition: none;
+  }
+
+  .task-drag-capture {
+    @apply z-50 absolute flex items-center justify-center text-3xl;
+    color: theme("colors.gray.900");
+    top: 0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background: #fff8;
+    backdrop-filter: saturate(1.5) blur(4px);
   }
 
 </style>
