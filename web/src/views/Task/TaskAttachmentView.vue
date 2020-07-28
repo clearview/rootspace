@@ -7,9 +7,6 @@
         <img src="../../assets/images/space.png" :alt="attachment.id">
       </div>
       <div class="attachment-close">
-        <button class="btn btn-icon" @click.stop="remove(attachment)">
-          <v-icon name="close" title="Close"/>
-        </button>
       </div>
       <div class="attachment-name">
         {{attachment.path | formatAttachmentName}}
@@ -104,5 +101,10 @@ export default class TaskAttachmentView extends Vue {
 
   .attachment-close .btn:hover {
     background: rgba(170, 177, 197, 1);
+  }
+
+  .btn-icon {
+    @apply p-1;
+    font-size: 12px;
   }
 </style>
