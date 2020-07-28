@@ -1,8 +1,10 @@
 {
   "queues": [
     {
-      "name": "tasks_queue",
+      "name": "Activities",
       "hostId": "Queue Server 1",
+      "type": "bull",
+      "prefix": "bull",
       "redis": {
         "host": "redis",
         "port": 6379

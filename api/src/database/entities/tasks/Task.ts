@@ -13,7 +13,6 @@ import { TaskComment } from './TaskComment'
 import { User } from '../User'
 import { Tag } from './Tag'
 import { Space } from '../Space'
-import { TaskActivity } from './TaskActivity'
 
 export enum TaskStatus {
   Open = 0,
@@ -90,7 +89,4 @@ export class Task {
   @ManyToMany(type => Tag, {eager: true, onDelete: 'CASCADE'})
   @JoinTable()
   tags: Tag[]
-
-  @OneToMany(type => TaskActivity, taskActivity => taskActivity.task, {eager: true, onDelete: 'CASCADE'})
-  taskActivities: TaskActivity[]
 }
