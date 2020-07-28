@@ -1,0 +1,12 @@
+{
+  "queues": [
+    {
+      "name": "tasks_queue",
+      "hostId": "Queue Server 1",
+      "redis": {
+        "host": "redis",
+        "port": 6379
+      }
+    }
+  ]
+}

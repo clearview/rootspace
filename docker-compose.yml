@@ -29,6 +29,23 @@ services:
         max-size: "100MB"
         max-file: "3"
 
+  redis:
+    image: redis:6
+    container_name: root_redis
+    networks:
+      - backend
+    volumes:
+      - redis:/data/
+    ports:
+      - "6379:6379"
+    entrypoint: redis-server --appendonly yes
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
   api:
     image: node:12
     container_name: root_api
@@ -49,6 +66,16 @@ services:
       options:
         max-size: "100MB"
         max-file: "3"
+
+  arena:
+    image: mixmaxhq/arena
+    container_name: root_arena
+    networks:
+      - backend
+    volumes:
+      - ./docker/arena/index.json:/opt/arena/src/server/config/index.json
+    ports:
+      - "4567:4567"
 
   web:
     image: node:12
@@ -102,3 +129,4 @@ networks:
 
 volumes:
   postgres:
+  redis:
