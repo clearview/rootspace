@@ -113,6 +113,7 @@ export class UserService {
     user.password = String(password)
     user.authProvider = 'local'
     user.active = true
+    user.emailConfirmed = data.emailConfirmed ? data.emailConfirmed : false
 
     user = await this.getUserRepository().save(user)
     delete user.password
