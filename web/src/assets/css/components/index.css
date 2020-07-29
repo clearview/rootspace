@@ -3,11 +3,11 @@
 @import './alert';
 @import './btn';
 @import './field';
-/* @import './form'; */
 @import './input';
 @import './modal';
 @import './nav';
 @import './select';
+@import './sidebar';
 @import './layout';
 @import './list';
 @import './tree';

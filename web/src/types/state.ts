@@ -25,7 +25,8 @@ export interface CollectionResourceState<T>{
 export interface RootState {
   auth: AuthState;
   link: LinkState;
-  nav: NavState;
+  nav: SidebarState;
+  sidebar: SidebarState;
   task: TaskState;
   option: OptionState;
   space: SpaceState;
@@ -72,7 +73,7 @@ export interface TaskItemState {
   current: TaskItemResource | null;
 }
 
-export interface NavState {
+export interface SidebarState {
   collapse: boolean;
   size: number;
 }

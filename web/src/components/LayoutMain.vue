@@ -1,8 +1,8 @@
 <template>
   <div class="layout">
-    <v-navigation
+    <sidebar
       class="pane-left"
-      :style="navStyle"
+      :style="sidebarStyle"
       :noanimate="resizing"
     />
     <div
@@ -20,16 +20,17 @@
 </template>
 
 <script lang="ts">
-import { throttle } from 'lodash'
-import VAlert from '@/components/Alert.vue'
-import VNavigation from '@/components/navigation/Navigation.vue'
 import { Component, Vue } from 'vue-property-decorator'
+import { throttle } from 'lodash'
+
+import VAlert from '@/components/Alert.vue'
+import Sidebar from '@/components/sidebar'
 
 @Component({
   name: 'LayoutMain',
   components: {
     VAlert,
-    VNavigation
+    Sidebar
   }
 })
 export default class LayoutMain extends Vue {
@@ -37,10 +38,10 @@ export default class LayoutMain extends Vue {
   private resizing = false
 
   get size () {
-    return this.$store.state.nav.size
+    return this.$store.state.sidebar.size
   }
 
-  get navStyle (): object {
+  get sidebarStyle (): object {
     return {
       width: `${this.size}px`
     }
@@ -74,7 +75,7 @@ export default class LayoutMain extends Vue {
   resize (e: MouseEvent) {
     e.preventDefault()
 
-    this.$store.commit('nav/setSize', e.pageX)
+    this.$store.commit('sidebar/setSize', e.pageX)
   }
 
   created () {
@@ -119,7 +120,7 @@ export default class LayoutMain extends Vue {
     width: 1px;
   }
 
-  .nav--collapse ~ & {
+  .sidebar--collapse ~ & {
     pointer-events: none;
   }
 }
