@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { UploadService } from '../services/UploadService'
 import { UploadValidator } from '../validation/upload'
 import { BaseCtrl } from './BaseCtrl'
