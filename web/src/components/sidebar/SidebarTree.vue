@@ -4,7 +4,7 @@
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      :value="tree.list"
+      :value="treeData"
       @drop="updateNode({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
@@ -12,9 +12,9 @@
         class="tree-node-content"
         :class="{
           'is-editable': !locked,
-          'is-active': path.join('.') === activeSpaceMeta.activeNodePath,
+          'is-active': getNodeURL({ node }) === $route.path,
         }"
-        @click="open({ node, path, tree })"
+        @click="open({ node })"
       >
         <div class="tree-node-handle">
           <v-icon
@@ -125,13 +125,20 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { Tree, Draggable, Fold, Node } from 'he-tree-vue'
+import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 
-import { SpaceMetaResource, LinkResource, NodeResource, TaskBoardResource, SpaceResource } from '@/types/resource'
+import {
+  SpaceMetaResource,
+  LinkResource,
+  NodeResource,
+  TaskBoardResource,
+  SpaceResource
+} from '@/types/resource'
 
 import Modal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import { TreeState } from '../../types/state'
 
 enum ModalType {
   UpdateLink = 'UpdateLink',
@@ -172,6 +179,7 @@ export default class SidebarTree extends Vue {
   private readonly locked!: boolean
 
   private selected: string | null = null
+  private treeData: NodeResource[] = []
 
   private modal: ModalState = {
     visible: false,
@@ -180,7 +188,7 @@ export default class SidebarTree extends Vue {
     data: null
   }
 
-  get tree () {
+  get treeState (): TreeState {
     return this.$store.state.tree
   }
 
@@ -208,6 +216,16 @@ export default class SidebarTree extends Vue {
     return this.$store.getters['space/activeSpaceMeta']
   }
 
+  fetchTreeData () {
+    const { list, folded } = this.treeState
+
+    walkTreeData(list, (node, index, parent, path) => {
+      node.$folded = folded[path.join('.')] === true
+    })
+
+    this.treeData = [...list]
+  }
+
   hasChildren (link: LinkResource) {
     return link.children && link.children.length > 0
   }
@@ -223,42 +241,38 @@ export default class SidebarTree extends Vue {
   toggleFold ({ node, path, tree }: NodeContext) {
     tree.toggleFold(node, path)
 
-    this.$emit('fold', {
+    this.$store.commit('tree/setFolded', {
       [path.join('.')]: node.$folded === true
     })
   }
 
-  async open ({ path, node }: NodeContext) {
-    if (!this.locked) {
-      return
-    }
-
-    const to = this.$router.resolve({
+  getNodeURL ({ node }: Pick<NodeContext, 'node'>) {
+    const { href } = this.$router.resolve({
       name: this.nodeTypeRouteMap[node.type],
       params: {
         id: node.contentId.toString()
       }
     })
 
-    if (to.href === '/') {
+    return href
+  }
+
+  async open ({ node }: Pick<NodeContext, 'node'>) {
+    const url = this.getNodeURL({ node })
+    if (!this.locked) {
       return
     }
 
-    try {
-      if (node.type !== 'link') {
-        this.$store.commit('space/updateMeta', {
-          index: this.$store.state.space.activeIndex,
-          meta: {
-            activePage: to.href,
-            activeNodePath: (node.type !== 'link')
-              ? path.join('.')
-              : this.activeSpaceMeta.activeNodePath
-          }
-        })
-      }
-
-      await this.$router.push(to.href)
-    } catch { }
+    if (node.type === 'link') {
+      await this.$router.push(url)
+    } else {
+      this.$store.commit('space/updateMeta', {
+        index: this.$store.state.space.activeIndex,
+        meta: {
+          activePage: url
+        }
+      })
+    }
   }
 
   async updateLink ({ node }: NodeContext) {
@@ -343,6 +357,12 @@ export default class SidebarTree extends Vue {
     try {
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
+  }
+
+  @Watch('treeState', { immediate: true, deep: true })
+  watchTreeData () {
+    console.log('fetchTreeData')
+    this.fetchTreeData()
   }
 
   async created () {

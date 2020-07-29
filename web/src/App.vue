@@ -20,7 +20,7 @@ export default Vue.extend({
         this.$router.push({ name: 'SignIn' })
       }
 
-      if (mutation.type === 'space/setActive' || mutation.type === 'space/updateMeta') {
+      if (mutation.type === 'space/updateMeta') {
         const { activePage } = this.$store.getters['space/activeSpaceMeta']
 
         try {

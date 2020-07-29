@@ -183,17 +183,6 @@ export default class SelectSpace extends Vue {
     this.modal.visible = false
   }
 
-  @Watch(('activeSpace'))
-  async watchActiveSpace () {
-    const { activePage } = this.$store.getters['space/activeSpaceMeta']
-
-    this.optionsVisible = false
-
-    try {
-      await this.$router.push(activePage || '/')
-    } catch { }
-  }
-
   async created () {
     await this.$store.dispatch('space/fetch')
   }
