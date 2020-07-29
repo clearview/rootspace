@@ -287,8 +287,6 @@ export default class NavigationItem extends Vue {
 
       const board = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
 
-      console.log(board)
-
       await this.$store.dispatch('task/board/update', {
         id: board.id,
         title: board.title,

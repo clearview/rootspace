@@ -16,7 +16,7 @@
           >
         </div>
         <div class="action action-filter">
-          <Popover title="Filter" with-close>
+          <Popover title="Filter" with-close position="bottom-end" :offset="16" :skid="16">
             <template #default>
               <div class="filters">
                 <div class="filter-field" v-if="tags">
@@ -399,7 +399,7 @@ export default class TaskPage extends Vue {
   }
 
   .member-option-display {
-    @apply relative z-50;
+    @apply relative;
   }
 
   .search-notice{
