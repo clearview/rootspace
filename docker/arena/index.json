@@ -1,8 +1,8 @@
 {
   "queues": [
     {
-      "name": "Activities",
-      "hostId": "Queue Server 1",
+      "name": "Activity",
+      "hostId": "Server 1",
       "type": "bull",
       "prefix": "bull",
       "redis": {

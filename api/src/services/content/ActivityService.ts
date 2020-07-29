@@ -1,8 +1,9 @@
 import Bull, { Queue } from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import { TaskProcessor } from './processors/TaskProcessor'
+import { ActivityRepository } from '../../database/repositories/ActivityRepository'
+import { getCustomRepository } from 'typeorm'
 
-const QUEUE_NAME = 'Activities'
+const QUEUE_NAME = 'Activity'
 
 export class ActivityService {
   private redisConfig = { host: 'redis', port: 6379 }
@@ -11,7 +12,9 @@ export class ActivityService {
   private constructor() {
     this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
 
-    this.addProcessors()
+    this.queue.process(QUEUE_NAME, async (job) => {
+      return getCustomRepository(ActivityRepository).save(job.data)
+    })
   }
 
   private static instance: ActivityService
@@ -25,15 +28,6 @@ export class ActivityService {
   }
 
   async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(
-      activityEvent.targetName, // Match Queue name ('Doc', 'Task', etc.)
-      activityEvent.toObject()
-    )
-  }
-
-  private addProcessors(): void {
-    this.queue.process('Task', async (job) => {
-      return TaskProcessor.process(job)
-    })
+    return this.queue.add(QUEUE_NAME, activityEvent.toObject())
   }
 }

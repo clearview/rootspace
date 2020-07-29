@@ -36,7 +36,7 @@ export class Activity {
   itemId: number
 
   @Column('varchar')
-  targetName: string
+  entity: string
 
   @Column('varchar')
   tableName: string

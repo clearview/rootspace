@@ -5,7 +5,7 @@ export class ActivityEvent {
   private _actorId: number
   private _spaceId: number
   private _itemId: number
-  private _targetName: string
+  private _entity: string
   private _tableName: string
 
   private constructor(action: string) {
@@ -23,8 +23,8 @@ export class ActivityEvent {
 
   forEntity(entity: any): ActivityEvent {
     this._itemId = entity.id
-    this._targetName = entity.constructor.name
-    this._tableName = getConnection().getMetadata(this._targetName).tableName
+    this._entity = entity.constructor.name
+    this._tableName = getConnection().getMetadata(this._entity).tableName
     return this
   }
 
@@ -49,8 +49,8 @@ export class ActivityEvent {
     return this._itemId
   }
 
-  get targetName(): string {
-    return this._targetName
+  get entity(): string {
+    return this._entity
   }
 
   get tableName(): string {
@@ -63,7 +63,7 @@ export class ActivityEvent {
       actorId: this._actorId,
       spaceId: this.spaceId,
       itemId: this.itemId,
-      targetName: this.targetName,
+      entity: this.entity,
       tableName: this.tableName,
     }
   }

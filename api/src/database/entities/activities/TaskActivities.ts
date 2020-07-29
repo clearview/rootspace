@@ -1,7 +1,7 @@
 export enum TaskActivities {
   Assignee_Added = 'Assignee_Added',
   Assignee_Removed = 'Assignee_Removed',
-  Attachment_Created = 'Attachment_Created',
+  Attachment_Uploaded = 'Attachment_Uploaded',
   Attachment_Deleted = 'Attachment_Deleted',
   Comment_Created = 'Comment_Created',
   Comment_Updated = 'Comment_Updated',

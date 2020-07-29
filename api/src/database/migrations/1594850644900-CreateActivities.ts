@@ -28,7 +28,7 @@ export class CreateActivities1594850644900 implements MigrationInterface {
                       type: 'int',
                   },
                   {
-                      name: 'targetName',
+                      name: 'entity',
                       type: 'varchar',
                   },
                   {
