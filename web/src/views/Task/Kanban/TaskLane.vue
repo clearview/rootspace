@@ -15,10 +15,10 @@
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
-        <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
+        <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu" v-if="!isEditingLane">
           <template slot="trigger">
             <button class="btn btn-icon bg-transparent" @click="cancel">
-              <v-icon v-if="!isEditingLane" name="ellipsis" size="1rem" class="header-icon" viewbox="20"/>
+              <v-icon  name="ellipsis" size="1rem" class="header-icon" viewbox="20"/>
             </button>
           </template>
         </PopoverList>
@@ -30,7 +30,7 @@
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
       <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
-      :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom}">
+      :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom, 'has-scroll': calculateLaneHasScroll()}">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"/>
         </Draggable>
@@ -147,6 +147,7 @@ export default class TaskLane extends Vue {
       }
     }
 
+    @Emit('drag:disable')
     private enterEditMode () {
       this.isInputting = true
       Vue.nextTick().then(() => {
@@ -211,6 +212,7 @@ export default class TaskLane extends Vue {
     }
 
     @Emit('cancel')
+    @Emit('drag:disable')
     cancel () {
       if (this.list) {
         this.listCopy = { ...this.list }
@@ -219,11 +221,13 @@ export default class TaskLane extends Vue {
       return true
     }
 
+    @Emit('drag:enable')
     clearNewItem () {
       this.newItem = null
       this.isInputtingNewItem = false
     }
 
+    @Emit('drag:disable')
     addCard () {
       this.isInputtingNewItem = true
       this.newItem = {
@@ -258,6 +262,13 @@ export default class TaskLane extends Vue {
     handleCardContainerScroll () {
       this.containerShadowTop = this.cardContainerRef.scrollTop > 0
       this.containerShadowBottom = this.cardContainerRef.scrollTop < (this.cardContainerRef.scrollHeight - this.cardContainerRef.offsetHeight)
+    }
+
+    calculateLaneHasScroll () {
+      if (this.cardContainerRef) {
+        return this.cardContainerRef.scrollHeight > this.cardContainerRef.clientHeight
+      }
+      return false
     }
 }
 </script>
@@ -296,7 +307,7 @@ export default class TaskLane extends Vue {
   }
 
   .header-title {
-    @apply text-base;
+    @apply text-base mr-2;
     font-weight: bold;
     color: theme("colors.gray.900");
     flex: 1 1 auto;
@@ -332,8 +343,25 @@ export default class TaskLane extends Vue {
 
   .cards {
     @apply py-2 relative;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
     overflow-y: auto;
+    &.has-scroll {
+      @apply pr-3;
+    }
   }
+
+  ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, .5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  }
+
   .card-input {
     @apply mt-4;
   }

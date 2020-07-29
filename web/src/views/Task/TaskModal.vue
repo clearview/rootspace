@@ -10,7 +10,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle">
+          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste">
             {{itemCopy.title}}
           </div>
           <div class="task-modal-subtitle">
@@ -399,17 +399,22 @@ export default class TaskModal extends Vue {
       return `${member.firstName} ${member.lastName}`
     }
 
-    async saveTitle () {
-      this.titleEditableRef.blur()
-      if (!this.isUpdatingTitle) {
-        this.isUpdatingTitle = true
-        this.itemCopy.title = this.titleEditableRef.innerText
-        await this.$store.dispatch('task/item/update', {
-          id: this.item.id,
-          title: this.itemCopy.title
-        })
-        this.isUpdatingTitle = false
-        this.isEditingTitle = false
+    async saveTitle (cancel = false) {
+      if (this.titleEditableRef.innerText.trim().length > 0) {
+        this.titleEditableRef.blur()
+        if (!this.isUpdatingTitle) {
+          this.isUpdatingTitle = true
+          this.itemCopy.title = this.titleEditableRef.innerText
+          await this.$store.dispatch('task/item/update', {
+            id: this.item.id,
+            title: this.itemCopy.title
+          })
+          this.isUpdatingTitle = false
+          this.isEditingTitle = false
+        }
+      } else if (cancel) {
+        this.titleEditableRef.innerText = this.itemCopy.title
+        this.titleEditableRef.blur()
       }
     }
 
@@ -455,6 +460,14 @@ export default class TaskModal extends Vue {
           }
         }
         this.isUploading = false
+      }
+    }
+
+    handlePaste (e: ClipboardEvent) {
+      e.preventDefault()
+      const data = e.clipboardData?.getData('text/plain')
+      if (data && this.titleEditableRef) {
+        document.execCommand('insertText', false, data)
       }
     }
 }

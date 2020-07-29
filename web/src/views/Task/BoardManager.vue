@@ -1,8 +1,8 @@
 <template>
   <div class="board-manager">
     <div v-if="isKanban" class="board-kanban">
-      <Draggable class="board-kanban-draggable" :disabled="!canDrag" v-bind="dragOptions" :value="orderedLanes" group="lists" @start="drag=true" @end="drag=false" @change="reorder">
-          <TaskLane :can-drag="canDrag" v-for="list in orderedLanes" :list="list" :key="list.id"></TaskLane>
+      <Draggable class="board-kanban-draggable" :disabled="!canDrag || !childDragEnable" v-bind="dragOptions" :value="orderedLanes" group="lists" @start="drag=true" @end="drag=false" @change="reorder">
+          <TaskLane :can-drag="canDrag" v-for="list in orderedLanes" :list="list" :key="list.id" @drag:enable="childDragEnable = true" @drag:disable="childDragEnable = false"></TaskLane>
       </Draggable>
       <TaskLane class="lane-input" default-inputting
                 v-if="isInputtingNewList"
@@ -43,6 +43,7 @@ export default class BoardManager extends Vue {
     private isInputtingNewList = false
     private newList: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> | null = null
     private drag = false
+    private childDragEnable = true
 
     get orderedLanes () {
       return [...this.board.taskLists].sort((a, b) => a.position - b.position)

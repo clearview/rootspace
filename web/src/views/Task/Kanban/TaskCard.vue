@@ -1,17 +1,20 @@
 <template>
   <div class="task-card" @dragstart="tryDrag" :draggable="!canDrag">
-    <div class="item-input" v-show="isInputtingNewCard || isEditingCard">
-      <input ref="textarea" v-model="itemCopy.title" placeholder="Enter a title for this card…"
-                class="item-textarea" @keyup.enter="save" @keyup.esc="cancel"/>
+    <div class="item-input-cloak" v-if="isInputtingNewCard" @click.self="cancel"></div>
+    <div class="item-input" v-show="isInputtingNewCard">
+      <div class="title-editable-placeholder" v-if="isShowingPlaceholder" @click="focusTitleEditable">
+        Enter a title for this card…
+      </div>
+      <div class="title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="save" @keyup="calculateShowPlaceholder"
+        @input="titleBackbone = $event.target.innerText" @paste="handlePaste">{{itemCopy.title}}</div>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
           <v-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
-        <button v-if="isEditingCard" class="btn btn-primary" @click="save" :disabled="!canSave">Save</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard && !isEditingCard" class="card" @click="openModal()">
+    <div v-if="!isInputtingNewCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="card-item">
         <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
@@ -89,9 +92,7 @@ import Avatar from 'vue-avatar'
     Avatar
   },
   validations: {
-    itemCopy: {
-      title: { required }
-    }
+    titleBackbone: { required }
   }
 })
 export default class TaskCard extends Vue {
@@ -104,8 +105,8 @@ export default class TaskCard extends Vue {
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
 
-    @Ref('textarea')
-    private readonly textarea!: HTMLTextAreaElement;
+    @Ref('titleEditable')
+    private readonly titleEditableRef!: HTMLDivElement;
 
     @Ref('dragBlock')
     private readonly dragBlock!: HTMLDivElement;
@@ -114,6 +115,8 @@ export default class TaskCard extends Vue {
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
     private isDragBlocked = false
+    private isShowingPlaceholder = true
+    private titleBackbone = ''
 
     private get isProcessing () {
       return this.$store.state.task.item.processing
@@ -121,10 +124,6 @@ export default class TaskCard extends Vue {
 
     private get isInputtingNewCard () {
       return this.isInputting && this.itemCopy.id === null
-    }
-
-    private get isEditingCard () {
-      return this.isInputting && this.itemCopy.id !== null
     }
 
     private get canSave () {
@@ -146,11 +145,12 @@ export default class TaskCard extends Vue {
     }
 
     async save () {
-      if (this.isProcessing) {
+      if (!this.canSave) {
         return
       }
       if (this.itemCopy.id === null) {
-        await this.$store.dispatch('task/item/create', this.itemCopy)
+        this.titleEditableRef.blur()
+        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim() })
       } else {
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
@@ -167,14 +167,6 @@ export default class TaskCard extends Vue {
       this.itemCopy = { ...this.item }
       this.isInputting = false
       return true
-    }
-
-    @Emit('edit')
-    edit () {
-      this.isInputting = true
-      Vue.nextTick().then(() => {
-        this.textarea.focus()
-      })
     }
 
     get board (): TaskBoardResource | null {
@@ -253,11 +245,41 @@ export default class TaskCard extends Vue {
         }
       }
     }
+
+    created () {
+      Vue.nextTick(() => {
+        if (this.isInputtingNewCard) {
+          this.focusTitleEditable()
+        }
+      })
+    }
+
+    focusTitleEditable () {
+      if (this.titleEditableRef) {
+        this.titleEditableRef.focus()
+      }
+    }
+
+    calculateShowPlaceholder () {
+      if (this.titleEditableRef) {
+        this.isShowingPlaceholder = this.titleEditableRef.innerText.trim().length <= 0
+      }
+    }
+
+    handlePaste (e: ClipboardEvent) {
+      e.preventDefault()
+      const data = e.clipboardData?.getData('text/plain')
+      if (data && this.titleEditableRef) {
+        document.execCommand('insertText', false, data)
+        this.titleBackbone = data
+      }
+    }
 }
 </script>
 
 <style lang="postcss" scoped>
   .task-card {
+    @apply relative;
     cursor: pointer;
     &.dragged {
       opacity: 0.5;
@@ -270,8 +292,17 @@ export default class TaskCard extends Vue {
     @apply mt-3
   }
 
+  .item-input-cloak {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100vh;
+    z-index: 50;
+  }
   .item-input {
-
+    @apply relative;
+    z-index: 51;
   }
 
   .btn-link {
@@ -302,17 +333,6 @@ export default class TaskCard extends Vue {
     @apply p-2 flex items-center rounded;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
-
-    &:hover .edit-link {
-      visibility: visible;
-      opacity: 1;
-    }
-  }
-  .edit-link {
-    transition: all 0.3s ease;
-    visibility: hidden;
-    opacity: 0;
-    cursor: pointer;
   }
 
   .color {
@@ -325,7 +345,9 @@ export default class TaskCard extends Vue {
   }
 
   .card-item {
-    @apply ml-2 text-base flex flex-1 flex-col;
+    @apply ml-2 text-base flex flex-col;
+    flex: 1 1 auto;
+    width: 0;
 
     font-weight: 500;
     color: theme("colors.gray.900");
@@ -361,8 +383,7 @@ export default class TaskCard extends Vue {
     .footer {
       /* @apply flex justify-between flex-1; */
       @apply block;
-
-      width: 240px;
+      width: 220px;
 
       .tags {
         @apply flex-1 flex justify-start;
@@ -443,6 +464,37 @@ export default class TaskCard extends Vue {
     }
     to {
       opacity: 0;
+    }
+  }
+
+  .title-editable-placeholder {
+    @apply absolute text-base;
+    user-select: none;
+    z-index: 1;
+    top: 10px;
+    left: 15px;
+    color: theme("colors.gray.400");
+    font-weight: 500;
+    opacity: 0.75;
+  }
+  .title-editable {
+    @apply p-2 px-3 flex text-base items-center rounded;
+    background: theme("colors.white.default");
+    outline: none;
+    font-weight: 500;
+    color: theme("colors.gray.900");
+    border: 1px solid theme("colors.gray.400");
+    white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+    word-break: break-all;
+    white-space: normal;
+    &:focus {
+      border: 1px solid rgba(47, 128, 237, 0.75);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(47, 128, 237, 0.25);
     }
   }
 
