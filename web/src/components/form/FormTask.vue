@@ -5,6 +5,7 @@
   >
     <v-field label="Board Name">
       <input
+        ref="initialInput"
         type="text"
         class="input"
         placeholder="E.g. Weekly Groceries"
@@ -106,7 +107,7 @@ import { TaskBoardResource, TaskBoardType } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 import { Optional } from '@/types/core'
 
 @Component({
@@ -140,6 +141,13 @@ export default class FormTask extends Vue {
 
   @Prop({ type: Number, default: 0 })
   private readonly space!: number;
+
+  @Ref('initialInput')
+  private readonly initialInputRef!: HTMLInputElement;
+
+  mounted () {
+    this.initialInputRef.focus()
+  }
 
   private payload: Optional<TaskBoardResource, 'createdAt' | 'updatedAt' | 'uuid' | 'userId'> = {
     id: this.value.id || null,

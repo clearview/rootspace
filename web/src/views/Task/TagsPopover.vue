@@ -42,7 +42,7 @@
         You have no tags, create one at Manage Tags
       </div>
     </div>
-    <div class="add-tag" v-if="['add', 'edit'].includes(tagsState)">
+    <div class="add-tag" v-show="['add', 'edit'].includes(tagsState)">
       <h4 class="tag-subtitle">Tag name</h4>
       <input
         ref="input"
@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue, Prop } from 'vue-property-decorator'
+import { Component, Emit, Vue, Prop, Ref } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
 
@@ -104,6 +104,9 @@ import { TagResource } from '@/types/resource'
 export default class TagsPopover extends Vue {
   @Prop({ type: Array, required: true })
   private readonly selectedTags!: TagResource[];
+
+  @Ref('input')
+  private readonly inputRef!: HTMLInputElement;
 
   private tagInput = ''
   private idEditedTag: number | null = null
@@ -169,6 +172,9 @@ export default class TagsPopover extends Vue {
     this.tagsTitle = 'Add Tag'
     this.saveButtonText = 'Add Tag'
     this.tagsState = 'add'
+    Vue.nextTick(() => {
+      this.inputRef.focus()
+    })
   }
 
   editTagButton (tagVal: TagResource) {
@@ -180,6 +186,9 @@ export default class TagsPopover extends Vue {
     this.colorInput = tagVal.color
     this.tagInput = tagVal.label
     this.idEditedTag = tagVal.id
+    Vue.nextTick(() => {
+      this.inputRef.focus()
+    })
   }
 
   async deleteTagButton (tagVal: TagResource) {

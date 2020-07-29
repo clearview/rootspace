@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import config from '@/utils/config'
-import { Vue, Component, Ref, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Ref, Watch, Mixins } from 'vue-property-decorator'
 
 import { DocumentResource } from '@/types/resource'
 
