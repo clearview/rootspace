@@ -44,6 +44,9 @@ export class Activity {
   @Column('varchar')
   action: string
 
+  @Column('json', { default: '{}' })
+  data: object
+
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
 }
