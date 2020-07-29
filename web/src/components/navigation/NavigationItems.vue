@@ -12,9 +12,9 @@
         class="tree-node-content"
         :class="{
           'is-editable': editable,
-          'is-active': path.join('.') === activeSpaceMeta.activeNodePath,
+          'is-active': getNodeURL({ node }) === activeSpaceMeta.activePage,
         }"
-        @click="open({ node, path, tree })"
+        @click="open({ node })"
       >
         <div class="tree-node-handle">
           <v-icon
@@ -240,35 +240,33 @@ export default class NavigationItem extends Vue {
     })
   }
 
-  async open ({ path, node }: NodeContext) {
-    if (this.editable) {
-      return
-    }
-
-    const to = this.$router.resolve({
+  getNodeURL ({ node }: Pick<NodeContext, 'node'>) {
+    const { href } = this.$router.resolve({
       name: this.nodeTypeRouteMap[node.type],
       params: {
         id: node.contentId.toString()
       }
     })
 
-    if (to.href === '/') {
+    return href
+  }
+
+  async open ({ node }: Pick<NodeContext, 'node'>) {
+    const url = this.getNodeURL({ node })
+    if (this.editable) {
       return
     }
 
-    try {
+    if (node.type === 'link') {
+      await this.$router.push(url)
+    } else {
       this.$store.commit('space/updateMeta', {
         index: this.$store.state.space.activeIndex,
         meta: {
-          activePage: to.href,
-          activeNodePath: (node.type !== 'link')
-            ? path.join('.')
-            : this.activeSpaceMeta.activeNodePath
+          activePage: url
         }
       })
-
-      await this.$router.push(to.href)
-    } catch { }
+    }
   }
 
   async updateLink ({ node }: NodeContext) {

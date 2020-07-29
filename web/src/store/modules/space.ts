@@ -47,9 +47,15 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
   mutations: {
     setActive (state, { space }: SpacePayload) {
-      state.activeIndex = state.spaces.findIndex(
+      const nextActiveIndex = state.spaces.findIndex(
         (item) => item.id === space.id
       )
+
+      if (nextActiveIndex < 0) {
+        state.activeIndex = 0
+      } else {
+        state.activeIndex = nextActiveIndex
+      }
     },
 
     setSpaces (state, { spaces }: SpaceCollectionPayload) {

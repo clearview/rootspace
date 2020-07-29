@@ -46,8 +46,9 @@
 
 <script lang="ts">
 import config from '@/utils/config'
+import { Vue, Component, Ref, Watch, Mixins } from 'vue-property-decorator'
 
-import { DocumentResource, SpaceResource } from '@/types/resource'
+import { DocumentResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
@@ -56,7 +57,7 @@ import EditorMenu from '@/components/editor/EditorMenu.vue'
 import EditorReadonly from '@/components/editor/ReadOnly.vue'
 import VModal from '@/components/Modal.vue'
 
-import { Component, Ref, Watch, Vue } from 'vue-property-decorator'
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
   name: 'Document',
@@ -68,7 +69,7 @@ import { Component, Ref, Watch, Vue } from 'vue-property-decorator'
   }
 })
 
-export default class Document extends Vue {
+export default class Document extends Mixins(SpaceMixin) {
   private value: any = {}
   private title = ''
   private timer?: any = undefined
@@ -81,10 +82,6 @@ export default class Document extends Vue {
     loading: false,
     id: null,
     alert: null
-  }
-
-  get activeSpace (): SpaceResource {
-    return this.$store.getters['space/activeSpace']
   }
 
   get id (): number {
@@ -104,13 +101,6 @@ export default class Document extends Vue {
 
     this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     this.textareaResize()
-  }
-
-  @Watch('activeSpace')
-  onSpaceChange (val: SpaceResource, oldVal: SpaceResource) {
-    if (val.id !== oldVal.id) {
-      this.$router.push({ name: 'Main' })
-    }
   }
 
   @Watch('id', { immediate: true })
@@ -159,6 +149,10 @@ export default class Document extends Vue {
         this.title = viewDoc.data.title
         this.value = viewDoc.data.content
         this.readOnly = viewDoc.data.isLocked
+
+        this.setActiveSpace(viewDoc.data.spaceId, {
+          activePage: this.$route.path
+        })
       } catch (e) {
         this.$router.replace({ name: 'Document' })
       }
