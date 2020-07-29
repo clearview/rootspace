@@ -5,16 +5,16 @@
       @click="toggleOptionsVisibility"
     >
       <div class="flex flex-row items-center truncate">
-        <avatar
-          :username="activeSpace.title"
-          :rounded="false"
-          :size="32"
-          :customStyle="{
-            borderRadius: '.25rem',
-            marginRight: '.5rem',
-            opacity: .75
-          }"
-        />
+        <div class="mr-2">
+          <img
+            srcset="
+              @/assets/images/space.png 1x,
+              @/assets/images/space@2x.png 2x
+            "
+            src="@/assets/images/space.png"
+            alt="Space"
+          >
+        </div>
         <span class="truncate">{{ activeSpace.title }}</span>
       </div>
       <v-icon
