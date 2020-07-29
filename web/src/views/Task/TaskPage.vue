@@ -171,6 +171,7 @@ export default class TaskPage extends Mixins(SpaceMixin) {
   private isSearching = false
   private isFetching = false
 
+  @Watch('boardId')
   async getSpaceMember () {
     const id = this.activeSpace.id
     const viewUserAtSpace = await SpaceService.spaceUsers(id)
@@ -226,9 +227,6 @@ export default class TaskPage extends Mixins(SpaceMixin) {
 
   async fetchTask () {
     try {
-      if (this.memberList.length === 0) {
-        await this.getSpaceMember()
-      }
       await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
       await this.$store.dispatch('task/tag/fetch', null)
       if (this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0) {
@@ -260,8 +258,9 @@ export default class TaskPage extends Mixins(SpaceMixin) {
     return rx.test(option.firstName) || rx.test(option.lastName)
   }
 
-  mounted (): void {
-    this.fetchTask()
+  async mounted () {
+    await this.getSpaceMember()
+    await this.fetchTask()
   }
 
   get colors () {
