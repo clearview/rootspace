@@ -11,12 +11,13 @@
       class="w-full ml-2 outline-none bg-transparent"
       v-model="payload"
       @keyup="submit"
+      ref="input"
     >
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'InputIcon'
@@ -31,10 +32,17 @@ export default class InputIcon extends Vue {
     @Prop({ type: String, default: 'search' })
     private readonly icon?: string;
 
+    @Ref('input')
+    private readonly inputRef!: HTMLInputElement;
+
     private payload: string = this.value || ''
 
     submit (): void {
       this.$emit('input', this.payload)
+    }
+
+    mounted () {
+      this.inputRef.focus()
     }
 }
 </script>

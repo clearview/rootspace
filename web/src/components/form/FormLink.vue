@@ -8,6 +8,7 @@
       label="Title"
     >
       <input
+        ref="initialInput"
         type="text"
         class="input"
         placeholder="Enter title"
@@ -55,7 +56,7 @@ import { LinkResource } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
-import { Component, Prop } from 'vue-property-decorator'
+import { Component, Prop, Ref } from 'vue-property-decorator'
 
 @Component({
   name: 'FormLink',
@@ -79,6 +80,13 @@ export default class FormLink extends Vue {
 
   @Prop({ type: Boolean })
   private readonly notitle!: boolean;
+
+  @Ref('initialInput')
+  private readonly initialInputRef!: HTMLInputElement;
+
+  mounted () {
+    this.initialInputRef.focus()
+  }
 
   private payload: Omit<LinkResource, 'children'> = {
     id: this.value.id || undefined,

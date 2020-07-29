@@ -6,6 +6,7 @@
       <input
         class="input"
         id="spacename"
+        ref="initialInput"
         type="text"
         placeholder="My Space"
         v-model.trim="$v.payload.title.$model"
@@ -109,7 +110,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { email, required } from 'vuelidate/lib/validators'
 
 import { find } from 'lodash'
@@ -158,6 +159,13 @@ export default class FormSpace extends Vue {
     private invitation = '';
     private duplicateMessage = '';
     private invitationList = [];
+
+    @Ref('initialInput')
+    private readonly initialInputRef!: HTMLInputElement;
+
+    mounted () {
+      this.initialInputRef.focus()
+    }
 
     @Watch('value')
     watchValue (newVal: any) {

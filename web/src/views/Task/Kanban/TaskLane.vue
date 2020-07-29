@@ -2,6 +2,8 @@
   <div class="task-lane" @dragstart="tryDrag" :draggable="!canDrag">
     <div class="list-input" v-show="isInputtingNewLane">
       <input ref="newInput" v-model="listCopy.title" placeholder="Enter a title for this list…"
+             @keyup.enter="save"
+             @keyup.esc="cancel"
              class="list-input-field"/>
       <div class="list-actions">
         <button class="btn btn-link" @click="cancel">
@@ -209,6 +211,14 @@ export default class TaskLane extends Vue {
       }
       this.isInputting = false
       return this.listCopy
+    }
+
+    created () {
+      Vue.nextTick(() => {
+        if (this.isInputtingNewLane) {
+          this.newInput.focus()
+        }
+      })
     }
 
     @Emit('cancel')
