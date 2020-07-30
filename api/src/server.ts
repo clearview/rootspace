@@ -12,7 +12,7 @@ import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { Ability } from '@casl/ability'
 import { NotificationListener } from './services'
-import {ActivityService} from "./services/content/ActivityService";
+import { ActivityService } from './services/content/ActivityService'
 
 declare global {
   namespace Express {

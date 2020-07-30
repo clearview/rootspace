@@ -19,6 +19,11 @@ export class Queue {
     await db()
 
     await new Queue().queue.process(queueName, async (job) => {
+      if (config.env === 'docker') {
+        // tslint:disable-next-line:no-console
+        console.log(`Processing Job ${job.id}`)
+      }
+
       return getCustomRepository(ActivityRepository).save(job.data)
     })
   }
