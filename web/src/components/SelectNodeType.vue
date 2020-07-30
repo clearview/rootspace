@@ -2,6 +2,21 @@
   <div class="SelectNodeType">
     <a
       class="SelectNodeType-option"
+      @click="$emit('select', 'folder')"
+    >
+      <v-icon
+        name="folder"
+        size="3.5em"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Folder</h5>
+        <p>GROUP EVERYTING INTO A FOLDER.</p>
+      </div>
+    </a>
+    <a
+      class="SelectNodeType-option"
       @click="$emit('select', 'link')"
     >
       <v-icon

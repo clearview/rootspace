@@ -195,6 +195,7 @@ export default class SidebarTree extends Vue {
   get iconName () {
     return {
       doc: 'file',
+      folder: 'folder',
       link: 'link',
       taskBoard: 'file'
     }
@@ -361,7 +362,6 @@ export default class SidebarTree extends Vue {
 
   @Watch('treeState', { immediate: true, deep: true })
   watchTreeData () {
-    console.log('fetchTreeData')
     this.fetchTreeData()
   }
 
