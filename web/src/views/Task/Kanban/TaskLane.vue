@@ -12,18 +12,44 @@
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Add List</button>
       </div>
     </div>
-    <div class="lane" v-show="!isInputtingNewLane">
+    <div class="lane" v-show="!isInputtingNewLane" :style="{background: list.settings.color}">
       <header class="header" >
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
-        <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu" v-if="!isEditingLane">
-          <template slot="trigger">
-            <button class="btn btn-icon bg-transparent" @click="cancel">
-              <v-icon  name="ellipsis" size="1rem" class="header-icon" viewbox="20"/>
+        <Popover top="38px" :with-close="false" @trigger="handleMenuTrigger">
+          <template #default="{ hide }">
+            <div class="action-line">
+              <v-icon class="action-icon" name="color" viewbox="18" size="18px"></v-icon>
+              <div class="action-line-text">
+                Change Color
+              </div>
+              <v-icon name="right2" viewbox="20" size="20px" class="action-arrow"></v-icon>
+              <div class="action-submenu">
+                <div class="colors">
+                  <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color)">
+                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+                  </div>
+                  <div class="color-default" @click="selectColor(defaultColor)">
+                    Default
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="action-separator"></div>
+            <div class="action-line danger" @click="hide();handleMenu('delete')">
+              <v-icon name="archive" viewbox="16" size="18px"></v-icon>
+              <div class="action-line-text">
+                Archive
+              </div>
+            </div>
+          </template>
+          <template #trigger="{ visible }">
+            <button class="btn btn-link" :class="{'btn-link-primary': visible}">
+              <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
             </button>
           </template>
-        </PopoverList>
+        </Popover>
       </header>
       <div class="list-actions" v-if="isEditingLane">
         <button class="btn btn-link" @click="cancel">
@@ -34,7 +60,8 @@
       <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom, 'has-scroll': calculateLaneHasScroll()}">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"/>
+            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
+            :opacite="!isColorDefault"/>
         </Draggable>
 
         <TaskCard default-inputting
@@ -133,6 +160,18 @@ export default class TaskLane extends Vue {
 
     private get isEditingLane () {
       return this.isInputting && this.listCopy.id !== null
+    }
+
+    private get colors () {
+      return ['rgba(55,216,139, 0.25)', 'rgba(255,90,90, 0.25)', 'rgba(255,186,104,0.5)', 'rgba(86,204,242,0.3)', 'rgba(187,107,217,0.3)', 'rgba(242,201,76,0.3)', 'rgba(193,34,130,0.2)', 'rgba(109,115,132,0.2)']
+    }
+
+    private get defaultColor () {
+      return 'rgb(247, 248, 250)'
+    }
+
+    private get isColorDefault () {
+      return this.list.settings.color === this.defaultColor
     }
 
     private tryDrag (e: DragEvent) {
@@ -259,6 +298,21 @@ export default class TaskLane extends Vue {
       Vue.nextTick().then(() => {
         this.cardContainerRef.scrollTop = this.cardContainerRef.scrollHeight
       })
+    }
+
+    async selectColor (color: string) {
+      await this.$store.dispatch('task/list/update', {
+        id: this.list.id,
+        settings: { ...this.listCopy.settings, color }
+      })
+    }
+
+    handleMenuTrigger (visible: boolean) {
+      if (visible) {
+        this.$emit('drag:disable')
+      } else {
+        this.$emit('drag:enable')
+      }
     }
 
     async handleMenu (value: string) {
@@ -427,6 +481,82 @@ export default class TaskLane extends Vue {
     100% {
       transform: translateX(0%)
     }
+  }
+
+  .action-line {
+    @apply flex items-center py-2 px-4 my-1 relative;
+    font-size: 13px;
+    font-weight: 600;
+    width: 168px;
+    color: theme("colors.gray.900");
+    stroke-width: 3px;
+    cursor: pointer;
+
+    .action-submenu {
+      @apply p-4 absolute;
+      opacity: 0;
+      visibility: hidden;
+      background: #fff;
+      transition: all 0.3s ease;
+      left: 168px;
+      top: 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.11);
+      border-radius: 0 4px 4px 4px;
+
+      .colors {
+        .color {
+          @apply flex items-center justify-center rounded mb-2;
+          width: 104px;
+          height: 1.75rem;
+          border:solid 2px transparent;
+          transition: all 0.15s ease;
+          &:hover{
+            border:solid 2px theme("colors.primary.default");
+          }
+          .icon-checkmark{
+            color: transparent;
+          }
+        }
+        .color-default {
+          @apply flex items-center justify-center rounded p-1;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 14px;
+          text-align: center;
+          color: #444754;
+          border:solid 2px transparent;
+          transition: all 0.15s ease;
+          &:hover{
+            border:solid 2px theme("colors.primary.default");
+          }
+        }
+      }
+    }
+
+    &:hover{
+      background: #F0F2F5;
+      .action-submenu {
+        visibility: visible;
+        opacity: 1;
+      }
+    }
+    &.danger {
+      color: theme("colors.danger.default");
+    }
+  }
+
+  .action-line-text {
+    @apply ml-2;
+    flex: 1 1 auto;
+  }
+  .action-separator{
+    @apply my-1;
+    height:1px;
+    background: theme("colors.gray.100");
+  }
+  .action-arrow{
+    @apply ml-2;
+    color: theme("colors.gray.400");
   }
 
 </style>

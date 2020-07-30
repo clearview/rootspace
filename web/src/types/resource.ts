@@ -91,6 +91,7 @@ export interface TaskListResource extends ApiResource {
   position: number;
   board: TaskBoardResource | null;
   tasks: TaskItemResource[];
+  settings: Record<string, any>;
 }
 
 export interface TaskBoardResource extends ApiResource {

@@ -79,7 +79,10 @@ export default class BoardManager extends Vue {
         position: getNextPosition(this.board.taskLists.length),
         spaceId: this.board.spaceId,
         tasks: [],
-        title: ''
+        title: '',
+        settings: {
+          color: 'rgb(247, 248, 250)'
+        }
       }
     }
 

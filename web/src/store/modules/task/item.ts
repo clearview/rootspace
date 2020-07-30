@@ -12,13 +12,23 @@ const item = createServiceModule(ItemService, {
         const index = board.current.taskLists.findIndex(list => list.id === data.listId)
         if (index !== -1) {
           const list = board.current.taskLists[index]
-          list.tasks.push({
-            ...data,
-            taskComments: [],
-            attachments: [],
-            assignees: [],
-            tags: []
-          })
+          if (!list.tasks) {
+            list.tasks = [{
+              ...data,
+              taskComments: [],
+              attachments: [],
+              assignees: [],
+              tags: []
+            }]
+          } else {
+            list.tasks.push({
+              ...data,
+              taskComments: [],
+              attachments: [],
+              assignees: [],
+              tags: []
+            })
+          }
         }
       }
     }, { root: true })
@@ -45,7 +55,11 @@ const item = createServiceModule(ItemService, {
               oldList.tasks = oldList.tasks.filter(task => task.id !== data.id)
               const targetList = board.current.taskLists.find(list => list.id === data.listId)
               if (targetList) {
-                targetList.tasks.push(data)
+                if (!targetList.tasks) {
+                  targetList.tasks = [data]
+                } else {
+                  targetList.tasks.push(data)
+                }
               }
             } else {
               list.tasks = list.tasks.map(task => {
@@ -84,7 +98,11 @@ const item = createServiceModule(ItemService, {
               oldList.tasks = oldList.tasks.filter(task => task.id !== data.id)
               const targetList = board.current.taskLists.find(list => list.id === data.listId)
               if (targetList) {
-                targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                if (!targetList.tasks) {
+                  targetList.tasks = [{ ...oldItem, listId: data.listId, position: data.position }]
+                } else {
+                  targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                }
               }
             } else {
               list.tasks = list.tasks.map(task => {

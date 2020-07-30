@@ -58,16 +58,21 @@ import IconContextMenu from './IconContextMenu.vue'
 import IconShare from './IconShare.vue'
 import IconHistory from './IconHistory.vue'
 import IconShareGlobe from './IconShareGlobe.vue'
+import IconColor from '@/components/icon/IconColor.vue'
+import IconArchive from '@/components/icon/IconArchive.vue'
+import IconRight2 from '@/components/icon/IconRight2.vue'
 
 @Component({
   name: 'Icon',
   components: {
     IconAdd,
+    IconArchive,
     IconAttachment,
     IconCheckmark,
     IconComment,
     IconClose,
     IconClose2,
+    IconColor,
     IconDots,
     IconDown,
     IconDrag,
@@ -88,6 +93,7 @@ import IconShareGlobe from './IconShareGlobe.vue'
     IconRandom,
     IconReply,
     IconRight,
+    IconRight2,
     IconSearch,
     IconSettings,
     IconTag,

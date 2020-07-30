@@ -14,7 +14,7 @@
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard" class="card" @click="openModal()">
+    <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="color"></div>
       <div class="card-item">
         <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
@@ -104,6 +104,9 @@ export default class TaskCard extends Vue {
 
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
+
+    @Prop({ type: Boolean, default: false })
+    private readonly opacite!: boolean
 
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement;
@@ -333,6 +336,9 @@ export default class TaskCard extends Vue {
     @apply p-2 flex items-center rounded;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
+    &.opacite{
+      background: rgba(theme("colors.white.default"), 0.8);
+    }
   }
 
   .color {

@@ -71,6 +71,7 @@ export default class Popover extends Vue {
       textContent !== 'trash') {
         this.visible = false
         this.$emit('hide', true)
+        this.$emit('trigger', this.visible)
       }
 
       return
@@ -78,6 +79,7 @@ export default class Popover extends Vue {
 
     this.visible = false
     this.$emit('hide', true)
+    this.$emit('trigger', this.visible)
   }
 
   back () {
@@ -103,6 +105,7 @@ export default class Popover extends Vue {
         })
       }
     })
+    this.$emit('trigger', this.visible)
   }
 }
 </script>
