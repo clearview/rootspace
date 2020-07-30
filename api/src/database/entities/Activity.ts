@@ -33,7 +33,7 @@ export class Activity {
 
   @Column('integer')
   @Index()
-  itemId: number
+  entityId: number
 
   @Column('varchar')
   entity: string
