@@ -68,7 +68,7 @@
         :key="'l-' + indexList"
       >
         <div class="flex flex-grow">
-          <avatar :username="list.email"></avatar>
+          <avatar :username="memberName(list)"></avatar>
           <span class="text-gray-900 pl-2 self-center flex-grow">{{ list.email }}</span>
           <div class="float-right self-center" v-if="list.accepted == false">
 
@@ -115,7 +115,7 @@ import { email, required } from 'vuelidate/lib/validators'
 
 import { find } from 'lodash'
 
-import { SpaceResource } from '@/types/resource'
+import { SpaceResource, UserResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 import Avatar from 'vue-avatar'
@@ -219,6 +219,14 @@ export default class FormSpace extends Vue {
       if (!this.$v.payload.$invalid) {
         this.$emit('submit', this.payload)
       }
+    }
+
+    memberName (member: UserResource) {
+      if (member.firstName) {
+        return `${member.firstName} ${member.lastName}`
+      }
+
+      return member.email
     }
 }
 
