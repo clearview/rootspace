@@ -6,7 +6,6 @@ import chalk from 'chalk'
 import yargs = require('yargs')
 import { NodeCommand } from './src/commands/NodeCommand'
 import { TaskCommands } from './src/commands/TaskCommands'
-import { QueueCommands } from './src/commands/QueueCommands'
 
 const commands = yargs
 
@@ -40,23 +39,6 @@ const commands = yargs
         type: 'string',
         describe: 'command',
         choices: ['update-slugs'],
-        demandOption: true
-      })
-  })
-
-  .command({
-    command: 'queue <command>',
-    aliases: ['q'],
-    handler: async (argv) => {
-      await new QueueCommands().run(String(argv.command))
-      process.exit()
-    },
-    builder: (args) =>
-      args.positional('command', {
-        alias: 's',
-        type: 'string',
-        describe: 'command',
-        choices: ['start'],
         demandOption: true
       })
   })

@@ -1,8 +1,7 @@
-import { QueueCommands } from './commands/QueueCommands'
+import { Queue } from './libs/Queue'
 
 async function main() {
-  const queueCommand = new QueueCommands()
-  await queueCommand.run('start')
+  await Queue.process()
 }
 
 main()
