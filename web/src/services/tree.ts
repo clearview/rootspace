@@ -33,4 +33,10 @@ export default class TreeService {
 
     return res.data
   }
+
+  static async createFolder (data: NodeResource) {
+    const res = await api.post('folders', { data })
+
+    return res.data
+  }
 }

@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 
 import { SpaceResource, UserResource } from '@/types/resource'

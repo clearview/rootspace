@@ -1,0 +1,86 @@
+<template>
+  <form
+    class="flex flex-col flex-1"
+    @submit.prevent="submit"
+  >
+    <v-field label="Title">
+      <input
+        ref="initialInput"
+        type="text"
+        class="input"
+        placeholder="Enter title"
+        v-model="payload.title"
+      >
+    </v-field>
+
+    <button
+      type="submit"
+      :class="{
+        hidden: nobutton
+      }"
+    />
+  </form>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+
+import { required } from 'vuelidate/lib/validators'
+
+import { LinkResource } from '@/types/resource'
+
+import ButtonSwitch from '@/components/ButtonSwitch.vue'
+import VField from '@/components/Field.vue'
+import { Component, Prop, Ref } from 'vue-property-decorator'
+
+@Component({
+  name: 'FormLink',
+  components: {
+    ButtonSwitch,
+    VField
+  },
+  validations: {
+    payload: {
+      title: { required }
+    }
+  }
+})
+export default class FormLink extends Vue {
+  @Prop({ type: Object, default: () => ({}) })
+  private readonly value!: any;
+
+  @Prop({ type: Number, default: 0 })
+  private readonly space!: number;
+
+  @Prop({ type: Boolean })
+  private readonly nobutton!: boolean;
+
+  @Ref('initialInput')
+  private readonly initialInputRef!: HTMLInputElement;
+
+  mounted () {
+    this.initialInputRef.focus()
+  }
+
+  private payload: Omit<LinkResource, 'children'> = {
+    id: this.value.id || undefined,
+    spaceId: this.value.space || this.space,
+    title: this.value.title || '',
+    type: this.value.type || 'link',
+    value: this.value.value || '',
+    config: {
+      alwaysOpen: false,
+
+      ...this.value.config
+    }
+  }
+
+  submit (): void {
+    this.$v.payload.$touch()
+
+    if (!this.$v.payload.$invalid) {
+      this.$emit('submit', this.payload)
+    }
+  }
+}
+</script>

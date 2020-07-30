@@ -195,6 +195,7 @@ export default class SidebarTree extends Vue {
   get iconName () {
     return {
       doc: 'file',
+      folder: 'folder',
       link: 'link',
       taskBoard: 'file'
     }
@@ -259,7 +260,12 @@ export default class SidebarTree extends Vue {
 
   async open ({ node }: Pick<NodeContext, 'node'>) {
     const url = this.getNodeURL({ node })
+
     if (!this.locked) {
+      return
+    }
+
+    if (node.type === 'folder') {
       return
     }
 
@@ -325,7 +331,8 @@ export default class SidebarTree extends Vue {
     try {
       await this.modalOpen(ModalType.Destroy)
 
-      this.$emit('destroy', node)
+      await this.$store.dispatch('tree/destroy', node)
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
   }
 
@@ -361,7 +368,6 @@ export default class SidebarTree extends Vue {
 
   @Watch('treeState', { immediate: true, deep: true })
   watchTreeData () {
-    console.log('fetchTreeData')
     this.fetchTreeData()
   }
 

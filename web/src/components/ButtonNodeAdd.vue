@@ -25,6 +25,24 @@
     </modal>
 
     <modal
+      title="Add Folder"
+      :visible="isModalVisible('folder')"
+      :loading="modal.loading"
+      :contentStyle="{ width: '456px' }"
+      @cancel="setModalVisible(true, 'index')"
+      @confirm="() => $refs.formFolder.submit()"
+    >
+      <div class="modal-body">
+        <form-folder
+          nobutton
+          @submit="addFolder"
+          :space="activeSpace.id"
+          ref="formFolder"
+        />
+      </div>
+    </modal>
+
+    <modal
       title="Add Link"
       :visible="isModalVisible('link')"
       :loading="modal.loading"
@@ -64,8 +82,14 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 
-import { SpaceResource, LinkResource, TaskBoardResource } from '@/types/resource'
+import {
+  LinkResource,
+  SpaceResource,
+  TaskBoardResource,
+  NodeResource
+} from '@/types/resource'
 
+import FormFolder from '@/components/form/FormFolder.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import Modal from '@/components/Modal.vue'
@@ -73,6 +97,7 @@ import SelectNodeType from '@/components/SelectNodeType.vue'
 
 enum ModalType {
   INDEX = 'index',
+  FOLDER = 'folder',
   LINK = 'link',
   TASK = 'task',
   DOCUMENT = 'document'
@@ -88,6 +113,7 @@ interface ModalState {
 @Component({
   name: 'ButtonNodeAdd',
   components: {
+    FormFolder,
     FormLink,
     FormTask,
     Modal,
@@ -131,6 +157,19 @@ export default class ButtonNodeAdd extends Vue {
     }
 
     this.setModalVisible(true, type)
+  }
+
+  async addFolder (data: NodeResource) {
+    this.modal.loading = true
+
+    try {
+      await this.$store.dispatch('tree/createFolder', data)
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    } catch { }
+
+    this.modal.loading = false
+
+    this.setModalVisible(false)
   }
 
   async addLink (data: LinkResource) {

@@ -48,6 +48,10 @@ const TreeModule: Module<TreeState, RootState> = {
 
     async destroy (_, data: NodeResource) {
       await TreeService.destroy(data.id)
+    },
+
+    async createFolder (_, data: NodeResource) {
+      await TreeService.createFolder(data)
     }
   }
 }
