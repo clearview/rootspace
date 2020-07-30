@@ -30,6 +30,7 @@
     "aws-sdk": "^2.673.0",
     "bcryptjs": "^2.4.3",
     "bull": "^3.16.0",
+    "bull-board": "^0.9.0",
     "chalk": "^4.1.0",
     "class-validator": "^0.12.2",
     "compress": "^0.99.0",

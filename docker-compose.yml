@@ -68,16 +68,6 @@ services:
         max-size: "100MB"
         max-file: "3"
 
-  arena:
-    image: mixmaxhq/arena
-    container_name: root_arena
-    networks:
-      - backend
-    volumes:
-      - ./docker/arena/index.json:/opt/arena/src/server/config/index.json
-    ports:
-      - "4567:4567"
-
   web:
     image: node:12
     container_name: root_web
