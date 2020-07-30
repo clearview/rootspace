@@ -126,6 +126,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
+import { Dictionary } from 'vue-router/types/router'
 
 import {
   SpaceMetaResource,
@@ -135,10 +136,11 @@ import {
   SpaceResource
 } from '@/types/resource'
 
+import { TreeState } from '@/types/state'
+
 import Modal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
-import { TreeState } from '../../types/state'
 
 enum ModalType {
   UpdateLink = 'UpdateLink',
@@ -248,11 +250,16 @@ export default class SidebarTree extends Vue {
   }
 
   getNodeURL ({ node }: Pick<NodeContext, 'node'>) {
+    const name = this.nodeTypeRouteMap[node.type]
+    const params: Dictionary<string> = {}
+
+    if (node.contentId) {
+      params.id = node.contentId.toString()
+    }
+
     const { href } = this.$router.resolve({
-      name: this.nodeTypeRouteMap[node.type],
-      params: {
-        id: node.contentId.toString()
-      }
+      name,
+      params
     })
 
     return href
