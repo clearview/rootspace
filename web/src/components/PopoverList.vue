@@ -1,5 +1,5 @@
 <template>
-  <Popover :with-close="false">
+  <Popover :with-close="false" position="bottom-start">
     <template v-slot:default="slotApi">
       <ul class="list">
         <li class="item" v-for="item in items" :key="item.value" @click="input(item.value, slotApi)">

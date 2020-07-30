@@ -1,6 +1,6 @@
 <template>
   <Popover
-    top="48px"
+    :offset="5" position="bottom-start"
     :title="tagsTitle"
     :backButton="backButtonState"
     @back="backButtonAction"

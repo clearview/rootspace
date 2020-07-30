@@ -21,7 +21,7 @@
           <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
             <template slot="trigger">
               <button
-                class="btn btn-icon rounded-full"
+                class="btn btn-icon rounded"
                 @click="cancel"
               >
                 <v-icon name="ellipsis" viewbox="20" size="1.5rem" class="header-icon"/>
@@ -29,7 +29,7 @@
             </template>
           </PopoverList>
           <button
-            class="btn btn-icon rounded-full"
+            class="btn btn-icon rounded"
             @click="close"
           >
             <v-icon viewbox="20" size="1.5rem" name="close2" title="Close"/>

@@ -14,7 +14,7 @@
           {{comment.createdAt | formatDate}}
         </div>
         <div class="header-actions" v-if="user.id === comment.userId">
-          <Popover top="38px" :with-close="false">
+          <Popover :with-close="false" position="bottom-start">
             <template #default="{ hide }">
               <div class="action-line" @click="hide();enterEditMode()">
                 <v-icon name="edit"></v-icon>
