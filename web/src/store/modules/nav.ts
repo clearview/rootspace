@@ -1,9 +1,9 @@
 import { Module } from 'vuex'
-import { RootState, NavState } from '@/types/state'
+import { RootState, SidebarState } from '@/types/state'
 
 const minSize = 282
 
-const NavModule: Module<NavState, RootState> = {
+const NavModule: Module<SidebarState, RootState> = {
   namespaced: true,
   state () {
     return {

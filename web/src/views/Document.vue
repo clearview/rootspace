@@ -48,7 +48,7 @@
 import config from '@/utils/config'
 import { Component, Ref, Watch, Mixins } from 'vue-property-decorator'
 
-import { DocumentResource } from '@/types/resource'
+import { DocumentResource, NodeResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
@@ -108,7 +108,10 @@ export default class Document extends Mixins(SpaceMixin) {
     if (!id) {
       this.title = ''
       this.value = {}
+
+      this.addNodePlaceholder()
     } else {
+      this.removeNodePlaceholder()
       await this.loadDocument()
     }
 
@@ -230,47 +233,76 @@ export default class Document extends Mixins(SpaceMixin) {
     }
   }
 
+  addNodePlaceholder () {
+    const tree = this.$store.state.tree.list.filter(
+      (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
+    )
+
+    tree.push({
+      title: 'Untitled',
+      type: 'doc',
+      contentId: 0
+    })
+
+    this.$store.commit('tree/setList', tree)
+  }
+
+  removeNodePlaceholder () {
+    const tree = this.$store.state.tree.list.filter(
+      (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
+    )
+
+    this.$store.commit('tree/setList', tree)
+  }
+
   mounted () {
+    if (!this.id) {
+      this.addNodePlaceholder()
+    }
+
     this.titleFocus()
     this.textareaResize()
+  }
+
+  beforeDestroy () {
+    this.removeNodePlaceholder()
   }
 }
 </script>
 
 <style lang="postcss" scoped>
-  .page {
-    @apply max-w-2xl mx-auto pt-4;
+.page {
+  @apply max-w-2xl mx-auto pt-4;
 
-    width: 43.8rem;
+  width: 43.8rem;
+}
 
+.title {
+  font-size: 2rem;
+  width: 100%;
+  resize: none;
+
+  &:focus {
+    outline: none;
   }
+}
 
-  .title {
-    font-size: 2rem;
-    width: 100%;
-    resize: none;
-
-    &:focus {
-      outline: none;
-    }
-  }
-
-  &::-webkit-resizer {
-    display: none;
-  }
+&::-webkit-resizer {
+  display: none;
+}
 
 .header {
   @apply flex justify-between border-b-2 w-full p-0 items-center;
 
-    border-color: theme("colors.secondary.default");
-    padding-bottom: 0.5rem;
-    max-width: 650px;
-    margin: 0 auto;
-  }
+  border-color: theme("colors.secondary.default");
+  padding-bottom: 0.5rem;
+  max-width: 650px;
+  margin: 0 auto;
+}
 
-  .content {
-    padding-top: 0.5rem;
-  }
+.content {
+  padding-top: 0.5rem;
+}
 </style>
 
 <style lang="postcss">
