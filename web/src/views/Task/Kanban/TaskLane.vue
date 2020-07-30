@@ -27,10 +27,10 @@
               <v-icon name="right2" viewbox="20" size="20px" class="action-arrow"></v-icon>
               <div class="action-submenu">
                 <div class="colors">
-                  <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color)">
+                  <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color);hide()">
                     <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
                   </div>
-                  <div class="color-default" @click="selectColor(defaultColor)">
+                  <div class="color-default" @click="selectColor(defaultColor);hide()">
                     Default
                   </div>
                 </div>
