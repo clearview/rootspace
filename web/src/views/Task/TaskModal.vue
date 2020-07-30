@@ -136,7 +136,7 @@
                       </li>
                     </template>
                   </MemberPopover>
-                <li class="assignee" v-for="assignee in item.assignees" :key="assignee.id" :content="memberName(assignee)" v-tippy>
+                <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
                   <avatar :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
@@ -677,8 +677,6 @@ export default class TaskModal extends Vue {
     @apply flex flex-wrap justify-start;
 
     li {
-      margin-left: 10px;
-
       &.addmember-button {
         margin: 0;
       }
