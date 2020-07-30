@@ -17,7 +17,7 @@
       </header>
       <slot v-bind="{ hide, visible }"></slot>
     </div>
-    <div @click="toggleVisibility" ref="trigger">
+    <div @click="toggleVisibility" ref="trigger" class="popover-trigger">
       <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>
   </div>

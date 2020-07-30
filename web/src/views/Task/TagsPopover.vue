@@ -1,6 +1,6 @@
 <template>
   <Popover
-    top="48px"
+    :offset="5" position="bottom-start"
     :title="tagsTitle"
     :backButton="backButtonState"
     @back="backButtonAction"
@@ -19,19 +19,11 @@
           <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
         </div>
         <div class="action" v-if="tagsState === 'manage'">
-        <span id="edit-button" @click="editTagButton(tag)" >
-          <tippy content="Edit" arrow>
-          <template v-slot:trigger>
+        <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
             <v-icon size="1.2rem" name="edit"/>
-          </template>
-          </tippy>
         </span>
-        <span id="delete-button" @click="deleteTagButton(tag)" class="delete">
-          <tippy content="Delete" arrow>
-          <template v-slot:trigger>
-            <v-icon size="1.2rem" name="trash"/>
-          </template>
-          </tippy>
+        <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
+          <v-icon size="1.2rem" name="trash"/>
         </span>
         </div>
       </div>

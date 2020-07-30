@@ -1,5 +1,5 @@
 <template>
-  <Popover top="48px" title="Due Date">
+  <Popover title="Due Date" :offset="5" position="bottom-start">
     <template v-slot:default="slotApi">
       <div class="duedate-calendar">
         <DatePicker
