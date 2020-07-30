@@ -110,6 +110,15 @@
       </div>
       <div class="task-right">
         <div class="right-field">
+          <div class="right-field-title">Created By</div>
+          <div class="right-field-content">
+            <div class="created-by">
+              <avatar :username="memberName(item.user)"></avatar>
+              <span class="label">{{ memberName(item.user) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="right-field">
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
@@ -390,6 +399,7 @@ export default class TaskModal extends Vue {
     }
 
     memberName (member: UserResource) {
+      if (!member) return
       return `${member.firstName} ${member.lastName}`
     }
 
@@ -736,6 +746,28 @@ export default class TaskModal extends Vue {
     height: 100%;
     background: #fff8;
     backdrop-filter: saturate(1.5) blur(4px);
+  }
+
+  .created-by {
+    @apply flex;
+
+    .vue-avatar--wrapper {
+      width: 35px !important;
+      height: 35px !important;
+      font: 14px / 24px theme("fontFamily.primary") !important;
+      float: left;
+      border: 2px solid #FFF;
+      margin-left: -7px;
+      letter-spacing: 0.03em;
+    }
+
+    .label {
+      @apply self-center ml-2;
+
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 17px;
+    }
   }
 
 </style>
