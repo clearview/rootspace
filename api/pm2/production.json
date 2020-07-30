@@ -13,6 +13,20 @@
       "env": {
         "NODE_ENV": "production"
       }
+    },
+    {
+      "name": "root_activity_queue_processor",
+      "script": "dist/queueProcessor.js",
+      "args": "",
+      "instances" : "max",
+      "exec_mode" : "cluster",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv/root/current/api",
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   ]
 }

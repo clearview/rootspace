@@ -1,7 +1,5 @@
 import Bull, { Queue } from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityRepository } from '../../database/repositories/ActivityRepository'
-import { getCustomRepository } from 'typeorm'
 
 const QUEUE_NAME = 'Activity'
 
@@ -11,10 +9,6 @@ export class ActivityService {
 
   private constructor() {
     this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
-
-    this.queue.process(QUEUE_NAME, async (job) => {
-      return getCustomRepository(ActivityRepository).save(job.data)
-    })
   }
 
   private static instance: ActivityService

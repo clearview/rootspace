@@ -51,6 +51,7 @@ services:
     container_name: root_api
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./api:/opt/project/
     working_dir: /opt/project

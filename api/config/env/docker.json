@@ -26,5 +26,9 @@
     "domainInviteAcceptPath": "/invitation",
     "sentry": {
         "dsn": null
+    },
+    "redis": {
+        "host": "@@REDIS_HOST",
+        "port": "@@REDIS_PORT"
     }
 }
