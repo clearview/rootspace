@@ -29,7 +29,11 @@ const list = createServiceModule(ListService, {
         const index = board.current.taskLists.findIndex(list => list.id === data.id)
         if (index !== -1) {
           const old = board.current.taskLists[index]
-          Vue.set(board.current.taskLists, index, { ...old, position: data.position })
+          if (data.position) {
+            Vue.set(board.current.taskLists, index, { ...old, position: data.position })
+          } else if (data.settings) {
+            Vue.set(board.current.taskLists, index, { ...old, settings: data.settings })
+          }
         }
       }
     }, { root: true })
