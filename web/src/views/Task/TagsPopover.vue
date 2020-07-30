@@ -22,7 +22,7 @@
         <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
             <v-icon size="1.2rem" name="edit"/>
         </span>
-        <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" arrow>
+        <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
           <v-icon size="1.2rem" name="trash"/>
         </span>
         </div>
