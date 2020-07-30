@@ -3,7 +3,7 @@
     :to="portal"
     v-if="visible"
   >
-    <div class="modal" @click.self="cancel">
+    <div class="modal" @click.self="cancel" :style="modalStyle">
       <div class="modal-inner" :style="contentStyle">
         <slot
           name="header"
@@ -81,6 +81,9 @@ export default class Modal extends Vue {
 
     @Prop({ type: Object })
     private readonly contentStyle!: object;
+
+    @Prop({ type: Object })
+    private readonly modalStyle!: object;
 
     @Emit('cancel')
     cancel () {

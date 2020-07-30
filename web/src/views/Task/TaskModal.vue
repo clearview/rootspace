@@ -6,6 +6,8 @@
     nofooter
     cancel-text="Okay"
     @cancel="close"
+    :modalStyle="{ 'align-items': 'flex-start' }"
+    :contentStyle="{ 'margin-top': '50px' }"
   >
     <template v-slot:header>
       <div class="task-modal-header">
