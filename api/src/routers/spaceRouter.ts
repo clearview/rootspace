@@ -14,6 +14,7 @@ router.delete('/spaces/:id', mapRoute(SpacesCtrl, 'delete'))
 
 router.get('/spaces/:id/tree', mapRoute(SpacesCtrl, 'getTree'))
 router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
+router.get('/spaces/:id/activities', mapRoute(SpacesCtrl, 'activities'))
 
 router.get('/spaces/:spaceId/users', mapRoute(SpacesUsersCtrl, 'listAll'))
 router.delete(

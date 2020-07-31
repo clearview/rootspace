@@ -1,5 +1,8 @@
 import Bull, { Queue } from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
+import { getCustomRepository } from 'typeorm/index'
+import { ActivityRepository } from '../database/repositories/ActivityRepository'
+import { Activity } from '../database/entities/Activity'
 
 const QUEUE_NAME = 'Activity'
 
@@ -24,4 +27,13 @@ export class ActivityService {
   async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
     return this.queue.add(QUEUE_NAME, activityEvent.toObject())
   }
+
+  getActivityRepository(): ActivityRepository {
+    return getCustomRepository(ActivityRepository)
+  }
+
+  getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
+    return this.getActivityRepository().find({ spaceId })
+  }
+
 }
