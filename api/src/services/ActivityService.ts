@@ -1,6 +1,5 @@
 import Bull, { Queue } from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { setQueues } from 'bull-board'
+import { ActivityEvent } from './events/ActivityEvent'
 
 const QUEUE_NAME = 'Activity'
 
@@ -10,8 +9,6 @@ export class ActivityService {
 
   private constructor() {
     this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
-
-    setQueues([this.queue])
   }
 
   private static instance: ActivityService

@@ -7,7 +7,7 @@ import { TaskList } from '../../../database/entities/tasks/TaskList'
 import { Task } from '../../../database/entities/tasks/Task'
 import Bull from 'bull'
 import { ActivityEvent } from '../../events/ActivityEvent'
-import { ActivityService } from '../ActivityService'
+import { ActivityService } from '../../ActivityService'
 import { TaskListActivities } from '../../../database/entities/activities/TaskListActivities'
 
 export class TaskListService {

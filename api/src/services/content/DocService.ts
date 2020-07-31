@@ -11,7 +11,7 @@ import { clientError, HttpErrName } from '../../errors'
 import { DocActivities } from '../../database/entities/activities/DocActivities'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from './ActivityService'
+import { ActivityService } from '../ActivityService'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService

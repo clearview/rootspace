@@ -9,7 +9,7 @@ import path from 'path'
 import fs from 'fs'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
-import { ActivityService } from './content/ActivityService'
+import { ActivityService } from './ActivityService'
 import { UploadActivities } from '../database/entities/activities/UploadActivities'
 
 export class UploadService {

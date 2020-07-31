@@ -9,7 +9,7 @@ import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 import { FollowService } from '../../FollowService'
 import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
-import { ActivityService } from '../ActivityService'
+import { ActivityService } from '../../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
 

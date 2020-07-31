@@ -3,7 +3,6 @@ import 'dotenv/config'
 import db from './db'
 import { config } from 'node-config-ts'
 import express, { Application } from 'express'
-import { setQueues, UI } from 'bull-board'
 import * as Sentry from '@sentry/node'
 import * as http from 'http'
 import cors from 'cors'
@@ -12,7 +11,6 @@ import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { Ability } from '@casl/ability'
 import { NotificationListener } from './services'
-import { ActivityService } from './services/content/ActivityService'
 
 declare global {
   namespace Express {
@@ -59,9 +57,6 @@ export default class Server {
     }
 
     this.app.use(errorHandler)
-
-    setQueues([ActivityService.getInstance().queue])
-    this.app.use('/admin/queues', UI)
   }
 
   listen(port?: number) {
