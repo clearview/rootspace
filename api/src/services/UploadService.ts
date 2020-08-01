@@ -10,7 +10,7 @@ import fs from 'fs'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
-import { UploadActivities } from '../database/entities/activities/UploadActivities'
+import { FileActivities } from '../database/entities/activities/FileActivities'
 
 export class UploadService {
 
@@ -50,7 +50,7 @@ export class UploadService {
       fileData.path = sFFile.Location
 
       const upload = await this.getUploadRepository().save(fileData)
-      await this.registerActivityForUpload(UploadActivities.File_Uploaded, upload)
+      await this.registerActivityForUpload(FileActivities.Uploaded, upload)
 
       return upload
     } catch (e) {
@@ -76,12 +76,12 @@ export class UploadService {
     })
   }
 
-  async registerActivityForUploadId(uploadActivity: UploadActivities, uploadId: number): Promise<Bull.Job> {
+  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
     const upload = await this.getUploadById(uploadId)
     return this.registerActivityForUpload(uploadActivity, upload)
   }
 
-  async registerActivityForUpload(uploadActivity: UploadActivities, upload: Upload): Promise<Bull.Job> {
+  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(

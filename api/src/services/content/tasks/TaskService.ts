@@ -71,7 +71,7 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.registerActivityForTaskId(TaskActivities.Task_Created, task.id)
+    await this.registerActivityForTaskId(TaskActivities.Created, task.id)
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().reload(task)
@@ -85,29 +85,27 @@ export class TaskService {
     })
 
     await this.assigneesUpdate(task, data)
-    await this.registerActivityForTaskId(TaskActivities.Task_Updated, task.id)
+    await this.registerActivityForTaskId(TaskActivities.Updated, task.id)
 
     return this.getTaskRepository().reload(task)
   }
 
   async archive(taskId: number): Promise<UpdateResult> {
     const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
-    await this.registerActivityForTaskId(TaskActivities.Task_Archived, taskId)
+    await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
     return archivedTask
   }
 
   async restore(taskId: number): Promise<UpdateResult> {
     const restoredTask = this.getTaskRepository().restore({id: taskId})
-    await this.registerActivityForTaskId(TaskActivities.Task_Restored, taskId)
+    await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
 
     return restoredTask
   }
 
   async remove(taskId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId)
-
-    await this.followService.removeAllFromEntity(task)
-    await this.registerActivityForTask(TaskActivities.Task_Deleted, task)
+    await this.registerActivityForTask(TaskActivities.Deleted, task)
 
     return this.getTaskRepository().remove(task)
   }

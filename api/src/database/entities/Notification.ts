@@ -23,19 +23,16 @@ export class Notification {
 
   @Column('integer')
   @Index()
-  itemId: number
+  entityId: number
 
   @Column('varchar')
-  targetName: string
+  entity: string
 
   @Column('varchar')
   tableName: string
 
   @Column('varchar', { nullable: true })
   action: string
-
-  @Column('varchar', { nullable: true })
-  message: string
 
   @Column('boolean', { default: false })
   isRead: boolean

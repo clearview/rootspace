@@ -72,7 +72,7 @@ export class DocService extends NodeContentService {
     )
 
     doc = await this.getDocRepository().reload(doc)
-    await this.registerActivityForDoc(DocActivities.Doc_Created, doc)
+    await this.registerActivityForDoc(DocActivities.Created, doc)
 
     return doc
   }
@@ -83,14 +83,14 @@ export class DocService extends NodeContentService {
     Object.assign(doc, data.attributes)
     doc = await this.getDocRepository().save(doc)
 
-    await this.registerActivityForDocId(DocActivities.Doc_Updated, doc.id)
+    await this.registerActivityForDocId(DocActivities.Updated, doc.id)
 
     return this.getDocRepository().reload(doc)
   }
 
   async remove(id: number) {
     let doc = await this.requireById(id)
-    await this.registerActivityForDoc(DocActivities.Doc_Deleted, doc)
+    await this.registerActivityForDoc(DocActivities.Deleted, doc)
 
     doc = await this.getDocRepository().remove(doc)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
@@ -100,7 +100,7 @@ export class DocService extends NodeContentService {
 
   async nodeRemoved(contentId: number): Promise<void> {
     const doc = await this.getDocRepository().findOne({ id: contentId })
-    await this.registerActivityForDoc(DocActivities.Doc_Deleted, doc)
+    await this.registerActivityForDoc(DocActivities.Deleted, doc)
     await this.getDocRepository().remove(doc)
   }
 

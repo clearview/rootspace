@@ -1,8 +1,18 @@
 import { getConnection } from 'typeorm'
 
+export enum EntityType {
+  Doc = 'Doc',
+  Node = 'Node',
+  Task = 'Task',
+  TaskBoard = 'TaskBoard',
+  TaskList = 'TaskList',
+  Upload = 'Upload',
+}
+
 export class ActivityEvent {
   private readonly _action: string
   private _actorId: number
+  private _userId?: number
   private _spaceId: number
   private _entityId: number
   private _entity: string
@@ -38,6 +48,14 @@ export class ActivityEvent {
 
   get action(): string {
     return this._action
+  }
+
+  get userId(): number {
+    return this._userId
+  }
+
+  set userId(value: number) {
+    this._userId = value
   }
 
   get actorId(): number {

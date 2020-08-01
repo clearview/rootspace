@@ -97,7 +97,7 @@ export class TaskBoardService extends NodeContentService {
     )
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.TaskBoard_Created, taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Created, taskBoard)
 
     return taskBoard
   }
@@ -110,14 +110,14 @@ export class TaskBoardService extends NodeContentService {
     })
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.TaskBoard_Updated, taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard)
 
     return taskBoard
   }
 
   async remove(id: number) {
     const taskBoard = await this.getById(id)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.TaskBoard_Deleted, taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
 
     await this.getTaskBoardRepository().remove(taskBoard)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
@@ -127,7 +127,7 @@ export class TaskBoardService extends NodeContentService {
 
   async nodeRemoved(contentId: number): Promise<void> {
     const taskBoard = await this.getTaskBoardRepository().findOne({id: contentId})
-    await this.registerActivityForTaskBoard(TaskBoardActivities.TaskBoard_Deleted, taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
     await this.getTaskBoardRepository().remove(taskBoard)
   }
 

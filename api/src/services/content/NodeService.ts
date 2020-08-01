@@ -88,7 +88,7 @@ export class NodeService {
     node.parent = parent
 
     const savedNode = await this.getNodeRepository().save(node)
-    await this.registerActivityForNodeId(NodeActivities.Node_Created, savedNode.id)
+    await this.registerActivityForNodeId(NodeActivities.Created, savedNode.id)
 
     return savedNode
   }
@@ -114,7 +114,7 @@ export class NodeService {
 
     this.mediator.nodeUpdated(node)
 
-    await this.registerActivityForNodeId(NodeActivities.Node_Updated, node.id)
+    await this.registerActivityForNodeId(NodeActivities.Updated, node.id)
 
     return node
   }
@@ -257,7 +257,7 @@ export class NodeService {
       )
     }
 
-    await this.registerActivityForNode(NodeActivities.Node_Deleted, node)
+    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     const removedNode = await this.getNodeRepository().remove(node)
     this.getNodeRepository().decreasePositions(removedNode.parentId, removedNode.position)

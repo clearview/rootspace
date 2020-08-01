@@ -5,17 +5,17 @@ import { Notification } from '../entities/Notification'
 
 @EntityRepository(Notification)
 export class NotificationRepository extends BaseRepository<Notification> {
-  async getNotificationsForItems(itemIds: number[], tableName: string): Promise<Notification[]> {
+  async getNotificationsForItems(entityIds: number[], tableName: string): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
-      .where('notification.itemId IN (:...itemIds)', { itemIds })
+      .where('notification.entityId IN (:...entityIds)', { entityIds })
       .andWhere('notification.tableName = :tableName', { tableName })
       .getMany()
   }
 
-  async getUserNotificationsForItem(userId: number, itemId: number, tableName: string): Promise<Notification[]> {
+  async getUserNotificationsForItem(userId: number, entityId: number, tableName: string): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
       .where('notification.userId = :userId', { userId })
-      .andWhere('notification.itemId = :itemId', { itemId })
+      .andWhere('notification.entityId = :entityId', { entityId })
       .andWhere('notification.tableName = :tableName', { tableName })
       .getMany()
   }

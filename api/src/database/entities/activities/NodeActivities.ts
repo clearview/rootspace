@@ -1,5 +1,5 @@
 export enum NodeActivities {
-  Node_Created = 'Created',
-  Node_Updated = 'Updated',
-  Node_Deleted = 'Deleted'
+  Created = 'Created',
+  Updated = 'Updated',
+  Deleted = 'Deleted'
 }

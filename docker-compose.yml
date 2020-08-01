@@ -80,6 +80,8 @@ services:
     command: yarn queue:process
     networks:
       - backend
+    ports:
+      - "9230:9230"
     logging:
       driver: "json-file"
       options:

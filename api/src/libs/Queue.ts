@@ -1,9 +1,13 @@
 import 'dotenv/config'
 import { config } from 'node-config-ts'
-import Bull from 'bull'
-import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import db from '../db'
+import Bull, { Job } from 'bull'
+import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { getCustomRepository } from 'typeorm'
+import { Activity } from '../database/entities/Activity'
+import { ActivityEvent, EntityType } from '../services/events/ActivityEvent'
+import { DocWorker } from './workers/DocWorker'
+import { TaskWorker } from './workers/TaskWorker'
 
 const QUEUE_NAME = 'Activity'
 
@@ -11,7 +15,7 @@ export class Queue {
   private redisConfig = { host: config.redis.host, port: config.redis.port }
   private queue: Bull.Queue
 
-  constructor() {
+  private constructor() {
     this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
   }
 
@@ -19,12 +23,25 @@ export class Queue {
     await db()
 
     await new Queue().queue.process(queueName, async (job) => {
-      if (config.env === 'docker') {
-        // tslint:disable-next-line:no-console
-        console.log(`Processing Job ${job.id}`)
-      }
-
-      return getCustomRepository(ActivityRepository).save(job.data)
+      await Queue.saveActivity(job)
+      await Queue.dispatchToWorker(job)
     })
+  }
+
+  private static saveActivity(job: Job<any>): Promise<Activity> {
+    return getCustomRepository(ActivityRepository).save(job.data)
+  }
+
+  private static async dispatchToWorker(job: Job<any>) {
+    const event: ActivityEvent = job.data
+
+    switch (event.entity) {
+      case EntityType.Doc:
+        await DocWorker.getInstance().process(event)
+        break
+      case EntityType.Task:
+        await TaskWorker.getInstance().process(event)
+        break
+    }
   }
 }

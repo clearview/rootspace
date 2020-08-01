@@ -56,7 +56,7 @@ export class TaskListService {
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
 
     const taskList = await this.getTaskListRepository().save(data)
-    await this.registerActivityForTaskListId(TaskListActivities.TaskList_Created, taskList.id)
+    await this.registerActivityForTaskListId(TaskListActivities.Created, taskList.id)
 
     return this.getTaskListRepository().reload(taskList)
   }
@@ -69,14 +69,14 @@ export class TaskListService {
     })
 
     taskList = await this.getTaskListRepository().reload(taskList)
-    await this.registerActivityForTaskList(TaskListActivities.TaskList_Updated, taskList)
+    await this.registerActivityForTaskList(TaskListActivities.Updated, taskList)
 
     return taskList
   }
 
   async remove(id: number) {
     const taskList = await this.getById(id)
-    await this.registerActivityForTaskList(TaskListActivities.TaskList_Deleted, taskList)
+    await this.registerActivityForTaskList(TaskListActivities.Deleted, taskList)
 
     return this.getTaskListRepository().remove(taskList)
   }
