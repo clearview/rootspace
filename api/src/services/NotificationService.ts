@@ -33,11 +33,14 @@ export class NotificationService {
       throw new Error('Notification require userId')
     }
 
+    const entity = await this.getNotificationRepository().getOneFromActivity(activity)
+
     const notification = this.getNotificationRepository().create()
-    notification.userId = activity.userId
-    notification.actorId = activity.actorId
+    notification.spaceId = entity.spaceId
     notification.entityId = activity.entityId
     notification.entity = activity.entity
+    notification.userId = activity.userId
+    notification.actorId = activity.actorId
     notification.tableName = activity.tableName
     notification.action = activity.action
 

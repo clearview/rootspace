@@ -2,6 +2,8 @@ import
 { EntityRepository } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Notification } from '../entities/Notification'
+import { ActivityEvent } from '../../services/events/ActivityEvent'
+import { getConnection } from 'typeorm/index'
 
 @EntityRepository(Notification)
 export class NotificationRepository extends BaseRepository<Notification> {
@@ -18,5 +20,13 @@ export class NotificationRepository extends BaseRepository<Notification> {
       .andWhere('notification.entityId = :entityId', { entityId })
       .andWhere('notification.tableName = :tableName', { tableName })
       .getMany()
+  }
+
+  async getOneFromActivity(activity: ActivityEvent): Promise<any> {
+    return getConnection()
+      .getRepository(activity.entity)
+      .createQueryBuilder('Entity')
+      .where('Entity.id = :id', {id: activity.entityId})
+      .getOne()
   }
 }

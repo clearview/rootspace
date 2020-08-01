@@ -8,6 +8,7 @@ import {
   DeleteDateColumn, ManyToOne, JoinColumn, Unique
 } from 'typeorm'
 import { User } from './User'
+import { Space } from './Space'
 
 @Entity('notifications')
 export class Notification {
@@ -16,10 +17,28 @@ export class Notification {
   id: number
 
   @Column('integer')
+  spaceId: number
+
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
+  @Index()
+  space!: Space
+
+  @Column('integer')
   userId: number
+
+  @ManyToOne(type => User, user => user.notifications, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'userId' })
+  @Index()
+  user!: User
 
   @Column('integer')
   actorId: number
+
+  @ManyToOne(type => User, actor => actor.actions, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'actorId' })
+  @Index()
+  actor!: User
 
   @Column('integer')
   @Index()
@@ -45,14 +64,4 @@ export class Notification {
 
   @DeleteDateColumn({ type: 'timestamptz'})
   deletedAt: Date
-
-  @ManyToOne(type => User, user => user.notifications, {onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'userId' })
-  @Index()
-  user!: User
-
-  @ManyToOne(type => User, actor => actor.actions, {onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'actorId' })
-  @Index()
-  actor!: User
 }
