@@ -55,7 +55,7 @@ export class FollowService {
 
   async followFromActivity(activity: ActivityEvent): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(activity.actorId)
-    const entity = await this.getFollowRepository().getOneFromActivity(activity)
+    const entity = await this.getFollowRepository().getEntityFromActivity(activity)
     return this.follow(user, entity)
   }
 
@@ -119,8 +119,12 @@ export class FollowService {
     const notifications = []
 
     for (const follow of follows) {
-      const existingNotification = await this.notificationService.getExistingNotification(activity, follow)
-      if (existingNotification) { break }
+      /** Do not send notifications for same entity if there are already other unread notifications
+       * Prevents notification spam?
+       *
+       * const existingNotification = await this.notificationService.getExistingNotification(activity, follow)
+       * if (existingNotification) { break }
+       */
 
       activity.userId = follow.userId
 
@@ -152,6 +156,10 @@ export class FollowService {
   async removeFollowsForTaskBoard(activity: ActivityEvent): Promise<DeleteResult | void> {
     const tasks = await this.taskBoardService.getAllTasks(activity.entityId)
     const taskIds = tasks.map((task) => task.id)
+
+    if (!taskIds || taskIds.length < 1) {
+      return null
+    }
 
     return this.removeFollowsForTasks(taskIds)
   }

@@ -5,7 +5,7 @@ import { ActivityEvent } from '../../services/events/ActivityEvent'
 
 @EntityRepository(Follow)
 export class FollowRepository extends BaseRepository<Follow> {
-  async getOneFromActivity(activity: ActivityEvent): Promise<any> {
+  async getEntityFromActivity(activity: ActivityEvent): Promise<any> {
     return getConnection()
       .getRepository(activity.entity)
       .createQueryBuilder('Entity')

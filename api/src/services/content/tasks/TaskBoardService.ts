@@ -56,6 +56,10 @@ export class TaskBoardService extends NodeContentService {
 
     const tasks: Task[] = []
 
+    if (!taskBoard || taskBoard.taskLists.length < 1) {
+      return tasks
+    }
+
     for (const taskList of taskBoard.taskLists) {
       tasks.push(...taskList.tasks)
     }
@@ -70,8 +74,7 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository()
-        .getCompleteTaskboard(id, archived)
+    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
   }
 
   async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {

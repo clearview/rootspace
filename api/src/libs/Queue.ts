@@ -7,6 +7,8 @@ import { getCustomRepository } from 'typeorm'
 import { Activity } from '../database/entities/Activity'
 import { ActivityEvent, EntityType } from '../services/events/ActivityEvent'
 import { DocWorker } from './workers/DocWorker'
+import { TaskBoardWorker } from './workers/TaskBoardWorker'
+import { TaskListWorker } from './workers/TaskListWorker'
 import { TaskWorker } from './workers/TaskWorker'
 
 const QUEUE_NAME = 'Activity'
@@ -38,6 +40,12 @@ export class Queue {
     switch (event.entity) {
       case EntityType.Doc:
         await DocWorker.getInstance().process(event)
+        break
+      case EntityType.TaskBoard:
+        await TaskBoardWorker.getInstance().process(event)
+        break
+      case EntityType.TaskList:
+        await TaskListWorker.getInstance().process(event)
         break
       case EntityType.Task:
         await TaskWorker.getInstance().process(event)

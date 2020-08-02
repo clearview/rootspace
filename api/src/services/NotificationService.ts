@@ -33,7 +33,7 @@ export class NotificationService {
       throw new Error('Notification require userId')
     }
 
-    const entity = await this.getNotificationRepository().getOneFromActivity(activity)
+    const entity = await this.getNotificationRepository().getEntityFromActivity(activity)
 
     const notification = this.getNotificationRepository().create()
     notification.spaceId = entity.spaceId
@@ -63,14 +63,14 @@ export class NotificationService {
   }
 
   async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
-    const notifications = await this.getNotificationRepository().getNotificationsForItems(taskIds, 'tasks')
+    const notifications = await this.getNotificationRepository().getNotificationsForEntities(taskIds, 'tasks')
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }
   }
 
   async removeUserNotificationsForItem(userId: number, entityId: number, tableName: string): Promise<void> {
-    const notifications = await this.getNotificationRepository().getUserNotificationsForItem(userId, entityId, tableName)
+    const notifications = await this.getNotificationRepository().getUserNotificationsForEntity(userId, entityId, tableName)
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }
