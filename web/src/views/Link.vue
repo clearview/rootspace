@@ -1,3 +1,7 @@
+<template>
+  <iframe class="Link-embed" :src="link.value" />
+</template>
+
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import parseURL from 'url-parse'
@@ -32,11 +36,16 @@ export default class Link extends Vue {
 
     await this.$store.dispatch('link/view', id)
 
-    this.redirect()
-  }
-
-  render () {
-    return null
+    if (this.link.newTab) {
+      this.redirect()
+    }
   }
 }
 </script>
+
+<style lang="postcss" scoped>
+.Link-embed {
+  width: 100%;
+  height: 100%;
+}
+</style>

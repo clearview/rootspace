@@ -37,7 +37,7 @@
       align="right"
       class="mb-0"
     >
-      <button-switch v-model="payload.config.alwaysOpen" />
+      <button-switch v-model="payload.newTab" />
     </v-field>
 
     <button
@@ -88,17 +88,13 @@ export default class FormLink extends Vue {
     this.initialInputRef.focus()
   }
 
-  private payload: Omit<LinkResource, 'children'> = {
+  private payload: LinkResource = {
     id: this.value.id || undefined,
     spaceId: this.value.space || this.space,
     title: this.value.title || '',
     type: this.value.type || 'link',
     value: this.value.value || '',
-    config: {
-      alwaysOpen: false,
-
-      ...this.value.config
-    }
+    newTab: this.value.newTab || false
   }
 
   submit (): void {
