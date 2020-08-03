@@ -16,6 +16,9 @@ import Checklist from '@editorjs/checklist'
 
 import { createHeading } from './createHeader'
 
+import api from '@/utils/api'
+import store from '@/store'
+
 type EditorConfig = Partial<EditorJS.EditorConfig>
 type EditorData = EditorJS.OutputData
 type EditorBlockData = {
@@ -64,7 +67,46 @@ export function createEditor (config: EditorConfig): EditorJS {
         inlineToolbar: true,
         shortcut: 'CMD+SHIFT+L'
       },
-      image: Image,
+      image: {
+        class: Image,
+        config: {
+          uploader: {
+            uploadByFile (file: any) {
+              const currentSpaceId = store.getters['space/activeSpace'].id
+              const formData = new FormData()
+              formData.append('file', file)
+
+              const uploadFile = api.post(`/upload?spaceId=${currentSpaceId}`, formData)
+              return uploadFile.then((response) => {
+                return {
+                  success: 1,
+                  file: {
+                    url: response.data.path
+                  }
+                }
+              })
+            },
+            uploadByUrl (url: string) {
+              const fetchURL = new Promise(
+                function (resolve) {
+                  const callback = {
+                    success: 1,
+                    file: {
+                      url: url
+                    }
+                  }
+
+                  resolve(callback)
+                }
+              )
+
+              return fetchURL.then((response) => {
+                return response
+              })
+            }
+          }
+        }
+      },
       inlineCode: {
         class: InlineCode,
         shortcut: 'CMD+SHIFT+C'
