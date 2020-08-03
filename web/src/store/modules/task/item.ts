@@ -130,8 +130,10 @@ const item = createServiceModule(ItemService, {
   }
 })
 if (item.actions) {
-  item.actions.upload = async ({ dispatch, commit, rootState }, params: { task: TaskItemResource; file: File }) => {
-    if (!rootState.auth.currentSpace) {
+  item.actions.upload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; file: File }) => {
+    const activeSpace = rootGetters['space/activeSpace']
+
+    if (!activeSpace) {
       throw new Error('Not in an active space')
     }
     if (!params.task.id) {
@@ -140,7 +142,7 @@ if (item.actions) {
     const formData = new FormData()
     formData.append('file', params.file)
     commit('setProcessing', true)
-    const res = await api.post(`/upload?spaceId=${rootState.auth.currentSpace.id}`, formData)
+    const res = await api.post(`/upload?spaceId=${activeSpace.id}`, formData)
     if (!params.task.attachments) {
       params.task.attachments = []
     }
