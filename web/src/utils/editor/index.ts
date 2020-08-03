@@ -16,6 +16,9 @@ import Checklist from '@editorjs/checklist'
 
 import { createHeading } from './createHeader'
 
+import api from '@/utils/api'
+import store from '@/store'
+
 type EditorConfig = Partial<EditorJS.EditorConfig>
 type EditorData = EditorJS.OutputData
 type EditorBlockData = {
@@ -64,7 +67,40 @@ export function createEditor (config: EditorConfig): EditorJS {
         inlineToolbar: true,
         shortcut: 'CMD+SHIFT+L'
       },
-      image: Image,
+      image: {
+        class: Image,
+        config: {
+          uploader: {
+            uploadByFile (file: any) {
+              const currentSpaceId = store.getters['space/activeSpace'].id
+              const formData = new FormData()
+              formData.append('file', file)
+
+              const uploadFile = api.post(`/upload?spaceId=${currentSpaceId}`, formData)
+              return uploadFile.then((response) => {
+                return {
+                  success: 1,
+                  file: {
+                    url: response.data.path
+                  }
+                }
+              })
+            }
+            // uploadByUrl(url: string){
+            //   // your ajax request for uploading
+            //   return MyAjax.upload(file).then(() => {
+            //     return {
+            //       success: 1,
+            //       file: {
+            //         url: 'https://codex.so/upload/redactor_images/o_e48549d1855c7fc1807308dd14990126.jpg',,
+            //         // any other image data you want to store, such as width, height, color, extension, etc
+            //       }
+            //     }
+            //   })
+            // }
+          }
+        }
+      },
       inlineCode: {
         class: InlineCode,
         shortcut: 'CMD+SHIFT+C'
