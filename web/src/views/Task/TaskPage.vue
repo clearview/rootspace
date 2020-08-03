@@ -144,6 +144,7 @@ import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
+import PageMixin from '@/mixins/PageMixin'
 
 @Component({
   name: 'TaskPage',
@@ -158,7 +159,7 @@ import SpaceMixin from '@/mixins/SpaceMixin'
     Avatar
   }
 })
-export default class TaskPage extends Mixins(SpaceMixin) {
+export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private search = ''
   private filters = {
     tags: [],
@@ -237,6 +238,7 @@ export default class TaskPage extends Mixins(SpaceMixin) {
       if (this.board) {
         this.boardCache = this.board
 
+        this.setPageTitle(this.board.title)
         this.setActiveSpace(this.board.spaceId, {
           activePage: this.$route.path
         })

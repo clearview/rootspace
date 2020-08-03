@@ -58,6 +58,7 @@ import EditorReadonly from '@/components/editor/ReadOnly.vue'
 import VModal from '@/components/Modal.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
+import PageMixin from '@/mixins/PageMixin'
 
 @Component({
   name: 'Document',
@@ -69,7 +70,7 @@ import SpaceMixin from '@/mixins/SpaceMixin'
   }
 })
 
-export default class Document extends Mixins(SpaceMixin) {
+export default class Document extends Mixins(SpaceMixin, PageMixin) {
   private value: any = {}
   private title = ''
   private timer?: any = undefined
@@ -153,6 +154,7 @@ export default class Document extends Mixins(SpaceMixin) {
         this.value = viewDoc.data.content
         this.readOnly = viewDoc.data.isLocked
 
+        this.setPageTitle(this.title)
         this.setActiveSpace(viewDoc.data.spaceId, {
           activePage: this.$route.path
         })
