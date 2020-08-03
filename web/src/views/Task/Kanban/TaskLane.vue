@@ -57,8 +57,8 @@
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
-      <main class="cards" ref="cardContainer" @scroll="handleCardContainerScroll"
-      :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom, 'has-scroll': calculateLaneHasScroll()}">
+      <main class="cards" ref="cardContainer"
+      :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
             :opacite="!isColorDefault"/>
@@ -327,13 +327,6 @@ export default class TaskLane extends Vue {
       this.containerShadowTop = this.cardContainerRef.scrollTop > 0
       this.containerShadowBottom = this.cardContainerRef.scrollTop < (this.cardContainerRef.scrollHeight - this.cardContainerRef.offsetHeight)
     }
-
-    calculateLaneHasScroll () {
-      if (this.cardContainerRef) {
-        return this.cardContainerRef.scrollHeight > this.cardContainerRef.clientHeight
-      }
-      return false
-    }
 }
 </script>
 
@@ -406,13 +399,9 @@ export default class TaskLane extends Vue {
   }
 
   .cards {
-    @apply py-2 relative;
-    padding-left: 0.1rem;
-    padding-right: 0.1rem;
+    @apply p-3 relative;
+    margin:0.75rem -0.65rem;
     overflow-y: auto;
-    &.has-scroll {
-      @apply pr-3;
-    }
   }
 
   ::-webkit-scrollbar {

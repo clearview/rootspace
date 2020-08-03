@@ -1,6 +1,6 @@
 import { createServiceModule } from '@/store/utils/createServiceModule'
 import { ItemService } from '@/services/task'
-import { TaskBoardResource, TaskItemResource, TaskListResource } from '@/types/resource'
+import { TaskBoardResource, TaskItemResource, TaskListResource, UserResource } from '@/types/resource'
 import api from '@/utils/api'
 import { ResourceState, RootState } from '@/types/state'
 import { ActionContext } from 'vuex'
@@ -113,6 +113,14 @@ const item = createServiceModule(ItemService, {
               })
             }
           }
+        } else if (data.dueDate) {
+          board.current.taskLists = board.current.taskLists.map(list => {
+            const task = list.tasks.find(task => task.id === data.id)
+            if (task) {
+              task.dueDate = data.dueDate
+            }
+            return list
+          })
         }
       }
     }, { root: true })
@@ -153,38 +161,42 @@ if (item.actions) {
 
     return res
   }
-  item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number }) => {
+  item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number; user?: UserResource }) => {
+    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.map(task => {
+            if (task.id === params.taskId) {
+              if (!task.assignees) {
+                task.assignees = []
+              }
+              if (params.user) {
+                task.assignees.push(params.user)
+              }
+            }
+            return task
+          })
+          return list
+        })
+      }
+    }, { root: true })
+
     commit('setProcessing', true)
     const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/add`)
     commit('setProcessing', false)
 
-    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.map(task => {
-            if (task.id === params.taskId) {
-              return res.data.data
-            }
-            return task
-          })
-          return list
-        })
-      }
-    }, { root: true })
-
     return res
   }
   item.actions.removeAssigneeFromTask = async ({ commit }, params: { taskId: number; userId: number }) => {
-    commit('setProcessing', true)
-    const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/remove`)
-    commit('setProcessing', false)
-
     commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         board.current.taskLists = board.current.taskLists.map(list => {
           list.tasks = list.tasks.map(task => {
             if (task.id === params.taskId) {
-              return res.data.data
+              if (!task.assignees) {
+                task.assignees = []
+              }
+              task.assignees = task.assignees.filter(t => t.id !== params.userId)
             }
             return task
           })
@@ -192,6 +204,10 @@ if (item.actions) {
         })
       }
     }, { root: true })
+
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/assignee/${params.userId}/remove`)
+    commit('setProcessing', false)
 
     return res
   }
