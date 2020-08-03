@@ -9,6 +9,7 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndSelect('task.taskComments', 'comment')
+      .leftJoinAndSelect('task.user', 'createdBy')
       .leftJoinAndSelect('comment.user', 'user')
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')

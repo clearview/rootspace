@@ -6,6 +6,8 @@
     nofooter
     cancel-text="Okay"
     @cancel="close"
+    :modalStyle="{ 'align-items': 'flex-start' }"
+    :contentStyle="{ 'margin-top': '50px' }"
   >
     <template v-slot:header>
       <div class="task-modal-header">
@@ -107,6 +109,15 @@
 
       </div>
       <div class="task-right">
+        <div class="right-field">
+          <div class="right-field-title">Created By</div>
+          <div class="right-field-content">
+            <div class="created-by">
+              <avatar :username="memberName(item.user)"></avatar>
+              <span class="label">{{ memberName(item.user) }}</span>
+            </div>
+          </div>
+        </div>
         <div class="right-field">
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
@@ -389,6 +400,7 @@ export default class TaskModal extends Vue {
     }
 
     memberName (member: UserResource) {
+      if (!member) return
       return `${member.firstName} ${member.lastName}`
     }
 
@@ -621,6 +633,9 @@ export default class TaskModal extends Vue {
     @apply uppercase;
     color: theme("colors.gray.800");
     font-weight: 500;
+    letter-spacing: 0.05em;
+    font-size: 12px;
+    margin-bottom: 8px;
   }
 
   .right-field-content {
@@ -634,7 +649,7 @@ export default class TaskModal extends Vue {
   }
 
   .tag {
-    @apply p-2 mr-2 rounded inline-flex items-center mb-2;
+    @apply px-2 py-1 mr-2 rounded inline-flex items-center mb-2;
     color: #fff;
     cursor: pointer;
 
@@ -668,7 +683,7 @@ export default class TaskModal extends Vue {
   }
 
   .member-list {
-    @apply py-2;
+    @apply pb-2;
 
     display: inline-block;
     width: 170px;
@@ -685,7 +700,7 @@ export default class TaskModal extends Vue {
       .vue-avatar--wrapper {
         width: 35px !important;
         height: 35px !important;
-        font: 14px / 24px theme("fontFamily.primary") !important;
+        font: 13px / 24px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
         margin-left: -7px;
@@ -735,6 +750,30 @@ export default class TaskModal extends Vue {
     height: 100%;
     background: #fff8;
     backdrop-filter: saturate(1.5) blur(4px);
+  }
+
+  .created-by {
+    @apply flex;
+
+    padding-left: 6px;
+
+    .vue-avatar--wrapper {
+      width: 35px !important;
+      height: 35px !important;
+      font: 13px / 24px theme("fontFamily.primary") !important;
+      float: left;
+      border: 2px solid #FFF;
+      margin-left: -7px;
+      letter-spacing: 0.03em;
+    }
+
+    .label {
+      @apply self-center ml-2;
+
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 17px;
+    }
   }
 
 </style>
