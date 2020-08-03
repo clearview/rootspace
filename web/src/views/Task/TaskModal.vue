@@ -364,7 +364,8 @@ export default class TaskModal extends Vue {
       } else {
         await this.$store.dispatch('task/item/addAssigneeToTask', {
           taskId: this.item.id,
-          userId: member.id
+          userId: member.id,
+          user: member
         })
       }
       const currentBoard = this.$store.state.task.board.current

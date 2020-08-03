@@ -24,10 +24,6 @@ const tag = createChildServiceModule(TagService, (root: RootState) => root.task.
 })
 if (tag.actions) {
   tag.actions.addToTask = async ({ state, commit }, params: { taskId: number; tagId: number }) => {
-    commit('setProcessing', true)
-    const res = await api.post(`tasks/task/${params.taskId}/tag/${params.tagId}/add`)
-    commit('setProcessing', false)
-
     commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         board.current.taskLists = board.current.taskLists.map(list => {
@@ -44,13 +40,13 @@ if (tag.actions) {
       }
     }, { root: true })
 
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/tag/${params.tagId}/add`)
+    commit('setProcessing', false)
+
     return res
   }
   tag.actions.removeFromTask = async ({ commit }, params: { taskId: number; tagId: number }) => {
-    commit('setProcessing', true)
-    const res = await api.post(`tasks/task/${params.taskId}/tag/${params.tagId}/remove`)
-    commit('setProcessing', false)
-
     commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         board.current.taskLists = board.current.taskLists.map(list => {
@@ -62,6 +58,11 @@ if (tag.actions) {
         })
       }
     }, { root: true })
+
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/tag/${params.tagId}/remove`)
+    commit('setProcessing', false)
+
     return res
   }
   tag.actions.updateTag = async ({ state, commit }, params: { tagId: number; data: object }) => {
