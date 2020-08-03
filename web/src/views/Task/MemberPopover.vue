@@ -85,7 +85,7 @@ export default class TagsPopover extends Vue {
   }
 
   .member-input {
-    @apply p-2;
+    @apply px-4 py-1;
   }
 
   .members {
@@ -95,7 +95,7 @@ export default class TagsPopover extends Vue {
   }
 
   .member {
-    @apply p-2;
+    @apply px-4 py-1;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -124,7 +124,7 @@ export default class TagsPopover extends Vue {
     .icon-checkmark {
       color: theme("colors.primary.default");
       position: absolute;
-      right: 10px;
+      right: 16px;
       opacity: 0;
     }
 

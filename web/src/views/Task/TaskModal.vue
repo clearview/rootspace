@@ -645,7 +645,7 @@ export default class TaskModal extends Vue {
   }
 
   .tag {
-    @apply p-2 mr-2 rounded inline-flex items-center mb-2;
+    @apply px-2 py-1 mr-2 rounded inline-flex items-center mb-2;
     color: #fff;
     cursor: pointer;
 
@@ -696,7 +696,7 @@ export default class TaskModal extends Vue {
       .vue-avatar--wrapper {
         width: 35px !important;
         height: 35px !important;
-        font: 14px / 24px theme("fontFamily.primary") !important;
+        font: 13px / 24px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
         margin-left: -7px;
@@ -754,7 +754,7 @@ export default class TaskModal extends Vue {
     .vue-avatar--wrapper {
       width: 35px !important;
       height: 35px !important;
-      font: 14px / 24px theme("fontFamily.primary") !important;
+      font: 13px / 24px theme("fontFamily.primary") !important;
       float: left;
       border: 2px solid #FFF;
       margin-left: -7px;
