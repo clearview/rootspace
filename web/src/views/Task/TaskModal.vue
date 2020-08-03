@@ -632,6 +632,9 @@ export default class TaskModal extends Vue {
     @apply uppercase;
     color: theme("colors.gray.800");
     font-weight: 500;
+    letter-spacing: 0.05em;
+    font-size: 12px;
+    margin-bottom: 8px;
   }
 
   .right-field-content {
@@ -679,7 +682,7 @@ export default class TaskModal extends Vue {
   }
 
   .member-list {
-    @apply py-2;
+    @apply pb-2;
 
     display: inline-block;
     width: 170px;
@@ -750,6 +753,8 @@ export default class TaskModal extends Vue {
 
   .created-by {
     @apply flex;
+
+    padding-left: 6px;
 
     .vue-avatar--wrapper {
       width: 35px !important;
