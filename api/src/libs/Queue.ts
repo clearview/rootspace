@@ -1,4 +1,5 @@
-import 'dotenv/config'
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { config } from 'node-config-ts'
 import db from '../db'
 import Bull, { Job } from 'bull'
