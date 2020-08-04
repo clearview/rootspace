@@ -26,6 +26,9 @@ export class Link {
   @Column('varchar', { length: 150 })
   value: string
 
+  @Column('boolean', { default: 'false'})
+  newTab: boolean
+
   @CreateDateColumn()
   created: string
 

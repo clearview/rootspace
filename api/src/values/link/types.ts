@@ -3,6 +3,7 @@ export interface ILinkCreateAttributes {
   readonly spaceId: number
   readonly title: string
   readonly value: string
+  readonly newTab: boolean
 }
 
 export type ILinkUpdateAttributes = Omit<
