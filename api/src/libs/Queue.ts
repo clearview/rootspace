@@ -25,7 +25,8 @@ export class Queue {
     await db()
 
     await new Queue().queue.process(queueName, async (job) => {
-      await Queue.saveActivity(job)
+      job.data.activity = await Queue.saveActivity(job)
+
       await Queue.dispatchToWorker(job)
     })
   }

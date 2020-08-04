@@ -4,9 +4,15 @@ import { Notification } from '../database/entities/Notification'
 import { Follow } from '../database/entities/Follow'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { ActivityEvent } from './events/ActivityEvent'
+import { ActivityService } from './ActivityService'
 
 export class NotificationService {
   private static instance: NotificationService
+  private activityService: ActivityService
+
+  private constructor() {
+    this.activityService = ActivityService.getInstance()
+  }
 
   static getInstance() {
     if (!NotificationService.instance) {
@@ -20,29 +26,23 @@ export class NotificationService {
     return getCustomRepository(NotificationRepository)
   }
 
-  getNotificationById(id: number): Promise<Notification | undefined> {
-    return this.getNotificationRepository().findOne(id)
-  }
-
   getNotificationsByUserId(userId: number): Promise<Notification[]> {
     return this.getNotificationRepository().find({ id: userId })
   }
 
-  async create(activity: ActivityEvent): Promise<Notification> {
-    if (!activity.userId) {
+  async create(event: ActivityEvent): Promise<Notification> {
+    if (!event.userId) {
       throw new Error('Notification require userId')
     }
 
-    const entity = await this.getNotificationRepository().getEntityFromActivity(activity)
+    if (!event.activity?.id) {
+      throw new Error('Notification require activityId')
+    }
 
     const notification = this.getNotificationRepository().create()
-    notification.spaceId = entity.spaceId
-    notification.entityId = activity.entityId
-    notification.entity = activity.entity
-    notification.userId = activity.userId
-    notification.actorId = activity.actorId
-    notification.tableName = activity.tableName
-    notification.action = activity.action
+    notification.userId = event.userId
+    notification.spaceId = event.spaceId
+    notification.activityId = event.activity.id
 
     return this.getNotificationRepository().save(notification)
   }
@@ -51,15 +51,12 @@ export class NotificationService {
     return this.getNotificationRepository().save(notifications)
   }
 
-  async getExistingNotification(activity: ActivityEvent, follow: Follow): Promise<Notification | undefined> {
-    return this.getNotificationRepository().findOne({
-      userId: follow.userId,
-      actorId: activity.actorId,
-      entityId: activity.entityId,
-      entity: activity.entity,
-      tableName: activity.tableName,
-      isRead: false
-    })
+  async getUnreadNotification(event: ActivityEvent, follow: Follow): Promise<Notification> {
+    return this.getNotificationRepository().getUnreadUserNotificationForEntity(
+      follow.userId,
+      event.activity.id,
+      event.activity.entity
+    )
   }
 
   async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
@@ -74,13 +71,6 @@ export class NotificationService {
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }
-  }
-
-  async deleteFromActivity(activity: ActivityEvent): Promise<DeleteResult> {
-    return this.getNotificationRepository().delete({
-      entityId: activity.entityId,
-      tableName: activity.tableName
-    })
   }
 
   async delete(criteria: any): Promise<DeleteResult> {

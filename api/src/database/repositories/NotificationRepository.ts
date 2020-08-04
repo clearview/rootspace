@@ -9,24 +9,28 @@ import { getConnection } from 'typeorm/index'
 export class NotificationRepository extends BaseRepository<Notification> {
   async getNotificationsForEntities(entityIds: number[], tableName: string): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
-      .where('notification.entityId IN (:...entityIds)', { entityIds })
-      .andWhere('notification.tableName = :tableName', { tableName })
+      .leftJoinAndSelect('notification.activity', 'activity')
+      .where('activity.entityId IN (:...entityIds)', { entityIds })
+      .andWhere('activity.tableName = :tableName', { tableName })
       .getMany()
+  }
+
+  async getUnreadUserNotificationForEntity(userId: number, entityId: number, tableName: string): Promise<Notification> {
+    return this.createQueryBuilder('notification')
+      .leftJoinAndSelect('notification.activity', 'activity')
+      .where('notification.userId = :userId', { userId })
+      .andWhere('notification.isRead = :isRead', { isRead: false })
+      .andWhere('activity.entityId = :entityId', { entityId })
+      .andWhere('activity.tableName = :tableName', { tableName })
+      .getOne()
   }
 
   async getUserNotificationsForEntity(userId: number, entityId: number, tableName: string): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
+      .leftJoinAndSelect('notification.activity', 'activity')
       .where('notification.userId = :userId', { userId })
-      .andWhere('notification.entityId = :entityId', { entityId })
-      .andWhere('notification.tableName = :tableName', { tableName })
+      .andWhere('activity.entityId = :entityId', { entityId })
+      .andWhere('activity.tableName = :tableName', { tableName })
       .getMany()
-  }
-
-  async getEntityFromActivity(activity: ActivityEvent): Promise<any> {
-    return getConnection()
-      .getRepository(activity.entity)
-      .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: activity.entityId})
-      .getOne()
   }
 }

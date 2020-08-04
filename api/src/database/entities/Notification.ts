@@ -9,6 +9,7 @@ import {
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
+import { Activity } from './Activity'
 
 @Entity('notifications')
 export class Notification {
@@ -33,25 +34,12 @@ export class Notification {
   user!: User
 
   @Column('integer')
-  actorId: number
+  activityId: number
 
-  @ManyToOne(type => User, actor => actor.actions, {onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'actorId' })
+  @ManyToOne((type) => Activity, activity => activity.notifications, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'activityId' })
   @Index()
-  actor!: User
-
-  @Column('integer')
-  @Index()
-  entityId: number
-
-  @Column('varchar')
-  entity: string
-
-  @Column('varchar')
-  tableName: string
-
-  @Column('varchar', { nullable: true })
-  action: string
+  activity!: Activity
 
   @Column('boolean', { default: false })
   isRead: boolean

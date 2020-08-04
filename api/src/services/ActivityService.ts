@@ -24,16 +24,20 @@ export class ActivityService {
     return ActivityService.instance
   }
 
-  async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(QUEUE_NAME, activityEvent.toObject())
-  }
 
   getActivityRepository(): ActivityRepository {
     return getCustomRepository(ActivityRepository)
+  }
+
+  async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
+    return this.queue.add(QUEUE_NAME, activityEvent.toObject())
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
     return this.getActivityRepository().find({ spaceId })
   }
 
+  async getEntityFromActivity(event: ActivityEvent): Promise<any> {
+    return this.getActivityRepository().getEntityFromActivityEvent(event)
+  }
 }

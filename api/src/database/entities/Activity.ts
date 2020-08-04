@@ -4,10 +4,12 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn, Index
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
+import { Notification } from './Notification'
 
 @Entity('activities')
 export class Activity {
@@ -49,4 +51,7 @@ export class Activity {
 
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
+
+  @OneToMany(type => Notification, notification => notification.activity, {eager: false, onDelete: 'CASCADE'})
+  public notifications!: Notification[]
 }

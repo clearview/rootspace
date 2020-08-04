@@ -1,4 +1,5 @@
 import { getConnection } from 'typeorm'
+import { Activity } from '../../database/entities/Activity'
 
 export enum EntityType {
   Doc = 'Doc',
@@ -11,6 +12,7 @@ export enum EntityType {
 
 export class ActivityEvent {
   private readonly _action: string
+  private _activity?: Activity
   private _actorId: number
   private _userId?: number
   private _spaceId: number
@@ -44,6 +46,14 @@ export class ActivityEvent {
   inSpace(spaceId: number): ActivityEvent {
     this._spaceId = spaceId
     return this
+  }
+
+  get activity(): Activity {
+    return this._activity
+  }
+
+  set activity(activity: Activity) {
+    this._activity = activity
   }
 
   get action(): string {
