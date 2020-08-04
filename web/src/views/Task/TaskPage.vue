@@ -227,6 +227,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   async fetchTask () {
+    this.isFetching = true
     try {
       await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
       await this.$store.dispatch('task/tag/fetch', null)
