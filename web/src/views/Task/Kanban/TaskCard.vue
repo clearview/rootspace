@@ -468,7 +468,7 @@ export default class TaskCard extends Vue {
     opacity: 0.75;
   }
   .title-editable {
-    @apply p-2 px-3 flex text-base items-center rounded;
+    @apply p-2 px-3 block text-base items-center rounded;
     background: theme("colors.white.default");
     outline: none;
     font-weight: 500;
@@ -480,7 +480,7 @@ export default class TaskCard extends Vue {
     white-space: pre-wrap;       /* css-3 */
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
-    word-break: break-all;
+    word-break: break-word;
     white-space: normal;
     &:focus {
       border: 1px solid rgba(47, 128, 237, 0.75);
