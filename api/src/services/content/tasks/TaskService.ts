@@ -1,5 +1,5 @@
-import { getCustomRepository, UpdateResult } from 'typeorm'
 import httpRequestContext from 'http-request-context'
+import { getCustomRepository, UpdateResult } from 'typeorm'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
@@ -8,20 +8,22 @@ import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
 import { FollowService } from '../../FollowService'
-import { TaskActivityService } from './TaskActivityService'
-import { TaskActivities, TaskActivity } from '../../../database/entities/tasks/TaskActivity'
+import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
+import { ActivityService } from '../../ActivityService'
+import { ActivityEvent } from '../../events/ActivityEvent'
+import Bull from 'bull'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
   private followService: FollowService
-  private activityService: TaskActivityService
+  private activityService: ActivityService
 
   private constructor() {
     this.userService = UserService.getInstance()
     this.tagService = TaskBoardTagService.getInstance()
     this.followService = FollowService.getInstance()
-    this.activityService = TaskActivityService.getInstance()
+    this.activityService = ActivityService.getInstance()
   }
 
   private static instance: TaskService
@@ -54,12 +56,8 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<Task> {
-    return this.getTaskRepository()
-        .createQueryBuilder()
-        .where('task.id = :id', { id })
-        .andWhere('task.deletedAt IS NOT NULL')
-        .getOne()
+  async getArchivedById(id: number): Promise<Task | undefined> {
+    return this.getTaskRepository().findOneArchived(id)
   }
 
   async create(data: any): Promise<Task> {
@@ -69,7 +67,7 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.noteActivityForTask(task, TaskActivities.Task_Created)
+    await this.registerActivityForTaskId(TaskActivities.Created, task.id)
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().reload(task)
@@ -83,31 +81,27 @@ export class TaskService {
     })
 
     await this.assigneesUpdate(task, data)
-    await this.noteActivityForTask(task, TaskActivities.Task_Updated)
+    await this.registerActivityForTaskId(TaskActivities.Updated, task.id)
 
     return this.getTaskRepository().reload(task)
   }
 
   async archive(taskId: number): Promise<UpdateResult> {
-    const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
+    await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
 
-    await this.noteActivityForId(taskId, TaskActivities.Task_Archived)
-
-    return archivedTask
+    return this.getTaskRepository().softDelete({id: taskId})
   }
 
   async restore(taskId: number): Promise<UpdateResult> {
-    const restoredTask = this.getTaskRepository().restore({id: taskId})
-    await this.noteActivityForId(taskId, TaskActivities.Task_Restored)
+    const restoredTask = await this.getTaskRepository().restore({id: taskId})
+    await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
 
     return restoredTask
   }
 
   async remove(taskId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId)
-
-    await this.followService.removeAllFromEntity(task)
-    await this.noteActivityForTask(task, TaskActivities.Task_Deleted)
+    await this.registerActivityForTask(TaskActivities.Deleted, task)
 
     return this.getTaskRepository().remove(task)
   }
@@ -139,9 +133,10 @@ export class TaskService {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.noteActivityForTask(savedTask, TaskActivities.Assignee_Added)
-
+      await this.registerActivityForTask(TaskActivities.Assignee_Added, task)
       await this.followService.follow(user, task)
+
+      return savedTask
     }
 
     return task
@@ -158,7 +153,7 @@ export class TaskService {
     await this.followService.unfollow(user, task)
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.noteActivityForTask(savedTask, TaskActivities.Assignee_Removed)
+    await this.registerActivityForTask(TaskActivities.Assignee_Removed, task)
 
     return savedTask
   }
@@ -173,8 +168,8 @@ export class TaskService {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
+      await this.registerActivityForTask(TaskActivities.Tag_Added, task)
 
-      await this.noteActivityForTask(savedTask, TaskActivities.Tag_Added)
       return savedTask
     }
 
@@ -190,23 +185,25 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.noteActivityForTask(savedTask, TaskActivities.Tag_Removed)
+    await this.registerActivityForTask(TaskActivities.Tag_Removed, task)
 
     return savedTask
   }
 
-  async noteActivityForId(taskId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
+  async registerActivityForTaskId(taskActivity: TaskActivities, taskId: number): Promise<Bull.Job> {
     const task = await this.getById(taskId)
-    return this.noteActivityForTask(task, taskActivity)
+    return this.registerActivityForTask(taskActivity, task)
   }
 
-  async noteActivityForTask(task: Task, taskActivity: TaskActivities): Promise<TaskActivity> {
+  async registerActivityForTask(taskActivity: TaskActivities, task: Task): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
-    return this.activityService.create({
-      userId: actor.id,
-      taskId: task.id,
-      content: taskActivity
-    })
+    return this.activityService.add(
+      ActivityEvent
+      .withAction(taskActivity)
+      .fromActor(actor.id)
+      .forEntity(task)
+      .inSpace(task.spaceId)
+    )
   }
 }

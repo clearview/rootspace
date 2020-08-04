@@ -8,6 +8,8 @@ import {
   DeleteDateColumn, ManyToOne, JoinColumn, Unique
 } from 'typeorm'
 import { User } from './User'
+import { Space } from './Space'
+import { Activity } from './Activity'
 
 @Entity('notifications')
 export class Notification {
@@ -16,26 +18,28 @@ export class Notification {
   id: number
 
   @Column('integer')
+  spaceId: number
+
+  @ManyToOne((type) => Space)
+  @JoinColumn({ name: 'spaceId' })
+  @Index()
+  space!: Space
+
+  @Column('integer')
   userId: number
 
-  @Column('integer')
-  actorId: number
-
-  @Column('integer')
+  @ManyToOne(type => User, user => user.notifications, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'userId' })
   @Index()
-  itemId: number
+  user!: User
 
-  @Column('varchar')
-  targetName: string
+  @Column('integer')
+  activityId: number
 
-  @Column('varchar')
-  tableName: string
-
-  @Column('varchar', { nullable: true })
-  action: string
-
-  @Column('varchar', { nullable: true })
-  message: string
+  @ManyToOne((type) => Activity, activity => activity.notifications, {onDelete: 'CASCADE'})
+  @JoinColumn({ name: 'activityId' })
+  @Index()
+  activity!: Activity
 
   @Column('boolean', { default: false })
   isRead: boolean
@@ -48,14 +52,4 @@ export class Notification {
 
   @DeleteDateColumn({ type: 'timestamptz'})
   deletedAt: Date
-
-  @ManyToOne(type => User, user => user.notifications, {onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'userId' })
-  @Index()
-  user!: User
-
-  @ManyToOne(type => User, actor => actor.actions, {onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'actorId' })
-  @Index()
-  actor!: User
 }

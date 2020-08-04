@@ -1,15 +1,25 @@
-import { getCustomRepository, DeleteResult } from 'typeorm'
+import httpRequestContext from 'http-request-context'
+import { getCustomRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
-import { INodeContentMediator, IContentNodeUpdate } from './contracts'
+import { IContentNodeUpdate, INodeContentMediator } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { ActivityService } from '../ActivityService'
+import Bull from 'bull'
+import { ActivityEvent } from '../events/ActivityEvent'
+import { NodeActivities } from '../../database/entities/activities/NodeActivities'
 
 export class NodeService {
   private mediator: INodeContentMediator
+  private activityService: ActivityService
 
   private static instance: NodeService
+
+  private constructor() {
+    this.activityService = ActivityService.getInstance()
+  }
 
   static getInstance() {
     if (!NodeService.instance) {
@@ -71,13 +81,16 @@ export class NodeService {
       : await this.getRootNodeBySpaceId(data.attributes.spaceId)
 
     if (!parent) {
-      throw clientError('Cant not find parent node or sapce root node')
+      throw clientError('Cant not find parent node or space root node')
     }
 
     Object.assign(node, data.attributes)
     node.parent = parent
 
-    return this.getNodeRepository().save(node)
+    const savedNode = await this.getNodeRepository().save(node)
+    await this.registerActivityForNodeId(NodeActivities.Created, savedNode.id)
+
+    return savedNode
   }
 
   async update(data: NodeUpdateValue, id: number): Promise<Node> {
@@ -100,6 +113,8 @@ export class NodeService {
     }
 
     this.mediator.nodeUpdated(node)
+
+    await this.registerActivityForNodeId(NodeActivities.Updated, node.id)
 
     return node
   }
@@ -164,6 +179,7 @@ export class NodeService {
     }
 
     node.position = toPosition
+
     return this.getNodeRepository().save(node)
   }
 
@@ -179,7 +195,6 @@ export class NodeService {
     }
 
     const removedNode = await this._remove(node)
-
     await this.mediator.nodeRemoved(removedNode)
 
     return node
@@ -242,10 +257,28 @@ export class NodeService {
       )
     }
 
-    const removedNode = await this.getNodeRepository().remove(node)
+    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
+    const removedNode = await this.getNodeRepository().remove(node)
     this.getNodeRepository().decreasePositions(removedNode.parentId, removedNode.position)
 
     return removedNode
+  }
+
+  async registerActivityForNodeId(nodeActivity: NodeActivities, nodeId: number): Promise<Bull.Job> {
+    const node = await this.getNodeById(nodeId)
+    return this.registerActivityForNode(nodeActivity, node)
+  }
+
+  async registerActivityForNode(nodeActivity: NodeActivities, node: Node): Promise<Bull.Job> {
+    const actor = httpRequestContext.get('user')
+
+    return this.activityService.add(
+      ActivityEvent
+        .withAction(nodeActivity)
+        .fromActor(actor.id)
+        .forEntity(node)
+        .inSpace(node.spaceId)
+    )
   }
 }

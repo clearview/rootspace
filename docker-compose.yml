@@ -29,11 +29,29 @@ services:
         max-size: "100MB"
         max-file: "3"
 
+  redis:
+    image: redis:6
+    container_name: root_redis
+    networks:
+      - backend
+    volumes:
+      - redis:/data/
+    ports:
+      - "6379:6379"
+    entrypoint: redis-server --appendonly yes
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
   api:
     image: node:12
     container_name: root_api
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./api:/opt/project/
     working_dir: /opt/project
@@ -44,6 +62,26 @@ services:
     ports:
       - "3001:3001"
       - "9229:9229"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  queue:
+    image: node:12
+    container_name: root_queue_processor
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project/
+    working_dir: /opt/project
+    command: yarn queue:process
+    networks:
+      - backend
+    ports:
+      - "9230:9230"
     logging:
       driver: "json-file"
       options:
@@ -102,3 +140,4 @@ networks:
 
 volumes:
   postgres:
+  redis:

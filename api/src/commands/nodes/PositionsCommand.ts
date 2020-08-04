@@ -1,19 +1,15 @@
 import chalk from 'chalk'
-import db from '../db'
+import db from '../../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
-import { NodeRepository } from '../database/repositories/NodeRepository'
-import { Node } from '../database/entities/Node'
+import { NodeRepository } from '../../database/repositories/NodeRepository'
+import { Node } from '../../database/entities/Node'
 
-export class NodeCommand {
-  async run(command: string) {
+export class PositionsCommand {
+  static async run() {
     await db()
 
     try {
-      switch (command) {
-        case 'normalize-positions':
-          await this.normalizePositions()
-          break
-      }
+      await PositionsCommand.normalizePositions()
     } catch (e) {
       // tslint:disable-next-line:no-console
       console.log(chalk.red('Operation operation failed!'))
@@ -24,11 +20,11 @@ export class NodeCommand {
     }
   }
 
-  private async normalizePositions() {
+  private static async normalizePositions() {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Normalize positions...'))
 
-    await NodeCommand.setRootPositions()
+    await PositionsCommand.setRootPositions()
 
     const parents = await getCustomRepository(NodeRepository)
       .createQueryBuilder('node')
@@ -39,11 +35,14 @@ export class NodeCommand {
 
     await Promise.all(
       parents.map(
-        async function(parent: any) {
-          return this.setPositions(parent.node_parentId)
-        }.bind(this)
+        async (parent: any) => {
+          return PositionsCommand.setPositions(parent.node_parentId)
+        }
       )
     )
+
+    // tslint:disable-next-line:no-console
+    console.log(chalk.green('Operation completed'))
   }
 
   private static async setRootPositions(): Promise<UpdateResult> {
@@ -60,7 +59,7 @@ export class NodeCommand {
       .execute()
   }
 
-  private async setPositions(parentId: number) {
+  private static async setPositions(parentId: number) {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Set positions for parent id ' + parentId))
 

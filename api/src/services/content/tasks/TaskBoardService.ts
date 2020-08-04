@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
@@ -9,12 +10,19 @@ import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
 import { Task } from '../../../database/entities/tasks/Task'
+import { ActivityService } from '../../ActivityService'
+import Bull from 'bull'
+import { ActivityEvent } from '../../events/ActivityEvent'
+import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
+  private activityService: ActivityService
+
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
+    this.activityService = ActivityService.getInstance()
   }
 
   private static instance: TaskBoardService
@@ -48,6 +56,10 @@ export class TaskBoardService extends NodeContentService {
 
     const tasks: Task[] = []
 
+    if (!taskBoard || taskBoard.taskLists.length < 1) {
+      return tasks
+    }
+
     for (const taskList of taskBoard.taskLists) {
       tasks.push(...taskList.tasks)
     }
@@ -62,8 +74,7 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository()
-        .getCompleteTaskboard(id, archived)
+    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
   }
 
   async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
@@ -76,7 +87,7 @@ export class TaskBoardService extends NodeContentService {
 
   async save(data: any): Promise<TaskBoard> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
-    const taskBoard = await this.getTaskBoardRepository().save(data)
+    let taskBoard = await this.getTaskBoardRepository().save(data)
 
     await this.nodeService.create(
       NodeCreateValue.fromObject({
@@ -88,6 +99,9 @@ export class TaskBoardService extends NodeContentService {
       })
     )
 
+    taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Created, taskBoard)
+
     return taskBoard
   }
 
@@ -98,13 +112,17 @@ export class TaskBoardService extends NodeContentService {
       ...data,
     })
 
-    return this.getTaskBoardRepository().reload(taskBoard)
+    taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard)
+
+    return taskBoard
   }
 
   async remove(id: number) {
     const taskBoard = await this.getById(id)
-    await this.getTaskBoardRepository().remove(taskBoard)
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
 
+    await this.getTaskBoardRepository().remove(taskBoard)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return taskBoard
@@ -112,6 +130,24 @@ export class TaskBoardService extends NodeContentService {
 
   async nodeRemoved(contentId: number): Promise<void> {
     const taskBoard = await this.getTaskBoardRepository().findOne({id: contentId})
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
     await this.getTaskBoardRepository().remove(taskBoard)
+  }
+
+  async registerActivityForTaskBoardId(taskBoardActivity: TaskBoardActivities, taskBoardId: number): Promise<Bull.Job> {
+    const taskBoard = await this.getById(taskBoardId)
+    return this.registerActivityForTaskBoard(taskBoardActivity, taskBoard)
+  }
+
+  async registerActivityForTaskBoard(taskBoardActivity: TaskBoardActivities, taskBoard: TaskBoard): Promise<Bull.Job> {
+    const actor = httpRequestContext.get('user')
+
+    return this.activityService.add(
+      ActivityEvent
+        .withAction(taskBoardActivity)
+        .fromActor(actor.id)
+        .forEntity(taskBoard)
+        .inSpace(taskBoard.spaceId)
+    )
   }
 }

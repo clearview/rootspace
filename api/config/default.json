@@ -27,5 +27,13 @@
   "domainInviteAcceptPath": "/invitation",
   "sentry": {
     "dsn": "@@SENTRY_DSN"
+  },
+  "redis": {
+    "host": "@@REDIS_HOST",
+    "port": "@@REDIS_PORT"
+  },
+  "arena": {
+    "username": "@@ARENA_USERNAME",
+    "password": "@@ARENA_PASSWORD"
   }
 }

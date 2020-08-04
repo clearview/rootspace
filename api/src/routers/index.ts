@@ -1,4 +1,5 @@
 import { defaultRouter } from './defaultRouter'
+import { arenaRouter } from './arenaRouter'
 import { userRouter } from './userRouter'
 import { docRouter } from './docRouter'
 import { spaceRouter } from './spaceRouter'
@@ -12,6 +13,7 @@ import { embedRouter } from './embedRouter'
 
 const routers = [
   defaultRouter,
+  arenaRouter,
   userRouter,
   docRouter,
   spaceRouter,

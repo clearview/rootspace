@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../database/repositories/UploadRepository'
@@ -6,12 +7,18 @@ import { nanoid } from 'nanoid'
 import S3 from 'aws-sdk/clients/s3'
 import path from 'path'
 import fs from 'fs'
+import Bull from 'bull'
+import { ActivityEvent } from './events/ActivityEvent'
+import { ActivityService } from './ActivityService'
+import { FileActivities } from '../database/entities/activities/FileActivities'
 
 export class UploadService {
 
   private s3: S3
+  private activityService: ActivityService
 
   constructor() {
+    this.activityService = ActivityService.getInstance()
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
       secretAccessKey: config.s3.secretKey
@@ -42,8 +49,10 @@ export class UploadService {
       fileData.size = file.size
       fileData.path = sFFile.Location
 
-      const fileDbRecord = await this.getUploadRepository().save(fileData)
-      return fileDbRecord
+      const upload = await this.getUploadRepository().save(fileData)
+      await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+
+      return upload
     } catch (e) {
       throw new Error(e)
     }
@@ -65,5 +74,22 @@ export class UploadService {
         resolve(output)
       })
     })
+  }
+
+  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
+    const upload = await this.getUploadById(uploadId)
+    return this.registerActivityForUpload(uploadActivity, upload)
+  }
+
+  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
+    const actor = httpRequestContext.get('user')
+
+    return this.activityService.add(
+      ActivityEvent
+        .withAction(uploadActivity)
+        .fromActor(actor.id)
+        .forEntity(upload)
+        .inSpace(upload.spaceId)
+    )
   }
 }

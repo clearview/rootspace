@@ -20,7 +20,7 @@ export class Follow {
 
   @Column('integer')
   @Index()
-  itemId: number
+  entityId: number
 
   @Column('varchar')
   tableName: string

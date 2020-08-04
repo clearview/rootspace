@@ -1,7 +1,8 @@
 import { getCustomRepository } from 'typeorm'
 import { TaskCommentRepository } from '../../../database/repositories/tasks/TaskCommentRepository'
 import { TaskComment } from '../../../database/entities/tasks/TaskComment'
-import { TaskActivities, TaskActivity } from '../../../database/entities/tasks/TaskActivity'
+import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
+import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { TaskService } from './TaskService'
 
 export class TaskCommentService {
@@ -32,7 +33,7 @@ export class TaskCommentService {
     data.task = await this.taskService.getById(data.taskId)
 
     const taskComment = await this.getTaskCommentRepository().save(data)
-    await this.noteActivityForId(taskComment.id, TaskActivities.Comment_Created)
+    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Created, taskComment.id)
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
@@ -43,23 +44,23 @@ export class TaskCommentService {
       ...data,
     })
 
-    await this.noteActivityForTaskComment(taskComment, TaskActivities.Comment_Updated)
+    await this.registerActivityForTaskComment(TaskActivities.Comment_Updated, taskComment)
 
     return this.getTaskCommentRepository().reload(taskComment)
   }
 
-  async delete(taskCommentId: number) {
-    await this.noteActivityForId(taskCommentId, TaskActivities.Comment_Deleted)
+  async delete(taskCommentId: number): Promise<DeleteResult> {
+    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Deleted, taskCommentId)
     return this.getTaskCommentRepository().delete({ id: taskCommentId })
   }
 
-  async noteActivityForId(taskCommentId: number, taskActivity: TaskActivities): Promise<TaskActivity> {
+  async registerActivityForTaskCommentId(taskActivity: TaskActivities, taskCommentId: number): Promise<any> {
     const taskComment = await this.getById(taskCommentId)
-    return this.noteActivityForTaskComment(taskComment, taskActivity)
+    return this.registerActivityForTaskComment(taskActivity, taskComment)
   }
 
-  async noteActivityForTaskComment(taskComment: TaskComment, taskActivity: TaskActivities): Promise<TaskActivity> {
+  async registerActivityForTaskComment(taskActivity: TaskActivities, taskComment: TaskComment): Promise<any> {
     const task = await this.taskService.getById(taskComment.taskId)
-    return this.taskService.noteActivityForTask(task, taskActivity)
+    return this.taskService.registerActivityForTask(taskActivity, task)
   }
 }
