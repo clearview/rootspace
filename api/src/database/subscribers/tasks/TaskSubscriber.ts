@@ -19,6 +19,13 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
 
   async beforeUpdate(event: UpdateEvent<Task>) {
     const task = event.entity
+
+    // Soft-delete does not give a flying fudge about subscribers
+    // https://github.com/typeorm/typeorm/issues/6349
+    if (!task) {
+      return
+    }
+
     task.slug = slugify(task.title)
   }
 }

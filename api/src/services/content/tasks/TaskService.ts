@@ -56,12 +56,8 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<Task> {
-    return this.getTaskRepository()
-        .createQueryBuilder()
-        .where('task.id = :id', { id })
-        .andWhere('task.deletedAt IS NOT NULL')
-        .getOne()
+  async getArchivedById(id: number): Promise<Task | undefined> {
+    return this.getTaskRepository().findOneArchived(id)
   }
 
   async create(data: any): Promise<Task> {
@@ -91,13 +87,13 @@ export class TaskService {
   }
 
   async archive(taskId: number): Promise<UpdateResult> {
-    const archivedTask = await this.getTaskRepository().softDelete({id: taskId})
     await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
-    return archivedTask
+
+    return this.getTaskRepository().softDelete({id: taskId})
   }
 
   async restore(taskId: number): Promise<UpdateResult> {
-    const restoredTask = this.getTaskRepository().restore({id: taskId})
+    const restoredTask = await this.getTaskRepository().restore({id: taskId})
     await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
 
     return restoredTask

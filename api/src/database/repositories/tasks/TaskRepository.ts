@@ -52,4 +52,12 @@ export class TaskRepository extends BaseRepository<Task> {
 
     return searchQuery.getMany()
   }
+
+  async findOneArchived(id: number): Promise<Task | undefined> {
+    return this
+      .createQueryBuilder('task')
+      .where('task.id = :id', { id })
+      .andWhere('task.deletedAt IS NOT NULL')
+      .getOne()
+  }
 }
