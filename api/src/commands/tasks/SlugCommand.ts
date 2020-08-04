@@ -1,19 +1,15 @@
 import chalk from 'chalk'
-import db from '../db'
-import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
-import { TaskRepository } from '../database/repositories/tasks/TaskRepository'
+import db from '../../db'
+import { getConnection, getCustomRepository } from 'typeorm'
+import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
 import slugify from '@sindresorhus/slugify'
 
-export class TaskCommands {
-  async run(command: string) {
+export class SlugCommand {
+  static async run() {
     await db()
 
     try {
-      switch (command) {
-        case 'update-slugs':
-          await TaskCommands.updateSlugs()
-          break
-      }
+      await SlugCommand.updateSlugs()
     } catch (e) {
       // tslint:disable-next-line:no-console
       console.log(chalk.red('Operation failed!'))
@@ -35,5 +31,8 @@ export class TaskCommands {
     }
 
     await getCustomRepository(TaskRepository).save(tasks, { chunk: 1000 })
+
+    // tslint:disable-next-line:no-console
+    console.log(chalk.green('Operation completed'))
   }
 }

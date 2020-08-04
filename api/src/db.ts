@@ -1,4 +1,6 @@
 import 'reflect-metadata'
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { createConnection } from 'typeorm'
 import { config } from 'node-config-ts'
 
