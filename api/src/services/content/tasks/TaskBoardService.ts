@@ -115,7 +115,19 @@ export class TaskBoardService extends NodeContentService {
     })
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard)
+
+    await this.registerActivityForTaskBoard(
+      TaskBoardActivities.Updated,
+      taskBoard
+    )
+
+    await this.nodeContentMediator.contentUpdated(
+      taskBoard.id,
+      this.getNodeType(),
+      {
+        title: taskBoard.title,
+      }
+    )
 
     return taskBoard
   }
@@ -146,6 +158,11 @@ export class TaskBoardService extends NodeContentService {
 
     taskBoard.title = data.title
     await this.getTaskBoardRepository().save(taskBoard)
+
+    await this.registerActivityForTaskBoard(
+      TaskBoardActivities.Updated,
+      taskBoard
+    )
   }
 
   async nodeRemoved(contentId: number): Promise<void> {
