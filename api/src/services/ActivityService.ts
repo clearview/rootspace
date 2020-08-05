@@ -1,21 +1,16 @@
 import 'dotenv/config'
-import { config } from 'node-config-ts'
-import Bull, { Queue } from 'bull'
+import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { getCustomRepository } from 'typeorm/index'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { Activity } from '../database/entities/Activity'
-
-const QUEUE_NAME = 'Activity'
-const redisHost = config.redis.host
-const redisPort = config.redis.port
+import { Queue } from '../libs/Queue'
 
 export class ActivityService {
-  private redisConfig = { host: redisHost, port: redisPort }
-  readonly queue: Queue
+  readonly queue: Bull.Queue
 
   private constructor() {
-    this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
+    this.queue = Queue.getActivityInstance()
   }
 
   private static instance: ActivityService
@@ -34,7 +29,7 @@ export class ActivityService {
   }
 
   async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(QUEUE_NAME, activityEvent.toObject())
+    return this.queue.add(Queue.QUEUE_NAME, activityEvent.toObject())
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {

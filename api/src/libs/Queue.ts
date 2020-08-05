@@ -2,6 +2,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import { config } from 'node-config-ts'
 import db from '../db'
+import Redis from 'ioredis'
 import Bull, { Job } from 'bull'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { getCustomRepository } from 'typeorm'
@@ -12,20 +13,48 @@ import { TaskBoardWorker } from './workers/TaskBoardWorker'
 import { TaskListWorker } from './workers/TaskListWorker'
 import { TaskWorker } from './workers/TaskWorker'
 
-const QUEUE_NAME = 'Activity'
+const redisHost = config.redis.host
+const redisPort = config.redis.port
+
+const client: Redis.Redis = new Redis(redisPort, redisHost)
+const subscriber: Redis.Redis = new Redis(redisPort, redisHost)
+
+const redisOpts = {
+  createClient (type: string) {
+    switch(type) {
+      case 'client':
+        return client
+      case 'subscriber':
+        return subscriber
+      default:
+        return new Redis(redisPort, redisHost)
+    }
+  }
+}
 
 export class Queue {
-  private redisConfig = { host: config.redis.host, port: config.redis.port }
-  private queue: Bull.Queue
+  static QUEUE_NAME = 'Activity'
 
-  private constructor() {
-    this.queue = new Bull(QUEUE_NAME, { redis: this.redisConfig })
+  static getActivityInstance(): Bull.Queue {
+    // @ts-ignore
+    const options: Bull.QueueOptions = {
+      ...redisOpts,
+      limiter: {
+        max: 16,
+        duration: 1000
+      },
+      defaultJobOptions: {
+        removeOnComplete: false
+      }
+    }
+
+    return new Bull(Queue.QUEUE_NAME, options)
   }
 
-  static async process(queueName: string = QUEUE_NAME) {
+  static async process(queueName: string = Queue.QUEUE_NAME) {
     await db()
 
-    await new Queue().queue.process(queueName, async (job) => {
+    await Queue.getActivityInstance().process(queueName, async (job) => {
       job.data.activity = await Queue.saveActivity(job)
 
       await Queue.dispatchToWorker(job)
