@@ -24,6 +24,7 @@
   "domain": "http://localhost:3000",
   "domainSignupPath": "/signup",
   "domainEmailConfirmationPath": "/confirm-email",
+  "domainPasswordResetPath": "/password-reset",
   "domainInviteAcceptPath": "/invitation",
   "sentry": {
     "dsn": "@@SENTRY_DSN"

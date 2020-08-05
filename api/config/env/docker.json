@@ -23,6 +23,7 @@
     "domain": "@@DOMAIN",
     "domainSignupPath": "/signup",
     "domainEmailConfirmationPath": "/confirm-email",
+    "domainPasswordResetPath": "/password-reset",
     "domainInviteAcceptPath": "/invitation",
     "sentry": {
         "dsn": null

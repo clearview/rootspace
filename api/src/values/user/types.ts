@@ -15,3 +15,7 @@ export interface IUserChangePasswordAttributes {
   password: string
   newPassword: string
 }
+
+export interface IPasswordRecoveryAttributes {
+  email: string
+}

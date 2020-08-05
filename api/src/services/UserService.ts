@@ -1,11 +1,23 @@
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
+import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserRepository } from '../database/repositories/UserRepository'
 import { User } from '../database/entities/User'
+import { PasswordReset } from '../database/entities/PasswordReset'
 import { ISignupProvider } from '../types/user'
-import { UserChangePasswordValue, UserUpdateValue } from '../values/user'
-import { clientError, HttpErrName, HttpStatusCode, unauthorized, } from '../errors'
+import {
+  UserUpdateValue,
+  UserChangePasswordValue,
+  PasswordRecoveryValue,
+} from '../values/user'
+import {
+  HttpErrName,
+  HttpStatusCode,
+  clientError,
+  unauthorized,
+} from '../errors'
+import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
@@ -30,6 +42,10 @@ export class UserService {
 
   getUserRepository() {
     return getCustomRepository(UserRepository)
+  }
+
+  getPasswordResetRepository() {
+    return getCustomRepository(PasswordResetRepository)
   }
 
   getUsersBySpaceId(spaceId: number): Promise<User[]> {
@@ -190,6 +206,19 @@ export class UserService {
     const user = await this.getUserById(userId)
     return this.registerActivityForUser(userActivity, user)
   }
+  async createPasswordReset(
+    data: PasswordRecoveryValue
+  ): Promise<PasswordReset> {
+    let passwordReset = new PasswordReset()
+
+    passwordReset.email = data.attributes.email
+    passwordReset.expiration = new Date(Date.now() + 3600000)
+
+    passwordReset = await this.getPasswordResetRepository().save(passwordReset)
+    await this.sendPasswordResetMail(passwordReset)
+
+    return passwordReset
+  }
 
   async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
     return this.activityService.add(
@@ -198,5 +227,30 @@ export class UserService {
         .fromActor(user.id)
         .forEntity(user)
     )
+  }
+
+  private async sendPasswordResetMail(
+    passwordReset: PasswordReset
+  ): Promise<boolean> {
+
+    const subject = 'Root, Password reset'
+    const confirmationURL = config.domain + config.domainPasswordResetPath
+    const confirmUrl = `${confirmationURL}/${passwordReset.token}/${passwordReset.id}`
+
+    const content = pug.renderFile(
+      UserService.mailTemplatesDir + 'passwordReset.pug',
+      {
+        passwordReset,
+        confirmUrl,
+      }
+    )
+
+    try {
+      await this.mailService.sendMail(passwordReset.email, subject, content)
+    } catch (error) {
+      return false
+    }
+
+    return true
   }
 }

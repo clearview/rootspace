@@ -11,8 +11,13 @@ import {
   validateUserSignup,
   validateUserUpdate,
   validateChangePassword,
+  validatePasswordRecovery,
 } from '../validation/user'
-import { UserUpdateValue, UserChangePasswordValue } from '../values/user'
+import {
+  UserUpdateValue,
+  UserChangePasswordValue,
+  PasswordRecoveryValue,
+} from '../values/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -83,7 +88,9 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async notifications(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).getByIdWithNotifications(
+    const user = await getCustomRepository(
+      UserRepository
+    ).getByIdWithNotifications(
       req.user.id,
       req.params?.read ? req.params.read : 'all'
     )
@@ -118,5 +125,15 @@ export class UsersCtrl extends BaseCtrl {
 
       res.send(this.responseData(user))
     })
+  }
+
+  async passwordRecovery(req: Request, res: Response) { 
+    const data = req.body.data
+    await validatePasswordRecovery(data)
+
+    const value = PasswordRecoveryValue.fromObject(data)
+    const result = await this.userService.createPasswordReset(value)
+
+    res.send(this.responseData(result))
   }
 }
