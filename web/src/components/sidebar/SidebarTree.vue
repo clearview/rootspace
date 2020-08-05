@@ -8,13 +8,13 @@
       @drop="updateNode({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
       #default="{ node, path, tree }"
     >
-      <div
+      <router-link
+        :to="getNodeURL({ node })"
         class="tree-node-content"
         :class="{
           'is-editable': !locked,
-          'is-active': getNodeURL({ node }) === $route.path,
         }"
-        @click="open({ node })"
+        active-class="is-active"
       >
         <div class="tree-node-handle">
           <v-icon
@@ -66,7 +66,7 @@
             <v-icon name="trash" />
           </button>
         </div>
-      </div>
+      </router-link>
     </v-tree>
 
     <modal
@@ -263,29 +263,6 @@ export default class SidebarTree extends Vue {
     })
 
     return href
-  }
-
-  async open ({ node }: Pick<NodeContext, 'node'>) {
-    const url = this.getNodeURL({ node })
-
-    if (!this.locked) {
-      return
-    }
-
-    if (node.type === 'folder') {
-      return
-    }
-
-    if (node.type === 'link') {
-      await this.$router.push(url)
-    } else {
-      this.$store.commit('space/updateMeta', {
-        index: this.$store.state.space.activeIndex,
-        meta: {
-          activePage: url
-        }
-      })
-    }
   }
 
   async updateLink ({ node }: NodeContext) {
