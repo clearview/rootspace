@@ -158,6 +158,8 @@ export default class SelectSpace extends Vue {
 
   set activeSpace (space: SpaceResource) {
     this.$store.commit('space/setActive', { space })
+
+    this.optionsVisible = false
   }
 
   get user (): UserResource {
