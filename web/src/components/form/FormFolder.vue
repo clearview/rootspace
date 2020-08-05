@@ -27,7 +27,7 @@ import Vue from 'vue'
 
 import { required } from 'vuelidate/lib/validators'
 
-import { LinkResource } from '@/types/resource'
+import { NodeResource } from '@/types/resource'
 
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import VField from '@/components/Field.vue'
@@ -62,17 +62,10 @@ export default class FormLink extends Vue {
     this.initialInputRef.focus()
   }
 
-  private payload: Omit<LinkResource, 'children'> = {
+  private payload: Partial<NodeResource> = {
     id: this.value.id || undefined,
-    spaceId: this.value.space || this.space,
     title: this.value.title || '',
-    type: this.value.type || 'link',
-    value: this.value.value || '',
-    config: {
-      alwaysOpen: false,
-
-      ...this.value.config
-    }
+    type: 'folder'
   }
 
   submit (): void {
