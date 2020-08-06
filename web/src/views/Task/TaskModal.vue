@@ -668,12 +668,18 @@ export default class TaskModal extends Vue {
     display: inline-block;
     width: 32px;
     height: 32px;
-    background: rgba(216, 55, 80, 0.16);
-    color: theme("colors.primary.default");
+    background: rgba(theme("colors.gray.100"), 0.5);
+    color: theme("colors.gray.900");
     border-radius: 32px;
     padding: 7px 7px 7px 8px;
     cursor: pointer;
     margin-top: 3px;
+
+    &:hover{
+       background: rgba(216, 55, 80, 0.16);
+       color: theme("colors.primary.default");
+
+     }
 
     div, span, svg {
       &:focus {

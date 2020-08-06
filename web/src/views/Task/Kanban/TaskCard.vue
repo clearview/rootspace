@@ -318,10 +318,16 @@ export default class TaskCard extends Vue {
 
   .card {
     @apply p-2 flex items-center rounded;
+    margin: 0 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
+    transition: all 0.1s ease;
     &.opacite{
       background: rgba(theme("colors.white.default"), 0.8);
+    }
+    &:hover {
+       background: #F9FAFF;
+       box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     }
   }
 
