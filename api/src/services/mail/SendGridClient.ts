@@ -3,7 +3,7 @@ import { MailClientInterface } from './types'
 import sgMail from '@sendgrid/mail'
 
 export class SendGridClient implements MailClientInterface<any> {
-  sendMail(to: string, subject: string, content: string): Promise<any> {
+  async sendMail(to: string, subject: string, content: string): Promise<any> {
     sgMail.setApiKey(config.mail.sendgrid.api_key)
 
     const msg = {

@@ -1,17 +1,6 @@
 import { getConnection } from 'typeorm'
 import { Activity } from '../../database/entities/Activity'
 
-export enum EntityType {
-  User = 'User',
-  Invite = 'Invite',
-  Doc = 'Doc',
-  Node = 'Node',
-  Task = 'Task',
-  TaskBoard = 'TaskBoard',
-  TaskList = 'TaskList',
-  Upload = 'Upload',
-}
-
 export class ActivityEvent {
   private readonly _action: string
   private _activity?: Activity

@@ -7,7 +7,8 @@ import Bull, { Job } from 'bull'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { getCustomRepository } from 'typeorm'
 import { Activity } from '../database/entities/Activity'
-import { ActivityEvent, EntityType } from '../services/events/ActivityEvent'
+import { ActivityType } from '../types/activity'
+import { ActivityEvent } from '../services/events/ActivityEvent'
 import { DocWorker } from './workers/DocWorker'
 import { TaskBoardWorker } from './workers/TaskBoardWorker'
 import { TaskListWorker } from './workers/TaskListWorker'
@@ -71,22 +72,22 @@ export class Queue {
     const event: ActivityEvent = job.data
 
     switch (event.entity) {
-      case EntityType.User:
+      case ActivityType.User:
         await UserWorker.getInstance().process(event)
         break
-      case EntityType.Invite:
+      case ActivityType.Invite:
         await InviteWorker.getInstance().process(event)
         break
-      case EntityType.Doc:
+      case ActivityType.Doc:
         await DocWorker.getInstance().process(event)
         break
-      case EntityType.TaskBoard:
+      case ActivityType.TaskBoard:
         await TaskBoardWorker.getInstance().process(event)
         break
-      case EntityType.TaskList:
+      case ActivityType.TaskList:
         await TaskListWorker.getInstance().process(event)
         break
-      case EntityType.Task:
+      case ActivityType.Task:
         await TaskWorker.getInstance().process(event)
         break
     }

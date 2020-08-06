@@ -38,7 +38,7 @@ export class InviteWorker {
     }
   }
 
-  private async sendInvitationEmail(event: ActivityEvent) {
+  private async sendInvitationEmail(event: ActivityEvent): Promise<boolean>  {
     const space = await this.spaceService.getSpaceById(event.spaceId)
     const invite = await this.inviteService.getInviteById(event.entityId)
 
@@ -48,11 +48,9 @@ export class InviteWorker {
       ? await InviteWorker.getInviteUserEmailTemplate(invite, space)
       : await InviteWorker.getInviteEmailTemplate(invite, space)
 
-    try {
-      await this.mailService.sendMail(invite.email, subject, content)
-    } catch (error) {
-      // log error
-    }
+    await this.mailService.sendMail(invite.email, subject, content)
+
+    return true
   }
 
   private static async getInviteUserEmailTemplate(

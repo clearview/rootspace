@@ -35,9 +35,6 @@ export class UserWorker {
       case UserActivities.Email_Confirmed:
         await this.sendWelcomeEmail(event)
         break
-      case UserActivities.Login_Failed:
-        await this.sendLoginFailedEmail(event)
-        break
     }
   }
 
@@ -51,11 +48,7 @@ export class UserWorker {
 
     const content = pug.renderFile(UserWorker.mailTemplatesDir + 'confirmEmail.pug', { user, confirmUrl })
 
-    try {
-      await this.mailService.sendMail(user.email, subject, content)
-    } catch (error) {
-      return false
-    }
+    await this.mailService.sendMail(user.email, subject, content)
 
     return true
   }
@@ -67,27 +60,7 @@ export class UserWorker {
     const subject = 'Welcome to Root!'
     const content = pug.renderFile(UserWorker.mailTemplatesDir + 'welcome.pug')
 
-    try {
-      await this.mailService.sendMail(user.email, subject, content)
-    } catch (error) {
-      return false
-    }
-
-    return true
-  }
-
-  private async sendLoginFailedEmail(event: ActivityEvent): Promise<boolean> {
-    const userId = event.actorId
-    const user = await this.userService.getUserById(userId)
-
-    const subject = 'Root, login failed'
-    const content = pug.renderFile(UserWorker.mailTemplatesDir + 'loginFailed.pug')
-
-    try {
-      await this.mailService.sendMail(user.email, subject, content)
-    } catch (error) {
-      return false
-    }
+    await this.mailService.sendMail(user.email, subject, content)
 
     return true
   }
