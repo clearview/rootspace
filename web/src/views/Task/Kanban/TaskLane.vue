@@ -249,7 +249,7 @@ export default class TaskLane extends Vue {
     get dragOptions () {
       return {
         animation: 50,
-        delay: 100,
+        delay: 14,
         group: 'cards',
         disabled: false,
         ghostClass: 'ghost',
