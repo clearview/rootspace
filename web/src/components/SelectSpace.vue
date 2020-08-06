@@ -35,7 +35,7 @@
           :class="{
             'is-active': item.id === activeSpace.id
           }"
-          @click="activeSpace = item"
+          @click="switchSpace(item)"
         >
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
@@ -152,16 +152,12 @@ export default class SelectSpace extends Vue {
     return this.$store.state.space.spaces
   }
 
+  get spacesMeta (): SpaceMetaResource[] {
+    return this.$store.state.space.spacesMeta
+  }
+
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
-  }
-
-  set activeSpace (space: SpaceResource) {
-    this.$store.commit('space/setActive', { space })
-  }
-
-  get activeSpaceMeta (): SpaceMetaResource {
-    return this.$store.getters['space/activeSpaceMeta']
   }
 
   get user (): UserResource {
@@ -170,15 +166,7 @@ export default class SelectSpace extends Vue {
 
   @Watch('activeSpace')
   async watchActiveSpace (activeSpace: SpaceResource, prevActiveSpace: SpaceResource) {
-    const { activePage } = this.activeSpaceMeta
-
     this.optionsVisible = (activeSpace.id === prevActiveSpace.id)
-
-    if (activePage) {
-      try {
-        await this.$router.push(activePage)
-      } catch { }
-    }
   }
 
   @Watch('optionsVisible')
@@ -196,6 +184,19 @@ export default class SelectSpace extends Vue {
 
   signout () {
     this.$store.dispatch('auth/signout')
+  }
+
+  async switchSpace (space: SpaceResource) {
+    const index = this.spaces.findIndex(item => space.id === item.id)
+    const { activePage } = this.spacesMeta[index] || {}
+
+    try {
+      if (!activePage) {
+        this.$store.commit('space/setActive', { space })
+      }
+
+      await this.$router.push(activePage || '/')
+    } catch { }
   }
 
   async addSpace (data: SpaceResource) {
