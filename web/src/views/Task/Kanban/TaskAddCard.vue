@@ -25,7 +25,7 @@ export default class TaskAddCard extends Vue {
 
   .add-card-button {
     @apply flex items-center justify-center p-2 rounded outline-none w-full;
-    color: theme("colors.gray.400");
+    color: theme("colors.gray.800");
     transition: all 0.3s ease;
     font-weight: bold;
 
@@ -42,7 +42,7 @@ export default class TaskAddCard extends Vue {
     }
 
     &:hover {
-      background: rgba(theme("colors.gray.100"), 0.25);
+      background: rgba(theme("colors.gray.100"), 0.4);
     }
 
     &:active {

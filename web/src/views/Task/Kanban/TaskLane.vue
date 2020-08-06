@@ -166,12 +166,35 @@ export default class TaskLane extends Vue {
       return ['rgba(55,216,139, 0.25)', 'rgba(255,90,90, 0.25)', 'rgba(255,186,104,0.5)', 'rgba(86,204,242,0.3)', 'rgba(187,107,217,0.3)', 'rgba(242,201,76,0.3)', 'rgba(193,34,130,0.2)', 'rgba(109,115,132,0.2)']
     }
 
+    private get scrollColors () {
+      return ['#D0D6E2', '#D0D6E2', '#98C6B0', '#E29999', '#D5C497']
+    }
+
     private get defaultColor () {
       return 'rgb(247, 248, 250)'
     }
 
+    private get defaultScrollColor () {
+      return '#0005'
+    }
+
     private get isColorDefault () {
       return this.list.settings.color === this.defaultColor
+    }
+
+    mounted () {
+      this.setScrollColor()
+    }
+
+    private setScrollColor () {
+      const color = this.list.settings.color || this.defaultColor
+      const index = this.colors.indexOf(color)
+      let scrollColor = this.scrollColors[index] || this.defaultScrollColor
+      if (index !== -1 && this.cardContainerRef) {
+        scrollColor = this.scrollColors[index]
+        this.cardContainerRef.style.setProperty('scroll-color', scrollColor)
+        console.log(scrollColor + ' / ' + color)
+      }
     }
 
     private tryDrag (e: DragEvent) {
@@ -226,6 +249,7 @@ export default class TaskLane extends Vue {
     get dragOptions () {
       return {
         animation: 50,
+        delay: 100,
         group: 'cards',
         disabled: false,
         ghostClass: 'ghost',
@@ -305,6 +329,7 @@ export default class TaskLane extends Vue {
         id: this.list.id,
         settings: { ...this.listCopy.settings, color }
       })
+      this.setScrollColor()
     }
 
     handleMenuTrigger (visible: boolean) {
@@ -399,24 +424,29 @@ export default class TaskLane extends Vue {
   }
 
   .cards {
-    @apply p-3 relative;
-    margin:0.75rem -0.65rem;
+    @apply relative;
+    padding: 0 0 2px 0;
+    margin:0 -10px 10px;
     overflow-y: auto;
+    /*Firefox*/
+    scrollbar-color: var(--scroll-color, '#0003');
+    scrollbar-width: 6px;
   }
 
-  ::-webkit-scrollbar {
+  .cards::-webkit-scrollbar {
     -webkit-appearance: none;
-    width: 7px;
+    width: 6px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  .cards::-webkit-scrollbar-thumb {
     border-radius: 4px;
-    background-color: rgba(0, 0, 0, .5);
+    background-color: var(--scroll-color, #0003);
     box-shadow: 0 0 1px rgba(255, 255, 255, .5);
   }
 
   .card-input {
     @apply mt-4;
+    padding: 0 8px;
   }
 
   .lane-transition-group {
