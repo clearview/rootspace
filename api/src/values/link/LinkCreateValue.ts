@@ -6,6 +6,7 @@ export const LinkCreateAttributes: ILinkCreateAttributes = {
   spaceId: null,
   title: null,
   value: null,
+  newTab: null
 }
 
 @attributes(LinkCreateAttributes)

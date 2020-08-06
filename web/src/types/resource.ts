@@ -19,9 +19,7 @@ export interface LinkResource {
   type: string;
   value: string;
   children?: LinkResource[];
-  config?: {
-    alwaysOpen: boolean;
-  };
+  newTab: boolean;
 }
 
 export interface UploadResource {

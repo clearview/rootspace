@@ -1,42 +1,54 @@
+<template>
+  <iframe class="Link-embed" :src="location" />
+</template>
+
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import parseURL from 'url-parse'
+
+import { LinkResource } from '@/types/resource'
 
 @Component({
   name: 'Link'
 })
 export default class Link extends Vue {
-  get link () {
-    return this.$store.state.link.item
+  get id () {
+    return Number(this.$route.params.id)
   }
 
-  redirect () {
-    try {
-      const source = window.location
-      const target = parseURL(this.link.value)
+  get link (): LinkResource {
+    return this.$store.state.link.item || {}
+  }
 
-      const isSameSite = target.origin === source.origin
+  get location () {
+    const source = window.location
+    const target = parseURL(this.link.value)
 
-      if (isSameSite && target.pathname.includes('link')) {
-        return
-      }
+    const isSameSite = target.origin === source.origin
 
-      window.open(target.href, '_blank')
-    } finally {
-      this.$router.replace('/')
+    if (isSameSite && target.pathname.includes('link')) {
+      return null
     }
+
+    return target.href
   }
 
-  async created () {
-    const id = this.$route.params.id
-
+  @Watch('id', { immediate: true })
+  async watchId (id: number) {
     await this.$store.dispatch('link/view', id)
 
-    this.redirect()
-  }
+    if (this.link.newTab && this.location) {
+      window.open(this.location, '_blank')
 
-  render () {
-    return null
+      await this.$router.replace('/')
+    }
   }
 }
 </script>
+
+<style lang="postcss" scoped>
+.Link-embed {
+  width: 100%;
+  height: 100%;
+}
+</style>

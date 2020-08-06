@@ -4,6 +4,7 @@ import { ILinkUpdateAttributes } from './types'
 export const LinkUpdateAttributes: ILinkUpdateAttributes = {
   title: undefined,
   value: undefined,
+  newTab: undefined,
 }
 
 @attributes(LinkUpdateAttributes)
