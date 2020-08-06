@@ -161,7 +161,7 @@ export default class SelectSpace extends Vue {
   }
 
   get user (): UserResource {
-    return this.$store.state.auth.user
+    return this.$store.state.auth.user || {}
   }
 
   @Watch('activeSpace')
