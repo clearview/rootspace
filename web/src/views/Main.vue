@@ -13,6 +13,17 @@ import LayoutMain from '@/components/LayoutMain.vue'
   name: 'Main',
   components: {
     LayoutMain
+  },
+  beforeRouteEnter (to, from, next) {
+    next(async vm => {
+      const { activePage } = vm.$store.getters['space/activeSpaceMeta'] || {}
+
+      if (activePage && from.name && to.name === 'Main') {
+        try {
+          await vm.$router.replace(activePage)
+        } catch { }
+      }
+    })
   }
 })
 export default class Main extends Vue {
