@@ -94,7 +94,7 @@
           @click="signout"
         >
           <strong>Logout</strong>
-          <span>({{ user.email }})</span>
+          (<span class="SelectSpace-email">{{ user.email }}</span>)
         </button>
       </div>
     </transition>
@@ -275,10 +275,18 @@ export default class SelectSpace extends Vue {
 }
 
 .SelectSpace-logout {
+  @apply flex w-full;
+
   transition: 0.3s;
 
   &:hover {
     @apply text-primary;
   }
+}
+
+.SelectSpace-email {
+  @apply inline-block truncate;
+
+  max-width: calc(100% - 60px);
 }
 </style>

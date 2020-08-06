@@ -56,3 +56,8 @@ pre.ql-syntax {
   padding: 5px 10px;
   border-radius: 3px;
 }
+
+/* FF fix for content editable */
+[contenteditable='true']:before {
+  content: "\feff ";
+}

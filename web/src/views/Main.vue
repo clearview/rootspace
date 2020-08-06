@@ -1,5 +1,5 @@
 <template>
-  <layout-main>
+  <layout-main v-if="hasSpace">
     <router-view/>
   </layout-main>
 </template>
@@ -16,6 +16,14 @@ import LayoutMain from '@/components/LayoutMain.vue'
   }
 })
 export default class Main extends Vue {
+  get hasSpace () {
+    return this.$store.getters['space/hasSpace']
+  }
 
+  async created () {
+    if (!this.hasSpace) {
+      await this.$router.replace({ name: 'SpaceInit' })
+    }
+  }
 }
 </script>
