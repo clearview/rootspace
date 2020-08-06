@@ -10,7 +10,6 @@ export class ActivityEvent {
   private _entityId: number
   private _entity: string
   private _tableName: string
-  private _data: string
 
   private constructor(action: string) {
     this._action = action
@@ -26,8 +25,6 @@ export class ActivityEvent {
   }
 
   forEntity(entity: any): ActivityEvent {
-    this._data = entity
-
     this._entityId = entity.id
     this._entity = entity.constructor.name
     this._tableName = getConnection().getMetadata(this._entity).tableName
@@ -79,10 +76,6 @@ export class ActivityEvent {
     return this._tableName
   }
 
-  get data(): string {
-    return this._data
-  }
-
   toObject(): object {
     return {
       action: this.action,
@@ -90,8 +83,7 @@ export class ActivityEvent {
       spaceId: this.spaceId,
       entityId: this.entityId,
       entity: this.entity,
-      tableName: this.tableName,
-      data: this.data
+      tableName: this.tableName
     }
   }
 }
