@@ -12,6 +12,7 @@ import { DocWorker } from './workers/DocWorker'
 import { TaskBoardWorker } from './workers/TaskBoardWorker'
 import { TaskListWorker } from './workers/TaskListWorker'
 import { TaskWorker } from './workers/TaskWorker'
+import { UserWorker } from './workers/UserWorker'
 
 const redisHost = config.redis.host
 const redisPort = config.redis.port
@@ -69,6 +70,9 @@ export class Queue {
     const event: ActivityEvent = job.data
 
     switch (event.entity) {
+      case EntityType.User:
+        await UserWorker.getInstance().process(event)
+        break
       case EntityType.Doc:
         await DocWorker.getInstance().process(event)
         break

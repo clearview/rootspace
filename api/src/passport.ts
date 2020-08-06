@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/node'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
-import { SpaceService, UserService } from './services'
+import { ActivityService, SpaceService, UserService } from './services'
 import { unauthorized } from './errors'
 import {
     Strategy as JwtStrategy,
@@ -14,6 +14,8 @@ import {
 } from 'passport-jwt'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
+import { UserActivities } from './database/entities/activities/UserActivities'
+import { ActivityEvent } from './services/events/ActivityEvent'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -28,6 +30,7 @@ passport.use(
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
 
+      const activityService = ActivityService.getInstance()
       const existingUser = await UserService.getInstance().getUserByEmail(profile.emails[0].value)
 
       if (!existingUser) {
@@ -44,6 +47,11 @@ passport.use(
         return done(null, newUser.id)
       }
 
+      await activityService.add(ActivityEvent
+        .withAction(UserActivities.Login)
+        .fromActor(existingUser.id)
+        .forEntity(existingUser)
+      )
       return done(null, existingUser.id)
     }
   )
@@ -60,16 +68,23 @@ passport.use(
         const userService = UserService.getInstance()
         const user = await userService.getUserByEmail(email, true)
 
+        const activityService = ActivityService.getInstance()
+
         if (!user) {
           return done(unauthorized())
         }
 
-        bcrypt.compare(password, user.password, (err, res) => {
+        bcrypt.compare(password, user.password, async (err, res) => {
           if (err) {
             return done(err)
           }
 
           if (res !== true) {
+            await activityService.add(ActivityEvent
+              .withAction(UserActivities.Login_Failed)
+              .fromActor(user.id)
+              .forEntity(user)
+            )
             return done(unauthorized())
           }
 
@@ -80,10 +95,21 @@ passport.use(
           } */
 
           if (user.active !== true) {
+            await activityService.add(ActivityEvent
+              .withAction(UserActivities.Login_Failed)
+              .fromActor(user.id)
+              .forEntity(user)
+            )
             return done(unauthorized())
           }
 
           httpRequestContext.set('user', user)
+
+          await activityService.add(ActivityEvent
+            .withAction(UserActivities.Login)
+            .fromActor(user.id)
+            .forEntity(user)
+          )
           return done(null, user)
         })
       } catch (err) {

@@ -2,6 +2,7 @@ import { getConnection } from 'typeorm'
 import { Activity } from '../../database/entities/Activity'
 
 export enum EntityType {
+  User = 'User',
   Doc = 'Doc',
   Node = 'Node',
   Task = 'Task',
@@ -15,7 +16,7 @@ export class ActivityEvent {
   private _activity?: Activity
   private _actorId: number
   private _userId?: number
-  private _spaceId: number
+  private _spaceId?: number
   private _entityId: number
   private _entity: string
   private _tableName: string

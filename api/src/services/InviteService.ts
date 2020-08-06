@@ -10,11 +10,9 @@ import { MailService } from './mail/MailService'
 import { clientError, HttpErrName } from '../errors'
 
 export class InviteService {
-  static mailTemplatesDir =
-    path.dirname(require.main.filename) + '/templates/mail/invite/'
+  static mailTemplatesDir = path.dirname(require.main.filename) + '/templates/mail/invite/'
 
   private mailService: MailService
-
   private static instance: InviteService
 
   private constructor() {

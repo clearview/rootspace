@@ -1,30 +1,23 @@
-import { config } from 'node-config-ts'
-import pug from 'pug'
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
 import { UserRepository } from '../database/repositories/UserRepository'
 import { User } from '../database/entities/User'
 import { ISignupProvider } from '../types/user'
-import { UserUpdateValue, UserChangePasswordValue } from '../values/user'
-import {
-  HttpErrName,
-  HttpStatusCode,
-  clientError,
-  unauthorized,
-} from '../errors'
-import { MailService } from './mail/MailService'
+import { UserChangePasswordValue, UserUpdateValue } from '../values/user'
+import { clientError, HttpErrName, HttpStatusCode, unauthorized, } from '../errors'
 import { CallbackFunction } from 'ioredis'
+import Bull from 'bull'
+import { ActivityEvent } from './events/ActivityEvent'
+import { UserActivities } from '../database/entities/activities/UserActivities'
+import { ActivityService } from './ActivityService'
 
 export class UserService {
-  static mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
-
-  private mailService: MailService
-
+  private activityService: ActivityService
   private static instance: UserService
 
   private constructor() {
-    this.mailService = new MailService()
+    this.activityService = ActivityService.getInstance()
   }
 
   static getInstance() {
@@ -97,6 +90,8 @@ export class UserService {
     user.emailConfirmed = true
     user.active = true
 
+    await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
+
     return await this.getUserRepository().save(user)
   }
 
@@ -119,7 +114,9 @@ export class UserService {
     delete user.password
 
     if (sendEmailConfirmation) {
-      await this.sendConfirmationEmail(user)
+      await this.registerActivityForUser(UserActivities.Signup, user)
+    } else {
+      await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
     }
 
     return user
@@ -189,25 +186,17 @@ export class UserService {
     )
   }
 
-  private async sendConfirmationEmail(user: User): Promise<boolean> {
-    const subject = 'Root, email confirmation'
-    const confirmationURL = config.domain + config.domainEmailConfirmationPath
-    const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
+  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
+    const user = await this.getUserById(userId)
+    return this.registerActivityForUser(userActivity, user)
+  }
 
-    const content = pug.renderFile(
-      UserService.mailTemplatesDir + 'confirmEmail.pug',
-      {
-        user,
-        confirmUrl,
-      }
+  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
+    return this.activityService.add(
+      ActivityEvent
+        .withAction(userActivity)
+        .fromActor(user.id)
+        .forEntity(user)
     )
-
-    try {
-      await this.mailService.sendMail(user.email, subject, content)
-    } catch (error) {
-      return false
-    }
-
-    return true
   }
 }
