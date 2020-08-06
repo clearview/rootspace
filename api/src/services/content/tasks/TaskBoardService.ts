@@ -10,6 +10,7 @@ import { NodeService } from '../NodeService'
 import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
 import { Task } from '../../../database/entities/tasks/Task'
+import { INodeContentUpdate } from '../contracts'
 import { ActivityService } from '../../ActivityService'
 import Bull from 'bull'
 import { ActivityEvent } from '../../events/ActivityEvent'
@@ -107,13 +108,26 @@ export class TaskBoardService extends NodeContentService {
 
   async update(id: number, data: any): Promise<TaskBoard> {
     let taskBoard = await this.getById(id)
+
     taskBoard = await this.getTaskBoardRepository().save({
       ...taskBoard,
       ...data,
     })
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard)
+
+    await this.nodeContentMediator.contentUpdated(
+      taskBoard.id,
+      this.getNodeType(),
+      {
+        title: taskBoard.title,
+      }
+    )
+
+    await this.registerActivityForTaskBoard(
+      TaskBoardActivities.Updated,
+      taskBoard
+    )
 
     return taskBoard
   }
@@ -126,6 +140,24 @@ export class TaskBoardService extends NodeContentService {
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return taskBoard
+  }
+
+  async nodeUpdated(
+    contentId: number,
+    data: INodeContentUpdate
+  ): Promise<void> {
+    if (!data.title) {
+      return
+    }
+
+    const taskBoard = await this.getById(contentId)
+
+    if (!taskBoard) {
+      return
+    }
+
+    taskBoard.title = data.title
+    await this.getTaskBoardRepository().save(taskBoard)
   }
 
   async nodeRemoved(contentId: number): Promise<void> {
