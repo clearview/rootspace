@@ -93,6 +93,8 @@ export default class SpaceInit extends Vue {
     created () {
       if (this.hasSpace) {
         this.$router.replace({ name: 'Main' })
+      } else {
+        this.$store.dispatch('space/clean')
       }
     }
 }

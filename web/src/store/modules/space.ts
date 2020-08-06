@@ -8,6 +8,10 @@ type SpaceCollectionPayload = {
   spaces: SpaceResource[];
 }
 
+type SpaceMetaCollectionPayload = {
+  spacesMeta: SpaceMetaResource[];
+}
+
 type SpacePayload = {
   index: number;
   space: SpaceResource;
@@ -62,6 +66,10 @@ const SpaceModule: Module<SpaceState, RootState> = {
       state.spaces = spaces
     },
 
+    setSpacesMeta (state, { spacesMeta }: SpaceMetaCollectionPayload) {
+      state.spacesMeta = spacesMeta
+    },
+
     addSpace (state, { space }: SpacePayload) {
       state.spaces.push(space)
     },
@@ -112,6 +120,12 @@ const SpaceModule: Module<SpaceState, RootState> = {
       commit('updateList', { index, space })
 
       await api.patch(`/spaces/${space.id}`, space)
+    },
+
+    async clean ({ commit }) {
+      commit('setActive', { id: 0 })
+      commit('setSpaces', { spaces: [] })
+      commit('setSpacesMeta', { spacesMeta: [] })
     }
   }
 }
