@@ -17,7 +17,7 @@
       </header>
       <slot v-bind="{ hide, visible }"></slot>
     </div>
-    <div @click="toggleVisibility" ref="trigger" class="popover-trigger">
+    <div @click="toggleVisibility" ref="trigger" class="popover-trigger" :class="{ 'show': visible }">
       <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>
   </div>
@@ -122,16 +122,17 @@ export default class Popover extends Vue {
   }
   .popover-title {
     color: theme("colors.gray.900");
-    font-weight: bold;
     flex: 1 1 auto;
     font-size: 15px;
+    font-weight: 600;
+    line-height: 18px;
   }
   .popover-close {
     flex: 0 0 auto;
 
     .btn-icon {
-      height: 24px;
-      width: 24px;
+      height: 20px;
+      width: 20px;
     }
   }
 
@@ -149,6 +150,20 @@ export default class Popover extends Vue {
 
   #back-button {
     cursor: pointer;
+  }
+
+  .popover-trigger {
+    button {
+      border: 0;
+    }
+
+    &.show {
+      button {
+        background: rgba(216, 55, 80, 0.16);
+        color: theme("colors.primary.default");
+
+      }
+    }
   }
 
 </style>

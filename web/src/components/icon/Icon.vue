@@ -2,8 +2,8 @@
   <svg
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
-    :width="size"
-    :height="size"
+    :width="_widthSize"
+    :height="_heightSize"
     :viewBox="_viewbox"
     class="fill-current stroke-current"
   >
@@ -130,7 +130,18 @@ export default class Icon extends Vue {
   private readonly title?: string;
 
   get _viewbox () {
-    return `0 0 ${this.viewbox} ${this.viewbox}`
+    const viewBoxWH = this.viewbox.toString().split(' ')
+    return viewBoxWH.length > 1 ? `0 0 ${viewBoxWH[0]} ${viewBoxWH[1]}` : `0 0 ${this.viewbox} ${this.viewbox}`
+  }
+
+  get _widthSize () {
+    const sizeWH = this.size.toString().split(' ')
+    return sizeWH.length > 1 ? sizeWH[0] : this.size
+  }
+
+  get _heightSize () {
+    const sizeWH = this.size.toString().split(' ')
+    return sizeWH.length > 1 ? sizeWH[1] : this.size
   }
 
   get isIconValid () {

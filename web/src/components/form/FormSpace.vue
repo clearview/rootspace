@@ -251,9 +251,9 @@ export default class FormSpace extends Vue {
       }
 
       .vue-avatar--wrapper {
-        width: 35px !important;
-        height: 35px !important;
-        font: 13px / 24px theme("fontFamily.primary") !important;
+        width: 24px !important;
+        height: 24px !important;
+        font: 10px / 13px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
         letter-spacing: 0.03em;

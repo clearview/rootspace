@@ -17,7 +17,7 @@
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="color"></div>
       <div class="card-item">
-        <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
+        <div class="header" :class="{ 'mb-6': isHasFooter(itemCopy) }">
           <div class="title">
             {{item.title}}
           </div>
@@ -33,7 +33,7 @@
                   {{ tag.label }}
                 </div>
               </li>
-              <li v-if="item.attachments && item.attachments > 0">
+              <li v-if="item.attachments && item.attachments.length > 0">
                 <span class="icon">
                   <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false" content="Attachment(s)" v-tippy/>
                 </span>
@@ -317,11 +317,15 @@ export default class TaskCard extends Vue {
   }
 
   .card {
-    @apply p-2 flex items-center rounded;
+    @apply px-2 flex items-center rounded;
+
     margin: 0 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
     transition: all 0.1s ease;
+    padding-top: 11px;
+    padding-bottom: 11px;
+
     &.opacite{
       background: rgba(theme("colors.white.default"), 0.8);
     }
@@ -350,6 +354,9 @@ export default class TaskCard extends Vue {
 
     .header {
       @apply flex justify-between flex-1;
+
+      font-size: 14px;
+      line-height: 17px;
 
       .title {
         @apply flex-1;
@@ -434,9 +441,9 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 35px !important;
-            height: 35px !important;
-            font: 13px / 24px theme("fontFamily.primary") !important;
+            width: 24px !important;
+            height: 24px !important;
+            font: 10px / 13px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
             letter-spacing: 0.03em;

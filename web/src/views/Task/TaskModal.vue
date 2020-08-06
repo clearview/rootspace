@@ -18,21 +18,21 @@
           </div>
         </div>
         <div class="task-modal-header-actions">
-          <PopoverList :items="[{label: 'Delete', value: 'delete'}]" @input="handleMenu">
+          <PopoverList :items="[{label: 'Delete', value: 'delete', icon: 'trash' }]" @input="handleMenu">
             <template slot="trigger">
               <button
-                class="btn btn-icon rounded"
+                class="btn btn-icon"
                 @click="cancel"
               >
-                <v-icon name="ellipsis" viewbox="20" size="1.5rem" class="header-icon"/>
+                <v-icon name="ellipsis" viewbox="20" size="1.25rem" class="header-icon"/>
               </button>
             </template>
           </PopoverList>
           <button
-            class="btn btn-icon rounded"
+            class="btn btn-icon"
             @click="close"
           >
-            <v-icon viewbox="20" size="1.5rem" name="close2" title="Close"/>
+            <v-icon viewbox="20" size="1rem" name="close2" title="Close"/>
           </button>
         </div>
       </div>
@@ -48,8 +48,10 @@
           </div>
           <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <div class="actions">
-            <button class="btn btn-mute" @click="pickFile" :disabled="isUploading">
-              <v-icon name="attachment" viewbox="20" size="1rem"/>
+            <button class="btn btn-mute" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
+              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="1rem"/>
+              <v-icon v-else name="loading" size="1rem" viewbox="100" />
+
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
             </button>
@@ -494,13 +496,19 @@ export default class TaskModal extends Vue {
 <style lang="postcss" scoped>
 
   .task-modal-header {
-    @apply flex items-start py-8 px-12 pb-2;
+    @apply flex items-start pb-8 px-12 pb-2;
     width: 820px;
     font-weight: bold;
+    padding-top: 26px;
   }
 
   .task-modal-header-actions {
     @apply flex items-center;
+
+    button {
+      width: 20px;
+      height: 20px;
+    }
   }
 
   .task-modal-header-actions * ~ * {
@@ -514,9 +522,10 @@ export default class TaskModal extends Vue {
   }
 
   .task-modal-subtitle {
-    @apply text-base;
     color: theme('colors.gray.800');
     font-weight: normal;
+    font-size: 14px;
+    line-height: 17px;
   }
 
   .list-title {
@@ -543,7 +552,12 @@ export default class TaskModal extends Vue {
 
   .action-label {
     @apply pb-2;
+
     color: theme("colors.gray.800");
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
@@ -570,8 +584,9 @@ export default class TaskModal extends Vue {
   }
 
   .actions > .btn {
-    @apply items-center px-3 ml-0;
+    @apply items-center px-3 ml-0 py-2;
     flex: 0 1 auto;
+    transition: all 0.3s ease;
 
     & .stroke-current {
       fill: none;
@@ -579,15 +594,25 @@ export default class TaskModal extends Vue {
 
     & span {
       @apply pl-2;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 17px;
     }
   }
 
   .task-description {
-    @apply mt-4;
+    @apply my-6;
   }
 
   .description-title {
     @apply flex items-center justify-start;
+
+    font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 
     &:hover {
       cursor: pointer;
@@ -645,6 +670,7 @@ export default class TaskModal extends Vue {
     letter-spacing: 0.05em;
     font-size: 12px;
     margin-bottom: 8px;
+    line-height: 14px;
   }
 
   .right-field-content {
@@ -675,11 +701,11 @@ export default class TaskModal extends Vue {
 
   .addmember-button {
     display: inline-block;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     background: rgba(theme("colors.gray.100"), 0.5);
     color: theme("colors.gray.900");
-    border-radius: 32px;
+    border-radius: 24px;
     padding: 7px 7px 7px 8px;
     cursor: pointer;
     margin-top: 3px;
@@ -710,12 +736,15 @@ export default class TaskModal extends Vue {
     li {
       &.addmember-button {
         margin: 0;
+        display: flex;
+        align-items: center;
+        padding: 4px;
       }
 
       .vue-avatar--wrapper {
-        width: 35px !important;
-        height: 35px !important;
-        font: 13px / 24px theme("fontFamily.primary") !important;
+        width: 24px !important;
+        height: 24px !important;
+        font: 10px / 13px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
         margin-left: -7px;
@@ -724,6 +753,13 @@ export default class TaskModal extends Vue {
     }
   }
 
+  .task-actions {
+    .uploading {
+      border-color: theme("colors.primary.default");
+      color: theme("colors.primary.default");
+      background: none;
+    }
+  }
   .attachment-file {
     @apply hidden;
   }
@@ -733,15 +769,21 @@ export default class TaskModal extends Vue {
   }
 
   .task-modal-title-editable {
-    @apply py-2 px-4 rounded;
-    width: 80%;
-    margin-left: -1rem;
-    border: 2px solid transparent;
+    @apply rounded;
+    width: 480px;
+    line-height: 29px;
+    transition: padding 0.5s ease, border 0.3s ease;
+    border: 2px solid white;
+    border-left: 0;
+    outline: none;
+    padding: 6px 8px 5px 0;
 
     &:focus {
       outline: none;
-      border: 2px solid rgba(47, 128, 237, 0.75);
+      border-color: rgba(47, 128, 237, 0.75);
+      border-left: 2px solid rgba(47, 128, 237, 0.75);
       box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
+      padding-left: 8px;
     }
   }
   .due-date-box {
@@ -773,9 +815,9 @@ export default class TaskModal extends Vue {
     padding-left: 6px;
 
     .vue-avatar--wrapper {
-      width: 35px !important;
-      height: 35px !important;
-      font: 13px / 24px theme("fontFamily.primary") !important;
+      width: 24px !important;
+      height: 24px !important;
+      font: 10px / 13px theme("fontFamily.primary") !important;
       float: left;
       border: 2px solid #FFF;
       margin-left: -7px;
@@ -851,7 +893,7 @@ export default class TaskModal extends Vue {
     margin-top: 2px;
 
     .popover-trigger {
-      height: 32px;
+      height: 24px;
     }
   }
 }

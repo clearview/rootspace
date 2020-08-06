@@ -43,7 +43,9 @@
   }
 
   &.btn-icon {
-    @apply border-none p-1;
+    @apply border-none;
+
+    padding: 0;
   }
 
   &.btn-small {

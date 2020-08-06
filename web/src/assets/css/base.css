@@ -63,3 +63,9 @@ pre.ql-syntax {
     content: "\feff ";
   }
 }
+
+.title-editable, .task-modal-title-editable {
+  &[contenteditable='true']:before {
+    content: "\feff ";
+  }
+}
