@@ -13,6 +13,7 @@ import { TaskBoardWorker } from './workers/TaskBoardWorker'
 import { TaskListWorker } from './workers/TaskListWorker'
 import { TaskWorker } from './workers/TaskWorker'
 import { UserWorker } from './workers/UserWorker'
+import { InviteWorker } from './workers/InviteWorker'
 
 const redisHost = config.redis.host
 const redisPort = config.redis.port
@@ -72,6 +73,9 @@ export class Queue {
     switch (event.entity) {
       case EntityType.User:
         await UserWorker.getInstance().process(event)
+        break
+      case EntityType.Invite:
+        await InviteWorker.getInstance().process(event)
         break
       case EntityType.Doc:
         await DocWorker.getInstance().process(event)

@@ -3,6 +3,7 @@ import { Activity } from '../../database/entities/Activity'
 
 export enum EntityType {
   User = 'User',
+  Invite = 'Invite',
   Doc = 'Doc',
   Node = 'Node',
   Task = 'Task',

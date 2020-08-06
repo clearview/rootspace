@@ -1,23 +1,12 @@
-import path from 'path'
-import pug from 'pug'
-import { config } from 'node-config-ts'
 import { getCustomRepository } from 'typeorm'
 import { InviteRepository } from '../database/repositories/InviteRepository'
 import { Invite } from '../database/entities/Invite'
 import { Space } from '../database/entities/Space'
 import { User } from '../database/entities/User'
-import { MailService } from './mail/MailService'
 import { clientError, HttpErrName } from '../errors'
 
 export class InviteService {
-  static mailTemplatesDir = path.dirname(require.main.filename) + '/templates/mail/invite/'
-
-  private mailService: MailService
   private static instance: InviteService
-
-  private constructor() {
-    this.mailService = new MailService()
-  }
 
   static getInstance() {
     if (!InviteService.instance) {
@@ -29,6 +18,10 @@ export class InviteService {
 
   getInviteRepository() {
     return getCustomRepository(InviteRepository)
+  }
+
+  getInviteById(id: number): Promise<Invite | undefined> {
+    return this.getInviteRepository().findOne(id)
   }
 
   getInvite(email: string, spaceId: number): Promise<Invite> {
@@ -77,7 +70,6 @@ export class InviteService {
       invite = await this.getInviteRepository().save(invite)
     }
 
-    this.sendInvitationEmail(invite, space)
     return invite
   }
 
@@ -92,57 +84,6 @@ export class InviteService {
       invite = await this.getInviteRepository().save(invite)
     }
 
-    this.sendInvitationEmail(invite, space)
     return invite
-  }
-
-  private async sendInvitationEmail(invite: Invite, space: Space) {
-    const subject = 'You are invited to ' + space.title + ' space on Root'
-
-    const content = invite.userId
-      ? await InviteService.getInviteUserEmailTemplate(invite, space)
-      : await InviteService.getInviteEmailTemplate(invite, space)
-
-    try {
-      await this.mailService.sendMail(invite.email, subject, content)
-    } catch (error) {
-      // log error
-    }
-  }
-
-  private static async getInviteUserEmailTemplate(
-    invite: Invite,
-    space: Space
-  ): Promise<string> {
-    return pug.renderFile(InviteService.mailTemplatesDir + 'user.pug', {
-      spaceTitle: space.title,
-      inviteUrl: InviteService.generateInvitationUrl(invite),
-    })
-  }
-
-  private static async getInviteEmailTemplate(
-    invite: Invite,
-    space: Space
-  ): Promise<string> {
-    return pug.renderFile(InviteService.mailTemplatesDir + 'email.pug', {
-      spaceTitle: space.title,
-      inviteUrl: InviteService.generateInvitationUrl(invite),
-      signUpUrl: InviteService.getSignUpUrl(),
-    })
-  }
-
-  private static generateInvitationUrl(invite: Invite): string {
-    return (
-      config.domain +
-      config.domainInviteAcceptPath +
-      '/' +
-      invite.token +
-      '/' +
-      invite.id
-    )
-  }
-
-  private static getSignUpUrl(): string {
-    return config.domain + config.domainSignupPath
   }
 }

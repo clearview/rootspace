@@ -6,7 +6,9 @@ import {
   FollowService,
   TaskBoardService,
   UserService,
-  MailService
+  MailService,
+  SpaceService,
+  InviteService
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -19,6 +21,8 @@ export class ServiceFactory {
   private followService: FollowService
   private userService: UserService
   private mailService: MailService
+  private spaceService: SpaceService
+  private inviteService: InviteService
 
   private constructor() {}
 
@@ -87,6 +91,22 @@ export class ServiceFactory {
     return this.userService
   }
 
+  getSpaceService() {
+    if (!this.spaceService) {
+      this.initNodeContentServices()
+    }
+
+    return this.spaceService
+  }
+
+  getInviteService() {
+    if (!this.inviteService) {
+      this.initNodeContentServices()
+    }
+
+    return this.inviteService
+  }
+
   getMailService() {
     if (!this.mailService) {
       this.initNodeContentServices()
@@ -103,6 +123,8 @@ export class ServiceFactory {
     this.followService = FollowService.getInstance()
     this.taskBoardService = TaskBoardService.getInstance()
     this.userService = UserService.getInstance()
+    this.spaceService = SpaceService.getInstance()
+    this.inviteService = InviteService.getInstance()
     this.mailService = new MailService()
 
     const mediator = new NodeContentMediator(this.nodeService)
