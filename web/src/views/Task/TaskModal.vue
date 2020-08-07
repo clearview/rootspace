@@ -49,8 +49,8 @@
           <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <div class="actions">
             <button class="btn btn-mute" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="1rem"/>
-              <v-icon v-else name="loading" size="1rem" viewbox="100" />
+              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="13px"/>
+              <v-icon v-else name="loading" size="13px" viewbox="100" />
 
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
@@ -58,7 +58,7 @@
             <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="tag" size="1rem" viewbox="20"/>
+                  <v-icon name="tag" size="13px" viewbox="20"/>
                   <span>Tag</span>
                 </button>
               </template>
@@ -66,7 +66,7 @@
             <DueDatePopover :initial-date="itemCopy.dueDate ? new Date(itemCopy.dueDate) : new Date()" @input="handleDateMenu" @clear="handleDateClear">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="time" size="1rem" viewbox="20"/>
+                  <v-icon name="time" size="13px" viewbox="20"/>
                   <span>Due Date</span>
                 </button>
               </template>
@@ -86,10 +86,8 @@
               v-model="descriptionCopy.description"
             />
             <div class="description-input-actions">
-              <button class="btn btn-link" @click="cancelDescription">
-                <v-icon name="close2" viewbox="20" title="Close"/>
-              </button>
-              <button class="btn btn-primary" @click="saveDescription">Save</button>
+              <span class="cancel" @click="cancelDescription">Cancel</span>
+              <span class="save" @click="saveDescription">Save</span>
             </div>
           </div>
         </div>
@@ -128,7 +126,7 @@
               </li>
             </ul>
             <template v-else>
-              None
+              <span>None</span>
             </template>
           </div>
         </div>
@@ -141,7 +139,7 @@
                     <template v-slot:trigger>
                       <li class="addmember-button" content="Add Member" v-tippy>
                         <span>
-                          <v-icon name="plus2" size="1rem" viewbox="16"/>
+                          <v-icon name="plus2" size="14px" viewbox="16"/>
                         </span>
                       </li>
                     </template>
@@ -424,7 +422,7 @@ export default class TaskModal extends Vue {
         this.titleEditableRef.blur()
         if (!this.isUpdatingTitle) {
           this.isUpdatingTitle = true
-          this.itemCopy.title = this.titleEditableRef.innerText
+          this.itemCopy.title = this.titleEditableRef.innerText.trim()
           await this.$store.dispatch('task/item/update', {
             id: this.item.id,
             title: this.itemCopy.title
@@ -433,7 +431,7 @@ export default class TaskModal extends Vue {
           this.isEditingTitle = false
         }
       } else if (cancel) {
-        this.titleEditableRef.innerText = this.itemCopy.title
+        this.titleEditableRef.innerText = this.itemCopy.title.trim()
         this.titleEditableRef.blur()
       }
     }
@@ -496,10 +494,11 @@ export default class TaskModal extends Vue {
 <style lang="postcss" scoped>
 
   .task-modal-header {
-    @apply flex items-start pb-8 px-12 pb-2;
-    width: 820px;
+    @apply flex items-start pr-12 pb-2;
+    width: 750px;
     font-weight: bold;
     padding-top: 26px;
+    padding-left: 40px;
   }
 
   .task-modal-header-actions {
@@ -526,6 +525,7 @@ export default class TaskModal extends Vue {
     font-weight: normal;
     font-size: 14px;
     line-height: 17px;
+    padding-left: 8px;
   }
 
   .list-title {
@@ -536,18 +536,18 @@ export default class TaskModal extends Vue {
 
   .task-modal-body {
     @apply flex items-start p-12 pb-8 pt-4 relative;
-    width: 820px;
+    width: 750px;
   }
 
   .task-left {
     flex: 1 0 0;
-    width: 480px;
+    width: 448px;
   }
 
   .task-right {
     @apply ml-8;
     flex: 0 1 auto;
-    width: 210px;
+    width: 166px;
   }
 
   .action-label {
@@ -562,9 +562,15 @@ export default class TaskModal extends Vue {
   }
 
   .actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 0.5rem;
+    display: flex;
+
+    button, .popover-container {
+      margin-right: .5rem;
+    }
+
+    button, .popover-trigger {
+      padding: 8px 12px 7px 9.33px !important;
+    }
   }
 
   .actions .popover-container {
@@ -595,7 +601,7 @@ export default class TaskModal extends Vue {
     & span {
       @apply pl-2;
       font-style: normal;
-      font-weight: 600;
+      font-weight: 500;
       font-size: 14px;
       line-height: 17px;
     }
@@ -632,9 +638,21 @@ export default class TaskModal extends Vue {
   .description-input-actions {
     @apply flex items-center justify-end mt-4;
 
-    .btn {
-      @apply px-4;
-      flex: 0 0 auto;
+    .save, .cancel {
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      text-align: right;
+    }
+
+    .save {
+      color: theme("colors.primary.default");
+      margin-left: 8px;
+    }
+
+    .cancel {
+      color: theme("colors.gray.400");
     }
   }
 
@@ -675,6 +693,10 @@ export default class TaskModal extends Vue {
 
   .right-field-content {
     color: rgba(theme("colors.gray.800"), 0.5);
+
+    span {
+      font-size: 10px;
+    }
   }
 
   .tags,
@@ -684,9 +706,15 @@ export default class TaskModal extends Vue {
   }
 
   .tag {
-    @apply px-2 py-1 mr-2 rounded inline-flex items-center mb-2;
+    @apply mr-2 rounded inline-flex items-center mb-2;
     color: #fff;
     cursor: pointer;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 5px 6px 4px 6px;
 
     svg {
       visibility: hidden;
@@ -695,30 +723,6 @@ export default class TaskModal extends Vue {
     &:hover {
       svg {
         visibility: visible;
-      }
-    }
-  }
-
-  .addmember-button {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    background: rgba(theme("colors.gray.100"), 0.5);
-    color: theme("colors.gray.900");
-    border-radius: 24px;
-    padding: 7px 7px 7px 8px;
-    cursor: pointer;
-    margin-top: 3px;
-
-    &:hover{
-       background: rgba(216, 55, 80, 0.16);
-       color: theme("colors.primary.default");
-
-     }
-
-    div, span, svg {
-      &:focus {
-        outline: none;
       }
     }
   }
@@ -739,16 +743,44 @@ export default class TaskModal extends Vue {
         display: flex;
         align-items: center;
         padding: 4px;
+        width: 24px;
+        height: 24px;
+        background: rgba(theme("colors.gray.100"), 0.5);
+        color: theme("colors.gray.900");
+        border-radius: 24px;
+        cursor: pointer;
+
+        svg {
+          margin-left: 1px;
+        }
+
+        div, span, svg {
+          &:focus {
+            outline: none;
+          }
+        }
+
+        &:hover{
+          background: rgba(216, 55, 80, 0.16);
+          color: theme("colors.primary.default");
+        }
       }
 
       .vue-avatar--wrapper {
-        width: 24px !important;
-        height: 24px !important;
+        width: 26px !important;
+        height: 26px !important;
         font: 10px / 13px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
         margin-left: -7px;
         letter-spacing: 0.03em;
+      }
+    }
+
+    .popover-trigger.show {
+      .addmember-button {
+        background: rgba(216, 55, 80, 0.16);
+        color: theme("colors.primary.default");
       }
     }
   }
@@ -758,6 +790,18 @@ export default class TaskModal extends Vue {
       border-color: theme("colors.primary.default");
       color: theme("colors.primary.default");
       background: none;
+    }
+
+    button {
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      height: 32px;
+
+      &:hover {
+        background: rgba(216, 55, 80, 0.16);
+        color: theme("colors.primary.default");
+      }
     }
   }
   .attachment-file {
@@ -774,16 +818,13 @@ export default class TaskModal extends Vue {
     line-height: 29px;
     transition: padding 0.5s ease, border 0.3s ease;
     border: 2px solid white;
-    border-left: 0;
     outline: none;
-    padding: 6px 8px 5px 0;
+    padding: 6px 8px 5px 6px;
 
     &:focus {
       outline: none;
       border-color: rgba(47, 128, 237, 0.75);
-      border-left: 2px solid rgba(47, 128, 237, 0.75);
       box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
-      padding-left: 8px;
     }
   }
   .due-date-box {
@@ -815,8 +856,8 @@ export default class TaskModal extends Vue {
     padding-left: 6px;
 
     .vue-avatar--wrapper {
-      width: 24px !important;
-      height: 24px !important;
+      width: 26px !important;
+      height: 26px !important;
       font: 10px / 13px theme("fontFamily.primary") !important;
       float: left;
       border: 2px solid #FFF;

@@ -37,7 +37,7 @@
                         <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}">
                           {{ option.label }}
                         </div>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option}">
@@ -61,7 +61,7 @@
                       <div class="member-option">
                         <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                         <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option }">

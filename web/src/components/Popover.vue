@@ -161,7 +161,6 @@ export default class Popover extends Vue {
       button {
         background: rgba(216, 55, 80, 0.16);
         color: theme("colors.primary.default");
-
       }
     }
   }

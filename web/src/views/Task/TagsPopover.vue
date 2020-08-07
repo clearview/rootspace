@@ -10,20 +10,22 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)" :class="{ 'py-6': filteredTags.length === 1}">
+    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
       <div class="container-tag">
         <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
           @click="tagsState !== 'manage' ? input(tag) : null">
           {{tag.label}}
-          <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+          <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
+            <v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+          </span>
         </div>
         <div class="action" v-if="tagsState === 'manage'">
         <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-            <v-icon size="1.2rem" name="edit"/>
+            <v-icon size="12px" viewbox="32" name="edit"/>
         </span>
         <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-          <v-icon size="1.2rem" name="trash"/>
+          <v-icon size="12px" viewbox="32" name="trash"/>
         </span>
         </div>
       </div>
@@ -50,7 +52,7 @@
       <div class="color-boxes">
       <div class="color-box" v-for="color in colors" :key="color" :style="{ background: color }"
         @click="selectColor(color)" :class="{'checked': color === colorInput}">
-        <span class="icon-checkmark"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+        <span class="icon-checkmark"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
       </div>
       </div>
 
@@ -69,11 +71,11 @@
     </div> -->
 
     <div class="manage-button" @click="manageTagsButton()" v-if="tagsState === 'list'">
-      <span><v-icon name="edit" size="1.1rem"/></span>
+      <span><v-icon name="edit" size="12px" viewbox="32"/></span>
       Manage Tags
     </div>
     <div class="add-button" @click="addTagButton()" v-if="tagsState === 'manage'">
-      <span><v-icon name="plus" size="1.8rem"/></span>
+      <span><v-icon name="plus" size="13px" viewbox="24"/></span>
       Add Tag
     </div>
     </div>
@@ -203,11 +205,13 @@ export default class TagsPopover extends Vue {
       case 'add':
         this.tagsState = 'manage'
         this.tagsTitle = 'Manage Tags'
+        this.tagInput = ''
         break
 
       case 'edit':
         this.tagsState = 'manage'
         this.tagsTitle = 'Manage Tags'
+        this.tagInput = ''
         break
 
       default:
@@ -269,7 +273,9 @@ export default class TagsPopover extends Vue {
   .tag-color {
     @apply py-1 px-2 rounded flex-grow self-center;
 
-    font-size: 12px;
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: 0.03em;
     text-align: center;
     cursor: pointer;
     color: #FFF;
@@ -280,6 +286,8 @@ export default class TagsPopover extends Vue {
     .icon-checkmark {
       position: absolute;
       right: 10px;
+      opacity: 1;
+      top: 2px;
     }
 
     &:hover {
@@ -309,6 +317,7 @@ export default class TagsPopover extends Vue {
     height: 30px;
     transition:all 0.3s ease;
     cursor: pointer;
+    position: relative;
 
     .icon-checkmark {
       visibility: hidden;
@@ -323,15 +332,19 @@ export default class TagsPopover extends Vue {
     .icon-checkmark {
       visibility: visible;
       opacity: 1;
+      top: 7px;
+      left: 7px;
     }
   }
 
   .manage-button,
   .add-button {
-    @apply flex items-center pt-4;
+    @apply flex items-center pt-3;
 
     cursor: pointer;
     font-weight: bold;
+    font-size: 12px;
+    line-height: 14px;
     color: theme("colors.gray.400");
 
     &:hover {
@@ -341,6 +354,10 @@ export default class TagsPopover extends Vue {
     span {
       @apply pr-2;
     }
+  }
+
+  .add-button {
+    margin-top: -5px;
   }
 
   .container-tag {
@@ -366,11 +383,11 @@ export default class TagsPopover extends Vue {
   }
 
   .input {
-  @apply w-full mt-2 mb-4;
+  @apply w-full mb-4;
   }
 
   .tag-subtitle {
-  @apply pb-1;
+  @apply pb-2;
 
   font-size: 14px;
   line-height: 17px;

@@ -28,7 +28,7 @@
               <div class="action-submenu">
                 <div class="colors">
                   <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color);hide()">
-                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                   </div>
                   <div class="color-default" @click="selectColor(defaultColor);hide()">
                     Default

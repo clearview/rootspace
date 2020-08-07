@@ -126,23 +126,9 @@ export default class TagsPopover extends Vue {
       margin-left: 10px;
     }
 
-    .icon-checkmark {
-      @apply rounded-full;
-      @apply flex justify-center items-center;
-
-      background: theme("colors.primary.default");
-      position: absolute;
-      right: 16px;
-      opacity: 0;
-      width: 16px;
-      height: 16px;
-      border: 1.5px solid #FFFFFF;
-    }
-
     &.selected {
       .icon-checkmark {
         opacity: 1;
-        color: theme("colors.primary.default");
       }
 
       span {

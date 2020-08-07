@@ -386,7 +386,7 @@ export default class TaskCard extends Vue {
     .footer {
       /* @apply flex justify-between flex-1; */
       @apply block;
-      width: 220px;
+      width: 240px;
 
       .tags {
         @apply flex-1 flex justify-start;
@@ -441,8 +441,8 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 24px !important;
-            height: 24px !important;
+            width: 26px !important;
+            height: 26px !important;
             font: 10px / 13px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
