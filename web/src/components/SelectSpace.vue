@@ -167,7 +167,9 @@ export default class SelectSpace extends Vue {
   @Watch('activeSpace')
   async watchActiveSpace (activeSpace: SpaceResource, prevActiveSpace: SpaceResource) {
     this.$nextTick(() => {
-      this.optionsVisible = (activeSpace.id === prevActiveSpace.id)
+      const hasChange = (activeSpace.id === prevActiveSpace.id)
+
+      this.optionsVisible = this.optionsVisible && hasChange
     })
   }
 

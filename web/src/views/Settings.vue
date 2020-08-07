@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { find, get } from 'lodash'
 
 import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
@@ -91,42 +91,41 @@ import FormSettings from '@/components/form/FormSettings.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
 import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/Modal.vue'
-import { Component, Watch, Mixins } from 'vue-property-decorator'
 
 import PageMixin from '@/mixins/PageMixin'
 
-  type ComponentData = {
-    tab: string;
-    errorAccount: object;
-    errorSpace: object;
-    mobileNotifications: boolean;
-    emailNotifications: boolean;
-    loadingMessage: string;
-    isLoading: boolean;
-    spaceData: object;
-    spaceUsersObj: object;
-    spaceUsersPendingObj: object;
-    account: {
-      alert: object | null;
-    };
-    space: {
-      alert: object | null;
-      error: boolean;
-      errorMessage: string;
-    };
-  }
+type ComponentData = {
+  tab: string;
+  errorAccount: object;
+  errorSpace: object;
+  mobileNotifications: boolean;
+  emailNotifications: boolean;
+  loadingMessage: string;
+  isLoading: boolean;
+  spaceData: object;
+  spaceUsersObj: object;
+  spaceUsersPendingObj: object;
+  account: {
+    alert: object | null;
+  };
+  space: {
+    alert: object | null;
+    error: boolean;
+    errorMessage: string;
+  };
+}
 
-  @Component({
-    name: 'Settings',
-    components: {
-      ButtonSwitch,
-      FormSettings,
-      FormSpace,
-      VAlert,
-      VLoading,
-      VModal
-    }
-  })
+@Component({
+  name: 'Settings',
+  components: {
+    ButtonSwitch,
+    FormSettings,
+    FormSpace,
+    VAlert,
+    VLoading,
+    VModal
+  }
+})
 export default class Settings extends Mixins(PageMixin) {
     private tab = 'account';
     private errorAccount = {};
@@ -161,9 +160,13 @@ export default class Settings extends Mixins(PageMixin) {
     }
 
     @Watch('activeSpace')
-    async watchActiveSpace (val: any) {
+    async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
+      if (space.id === prevSpace.id) {
+        return
+      }
+
       if (this.tab === 'space') {
-        await this.viewSpace(val.id)
+        await this.viewSpace(space.id)
       }
     }
 

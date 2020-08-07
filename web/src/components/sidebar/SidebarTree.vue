@@ -344,7 +344,11 @@ export default class SidebarTree extends Vue {
   }
 
   @Watch('activeSpace')
-  async watchActiveSpace () {
+  async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
+    if (space.id === prevSpace.id) {
+      return
+    }
+
     try {
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
