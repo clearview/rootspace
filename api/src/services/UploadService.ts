@@ -11,6 +11,7 @@ import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
 import { FileActivities } from '../database/entities/activities/FileActivities'
+import { ServiceFactory } from './factory/ServiceFactory'
 
 export class UploadService {
 
@@ -18,7 +19,7 @@ export class UploadService {
   private activityService: ActivityService
 
   constructor() {
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
       secretAccessKey: config.s3.secretKey

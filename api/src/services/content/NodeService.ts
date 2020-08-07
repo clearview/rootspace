@@ -10,6 +10,7 @@ import { ActivityService } from '../ActivityService'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { NodeActivities } from '../../database/entities/activities/NodeActivities'
+import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class NodeService {
   private mediator: INodeContentMediator
@@ -18,7 +19,7 @@ export class NodeService {
   private static instance: NodeService
 
   private constructor() {
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   static getInstance() {

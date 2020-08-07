@@ -16,6 +16,7 @@ import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
 import { UserActivities } from './database/entities/activities/UserActivities'
 import { ActivityEvent } from './services/events/ActivityEvent'
+import { ServiceFactory } from './services/factory/ServiceFactory'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -30,11 +31,11 @@ passport.use(
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
 
-      const activityService = ActivityService.getInstance()
-      const existingUser = await UserService.getInstance().getUserByEmail(profile.emails[0].value)
+      const activityService = ServiceFactory.getInstance().getActivityService()
+      const existingUser = await ServiceFactory.getInstance().getUserService().getUserByEmail(profile.emails[0].value)
 
       if (!existingUser) {
-        const newUser = await UserService.getInstance().signup({
+        const newUser = await ServiceFactory.getInstance().getUserService().signup({
           firstName: profile.name.givenName,
           lastName: profile.name.familyName,
           email: profile.emails[0].value,
@@ -65,10 +66,10 @@ passport.use(
     },
     async (email: string, password: string, done) => {
       try {
-        const userService = UserService.getInstance()
+        const userService = ServiceFactory.getInstance().getUserService()
         const user = await userService.getUserByEmail(email, true)
 
-        const activityService = ActivityService.getInstance()
+        const activityService = ServiceFactory.getInstance().getActivityService()
 
         if (!user) {
           return done(unauthorized())

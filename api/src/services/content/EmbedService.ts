@@ -8,13 +8,14 @@ import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class EmbedService extends NodeContentService {
   private nodeService: NodeService
 
   private constructor() {
     super()
-    this.nodeService = NodeService.getInstance()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
   private static instance: EmbedService

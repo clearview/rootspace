@@ -5,13 +5,14 @@ import { Follow } from '../database/entities/Follow'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
+import { ServiceFactory } from './factory/ServiceFactory'
 
 export class NotificationService {
   private static instance: NotificationService
   private activityService: ActivityService
 
   private constructor() {
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   static getInstance() {

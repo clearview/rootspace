@@ -5,7 +5,8 @@ import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services'
 import { ForbiddenError } from '@casl/ability'
 import { Actions, Subjects } from '../middleware/AuthMiddleware'
-import { FollowService } from '../services/FollowService'
+import { FollowService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -13,8 +14,8 @@ export class DocsCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.docService = DocService.getInstance()
-    this.followService = FollowService.getInstance()
+    this.docService = ServiceFactory.getInstance().getDocService()
+    this.followService = ServiceFactory.getInstance().getFollowService()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {

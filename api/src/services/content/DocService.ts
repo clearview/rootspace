@@ -12,6 +12,7 @@ import { DocActivities } from '../../database/entities/activities/DocActivities'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { ActivityService } from '../ActivityService'
+import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -19,8 +20,8 @@ export class DocService extends NodeContentService {
 
   private constructor() {
     super()
-    this.nodeService = NodeService.getInstance()
-    this.activityService = ActivityService.getInstance()
+    this.nodeService = ServiceFactory.getInstance().getNodeService()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: DocService

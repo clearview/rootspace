@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   OneToMany,
   Generated, ManyToOne, JoinColumn
 } from 'typeorm'
@@ -68,6 +69,9 @@ export class TaskBoard {
   @UpdateDateColumn({ type: 'timestamptz'})
   @IsDate()
   updatedAt: Date
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  public deletedAt: Date
 
   @OneToMany(type => Tag, tag => tag.board, {eager: true, onDelete: 'CASCADE'})
   tags!: Tag[]

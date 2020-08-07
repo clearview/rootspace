@@ -5,6 +5,7 @@ import { clientError } from '../../errors'
 import { UserActivities } from '../../database/entities/activities/UserActivities'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
+import {ServiceFactory} from "../factory/ServiceFactory";
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -14,11 +15,11 @@ export class InviteFacade {
   private activityService: ActivityService
 
   constructor() {
-    this.inviteService = InviteService.getInstance()
-    this.spaceService = SpaceService.getInstance()
-    this.userService = UserService.getInstance()
-    this.userSpaceService = UserSpaceService.getInstance()
-    this.activityService = ActivityService.getInstance()
+    this.inviteService = ServiceFactory.getInstance().getInviteService()
+    this.spaceService = ServiceFactory.getInstance().getSpaceService()
+    this.userService = ServiceFactory.getInstance().getUserService()
+    this.userSpaceService = ServiceFactory.getInstance().getUserSpaceService()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {

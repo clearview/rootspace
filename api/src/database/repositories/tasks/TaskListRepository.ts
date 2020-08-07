@@ -12,4 +12,12 @@ export class TaskListRepository extends BaseRepository<TaskList> {
 
     return queryBuilder.getOne()
   }
+
+  async findOneArchived(id: number): Promise<TaskList | undefined> {
+    return this
+      .createQueryBuilder('taskList')
+      .where('taskList.id = :id', { id })
+      .andWhere('taskList.deletedAt IS NOT NULL')
+      .getOne()
+  }
 }

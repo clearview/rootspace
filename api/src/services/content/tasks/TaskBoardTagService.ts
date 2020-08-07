@@ -1,15 +1,10 @@
 import { getCustomRepository } from 'typeorm'
 import { Tag } from '../../../database/entities/tasks/Tag'
 import { TaskBoardTagRepository } from '../../../database/repositories/tasks/TaskBoardTagRepository'
-import { TaskBoardService } from './TaskBoardService'
 
 export class TaskBoardTagService {
   private static instance: TaskBoardTagService
-  private taskBoardService: TaskBoardService
 
-  private constructor() {
-    this.taskBoardService = TaskBoardService.getInstance()
-  }
   static getInstance() {
     if (!TaskBoardTagService.instance) {
       TaskBoardTagService.instance = new TaskBoardTagService()
@@ -31,10 +26,8 @@ export class TaskBoardTagService {
   }
 
   async create(data: any): Promise<Tag> {
-    const taskBoard = await this.taskBoardService.getById(data.taskBoardId)
-
     const tag = new Tag()
-    tag.board = taskBoard
+    tag.board = data.taskBoard
     tag.label = data.label
     tag.color = data.color
 

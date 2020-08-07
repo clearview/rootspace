@@ -15,15 +15,19 @@ import { ActivityService } from '../../ActivityService'
 import Bull from 'bull'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
+import { UpdateResult } from 'typeorm/index'
+import { TaskListService } from './TaskListService'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
   private activityService: ActivityService
+  private taskListService: TaskListService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
+    this.taskListService = ServiceFactory.getInstance().getTaskListService()
   }
 
   private static instance: TaskBoardService
@@ -50,6 +54,10 @@ export class TaskBoardService extends NodeContentService {
 
   async getById(id: number): Promise<TaskBoard> {
     return this.getTaskBoardRepository().findOneOrFail(id)
+  }
+
+  async getArchivedById(id: number): Promise<TaskBoard | undefined> {
+    return this.getTaskBoardRepository().findOneArchived(id)
   }
 
   async getAllTasks(id: number): Promise<Task[]> {
@@ -130,6 +138,24 @@ export class TaskBoardService extends NodeContentService {
     )
 
     return taskBoard
+  }
+
+  async archive(taskBoardId: number): Promise<UpdateResult> {
+    await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
+
+    const taskBoard = await this.getCompleteTaskboard(taskBoardId)
+    for(const taskList of taskBoard.taskLists) {
+      await this.taskListService.archive(taskList.id)
+    }
+
+    return this.getTaskBoardRepository().softDelete({id: taskBoardId})
+  }
+
+  async restore(taskBoardId: number): Promise<UpdateResult> {
+    const restoredTaskBoard = await this.getTaskBoardRepository().restore({id: taskBoardId})
+    await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoardId)
+
+    return restoredTaskBoard
   }
 
   async remove(id: number) {

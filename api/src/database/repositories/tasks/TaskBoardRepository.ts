@@ -2,6 +2,7 @@ import { EntityRepository, getCustomRepository } from 'typeorm'
 import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
+import {Task} from "../../entities/tasks/Task";
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {
@@ -65,5 +66,13 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     }
 
     return taskBoard
+  }
+
+  async findOneArchived(id: number): Promise<TaskBoard | undefined> {
+    return this
+      .createQueryBuilder('taskBoard')
+      .where('taskBoard.id = :id', { id })
+      .andWhere('taskBoard.deletedAt IS NOT NULL')
+      .getOne()
   }
 }

@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   OneToMany,
   ManyToOne, JoinColumn
 } from 'typeorm'
@@ -60,6 +61,9 @@ export class TaskList {
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  public deletedAt: Date
 
   @OneToMany(type => Task, task => task.list, {eager: false, onDelete: 'CASCADE'})
   tasks: Task[]

@@ -75,6 +75,26 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
+  async archive(req: Request, res: Response, next: NextFunction) {
+    const taskBoardId = Number(req.params.id)
+
+    const taskBoard = await this.taskBoardService.getById(taskBoardId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
+
+    const result = await this.taskBoardService.archive(taskBoardId)
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response, next: NextFunction) {
+    const taskBoardId = Number(req.params.id)
+
+    const taskBoard = await this.taskBoardService.getArchivedById(taskBoardId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
+
+    const result = await this.taskBoardService.restore(taskBoardId)
+    res.send(result)
+  }
+
   async delete(req: Request, res: Response, next: NextFunction) {
     const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard)

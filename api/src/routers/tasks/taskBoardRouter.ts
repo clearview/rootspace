@@ -12,6 +12,8 @@ router.get('/tasks/board/task/:id', authorize(Subjects.TaskBoard), mapRoute(Task
 router.post('/tasks/board', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'create'))
 router.post('/tasks/board/:id/search', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'searchTasks'))
 router.patch('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'update'))
+router.post('/tasks/board/:id/archive', mapRoute(TaskBoardCtrl, 'archive'))
+router.post('/tasks/board/:id/restore', mapRoute(TaskBoardCtrl, 'restore'))
 router.delete('/tasks/board/:id', authorize(Subjects.TaskBoard), mapRoute(TaskBoardCtrl, 'delete'))
 
 router.get('/tasks/board/:taskBoardId/tags', mapRoute(TaskBoardTagCtrl, 'list'))

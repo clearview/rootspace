@@ -9,14 +9,20 @@ import Bull from 'bull'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import { ActivityService } from '../../ActivityService'
 import { TaskListActivities } from '../../../database/entities/activities/TaskListActivities'
+import { UpdateResult } from 'typeorm/index'
+import { TaskService } from './TaskService'
+import { ServiceFactory } from '../../factory/ServiceFactory'
 
 export class TaskListService {
+  private activityService: ActivityService
+  private taskService: TaskService
+
   private constructor() {
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
+    this.taskService = ServiceFactory.getInstance().getTaskService()
   }
 
   private static instance: TaskListService
-  private activityService: ActivityService
 
   static getInstance() {
     if (!TaskListService.instance) {
@@ -40,6 +46,10 @@ export class TaskListService {
 
   async getById(id: number): Promise<TaskList> {
     return this.getTaskListRepository().findOneOrFail(id)
+  }
+
+  async getArchivedById(id: number): Promise<TaskList | undefined> {
+    return this.getTaskListRepository().findOneArchived(id)
   }
 
   async getAllTasks(id: number): Promise<Task[]> {
@@ -72,6 +82,24 @@ export class TaskListService {
     await this.registerActivityForTaskList(TaskListActivities.Updated, taskList)
 
     return taskList
+  }
+
+  async archive(taskListId: number): Promise<UpdateResult> {
+    await this.registerActivityForTaskListId(TaskListActivities.Archived, taskListId)
+
+    const taskList = await this.getCompleteTasklist(taskListId)
+    for(const task of taskList.tasks) {
+      await this.taskService.archive(task.id)
+    }
+
+    return this.getTaskListRepository().softDelete({id: taskListId})
+  }
+
+  async restore(taskListId: number): Promise<UpdateResult> {
+    const restoredTaskList = await this.getTaskBoardRepository().restore({id: taskListId})
+    await this.registerActivityForTaskListId(TaskListActivities.Restored, taskListId)
+
+    return restoredTaskList
   }
 
   async remove(id: number) {

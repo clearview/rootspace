@@ -4,7 +4,8 @@ import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { clientError, HttpErrName } from '../errors'
 import { SpaceFacade, InviteFacade } from '../services/facade'
-import { ActivityService } from '../services/ActivityService'
+import { ActivityService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class SpacesCtrl extends BaseCtrl {
   private inviteFacade: InviteFacade
@@ -15,7 +16,7 @@ export class SpacesCtrl extends BaseCtrl {
     super()
     this.inviteFacade = new InviteFacade()
     this.spaceFacade = new SpaceFacade()
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   async getTree(req: Request, res: Response) {
