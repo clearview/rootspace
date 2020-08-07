@@ -154,7 +154,7 @@ export default class EditorMenu extends Vue {
   }
 
   history () {
-    console.log('history')
+
   }
 
   trash () {

@@ -28,7 +28,6 @@ export default createServiceModule(CommentService, {
             if (task.id === data.taskId) {
               task.taskComments = task.taskComments.map(comment => {
                 if (comment.id === data.id) {
-                  console.log(data)
                   return data
                 }
                 return comment
