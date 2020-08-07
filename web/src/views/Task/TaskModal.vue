@@ -93,13 +93,14 @@
         </div>
         <div class="comment-separator"></div>
         <div class="comment-input">
-          <input
-            type="text"
+          <textarea
+            rows="3"
             class="input"
             placeholder="Write a comment…"
+            ref="commentTextarea"
             v-model="commentInput"
-            @keyup.enter="saveComment"
-          >
+            @keydown="commentHandler"
+          />
         </div>
         <ul class="comments">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
@@ -182,7 +183,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Ref, Watch, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
 import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
@@ -235,6 +236,14 @@ export default class TaskModal extends Vue {
 
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement
+
+    @Ref('commentTextarea')
+    private readonly commentRef!: HTMLInputElement
+
+    @Watch('commentInput')
+    watchComment () {
+      this.commentResize()
+    }
 
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
@@ -323,6 +332,24 @@ export default class TaskModal extends Vue {
     cancelDescription () {
       this.isEditingDescription = false
       this.descriptionCopy.description = this.itemCopy.description
+    }
+
+    commentHandler (e: any) {
+      if (e.keyCode === 13 && !e.shiftKey) {
+        e.preventDefault()
+        this.saveComment()
+      }
+    }
+
+    commentResize () {
+      const comment = this.commentRef
+
+      if (comment === undefined) return
+
+      comment.style.minHeight = '50px'
+      if (this.commentInput === '') return
+      // console.log('this.commentInput 2', this.commentInput, comment.scrollHeight)
+      comment.style.minHeight = comment.scrollHeight + 'px'
     }
 
     async saveComment () {
@@ -628,6 +655,11 @@ export default class TaskModal extends Vue {
 
   .input {
     @apply w-full;
+
+    height: auto;
+    resize: none;
+    overflow: hidden;
+    line-height: 17px;
   }
 
   .right-field {

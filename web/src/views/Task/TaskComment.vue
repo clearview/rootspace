@@ -38,19 +38,17 @@
           </Popover>
         </div>
       </header>
-      <div v-if="!isEditMode" class="comment-content">
-        {{comment.content}}
-      </div>
+      <div v-if="!isEditMode" class="comment-content" v-text="comment.content"></div>
       <div v-show="isEditMode" class="comment-input">
-        <input
-          ref="input"
-          type="text"
+        <textarea
+          rows="3"
           class="input"
           placeholder="Write a comment…"
+          ref="commentTextarea"
           v-model="commentCopy.content"
-          @keypress.enter.prevent="updateComment"
-          @keyup.esc="exitEditMod"
-        >
+          @keydown="commentHandler"
+          @keyup.esc="exitEditMode"
+        />
       </div>
       <div v-if="isEditMode" class="comment-actions">
         <button class="btn btn-link" @click="exitEditMode">
@@ -65,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Prop, Ref, Watch, Vue } from 'vue-property-decorator'
 import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
@@ -99,11 +97,34 @@ export default class TaskComment extends Vue {
     private isEditMode = false
     private commentCopy = { ...this.comment }
 
-    @Ref('input')
-    private readonly inputRef!: HTMLInputElement;
+    @Ref('commentTextarea')
+    private readonly commentRef!: HTMLInputElement
 
     async deleteComment () {
       await this.$store.dispatch('task/comment/destroy', this.comment)
+    }
+
+    @Watch('commentInput')
+    watchComment () {
+      this.commentResize()
+    }
+
+    commentHandler (e: any) {
+      if (e.keyCode === 13 && !e.shiftKey) {
+        e.preventDefault()
+        this.updateComment()
+      }
+    }
+
+    commentResize () {
+      const comment = this.commentRef
+
+      if (comment === undefined) return
+
+      comment.style.minHeight = '50px'
+      if (this.commentCopy.content === '') return
+
+      comment.style.minHeight = comment.scrollHeight + 'px'
     }
 
     async updateComment () {
@@ -117,7 +138,8 @@ export default class TaskComment extends Vue {
     enterEditMode () {
       this.isEditMode = true
       Vue.nextTick().then(() => {
-        this.inputRef.focus()
+        this.commentResize()
+        this.commentRef.focus()
       })
     }
 
@@ -158,10 +180,12 @@ export default class TaskComment extends Vue {
 
   .comment-content {
     @apply p-2 leading-tight rounded;
+
     font-size: 14px;
     line-height: 17px;
     color: theme("colors.gray.900");
     background: rgba(theme("colors.gray.100"), 0.3);
+    white-space: pre;
   }
 
   .comment-actions {
@@ -179,8 +203,14 @@ export default class TaskComment extends Vue {
       }
     }
   }
+
   .input {
     @apply w-full;
+
+    height: auto;
+    resize: none;
+    overflow: hidden;
+    line-height: 17px;
   }
 
   .comment-header {
