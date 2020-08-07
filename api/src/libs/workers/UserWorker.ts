@@ -5,6 +5,7 @@ import { MailService, UserService } from '../../services'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 import { UserActivities } from '../../database/entities/activities/UserActivities'
 import pug from 'pug'
+import { PasswordReset } from '../../database/entities/PasswordReset'
 
 export class UserWorker {
   static mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
@@ -27,13 +28,15 @@ export class UserWorker {
   }
 
   async process(event: ActivityEvent): Promise<void> {
-
     switch (event.action) {
       case UserActivities.Signup:
         await this.sendConfirmationEmail(event)
         break
       case UserActivities.Email_Confirmed:
         await this.sendWelcomeEmail(event)
+        break
+      case UserActivities.Password_Reset:
+        await this.sendPasswordResetMail(event)
         break
     }
   }
@@ -46,7 +49,10 @@ export class UserWorker {
     const confirmationURL = config.domain + config.domainEmailConfirmationPath
     const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
 
-    const content = pug.renderFile(UserWorker.mailTemplatesDir + 'confirmEmail.pug', { user, confirmUrl })
+    const content = pug.renderFile(
+      UserWorker.mailTemplatesDir + 'confirmEmail.pug',
+      { user, confirmUrl }
+    )
 
     await this.mailService.sendMail(user.email, subject, content)
 
@@ -62,6 +68,24 @@ export class UserWorker {
 
     await this.mailService.sendMail(user.email, subject, content)
 
+    return true
+  }
+
+  private async sendPasswordResetMail(
+    event: ActivityEvent
+  ): Promise<boolean> {
+    const subject = 'Root, Password reset'
+    const confirmationURL = config.domain + config.domainPasswordResetPath
+    const confirmUrl = `${confirmationURL}/${passwordReset.token}`
+
+    const content = pug.renderFile(
+      UserWorker.mailTemplatesDir + 'passwordReset.pug',
+      {
+        passwordReset,
+        confirmUrl,
+      }
+    )
+    await this.mailService.sendMail(passwordReset.email, subject, content)
     return true
   }
 }

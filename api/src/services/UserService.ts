@@ -18,7 +18,6 @@ import {
   clientError,
   unauthorized,
 } from '../errors'
-import { MailService } from './mail/MailService'
 import { CallbackFunction } from 'ioredis'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
@@ -224,11 +223,26 @@ export class UserService {
     )
   }
 
-  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
+  async createPasswordReset(
+    data: PasswordRecoveryValue
+  ): Promise<PasswordReset> {
+    let passwordReset = new PasswordReset()
+
+    passwordReset.email = data.attributes.email
+    passwordReset.expiration = new Date(Date.now() + 3600000)
+
+    passwordReset = await this.getPasswordResetRepository().save(passwordReset)
+    return passwordReset
+  }
+
+  async registerActivityForUserId(
+    userActivity: UserActivities,
+    userId: number
+  ): Promise<Bull.Job> {
     const user = await this.getUserById(userId)
     return this.registerActivityForUser(userActivity, user)
   }
-  
+
   async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
     const passwordReset = await this.getPasswordResetByToken(
       data.attributes.token
@@ -256,50 +270,14 @@ export class UserService {
     return this.getPasswordResetRepository().save(passwordReset)
   }
 
-  async createPasswordReset(
-    data: PasswordRecoveryValue
-  ): Promise<PasswordReset> {
-    let passwordReset = new PasswordReset()
-
-    passwordReset.email = data.attributes.email
-    passwordReset.expiration = new Date(Date.now() + 3600000)
-
-    passwordReset = await this.getPasswordResetRepository().save(passwordReset)
-    await this.sendPasswordResetMail(passwordReset)
-
-    return passwordReset
-  }
-
-  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
+  async registerActivityForUser(
+    userActivity: UserActivities,
+    user: User
+  ): Promise<Bull.Job> {
     return this.activityService.add(
-      ActivityEvent
-        .withAction(userActivity)
+      ActivityEvent.withAction(userActivity)
         .fromActor(user.id)
         .forEntity(user)
     )
-  }
-
-  private async sendPasswordResetMail(
-    passwordReset: PasswordReset
-  ): Promise<boolean> {
-    const subject = 'Root, Password reset'
-    const confirmationURL = config.domain + config.domainPasswordResetPath
-    const confirmUrl = `${confirmationURL}/${passwordReset.token}`
-
-    const content = pug.renderFile(
-      UserService.mailTemplatesDir + 'passwordReset.pug',
-      {
-        passwordReset,
-        confirmUrl,
-      }
-    )
-
-    try {
-      await this.mailService.sendMail(passwordReset.email, subject, content)
-    } catch (error) {
-      return false
-    }
-
-    return true
   }
 }
