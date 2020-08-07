@@ -19,3 +19,8 @@ export interface IUserChangePasswordAttributes {
 export interface IPasswordRecoveryAttributes {
   email: string
 }
+
+export interface IPasswordResetAttributes {
+  token: string
+  password: string
+}

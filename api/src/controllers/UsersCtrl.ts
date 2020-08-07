@@ -12,11 +12,13 @@ import {
   validateUserUpdate,
   validateChangePassword,
   validatePasswordRecovery,
+  validatePasswordReset,
 } from '../validation/user'
 import {
   UserUpdateValue,
   UserChangePasswordValue,
   PasswordRecoveryValue,
+  PasswordResetValue,
 } from '../values/user'
 
 export class UsersCtrl extends BaseCtrl {
@@ -127,13 +129,23 @@ export class UsersCtrl extends BaseCtrl {
     })
   }
 
-  async passwordRecovery(req: Request, res: Response) { 
+  async passwordRecovery(req: Request, res: Response) {
     const data = req.body.data
     await validatePasswordRecovery(data)
 
     const value = PasswordRecoveryValue.fromObject(data)
     const result = await this.userService.createPasswordReset(value)
 
+    res.send(this.responseData(result))
+  }
+
+  async passwordReset(req: Request, res: Response) {
+    const data = req.body.data
+    await validatePasswordReset(data)
+
+    const value = PasswordResetValue.fromObject(data)
+
+    const result = await this.userService.passwordReset(value)
     res.send(this.responseData(result))
   }
 }

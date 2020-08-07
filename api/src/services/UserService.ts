@@ -10,6 +10,7 @@ import {
   UserUpdateValue,
   UserChangePasswordValue,
   PasswordRecoveryValue,
+  PasswordResetValue,
 } from '../values/user'
 import {
   HttpErrName,
@@ -83,11 +84,32 @@ export class UserService {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
+  async requireUserByEmail(
+    email: string,
+    selectPassword = false
+  ): Promise<User> {
+    const user = await this.getUserByEmail(email, selectPassword)
+
+    if (!user) {
+      throw clientError(
+        'User not found',
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.BadRequest
+      )
+    }
+
+    return user
+  }
+
   getUserByTokenAndId(
     token: string,
     userId: number
   ): Promise<User | undefined> {
     return this.getUserRepository().findOne(userId, { where: { token } })
+  }
+
+  getPasswordResetByToken(token: string): Promise<PasswordReset | undefined> {
+    return this.getPasswordResetRepository().getByToken(token)
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {
@@ -206,6 +228,34 @@ export class UserService {
     const user = await this.getUserById(userId)
     return this.registerActivityForUser(userActivity, user)
   }
+  
+  async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
+    const passwordReset = await this.getPasswordResetByToken(
+      data.attributes.token
+    )
+
+    if (!passwordReset) {
+      throw clientError('Bad request')
+    }
+
+    if (
+      passwordReset.active !== true ||
+      passwordReset.expiration <= new Date(Date.now())
+    ) {
+      throw clientError('Token not active')
+    }
+
+    let user = await this.requireUserByEmail(passwordReset.email)
+
+    const newPassword = await hashPassword(data.attributes.password)
+    user.password = String(newPassword)
+
+    user = await this.getUserRepository().save(user)
+
+    passwordReset.active = false
+    return this.getPasswordResetRepository().save(passwordReset)
+  }
+
   async createPasswordReset(
     data: PasswordRecoveryValue
   ): Promise<PasswordReset> {
@@ -232,10 +282,9 @@ export class UserService {
   private async sendPasswordResetMail(
     passwordReset: PasswordReset
   ): Promise<boolean> {
-
     const subject = 'Root, Password reset'
     const confirmationURL = config.domain + config.domainPasswordResetPath
-    const confirmUrl = `${confirmationURL}/${passwordReset.token}/${passwordReset.id}`
+    const confirmUrl = `${confirmationURL}/${passwordReset.token}`
 
     const content = pug.renderFile(
       UserService.mailTemplatesDir + 'passwordReset.pug',

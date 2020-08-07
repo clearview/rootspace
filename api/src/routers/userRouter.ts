@@ -37,5 +37,5 @@ router.patch(
   mapRoute(UsersCtrl, 'changePassword')
 )
 router.post('/users/password/recovery', mapRoute(UsersCtrl, 'passwordRecovery'))
-
+router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
 export { router as userRouter }
