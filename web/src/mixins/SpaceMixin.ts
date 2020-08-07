@@ -14,7 +14,9 @@ export default class SpaceMixin extends Vue {
   setActiveSpace (id: number, meta?: SpaceMetaResource) {
     const space = { id }
 
-    this.$store.commit('space/setActive', { space })
+    if (this.activeSpace.id !== space.id) {
+      this.$store.commit('space/setActive', { space })
+    }
 
     if (meta) {
       const index = this.$store.state.space.activeIndex

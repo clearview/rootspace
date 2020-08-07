@@ -19,16 +19,6 @@ export default Vue.extend({
       if (mutation.type === 'auth/setToken' && !state.auth.token) {
         this.$router.push({ name: 'SignIn' })
       }
-
-      if (mutation.type === 'space/updateMeta') {
-        const { activePage } = this.$store.getters['space/activeSpaceMeta']
-
-        try {
-          if (this.$route.path !== activePage) {
-            await this.$router.push(activePage || '/')
-          }
-        } catch { }
-      }
     })
   }
 })

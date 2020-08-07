@@ -35,7 +35,7 @@
           :class="{
             'is-active': item.id === activeSpace.id
           }"
-          @click="activeSpace = item"
+          @click="switchSpace(item)"
         >
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
@@ -119,10 +119,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 
-import { SpaceResource, UserResource } from '@/types/resource'
+import { SpaceResource, SpaceMetaResource, UserResource } from '@/types/resource'
 
 import FormSpace from '@/components/form/FormSpace.vue'
 import Modal from '@/components/Modal.vue'
@@ -152,16 +152,32 @@ export default class SelectSpace extends Vue {
     return this.$store.state.space.spaces
   }
 
+  get spacesMeta (): SpaceMetaResource[] {
+    return this.$store.state.space.spacesMeta
+  }
+
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
   }
 
-  set activeSpace (space: SpaceResource) {
-    this.$store.commit('space/setActive', { space })
+  get user (): UserResource {
+    return this.$store.state.auth.user || {}
   }
 
-  get user (): UserResource {
-    return this.$store.state.auth.user
+  @Watch('activeSpace')
+  async watchActiveSpace (activeSpace: SpaceResource, prevActiveSpace: SpaceResource) {
+    this.$nextTick(() => {
+      this.optionsVisible = (activeSpace.id === prevActiveSpace.id)
+    })
+  }
+
+  @Watch('optionsVisible')
+  async watchOptionsVisible (value: boolean) {
+    if (!value) {
+      return
+    }
+
+    await this.$store.dispatch('space/fetch')
   }
 
   toggleOptionsVisibility () {
@@ -170,6 +186,19 @@ export default class SelectSpace extends Vue {
 
   signout () {
     this.$store.dispatch('auth/signout')
+  }
+
+  async switchSpace (space: SpaceResource) {
+    const index = this.spaces.findIndex(item => space.id === item.id)
+    const { activePage } = this.spacesMeta[index] || {}
+
+    try {
+      if (!activePage) {
+        this.$store.commit('space/setActive', { space })
+      }
+
+      await this.$router.push(activePage || '/')
+    } catch { }
   }
 
   async addSpace (data: SpaceResource) {
@@ -181,10 +210,6 @@ export default class SelectSpace extends Vue {
 
     this.modal.loading = false
     this.modal.visible = false
-  }
-
-  async created () {
-    await this.$store.dispatch('space/fetch')
   }
 }
 </script>

@@ -8,7 +8,7 @@
     @click="collapse && toggleCollapse()"
   >
     <div class="sidebar-header">
-      <div class="sidebar-logo">
+      <router-link to="/" class="sidebar-logo">
         <img
           srcset="
             @/assets/logo_2.png,
@@ -17,7 +17,7 @@
           src="@/assets/logo_2.png"
           alt="Root Logo"
         />
-      </div>
+      </router-link>
 
       <div class="sidebar-search">
         <searchbar />
