@@ -106,13 +106,16 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('id', { immediate: true })
   async watchId (id: number) {
+    if (this.hasNodePlaceholder()) {
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    }
+
     if (!id) {
       this.title = ''
       this.value = {}
 
       this.addNodePlaceholder()
     } else {
-      this.removeNodePlaceholder()
       await this.loadDocument()
     }
 
@@ -190,7 +193,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         const document = await DocumentService.create(data)
         const getDocument = document.data
         this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
-        await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
       }
 
       this.loading = false
@@ -249,12 +251,12 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     this.$store.commit('tree/setList', tree)
   }
 
-  removeNodePlaceholder () {
-    const tree = this.$store.state.tree.list.filter(
-      (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
+  hasNodePlaceholder () {
+    const index = this.$store.state.tree.list.findIndex(
+      (node: NodeResource) => (node.type === 'doc' && node.contentId === 0)
     )
 
-    this.$store.commit('tree/setList', tree)
+    return index >= 0
   }
 
   mounted () {
@@ -266,8 +268,10 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     this.textareaResize()
   }
 
-  beforeDestroy () {
-    this.removeNodePlaceholder()
+  async beforeDestroy () {
+    if (this.hasNodePlaceholder()) {
+      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    }
   }
 }
 </script>
