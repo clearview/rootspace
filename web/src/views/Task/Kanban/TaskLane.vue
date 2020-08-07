@@ -193,7 +193,6 @@ export default class TaskLane extends Vue {
       if (index !== -1 && this.cardContainerRef) {
         scrollColor = this.scrollColors[index]
         this.cardContainerRef.style.setProperty('scroll-color', scrollColor)
-        console.log(scrollColor + ' / ' + color)
       }
     }
 
@@ -381,7 +380,7 @@ export default class TaskLane extends Vue {
   }
 
   .header {
-    @apply flex items-center pb-2;
+    @apply flex items-center mb-2;
     &.with-shadow{
       box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
       z-index: 50;
@@ -415,7 +414,7 @@ export default class TaskLane extends Vue {
   }
 
   .list-actions {
-    @apply flex items-center justify-end mt-2;
+    @apply flex items-center justify-end mt-2 mb-3;
 
     .btn {
       @apply px-4;

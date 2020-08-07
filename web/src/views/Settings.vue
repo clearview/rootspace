@@ -91,7 +91,7 @@ import FormSettings from '@/components/form/FormSettings.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
 import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/Modal.vue'
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 
 import PageMixin from '@/mixins/PageMixin'
 
