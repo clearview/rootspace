@@ -117,7 +117,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
         (item) => item.id === space.id
       )
 
-      commit('updateList', { index, space })
+      commit('updateSpace', { index, space })
 
       await api.patch(`/spaces/${space.id}`, space)
     },
