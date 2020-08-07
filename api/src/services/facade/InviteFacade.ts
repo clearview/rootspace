@@ -1,18 +1,24 @@
-import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
+import httpRequestContext from 'http-request-context'
+import { ActivityService, InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
 import { clientError } from '../../errors'
+import { UserActivities } from '../../database/entities/activities/UserActivities'
+import Bull from 'bull'
+import { ActivityEvent } from '../events/ActivityEvent'
 
 export class InviteFacade {
   private inviteService: InviteService
   private spaceService: SpaceService
   private userService: UserService
   private userSpaceService: UserSpaceService
+  private activityService: ActivityService
 
   constructor() {
     this.inviteService = InviteService.getInstance()
     this.spaceService = SpaceService.getInstance()
     this.userService = UserService.getInstance()
     this.userSpaceService = UserSpaceService.getInstance()
+    this.activityService = ActivityService.getInstance()
   }
 
   getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
@@ -31,6 +37,8 @@ export class InviteFacade {
       const invite = user
         ? await this.inviteService.createWithUser(user, space)
         : await this.inviteService.createWithEmail(email, space)
+
+      await this.registerActivityForInvite(UserActivities.Invite_Sent, invite)
 
       invites.push(invite)
     }
@@ -58,5 +66,17 @@ export class InviteFacade {
     await this.inviteService.accept(invite)
 
     return invite
+  }
+
+  async registerActivityForInvite(userActivity: UserActivities, invite: Invite): Promise<Bull.Job> {
+    const actor = httpRequestContext.get('user')
+
+    const activity = ActivityEvent
+      .withAction(userActivity)
+      .fromActor(actor.id)
+      .forEntity(invite)
+      .inSpace(invite.spaceId)
+
+    return this.activityService.add(activity)
   }
 }

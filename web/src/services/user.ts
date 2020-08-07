@@ -3,7 +3,7 @@ import { ValidationError } from '@/utils/error'
 
 async function confirmEmail (payload: object) {
   try {
-    const res = await api.patch('user/confirm/email', payload)
+    const res = await api.patch('users/confirm/email', payload)
 
     return res
   } catch (error) {

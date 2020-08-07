@@ -1,25 +1,15 @@
 import { getConnection } from 'typeorm'
 import { Activity } from '../../database/entities/Activity'
 
-export enum EntityType {
-  Doc = 'Doc',
-  Node = 'Node',
-  Task = 'Task',
-  TaskBoard = 'TaskBoard',
-  TaskList = 'TaskList',
-  Upload = 'Upload',
-}
-
 export class ActivityEvent {
   private readonly _action: string
   private _activity?: Activity
   private _actorId: number
   private _userId?: number
-  private _spaceId: number
+  private _spaceId?: number
   private _entityId: number
   private _entity: string
   private _tableName: string
-  private _data: string
 
   private constructor(action: string) {
     this._action = action
@@ -35,8 +25,6 @@ export class ActivityEvent {
   }
 
   forEntity(entity: any): ActivityEvent {
-    this._data = entity
-
     this._entityId = entity.id
     this._entity = entity.constructor.name
     this._tableName = getConnection().getMetadata(this._entity).tableName
@@ -88,10 +76,6 @@ export class ActivityEvent {
     return this._tableName
   }
 
-  get data(): string {
-    return this._data
-  }
-
   toObject(): object {
     return {
       action: this.action,
@@ -99,8 +83,7 @@ export class ActivityEvent {
       spaceId: this.spaceId,
       entityId: this.entityId,
       entity: this.entity,
-      tableName: this.tableName,
-      data: this.data
+      tableName: this.tableName
     }
   }
 }

@@ -23,7 +23,6 @@ export class ActivityService {
     return ActivityService.instance
   }
 
-
   getActivityRepository(): ActivityRepository {
     return getCustomRepository(ActivityRepository)
   }

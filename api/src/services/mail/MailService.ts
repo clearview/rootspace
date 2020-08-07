@@ -4,7 +4,7 @@ import { MailhogClient } from './MailhogClient'
 import { MailClientInterface } from './types'
 
 export class MailService {
-  sendMail(to: string, subject: string, content: string): Promise<any> {
+  async sendMail(to: string, subject: string, content: string): Promise<any> {
 
     let service: MailClientInterface<any>
 

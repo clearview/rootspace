@@ -3,7 +3,7 @@ import { MailClientInterface } from './types'
 import nodemailer from 'nodemailer'
 
 export class MailhogClient implements MailClientInterface<any> {
-  sendMail(to: string, subject: string, content: string): Promise<any> {
+  async sendMail(to: string, subject: string, content: string): Promise<any> {
     const mailhog = nodemailer.createTransport({
       host: 'mailhog',
       port: '1025'
