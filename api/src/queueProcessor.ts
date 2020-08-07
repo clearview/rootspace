@@ -1,7 +1,7 @@
-import { Queue } from './libs/Queue'
+import { Worker } from './libs/Worker'
 
 async function main() {
-  await Queue.process()
+  await Worker.process()
 }
 
 main()

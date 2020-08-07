@@ -5,7 +5,7 @@ import { clientError } from '../../errors'
 import { UserActivities } from '../../database/entities/activities/UserActivities'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import {ServiceFactory} from "../factory/ServiceFactory";
+import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class InviteFacade {
   private inviteService: InviteService

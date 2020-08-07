@@ -2,7 +2,6 @@ import { EntityRepository, getCustomRepository } from 'typeorm'
 import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
-import {Task} from "../../entities/tasks/Task";
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {

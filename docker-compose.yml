@@ -68,9 +68,9 @@ services:
         max-size: "100MB"
         max-file: "3"
 
-  queue:
+  worker:
     image: node:12
-    container_name: root_queue_processor
+    container_name: root_worker
     depends_on:
       - postgres
       - redis
