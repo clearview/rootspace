@@ -17,7 +17,7 @@
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="color"></div>
       <div class="card-item">
-        <div class="header" :class="{ 'mb-6': isHasFooter(itemCopy) }">
+        <div class="header">
           <div class="title">
             {{item.title}}
           </div>
@@ -46,8 +46,11 @@
             </ul>
           </div>
           <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
-            <li v-for="(assignee, index) in item.assignees" :key="index" class="assignee">
+            <li v-for="(assignee, index) in item.assignees.slice(0, 11)" :key="index" class="assignee">
               <avatar :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+            </li>
+            <li class="assignee more-assignee" v-if="hasMoreAssignee">
+              <avatar :content="`${countMoreAssignee} More`" :username="`+ ${countMoreAssignee}`" v-tippy></avatar>
             </li>
           </ul>
         </div>
@@ -158,6 +161,14 @@ export default class TaskCard extends Vue {
 
     get board (): TaskBoardResource | null {
       return this.$store.state.task.board.current
+    }
+
+    get hasMoreAssignee (): boolean {
+      return this.item.assignees.length > 11
+    }
+
+    get countMoreAssignee (): number {
+      return this.item.assignees.length - 11
     }
 
     openModal () {
@@ -317,14 +328,12 @@ export default class TaskCard extends Vue {
   }
 
   .card {
-    @apply px-2 flex items-center rounded;
+    @apply p-2 flex items-center rounded;
 
     margin: 0 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
     transition: all 0.1s ease;
-    padding-top: 11px;
-    padding-bottom: 11px;
 
     &.opacite{
       background: rgba(theme("colors.white.default"), 0.8);
@@ -338,7 +347,7 @@ export default class TaskCard extends Vue {
   .color {
     @apply rounded;
     background: theme("colors.gray.100");
-    width: 4px;
+    width: 3px;
     height: auto;
     align-self: stretch;
     flex: 0 0 auto;
@@ -357,18 +366,26 @@ export default class TaskCard extends Vue {
 
       font-size: 14px;
       line-height: 17px;
+      padding: 3px 0;
 
       .title {
         @apply flex-1;
 
         word-break: break-word;
+        width: 168px;
       }
 
       .date {
-        @apply flex-none rounded px-2 py-1 self-start;
+        @apply flex-none rounded py-1 self-start;
 
         background: theme("colors.gray.100");
-        font-size: .8rem;
+        font-size: 10px;
+        line-height: 12px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        padding-left: 6px;
+        padding-right: 6px;
+        font-weight: bold;
       }
     }
 
@@ -392,6 +409,7 @@ export default class TaskCard extends Vue {
         @apply flex-1 flex justify-start;
 
         float: left;
+        margin-top: 13px;
 
         ul {
           @apply block;
@@ -405,11 +423,10 @@ export default class TaskCard extends Vue {
 
             display: inline;
             color: #fff;
-            margin-right: 5px;
+            margin-right: 8px;
             font-size: 10px;
             line-height: 12px;
-
-            /* identical to box height */
+            font-weight: bold;
             letter-spacing: 0.03em;
             text-transform: uppercase;
           }
@@ -437,7 +454,7 @@ export default class TaskCard extends Vue {
         @apply flex flex-wrap justify-start flex-row-reverse;
 
         float: right;
-        margin-top: 4px;
+        margin-top: 13px;
 
         li {
           .vue-avatar--wrapper {
@@ -448,6 +465,13 @@ export default class TaskCard extends Vue {
             border: 2px solid #FFF;
             letter-spacing: 0.03em;
             margin-left: -7px;
+          }
+        }
+
+        .more-assignee {
+          .vue-avatar--wrapper {
+            background-color: theme("colors.gray.900") !important;
+            color: #FFFFFF !important;
           }
         }
       }
