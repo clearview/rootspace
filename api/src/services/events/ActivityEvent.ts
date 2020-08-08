@@ -4,7 +4,7 @@ import { Activity } from '../../database/entities/Activity'
 export class ActivityEvent {
   private readonly _action: string
   private _activity?: Activity
-  private _actorId: number
+  private _actorId?: number
   private _userId?: number
   private _spaceId?: number
   private _entityId: number

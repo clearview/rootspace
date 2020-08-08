@@ -23,8 +23,8 @@ const client: Redis.Redis = new Redis(redisPort, redisHost)
 const subscriber: Redis.Redis = new Redis(redisPort, redisHost)
 
 const redisOpts = {
-  createClient (type: string) {
-    switch(type) {
+  createClient(type: string) {
+    switch (type) {
       case 'client':
         return client
       case 'subscriber':
@@ -32,7 +32,7 @@ const redisOpts = {
       default:
         return new Redis(redisPort, redisHost)
     }
-  }
+  },
 }
 
 export class Queue {
@@ -44,11 +44,11 @@ export class Queue {
       ...redisOpts,
       limiter: {
         max: 16,
-        duration: 1000
+        duration: 1000,
       },
       defaultJobOptions: {
-        removeOnComplete: false
-      }
+        removeOnComplete: false,
+      },
     }
 
     return new Bull(Queue.QUEUE_NAME, options)
@@ -73,6 +73,7 @@ export class Queue {
 
     switch (event.entity) {
       case ActivityType.User:
+      case ActivityType.PasswordReset:
         await UserWorker.getInstance().process(event)
         break
       case ActivityType.Invite:

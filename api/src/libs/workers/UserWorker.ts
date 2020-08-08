@@ -5,7 +5,6 @@ import { MailService, UserService } from '../../services'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 import { UserActivities } from '../../database/entities/activities/UserActivities'
 import pug from 'pug'
-import { PasswordReset } from '../../database/entities/PasswordReset'
 
 export class UserWorker {
   static mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
@@ -71,9 +70,11 @@ export class UserWorker {
     return true
   }
 
-  private async sendPasswordResetMail(
-    event: ActivityEvent
-  ): Promise<boolean> {
+  private async sendPasswordResetMail(event: ActivityEvent): Promise<boolean> {
+    const passwordReset = await this.userService.getPasswordResetById(
+      event.entityId
+    )
+
     const subject = 'Root, Password reset'
     const confirmationURL = config.domain + config.domainPasswordResetPath
     const confirmUrl = `${confirmationURL}/${passwordReset.token}`

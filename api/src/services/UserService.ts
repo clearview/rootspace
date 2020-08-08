@@ -111,6 +111,10 @@ export class UserService {
     return this.getPasswordResetRepository().getByToken(token)
   }
 
+  getPasswordResetById(id: number): Promise<PasswordReset | undefined> {
+    return this.getPasswordResetRepository().findOne(id)
+  }
+
   async confirmEmail(token: string, userId: number): Promise<User> {
     const user = await this.getUserByTokenAndId(token, userId).catch((err) => {
       throw err
@@ -232,6 +236,13 @@ export class UserService {
     passwordReset.expiration = new Date(Date.now() + 3600000)
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
+
+    this.activityService.add(
+      ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(
+        passwordReset
+      )
+    )
+
     return passwordReset
   }
 
