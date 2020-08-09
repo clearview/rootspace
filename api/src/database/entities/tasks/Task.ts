@@ -28,10 +28,10 @@ export class Task {
   @Column('integer')
   userId: number
 
-  @ManyToOne((type) => User)
+  @ManyToOne(type => User, user => user.tasks, {eager: true, onDelete: 'CASCADE'})
   @JoinColumn({ name: 'userId' })
   @Index()
-  user!: User
+  user: User
 
   @Column('integer')
   spaceId: number

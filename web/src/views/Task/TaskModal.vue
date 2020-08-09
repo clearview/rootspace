@@ -160,7 +160,7 @@
               </li>
             </ul>
             <template v-else>
-              None
+              <span>None</span>
             </template>
           </div>
         </div>
@@ -171,7 +171,7 @@
               {{item.dueDate | formatDate}}
             </div>
             <template v-else>
-              None
+              <span>None</span>
             </template>
           </div>
         </div>
@@ -584,7 +584,7 @@ export default class TaskModal extends Vue {
       }
 
       & span {
-        @apply pl-2;
+        padding-left: 10px;
       }
     }
   }
@@ -695,7 +695,7 @@ export default class TaskModal extends Vue {
     color: rgba(theme("colors.gray.800"), 0.5);
 
     span {
-      font-size: 10px;
+      font-size: 12px;
     }
   }
 
