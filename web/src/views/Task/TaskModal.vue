@@ -83,10 +83,10 @@
             <quill-editor
               ref="myQuillEditor"
               :options="editorOption"
-              v-model="itemCopy.description"
+              v-model="descriptionCopy.description"
             />
             <div class="description-input-actions">
-              <button class="btn btn-link" @click="isEditingDescription = false">
+              <button class="btn btn-link" @click="cancelDescription">
                 <v-icon name="close2" viewbox="20" title="Close"/>
               </button>
               <button class="btn btn-primary" @click="saveDescription">Save</button>
@@ -239,6 +239,7 @@ export default class TaskModal extends Vue {
     private readonly titleEditableRef!: HTMLDivElement
 
     private itemCopy = { ...this.item }
+    private descriptionCopy = { ...this.itemCopy }
     private isEditingDescription = false;
     private commentInput = '';
     private isUploading = false
@@ -315,9 +316,15 @@ export default class TaskModal extends Vue {
     async saveDescription () {
       await this.$store.dispatch('task/item/update', {
         id: this.item.id,
-        description: this.itemCopy.description
+        description: this.descriptionCopy.description
       })
+      this.itemCopy.description = this.descriptionCopy.description
       this.isEditingDescription = false
+    }
+
+    cancelDescription () {
+      this.isEditingDescription = false
+      this.descriptionCopy.description = this.itemCopy.description
     }
 
     async saveComment () {
