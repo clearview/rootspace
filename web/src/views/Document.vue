@@ -12,6 +12,7 @@
       <editor-menu
         v-if="id"
         :loading="loading"
+        :readonly-status="readOnly"
         @change-readonly="changeReadonlyStatus"
         @delete-document="deleteDocConfirm"/>
     </div>

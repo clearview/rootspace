@@ -112,6 +112,9 @@ export default class EditorMenu extends Vue {
   @Prop({ type: Boolean })
   private readonly loading!: boolean;
 
+  @Prop({ type: Boolean })
+  private readonly readonlyStatus!: boolean;
+
   private lockEditor = false
   private lockShare = false
   private showMenu = false
@@ -121,6 +124,11 @@ export default class EditorMenu extends Vue {
   watchLockEditor (newVal: boolean) {
     this.$emit('change-readonly', newVal)
     this.showMenu = false
+  }
+
+  @Watch('readonlyStatus')
+  watchReadonlyStatus () {
+    this.lockEditor = this.readonlyStatus
   }
 
   share () {
