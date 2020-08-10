@@ -23,7 +23,7 @@
                 </div>
               </div>
               <div class="action-separator"></div>
-              <div class="action-line danger" @click="hide();deleteComment()">
+              <div class="action-line danger" @click="hide();deleteCommentActionConfirm()">
                 <v-icon name="trash"></v-icon>
                 <div class="action-line-text">
                   Delete
@@ -59,6 +59,19 @@
         </button>
       </div>
     </div>
+
+    <v-modal
+      title="Delete Comment"
+      :visible="deleteComment.visible"
+      confirmText="Yes"
+      @cancel="deleteComment.visible = false"
+      @confirm="deleteCommentAction(comment)"
+      portal="secondary"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this comment?
+      </div>
+    </v-modal>
   </li>
 </template>
 
@@ -68,13 +81,15 @@ import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
 import Popover from '@/components/Popover.vue'
+import VModal from '@/components/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
 
   @Component({
     name: 'TaskComment',
     components: {
       Avatar,
-      Popover
+      Popover,
+      VModal
     },
     computed: {
       ...mapState('auth', {
@@ -97,11 +112,22 @@ export default class TaskComment extends Vue {
     private isEditMode = false
     private commentCopy = { ...this.comment }
 
+    private deleteComment: any = {
+      visible: false,
+      id: null,
+      alert: null
+    }
+
     @Ref('commentTextarea')
     private readonly commentRef!: HTMLInputElement
 
-    async deleteComment () {
-      await this.$store.dispatch('task/comment/destroy', this.comment)
+    deleteCommentActionConfirm () {
+      this.deleteComment.visible = true
+    }
+
+    async deleteCommentAction (comment: TaskCommentResource) {
+      this.deleteComment.visible = false
+      await this.$store.dispatch('task/comment/destroy', comment)
     }
 
     @Watch('commentInput')
@@ -194,7 +220,7 @@ export default class TaskComment extends Vue {
     line-height: 17px;
     color: theme("colors.gray.900");
     background: rgba(theme("colors.gray.100"), 0.3);
-    white-space: pre;
+    white-space: pre-line;
   }
 
   .comment-actions {
