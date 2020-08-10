@@ -58,6 +58,8 @@ pre.ql-syntax {
 }
 
 /* FF fix for content editable */
-[contenteditable='true']:before {
-  content: "\feff ";
+@-moz-document url-prefix() {
+  [contenteditable='true']:before {
+    content: "\feff ";
+  }
 }
