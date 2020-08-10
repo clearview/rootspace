@@ -164,11 +164,11 @@ export default class TaskCard extends Vue {
     }
 
     get hasMoreAssignee (): boolean {
-      return this.item.assignees.length > 11
+      return this.item.assignees ? this.item.assignees.length > 11 : false
     }
 
     get countMoreAssignee (): number {
-      return this.item.assignees.length - 11
+      return this.item.assignees ? this.item.assignees.length - 11 : 0
     }
 
     openModal () {
