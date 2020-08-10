@@ -279,7 +279,7 @@ export default class TaskModal extends Vue {
 
     @Emit('close')
     close () {
-
+      this.cancelDescription()
     }
 
     pickFile () {
