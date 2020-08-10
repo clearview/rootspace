@@ -127,8 +127,8 @@ export default class EditorMenu extends Vue {
   }
 
   @Watch('readonlyStatus')
-  watchReadonlyStatus (newVal: boolean) {
-    this.lockEditor = newVal
+  watchReadonlyStatus () {
+    this.lockEditor = this.readonlyStatus
   }
 
   share () {
