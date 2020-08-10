@@ -75,21 +75,25 @@ const SpaceModule: Module<SpaceState, RootState> = {
     },
 
     updateSpace (state, { index, space }: SpacePayload) {
-      const _space = {
+      const spaces = [...state.spaces]
+
+      spaces[index] = {
         ...state.spaces[index] || {},
         ...space
       }
 
-      state.spaces.splice(index, 1, _space)
+      state.spaces = spaces
     },
 
     updateMeta (state, { index, meta }: SpaceMetaPayload) {
-      const _meta = {
+      const spacesMeta = [...state.spacesMeta]
+
+      spacesMeta[index] = {
         ...state.spacesMeta[index] || {},
         ...meta
       }
 
-      state.spacesMeta.splice(index, 1, _meta)
+      state.spacesMeta = spacesMeta
     }
   },
 
