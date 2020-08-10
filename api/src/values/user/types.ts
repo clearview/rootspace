@@ -15,3 +15,12 @@ export interface IUserChangePasswordAttributes {
   password: string
   newPassword: string
 }
+
+export interface IPasswordRecoveryAttributes {
+  email: string
+}
+
+export interface IPasswordResetAttributes {
+  token: string
+  password: string
+}

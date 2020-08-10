@@ -1,11 +1,23 @@
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { getCustomRepository } from 'typeorm'
+import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserRepository } from '../database/repositories/UserRepository'
 import { User } from '../database/entities/User'
+import { PasswordReset } from '../database/entities/PasswordReset'
 import { ISignupProvider } from '../types/user'
-import { UserChangePasswordValue, UserUpdateValue } from '../values/user'
-import { clientError, HttpErrName, HttpStatusCode, unauthorized, } from '../errors'
+import {
+  UserUpdateValue,
+  UserChangePasswordValue,
+  PasswordRecoveryValue,
+  PasswordResetValue,
+} from '../values/user'
+import {
+  HttpErrName,
+  HttpStatusCode,
+  clientError,
+  unauthorized,
+} from '../errors'
 import { CallbackFunction } from 'ioredis'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
@@ -30,6 +42,10 @@ export class UserService {
 
   getUserRepository() {
     return getCustomRepository(UserRepository)
+  }
+
+  getPasswordResetRepository() {
+    return getCustomRepository(PasswordResetRepository)
   }
 
   getUsersBySpaceId(spaceId: number): Promise<User[]> {
@@ -67,11 +83,36 @@ export class UserService {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
+  async requireUserByEmail(
+    email: string,
+    selectPassword = false
+  ): Promise<User> {
+    const user = await this.getUserByEmail(email, selectPassword)
+
+    if (!user) {
+      throw clientError(
+        'User not found',
+        HttpErrName.EntityNotFound,
+        HttpStatusCode.BadRequest
+      )
+    }
+
+    return user
+  }
+
   getUserByTokenAndId(
     token: string,
     userId: number
   ): Promise<User | undefined> {
     return this.getUserRepository().findOne(userId, { where: { token } })
+  }
+
+  getPasswordResetByToken(token: string): Promise<PasswordReset | undefined> {
+    return this.getPasswordResetRepository().getByToken(token)
+  }
+
+  getPasswordResetById(id: number): Promise<PasswordReset | undefined> {
+    return this.getPasswordResetRepository().findOne(id)
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {
@@ -186,15 +227,66 @@ export class UserService {
     )
   }
 
-  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
+  async createPasswordReset(
+    data: PasswordRecoveryValue
+  ): Promise<PasswordReset> {
+    let passwordReset = new PasswordReset()
+
+    passwordReset.email = data.attributes.email
+    passwordReset.expiration = new Date(Date.now() + 3600000)
+
+    passwordReset = await this.getPasswordResetRepository().save(passwordReset)
+
+    await this.activityService.add(
+      ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(
+        passwordReset
+      )
+    )
+
+    return passwordReset
+  }
+
+  async registerActivityForUserId(
+    userActivity: UserActivities,
+    userId: number
+  ): Promise<Bull.Job> {
     const user = await this.getUserById(userId)
     return this.registerActivityForUser(userActivity, user)
   }
 
-  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
+  async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
+    const passwordReset = await this.getPasswordResetByToken(
+      data.attributes.token
+    )
+
+    if (!passwordReset) {
+      throw clientError('Bad request')
+    }
+
+    if (
+      passwordReset.active !== true ||
+      passwordReset.expiration <= new Date(Date.now())
+    ) {
+      throw clientError('Token not active')
+    }
+
+    let user = await this.requireUserByEmail(passwordReset.email)
+
+    const newPassword = await hashPassword(data.attributes.password)
+    user.password = String(newPassword)
+
+    user = await this.getUserRepository().save(user)
+
+    passwordReset.active = false
+    return this.getPasswordResetRepository().save(passwordReset)
+  }
+
+  async registerActivityForUser(
+    userActivity: UserActivities,
+    user: User
+  ): Promise<Bull.Job> {
     return this.activityService.add(
-      ActivityEvent
-        .withAction(userActivity)
+      ActivityEvent.withAction(userActivity)
         .fromActor(user.id)
         .forEntity(user)
     )
