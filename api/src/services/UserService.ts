@@ -237,7 +237,7 @@ export class UserService {
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
 
-    this.activityService.add(
+    await this.activityService.add(
       ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(
         passwordReset
       )
