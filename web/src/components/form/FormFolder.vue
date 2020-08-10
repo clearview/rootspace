@@ -64,6 +64,7 @@ export default class FormLink extends Vue {
 
   private payload: Partial<NodeResource> = {
     id: this.value.id || undefined,
+    spaceId: this.value.space || this.space,
     title: this.value.title || '',
     type: 'folder'
   }
