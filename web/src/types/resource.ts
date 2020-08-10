@@ -1,5 +1,6 @@
 export interface NodeResource {
   id: number;
+  spaceId: number;
   parentId: number;
   userId: number;
   contentId: number;
