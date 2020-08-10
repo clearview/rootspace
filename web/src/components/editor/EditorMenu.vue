@@ -113,7 +113,7 @@ export default class EditorMenu extends Vue {
   private readonly loading!: boolean;
 
   @Prop({ type: Boolean })
-  private readonly readonlyStatus: boolean;
+  private readonly readonlyStatus!: boolean;
 
   private lockEditor = false
   private lockShare = false
