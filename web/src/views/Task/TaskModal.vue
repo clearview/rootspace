@@ -12,9 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste">
-            {{itemCopy.title}}
-          </div>
+          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
