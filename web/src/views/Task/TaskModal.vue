@@ -835,7 +835,7 @@ export default class TaskModal extends Vue {
 
 .description-content {
   a {
-    border-bottom: 1px dashed theme("colors.primary.default");
+    border-bottom: 1px dashed;
   }
 
   ol, ul {

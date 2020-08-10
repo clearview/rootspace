@@ -38,7 +38,7 @@
           </Popover>
         </div>
       </header>
-      <div v-if="!isEditMode" class="comment-content" v-text="comment.content"></div>
+      <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div>
       <div v-show="isEditMode" class="comment-input">
         <textarea
           rows="3"
@@ -145,6 +145,15 @@ export default class TaskComment extends Vue {
 
     exitEditMode () {
       this.isEditMode = false
+    }
+
+    formatURL (comment: string) {
+      // eslint-disable-next-line
+      const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm // es
+
+      const withLinks = comment.replace(URLMatcher, match => `<a href="${match}" target="_blank">${match}</a>`)
+
+      return withLinks
     }
 }
 </script>
@@ -266,4 +275,12 @@ export default class TaskComment extends Vue {
     height:1px;
     background: theme("colors.gray.100");
   }
+</style>
+
+<style lang="postcss">
+.comment-content {
+  a {
+    border-bottom: 1px dashed;
+  }
+}
 </style>
