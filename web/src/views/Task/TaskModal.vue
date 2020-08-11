@@ -94,12 +94,14 @@
         <div class="comment-separator"></div>
         <div class="comment-input">
           <textarea
-            rows="3"
+            rows="1"
             class="input"
             placeholder="Write a comment…"
             ref="commentTextarea"
             v-model="commentInput"
             @keydown="commentHandler"
+            @focus="commentSetHeight('focus')"
+            @blur="commentSetHeight('blur')"
           />
         </div>
         <ul class="comments">
@@ -342,14 +344,36 @@ export default class TaskModal extends Vue {
     }
 
     commentResize () {
-      const comment = this.commentRef
+      this.$nextTick(() => {
+        const comment = this.commentRef
 
-      if (comment === undefined) return
+        if (comment === undefined) return
 
-      comment.style.minHeight = '50px'
-      if (this.commentInput === '') return
-      // console.log('this.commentInput 2', this.commentInput, comment.scrollHeight)
-      comment.style.minHeight = comment.scrollHeight + 'px'
+        comment.style.minHeight = '75px'
+        if (this.commentInput === '' || comment.scrollHeight < 75) return
+        // console.log('this.commentInput 2', this.commentInput, comment.scrollHeight, comment.style.minHeight)
+        comment.style.minHeight = comment.scrollHeight + 'px'
+      })
+    }
+
+    commentSetHeight (state) {
+      this.$nextTick(() => {
+        const comment = this.commentRef
+
+        if (comment === undefined) return
+
+        if (this.commentInput !== '' && comment.scrollHeight > 75) return
+
+        if (state === 'blur') {
+          console.log('commentSetHeight blur')
+
+          comment.style.minHeight = 'auto'
+        } else {
+          console.log('commentSetHeight focus')
+
+          comment.style.minHeight = '75px'
+        }
+      })
     }
 
     async saveComment () {
@@ -606,7 +630,7 @@ export default class TaskModal extends Vue {
   }
 
   .description-title {
-    @apply flex items-center;
+    @apply flex items-center justify-start;
 
     &:hover {
       cursor: pointer;
@@ -649,17 +673,8 @@ export default class TaskModal extends Vue {
     overflow-x: visible;
   }
 
-  .comment-input {
+  .comment-textarea {
     @apply mb-4;
-  }
-
-  .input {
-    @apply w-full;
-
-    height: auto;
-    resize: none;
-    overflow: hidden;
-    line-height: 17px;
   }
 
   .right-field {
