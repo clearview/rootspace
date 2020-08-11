@@ -56,12 +56,8 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository().findOneArchived(id)
-  }
-
   async getAllTasks(id: number): Promise<Task[]> {
-    const taskBoard = await this.getCompleteTaskboard(id)
+    const taskBoard = await this.getCompleteTaskBoard(id)
 
     const tasks: Task[] = []
 
@@ -79,15 +75,23 @@ export class TaskBoardService extends NodeContentService {
   async getByTaskId(id: number): Promise<TaskBoard> {
     const taskBoard = await this.getTaskBoardRepository().getByTaskId(id)
 
-    return this.getCompleteTaskboard(taskBoard.id)
+    return this.getCompleteTaskBoard(taskBoard.id)
   }
 
-  async getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
-    return this.getTaskBoardRepository().getCompleteTaskboard(id, archived)
+  async getCompleteTaskBoard(id: number): Promise<TaskBoard | undefined> {
+    return this.getTaskBoardRepository().getCompleteTaskBoard(id)
   }
 
-  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
-    return this.getTaskBoardRepository().searchTaskboard(id, searchParam, filterParam)
+  async getFullTaskBoard(id: number): Promise<TaskBoard | undefined> {
+    return this.getTaskBoardRepository().getFullTaskBoard(id)
+  }
+
+  async getArchivedTaskBoardById(id: number): Promise<TaskBoard | undefined> {
+    return this.getTaskBoardRepository().findOneArchived(id)
+  }
+
+  async searchTaskBoard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
+    return this.getTaskBoardRepository().searchTaskBoard(id, searchParam, filterParam)
   }
 
   async create(data: DeepPartial<TaskBoard>): Promise<TaskBoard> {
@@ -140,22 +144,34 @@ export class TaskBoardService extends NodeContentService {
     return taskBoard
   }
 
-  async archive(taskBoardId: number): Promise<UpdateResult> {
-    await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
+  async archive(taskBoardId: number): Promise<TaskBoard> {
+    const taskBoard = await this.getFullTaskBoard(taskBoardId)
 
-    const taskBoard = await this.getCompleteTaskboard(taskBoardId)
-    for(const taskList of taskBoard.taskLists) {
-      await this.taskListService.archive(taskList.id)
+    if (taskBoard && taskBoard.taskLists) {
+      for (const taskList of taskBoard.taskLists) {
+        await this.taskListService.archive(taskList.id)
+      }
     }
 
-    return this.getTaskBoardRepository().softDelete({id: taskBoardId})
+    await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
+
+    return this.getTaskBoardRepository().softRemove(taskBoard)
   }
 
-  async restore(taskBoardId: number): Promise<UpdateResult> {
-    const restoredTaskBoard = await this.getTaskBoardRepository().restore({id: taskBoardId})
-    await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoardId)
+  async restore(taskBoardId: number): Promise<TaskBoard> {
+    const taskBoard = await this.getArchivedTaskBoardById(taskBoardId)
 
-    return restoredTaskBoard
+    if (taskBoard && taskBoard.taskLists) {
+      for (const taskList of taskBoard.taskLists) {
+        await this.taskListService.restore(taskList.id)
+      }
+    }
+
+    const recoveredTaskBoard = await this.getTaskBoardRepository().recover(taskBoard)
+
+    await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoard.id)
+
+    return this.getCompleteTaskBoard(recoveredTaskBoard.id)
   }
 
   async remove(id: number) {

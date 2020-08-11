@@ -35,6 +35,7 @@ export class Worker {
 
     switch (event.entity) {
       case ActivityType.User:
+      case ActivityType.PasswordReset:
         await UserWorker.getInstance().process(event)
         break
       case ActivityType.Invite:

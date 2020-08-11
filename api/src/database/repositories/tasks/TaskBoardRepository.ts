@@ -18,7 +18,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       .getOne()
   }
 
-  getCompleteTaskboard(id: number, archived?: boolean): Promise<TaskBoard | undefined> {
+  getFullTaskBoard(id: number): Promise<TaskBoard | undefined> {
     const queryBuilder = this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
@@ -28,10 +28,21 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
 
-    if (archived) {
-      queryBuilder.andWhere('task.deletedAt IS NOT NULL')
-      return queryBuilder.getOne()
-    }
+    queryBuilder
+      .orderBy('comment.createdAt', 'DESC')
+
+    return queryBuilder.getOne()
+  }
+
+  getCompleteTaskBoard(id: number): Promise<TaskBoard | undefined> {
+    const queryBuilder = this.createQueryBuilder('taskBoard')
+      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+      .leftJoinAndSelect('taskList.tasks', 'task')
+      .leftJoinAndSelect('task.tags', 'tag')
+      .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndSelect('task.taskComments', 'comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .where('taskBoard.id = :id', { id })
 
     queryBuilder
       .andWhere('task.deletedAt IS NULL')
@@ -40,13 +51,13 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     return queryBuilder.getOne()
   }
 
-  async searchTaskboard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
+  async searchTaskBoard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
     const taskBoard = await this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .where('taskBoard.id = :id', { id })
       .getOne()
 
-    const tasks = await this.getTaskRepository().filterByTaskboardId(taskBoard.id, searchParam, filterParam)
+    const tasks = await this.getTaskRepository().filterByTaskBoardId(taskBoard.id, searchParam, filterParam)
 
     if (tasks.length === 0 || taskBoard.taskLists.length === 0) {
       return taskBoard
@@ -67,11 +78,12 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     return taskBoard
   }
 
-  async findOneArchived(id: number): Promise<TaskBoard | undefined> {
+  async findOneArchived(id: number): Promise<TaskBoard> {
     return this
       .createQueryBuilder('taskBoard')
+      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .where('taskBoard.id = :id', { id })
-      .andWhere('taskBoard.deletedAt IS NOT NULL')
+      .withDeleted()
       .getOne()
   }
 }

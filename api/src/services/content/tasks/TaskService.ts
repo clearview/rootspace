@@ -54,7 +54,7 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<Task | undefined> {
+  async getArchivedById(id: number): Promise<Task> {
     return this.getTaskRepository().findOneArchived(id)
   }
 
@@ -84,17 +84,24 @@ export class TaskService {
     return this.getTaskRepository().reload(task)
   }
 
-  async archive(taskId: number): Promise<UpdateResult> {
-    await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
+  async archive(taskId: number): Promise<Task | undefined> {
+    const task = await this.getTaskRepository().findOneArchived(taskId)
 
-    return this.getTaskRepository().softDelete({id: taskId})
+    if (task) {
+      await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
+      return this.getTaskRepository().softRemove(task)
+    }
+
+    return null
   }
 
-  async restore(taskId: number): Promise<UpdateResult> {
-    const restoredTask = await this.getTaskRepository().restore({id: taskId})
+  async restore(taskId: number): Promise<Task> {
+    const task = await this.getTaskRepository().findOneArchived(taskId)
+
+    const recoveredTask = await this.getTaskRepository().recover(task)
     await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
 
-    return restoredTask
+    return recoveredTask
   }
 
   async remove(taskId: number) {

@@ -21,7 +21,7 @@ export class TaskBoardTagService {
     return this.getTagRepository().findOneOrFail(id)
   }
 
-  async getByTaskboardId(id: number): Promise<Tag[]> {
+  async getByTaskBoardId(id: number): Promise<Tag[]> {
     return this.getTagRepository().find({ boardId: id })
   }
 

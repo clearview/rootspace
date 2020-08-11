@@ -15,7 +15,7 @@ export class TaskBoardTagCtrl extends BaseCtrl {
   }
 
   async list(req: Request, res: Response, next: NextFunction) {
-    const tags = await this.tagService.getByTaskboardId(Number(req.params.taskBoardId))
+    const tags = await this.tagService.getByTaskBoardId(Number(req.params.taskBoardId))
 
     const resData = this.responseData(tags)
     res.send(resData)

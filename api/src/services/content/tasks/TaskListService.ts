@@ -48,17 +48,21 @@ export class TaskListService {
     return this.getTaskListRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<TaskList | undefined> {
+  async getArchivedById(id: number): Promise<TaskList> {
     return this.getTaskListRepository().findOneArchived(id)
   }
 
   async getAllTasks(id: number): Promise<Task[]> {
-    const taskList = await this.getCompleteTasklist(id)
+    const taskList = await this.getCompleteTaskList(id)
     return taskList.tasks
   }
 
-  async getCompleteTasklist(id: number, archived?: boolean): Promise<TaskList | undefined> {
-    return this.getTaskListRepository().getCompleteTasklist(id)
+  async getCompleteTaskList(id: number): Promise<TaskList> {
+    return this.getTaskListRepository().getCompleteTaskList(id)
+  }
+
+  async getFullTaskList(id: number): Promise<TaskList> {
+    return this.getTaskListRepository().getFullTaskList(id)
   }
 
   async create(data: any): Promise<TaskList> {
@@ -84,22 +88,34 @@ export class TaskListService {
     return taskList
   }
 
-  async archive(taskListId: number): Promise<UpdateResult> {
-    await this.registerActivityForTaskListId(TaskListActivities.Archived, taskListId)
+  async archive(taskListId: number): Promise<TaskList | undefined> {
+    const taskList = await this.getFullTaskList(taskListId)
 
-    const taskList = await this.getCompleteTasklist(taskListId)
-    for(const task of taskList.tasks) {
-      await this.taskService.archive(task.id)
+    if (taskList && taskList.tasks) {
+      for (const task of taskList.tasks) {
+        await this.taskService.archive(task.id)
+      }
+
+      await this.registerActivityForTaskListId(TaskListActivities.Archived, taskListId)
+      return this.getTaskListRepository().softRemove(taskList)
     }
 
-    return this.getTaskListRepository().softDelete({id: taskListId})
+    return null
   }
 
-  async restore(taskListId: number): Promise<UpdateResult> {
-    const restoredTaskList = await this.getTaskBoardRepository().restore({id: taskListId})
+  async restore(taskListId: number): Promise<TaskList> {
+    const taskList = await this.getArchivedById(taskListId)
+
+    if (taskList && taskList.tasks) {
+      for (const task of taskList.tasks) {
+        await this.taskService.restore(task.id)
+      }
+    }
+
+    const recoveredTaskList = await this.getTaskListRepository().recover(taskList)
     await this.registerActivityForTaskListId(TaskListActivities.Restored, taskListId)
 
-    return restoredTaskList
+    return recoveredTaskList
   }
 
   async remove(id: number) {
