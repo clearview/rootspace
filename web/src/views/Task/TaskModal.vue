@@ -93,15 +93,11 @@
         </div>
         <div class="comment-separator"></div>
         <div class="comment-input">
-          <textarea
-            rows="1"
-            class="input"
+          <textarea-autoresize
             placeholder="Write a comment…"
-            ref="commentTextarea"
+            class="comment-textarea"
             v-model="commentInput"
-            @keydown="commentHandler"
-            @focus="commentSetHeight('focus')"
-            @blur="commentSetHeight('blur')"
+            @submit-comment="commentHandler"
           />
         </div>
         <ul class="comments">
@@ -190,6 +186,7 @@ import Modal from '@/components/Modal.vue'
 import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
+import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
@@ -214,6 +211,7 @@ import { quillEditor } from 'vue-quill-editor'
     MemberPopover,
     TaskComment,
     PopoverList,
+    TextareaAutoresize,
     Modal,
     Field,
     Avatar,
@@ -238,14 +236,6 @@ export default class TaskModal extends Vue {
 
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement
-
-    @Ref('commentTextarea')
-    private readonly commentRef!: HTMLInputElement
-
-    @Watch('commentInput')
-    watchComment () {
-      this.commentResize()
-    }
 
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
@@ -341,39 +331,6 @@ export default class TaskModal extends Vue {
         e.preventDefault()
         this.saveComment()
       }
-    }
-
-    commentResize () {
-      this.$nextTick(() => {
-        const comment = this.commentRef
-
-        if (comment === undefined) return
-
-        comment.style.minHeight = '75px'
-        if (this.commentInput === '' || comment.scrollHeight < 75) return
-        // console.log('this.commentInput 2', this.commentInput, comment.scrollHeight, comment.style.minHeight)
-        comment.style.minHeight = comment.scrollHeight + 'px'
-      })
-    }
-
-    commentSetHeight (state) {
-      this.$nextTick(() => {
-        const comment = this.commentRef
-
-        if (comment === undefined) return
-
-        if (this.commentInput !== '' && comment.scrollHeight > 75) return
-
-        if (state === 'blur') {
-          console.log('commentSetHeight blur')
-
-          comment.style.minHeight = 'auto'
-        } else {
-          console.log('commentSetHeight focus')
-
-          comment.style.minHeight = '75px'
-        }
-      })
     }
 
     async saveComment () {

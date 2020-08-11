@@ -40,14 +40,12 @@
       </header>
       <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div>
       <div v-show="isEditMode" class="comment-input">
-        <textarea
-          rows="3"
-          class="input"
+        <textarea-autoresize
           placeholder="Write a comment…"
-          ref="commentTextarea"
+          class="comment-textarea"
           v-model="commentCopy.content"
-          @keydown="commentHandler"
-          @keyup.esc="exitEditMode"
+          @cancel-comment="exitEditMode"
+          ref="commentTextarea"
         />
       </div>
       <div v-if="isEditMode" class="comment-actions">
@@ -80,6 +78,7 @@ import { Component, Prop, Ref, Watch, Vue } from 'vue-property-decorator'
 import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
+import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import Popover from '@/components/Popover.vue'
 import VModal from '@/components/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
@@ -88,6 +87,7 @@ import { formatRelativeTo } from '@/utils/date'
     name: 'TaskComment',
     components: {
       Avatar,
+      TextareaAutoresize,
       Popover,
       VModal
     },
@@ -130,29 +130,6 @@ export default class TaskComment extends Vue {
       await this.$store.dispatch('task/comment/destroy', comment)
     }
 
-    @Watch('commentInput')
-    watchComment () {
-      this.commentResize()
-    }
-
-    commentHandler (e: any) {
-      if (e.keyCode === 13 && !e.shiftKey) {
-        e.preventDefault()
-        this.updateComment()
-      }
-    }
-
-    commentResize () {
-      const comment = this.commentRef
-
-      if (comment === undefined) return
-
-      comment.style.minHeight = '50px'
-      if (this.commentCopy.content === '') return
-
-      comment.style.minHeight = comment.scrollHeight + 'px'
-    }
-
     async updateComment () {
       this.exitEditMode()
       await this.$store.dispatch('task/comment/update', {
@@ -164,7 +141,6 @@ export default class TaskComment extends Vue {
     enterEditMode () {
       this.isEditMode = true
       Vue.nextTick().then(() => {
-        this.commentResize()
         this.commentRef.focus()
       })
     }
