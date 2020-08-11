@@ -74,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Watch, Vue } from 'vue-property-decorator'
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
@@ -131,6 +131,7 @@ export default class TaskComment extends Vue {
     }
 
     async updateComment () {
+      this.comment.content = this.commentCopy.content
       this.exitEditMode()
       await this.$store.dispatch('task/comment/update', {
         id: this.comment.id,

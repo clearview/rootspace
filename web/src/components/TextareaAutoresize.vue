@@ -3,6 +3,7 @@
     <textarea
       class="input"
       :style="computedStyles"
+      :placeholder="placeholder"
       v-model="val"
       ref="commentTextarea"
       @keydown="commentHandler"
@@ -22,6 +23,9 @@ import { Component, Prop, Watch, Ref, Vue } from 'vue-property-decorator'
 export default class TextareaAutoresize extends Vue {
   @Prop({ type: String, default: '' })
   private readonly value!: string
+
+  @Prop({ type: String, default: '' })
+  private readonly placeholder!: string
 
   @Prop({ type: Number, default: null })
   private readonly minHeight!: number
@@ -49,39 +53,30 @@ export default class TextareaAutoresize extends Vue {
 
   @Watch('value')
   watchValue (val: string) {
-    console.log('value')
     this.val = val
   }
 
   @Watch('val')
   watchVal (val: string) {
-    console.log('val')
     this.$nextTick(this.resize)
     this.$emit('input', val)
   }
 
   @Watch('minHeight')
   watchMinHeight () {
-    console.log('minHeight')
     this.$nextTick(this.resize)
   }
 
   @Watch('maxHeight')
   watchMaxHeight () {
-    console.log('maxHeight')
     this.$nextTick(this.resize)
   }
 
   resize () {
     this.$nextTick(() => {
-      console.log('this.$el.scrollHeight', this.$el.scrollHeight)
-      // let contentHeight = this.$el.scrollHeight + 1
       let contentHeight = this.shadowRef.scrollHeight + 24
-      // let contentHeight = 43
       if (this.minHeight) {
-        // contentHeight = (contentHeight < this.minHeight) && (contentHeight < 43) ? this.minHeight : contentHeight
         contentHeight = contentHeight < this.minHeight ? this.minHeight : contentHeight
-        // contentHeight = this.minHeight
       }
       if (this.maxHeight) {
         if (contentHeight > this.maxHeight) {
@@ -92,7 +87,6 @@ export default class TextareaAutoresize extends Vue {
         }
       }
       const heightVal = contentHeight + 'px'
-      console.log('heightVal', heightVal)
       this.height = heightVal
     })
     return this
@@ -123,9 +117,6 @@ export default class TextareaAutoresize extends Vue {
 <style lang="postcss" scoped>
 textarea {
   width: 100%;
-  height: auto;
-  resize: none;
-  overflow: hidden;
   transition: none;
   line-height: 17px;
 

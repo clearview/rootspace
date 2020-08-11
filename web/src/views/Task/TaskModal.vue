@@ -181,7 +181,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Watch, Vue } from 'vue-property-decorator'
+import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
 import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
