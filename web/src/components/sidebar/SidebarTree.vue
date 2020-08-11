@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar-items">
+  <div class="flex flex-1">
     <v-tree
       class="tree"
       triggerClass="tree-node-handle"
