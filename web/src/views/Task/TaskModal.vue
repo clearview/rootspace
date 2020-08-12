@@ -93,13 +93,12 @@
         </div>
         <div class="comment-separator"></div>
         <div class="comment-input">
-          <input
-            type="text"
-            class="input"
+          <textarea-autoresize
             placeholder="Write a comment…"
+            class="comment-textarea"
             v-model="commentInput"
-            @keyup.enter="saveComment"
-          >
+            @submit-comment="commentHandler"
+          />
         </div>
         <ul class="comments">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
@@ -187,6 +186,7 @@ import Modal from '@/components/Modal.vue'
 import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
+import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
@@ -211,6 +211,7 @@ import { quillEditor } from 'vue-quill-editor'
     MemberPopover,
     TaskComment,
     PopoverList,
+    TextareaAutoresize,
     Modal,
     Field,
     Avatar,
@@ -323,6 +324,13 @@ export default class TaskModal extends Vue {
     cancelDescription () {
       this.isEditingDescription = false
       this.descriptionCopy.description = this.itemCopy.description
+    }
+
+    commentHandler (e: any) {
+      if (e.keyCode === 13 && !e.shiftKey) {
+        e.preventDefault()
+        this.saveComment()
+      }
     }
 
     async saveComment () {
@@ -579,7 +587,7 @@ export default class TaskModal extends Vue {
   }
 
   .description-title {
-    @apply flex items-center;
+    @apply flex items-center justify-start;
 
     &:hover {
       cursor: pointer;
@@ -622,12 +630,8 @@ export default class TaskModal extends Vue {
     overflow-x: visible;
   }
 
-  .comment-input {
+  .comment-textarea {
     @apply mb-4;
-  }
-
-  .input {
-    @apply w-full;
   }
 
   .right-field {
@@ -803,7 +807,7 @@ export default class TaskModal extends Vue {
 
 .description-content {
   a {
-    border-bottom: 1px dashed theme("colors.primary.default");
+    border-bottom: 1px dashed;
   }
 
   ol, ul {

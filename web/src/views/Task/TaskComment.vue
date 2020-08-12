@@ -23,7 +23,7 @@
                 </div>
               </div>
               <div class="action-separator"></div>
-              <div class="action-line danger" @click="hide();deleteComment()">
+              <div class="action-line danger" @click="hide();deleteCommentActionConfirm()">
                 <v-icon name="trash"></v-icon>
                 <div class="action-line-text">
                   Delete
@@ -38,19 +38,15 @@
           </Popover>
         </div>
       </header>
-      <div v-if="!isEditMode" class="comment-content">
-        {{comment.content}}
-      </div>
+      <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div>
       <div v-show="isEditMode" class="comment-input">
-        <input
-          ref="input"
-          type="text"
-          class="input"
+        <textarea-autoresize
           placeholder="Write a comment…"
+          class="comment-textarea"
           v-model="commentCopy.content"
-          @keypress.enter.prevent="updateComment"
-          @keyup.esc="exitEditMod"
-        >
+          @cancel-comment="exitEditMode"
+          ref="commentTextarea"
+        />
       </div>
       <div v-if="isEditMode" class="comment-actions">
         <button class="btn btn-link" @click="exitEditMode">
@@ -61,6 +57,19 @@
         </button>
       </div>
     </div>
+
+    <v-modal
+      title="Delete Comment"
+      :visible="deleteComment.visible"
+      confirmText="Yes"
+      @cancel="deleteComment.visible = false"
+      @confirm="deleteCommentAction(comment)"
+      portal="secondary"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this comment?
+      </div>
+    </v-modal>
   </li>
 </template>
 
@@ -69,14 +78,18 @@ import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
 import { TaskCommentResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
+import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import Popover from '@/components/Popover.vue'
+import VModal from '@/components/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
 
   @Component({
     name: 'TaskComment',
     components: {
       Avatar,
-      Popover
+      TextareaAutoresize,
+      Popover,
+      VModal
     },
     computed: {
       ...mapState('auth', {
@@ -99,14 +112,26 @@ export default class TaskComment extends Vue {
     private isEditMode = false
     private commentCopy = { ...this.comment }
 
-    @Ref('input')
-    private readonly inputRef!: HTMLInputElement;
+    private deleteComment: any = {
+      visible: false,
+      id: null,
+      alert: null
+    }
 
-    async deleteComment () {
-      await this.$store.dispatch('task/comment/destroy', this.comment)
+    @Ref('commentTextarea')
+    private readonly commentRef!: HTMLInputElement
+
+    deleteCommentActionConfirm () {
+      this.deleteComment.visible = true
+    }
+
+    async deleteCommentAction (comment: TaskCommentResource) {
+      this.deleteComment.visible = false
+      await this.$store.dispatch('task/comment/destroy', comment)
     }
 
     async updateComment () {
+      this.comment.content = this.commentCopy.content
       this.exitEditMode()
       await this.$store.dispatch('task/comment/update', {
         id: this.comment.id,
@@ -117,12 +142,21 @@ export default class TaskComment extends Vue {
     enterEditMode () {
       this.isEditMode = true
       Vue.nextTick().then(() => {
-        this.inputRef.focus()
+        this.commentRef.focus()
       })
     }
 
     exitEditMode () {
       this.isEditMode = false
+    }
+
+    formatURL (comment: string) {
+      // eslint-disable-next-line
+      const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm // es
+
+      const withLinks = comment.replace(URLMatcher, match => `<a href="${match}" target="_blank">${match}</a>`)
+
+      return withLinks
     }
 }
 </script>
@@ -158,10 +192,12 @@ export default class TaskComment extends Vue {
 
   .comment-content {
     @apply p-2 leading-tight rounded;
+
     font-size: 14px;
     line-height: 17px;
     color: theme("colors.gray.900");
     background: rgba(theme("colors.gray.100"), 0.3);
+    white-space: pre-line;
   }
 
   .comment-actions {
@@ -179,8 +215,14 @@ export default class TaskComment extends Vue {
       }
     }
   }
+
   .input {
     @apply w-full;
+
+    height: auto;
+    resize: none;
+    overflow: hidden;
+    line-height: 17px;
   }
 
   .comment-header {
@@ -236,4 +278,12 @@ export default class TaskComment extends Vue {
     height:1px;
     background: theme("colors.gray.100");
   }
+</style>
+
+<style lang="postcss">
+.comment-content {
+  a {
+    border-bottom: 1px dashed;
+  }
+}
 </style>
