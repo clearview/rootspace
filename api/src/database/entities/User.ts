@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
   OneToMany,
   Generated,
 } from 'typeorm'
@@ -12,6 +13,7 @@ import { UserToSpace } from './UserToSpace'
 import { Ability } from '@casl/ability'
 import { Follow } from './Follow'
 import { Notification } from './Notification'
+import { UserSettings } from './UserSettings'
 import { Length } from 'class-validator'
 
 @Entity('users')
@@ -78,6 +80,9 @@ export class User {
 
   @OneToMany(type => Notification, action => action.user, {eager: false, onDelete: 'CASCADE'})
   public actions!: Notification[]
+
+  @OneToOne(type => UserSettings)
+  public settings!: UserSettings
 
   public ability: Ability
 }
