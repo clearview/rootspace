@@ -95,7 +95,7 @@ export default class TagsPopover extends Vue {
   }
 
   .member {
-    @apply py-2;
+    @apply py-1;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -114,9 +114,9 @@ export default class TagsPopover extends Vue {
     line-height: 16px;
 
     .vue-avatar--wrapper {
-      width: 18px !important;
-      height: 18px !important;
-      font: 8px / 13px theme("fontFamily.primary") !important;
+      width: 24px !important;
+      height: 24px !important;
+      font: 10px / 13px theme("fontFamily.primary") !important;
       float: left;
       border: 0;
       letter-spacing: 0.03em;
@@ -124,6 +124,11 @@ export default class TagsPopover extends Vue {
 
     span {
       margin-left: 10px;
+    }
+
+    .icon-checkmark {
+      border: 0;
+      top: 8px;
     }
 
     &.selected {

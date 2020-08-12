@@ -22,10 +22,10 @@
         </div>
         <div class="action" v-if="tagsState === 'manage'">
         <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-            <v-icon size="12px" viewbox="32" name="edit"/>
+            <v-icon size="1rem" viewbox="32" name="edit"/>
         </span>
         <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-          <v-icon size="12px" viewbox="32" name="trash"/>
+          <v-icon size="1rem" viewbox="32" name="trash"/>
         </span>
         </div>
       </div>
@@ -33,7 +33,7 @@
     </ul>
     <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
-        You have no tags, create one at Manage Tags
+        You don’t have any tags, please click “Add Tag” to create one
       </div>
     </div>
     <div class="add-tag" v-show="['add', 'edit'].includes(tagsState)">
@@ -52,7 +52,7 @@
       <div class="color-boxes">
       <div class="color-box" v-for="color in colors" :key="color" :style="{ background: color }"
         @click="selectColor(color)" :class="{'checked': color === colorInput}">
-        <span class="icon-checkmark"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
+        <span class="icon-checkmark"><v-icon size="8px" name="checkmark" viewbox="12" /></span>
       </div>
       </div>
 
@@ -70,12 +70,12 @@
       </div>
     </div> -->
 
-    <div class="manage-button" @click="manageTagsButton()" v-if="tagsState === 'list'">
-      <span><v-icon name="edit" size="12px" viewbox="32"/></span>
+    <div class="manage-button" @click="manageTagsButton()" v-if="showManageTagButton()">
+      <span><v-icon name="edit" size="16" viewbox="32"/></span>
       Manage Tags
     </div>
-    <div class="add-button" @click="addTagButton()" v-if="tagsState === 'manage'">
-      <span><v-icon name="plus" size="13px" viewbox="24"/></span>
+    <div class="add-button" @click="addTagButton()" v-if="showAddTagButton()">
+      <span><v-icon name="plus2" size="16" viewbox="16"/></span>
       Add Tag
     </div>
     </div>
@@ -153,6 +153,14 @@ export default class TagsPopover extends Vue {
 
   selectColor (color: string) {
     this.colorInput = color
+  }
+
+  showAddTagButton (): boolean {
+    return (this.filteredTags.length === 0) || (this.tagsState === 'manage')
+  }
+
+  showManageTagButton (): boolean {
+    return (this.filteredTags.length !== 0) && (this.tagsState === 'list')
   }
 
   manageTagsButton () {
@@ -265,18 +273,18 @@ export default class TagsPopover extends Vue {
     transition: all 0.3s ease;
   }
   .tag-null {
-    @apply pb-3;
-    font-size: 0.85rem;
+    @apply pb-6;
+    font-size: 14px;
     opacity: 0.5;
   }
 
   .tag-color {
-    @apply py-1 px-2 rounded flex-grow self-center;
+    @apply p-2 rounded flex-grow self-center;
 
-    font-size: 10px;
+    font-size: 11px;
     line-height: 12px;
     letter-spacing: 0.03em;
-    text-align: center;
+    text-align: left;
     cursor: pointer;
     color: #FFF;
     position: relative;
@@ -287,7 +295,7 @@ export default class TagsPopover extends Vue {
       position: absolute;
       right: 10px;
       opacity: 1;
-      top: 2px;
+      top: 6px;
     }
 
     &:hover {
@@ -313,8 +321,8 @@ export default class TagsPopover extends Vue {
   .color-box {
     @apply flex rounded-full m-1;
 
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     transition:all 0.3s ease;
     cursor: pointer;
     position: relative;
@@ -323,6 +331,10 @@ export default class TagsPopover extends Vue {
       visibility: hidden;
       opacity: 0;
       margin: 0 auto;
+
+      svg {
+        margin-top: 2px;
+      }
     }
   }
 
@@ -332,8 +344,8 @@ export default class TagsPopover extends Vue {
     .icon-checkmark {
       visibility: visible;
       opacity: 1;
-      top: 7px;
-      left: 7px;
+      top: 8px;
+      left: 8px;
     }
   }
 

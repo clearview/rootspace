@@ -49,8 +49,8 @@
           <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <div class="actions">
             <button class="btn btn-mute" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="13px"/>
-              <v-icon v-else name="loading" size="13px" viewbox="100" />
+              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="1rem"/>
+              <v-icon v-else name="loading" size="1rem" viewbox="100" />
 
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
@@ -58,7 +58,7 @@
             <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="tag" size="13px" viewbox="20"/>
+                  <v-icon name="tag" size="1rem" viewbox="20"/>
                   <span>Tag</span>
                 </button>
               </template>
@@ -66,7 +66,7 @@
             <DueDatePopover :initial-date="itemCopy.dueDate ? new Date(itemCopy.dueDate) : new Date()" @input="handleDateMenu" @clear="handleDateClear">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="time" size="13px" viewbox="20"/>
+                  <v-icon name="time" size="1rem" viewbox="20"/>
                   <span>Due Date</span>
                 </button>
               </template>
@@ -76,7 +76,7 @@
         <div class="task-description">
           <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true">
             <span class="description-title-placeholder">Description</span>
-            <v-icon name="edit"/>
+            <v-icon name="edit" size="1rem" viewbox="32"/>
           </div>
           <div class="description-content" v-if="!isEditingDescription" v-html="itemCopy.description"></div>
           <div class="description-input" v-if="isEditingDescription">
@@ -119,10 +119,8 @@
           <div class="right-field-title">Tags</div>
           <div class="right-field-content">
             <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}"
-                  @click="handleTagMenu(tag)">
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}">
                 <span>{{tag.label}}</span>
-                <v-icon name="close" title="Close"/>
               </li>
             </ul>
             <template v-else>
@@ -139,7 +137,7 @@
                     <template v-slot:trigger>
                       <li class="addmember-button" content="Add Member" v-tippy>
                         <span>
-                          <v-icon name="plus2" size="14px" viewbox="16"/>
+                          <v-icon name="plus2" size="1rem" viewbox="16"/>
                         </span>
                       </li>
                     </template>
@@ -584,7 +582,7 @@ export default class TaskModal extends Vue {
       }
 
       & span {
-        padding-left: 10px;
+        padding-left: 8px;
       }
     }
   }
@@ -648,7 +646,7 @@ export default class TaskModal extends Vue {
 
     .save {
       color: theme("colors.primary.default");
-      margin-left: 8px;
+      margin-left: 16px;
     }
 
     .cancel {
@@ -695,7 +693,7 @@ export default class TaskModal extends Vue {
     color: rgba(theme("colors.gray.800"), 0.5);
 
     span {
-      font-size: 12px;
+      font-size: 14px;
     }
   }
 
@@ -714,7 +712,11 @@ export default class TaskModal extends Vue {
     line-height: 12px;
     letter-spacing: 0.03em;
     text-transform: uppercase;
-    padding: 5px 6px 4px 6px;
+    padding: 8px;
+
+    span {
+      font-size: 11px;
+    }
 
     svg {
       visibility: hidden;
@@ -743,6 +745,7 @@ export default class TaskModal extends Vue {
         display: flex;
         align-items: center;
         padding: 4px;
+        padding-left: 3px;
         width: 24px;
         height: 24px;
         background: rgba(theme("colors.gray.100"), 0.5);
@@ -779,8 +782,8 @@ export default class TaskModal extends Vue {
 
     .popover-trigger.show {
       .addmember-button {
-        background: rgba(216, 55, 80, 0.16);
-        color: theme("colors.primary.default");
+        color: #fff;
+        background: theme("colors.primary.default");
       }
     }
   }
@@ -932,6 +935,7 @@ export default class TaskModal extends Vue {
 .assignees {
   .popover-container {
     margin-top: 2px;
+    margin-bottom: 4px;
 
     .popover-trigger {
       height: 24px;
