@@ -8,7 +8,8 @@
       ref="commentTextarea"
       @keydown="commentHandler"
       @keyup.esc="exitEditMode"
-      @focus="resize"
+      @focus="focus"
+      @blur="blur"
     ></textarea>
     <textarea class="shadow" v-model="val" ref="shadowTextarea" tabindex="0"></textarea>
   </div>
@@ -36,6 +37,7 @@ export default class TextareaAutoresize extends Vue {
   private val = ''
   private maxHeightScroll = false
   private height = 'auto'
+  private isFocus= false
 
   @Ref('shadowTextarea')
   private readonly shadowRef!: HTMLInputElement
@@ -75,9 +77,17 @@ export default class TextareaAutoresize extends Vue {
   resize () {
     this.$nextTick(() => {
       let contentHeight = this.shadowRef.scrollHeight + 24
+
+      if (this.isFocus || (this.val !== '' && !this.isFocus)) {
+      // if (this.isFocus) {
+        const initialHeight = 75
+        contentHeight = contentHeight < initialHeight ? initialHeight : contentHeight
+      }
+
       if (this.minHeight) {
         contentHeight = contentHeight < this.minHeight ? this.minHeight : contentHeight
       }
+
       if (this.maxHeight) {
         if (contentHeight > this.maxHeight) {
           contentHeight = this.maxHeight
@@ -86,6 +96,7 @@ export default class TextareaAutoresize extends Vue {
           this.maxHeightScroll = false
         }
       }
+
       const heightVal = contentHeight + 'px'
       this.height = heightVal
     })
@@ -102,6 +113,13 @@ export default class TextareaAutoresize extends Vue {
 
   focus () {
     this.commentRef.focus()
+    this.isFocus = true
+    this.$nextTick(this.resize)
+  }
+
+  blur () {
+    this.isFocus = false
+    this.$nextTick(this.resize)
   }
 
   created () {
