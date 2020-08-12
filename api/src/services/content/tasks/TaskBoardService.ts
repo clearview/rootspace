@@ -17,6 +17,7 @@ import { ActivityEvent } from '../../events/ActivityEvent'
 import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
 import { UpdateResult } from 'typeorm/index'
 import { TaskListService } from './TaskListService'
+import { Node } from '../../../database/entities/Node'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
@@ -136,10 +137,7 @@ export class TaskBoardService extends NodeContentService {
       }
     )
 
-    await this.registerActivityForTaskBoard(
-      TaskBoardActivities.Updated,
-      taskBoard
-    )
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard)
 
     return taskBoard
   }
@@ -154,6 +152,7 @@ export class TaskBoardService extends NodeContentService {
     }
 
     await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
+    await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
 
     return this.getTaskBoardRepository().softRemove(taskBoard)
   }
@@ -168,6 +167,7 @@ export class TaskBoardService extends NodeContentService {
     }
 
     const recoveredTaskBoard = await this.getTaskBoardRepository().recover(taskBoard)
+    await this.nodeService.contentRestored(taskBoardId, this.getNodeType())
 
     await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoard.id)
 
@@ -184,10 +184,7 @@ export class TaskBoardService extends NodeContentService {
     return taskBoard
   }
 
-  async nodeUpdated(
-    contentId: number,
-    data: INodeContentUpdate
-  ): Promise<void> {
+  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
     if (!data.title) {
       return
     }

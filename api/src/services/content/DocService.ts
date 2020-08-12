@@ -46,6 +46,10 @@ export class DocService extends NodeContentService {
     return this.getDocRepository().findOne(id)
   }
 
+  async getArchivedDocById(id: number): Promise<Doc> {
+    return this.getDocRepository().findOneArchived(id)
+  }
+
   async requireById(id: number): Promise<Doc> {
     const doc = await this.getById(id)
 
@@ -87,6 +91,25 @@ export class DocService extends NodeContentService {
     await this.registerActivityForDocId(DocActivities.Updated, doc.id)
 
     return this.getDocRepository().reload(doc)
+  }
+
+  async archive(docId: number): Promise<Doc> {
+    const doc = await this.getById(docId)
+
+    await this.registerActivityForDoc(DocActivities.Archived, doc)
+    await this.nodeService.contentArchived(docId, this.getNodeType())
+
+    return this.getDocRepository().softRemove(doc)
+  }
+
+  async restore(docId: number): Promise<Doc> {
+    const doc = await this.getArchivedDocById(docId)
+
+    const recoveredDoc = await this.getDocRepository().recover(doc)
+    await this.registerActivityForDoc(DocActivities.Restored, recoveredDoc)
+    await this.nodeService.contentRestored(docId, this.getNodeType())
+
+    return recoveredDoc
   }
 
   async remove(id: number) {

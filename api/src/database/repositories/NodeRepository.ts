@@ -33,6 +33,14 @@ export class NodeRepository extends Repository<Node> {
     return query.getOne()
   }
 
+  async findOneArchived(contentId: number, type: string): Promise<Node> {
+    return this
+      .createQueryBuilder('node')
+      .where('node.contentId = :contentId AND node.type = :type', { contentId, type })
+      .withDeleted()
+      .getOne()
+  }
+
   getRootBySpaceId(spaceId: number): Promise<Node> {
     return this.createQueryBuilder('node')
       .where('node.type = :type AND node.contentId = :contentId', {

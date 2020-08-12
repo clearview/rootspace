@@ -49,6 +49,26 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(doc))
   }
 
+  async archive(req: Request, res: Response, next: NextFunction) {
+    const docId = Number(req.params.id)
+
+    const doc = await this.docService.getById(docId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+
+    const result = await this.docService.archive(docId)
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response, next: NextFunction) {
+    const docId = Number(req.params.id)
+
+    const doc = await this.docService.getArchivedDocById(docId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+
+    const result = await this.docService.restore(docId)
+    res.send(result)
+  }
+
   async delete(req: Request, res: Response, next: NextFunction) {
     const doc = await this.docService.remove(Number(req.params.id))
     res.send(this.responseData(doc))

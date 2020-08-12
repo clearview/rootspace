@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   Tree,
   TreeParent,
   TreeChildren,
@@ -50,9 +51,12 @@ export class Node {
   @Column('integer', { default: 0 })
   position: number
 
-  @CreateDateColumn()
-  created: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  created: Date
 
-  @UpdateDateColumn()
-  updated: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updated: Date
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  public deletedAt: Date
 }

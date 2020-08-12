@@ -46,6 +46,10 @@ export class NodeService {
     return this.getNodeRepository().findOne({ where: { contentId, type } })
   }
 
+  getArchivedNodeByContentId(contentId: number, type: NodeType): Promise<Node> {
+    return this.getNodeRepository().findOneArchived(contentId, type)
+  }
+
   getRootNodeBySpaceId(spaceId: number): Promise<Node> {
     return this.getNodeRepository().getRootBySpaceId(spaceId)
   }
@@ -201,11 +205,7 @@ export class NodeService {
     return node
   }
 
-  async contentUpdated(
-    contentId: number,
-    type: NodeType,
-    data: IContentNodeUpdate
-  ): Promise<void> {
+  async contentUpdated(contentId: number, type: NodeType, data: IContentNodeUpdate): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
@@ -219,6 +219,26 @@ export class NodeService {
     await this.getNodeRepository().save(node)
   }
 
+  async contentArchived(contentId: number, type: NodeType): Promise<Node> {
+    const node = await this.getNodeByContentId(contentId, type)
+
+    if (!node) {
+      return
+    }
+
+    return this.getNodeRepository().softRemove(node)
+  }
+
+  async contentRestored(contentId: number, type: NodeType): Promise<Node> {
+    const node = await this.getArchivedNodeByContentId(contentId, type)
+
+    if (!node) {
+      return
+    }
+
+    await this.getNodeRepository().recover(node)
+  }
+
   async contentRemoved(contentId: number, type: NodeType): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
@@ -228,6 +248,16 @@ export class NodeService {
   }
 
   private async _remove(node: Node): Promise<Node> {
+    await this.recalculatePositions(node)
+    await this.registerActivityForNode(NodeActivities.Deleted, node)
+
+    const removedNode = await this.getNodeRepository().remove(node)
+    await this.getNodeRepository().decreasePositions(removedNode.parentId, removedNode.position)
+
+    return removedNode
+  }
+
+  private static checkNodeIsNotRootNode(node: Node): void {
     if (node.type === NodeType.Root) {
       throw clientError(
         'Can not delete space root link',
@@ -235,6 +265,10 @@ export class NodeService {
         HttpStatusCode.NotAllowed
       )
     }
+  }
+
+  private async recalculatePositions(node: Node): Promise<void> {
+    NodeService.checkNodeIsNotRootNode(node)
 
     const children = await this.getNodeRepository().getChildren(node.id)
 
@@ -257,13 +291,6 @@ export class NodeService {
         )
       )
     }
-
-    await this.registerActivityForNode(NodeActivities.Deleted, node)
-
-    const removedNode = await this.getNodeRepository().remove(node)
-    this.getNodeRepository().decreasePositions(removedNode.parentId, removedNode.position)
-
-    return removedNode
   }
 
   async registerActivityForNodeId(nodeActivity: NodeActivities, nodeId: number): Promise<Bull.Job> {
