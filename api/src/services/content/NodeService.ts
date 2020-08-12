@@ -226,7 +226,7 @@ export class NodeService {
       return
     }
 
-    return this.getNodeRepository().softRemove(node)
+    await this._archive(node)
   }
 
   async contentRestored(contentId: number, type: NodeType): Promise<Node> {
@@ -245,6 +245,16 @@ export class NodeService {
     if (node) {
       await this._remove(node)
     }
+  }
+
+  private async _archive(node: Node): Promise<Node> {
+    await this.recalculatePositions(node)
+    await this.registerActivityForNode(NodeActivities.Archived, node)
+
+    const archivedNode = await this.getNodeRepository().softRemove(node)
+    await this.getNodeRepository().decreasePositions(archivedNode.parentId, archivedNode.position)
+
+    return archivedNode
   }
 
   private async _remove(node: Node): Promise<Node> {
