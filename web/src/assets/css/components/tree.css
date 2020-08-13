@@ -1,5 +1,5 @@
 .tree {
-  @apply w-full;
+  @apply w-full h-auto;
 }
 
 .tree-node-back {

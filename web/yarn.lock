@@ -4038,22 +4038,22 @@ dotenv@^8.2.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
 
-drag-event-service@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/drag-event-service/-/drag-event-service-1.0.4.tgz#8d1a696b768f7d121a2dbb5db339ea79d3ab1372"
-  integrity sha512-9xC360ca0PjTUvoLsT/F3FIUIoSmV7bPJOqNxVMtlJO3WztrToSQrSSu41xiIjQmUPP7aHNywqEFDs3jCiLhEA==
+drag-event-service@^1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/drag-event-service/-/drag-event-service-1.1.7.tgz#aaee3ebfd516bad530bba11ae8e6a85b7f1a83b7"
+  integrity sha512-wKPAzyDBGd8MBUYQWgSlHp6tfnp9sKfNKuZCWIJee3EjYv+MFpB1tfxOnAOx1XgF8HD7WwIOPTVWSQwyM9YtTg==
   dependencies:
     "@babel/runtime" "^7.7.7"
-    helper-js "^1.4.36"
+    helper-js "^2.0.0"
 
-draggable-helper@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/draggable-helper/-/draggable-helper-4.0.3.tgz#68f75fbfd0cb9bec252b183bc663947bb8dd0129"
-  integrity sha512-Shb5lFFhgQnZTjEsCyDJ0/q9ylTum3EA9f091FSp8Iun/H+VAcWJogF3wFPOR9M2WDEUfcAPDh9UFmJsLH1W3A==
+draggable-helper@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/draggable-helper/-/draggable-helper-5.0.3.tgz#686985340ebfcf98b5384bfab0eaeba36d7e8b93"
+  integrity sha512-XBEG94PKHesNiu8L/F498yz+pn7DR3a6zXPmGgINULHfStPBYJTD7esJ0yMWDTrsY0rQJtUPalMx5JJLMOIOIA==
   dependencies:
     "@babel/runtime" "^7.7.7"
-    drag-event-service "^1.0.4"
-    helper-js "^1.4.36"
+    drag-event-service "^1.1.7"
+    helper-js "^2.0.0"
 
 duplexer@^0.1.1:
   version "0.1.1"
@@ -5399,15 +5399,15 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-he-tree-vue@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/he-tree-vue/-/he-tree-vue-1.2.3.tgz#eee14f378182eed13d945fa1043e73a4e83e4332"
-  integrity sha512-OLY+mO7pN8h8PyDWnQ+VHChSuA6CSnSgzUJTGj3Oy14nCM6VkR1UlRGlWCRooB5JII6TCYTtmqnNCJX7sugn3w==
+he-tree-vue@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/he-tree-vue/-/he-tree-vue-2.0.3.tgz#4fddc3226fdee581463092013e8456aeee84c86e"
+  integrity sha512-2n7oUnfcEwmKVMfQ0eRfXWR/24wVWukTJJW9nPI6Y12b1O0DgPe2Kb8yBIboQ4r/TmVP1k4B2uzpQ+Dgv92nGQ==
   dependencies:
     "@babel/runtime" "^7.7.7"
-    draggable-helper "^4.0.3"
-    helper-js "^1.4.36"
-    vue-functions "^2.0.5"
+    draggable-helper "^5.0.3"
+    helper-js "^2.0.1"
+    vue-functions "^2.0.6"
     vue-runtime-helpers "^1.1.2"
 
 he@1.2.x, he@^1.1.0:
@@ -5415,10 +5415,10 @@ he@1.2.x, he@^1.1.0:
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
 
-helper-js@^1.4.36:
-  version "1.4.37"
-  resolved "https://registry.yarnpkg.com/helper-js/-/helper-js-1.4.37.tgz#0f5f91e0ec9dc3747b243e2bccbef855536ec764"
-  integrity sha512-QFU5re6Uu0/cc1mfZtOND+2DAgy4aBgToARdWiTcM64tRckiXxkRsFbekxYuRf87maXRlXcDnPspZcy/NEDUwA==
+helper-js@^2.0.0, helper-js@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/helper-js/-/helper-js-2.0.1.tgz#648a6c6e444d3c071f07db9eaa01eb3ca50a317b"
+  integrity sha512-8naDhtjmYUyedxAZNTjx7LuyiiNWnyYCGgkkv3Tox38IBcdfb+7sGxqshxCk3dNiBPwfDp33b25anPh9ZY0Wbw==
   dependencies:
     "@babel/runtime" "^7.7.7"
 
@@ -10954,13 +10954,13 @@ vue-eslint-parser@^7.0.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
-vue-functions@^2.0.5:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/vue-functions/-/vue-functions-2.0.5.tgz#663ad119b1053b45ed614e16c92d6e52ae1ff05f"
-  integrity sha512-r3B3iEG+I0DTYVYIxFiNLjXxMDNHRuxDcku4BSoTQW5xouaDi3xAs6YOEIvUKsqG1HhvomKceUty1SRb9oNMaQ==
+vue-functions@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/vue-functions/-/vue-functions-2.0.6.tgz#8dd83d4f60699715f323d7119e10a197b2e63882"
+  integrity sha512-c5P62HgQHJe7tIyWQUJGKeK3ziI+cOc3tf/NnwaSGnli89msfyDN0QUFIT9Su7uMcQmf0oMj2PmSh8M4zISxzg==
   dependencies:
     "@babel/runtime" "^7.7.7"
-    helper-js "^1.4.36"
+    helper-js "^2.0.0"
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"

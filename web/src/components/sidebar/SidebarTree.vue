@@ -1,12 +1,14 @@
 <template>
-  <div class="flex flex-1 overflow-auto">
+  <div class="w-full overflow-auto">
     <tree
+      edge-scroll
+      edgeScrollTriggerMode="mouse"
       ref="tree"
       class="tree"
-      triggerClass="tree-node-handle"
+      trigger-class="tree-node-handle"
       :indent="16"
       v-model="treeData"
-      @drop="updateNode($event.targetPath, $event.dragNode)"
+      @change="change"
       #default="{ node, path }"
     >
       <tree-node
@@ -76,14 +78,22 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
 import { get, omit, last } from 'lodash'
+
+import {
+  Tree,
+  Draggable,
+  Fold,
+  Node,
+  Store as TreeStore,
+  walkTreeData,
+  getPureTreeData
+} from 'he-tree-vue'
 
 import TreeNode from './SidebarTreeNode.vue'
 
 import {
   LinkResource,
-  NodeResource,
   TaskBoardResource,
   SpaceResource
 } from '@/types/resource'
@@ -91,8 +101,6 @@ import {
 import Modal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
-
-type NodeData = Node & NodeResource
 
 enum NodeType {
   Link = 'link',
@@ -149,7 +157,7 @@ export default class SidebarTree extends Vue {
     return this.$store.getters['space/activeSpace']
   }
 
-  get treeData (): NodeData[] {
+  get treeData (): Node[] {
     const state = this.$store.state.tree
     const list = [...state.list]
 
@@ -162,8 +170,8 @@ export default class SidebarTree extends Vue {
     return list
   }
 
-  set treeData (_0: NodeData[]) {
-    this.$store.commit('tree/setList', this.$refs.tree.getPureTreeData())
+  set treeData (data: Node[]) {
+    this.$store.commit('tree/setList', getPureTreeData(data))
   }
 
   // Methods
@@ -207,7 +215,7 @@ export default class SidebarTree extends Vue {
     } catch { }
   }
 
-  async updateContent (path: number[], node: NodeData) {
+  async updateContent (path: number[], node: Node) {
     switch (node.type) {
       case NodeType.Link:
         return this.updateLink(node)
@@ -217,7 +225,7 @@ export default class SidebarTree extends Vue {
     }
   }
 
-  async updateLink (node: NodeData) {
+  async updateLink (node: Node) {
     try {
       await this.$store.dispatch('link/view', node.contentId)
 
@@ -227,7 +235,7 @@ export default class SidebarTree extends Vue {
     } catch { }
   }
 
-  async updateTask (node: NodeData) {
+  async updateTask (node: Node) {
     try {
       await this.$store.dispatch('task/board/view', node.contentId)
 
@@ -242,7 +250,7 @@ export default class SidebarTree extends Vue {
     } catch { }
   }
 
-  toggleNodeFold (path: number[], node: NodeData) {
+  toggleNodeFold (path: number[], node: Node) {
     const key = path.join('.')
 
     this.$store.commit('tree/setFolded', {
@@ -250,16 +258,24 @@ export default class SidebarTree extends Vue {
     })
   }
 
-  async removeNode (path: number[], node: NodeResource) {
+  async removeNode (path: number[], node: Node) {
     try {
       await this.modalOpen(ModalType.Destroy)
 
+      this.$refs.tree.removeNodeByPath(path)
+      this.treeData = this.$refs.tree.cloneTreeData()
+
       await this.$store.dispatch('tree/destroy', node)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
   }
 
-  async updateNode (path: number[], node: NodeResource) {
+  async updateNode (path: number[], node: Node) {
+    try {
+      await this.$store.dispatch('tree/update', node)
+    } catch { }
+  }
+
+  async updateNodePosition (path: number[], node: Node) {
     try {
       const parent = get(this.treeData, path.slice(0, -1))
       const index = last(path) || 0
@@ -273,8 +289,19 @@ export default class SidebarTree extends Vue {
         ['children', 'created', 'updated']
       )
 
-      await this.$store.dispatch('tree/update', data)
+      await this.updateNode(path, data)
     } catch { }
+  }
+
+  async change (store: TreeStore) {
+    console.log(store)
+
+    if (store.pathChanged) {
+      const path = store.targetPath || []
+      const node = store.dragNode || {}
+
+      await this.updateNodePosition(path, node)
+    }
   }
 
   // Hooks
