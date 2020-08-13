@@ -28,7 +28,7 @@
       :visible="modal.visible"
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
-      @cancel="modalCancel"
+      @cancel="modalClose"
       @confirm="() => $refs.formUpdate.submit()"
     >
       <div class="modal-body">
@@ -47,7 +47,7 @@
       :visible="modal.visible"
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
-      @cancel="modalCancel"
+      @cancel="modalClose"
       @confirm="() => $refs.formUpdate.submit()"
     >
       <div class="modal-body">
@@ -66,7 +66,7 @@
       :visible="modal.visible"
       :loading="modal.loading"
       confirmText="Yes"
-      @cancel="modalCancel"
+      @cancel="modalClose"
       @confirm="modalConfirm"
     >
       <div class="modal-body text-center">
@@ -77,7 +77,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { get, omit, last } from 'lodash'
 
 import {
@@ -90,17 +90,18 @@ import {
   getPureTreeData
 } from 'he-tree-vue'
 
-import TreeNode from './SidebarTreeNode.vue'
-
 import {
   LinkResource,
   TaskBoardResource,
   SpaceResource
 } from '@/types/resource'
 
-import Modal from '@/components/Modal.vue'
+import ModalMixin, { Modal } from '@/mixins/ModalMixin'
+
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+
+import TreeNode from './SidebarTreeNode.vue'
 
 enum NodeType {
   Link = 'link',
@@ -115,13 +116,6 @@ enum ModalType {
   Destroy = 'Destroy'
 }
 
-interface ModalState {
-  visible: boolean;
-  loading: boolean;
-  type: ModalType | null;
-  data: object | null;
-}
-
 @Component({
   name: 'SidebarTree',
   components: {
@@ -132,7 +126,7 @@ interface ModalState {
     FormTask
   }
 })
-export default class SidebarTree extends Vue {
+export default class SidebarTree extends Mixins(ModalMixin) {
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
@@ -143,13 +137,6 @@ export default class SidebarTree extends Vue {
   private readonly locked!: boolean
 
   // State
-
-  private modal: ModalState = {
-    visible: false,
-    loading: false,
-    type: null,
-    data: null
-  }
 
   // Computed
 
@@ -175,37 +162,6 @@ export default class SidebarTree extends Vue {
   }
 
   // Methods
-
-  async modalOpen<T> (type: ModalType, data?: object) {
-    this.modal = {
-      ...this.modal,
-      visible: true,
-      data: data || null,
-      type
-    }
-
-    return new Promise((resolve, reject) => {
-      this.$once('modal:cancel', () => {
-        this.modal.visible = false
-
-        reject(new Error('Cancel'))
-      })
-
-      this.$once('modal:confirm', (data: object) => {
-        this.modal.visible = false
-
-        resolve(data)
-      })
-    })
-  }
-
-  modalCancel () {
-    this.$emit('modal:cancel')
-  }
-
-  modalConfirm (data: object) {
-    this.$emit('modal:confirm', data)
-  }
 
   async fetch () {
     const spaceId = this.activeSpace.id
@@ -250,14 +206,6 @@ export default class SidebarTree extends Vue {
     } catch { }
   }
 
-  toggleNodeFold (path: number[], node: Node) {
-    const key = path.join('.')
-
-    this.$store.commit('tree/setFolded', {
-      [key]: node.$folded === true
-    })
-  }
-
   async removeNode (path: number[], node: Node) {
     try {
       await this.modalOpen(ModalType.Destroy)
@@ -291,6 +239,14 @@ export default class SidebarTree extends Vue {
 
       await this.updateNode(path, data)
     } catch { }
+  }
+
+  toggleNodeFold (path: number[], node: Node) {
+    const key = path.join('.')
+
+    this.$store.commit('tree/setFolded', {
+      [key]: node.$folded === true
+    })
   }
 
   async change (store: TreeStore) {
