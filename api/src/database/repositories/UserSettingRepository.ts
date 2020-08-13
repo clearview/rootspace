@@ -1,8 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm'
-import { Space } from '../entities/Space'
 import { UserSetting } from '../entities/UserSetting'
 
-@EntityRepository(Space)
+@EntityRepository(UserSetting)
 export class UserSettingRepository extends Repository<UserSetting> {
   async getOne(userId: number, spaceId?: number): Promise<UserSetting> {
     const queryBuilder = this.createQueryBuilder('userSetting')

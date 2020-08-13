@@ -30,9 +30,6 @@ export class UserSetting {
   @Index()
   space: Space
 
-  @Column('varchar')
-  title: string
-
   @Column('jsonb')
   data: object
 

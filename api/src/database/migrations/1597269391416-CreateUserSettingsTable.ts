@@ -1,13 +1,15 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm'
+import { TableForeignKey, TableIndex } from 'typeorm/index'
 
 export class CreateUserSettingsTable1597269391416
   implements MigrationInterface {
   name = 'CreateUserSettingsTable1597269391416'
+  tableName = 'user_settings'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'user_settings',
+        name: this.tableName,
         columns: [
           {
             name: 'id',
@@ -46,17 +48,44 @@ export class CreateUserSettingsTable1597269391416
       true
     )
 
-    await queryRunner.query(`CREATE INDEX "IDX_be77588a6727c9a27075b59225" ON "user_settings" ("userId") `)
-    await queryRunner.query(`CREATE INDEX "IDX_be77588a6727c9a27075b59226" ON "user_settings" ("spaceId") `)
-    await queryRunner.query(`ALTER TABLE "user_settings" ADD CONSTRAINT "FK_fbdba4e2ac694cf8c9bbbf4dc85" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`)
-    await queryRunner.query(`ALTER TABLE "user_settings" ADD CONSTRAINT "FK_fbdba4e2ac694cf8c9bbbf4dc86" FOREIGN KEY ("spaceId") REFERENCES "spaces"("id") ON DELETE CASCADE ON UPDATE NO ACTION`)
+    await queryRunner.createIndex(this.tableName, new TableIndex({
+      name: 'IDX_USER_SETTINGS_USER_ID',
+      columnNames: ['userId']
+    }))
+
+    await queryRunner.createIndex(this.tableName, new TableIndex({
+      name: 'IDX_USER_SETTINGS_SPACE_ID',
+      columnNames: ['spaceId']
+    }))
+
+    await queryRunner.createForeignKey(this.tableName, new TableForeignKey({
+      columnNames: ['userId'],
+      referencedColumnNames: ['id'],
+      referencedTableName: 'users',
+      onDelete: 'CASCADE',
+      onUpdate: 'NO ACTION'
+    }))
+
+    await queryRunner.createForeignKey(this.tableName, new TableForeignKey({
+      columnNames: ['spaceId'],
+      referencedColumnNames: ['id'],
+      referencedTableName: 'spaces',
+      onDelete: 'CASCADE',
+      onUpdate: 'NO ACTION'
+    }))
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`ALTER TABLE "user_settings" DROP CONSTRAINT "FK_fbdba4e2ac694cf8c9bbbf4dc86"`)
-    await queryRunner.query(`ALTER TABLE "user_settings" DROP CONSTRAINT "FK_fbdba4e2ac694cf8c9bbbf4dc85"`)
-    await queryRunner.query(`DROP INDEX "IDX_be77588a6727c9a27075b59226"`)
-    await queryRunner.query(`DROP INDEX "IDX_be77588a6727c9a27075b59225"`)
-    await queryRunner.dropTable('user_settings', true)
+    const table = await queryRunner.getTable(this.tableName)
+    const userForeignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('userId') !== -1)
+    await queryRunner.dropForeignKey(this.tableName, userForeignKey)
+
+    const spaceForeignKey = table.foreignKeys.find(fk => fk.columnNames.indexOf('spaceId') !== -1)
+    await queryRunner.dropForeignKey(this.tableName, spaceForeignKey)
+
+    await queryRunner.dropIndex(this.tableName, 'IDX_USER_SETTINGS_USER_ID')
+    await queryRunner.dropIndex(this.tableName, 'IDX_USER_SETTINGS_SPACE_ID')
+
+    await queryRunner.dropTable(this.tableName, true, true, true)
   }
 }

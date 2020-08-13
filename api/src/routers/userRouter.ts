@@ -30,7 +30,10 @@ router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 router.patch('/users/password', authenticate, mapRoute(UsersCtrl, 'changePassword'))
 router.post('/users/password/recovery', mapRoute(UsersCtrl, 'passwordRecovery'))
 router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
-router.get('/users/settings/:spaceId?', authenticate, mapRoute(UsersCtrl, 'settings'))
-router.patch('/users/settings/:spaceId?', authenticate, mapRoute(UsersCtrl, 'updateSettings'))
+
+router.route('/users/settings/:spaceId?')
+  .get(authenticate, mapRoute(UsersCtrl, 'settings'))
+  .post(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
+  .put(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
 
 export { router as userRouter }

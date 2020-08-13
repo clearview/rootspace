@@ -156,18 +156,18 @@ export class UsersCtrl extends BaseCtrl {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
 
-    const userSettings = await this.userSettingsService.getSettings(userId, spaceId)
+    const settings = await this.userSettingsService.getSettings(userId, spaceId)
 
-    res.send(userSettings)
+    res.send(settings)
   }
 
   async updateSettings(req: Request, res: Response) {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
-    const data = req.params?.data
+    const data = req.body
 
-    const userSettings = await this.userSettingsService.updateSettings(userId, spaceId, data)
+    const updatedSettings = await this.userSettingsService.updateSettings(userId, spaceId, data)
 
-    res.send(userSettings)
+    res.send(updatedSettings)
   }
 }
