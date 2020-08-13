@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-1 overflow-auto">
-    <v-tree
+    <tree
       ref="tree"
       class="tree"
       triggerClass="tree-node-handle"
       :indent="16"
-      :value="treeData"
-      @drop="updateNode({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
+      v-model="treeData"
+      @drop="updateNode($event.targetPath, $event.dragNode)"
       #default="{ node, path }"
     >
       <tree-node
@@ -18,7 +18,7 @@
         @node:remove="removeNode"
         @node:fold:toggle="toggleNodeFold"
       />
-    </v-tree>
+    </tree>
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -75,8 +75,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
+import { get, omit, last } from 'lodash'
 
 import TreeNode from './SidebarTreeNode.vue'
 
@@ -113,16 +114,10 @@ interface ModalState {
   data: object | null;
 }
 
-const VTree = Vue.extend({
-  name: 'Tree',
-  extends: Tree,
-  mixins: [Draggable, Fold]
-})
-
 @Component({
   name: 'SidebarTree',
   components: {
-    VTree,
+    Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
     FormLink,
@@ -154,7 +149,7 @@ export default class SidebarTree extends Vue {
     return this.$store.getters['space/activeSpace']
   }
 
-  get treeData () {
+  get treeData (): NodeData[] {
     const state = this.$store.state.tree
     const list = [...state.list]
 
@@ -165,6 +160,10 @@ export default class SidebarTree extends Vue {
     })
 
     return list
+  }
+
+  set treeData (_0: NodeData[]) {
+    this.$store.commit('tree/setList', this.$refs.tree.getPureTreeData())
   }
 
   // Methods
@@ -262,20 +261,19 @@ export default class SidebarTree extends Vue {
 
   async updateNode (path: number[], node: NodeResource) {
     try {
-      const parent = this.$refs.tree.getNodeParentByPath(path)
-      const position = path.slice(-1).pop() || 0
+      const parent = get(this.treeData, path.slice(0, -1))
+      const index = last(path) || 0
 
-      const data = {
-        ...node,
-        parent: (parent && parent.id) || null,
-        position: position + 1,
-        children: undefined,
-        created: undefined,
-        updated: undefined
-      }
+      const data = omit(
+        {
+          ...node,
+          parent: (parent && parent.id) || null,
+          position: index + 1
+        },
+        ['children', 'created', 'updated']
+      )
 
       await this.$store.dispatch('tree/update', data)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
   }
 
