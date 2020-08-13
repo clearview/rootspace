@@ -206,9 +206,7 @@ export default class SidebarTreeNode extends Vue {
   }
 
   toggleFold () {
-    this.payload.$folded = !this.isFolded
-
-    this.$emit('node:fold:toggle', this.path, this.payload)
+    this.$emit('node:fold:toggle', this.path)
   }
 
   // Watchers
