@@ -271,7 +271,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   textColor (bgColor: string) {
-    const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+    const textColor = ['#3A932C', '#C94747', '#DD8435', '#588f9c', '#9C3DBF', '#8c7940', '#883b68', '#394c84', '#47408c', '#2D6FD6']
     const getBgPosition = this.colors.indexOf(bgColor)
 
     return textColor[getBgPosition]
@@ -382,6 +382,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       flex: 1 1 auto;
       color: #fff;
       text-transform: uppercase;
+      border: 1px solid #000;
       font-weight: bold;
       span {
         flex: 1 1 auto;

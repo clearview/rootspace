@@ -35,12 +35,12 @@
               </li>
               <li v-if="item.attachments && item.attachments.length > 0">
                 <span class="icon">
-                  <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false" content="Attachment(s)" v-tippy/>
+                  <v-icon name="attachment" viewbox="20" size="20px" :withTitle="false" content="Attachment(s)" v-tippy/>
                 </span>
               </li>
               <li v-if="item.taskComments.length > 0">
                 <span class="icon">
-                  <v-icon name="comment" viewbox="16" size="1rem" :withTitle="false" content="Comment(s)" v-tippy/>
+                  <v-icon name="comment" viewbox="14" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
                 </span>
               </li>
             </ul>
@@ -223,7 +223,7 @@ export default class TaskCard extends Vue {
     }
 
     textColor (bgColor: string) {
-      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const textColor = ['#3A932C', '#C94747', '#DD8435', '#588f9c', '#9C3DBF', '#8c7940', '#883b68', '#394c84', '#47408c', '#2D6FD6']
       const getBgPosition = this.colors.indexOf(bgColor)
 
       return textColor[getBgPosition]
@@ -357,7 +357,6 @@ export default class TaskCard extends Vue {
     @apply ml-2 text-base flex flex-col;
     flex: 1 1 auto;
     width: 0;
-
     font-weight: 500;
     color: theme("colors.gray.900");
 
@@ -409,13 +408,14 @@ export default class TaskCard extends Vue {
         @apply flex-1 flex justify-start;
 
         float: left;
-        margin-top: 13px;
+        margin-top: 10px;
 
         ul {
           @apply block;
 
           li {
             display: inline-block;
+            margin-top: 8px;
           }
 
           .tag {
@@ -437,7 +437,7 @@ export default class TaskCard extends Vue {
         } */
 
         .icon {
-          @apply p-1 cursor-auto;
+          @apply cursor-auto;
 
           width: 26px;
           height: 26px;
@@ -455,6 +455,10 @@ export default class TaskCard extends Vue {
 
         float: right;
         margin-top: 13px;
+
+        .assignee {
+          margin-top: 5px;
+        }
 
         li {
           .vue-avatar--wrapper {

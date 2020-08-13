@@ -439,7 +439,7 @@ export default class TaskModal extends Vue {
     }
 
     textColor (bgColor: string) {
-      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const textColor = ['#3A932C', '#C94747', '#DD8435', '#588f9c', '#9C3DBF', '#8c7940', '#883b68', '#394c84', '#47408c', '#2D6FD6']
       const getBgPosition = this.colors.indexOf(bgColor)
 
       return textColor[getBgPosition]
@@ -802,8 +802,8 @@ export default class TaskModal extends Vue {
       height: 32px;
 
       &:hover {
-        background: rgba(216, 55, 80, 0.16);
-        color: theme("colors.primary.default");
+        background: theme("colors.gray.100");
+        color: theme("colors.gray.900");
       }
     }
   }

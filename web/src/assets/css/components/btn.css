@@ -27,7 +27,9 @@
   }
 
   &.btn-mute {
-    @apply bg-gray-100 text-gray-900 border-gray-100;
+    @apply bg-gray-100 border-gray-100;
+
+    background-color: #EFF1F6
   }
 
   &.btn-white {
