@@ -89,3 +89,12 @@
     visibility: visible;
   }
 }
+
+.tree.tree--dragging {
+  .tree-node-content {
+    &:hover,
+    &.is-active {
+      @apply bg-transparent;
+    }
+  }
+}

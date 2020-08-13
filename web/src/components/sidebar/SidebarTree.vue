@@ -4,11 +4,15 @@
       edge-scroll
       edgeScrollTriggerMode="mouse"
       ref="tree"
-      class="tree"
+      :class="{
+        'tree': true,
+        'tree--dragging': dragging
+      }"
       trigger-class="tree-node-handle"
       :indent="16"
       v-model="treeData"
       @change="change"
+      @drag="dragging = true"
       #default="{ node, path }"
     >
       <tree-node
@@ -134,9 +138,11 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // Props
 
   @Prop(Boolean)
-  private readonly locked!: boolean
+  readonly locked!: boolean
 
   // State
+
+  dragging = false
 
   // Computed
 
@@ -217,8 +223,12 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
-  async updateNode (path: number[], node: Node) {
+  async updateNode (path: number[], nextNode: Node) {
     try {
+      const node = this.$refs.tree.getNodeByPath(path)
+
+      Object.assign(node, nextNode)
+
       await this.$store.dispatch('tree/update', node)
     } catch { }
   }
@@ -241,16 +251,22 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
-  toggleNodeFold (path: number[], node: Node) {
-    const key = path.join('.')
+  toggleNodeFold (path: number[]) {
+    if (this.dragging) {
+      return
+    }
 
-    this.$store.commit('tree/setFolded', {
-      [key]: node.$folded === true
+    const node = this.$refs.tree.getNodeByPath(path)
+
+    this.$refs.tree.toggleFold(node, path)
+    this.$store.commit('tree/updateFolded', {
+      index: path.join('.'),
+      value: node.$folded
     })
   }
 
   async change (store: TreeStore) {
-    console.log(store)
+    this.dragging = false
 
     if (store.pathChanged) {
       const path = store.targetPath || []
