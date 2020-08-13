@@ -94,22 +94,55 @@ export class DocService extends NodeContentService {
   }
 
   async archive(docId: number): Promise<Doc> {
-    const doc = await this.getById(docId)
+    let doc = await this.getById(docId)
+    doc = await this._archive(doc)
 
-    await this.registerActivityForDoc(DocActivities.Archived, doc)
     await this.nodeService.contentArchived(docId, this.getNodeType())
 
-    return this.getDocRepository().softRemove(doc)
+    return doc
+  }
+
+  async nodeArchived(contentId: number): Promise<void> {
+    const doc = await this.getById(contentId)
+
+    if (!doc) {
+      return
+    }
+
+    await this._archive(doc)
+  }
+
+  private async _archive(doc: Doc): Promise<Doc> {
+    const node = await this.getDocRepository().softRemove(doc)
+    await this.registerActivityForDoc(DocActivities.Archived, node)
+
+    return node
   }
 
   async restore(docId: number): Promise<Doc> {
-    const doc = await this.getArchivedDocById(docId)
+    let doc = await this.getArchivedDocById(docId)
+    doc = await this._restore(doc)
 
-    const recoveredDoc = await this.getDocRepository().recover(doc)
-    await this.registerActivityForDoc(DocActivities.Restored, recoveredDoc)
-    await this.nodeService.contentRestored(docId, this.getNodeType())
+    await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
 
-    return recoveredDoc
+    return doc
+  }
+
+  async nodeRestored(contentId: number): Promise<void> {
+    const doc = await this.getById(contentId)
+
+    if (!doc) {
+      return
+    }
+
+    await this._restore(doc)
+  }
+
+  private async _restore(doc: Doc): Promise<Doc> {
+    doc = await this.getDocRepository().recover(doc)
+    await this.registerActivityForDoc(DocActivities.Restored, doc)
+
+    return doc
   }
 
   async remove(id: number) {
@@ -128,17 +161,22 @@ export class DocService extends NodeContentService {
     await this.getDocRepository().remove(doc)
   }
 
-  async registerActivityForDocId(docActivity: DocActivities, docId: number): Promise<Bull.Job> {
+  async registerActivityForDocId(
+    docActivity: DocActivities,
+    docId: number
+  ): Promise<Bull.Job> {
     const doc = await this.getById(docId)
     return this.registerActivityForDoc(docActivity, doc)
   }
 
-  async registerActivityForDoc(docActivity: DocActivities, doc: Doc): Promise<Bull.Job> {
+  async registerActivityForDoc(
+    docActivity: DocActivities,
+    doc: Doc
+  ): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
-      ActivityEvent
-        .withAction(docActivity)
+      ActivityEvent.withAction(docActivity)
         .fromActor(actor.id)
         .forEntity(doc)
         .inSpace(doc.spaceId)

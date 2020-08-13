@@ -28,6 +28,9 @@ export class Node {
   @Index()
   parentId: number
 
+  @Column('integer', { nullable: true })
+  restoreParentId: number
+
   @Column('integer')
   @Index()
   userId: number

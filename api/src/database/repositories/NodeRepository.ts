@@ -15,6 +15,7 @@ export class NodeRepository extends Repository<Node> {
     let nodes = await this.createQueryBuilder('node')
       .where('node.spaceId = :spaceId', { spaceId })
       .andWhere('node.id != :id', { id: root.id })
+      .withDeleted()
       .getMany()
 
     nodes = this.buildTree(nodes, root.id)
@@ -23,28 +24,45 @@ export class NodeRepository extends Repository<Node> {
     return nodes
   }
 
-  getById(id: number, spaceId?: number) {
+  getById(id: number, spaceId?: number, options?: any) {
     const query = this.createQueryBuilder('node').where('node.id = :id', { id })
 
     if (spaceId) {
       query.andWhere('node.spaceId = :spaceId', { spaceId })
     }
 
+    if (options && options.withDeleted) {
+      query.withDeleted()
+    }
+
     return query.getOne()
   }
 
-  async findOneArchived(contentId: number, type: string): Promise<Node> {
-    return this
-      .createQueryBuilder('node')
-      .where('node.contentId = :contentId AND node.type = :type', { contentId, type })
-      .withDeleted()
-      .getOne()
+  getByContentIdAndType(contentId: number, type: NodeType, options: any) {
+    const query = this.createQueryBuilder(
+      'node'
+    ).where('node.contentId = :contentId AND type = :type', { contentId, type })
+
+    if (options && options.withDeleted) {
+      query.withDeleted()
+    }
+
+    return query.getOne()
   }
 
   getRootBySpaceId(spaceId: number): Promise<Node> {
     return this.createQueryBuilder('node')
       .where('node.type = :type AND node.contentId = :contentId', {
         type: NodeType.Root,
+        contentId: spaceId,
+      })
+      .getOne()
+  }
+
+  getArchiveNodeBySpaceId(spaceId: number): Promise<Node> {
+    return this.createQueryBuilder('node')
+      .where('node.type = :type AND node.contentId = :contentId', {
+        type: NodeType.Archive,
         contentId: spaceId,
       })
       .getOne()
