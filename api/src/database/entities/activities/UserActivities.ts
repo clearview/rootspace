@@ -5,5 +5,6 @@ export enum UserActivities {
   Login_Failed = 'Login_Failed',
   Password_Reset = 'Password_Reset',
   Invite_Sent = 'Invite_Sent',
-  Disabled = 'Disabled'
+  Disabled = 'Disabled',
+  Settings_Updated = 'Settings_Updated'
 }

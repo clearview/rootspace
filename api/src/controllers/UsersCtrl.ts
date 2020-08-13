@@ -7,6 +7,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../database/repositories/UserRepository'
 import { SpaceRepository } from '../database/repositories/SpaceRepository'
 import { UserService } from '../services'
+import { UserSettingService } from '../services/UserSettingService'
 import {
   validateUserSignup,
   validateUserUpdate,
@@ -23,10 +24,12 @@ import {
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
+  protected userSettingsService: UserSettingService
 
   constructor() {
     super()
     this.userService = UserService.getInstance()
+    this.userSettingsService = UserSettingService.getInstance()
   }
 
   async signup(req: Request, res: Response, next: NextFunction) {
@@ -147,5 +150,24 @@ export class UsersCtrl extends BaseCtrl {
 
     const result = await this.userService.passwordReset(value)
     res.send(this.responseData(result))
+  }
+
+  async settings(req: Request, res: Response) {
+    const userId = Number(req.user.id)
+    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
+
+    const userSettings = await this.userSettingsService.getSettings(userId, spaceId)
+
+    res.send(userSettings)
+  }
+
+  async updateSettings(req: Request, res: Response) {
+    const userId = Number(req.user.id)
+    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
+    const data = req.params?.data
+
+    const userSettings = await this.userSettingsService.updateSettings(userId, spaceId, data)
+
+    res.send(userSettings)
   }
 }
