@@ -9,7 +9,6 @@
 
 .tree-node-content {
   @apply flex flex-row flex-1;
-  @apply cursor-pointer;
 
   padding: 6px;
   border-radius: 4px;
@@ -38,7 +37,13 @@
   top: calc(50% - 10px);
 }
 
+.tree-node-label {
+  @apply flex flex-row flex-1 cursor-pointer;
+}
+
 .tree-node-arrow {
+  @apply cursor-pointer;
+
   margin-left: 1em;
   transition: transform .3s;
 
@@ -63,6 +68,8 @@
 }
 
 .tree-node-actions {
+  @apply ml-1;
+
   visibility: hidden;
 }
 
