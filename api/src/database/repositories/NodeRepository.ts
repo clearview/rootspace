@@ -31,7 +31,7 @@ export class NodeRepository extends Repository<Node> {
       query.andWhere('node.spaceId = :spaceId', { spaceId })
     }
 
-    if (options && options.withDeleted) {
+    if (options.withDeleted) {
       query.withDeleted()
     }
 
@@ -43,7 +43,7 @@ export class NodeRepository extends Repository<Node> {
       'node'
     ).where('node.contentId = :contentId AND type = :type', { contentId, type })
 
-    if (options && options.withDeleted) {
+    if (options.withDeleted) {
       query.withDeleted()
     }
 
@@ -68,13 +68,18 @@ export class NodeRepository extends Repository<Node> {
       .getOne()
   }
 
-  getChildren(parentId: number): Promise<Node[]> {
-    return this.createQueryBuilder('node')
+  getChildren(parentId: number, options: any = {}): Promise<Node[]> {
+    const query = this.createQueryBuilder('node')
       .where('node.parentId = :parentId', {
         parentId,
       })
       .orderBy('position', 'ASC')
-      .getMany()
+
+    if (options.withDeleted) {
+      query.withDeleted()
+    }
+
+    return query.getMany()
   }
 
   async hasDescendant(ancestor: Node, descendantId: number): Promise<boolean> {

@@ -18,10 +18,10 @@ export class DocsCtrl extends BaseCtrl {
     this.followService = ServiceFactory.getInstance().getFollowService()
   }
 
-  async view(req: Request, res: Response, next: NextFunction) {
-    const doc = await this.docService.getById(Number(req.params.id))
-
+  async view(req: Request, res: Response) {
+    const doc = await this.docService.requireById(Number(req.params.id))
     const resData = this.responseData(doc)
+
     res.send(resData)
   }
 
@@ -53,7 +53,10 @@ export class DocsCtrl extends BaseCtrl {
     const docId = Number(req.params.id)
 
     const doc = await this.docService.getById(docId)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(
+      Actions.Delete,
+      doc ? doc : Subjects.Doc
+    )
 
     const result = await this.docService.archive(docId)
     res.send(result)
@@ -61,9 +64,12 @@ export class DocsCtrl extends BaseCtrl {
 
   async restore(req: Request, res: Response, next: NextFunction) {
     const docId = Number(req.params.id)
+    const doc = await this.docService.requireById(docId, { withDeleted: true })
 
-    const doc = await this.docService.getArchivedDocById(docId)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(
+      Actions.Delete,
+      doc ? doc : Subjects.Doc
+    )
 
     const result = await this.docService.restore(docId)
     res.send(result)
@@ -76,16 +82,25 @@ export class DocsCtrl extends BaseCtrl {
 
   async follow(req: Request, res: Response, next: NextFunction) {
     const doc = await this.docService.getById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(
+      Actions.Read,
+      doc ? doc : Subjects.Doc
+    )
 
-    const result = await this.followService.followFromRequest(Number(req.user.id), doc)
+    const result = await this.followService.followFromRequest(
+      Number(req.user.id),
+      doc
+    )
     res.send(result)
   }
 
   async unfollow(req: Request, res: Response, next: NextFunction) {
     const doc = await this.docService.getById(Number(req.params.id))
 
-    const result = await this.followService.unfollowFromRequest(Number(req.user.id), doc)
+    const result = await this.followService.unfollowFromRequest(
+      Number(req.user.id),
+      doc
+    )
     res.send(result)
   }
 }

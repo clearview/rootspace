@@ -4,11 +4,13 @@ import { Doc } from '../entities/Doc'
 
 @EntityRepository(Doc)
 export class DocRepository extends BaseRepository<Doc> {
-  async findOneArchived(id: number): Promise<Doc> {
-    return this
-      .createQueryBuilder('doc')
-      .where('doc.id = :id', { id })
-      .withDeleted()
-      .getOne()
+  async getById(id: number, options: any = {}): Promise<Doc> {
+    const query = this.createQueryBuilder('doc').where('doc.id = :id', { id })
+
+    if (options.withDeleted) {
+      query.withDeleted(9)
+    }
+
+    return query.getOne()
   }
 }

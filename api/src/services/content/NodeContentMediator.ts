@@ -43,7 +43,7 @@ export class NodeContentMediator implements INodeContentMediator {
   async nodeRestored(node: Node): Promise<void> {
     for (const service of this.contentServices) {
       if (node.type === service.getNodeType()) {
-        return service.nodeArchived(node.contentId)
+        return service.nodeRestored(node.contentId)
       }
     }
   }
@@ -56,7 +56,6 @@ export class NodeContentMediator implements INodeContentMediator {
     }
   }
 
-
   async contentUpdated(
     contentId: number,
     nodeType: NodeType,
@@ -65,15 +64,15 @@ export class NodeContentMediator implements INodeContentMediator {
     return this.nodeService.contentUpdated(contentId, nodeType, data)
   }
 
-  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
-    return this.nodeService.contentRemoved(contentId, nodeType)
-  }
-
   async contentArchived(contentId: number, nodeType: NodeType): Promise<void> {
-    return this.nodeService.contentRemoved(contentId, nodeType)
+    return this.nodeService.contentArchived(contentId, nodeType)
   }
 
   async contentRestored(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentRestored(contentId, nodeType)
+  }
+
+  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
     return this.nodeService.contentRemoved(contentId, nodeType)
   }
 }

@@ -7,7 +7,7 @@ import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { clientError, HttpErrName } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { DocActivities } from '../../database/entities/activities/DocActivities'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
@@ -42,16 +42,12 @@ export class DocService extends NodeContentService {
     return NodeType.Document
   }
 
-  async getById(id: number): Promise<Doc | undefined> {
-    return this.getDocRepository().findOne(id)
+  async getById(id: number, options: any = {}): Promise<Doc | undefined> {
+    return this.getDocRepository().findOne(id, options)
   }
 
-  async getArchivedDocById(id: number): Promise<Doc> {
-    return this.getDocRepository().findOneArchived(id)
-  }
-
-  async requireById(id: number): Promise<Doc> {
-    const doc = await this.getById(id)
+  async requireById(id: number, options: any = {}): Promise<Doc> {
+    const doc = await this.getById(id, options)
 
     if (!doc) {
       throw clientError('Document not found', HttpErrName.EntityNotFound)
@@ -120,16 +116,18 @@ export class DocService extends NodeContentService {
   }
 
   async restore(docId: number): Promise<Doc> {
-    let doc = await this.getArchivedDocById(docId)
+    let doc = await this.requireById(docId, { withDeleted: true })
+
     doc = await this._restore(doc)
 
     await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
+    await this.registerActivityForDoc(DocActivities.Restored, doc)
 
     return doc
   }
 
   async nodeRestored(contentId: number): Promise<void> {
-    const doc = await this.getById(contentId)
+    const doc = await this.getById(contentId, { withDeleted: true })
 
     if (!doc) {
       return
@@ -140,25 +138,40 @@ export class DocService extends NodeContentService {
 
   private async _restore(doc: Doc): Promise<Doc> {
     doc = await this.getDocRepository().recover(doc)
-    await this.registerActivityForDoc(DocActivities.Restored, doc)
-
     return doc
   }
 
   async remove(id: number) {
-    let doc = await this.requireById(id)
-    await this.registerActivityForDoc(DocActivities.Deleted, doc)
+    let doc = await this.requireById(id, { withDeleted: true })
 
-    doc = await this.getDocRepository().remove(doc)
+    this._isDocDeletable(doc)
+    doc = await this._remove(doc)
+
+    await this.registerActivityForDoc(DocActivities.Deleted, doc)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return doc
   }
 
   async nodeRemoved(contentId: number): Promise<void> {
-    const doc = await this.getDocRepository().findOne({ id: contentId })
-    await this.registerActivityForDoc(DocActivities.Deleted, doc)
-    await this.getDocRepository().remove(doc)
+    const doc = await this.getDocRepository().getById(contentId, {
+      withDeleted: true,
+    })
+    await this._remove(doc)
+  }
+
+  private async _remove(doc: Doc) {
+    return this.getDocRepository().remove(doc)
+  }
+
+  private _isDocDeletable(doc: Doc): void {
+    if (doc.deletedAt === null) {
+      throw clientError(
+        'Can not delete document',
+        HttpErrName.NotAllowed,
+        HttpStatusCode.NotAllowed
+      )
+    }
   }
 
   async registerActivityForDocId(
