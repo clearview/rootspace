@@ -2,7 +2,6 @@
   <div class="w-full overflow-auto">
     <tree
       edge-scroll
-      edgeScrollTriggerMode="mouse"
       ref="tree"
       :class="{
         'tree': true,
@@ -33,13 +32,12 @@
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
       @cancel="modalClose"
-      @confirm="() => $refs.formUpdate.submit()"
+      @confirm="() => $refs.linkForm.submit()"
     >
       <div class="modal-body">
         <form-link
-          notitle
+          ref="linkForm"
           :value="modal.data"
-          ref="formUpdate"
           @submit="modalConfirm"
         />
       </div>
@@ -52,13 +50,12 @@
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
       @cancel="modalClose"
-      @confirm="() => $refs.formUpdate.submit()"
+      @confirm="() => $refs.taskForm.submit()"
     >
       <div class="modal-body">
         <form-task
-          notitle
+          ref="taskForm"
           :value="modal.data"
-          ref="formUpdate"
           @submit="modalConfirm"
         />
       </div>
@@ -82,7 +79,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { get, omit, last } from 'lodash'
+import { omit, last, pick } from 'lodash'
 
 import {
   Tree,
@@ -180,35 +177,32 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async updateContent (path: number[], node: Node) {
     switch (node.type) {
       case NodeType.Link:
-        return this.updateLink(node)
+        return this.updateLink(path, node)
 
       case NodeType.Task:
-        return this.updateTask(node)
+        return this.updateTask(path, node)
     }
   }
 
-  async updateLink (node: Node) {
+  async updateLink (path: number[], { contentId }: Node) {
     try {
-      await this.$store.dispatch('link/view', node.contentId)
+      await this.$store.dispatch('link/view', contentId)
 
       const data = await this.modalOpen(ModalType.UpdateLink, this.$store.state.link.item) as LinkResource
 
+      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
       await this.$store.dispatch('link/update', data)
     } catch { }
   }
 
-  async updateTask (node: Node) {
+  async updateTask (path: number[], { contentId }: Node) {
     try {
-      await this.$store.dispatch('task/board/view', node.contentId)
+      await this.$store.dispatch('task/board/view', contentId)
 
-      const board = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
+      const data = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
 
-      await this.$store.dispatch('task/board/update', {
-        id: board.id,
-        title: board.title,
-        isPublic: board.isPublic,
-        type: board.type
-      })
+      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
     } catch { }
   }
 
@@ -223,22 +217,30 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
-  async updateNode (path: number[], nextNode: Node) {
+  async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
     try {
-      const node = this.$refs.tree.getNodeByPath(path)
+      // Mutate node
+      const nextNode = Object.assign(
+        this.$refs.tree.getNodeByPath(path),
+        node
+      )
 
-      Object.assign(node, nextNode)
+      // Update store
+      this.treeData = this.$refs.tree.cloneTreeData()
 
-      await this.$store.dispatch('tree/update', node)
+      // Sync node update with api
+      if (!localOnly) {
+        await this.$store.dispatch('tree/update', nextNode)
+      }
     } catch { }
   }
 
   async updateNodePosition (path: number[], node: Node) {
     try {
-      const parent = get(this.treeData, path.slice(0, -1))
+      const parent = this.$refs.tree.getNodeParentByPath(path)
       const index = last(path) || 0
 
-      const data = omit(
+      const nextNode = omit(
         {
           ...node,
           parent: (parent && parent.id) || null,
@@ -247,7 +249,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         ['children', 'created', 'updated']
       )
 
-      await this.updateNode(path, data)
+      await this.updateNode(path, nextNode)
     } catch { }
   }
 
