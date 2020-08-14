@@ -18,7 +18,7 @@
       <div class="color"></div>
       <div class="card-item">
         <div class="header">
-          <div class="title">
+          <div class="title" ref="cardTitle">
             {{item.title}}
           </div>
           <div class="date" v-if="itemCopy.dueDate" :content="formatDateReadable(itemCopy.dueDate)" v-tippy>
@@ -26,7 +26,7 @@
           </div>
         </div>
         <div class="footer" v-if="isHasFooter(item)">
-          <div class="tags">
+          <div class="tags" ref="tagLists" :class="{ 'tags-margin': !isTitleMoreThanOneLine}">
             <ul>
               <li v-for="(tag, index) in itemCopy.tags" :key="index">
                 <div :style="{background: tag.color, color: textColor(tag.color)}" class="tag">
@@ -45,8 +45,8 @@
               </li>
             </ul>
           </div>
-          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
-            <li v-for="(assignee, index) in item.assignees.slice(0, 11)" :key="index" class="assignee">
+          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0" :class="{ 'assignees-margin' : isTagMoreThanOneLine }">
+            <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee">
               <avatar :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
             <li class="assignee more-assignee" v-if="hasMoreAssignee">
@@ -101,11 +101,19 @@ export default class TaskCard extends Vue {
     @Ref('dragBlock')
     private readonly dragBlock!: HTMLDivElement;
 
+    @Ref('tagLists')
+    private readonly tagListsRef!: HTMLDivElement;
+
+    @Ref('cardTitle')
+    private readonly cardTitleRef!: HTMLDivElement;
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
     private isDragBlocked = false
     private isShowingPlaceholder = true
+    private isTagMoreThanOneLine = false
+    private isTitleMoreThanOneLine = false
     private titleBackbone = ''
 
     private get isProcessing () {
@@ -164,11 +172,11 @@ export default class TaskCard extends Vue {
     }
 
     get hasMoreAssignee (): boolean {
-      return this.item.assignees ? this.item.assignees.length > 11 : false
+      return this.item.assignees ? this.item.assignees.length > 10 : false
     }
 
     get countMoreAssignee (): number {
-      return this.item.assignees ? this.item.assignees.length - 11 : 0
+      return this.item.assignees ? this.item.assignees.length - 10 : 0
     }
 
     openModal () {
@@ -232,6 +240,21 @@ export default class TaskCard extends Vue {
     @Watch('item')
     updateItem (val: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
       this.itemCopy = val
+
+      if (val.tags) {
+        Vue.nextTick(() => {
+          this.isTagMoreThanOneLine = false
+          this.isTitleMoreThanOneLine = false
+
+          if (this.tagListsRef && this.tagListsRef.clientHeight > 35) {
+            this.isTagMoreThanOneLine = true
+          }
+
+          if (this.cardTitleRef && this.cardTitleRef.clientHeight > 25) {
+            this.isTitleMoreThanOneLine = true
+          }
+        })
+      }
     }
 
     mounted () {
@@ -242,6 +265,12 @@ export default class TaskCard extends Vue {
           this.showModal = true
         }
       }
+
+      Vue.nextTick(() => {
+        if (this.cardTitleRef && this.cardTitleRef.clientHeight > 25) {
+          this.isTitleMoreThanOneLine = true
+        }
+      })
     }
 
     created () {
@@ -408,14 +437,18 @@ export default class TaskCard extends Vue {
         @apply flex-1 flex justify-start;
 
         float: left;
-        margin-top: 10px;
+        margin-top: 3px;
+
+        &.tags-margin {
+          margin-top: 13px;
+        }
 
         ul {
           @apply block;
 
           li {
             display: inline-block;
-            margin-top: 8px;
+            margin-top: 4px;
           }
 
           .tag {
@@ -454,7 +487,6 @@ export default class TaskCard extends Vue {
         @apply flex flex-wrap justify-start flex-row-reverse;
 
         float: right;
-        margin-top: 13px;
 
         .assignee {
           margin-top: 5px;
@@ -462,8 +494,8 @@ export default class TaskCard extends Vue {
 
         li {
           .vue-avatar--wrapper {
-            width: 26px !important;
-            height: 26px !important;
+            width: 28px !important;
+            height: 28px !important;
             font: 10px / 13px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
@@ -545,5 +577,9 @@ export default class TaskCard extends Vue {
     100% {
       transform: translateX(0%)
     }
+  }
+
+  .assignees-margin {
+    margin-top: 13px;
   }
 </style>

@@ -770,8 +770,8 @@ export default class TaskModal extends Vue {
       }
 
       .vue-avatar--wrapper {
-        width: 26px !important;
-        height: 26px !important;
+        width: 28px !important;
+        height: 28px !important;
         font: 10px / 13px theme("fontFamily.primary") !important;
         float: left;
         border: 2px solid #FFF;
@@ -859,11 +859,11 @@ export default class TaskModal extends Vue {
     padding-left: 6px;
 
     .vue-avatar--wrapper {
-      width: 26px !important;
-      height: 26px !important;
+      width: 24px !important;
+      height: 24px !important;
       font: 10px / 13px theme("fontFamily.primary") !important;
       float: left;
-      border: 2px solid #FFF;
+      border: 0;
       margin-left: -7px;
       letter-spacing: 0.03em;
     }
