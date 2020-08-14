@@ -23,19 +23,17 @@ router.get(
 router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 
 router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
-router.get(
-  '/notifications/:read?',
-  authenticate,
-  mapRoute(UsersCtrl, 'notifications')
-)
+router.get('/notifications/:read?', authenticate, mapRoute(UsersCtrl, 'notifications'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
 router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
-router.patch(
-  '/users/password',
-  authenticate,
-  mapRoute(UsersCtrl, 'changePassword')
-)
+router.patch('/users/password', authenticate, mapRoute(UsersCtrl, 'changePassword'))
 router.post('/users/password/recovery', mapRoute(UsersCtrl, 'passwordRecovery'))
 router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
+
+router.route('/users/settings/:spaceId?')
+  .get(authenticate, mapRoute(UsersCtrl, 'settings'))
+  .post(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
+  .put(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
+
 export { router as userRouter }
