@@ -97,4 +97,8 @@
       @apply bg-transparent;
     }
   }
+
+  .dragging > .tree-node-back > .tree-node > .tree-node-content {
+    @apply bg-gray-100;
+  }
 }

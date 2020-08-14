@@ -3,15 +3,16 @@
     <tree
       edge-scroll
       ref="tree"
+      v-model="treeData"
+      trigger-class="tree-node-handle"
       :class="{
         'tree': true,
         'tree--dragging': dragging
       }"
-      trigger-class="tree-node-handle"
       :indent="16"
-      v-model="treeData"
+      :ondragstart="startDragging"
+      :ondragend="endDragging"
       @change="change"
-      @drag="dragging = true"
       #default="{ node, path }"
     >
       <tree-node
@@ -166,6 +167,14 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   // Methods
 
+  startDragging () {
+    this.dragging = true
+  }
+
+  endDragging () {
+    this.dragging = false
+  }
+
   async fetch () {
     const spaceId = this.activeSpace.id
 
@@ -268,8 +277,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   async change (store: TreeStore) {
-    this.dragging = false
-
     if (store.pathChanged) {
       const path = store.targetPath || []
       const node = store.dragNode || {}
