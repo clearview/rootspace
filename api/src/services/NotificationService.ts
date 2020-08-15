@@ -54,13 +54,13 @@ export class NotificationService {
   async getUnreadNotification(event: ActivityEvent, follow: Follow): Promise<Notification> {
     return this.getNotificationRepository().getUnreadUserNotificationForEntity(
       follow.userId,
-      event.activity.id,
+      event.activity.entityId,
       event.activity.entity
     )
   }
 
   async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
-    const notifications = await this.getNotificationRepository().getNotificationsForEntities(taskIds, 'tasks')
+    const notifications = await this.getNotificationRepository().getNotificationsForEntities(taskIds, 'Task')
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }

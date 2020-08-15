@@ -40,7 +40,7 @@ export class UserSettingService {
       settings = await this.createSettings(userId, spaceId, data)
     }
 
-    settings.data = data
+    settings.preferences = data
 
     settings = await this.getUserSettingRepository().save(settings)
 
@@ -58,7 +58,7 @@ export class UserSettingService {
     }
 
     if (data) {
-      settings.data = data
+      settings.preferences = data
     }
 
     return this.getUserSettingRepository().save(settings)
