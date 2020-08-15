@@ -38,42 +38,22 @@ export class NodeService {
     return getCustomRepository(NodeRepository)
   }
 
-  getNodeById(
-    id: number,
-    spaceId: number = null,
-    options: any = {}
-  ): Promise<Node | undefined> {
+  getNodeById(id: number, spaceId: number = null, options: any = {}): Promise<Node | undefined> {
     return this.getNodeRepository().getById(id, spaceId, options)
   }
 
-  async requireNodeById(
-    id: number,
-    spaceId: number = null,
-    options: any = {}
-  ): Promise<Node> {
+  async requireNodeById(id: number, spaceId: number = null, options: any = {}): Promise<Node> {
     const node = await this.getNodeById(id, spaceId, options)
 
     if (!node) {
-      throw clientError(
-        'Node not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
+      throw clientError('Node not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     return node
   }
 
-  getNodeByContentId(
-    contentId: number,
-    type: NodeType,
-    options: any = {}
-  ): Promise<Node | undefined> {
-    return this.getNodeRepository().getByContentIdAndType(
-      contentId,
-      type,
-      options
-    )
+  getNodeByContentId(contentId: number, type: NodeType, options: any = {}): Promise<Node | undefined> {
+    return this.getNodeRepository().getByContentIdAndType(contentId, type, options)
   }
 
   getRootNodeBySpaceId(spaceId: number): Promise<Node> {
@@ -221,19 +201,11 @@ export class NodeService {
     }
 
     if (toPosition > fromPosition) {
-      await this.getNodeRepository().decreasePositions(
-        parentId,
-        fromPosition,
-        toPosition
-      )
+      await this.getNodeRepository().decreasePositions(parentId, fromPosition, toPosition)
     }
 
     if (toPosition < fromPosition) {
-      await this.getNodeRepository().increasePositions(
-        parentId,
-        toPosition,
-        fromPosition
-      )
+      await this.getNodeRepository().increasePositions(parentId, toPosition, fromPosition)
     }
 
     node.position = toPosition
@@ -241,11 +213,7 @@ export class NodeService {
     return this.getNodeRepository().save(node)
   }
 
-  async contentUpdated(
-    contentId: number,
-    type: NodeType,
-    data: IContentNodeUpdate
-  ): Promise<void> {
+  async contentUpdated(contentId: number, type: NodeType, data: IContentNodeUpdate): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
@@ -403,10 +371,7 @@ export class NodeService {
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)
 
-    await this.getNodeRepository().decreasePositions(
-      node.parentId,
-      node.position
-    )
+    await this.getNodeRepository().decreasePositions(node.parentId, node.position)
 
     return node
   }
@@ -430,44 +395,26 @@ export class NodeService {
 
   private isNodeArchivable(node: Node): boolean {
     if (node.type === NodeType.Root || node.type === NodeType.Archive) {
-      throw clientError(
-        'Can not archive node',
-        HttpErrName.NotAllowed,
-        HttpStatusCode.NotAllowed
-      )
+      throw clientError('Can not archive node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
 
     return true
   }
 
   private isNodeDeletable(node: Node): boolean {
-    if (
-      node.type === NodeType.Root ||
-      node.type === NodeType.Archive ||
-      node.deletedAt === null
-    ) {
-      throw clientError(
-        'Can not delete node',
-        HttpErrName.NotAllowed,
-        HttpStatusCode.NotAllowed
-      )
+    if (node.type === NodeType.Root || node.type === NodeType.Archive || node.deletedAt === null) {
+      throw clientError('Can not delete node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
 
     return true
   }
 
-  async registerActivityForNodeId(
-    nodeActivity: NodeActivities,
-    nodeId: number
-  ): Promise<Bull.Job> {
+  async registerActivityForNodeId(nodeActivity: NodeActivities, nodeId: number): Promise<Bull.Job> {
     const node = await this.getNodeById(nodeId)
     return this.registerActivityForNode(nodeActivity, node)
   }
 
-  async registerActivityForNode(
-    nodeActivity: NodeActivities,
-    node: Node
-  ): Promise<Bull.Job> {
+  async registerActivityForNode(nodeActivity: NodeActivities, node: Node): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(

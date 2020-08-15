@@ -56,11 +56,7 @@ export class NodeContentMediator implements INodeContentMediator {
     }
   }
 
-  async contentUpdated(
-    contentId: number,
-    nodeType: NodeType,
-    data: IContentNodeUpdate
-  ): Promise<void> {
+  async contentUpdated(contentId: number, nodeType: NodeType, data: IContentNodeUpdate): Promise<void> {
     return this.nodeService.contentUpdated(contentId, nodeType, data)
   }
 

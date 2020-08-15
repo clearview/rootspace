@@ -9,6 +9,16 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     return getCustomRepository(TaskRepository)
   }
 
+  getById(id: number, options: any = {}): Promise<TaskBoard | undefined> {
+    const query = this.createQueryBuilder('taskBoard').where('taskBoard.id = :id', { id })
+
+    if (options.withDeleted) {
+      query.withDeleted()
+    }
+
+    return query.getOne()
+  }
+
   getByTaskId(taskId: number): Promise<TaskBoard> {
     return this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
@@ -28,8 +38,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
 
-    queryBuilder
-      .orderBy('comment.createdAt', 'DESC')
+    queryBuilder.orderBy('comment.createdAt', 'DESC')
 
     return queryBuilder.getOne()
   }
@@ -44,9 +53,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
 
-    queryBuilder
-      .andWhere('task.deletedAt IS NULL')
-      .orderBy('comment.createdAt', 'DESC')
+    queryBuilder.andWhere('task.deletedAt IS NULL').orderBy('comment.createdAt', 'DESC')
 
     return queryBuilder.getOne()
   }
@@ -79,8 +86,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
   }
 
   async findOneArchived(id: number): Promise<TaskBoard> {
-    return this
-      .createQueryBuilder('taskBoard')
+    return this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .where('taskBoard.id = :id', { id })
       .withDeleted()

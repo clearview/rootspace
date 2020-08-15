@@ -67,7 +67,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async archive(req: Request, res: Response, next: NextFunction) {
+  async archive(req: Request, res: Response) {
     const taskBoardId = Number(req.params.id)
 
     const taskBoard = await this.taskBoardService.getById(taskBoardId)
@@ -77,7 +77,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(result)
   }
 
-  async restore(req: Request, res: Response, next: NextFunction) {
+  async restore(req: Request, res: Response) {
     const taskBoardId = Number(req.params.id)
 
     const taskBoard = await this.taskBoardService.getArchivedTaskBoardById(taskBoardId)
@@ -87,8 +87,8 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(result)
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
+  async delete(req: Request, res: Response) {
+    const taskBoard = await this.taskBoardService.requireById(Number(req.params.id), { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard)
 
     const result = await this.taskBoardService.remove(taskBoard.id)

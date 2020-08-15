@@ -166,26 +166,16 @@ export class DocService extends NodeContentService {
 
   private _isDocDeletable(doc: Doc): void {
     if (doc.deletedAt === null) {
-      throw clientError(
-        'Can not delete document',
-        HttpErrName.NotAllowed,
-        HttpStatusCode.NotAllowed
-      )
+      throw clientError('Can not delete document', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
   }
 
-  async registerActivityForDocId(
-    docActivity: DocActivities,
-    docId: number
-  ): Promise<Bull.Job> {
+  async registerActivityForDocId(docActivity: DocActivities, docId: number): Promise<Bull.Job> {
     const doc = await this.getById(docId)
     return this.registerActivityForDoc(docActivity, doc)
   }
 
-  async registerActivityForDoc(
-    docActivity: DocActivities,
-    doc: Doc
-  ): Promise<Bull.Job> {
+  async registerActivityForDoc(docActivity: DocActivities, doc: Doc): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
