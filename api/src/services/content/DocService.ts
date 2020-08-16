@@ -89,11 +89,11 @@ export class DocService extends NodeContentService {
     return this.getDocRepository().reload(doc)
   }
 
-  async archive(docId: number): Promise<Doc> {
-    let doc = await this.getById(docId)
+  async archive(id: number): Promise<Doc> {
+    let doc = await this.getById(id)
     doc = await this._archive(doc)
 
-    await this.nodeService.contentArchived(docId, this.getNodeType())
+    await this.nodeContentMediator.contentArchived(doc.id, this.getNodeType())
 
     return doc
   }
@@ -108,11 +108,11 @@ export class DocService extends NodeContentService {
     await this._archive(doc)
   }
 
-  private async _archive(doc: Doc): Promise<Doc> {
-    const node = await this.getDocRepository().softRemove(doc)
-    await this.registerActivityForDoc(DocActivities.Archived, node)
+  private async _archive(_doc: Doc): Promise<Doc> {
+    const doc = await this.getDocRepository().softRemove(_doc)
+    await this.registerActivityForDoc(DocActivities.Archived, doc)
 
-    return node
+    return doc
   }
 
   async restore(docId: number): Promise<Doc> {

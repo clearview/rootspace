@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm'
 
 @Entity('links')
@@ -26,7 +27,7 @@ export class Link {
   @Column('varchar', { length: 150 })
   value: string
 
-  @Column('boolean', { default: 'false'})
+  @Column('boolean', { default: 'false' })
   newTab: boolean
 
   @CreateDateColumn()
@@ -34,4 +35,7 @@ export class Link {
 
   @UpdateDateColumn()
   updated: string
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
+  public deletedAt: Date
 }

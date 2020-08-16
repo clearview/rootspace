@@ -20,11 +20,7 @@ export class LinksCtrl extends BaseCtrl {
     const link = await this.linkSrvice.getLinkById(Number(req.params.id))
 
     if (!link) {
-      throw clientError(
-        'Not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
+      throw clientError('Not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
@@ -58,8 +54,24 @@ export class LinksCtrl extends BaseCtrl {
     res.send(resData)
   }
 
+  async archive(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.linkSrvice.archive(id)
+
+    res.send(this.responseData(result))
+  }
+
+  async restore(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.linkSrvice.restore(id)
+
+    res.send(this.responseData(result))
+  }
+
   public async delete(req: Request, res: Response, next: NextFunction) {
-    const link = await this.linkSrvice.remove(Number(req.params.id))
+    const id = Number(req.params.id)
+    const link = await this.linkSrvice.remove(id)
+
     res.send(this.responseData(link))
   }
 }
