@@ -257,6 +257,7 @@ export default class FormSpace extends Vue {
         float: left;
         border: 2px solid #FFF;
         letter-spacing: 0.03em;
+        color: #fff !important;
       }
 
       .not-accepted {

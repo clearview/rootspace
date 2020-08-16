@@ -25,8 +25,8 @@
             {{ formatDate(itemCopy.dueDate) }}
           </div>
         </div>
-        <div class="footer" v-if="isHasFooter(item)">
-          <div class="tags" ref="tagLists" :class="{ 'tags-margin': !isTitleMoreThanOneLine}">
+        <div class="footer" v-if="isHasFooter(item)" :class="{ 'tags-margin': !isTitleMoreThanOneLine}">
+          <div class="tags" ref="tagLists">
             <ul>
               <li v-for="(tag, index) in itemCopy.tags" :key="index">
                 <div :style="{background: tag.color, color: textColor(tag.color)}" class="tag">
@@ -406,7 +406,7 @@ export default class TaskCard extends Vue {
       .date {
         @apply flex-none rounded py-1 self-start;
 
-        background: theme("colors.gray.100");
+        background: #EFF1F6;
         font-size: 10px;
         line-height: 12px;
         letter-spacing: 0.03em;
@@ -433,15 +433,15 @@ export default class TaskCard extends Vue {
       @apply block;
       width: 240px;
 
+      &.tags-margin {
+        margin-top: 8px;
+      }
+
       .tags {
         @apply flex-1 flex justify-start;
 
         float: left;
         margin-top: 3px;
-
-        &.tags-margin {
-          margin-top: 13px;
-        }
 
         ul {
           @apply block;
@@ -501,6 +501,7 @@ export default class TaskCard extends Vue {
             border: 2px solid #FFF;
             letter-spacing: 0.03em;
             margin-left: -7px;
+            color: #fff !important;
           }
         }
 

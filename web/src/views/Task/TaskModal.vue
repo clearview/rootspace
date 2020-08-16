@@ -150,6 +150,19 @@
           </div>
         </div>
         <div class="right-field">
+          <div class="right-field-title">Tags</div>
+          <div class="right-field-content">
+            <ul class="tags" v-if="item.tags && item.tags.length > 0">
+              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}">
+                <span>{{tag.label}}</span>
+              </li>
+            </ul>
+            <template v-else>
+              <span>None</span>
+            </template>
+          </div>
+        </div>
+        <div class="right-field">
           <div class="right-field-title">Attachments</div>
           <div class="right-field-content">
             <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">
@@ -171,6 +184,15 @@
             <template v-else>
               <span>None</span>
             </template>
+          </div>
+        </div>
+        <div class="right-field">
+          <div class="right-field-title">Actions</div>
+          <div class="right-field-content">
+            <button class="archive-button" @click="archiveTask(itemCopy.id)">
+              <v-icon name="archive" viewbox="18" size="1rem"/>
+              <span>Archive</span>
+            </button>
           </div>
         </div>
       </div>
@@ -486,6 +508,14 @@ export default class TaskModal extends Vue {
         document.execCommand('insertText', false, data)
       }
     }
+
+    async archiveTask (taskId: number) {
+      this.close()
+
+      await this.$store.dispatch('task/item/archiveTask', {
+        taskId: taskId
+      })
+    }
 }
 </script>
 
@@ -777,6 +807,7 @@ export default class TaskModal extends Vue {
         border: 2px solid #FFF;
         margin-left: -7px;
         letter-spacing: 0.03em;
+        color: #fff !important;
       }
     }
 
@@ -866,6 +897,7 @@ export default class TaskModal extends Vue {
       border: 0;
       margin-left: -7px;
       letter-spacing: 0.03em;
+      color: #fff !important;
     }
 
     .label {
@@ -877,9 +909,28 @@ export default class TaskModal extends Vue {
     }
   }
 
+  .archive-button {
+    @apply flex items-center;
+
+    background: #EFF1F6;
+    color: theme("colors.gray.900");
+    padding: 8px;
+    padding-right: 12px;
+    border-radius: 4px;
+
+    span {
+      margin-left: 8px;
+    }
+
+    &:hover {
+      background: theme("colors.gray.100");
+      color: theme("colors.gray.900");
+    }
+  }
+
 </style>
 
-<style>
+<style lang="postcss">
 .ql-editor, .description-content {
   line-height: 1.5rem;
   font-size: 15px;
@@ -929,9 +980,7 @@ export default class TaskModal extends Vue {
     }
   }
 }
-</style>
 
-<style lang="postcss">
 .assignees {
   .popover-container {
     margin-top: 2px;

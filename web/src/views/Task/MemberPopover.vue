@@ -120,6 +120,7 @@ export default class TagsPopover extends Vue {
       float: left;
       border: 0;
       letter-spacing: 0.03em;
+      color: #fff !important;
     }
 
     span {

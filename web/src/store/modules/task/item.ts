@@ -213,6 +213,32 @@ if (item.actions) {
 
     return res
   }
+  item.actions.archiveTask = async ({ commit }, params: { taskId: number }) => {
+    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          let taskIndex = -1
+
+          list.tasks = list.tasks.map(task => {
+            if (task.id === params.taskId) {
+              taskIndex = list.tasks.indexOf(task)
+            }
+
+            return task
+          })
+
+          list.tasks.splice(taskIndex, 1)
+          return list
+        })
+      }
+    }, { root: true })
+
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/archive`)
+    commit('setProcessing', false)
+
+    return res
+  }
 }
 
 export default item
