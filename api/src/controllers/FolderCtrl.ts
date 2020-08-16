@@ -2,10 +2,7 @@ import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { NodeService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import {
-  validateFolderCreate,
-  validateFolderUpdate,
-} from '../validation/folder'
+import { validateFolderCreate, validateFolderUpdate } from '../validation/folder'
 import { NodeCreateValue, NodeUpdateValue } from '../values/node'
 import { NodeType } from '../types/node'
 
@@ -47,8 +44,23 @@ export class FolderCtrl extends BaseCtrl {
     res.send(this.responseData(node))
   }
 
+  async archive(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.nodeService.archive(id)
+
+    res.send(this.responseData(result))
+  }
+
+  async restore(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.nodeService.restore(id)
+
+    res.send(this.responseData(result))
+  }
+
   async delete(req: Request, res: Response) {
-    const node = await this.nodeService.remove(Number(req.params.id))
+    const id = Number(req.params.id)
+    const node = await this.nodeService.remove(id)
     res.send(this.responseData(node))
   }
 }
