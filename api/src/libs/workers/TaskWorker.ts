@@ -1,11 +1,10 @@
 import 'dotenv/config'
 import { config } from 'node-config-ts'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { FollowService, MailService, TaskService, UserService } from '../../services'
+import { FollowService, MailService, NotificationService, TaskService, UserService } from '../../services'
 import { TaskActivities } from '../../database/entities/activities/TaskActivities'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 import { Follow } from '../../database/entities/Follow'
-import { Notification } from '../../database/entities/Notification'
 import { DeleteResult } from 'typeorm/index'
 import pug from 'pug'
 import { UserSettingService } from '../../services/UserSettingService'
@@ -16,12 +15,14 @@ export class TaskWorker {
 
   private static instance: TaskWorker
   private followService: FollowService
+  private notificationService: NotificationService
   private mailService: MailService
   private userService: UserService
   private taskService: TaskService
 
   private constructor() {
     this.followService = ServiceFactory.getInstance().getFollowService()
+    this.notificationService = NotificationService.getInstance()
     this.mailService = ServiceFactory.getInstance().getMailService()
     this.userService = ServiceFactory.getInstance().getUserService()
     this.taskService = TaskService.getInstance()
@@ -35,9 +36,15 @@ export class TaskWorker {
     return TaskWorker.instance
   }
 
+  /**
+   * Note: All processes dependant on `followService.shouldReceiveNotification` for 'back-off'
+   * should be called before creation actual notification
+   */
   async process(event: ActivityEvent): Promise<void> {
-    await this.notifyFollowers(event)
     await this.emailFollowers(event)
+
+    // Create notification in the database
+    await this.notifyFollowers(event)
 
     switch (event.action) {
       case TaskActivities.Created:
@@ -57,15 +64,13 @@ export class TaskWorker {
     return this.followService.removeFollowsFromActivity(event)
   }
 
-  async notifyFollowers(event: ActivityEvent): Promise<Notification[]> {
-    return this.followService.createNotifications(event)
-  }
-
   async emailFollowers(event: ActivityEvent): Promise<void> {
-    const follows = await this.followService.getFollows(event)
-    const userIds = follows.map((follow) => follow.userId)
+    const followerUserIds = await this.followService.getFollowerIds(event)
 
-    for (const userId of userIds) {
+    for (const userId of followerUserIds) {
+      const shouldReceiveNotification  = await this.followService.shouldReceiveNotification(userId, event)
+      if (!shouldReceiveNotification) { break }
+
       const userSetting = await UserSettingService.getInstance().getSettings(userId, event.spaceId)
 
       if (userSetting && userSetting.preferences.notifications?.email === true) {
@@ -91,5 +96,19 @@ export class TaskWorker {
     await this.mailService.sendMail(user.email, subject, content)
 
     return true
+  }
+
+  async notifyFollowers(event: ActivityEvent): Promise<void> {
+    const followerUserIds = await this.followService.getFollowerIds(event)
+
+    for (const userId of followerUserIds) {
+      const shouldReceiveNotification  = await this.followService.shouldReceiveNotification(userId, event)
+      if (!shouldReceiveNotification) { break }
+
+      event.userId = userId
+
+      const notification = await this.notificationService.create(event)
+      await this.notificationService.save(notification)
+    }
   }
 }

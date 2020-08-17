@@ -48,6 +48,12 @@ export class FollowService {
     return follows.filter((follow) => { return follow.userId !== activity.actorId})
   }
 
+  async getFollowerIds(event: ActivityEvent): Promise<number[]> {
+    const follows = await this.getFollows(event)
+
+    return follows.map((follow) => follow.userId)
+  }
+
   async followFromRequest(userId: number, entity: any): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     return this.follow(user, entity)
@@ -113,23 +119,10 @@ export class FollowService {
     })
   }
 
-  async createNotifications(activity: ActivityEvent): Promise<Notification[]> {
-    const follows = await this.getFollows(activity)
+  async shouldReceiveNotification(userId: number, activity: ActivityEvent): Promise<boolean> {
+    const unreadNotification = await this.notificationService.getUnreadNotification(userId, activity)
 
-    const notifications = []
-
-    for (const follow of follows) {
-       const unreadNotification = await this.notificationService.getUnreadNotification(activity, follow)
-       if (unreadNotification) { break }
-
-      activity.userId = follow.userId
-
-      const notification = await this.notificationService.create(activity)
-
-      notifications.push(notification)
-    }
-
-    return this.notificationService.save(notifications)
+    return !unreadNotification
   }
 
   async removeFollowsFromActivity(activity: ActivityEvent): Promise<DeleteResult | void> {

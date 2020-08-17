@@ -47,13 +47,13 @@ export class NotificationService {
     return this.getNotificationRepository().save(notification)
   }
 
-  save(notifications: Notification[]): Promise<Notification[]> {
-    return this.getNotificationRepository().save(notifications)
+  save(notification: Notification): Promise<Notification> {
+    return this.getNotificationRepository().save(notification)
   }
 
-  async getUnreadNotification(event: ActivityEvent, follow: Follow): Promise<Notification> {
+  async getUnreadNotification(userId: number, event: ActivityEvent): Promise<Notification> {
     return this.getNotificationRepository().getUnreadUserNotificationForEntity(
-      follow.userId,
+      userId,
       event.activity.entityId,
       event.activity.entity
     )
