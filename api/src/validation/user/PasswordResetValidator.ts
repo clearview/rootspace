@@ -5,7 +5,7 @@ export class PasswordResetValidator extends BaseValidator {
   rules() {
     return {
       token: 'required',
-      password: 'required|min:8|confirmed|compromised',
+      password: 'required|min:8|confirmed|compromisedPassword',
       password_confirmation: 'required|min:8',
     }
   }
