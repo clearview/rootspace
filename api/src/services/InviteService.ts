@@ -60,6 +60,10 @@ export class InviteService {
     return await this.getInviteRepository().save(invite)
   }
 
+  async cancel(invite: Invite) {
+    return this.getInviteRepository().remove(invite)
+  }
+
   async createWithEmail(email: string, space: Space): Promise<Invite> {
     let invite = await this.getInvite(email, space.id)
 

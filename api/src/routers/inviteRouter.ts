@@ -7,6 +7,7 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 router.post('/invites/create', mapRoute(InviteCtrl, 'create'))
+router.delete('/invites/cancel/:inviteId', mapRoute(InviteCtrl, 'cancel'))
 router.post('/invites/accept', mapRoute(InviteCtrl, 'accept'))
 
 export { router as inviteRouter }

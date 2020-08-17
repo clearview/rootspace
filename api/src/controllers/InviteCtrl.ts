@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services/InviteService'
 import {
-  validateInviteAccept,
+  validateInviteAccept, validateInviteCancel,
   validateInviteCreate,
 } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
@@ -32,6 +32,15 @@ export class InviteCtrl extends BaseCtrl {
     } catch (err) {
       next(err)
     }
+  }
+
+  async cancel(req: Request, res: Response, next: NextFunction) {
+    const invites = await this.inviteFacade.cancel(
+      Number(req.params.inviteId)
+    )
+
+    const resData = this.responseData(invites)
+    res.send(resData)
   }
 
   async accept(req: Request, res: Response, next: NextFunction) {
