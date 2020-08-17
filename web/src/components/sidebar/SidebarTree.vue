@@ -269,10 +269,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
     const node = this.$refs.tree.getNodeByPath(path)
 
-    this.$refs.tree.toggleFold(node, path)
     this.$store.commit('tree/updateFolded', {
       index: path.join('.'),
-      value: node.$folded
+      value: !node.$folded
     })
   }
 

@@ -19,7 +19,7 @@
       class="tree-node-arrow"
       :class="{
         'is-hidden': !hasChildren,
-        'is-folded': isFolded
+        'is-folded': folded
       }"
       @click.stop.prevent="toggleFold"
     >
@@ -181,8 +181,10 @@ export default class SidebarTreeNode extends Vue {
     return children && children.length > 0
   }
 
-  get isFolded () {
-    return this.payload.$folded
+  get folded (): boolean {
+    const index = this.path.join('.')
+
+    return this.$store.state.tree.folded[index] === true
   }
 
   get canEdit () {
