@@ -225,7 +225,7 @@ export class TaskBoardService extends NodeContentService {
 
   async remove(id: number) {
     const taskBoard = await this.requireById(id, { withDeleted: true })
-    this._isTaskBoardDeletable(taskBoard)
+    // this._isTaskBoardDeletable(taskBoard)
 
     await this.getTaskBoardRepository().remove(taskBoard)
 

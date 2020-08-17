@@ -140,7 +140,7 @@ export class LinkService extends NodeContentService {
 
   async remove(id: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
-    this._isLinkDeletable(link)
+    // this._isLinkDeletable(link)
 
     link = await this.getLinkRepository().remove(link)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())

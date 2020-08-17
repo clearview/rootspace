@@ -366,7 +366,7 @@ export class NodeService {
   }
 
   private async _remove(node: Node): Promise<Node> {
-    this.isNodeDeletable(node)
+    // this.isNodeDeletable(node)
 
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)

@@ -143,8 +143,8 @@ export class DocService extends NodeContentService {
 
   async remove(id: number) {
     let doc = await this.requireById(id, { withDeleted: true })
+    // this._isDocDeletable(doc)
 
-    this._isDocDeletable(doc)
     doc = await this._remove(doc)
 
     await this.registerActivityForDoc(DocActivities.Deleted, doc)
