@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
-import { find, get } from 'lodash'
+import { find } from 'lodash'
 
 import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
 
@@ -102,7 +102,10 @@ type ComponentData = {
   emailNotifications: boolean;
   loadingMessage: string;
   isLoading: boolean;
-  spaceData: object;
+  spaceData: {
+    title: string;
+    invites: UserResource[];
+  };
   spaceUsersObj: object;
   spaceUsersPendingObj: object;
   account: {
@@ -134,7 +137,11 @@ export default class Settings extends Mixins(PageMixin) {
     private emailNotifications = true;
     private loadingMessage = 'Update Settings...';
     private isLoading = false;
-    private spaceData = {};
+    private spaceData: {
+      title?: string;
+      invites?: any[];
+    } = {}
+
     private spaceUsersObj = {};
     private spaceUsersPendingObj = {};
     private account: any = {
@@ -227,7 +234,12 @@ export default class Settings extends Mixins(PageMixin) {
           spaceId: this.activeSpace.id,
           emails: [email]
         }
-        await UserService.addInvitation(payload)
+        const res = await UserService.addInvitation(payload)
+        if (this.spaceData.invites) {
+          if (!this.spaceData.invites.find(invite => invite.email === res.data.data[0].email)) {
+            this.spaceData.invites.push(res.data.data[0])
+          }
+        }
       } catch (err) {
         if (err.code === 405) {
           this.space.error = true
@@ -239,30 +251,52 @@ export default class Settings extends Mixins(PageMixin) {
     }
 
     async deleteSpaceUser (email: string) {
-      const getUser = find(this.spaceUsersObj, ['email', email])
+      const user = find(this.spaceData.invites, ['email', email])
+      // Accepted user doesn't have tokens
+      if (!user.token) {
+        window.app.confirm('Remove User From Space', `Remove ${email} from the space?`, async () => {
+          this.isLoading = true
+          this.loadingMessage = 'Remove user from space...'
 
-      if (getUser) {
-        this.isLoading = true
-        this.loadingMessage = 'Remove user from space...'
-
-        try {
-          const getUserId = get(getUser, 'id')
-          await SpaceService.removeUser(this.activeSpace.id, getUserId)
-
-          if (this.currentUser.id === getUserId) {
-            await this.$store.dispatch('auth/whoami', { updateSpace: true })
-          } else {
-            const id = this.activeSpace.id
-            this.viewSpace(id)
+          try {
+            await SpaceService.removeUser(this.activeSpace.id, user.id)
+            if (this.currentUser.id === user.id) {
+              await this.$store.dispatch('auth/whoami', { updateSpace: true })
+            } else {
+              const id = this.activeSpace.id
+              this.viewSpace(id)
+            }
+          } catch (err) {
+            if (err.code === 405) {
+              this.space.error = true
+              this.space.errorMessage = err.message
+            }
+          } finally {
+            this.isLoading = false
           }
-        } catch (err) {
-          if (err.code === 405) {
-            this.space.error = true
-            this.space.errorMessage = err.message
+        })
+      } else {
+        window.app.confirm('Cancel Invitation', `Cancel ${email} invitation to the space?`, async () => {
+          this.isLoading = true
+          this.loadingMessage = 'Remove user from space...'
+
+          try {
+            await SpaceService.cancelUser(this.activeSpace.id, user.id)
+            if (this.currentUser.id === user.id) {
+              await this.$store.dispatch('auth/whoami', { updateSpace: true })
+            } else {
+              const id = this.activeSpace.id
+              this.viewSpace(id)
+            }
+          } catch (err) {
+            if (err.code === 405) {
+              this.space.error = true
+              this.space.errorMessage = err.message
+            }
+          } finally {
+            this.isLoading = false
           }
-        } finally {
-          this.isLoading = false
-        }
+        })
       }
     }
 
