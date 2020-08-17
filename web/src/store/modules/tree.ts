@@ -15,8 +15,7 @@ const TreeModule: Module<TreeState, RootState> = {
   state () {
     return {
       list: [],
-      folded: {},
-      active: null
+      folded: {}
     }
   },
 
@@ -24,13 +23,13 @@ const TreeModule: Module<TreeState, RootState> = {
     setList (state, list) {
       state.list = list
     },
-    setActive (state, link) {
-      state.active = link
+    setFolded (state, folded) {
+      state.folded = folded
     },
-    setFolded (state, path) {
+    updateFolded (state, { index, value }) {
       state.folded = {
         ...state.folded,
-        ...path
+        [index]: value
       }
     }
   },

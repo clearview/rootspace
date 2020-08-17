@@ -1,73 +1,30 @@
 <template>
-  <div class="sidebar-items">
-    <v-tree
-      class="tree"
-      triggerClass="tree-node-handle"
+  <div class="w-full overflow-auto">
+    <tree
+      edge-scroll
+      ref="tree"
+      v-model="treeData"
+      trigger-class="tree-node-handle"
+      :class="{
+        'tree': true,
+        'tree--dragging': dragging
+      }"
       :indent="16"
-      :value="treeData"
-      @drop="updateNode({ node: $event.dragNode, path: $event.targetPath, tree: $event.targetTree })"
-      #default="{ node, path, tree }"
+      :ondragstart="startDragging"
+      :ondragend="endDragging"
+      @change="change"
+      #default="{ node, path }"
     >
-      <router-link
-        :to="getNodeURL({ node })"
-        class="tree-node-content"
-        :class="{
-          'is-editable': !locked,
-        }"
-        active-class="is-active"
-      >
-        <div class="tree-node-handle">
-          <v-icon
-            name="dots"
-            size="20px"
-          />
-        </div>
-        <div
-          class="tree-node-arrow"
-          :class="{
-            'is-hidden': !hasChildren(node),
-            'is-folded': node.$folded
-          }"
-          @click.stop="toggleFold({ node, path, tree })"
-        >
-          <v-icon name="down" />
-        </div>
-        <div class="tree-node-icon">
-          <v-icon :name="iconName[node.type]" />
-        </div>
-        <div class="tree-node-text">
-          <span
-            v-show="!isSelected(path)"
-            v-text="node.title"
-            class="truncate"
-            @dblclick="!locked && select(path)"
-          />
-          <input
-            v-show="isSelected(path)"
-            v-model="node.title"
-            @change="updateNode({ node, path, tree })"
-            @keydown.esc="select(null)"
-          />
-        </div>
-        <div class="tree-node-actions">
-          <button
-            v-if="node.type === 'link'"
-            @click="updateLink({ node, path, tree })"
-          >
-            <v-icon name="link-edit" />
-          </button>
-          <button
-            v-if="node.type === 'taskBoard'"
-            @click="updateTask({ node, path, tree })"
-          >
-            <v-icon name="link-edit" />
-          </button>
-          <button @click="destroyNode({ node, path, tree })">
-            <v-icon name="trash" />
-          </button>
-        </div>
-      </router-link>
-    </v-tree>
+      <tree-node
+        :value="node"
+        :path="path"
+        :editable="!locked"
+        @content:update="updateContent"
+        @node:update="updateNode"
+        @node:remove="removeNode"
+        @node:fold:toggle="toggleNodeFold"
+      />
+    </tree>
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -75,15 +32,14 @@
       :visible="modal.visible"
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
-      @cancel="$emit('modal:cancel')"
-      @confirm="() => $refs.formUpdate.submit()"
+      @cancel="modalClose"
+      @confirm="() => $refs.linkForm.submit()"
     >
       <div class="modal-body">
         <form-link
-          notitle
+          ref="linkForm"
           :value="modal.data"
-          ref="formUpdate"
-          @submit="$emit('modal:confirm', $event)"
+          @submit="modalConfirm"
         />
       </div>
     </modal>
@@ -94,15 +50,14 @@
       :visible="modal.visible"
       :loading="modal.loading"
       :contentStyle="{ width: '456px' }"
-      @cancel="$emit('modal:cancel')"
-      @confirm="() => $refs.formUpdate.submit()"
+      @cancel="modalClose"
+      @confirm="() => $refs.taskForm.submit()"
     >
       <div class="modal-body">
         <form-task
-          notitle
+          ref="taskForm"
           :value="modal.data"
-          ref="formUpdate"
-          @submit="$emit('modal:confirm', $event)"
+          @submit="modalConfirm"
         />
       </div>
     </modal>
@@ -113,8 +68,8 @@
       :visible="modal.visible"
       :loading="modal.loading"
       confirmText="Yes"
-      @cancel="$emit('modal:cancel')"
-      @confirm="$emit('modal:confirm')"
+      @cancel="modalClose"
+      @confirm="modalConfirm"
     >
       <div class="modal-body text-center">
         Are you sure you want to delete this item?
@@ -124,23 +79,38 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { Tree, Draggable, Fold, Node, walkTreeData } from 'he-tree-vue'
-import { Dictionary } from 'vue-router/types/router'
+import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { omit, last, pick, findKey, pickBy } from 'lodash'
 
 import {
-  SpaceMetaResource,
+  Tree,
+  Draggable,
+  Fold,
+  Node,
+  Store as TreeStore,
+  walkTreeData,
+  getPureTreeData
+} from 'he-tree-vue'
+
+import {
   LinkResource,
-  NodeResource,
   TaskBoardResource,
   SpaceResource
 } from '@/types/resource'
 
-import { TreeState } from '@/types/state'
+import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 
-import Modal from '@/components/Modal.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+
+import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
+
+enum NodeType {
+  Link = 'link',
+  Doc = 'doc',
+  Task = 'taskBoard',
+  Folder = 'folder'
+}
 
 enum ModalType {
   UpdateLink = 'UpdateLink',
@@ -148,221 +118,215 @@ enum ModalType {
   Destroy = 'Destroy'
 }
 
-interface ModalState {
-  visible: boolean;
-  loading: boolean;
-  type: ModalType | null;
-  data: object | null;
-}
-
-interface NodeContext {
-  node: Node & NodeResource;
-  path: number[];
-  tree: Tree & Fold & Draggable;
-}
-
-const VTree = Vue.extend({
-  name: 'Tree',
-  extends: Tree,
-  mixins: [Draggable, Fold]
-})
-
 @Component({
   name: 'SidebarTree',
   components: {
-    VTree,
+    Tree: Mixins(Tree, Fold, Draggable),
+    TreeNode,
     Modal,
     FormLink,
     FormTask
   }
 })
-export default class SidebarTree extends Vue {
+export default class SidebarTree extends Mixins(ModalMixin) {
+  $refs!: {
+    tree: Tree & Fold & Draggable;
+  }
+
+  // Props
+
   @Prop(Boolean)
-  private readonly locked!: boolean
+  readonly locked!: boolean
 
-  private selected: string | null = null
-  private treeData: NodeResource[] = []
+  // State
 
-  private modal: ModalState = {
-    visible: false,
-    loading: false,
-    type: null,
-    data: null
-  }
+  dragging = false
 
-  get treeState (): TreeState {
-    return this.$store.state.tree
-  }
-
-  get iconName () {
-    return {
-      doc: 'file',
-      folder: 'folder',
-      link: 'link',
-      taskBoard: 'file'
-    }
-  }
-
-  get nodeTypeRouteMap (): { [key: string]: string } {
-    return {
-      link: 'Link',
-      doc: 'Document',
-      taskBoard: 'TaskPage'
-    }
-  }
+  // Computed
 
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
   }
 
-  get activeSpaceMeta (): SpaceMetaResource {
-    return this.$store.getters['space/activeSpaceMeta']
-  }
-
-  fetchTreeData () {
-    const { list, folded } = this.treeState
+  get treeData (): Node[] {
+    const state = this.$store.state.tree
+    const list = [...state.list]
 
     walkTreeData(list, (node, index, parent, path) => {
-      node.$folded = folded[path.join('.')] === true
+      const key = path.join('.')
+
+      node.$folded = state.folded[key] === true
     })
 
-    this.treeData = [...list]
+    return list
   }
 
-  hasChildren (link: LinkResource) {
-    return link.children && link.children.length > 0
+  set treeData (data: Node[]) {
+    this.$store.commit('tree/setList', getPureTreeData(data))
   }
 
-  select (path: number[] | null) {
-    this.selected = !path ? path : path.join('.')
+  // Methods
+
+  startDragging () {
+    this.dragging = true
   }
 
-  isSelected (path: number[]) {
-    return this.selected === path.join('.')
+  endDragging () {
+    this.dragging = false
   }
 
-  toggleFold ({ node, path, tree }: NodeContext) {
-    tree.toggleFold(node, path)
+  async fetch () {
+    const spaceId = this.activeSpace.id
 
-    this.$store.commit('tree/setFolded', {
-      [path.join('.')]: node.$folded === true
-    })
+    try {
+      await this.$store.dispatch('tree/fetch', { spaceId })
+
+      this.updateFold()
+    } catch { }
   }
 
-  getNodeURL ({ node }: Pick<NodeContext, 'node'>) {
-    const name = this.nodeTypeRouteMap[node.type]
-    const params: Dictionary<string> = {}
+  async updateContent (path: number[], node: Node) {
+    switch (node.type) {
+      case NodeType.Link:
+        return this.updateLink(path, node)
 
-    if (node.contentId) {
-      params.id = node.contentId.toString()
+      case NodeType.Task:
+        return this.updateTask(path, node)
     }
-
-    const { href } = this.$router.resolve({
-      name,
-      params
-    })
-
-    return href
   }
 
-  async updateLink ({ node }: NodeContext) {
+  async updateLink (path: number[], { contentId }: Node) {
     try {
-      await this.$store.dispatch('link/view', node.contentId)
+      await this.$store.dispatch('link/view', contentId)
 
-      const list = await this.modalOpen(ModalType.UpdateLink, this.$store.state.link.item)
+      const data = await this.modalOpen(ModalType.UpdateLink, this.$store.state.link.item) as LinkResource
 
-      await this.$store.dispatch('link/update', list)
+      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.$store.dispatch('link/update', data)
     } catch { }
   }
 
-  async updateTask ({ node }: NodeContext) {
+  async updateTask (path: number[], { contentId }: Node) {
     try {
-      await this.$store.dispatch('task/board/view', node.contentId)
+      await this.$store.dispatch('task/board/view', contentId)
 
-      const board = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
+      const data = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
 
-      await this.$store.dispatch('task/board/update', {
-        id: board.id,
-        title: board.title,
-        isPublic: board.isPublic,
-        type: board.type
-      })
+      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
     } catch { }
   }
 
-  async updateNode ({ node, path, tree }: NodeContext) {
-    try {
-      const parent = tree.getNodeParentByPath(path)
-      const position = path.slice(-1).pop() || 0
-
-      const data = {
-        ...node,
-        parent: (parent && parent.id) || null,
-        position: position + 1,
-        children: undefined,
-        created: undefined,
-        updated: undefined
-      }
-
-      this.select(null)
-
-      await this.$store.dispatch('tree/update', data)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-    } catch { }
-  }
-
-  async destroyNode ({ node }: NodeContext) {
+  async removeNode (path: number[], node: Node) {
     try {
       await this.modalOpen(ModalType.Destroy)
 
+      this.$refs.tree.removeNodeByPath(path)
+      this.treeData = this.$refs.tree.cloneTreeData()
+
       await this.$store.dispatch('tree/destroy', node)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     } catch { }
   }
 
-  async modalOpen (type: ModalType, data?: object) {
-    this.modal = {
-      ...this.modal,
-      visible: true,
-      data: data || null,
-      type
-    }
+  async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
+    try {
+      // Mutate node
+      const nextNode = Object.assign(
+        this.$refs.tree.getNodeByPath(path),
+        node
+      )
 
-    return new Promise((resolve, reject) => {
-      this.$once('modal:cancel', () => {
-        this.modal.visible = false
+      // Update store
+      this.treeData = this.$refs.tree.cloneTreeData()
 
-        reject(new Error('Cancel'))
-      })
-
-      this.$once('modal:confirm', (data: object) => {
-        this.modal.visible = false
-
-        resolve(data)
-      })
-    })
+      // Sync node update with api
+      if (!localOnly) {
+        await this.$store.dispatch('tree/update', nextNode)
+      }
+    } catch { }
   }
 
-  @Watch('activeSpace')
-  async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
-    if (space.id === prevSpace.id) {
+  async updateNodePosition (path: number[], node: Node) {
+    try {
+      const parent = this.$refs.tree.getNodeParentByPath(path)
+      const index = last(path) || 0
+
+      const nextNode = omit(
+        {
+          ...node,
+          parent: (parent && parent.id) || null,
+          position: index + 1
+        },
+        ['children', 'created', 'updated']
+      )
+
+      await this.updateNode(path, nextNode)
+    } catch { }
+  }
+
+  toggleNodeFold (path: number[]) {
+    if (this.dragging) {
       return
     }
 
-    try {
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-    } catch { }
+    const node = this.$refs.tree.getNodeByPath(path)
+
+    this.$store.commit('tree/updateFolded', {
+      index: path.join('.'),
+      value: !node.$folded
+    })
   }
 
-  @Watch('treeState', { immediate: true, deep: true })
-  watchTreeData () {
-    this.fetchTreeData()
+  async change (store: TreeStore) {
+    if (store.pathChanged) {
+      const path = store.targetPath || []
+      const node = store.dragNode || {}
+
+      await this.updateNodePosition(path, node)
+    }
   }
+
+  updateFold () {
+    let activePath: number[] = []
+
+    const activeNode = {
+      type: findKey(nodeRouteNames, (name: string) => name === this.$route.name),
+      contentId: Number(this.$route.params.id)
+    }
+
+    // Find active path
+    walkTreeData(this.treeData, (node, index, parent, path) => {
+      if (node.type === activeNode.type && node.contentId === activeNode.contentId) {
+        activePath = path
+      }
+    })
+
+    // Inital data
+    const folded = this.$store.state.tree.folded
+
+    // Unfold active path
+    for (let i = 1; i < activePath.length; i++) {
+      const key = activePath.slice(0, 0 - i).join('.')
+
+      folded[key] = false
+    }
+
+    this.$store.commit('tree/setFolded', pickBy(folded, x => x))
+  }
+
+  // Hooks
 
   async created () {
-    try {
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-    } catch { }
+    await this.fetch()
+  }
+
+  // Watchers
+
+  @Watch('activeSpace')
+  async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
+    if (space.id !== prevSpace.id) {
+      await this.fetch()
+    }
   }
 }
 </script>
