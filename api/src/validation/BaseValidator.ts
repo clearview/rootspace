@@ -1,18 +1,15 @@
 import { getConnection } from 'typeorm'
 import { validateAll, extend } from 'indicative/validator'
-import { getValue, skippable } from 'indicative-utils'
+import { getValue } from 'indicative-utils'
 import { Schema, ParsedRule } from 'indicative-parser'
 import { validationFailed } from '../errors'
 import { configure } from 'indicative/validator'
+import { pwnedPassword } from 'hibp'
 
 declare module 'indicative-rules' {
   interface ValidationRulesContract {
-    dbUnique([entity, alias, field, skipIdValue]: [
-      string,
-      string,
-      string,
-      number?
-    ]): ParsedRule
+    dbUnique([entity, alias, field, skipIdValue]: [string, string, string, number?]): ParsedRule
+    compromisedPassword(): ParsedRule
   }
 }
 
@@ -52,14 +49,28 @@ export abstract class BaseValidator {
           }
 
           const res = await queryBuilder.getOne()
-
-          if (res) {
-            return false
-          }
-
-          return true
+          return !res
         } catch (e) {
           throw new Error('Server error')
+        }
+      },
+    })
+
+    extend('compromised', {
+      async: true,
+
+      compile(args) {
+        return args
+      },
+
+      async validate(data, field, args, config) {
+        const fieldValue = getValue(data, field)
+
+        try {
+          const numberOfPwns = await pwnedPassword(fieldValue)
+          return !numberOfPwns
+        } catch (e) {
+          throw new Error('HIBP API error')
         }
       },
     })
