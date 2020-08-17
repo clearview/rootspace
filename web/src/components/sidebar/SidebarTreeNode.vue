@@ -68,21 +68,21 @@ interface WrapperConfig {
 
 // Enums
 
-enum NodeType {
+export enum NodeType {
   Link = 'link',
   Doc = 'doc',
   Task = 'taskBoard',
   Folder = 'folder'
 }
 
-const nodeRouteNames = {
+export const nodeRouteNames = {
   link: 'Link',
   doc: 'Document',
   taskBoard: 'TaskPage',
   folder: ''
 } as const
 
-const nodeIconNames = {
+export const nodeIconNames = {
   link: 'link',
   doc: 'file',
   taskBoard: 'file',

@@ -23,6 +23,9 @@ const TreeModule: Module<TreeState, RootState> = {
     setList (state, list) {
       state.list = list
     },
+    setFolded (state, folded) {
+      state.folded = folded
+    },
     updateFolded (state, { index, value }) {
       state.folded = {
         ...state.folded,

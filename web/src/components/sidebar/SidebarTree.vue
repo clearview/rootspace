@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { omit, last, pick } from 'lodash'
+import { omit, last, pick, findKey, pickBy } from 'lodash'
 
 import {
   Tree,
@@ -103,7 +103,7 @@ import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 
-import TreeNode from './SidebarTreeNode.vue'
+import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 
 enum NodeType {
   Link = 'link',
@@ -180,6 +180,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
     try {
       await this.$store.dispatch('tree/fetch', { spaceId })
+
+      this.updateFold()
     } catch { }
   }
 
@@ -282,6 +284,34 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       await this.updateNodePosition(path, node)
     }
+  }
+
+  updateFold () {
+    let activePath: number[] = []
+
+    const activeNode = {
+      type: findKey(nodeRouteNames, (name: string) => name === this.$route.name),
+      contentId: Number(this.$route.params.id)
+    }
+
+    // Find active path
+    walkTreeData(this.treeData, (node, index, parent, path) => {
+      if (node.type === activeNode.type && node.contentId === activeNode.contentId) {
+        activePath = path
+      }
+    })
+
+    // Inital data
+    const folded = this.$store.state.tree.folded
+
+    // Unfold active path
+    for (let i = 1; i < activePath.length; i++) {
+      const key = activePath.slice(0, 0 - i).join('.')
+
+      folded[key] = false
+    }
+
+    this.$store.commit('tree/setFolded', pickBy(folded, x => x))
   }
 
   // Hooks
