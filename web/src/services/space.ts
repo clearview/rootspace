@@ -100,6 +100,25 @@ async function removeUser (id: number, userId: number) {
   }
 }
 
+async function cancelUser (id: number, inviteId: number) {
+  try {
+    return await api.delete(`invites/cancel/${inviteId}`)
+  } catch (error) {
+    let err = error
+
+    if (error.response) {
+      const body = {
+        code: error.response.status,
+        message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
+        fields: error.response.data.error.fields
+      }
+      err = body
+    }
+
+    throw err
+  }
+}
+
 export default {
   create,
   update,
@@ -107,5 +126,6 @@ export default {
   view,
   spaceUsers,
   spaceUsersPending,
-  removeUser
+  removeUser,
+  cancelUser
 }

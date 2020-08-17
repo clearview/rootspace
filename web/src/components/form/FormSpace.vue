@@ -27,7 +27,7 @@
         type="email"
         class="input"
         v-model.trim="$v.invitation.$model"
-        @keyup.enter="addInvitationList($v.invitation.$model)"
+        @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model)"
       />
 
       <template #addon>
@@ -73,10 +73,10 @@
           <div class="float-right self-center" v-if="list.accepted == false">
 
             <span class="not-accepted">Not accepted</span>
-            <span class="invite-again" @click="addInvitationList(list.email)">Invite again</span>
+            <span class="invite-again" @click="addInvitationList(list.email, true)">Invite again</span>
           </div>
         </div>
-        <span class="close-icon" @click="deleteInvitation(indexList, list.email)">
+        <span class="close-icon" v-if="currentUser.email !== list.email" @click="deleteInvitation(indexList, list.email)">
           <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
         </span>
       </div>
@@ -156,6 +156,10 @@ export default class FormSpace extends Vue {
       invites: []
     };
 
+    get currentUser () {
+      return this.$store.state.auth.user
+    }
+
     private invitation = '';
     private duplicateMessage = '';
     private invitationList = [];
@@ -184,7 +188,10 @@ export default class FormSpace extends Vue {
       }
     }
 
-    addInvitationList (email: string): void {
+    addInvitationList (email: string, bypassValidation = false): void {
+      if (this.$v.invitation.$invalid && !bypassValidation) {
+        return
+      }
       this.invitation = ''
       let getUser = find(this.payload.invites, (o) => {
         return o === email
@@ -196,8 +203,6 @@ export default class FormSpace extends Vue {
 
       if (getUser) {
         this.duplicateMessage = `A new invitation is sent to ${email}...`
-      } else {
-        this.payload.invites.push(email)
       }
 
       if (this.isEdit) {

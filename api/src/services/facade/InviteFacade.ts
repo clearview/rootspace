@@ -68,6 +68,11 @@ export class InviteFacade {
     return invite
   }
 
+  async cancel(inviteId: number): Promise<Invite> {
+    const invite = await this.inviteService.getInviteById(inviteId)
+    return this.inviteService.cancel(invite)
+  }
+
   async registerActivityForInvite(userActivity: UserActivities, invite: Invite): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
