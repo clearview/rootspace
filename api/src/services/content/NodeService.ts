@@ -366,7 +366,7 @@ export class NodeService {
   }
 
   private async _remove(node: Node): Promise<Node> {
-    // this.isNodeDeletable(node)
+    this.isNodeDeletable(node)
 
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)
@@ -402,7 +402,7 @@ export class NodeService {
   }
 
   private isNodeDeletable(node: Node): boolean {
-    if (node.type === NodeType.Root || node.type === NodeType.Archive || node.deletedAt === null) {
+    if (node.type === NodeType.Root || node.type === NodeType.Archive) {
       throw clientError('Can not delete node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
 
