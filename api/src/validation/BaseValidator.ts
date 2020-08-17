@@ -56,7 +56,7 @@ export abstract class BaseValidator {
       },
     })
 
-    extend('compromised', {
+    extend('compromisedPassword', {
       async: true,
 
       compile(args) {
@@ -70,7 +70,11 @@ export abstract class BaseValidator {
           const numberOfPwns = await pwnedPassword(fieldValue)
           return !numberOfPwns
         } catch (e) {
-          throw new Error('HIBP API error')
+          /**
+           * Skip check in case HIBP API is unreachable, do not
+           * throw new Error('HIBP API error')
+           */
+          return true
         }
       },
     })
