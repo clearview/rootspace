@@ -11,8 +11,8 @@ export class UserSignupValidator extends BaseValidator {
         validations.email(),
         validations.dbUnique(['User', 'user', 'email']),
       ],
-      password: 'required|min:6|confirmed',
-      password_confirmation: 'required|min:6',
+      password: 'required|min:8|confirmed|compromisedPassword',
+      password_confirmation: 'required|min:8',
     }
   }
 }
