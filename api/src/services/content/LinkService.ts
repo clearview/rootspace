@@ -95,7 +95,9 @@ export class LinkService extends NodeContentService {
   }
 
   async archive(id: number): Promise<Link> {
-    let link = await this.requireLinkById(id)
+    let link = await this.requireLinkById(id, null, { withDeleted: true })
+    this.verifyArchive(link)
+
     link = await this._archive(link)
 
     await this.nodeService.contentArchived(link.id, this.getNodeType())
@@ -118,6 +120,8 @@ export class LinkService extends NodeContentService {
 
   async restore(id: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
+    this.verifyRestore(link)
+
     link = await this._restore(link)
 
     await this.nodeContentMediator.contentRestored(link.id, this.getNodeType())
@@ -140,7 +144,7 @@ export class LinkService extends NodeContentService {
 
   async remove(id: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
-    // this._isLinkDeletable(link)
+    // this.verifyRemove(link)
 
     link = await this.getLinkRepository().remove(link)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
@@ -153,7 +157,19 @@ export class LinkService extends NodeContentService {
     await this.getLinkRepository().remove(link)
   }
 
-  private _isLinkDeletable(link: Link): void {
+  private verifyArchive(link: Link): void {
+    if (link.deletedAt !== null) {
+      throw clientError('Can not archive link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRestore(link: Link) {
+    if (link.deletedAt === null) {
+      throw clientError('Can not restore link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRemove(link: Link): void {
     if (link.deletedAt === null) {
       throw clientError('Can not delete link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }

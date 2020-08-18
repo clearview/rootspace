@@ -228,7 +228,7 @@ export class NodeService {
   }
 
   async archive(id: number): Promise<Node> {
-    let node = await this.requireNodeById(id)
+    let node = await this.requireNodeById(id, null, { withDeleted: true })
     node = await this._archive(node)
 
     await this.mediator.nodeArchived(node)
@@ -248,7 +248,7 @@ export class NodeService {
   }
 
   private async _archive(node: Node): Promise<Node> {
-    this.isNodeArchivable(node)
+    this.verifyArchive(node)
 
     const archiveNode = await this.getArchiveNodeBySpaceId(node.spaceId)
 
@@ -283,10 +283,9 @@ export class NodeService {
 
   async restore(id: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-
     node = await this._restore(node)
-    await this.mediator.nodeRestored(node)
 
+    await this.mediator.nodeRestored(node)
     return node
   }
 
@@ -303,6 +302,8 @@ export class NodeService {
   }
 
   private async _restore(node: Node): Promise<Node> {
+    this.verifyRestore(node)
+
     const restoreToParent = await this._getRestoreParentNode(node)
     this.updateNodeParent(node, restoreToParent.id)
 
@@ -366,7 +367,7 @@ export class NodeService {
   }
 
   private async _remove(node: Node): Promise<Node> {
-    this.isNodeDeletable(node)
+    this.verifyRemove(node)
 
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)
@@ -393,20 +394,22 @@ export class NodeService {
     }
   }
 
-  private isNodeArchivable(node: Node): boolean {
-    if (node.type === NodeType.Root || node.type === NodeType.Archive) {
+  private verifyArchive(node: Node): void {
+    if (node.type === NodeType.Root || node.type === NodeType.Archive || node.deletedAt !== null) {
       throw clientError('Can not archive node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-
-    return true
   }
 
-  private isNodeDeletable(node: Node): boolean {
+  private verifyRestore(node: Node) {
+    if (node.type === NodeType.Root || node.type === NodeType.Archive || node.deletedAt === null) {
+      throw clientError('Can not restore node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRemove(node: Node): void {
     if (node.type === NodeType.Root || node.type === NodeType.Archive) {
       throw clientError('Can not delete node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-
-    return true
   }
 
   async registerActivityForNodeId(nodeActivity: NodeActivities, nodeId: number): Promise<Bull.Job> {

@@ -164,6 +164,8 @@ export class TaskBoardService extends NodeContentService {
 
   async archive(taskBoardId: number): Promise<TaskBoard> {
     let taskBoard = await this.getFullTaskBoard(taskBoardId)
+    this.verifyArchive(taskBoard)
+
     taskBoard = await this._archive(taskBoard)
 
     await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
@@ -194,6 +196,8 @@ export class TaskBoardService extends NodeContentService {
 
   async restore(taskBoardId: number): Promise<TaskBoard> {
     let taskBoard = await this.getArchivedTaskBoardById(taskBoardId)
+    this.verifyRestore(taskBoard)
+
     taskBoard = await this._restore(taskBoard)
 
     await this.nodeService.contentRestored(taskBoardId, this.getNodeType())
@@ -225,7 +229,7 @@ export class TaskBoardService extends NodeContentService {
 
   async remove(id: number) {
     const taskBoard = await this.requireById(id, { withDeleted: true })
-    // this._isTaskBoardDeletable(taskBoard)
+    // this.verifyRemove(taskBoard)
 
     await this.getTaskBoardRepository().remove(taskBoard)
 
@@ -242,14 +246,26 @@ export class TaskBoardService extends NodeContentService {
     await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
   }
 
-  private _isTaskBoardDeletable(taskBoard: TaskBoard): void {
+  private verifyArchive(taskBoard: TaskBoard): void {
+    if (taskBoard.deletedAt !== null) {
+      throw clientError('Can not archive taks board', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRestore(taskBoard: TaskBoard) {
+    if (taskBoard.deletedAt === null) {
+      throw clientError('Can not restore task board', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRemove(taskBoard: TaskBoard): void {
     if (taskBoard.deletedAt === null) {
       throw clientError('Can not delete task board', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
   }
 
   async registerActivityForTaskBoardId(taskBoardActivity: TaskBoardActivities, taskBoardId: number): Promise<Bull.Job> {
-    const taskBoard = await this.getById(taskBoardId, {withDeleted: true})
+    const taskBoard = await this.getById(taskBoardId, { withDeleted: true })
     return this.registerActivityForTaskBoard(taskBoardActivity, taskBoard)
   }
 

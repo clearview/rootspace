@@ -90,7 +90,9 @@ export class DocService extends NodeContentService {
   }
 
   async archive(id: number): Promise<Doc> {
-    let doc = await this.getById(id)
+    let doc = await this.getById(id, { withDeleted: true })
+    this.verifyArchive(doc)
+
     doc = await this._archive(doc)
 
     await this.nodeContentMediator.contentArchived(doc.id, this.getNodeType())
@@ -117,6 +119,7 @@ export class DocService extends NodeContentService {
 
   async restore(docId: number): Promise<Doc> {
     let doc = await this.requireById(docId, { withDeleted: true })
+    this.verifyRestore(doc)
 
     doc = await this._restore(doc)
 
@@ -143,7 +146,7 @@ export class DocService extends NodeContentService {
 
   async remove(id: number) {
     let doc = await this.requireById(id, { withDeleted: true })
-    // this._isDocDeletable(doc)
+    // this.verifyRemove(doc)
 
     doc = await this._remove(doc)
 
@@ -164,9 +167,21 @@ export class DocService extends NodeContentService {
     return this.getDocRepository().remove(doc)
   }
 
-  private _isDocDeletable(doc: Doc): void {
+  private verifyArchive(doc: Doc): void {
+    if (doc.deletedAt !== null) {
+      throw clientError('Can not archive link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRestore(doc: Doc) {
     if (doc.deletedAt === null) {
-      throw clientError('Can not delete document', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+      throw clientError('Can not restore link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRemove(doc: Doc): void {
+    if (doc.deletedAt === null) {
+      throw clientError('Can not delete link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
   }
 
