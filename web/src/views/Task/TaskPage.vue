@@ -238,8 +238,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       }
       if (this.board) {
         this.boardCache = this.board
+        this.pageTitle = this.board.title
 
-        this.setPageTitle(this.board.title)
         this.setActiveSpace(this.board.spaceId, {
           activePage: this.$route.path
         })

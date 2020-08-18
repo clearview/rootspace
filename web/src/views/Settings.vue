@@ -327,7 +327,7 @@ export default class Settings extends Mixins(PageMixin) {
     }
 
     mounted () {
-      this.setPageTitle('Settings')
+      this.pageTitle = 'Settings'
     }
 }
 </script>
