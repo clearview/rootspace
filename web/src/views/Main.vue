@@ -1,13 +1,13 @@
 <template>
-  <layout-main v-if="hasSpace">
+  <layout-main v-if="hasSpace" :key="activeSpace.id">
     <router-view />
   </layout-main>
 </template>
 
 <script lang="ts">
-
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import LayoutMain from '@/components/LayoutMain.vue'
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
   name: 'Main',
@@ -31,9 +31,5 @@ import LayoutMain from '@/components/LayoutMain.vue'
     })
   }
 })
-export default class Main extends Vue {
-  get hasSpace () {
-    return this.$store.getters['space/hasSpace']
-  }
-}
+export default class Main extends Mixins(SpaceMixin) { }
 </script>

@@ -11,6 +11,10 @@ export default class SpaceMixin extends Vue {
     return this.$store.getters['space/activeSpaceMeta'] || {}
   }
 
+  get hasSpace (): boolean {
+    return this.$store.getters['space/hasSpace']
+  }
+
   setActiveSpace (id: number, meta?: SpaceMetaResource) {
     const space = { id }
 
