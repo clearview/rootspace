@@ -43,6 +43,8 @@ export default class Start extends Mixins(PageMixin, SpaceMixin) {
   created () {
     const query = this.$route.query
 
+    this.setPageTitle()
+
     if (query.from === 'invitation' && query.accept === '1') {
       this.alert = {
         type: 'success',
@@ -57,6 +59,11 @@ export default class Start extends Mixins(PageMixin, SpaceMixin) {
     if (isEmpty(newval.query)) {
       this.alert = null
     }
+  }
+
+  @Watch('activeSpace')
+  watchActiveSpace () {
+    this.setPageTitle()
   }
 }
 </script>
