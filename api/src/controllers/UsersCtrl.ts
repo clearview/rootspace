@@ -80,6 +80,12 @@ export class UsersCtrl extends BaseCtrl {
     res.send({ token })
   }
 
+  async refreshToken(req: Request, res: Response) {
+    const user = req.user
+    const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
+    res.send({ token })
+  }
+
   async whoami(req: Request, res: Response) {
     const user = await getCustomRepository(UserRepository).getById(
       req.user.id,
