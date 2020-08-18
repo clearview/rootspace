@@ -27,9 +27,16 @@ export function wsServerHooks(primus: Primus) {
     }
 
     const userId = decoded.id
+    const tokenExpiryTimestamp = Number(decoded.exp)
 
-    if (typeof userId !== 'number') {
+    if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
       return done(new Error('Invalid payload'))
+    }
+
+    const expirationDate = new Date(tokenExpiryTimestamp * 1000)
+
+    if(expirationDate < new Date()) {
+      return done(new Error('Token expired'))
     }
 
     const user = await UserService.getInstance().getUserById(userId)
