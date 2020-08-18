@@ -36,19 +36,15 @@ export class EmbedService extends NodeContentService {
     return getCustomRepository(EmbedRepository)
   }
 
-  getEmbedById(id: number): Promise<Embed | undefined> {
-    return this.getEmbedRepository().findOne(id)
+  getEmbedById(id: number, options: any = {}): Promise<Embed | undefined> {
+    return this.getEmbedRepository().getById(id, options)
   }
 
-  async requireEmbedById(id: number): Promise<Embed> {
-    const embed = await this.getEmbedById(id)
+  async requireEmbedById(id: number, options: any = {}): Promise<Embed> {
+    const embed = await this.getEmbedById(id, options)
 
     if (!embed) {
-      throw clientError(
-        'Embed not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
+      throw clientError('Embed not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     return embed
@@ -83,19 +79,7 @@ export class EmbedService extends NodeContentService {
     return embed
   }
 
-  async remove(id: number): Promise<Embed> {
-    let embed = await this.requireEmbedById(id)
-
-    embed = await this.getEmbedRepository().remove(embed)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
-
-    return embed
-  }
-
-  async nodeUpdated(
-    contentId: number,
-    data: INodeContentUpdate
-  ): Promise<void> {
+  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
     const embed = await this.getEmbedById(contentId)
 
     if (!embed) {
@@ -106,8 +90,90 @@ export class EmbedService extends NodeContentService {
     await this.getEmbedRepository().save(embed)
   }
 
+  async archive(id: number): Promise<Embed> {
+    let embed = await this.requireEmbedById(id, { withDeleted: true })
+    this.verifyArchive(embed)
+
+    embed = await this._archive(embed)
+    await this.nodeContentMediator.contentArchived(embed.id, this.getNodeType())
+
+    return embed
+  }
+
+  async nodeArchived(contentId: number): Promise<void> {
+    const embed = await this.getEmbedById(contentId)
+
+    if (!embed) {
+      return
+    }
+
+    await this._archive(embed)
+  }
+
+  private async _archive(_embed: Embed): Promise<Embed> {
+    const embed = await this.getEmbedRepository().softRemove(_embed)
+    return embed
+  }
+
+  async restore(id: number): Promise<Embed> {
+    let embed = await this.requireEmbedById(id, { withDeleted: true })
+    this.verifyRestore(embed)
+
+    embed = await this._restore(embed)
+    await this.nodeContentMediator.contentRestored(embed.id, this.getNodeType())
+
+    return embed
+  }
+
+  async nodeRestored(contentId: number): Promise<void> {
+    const embed = await this.getEmbedById(contentId, { withDeleted: true })
+
+    if (!embed) {
+      return
+    }
+
+    await this._restore(embed)
+  }
+
+  private async _restore(_embed: Embed): Promise<Embed> {
+    const embed = await this.getEmbedRepository().recover(_embed)
+    return embed
+  }
+
+  async remove(id: number): Promise<Embed> {
+    let embed = await this.requireEmbedById(id, { withDeleted: true })
+    // this.verifyRemove(embed)
+
+    embed = await this._remove(embed)
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+
+    return embed
+  }
+
   async nodeRemoved(contentId: number): Promise<void> {
-    const embed = await this.getEmbedRepository().findOne({ id: contentId })
-    await this.getEmbedRepository().remove(embed)
+    const embed = await this.getEmbedById(contentId, { withDeleted: true })
+    await this._remove(embed)
+  }
+
+  private async _remove(embed: Embed) {
+    return this.getEmbedRepository().remove(embed)
+  }
+
+  private verifyArchive(embed: Embed): void {
+    if (embed.deletedAt !== null) {
+      throw clientError('Can not archive embed', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRestore(embed: Embed) {
+    if (embed.deletedAt === null) {
+      throw clientError('Can not restore embed', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
+  }
+
+  private verifyRemove(embed: Embed): void {
+    if (embed.deletedAt === null) {
+      throw clientError('Can not delete embed', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
+    }
   }
 }
