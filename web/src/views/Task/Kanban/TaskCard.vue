@@ -14,7 +14,7 @@
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
+    <div v-if="!isInputtingNewCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="card-item">
         <div class="header">
@@ -91,9 +91,6 @@ export default class TaskCard extends Vue {
 
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
-
-    @Prop({ type: Boolean, default: false })
-    private readonly opacite!: boolean
 
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement;
@@ -267,6 +264,10 @@ export default class TaskCard extends Vue {
       }
 
       Vue.nextTick(() => {
+        if (this.tagListsRef && this.tagListsRef.clientHeight > 35) {
+          this.isTagMoreThanOneLine = true
+        }
+
         if (this.cardTitleRef && this.cardTitleRef.clientHeight > 25) {
           this.isTitleMoreThanOneLine = true
         }
@@ -364,9 +365,6 @@ export default class TaskCard extends Vue {
     background: theme("colors.white.default");
     transition: all 0.1s ease;
 
-    &.opacite{
-      background: rgba(theme("colors.white.default"), 0.8);
-    }
     &:hover {
        background: #F9FAFF;
        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);

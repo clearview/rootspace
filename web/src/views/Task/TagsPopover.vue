@@ -342,13 +342,13 @@ export default class TagsPopover extends Vue {
   }
 
   .color-box.checked {
-    @apply shadow-outline;
-
     .icon-checkmark {
       visibility: visible;
       opacity: 1;
-      top: 8px;
-      left: 8px;
+      top: 7px;
+      left: 7px;
+      width: 18px;
+      height: 18px;
     }
   }
 

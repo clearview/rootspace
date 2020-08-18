@@ -525,7 +525,7 @@ export default class TaskModal extends Vue {
     @apply flex items-start pr-12 pb-2;
     width: 750px;
     font-weight: bold;
-    padding-top: 26px;
+    padding-top: 32px;
     padding-left: 40px;
   }
 

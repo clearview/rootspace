@@ -60,8 +60,7 @@
       <main class="cards" ref="cardContainer"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
-            :opacite="!isColorDefault"/>
+            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id" />
         </Draggable>
 
         <TaskCard default-inputting
@@ -176,10 +175,6 @@ export default class TaskLane extends Vue {
 
     private get defaultScrollColor () {
       return '#0005'
-    }
-
-    private get isColorDefault () {
-      return this.list.settings.color === this.defaultColor
     }
 
     mounted () {
