@@ -1,6 +1,7 @@
 {
     "port": 3001,
     "jwtSecretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
+    "jwtExpiresIn": 3600,
     "google": {
         "clientID": "@@GOOGLE_CLIENT_ID",
         "clientSecret": "@@GOOGLE_CLIENT_SECRET",

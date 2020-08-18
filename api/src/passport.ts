@@ -128,41 +128,48 @@ const jwtOptions: StrategyOptions = {
 passport.use(
   new JwtStrategy(jwtOptions, async (req: any, payload: any, done: VerifiedCallback) => {
     const userId = payload.id
+    const tokenExpiryTimestamp = Number(payload.exp)
 
-    if (typeof userId !== 'number') {
+    if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
       return done(null, false, { message: 'Invalid payload' })
+    }
+
+    const expirationDate = new Date(tokenExpiryTimestamp * 1000)
+
+    if(expirationDate < new Date()) {
+      return done(null, false, { message: 'Token expired' })
     }
 
     const user = await UserService.getInstance().getUserById(userId)
 
-      if (user) {
-        req.user = user
+    if (user) {
+      req.user = user
 
-        if (config.env === 'production') {
-            Sentry.configureScope((scope) => {
-                scope.setUser({id: user.id.toString(), email: user.email})
-            })
-        }
+      if (config.env === 'production') {
+        Sentry.configureScope((scope) => {
+          scope.setUser({id: user.id.toString(), email: user.email})
+        })
+      }
 
-        const { can, cannot, rules } = new AbilityBuilder()
-        const userSpaces = await SpaceService.getInstance().getSpacesByUserId(req.user.id)
-        req.user.userSpaceIds = userSpaces.map(space => { return space.id })
+      const { can, cannot, rules } = new AbilityBuilder()
+      const userSpaces = await SpaceService.getInstance().getSpacesByUserId(req.user.id)
+      req.user.userSpaceIds = userSpaces.map(space => { return space.id })
 
-        // User can manage any subject they own
-        can(Actions.Manage, Subjects.All, { userId: user.id })
+      // User can manage any subject they own
+      can(Actions.Manage, Subjects.All, { userId: user.id })
 
-        // User can manage any subject from the space they have access to
-        can(Actions.Manage, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
+      // User can manage any subject from the space they have access to
+      can(Actions.Manage, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
 
-        // User can not manage subjects outside spaces they belong to
-        cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } })
-            .because('Access to space not allowed')
+      // User can not manage subjects outside spaces they belong to
+      cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } })
+        .because('Access to space not allowed')
 
-        // @ts-ignore
-        req.user.ability = new Ability<[Actions, Subjects]>(rules)
+      // @ts-ignore
+      req.user.ability = new Ability<[Actions, Subjects]>(rules)
 
-        httpRequestContext.set('user', user)
-        return done(null, user)
+      httpRequestContext.set('user', user)
+      return done(null, user)
     }
 
     return done(null, false, { message: 'Wrong token' })

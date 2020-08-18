@@ -68,7 +68,7 @@ export class UsersCtrl extends BaseCtrl {
           return next(err)
         }
 
-        const token = jwt.sign({ id: user.id }, config.jwtSecretKey)
+        const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
         return res.json({ token })
       }
     )(req, res)
@@ -76,7 +76,13 @@ export class UsersCtrl extends BaseCtrl {
 
   async authGoogleCallback(req: Request, res: Response) {
     const user = req.user
-    const token = jwt.sign({ id: user }, config.jwtSecretKey)
+    const token = jwt.sign({ id: user }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
+    res.send({ token })
+  }
+
+  async refreshToken(req: Request, res: Response) {
+    const user = req.user
+    const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
     res.send({ token })
   }
 
