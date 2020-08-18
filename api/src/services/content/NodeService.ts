@@ -285,7 +285,7 @@ export class NodeService {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
 
     node = await this._restore(node)
-    this.mediator.nodeRestored(node)
+    await this.mediator.nodeRestored(node)
 
     return node
   }
@@ -331,7 +331,7 @@ export class NodeService {
       child = await this.getNodeRepository().recover(child)
       await this.mediator.nodeRestored(child)
 
-      this._restoreChildren(child)
+      await this._restoreChildren(child)
     }
   }
 

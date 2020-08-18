@@ -167,7 +167,7 @@ export class TaskBoardService extends NodeContentService {
     taskBoard = await this._archive(taskBoard)
 
     await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
-    //await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
+    await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId)
 
     return taskBoard
   }
@@ -249,7 +249,7 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async registerActivityForTaskBoardId(taskBoardActivity: TaskBoardActivities, taskBoardId: number): Promise<Bull.Job> {
-    const taskBoard = await this.getById(taskBoardId)
+    const taskBoard = await this.getById(taskBoardId, {withDeleted: true})
     return this.registerActivityForTaskBoard(taskBoardActivity, taskBoard)
   }
 
