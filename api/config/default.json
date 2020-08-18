@@ -2,8 +2,16 @@
   "env": "@@ENV",
   "port": 3001,
   "postgres": "@@POSTGRES",
-  "jwtSecretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
-  "jwtExpiresIn": 1296000,
+  "jwt": {
+    "accessToken": {
+      "secretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
+      "expiresIn": 3600
+    },
+    "refreshToken": {
+      "secretKey": "4KMhvZI5uml-G9TkCbLcU6BR3DaWngVfozixEwsPjA1FqSYJdetr87_Q2OyXHpJ9ePyhTHXUuAjQ4OrmRK",
+      "expiresIn": 86400
+    }
+  },
   "google": {
     "clientID": "@@GOOGLE_CLIENT_ID",
     "clientSecret": "@@GOOGLE_CLIENT_SECRET",
