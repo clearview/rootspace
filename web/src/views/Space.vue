@@ -10,7 +10,6 @@ import LayoutMain from '@/components/LayoutMain.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
-  name: 'Main',
   components: {
     LayoutMain
   },
@@ -31,5 +30,5 @@ import SpaceMixin from '@/mixins/SpaceMixin'
     })
   }
 })
-export default class Main extends Mixins(SpaceMixin) { }
+export default class Space extends Mixins(SpaceMixin) { }
 </script>

@@ -32,12 +32,11 @@ type AlertData = {
 }
 
 @Component({
-  name: 'Start',
   components: {
     VAlert
   }
 })
-export default class Start extends Mixins(PageMixin, SpaceMixin) {
+export default class Blank extends Mixins(PageMixin, SpaceMixin) {
   private alert: AlertData | null = null
 
   created () {
