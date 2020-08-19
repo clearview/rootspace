@@ -40,7 +40,7 @@
               </li>
               <li v-if="item.taskComments.length > 0">
                 <span class="icon">
-                  <v-icon name="comment" viewbox="14" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
+                  <v-icon name="comment" viewbox="20" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
                 </span>
               </li>
             </ul>

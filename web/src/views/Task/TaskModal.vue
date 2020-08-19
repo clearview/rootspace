@@ -18,16 +18,6 @@
           </div>
         </div>
         <div class="task-modal-header-actions">
-          <PopoverList :items="[{label: 'Delete', value: 'delete', icon: 'trash' }]" @input="handleMenu">
-            <template slot="trigger">
-              <button
-                class="btn btn-icon"
-                @click="cancel"
-              >
-                <v-icon name="ellipsis" viewbox="20" size="1.25rem" class="header-icon"/>
-              </button>
-            </template>
-          </PopoverList>
           <button
             class="btn btn-icon"
             @click="close"
@@ -581,7 +571,7 @@ export default class TaskModal extends Vue {
   .action-label {
     @apply pb-2;
 
-    color: theme("colors.gray.800");
+    color: theme("colors.gray.900");
     font-weight: bold;
     font-size: 12px;
     line-height: 14px;
@@ -598,6 +588,10 @@ export default class TaskModal extends Vue {
 
     button, .popover-trigger {
       padding: 8px 12px 7px 9.33px !important;
+    }
+
+    button {
+      border-color: #EFF1F6
     }
   }
 
@@ -656,7 +650,7 @@ export default class TaskModal extends Vue {
 
   .description-title-placeholder {
     @apply uppercase pr-2;
-    color: theme("colors.gray.800");
+    color: theme("colors.gray.900");
   }
 
   .description-input {
@@ -834,6 +828,7 @@ export default class TaskModal extends Vue {
 
       &:hover {
         background: theme("colors.gray.100");
+        border-color: theme("colors.gray.100");
         color: theme("colors.gray.900");
       }
     }
