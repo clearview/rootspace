@@ -24,14 +24,6 @@ export class NodeContentMediator implements INodeContentMediator {
     this.contentServices.push(service)
   }
 
-  async nodeRemoved(node: Node): Promise<void> {
-    for (const service of this.contentServices) {
-      if (node.type === service.getNodeType()) {
-        return service.nodeRemoved(node.contentId)
-      }
-    }
-  }
-
   async nodeUpdated(node: Node): Promise<void> {
     for (const service of this.contentServices) {
       if (node.type === service.getNodeType()) {
@@ -40,15 +32,43 @@ export class NodeContentMediator implements INodeContentMediator {
     }
   }
 
-  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
-    return this.nodeService.contentRemoved(contentId, nodeType)
+  async nodeArchived(node: Node): Promise<void> {
+    for (const service of this.contentServices) {
+      if (node.type === service.getNodeType()) {
+        return service.nodeArchived(node.contentId)
+      }
+    }
   }
 
-  async contentUpdated(
-    contentId: number,
-    nodeType: NodeType,
-    data: IContentNodeUpdate
-  ): Promise<void> {
+  async nodeRestored(node: Node): Promise<void> {
+    for (const service of this.contentServices) {
+      if (node.type === service.getNodeType()) {
+        return service.nodeRestored(node.contentId)
+      }
+    }
+  }
+
+  async nodeRemoved(node: Node): Promise<void> {
+    for (const service of this.contentServices) {
+      if (node.type === service.getNodeType()) {
+        return service.nodeRemoved(node.contentId)
+      }
+    }
+  }
+
+  async contentUpdated(contentId: number, nodeType: NodeType, data: IContentNodeUpdate): Promise<void> {
     return this.nodeService.contentUpdated(contentId, nodeType, data)
+  }
+
+  async contentArchived(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentArchived(contentId, nodeType)
+  }
+
+  async contentRestored(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentRestored(contentId, nodeType)
+  }
+
+  async contentRemoved(contentId: number, nodeType: NodeType): Promise<void> {
+    return this.nodeService.contentRemoved(contentId, nodeType)
   }
 }

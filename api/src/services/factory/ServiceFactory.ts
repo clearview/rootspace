@@ -5,10 +5,15 @@ import {
   EmbedService,
   FollowService,
   TaskBoardService,
+  TaskBoardTagService,
+  TaskListService,
+  TaskService,
   UserService,
   MailService,
   SpaceService,
-  InviteService
+  InviteService,
+  ActivityService,
+  UserSpaceService
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -18,11 +23,6 @@ export class ServiceFactory {
   private docService: DocService
   private embedService: EmbedService
   private taskBoardService: TaskBoardService
-  private followService: FollowService
-  private userService: UserService
-  private mailService: MailService
-  private spaceService: SpaceService
-  private inviteService: InviteService
 
   private constructor() {}
 
@@ -67,14 +67,6 @@ export class ServiceFactory {
     return this.embedService
   }
 
-  getFollowService() {
-    if (!this.followService) {
-      this.initNodeContentServices()
-    }
-
-    return this.followService
-  }
-
   getTaskBoardService() {
     if (!this.taskBoardService) {
       this.initNodeContentServices()
@@ -83,36 +75,44 @@ export class ServiceFactory {
     return this.taskBoardService
   }
 
-  getUserService() {
-    if (!this.userService) {
-      this.initNodeContentServices()
-    }
+  getFollowService() {
+    return FollowService.getInstance()
+  }
 
-    return this.userService
+  getTaskBoardTagService() {
+    return TaskBoardTagService.getInstance()
+  }
+
+  getTaskListService() {
+    return TaskListService.getInstance()
+  }
+
+  getTaskService() {
+    return TaskService.getInstance()
+  }
+
+  getUserService() {
+    return UserService.getInstance()
   }
 
   getSpaceService() {
-    if (!this.spaceService) {
-      this.initNodeContentServices()
-    }
-
-    return this.spaceService
+   return SpaceService.getInstance()
   }
 
   getInviteService() {
-    if (!this.inviteService) {
-      this.initNodeContentServices()
-    }
-
-    return this.inviteService
+    return InviteService.getInstance()
   }
 
   getMailService() {
-    if (!this.mailService) {
-      this.initNodeContentServices()
-    }
+    return MailService.getInstance()
+  }
 
-    return this.mailService
+  getActivityService() {
+   return ActivityService.getInstance()
+  }
+
+  getUserSpaceService() {
+    return UserSpaceService.getInstance()
   }
 
   private initNodeContentServices() {
@@ -120,12 +120,7 @@ export class ServiceFactory {
     this.linkService = LinkService.getInstance()
     this.docService = DocService.getInstance()
     this.embedService = EmbedService.getInstance()
-    this.followService = FollowService.getInstance()
     this.taskBoardService = TaskBoardService.getInstance()
-    this.userService = UserService.getInstance()
-    this.spaceService = SpaceService.getInstance()
-    this.inviteService = InviteService.getInstance()
-    this.mailService = new MailService()
 
     const mediator = new NodeContentMediator(this.nodeService)
 

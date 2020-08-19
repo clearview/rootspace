@@ -43,6 +43,12 @@ export class TaskWorker extends BaseWorker {
       case TaskActivities.Deleted:
         await this.unfollowActivity(event)
         break
+      case TaskActivities.Assignee_Added:
+        await this.followActivity(event)
+        break
+      case TaskActivities.Assignee_Removed:
+        await this.unfollowActivity(event)
+        break
     }
   }
 

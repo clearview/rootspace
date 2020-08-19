@@ -8,6 +8,7 @@ import { UserService } from './UserService'
 import { TaskBoardService, TaskListService } from './content/tasks'
 import { ActivityEvent } from './events/ActivityEvent'
 import { Notification } from '../database/entities/Notification'
+import { ServiceFactory } from './factory/ServiceFactory'
 
 export class FollowService {
   private static instance: FollowService
@@ -18,9 +19,9 @@ export class FollowService {
 
   private constructor() {
     this.notificationService = NotificationService.getInstance()
-    this.userService = UserService.getInstance()
-    this.taskBoardService = TaskBoardService.getInstance()
-    this.taskListService = TaskListService.getInstance()
+    this.userService = ServiceFactory.getInstance().getUserService()
+    this.taskBoardService = ServiceFactory.getInstance().getTaskBoardService()
+    this.taskListService = ServiceFactory.getInstance().getTaskListService()
   }
 
   static getInstance() {

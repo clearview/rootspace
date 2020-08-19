@@ -14,9 +14,9 @@ export class SpaceFacade {
   private nodeService: NodeService
 
   constructor() {
-    this.spaceService = SpaceService.getInstance()
-    this.userService = UserService.getInstance()
-    this.userSpaceService = UserSpaceService.getInstance()
+    this.spaceService = ServiceFactory.getInstance().getSpaceService()
+    this.userService = ServiceFactory.getInstance().getUserService()
+    this.userSpaceService = ServiceFactory.getInstance().getUserSpaceService()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
@@ -42,6 +42,8 @@ export class SpaceFacade {
       })
     )
 
+    await this.nodeService.createArchiveNodeBySpaceId(space.id)
+
     return space
   }
 
@@ -49,19 +51,12 @@ export class SpaceFacade {
     return this.spaceService.update(data, spaceId)
   }
 
-  async removeUserFromSpace(
-    userId: number,
-    spaceId: number
-  ): Promise<UserToSpace> {
+  async removeUserFromSpace(userId: number, spaceId: number): Promise<UserToSpace> {
     const user = await this.userService.requireUserById(userId)
     const space = await this.spaceService.requireSpaceById(spaceId)
 
     if (user.id === space.userId) {
-      throw clientError(
-        'Can not remove space owner from space',
-        HttpErrName.InvalidRequest,
-        HttpStatusCode.NotAllowed
-      )
+      throw clientError('Can not remove space owner from space', HttpErrName.InvalidRequest, HttpStatusCode.NotAllowed)
     }
 
     return this.userSpaceService.remove(userId, spaceId)

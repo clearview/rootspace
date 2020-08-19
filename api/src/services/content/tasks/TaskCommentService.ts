@@ -4,13 +4,14 @@ import { TaskComment } from '../../../database/entities/tasks/TaskComment'
 import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { TaskService } from './TaskService'
+import { ServiceFactory } from '../../factory/ServiceFactory'
 
 export class TaskCommentService {
   private static instance: TaskCommentService
   private taskService: TaskService
 
   private constructor() {
-    this.taskService = TaskService.getInstance()
+    this.taskService = ServiceFactory.getInstance().getTaskService()
   }
 
   static getInstance() {

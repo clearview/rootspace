@@ -7,23 +7,21 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { UserService } from '../../UserService'
 import { TaskBoardTagService } from './TaskBoardTagService'
-import { FollowService } from '../../FollowService'
 import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
 import { ActivityService } from '../../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
+import { ServiceFactory } from '../../factory/ServiceFactory'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
-  private followService: FollowService
   private activityService: ActivityService
 
   private constructor() {
-    this.userService = UserService.getInstance()
-    this.tagService = TaskBoardTagService.getInstance()
-    this.followService = FollowService.getInstance()
-    this.activityService = ActivityService.getInstance()
+    this.userService = ServiceFactory.getInstance().getUserService()
+    this.tagService = ServiceFactory.getInstance().getTaskBoardTagService()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: TaskService
@@ -56,7 +54,7 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
-  async getArchivedById(id: number): Promise<Task | undefined> {
+  async getArchivedById(id: number): Promise<Task> {
     return this.getTaskRepository().findOneArchived(id)
   }
 
@@ -86,17 +84,24 @@ export class TaskService {
     return this.getTaskRepository().reload(task)
   }
 
-  async archive(taskId: number): Promise<UpdateResult> {
-    await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
+  async archive(taskId: number): Promise<Task | undefined> {
+    const task = await this.getTaskRepository().findOneArchived(taskId)
 
-    return this.getTaskRepository().softDelete({id: taskId})
+    if (task) {
+      await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
+      return this.getTaskRepository().softRemove(task)
+    }
+
+    return null
   }
 
-  async restore(taskId: number): Promise<UpdateResult> {
-    const restoredTask = await this.getTaskRepository().restore({id: taskId})
+  async restore(taskId: number): Promise<Task> {
+    const task = await this.getTaskRepository().findOneArchived(taskId)
+
+    const recoveredTask = await this.getTaskRepository().recover(task)
     await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
 
-    return restoredTask
+    return recoveredTask
   }
 
   async remove(taskId: number) {
@@ -134,7 +139,7 @@ export class TaskService {
 
       const savedTask = await this.getTaskRepository().save(task)
       await this.registerActivityForTask(TaskActivities.Assignee_Added, task)
-      await this.followService.follow(user, task)
+      // await this.followService.follow(user, task)
 
       return savedTask
     }
@@ -150,7 +155,7 @@ export class TaskService {
       return assignee.id !== user.id
     })
 
-    await this.followService.unfollow(user, task)
+    // await this.followService.unfollow(user, task)
 
     const savedTask = await this.getTaskRepository().save(task)
     await this.registerActivityForTask(TaskActivities.Assignee_Removed, task)

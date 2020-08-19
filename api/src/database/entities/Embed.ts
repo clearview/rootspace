@@ -5,6 +5,7 @@ import {
   Index,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm'
 
 @Entity('embeds')
@@ -31,4 +32,7 @@ export class Embed {
 
   @UpdateDateColumn()
   updated: Date
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
+  public deletedAt: Date
 }

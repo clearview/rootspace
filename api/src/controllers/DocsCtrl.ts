@@ -5,7 +5,8 @@ import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services'
 import { ForbiddenError } from '@casl/ability'
 import { Actions, Subjects } from '../middleware/AuthMiddleware'
-import { FollowService } from '../services/FollowService'
+import { FollowService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -13,14 +14,14 @@ export class DocsCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.docService = DocService.getInstance()
-    this.followService = FollowService.getInstance()
+    this.docService = ServiceFactory.getInstance().getDocService()
+    this.followService = ServiceFactory.getInstance().getFollowService()
   }
 
-  async view(req: Request, res: Response, next: NextFunction) {
-    const doc = await this.docService.getById(Number(req.params.id))
-
+  async view(req: Request, res: Response) {
+    const doc = await this.docService.requireById(Number(req.params.id))
     const resData = this.responseData(doc)
+
     res.send(resData)
   }
 
@@ -48,7 +49,27 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(doc))
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
+  async archive(req: Request, res: Response, next: NextFunction) {
+    const docId = Number(req.params.id)
+
+    const doc = await this.docService.getById(docId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+
+    const result = await this.docService.archive(docId)
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response, next: NextFunction) {
+    const docId = Number(req.params.id)
+    const doc = await this.docService.requireById(docId, { withDeleted: true })
+
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+
+    const result = await this.docService.restore(docId)
+    res.send(result)
+  }
+
+  async delete(req: Request, res: Response) {
     const doc = await this.docService.remove(Number(req.params.id))
     res.send(this.responseData(doc))
   }

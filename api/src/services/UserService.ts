@@ -23,13 +23,14 @@ import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { UserActivities } from '../database/entities/activities/UserActivities'
 import { ActivityService } from './ActivityService'
+import { ServiceFactory } from './factory/ServiceFactory'
 
 export class UserService {
   private activityService: ActivityService
   private static instance: UserService
 
   private constructor() {
-    this.activityService = ActivityService.getInstance()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   static getInstance() {

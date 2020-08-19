@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { InviteService } from '../services/InviteService'
+import { InviteService } from '../services'
 import {
   validateInviteAccept, validateInviteCancel,
   validateInviteCreate,
 } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class InviteCtrl extends BaseCtrl {
   protected inviteService: InviteService
@@ -13,7 +14,7 @@ export class InviteCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.inviteService = InviteService.getInstance()
+    this.inviteService = ServiceFactory.getInstance().getInviteService()
     this.inviteFacade = new InviteFacade()
   }
 

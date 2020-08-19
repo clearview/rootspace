@@ -4,7 +4,7 @@ import { BaseRepository } from '../BaseRepository'
 
 @EntityRepository(Task)
 export class TaskRepository extends BaseRepository<Task> {
-  async filterByTaskboardId(taskBoardId: number, searchParam?: string, filterParam?: any): Promise<Task[]> {
+  async filterByTaskBoardId(taskBoardId: number, searchParam?: string, filterParam?: any): Promise<Task[]> {
     const searchQuery = this.createQueryBuilder('task')
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
@@ -53,11 +53,11 @@ export class TaskRepository extends BaseRepository<Task> {
     return searchQuery.getMany()
   }
 
-  async findOneArchived(id: number): Promise<Task | undefined> {
+  async findOneArchived(id: number): Promise<Task> {
     return this
       .createQueryBuilder('task')
       .where('task.id = :id', { id })
-      .andWhere('task.deletedAt IS NOT NULL')
+      .withDeleted()
       .getOne()
   }
 }

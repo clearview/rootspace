@@ -77,7 +77,7 @@ export class Task {
   updatedAt: Date
 
   @DeleteDateColumn({ type: 'timestamptz'})
-  deletedAt: Date
+  public deletedAt: Date
 
   @OneToMany(type => TaskComment, taskComment => taskComment.task, {eager: true, onDelete: 'CASCADE'})
   taskComments: TaskComment[]

@@ -3,6 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserService } from '../services'
 import { clientError } from '../errors'
 import { SpaceFacade } from '../services/facade'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class SpacesUsersCtrl extends BaseCtrl {
   private userService: UserService
@@ -10,7 +11,7 @@ export class SpacesUsersCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.userService = UserService.getInstance()
+    this.userService = ServiceFactory.getInstance().getUserService()
     this.spaceFacade = new SpaceFacade()
   }
 

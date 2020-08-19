@@ -14,7 +14,7 @@ export class TaskBoardCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response, next: NextFunction) {
-    const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id))
+    const taskBoard = await this.taskBoardService.getCompleteTaskBoard(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard ? taskBoard : Subjects.TaskBoard)
 
     const resData = this.responseData(taskBoard)
@@ -29,14 +29,6 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async viewArchivedTasks(req: Request, res: Response, next: NextFunction) {
-    const taskBoard = await this.taskBoardService.getCompleteTaskboard(Number(req.params.id), true)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard ? taskBoard : Subjects.TaskBoard)
-
-    const resData = this.responseData(taskBoard)
-    res.send(resData)
-  }
-
   async searchTasks(req: Request, res: Response, next: NextFunction) {
     let taskBoard = await this.taskBoardService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
@@ -45,7 +37,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     const searchParam = data?.search
     const filterParam = data?.filters
 
-    taskBoard = await this.taskBoardService.searchTaskboard(Number(req.params.id), searchParam, filterParam)
+    taskBoard = await this.taskBoardService.searchTaskBoard(Number(req.params.id), searchParam, filterParam)
 
     const resData = this.responseData(taskBoard)
     res.send(resData)
@@ -75,8 +67,28 @@ export class TaskBoardCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    const taskBoard = await this.taskBoardService.getById(Number(req.params.id))
+  async archive(req: Request, res: Response) {
+    const taskBoardId = Number(req.params.id)
+
+    const taskBoard = await this.taskBoardService.getById(taskBoardId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
+
+    const result = await this.taskBoardService.archive(taskBoardId)
+    res.send(result)
+  }
+
+  async restore(req: Request, res: Response) {
+    const taskBoardId = Number(req.params.id)
+
+    const taskBoard = await this.taskBoardService.getArchivedTaskBoardById(taskBoardId)
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
+
+    const result = await this.taskBoardService.restore(taskBoardId)
+    res.send(result)
+  }
+
+  async delete(req: Request, res: Response) {
+    const taskBoard = await this.taskBoardService.requireById(Number(req.params.id), { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard)
 
     const result = await this.taskBoardService.remove(taskBoard.id)

@@ -21,6 +21,7 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
 } from '../values/user'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService

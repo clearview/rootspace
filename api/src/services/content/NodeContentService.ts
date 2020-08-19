@@ -14,12 +14,14 @@ export abstract class NodeContentService {
 
   abstract getNodeType(): NodeType
 
-  abstract nodeRemoved(contentId: number): Promise<void>
-
   async nodeUpdated(
     contentId: number,
     data: INodeContentUpdate
   ): Promise<void> {
     return
   }
+
+  abstract nodeArchived(contentId: number): Promise<void>
+  abstract nodeRestored(contentId: number): Promise<void>
+  abstract nodeRemoved(contentId: number): Promise<void>
 }

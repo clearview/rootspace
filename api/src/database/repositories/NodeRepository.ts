@@ -15,6 +15,7 @@ export class NodeRepository extends Repository<Node> {
     let nodes = await this.createQueryBuilder('node')
       .where('node.spaceId = :spaceId', { spaceId })
       .andWhere('node.id != :id', { id: root.id })
+      .withDeleted()
       .getMany()
 
     nodes = this.buildTree(nodes, root.id)
@@ -23,11 +24,27 @@ export class NodeRepository extends Repository<Node> {
     return nodes
   }
 
-  getById(id: number, spaceId?: number) {
+  getById(id: number, spaceId?: number, options?: any) {
     const query = this.createQueryBuilder('node').where('node.id = :id', { id })
 
     if (spaceId) {
       query.andWhere('node.spaceId = :spaceId', { spaceId })
+    }
+
+    if (options.withDeleted) {
+      query.withDeleted()
+    }
+
+    return query.getOne()
+  }
+
+  getByContentIdAndType(contentId: number, type: NodeType, options: any) {
+    const query = this.createQueryBuilder(
+      'node'
+    ).where('node.contentId = :contentId AND type = :type', { contentId, type })
+
+    if (options.withDeleted) {
+      query.withDeleted()
     }
 
     return query.getOne()
@@ -42,13 +59,27 @@ export class NodeRepository extends Repository<Node> {
       .getOne()
   }
 
-  getChildren(parentId: number): Promise<Node[]> {
+  getArchiveNodeBySpaceId(spaceId: number): Promise<Node> {
     return this.createQueryBuilder('node')
+      .where('node.type = :type AND node.contentId = :contentId', {
+        type: NodeType.Archive,
+        contentId: spaceId,
+      })
+      .getOne()
+  }
+
+  getChildren(parentId: number, options: any = {}): Promise<Node[]> {
+    const query = this.createQueryBuilder('node')
       .where('node.parentId = :parentId', {
         parentId,
       })
       .orderBy('position', 'ASC')
-      .getMany()
+
+    if (options.withDeleted) {
+      query.withDeleted()
+    }
+
+    return query.getMany()
   }
 
   async hasDescendant(ancestor: Node, descendantId: number): Promise<boolean> {

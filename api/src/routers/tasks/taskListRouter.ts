@@ -9,6 +9,8 @@ router.use(authenticate)
 router.get('/tasks/list/:id', mapRoute(TaskListCtrl, 'view'))
 router.post('/tasks/list', mapRoute(TaskListCtrl, 'create'))
 router.patch('/tasks/list/:id', mapRoute(TaskListCtrl, 'update'))
+router.post('/tasks/list/:id/archive', mapRoute(TaskListCtrl, 'archive'))
+router.post('/tasks/list/:id/restore', mapRoute(TaskListCtrl, 'restore'))
 router.delete('/tasks/list/:id', mapRoute(TaskListCtrl, 'delete'))
 
 export { router as taskListRouter }

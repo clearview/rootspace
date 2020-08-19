@@ -4,22 +4,34 @@ import { MailhogClient } from './MailhogClient'
 import { MailClientInterface } from './types'
 
 export class MailService {
-  async sendMail(to: string, subject: string, content: string): Promise<any> {
 
-    let service: MailClientInterface<any>
+  private constructor() {}
 
-    switch (config.env) {
-      case 'development':
-      case 'docker':
-      case 'test':
-        service = new MailhogClient()
-        break
+  private static instance: MailClientInterface<any>
 
-      default:
-        service = new SendGridClient()
-        break
+  static getInstance() {
+    if (!MailService.instance) {
+      let service: MailClientInterface<any>
+
+      switch (config.env) {
+        case 'development':
+        case 'docker':
+        case 'test':
+          service = new MailhogClient()
+          break
+
+        default:
+          service = new SendGridClient()
+          break
+      }
+
+      MailService.instance = service
     }
 
-    return service.sendMail(to, subject, content)
+    return MailService.instance
+  }
+
+  async sendMail(to: string, subject: string, content: string): Promise<any> {
+    return MailService.instance.sendMail(to, subject, content)
   }
 }

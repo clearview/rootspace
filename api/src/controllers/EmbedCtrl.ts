@@ -16,9 +16,7 @@ export class EmbedCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response) {
-    const embed = await this.embedService.requireEmbedById(
-      Number(req.params.id)
-    )
+    const embed = await this.embedService.requireEmbedById(Number(req.params.id))
 
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, embed)
 
@@ -45,6 +43,20 @@ export class EmbedCtrl extends BaseCtrl {
     const embed = await this.embedService.update(value, id)
 
     res.send(this.responseData(embed))
+  }
+
+  async archive(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.embedService.archive(id)
+
+    res.send(this.responseData(result))
+  }
+
+  async restore(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.embedService.restore(id)
+
+    res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {

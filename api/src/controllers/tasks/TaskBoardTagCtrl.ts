@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { TaskBoardTagService } from '../../services/content/tasks/TaskBoardTagService'
+import { TaskBoardTagService } from '../../services/content/tasks'
 import { TaskBoardService } from '../../services/content/tasks'
+import { ServiceFactory } from '../../services/factory/ServiceFactory'
 
 export class TaskBoardTagCtrl extends BaseCtrl {
   private taskBoardService: TaskBoardService
@@ -9,12 +10,12 @@ export class TaskBoardTagCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.taskBoardService = TaskBoardService.getInstance()
-    this.tagService = TaskBoardTagService.getInstance()
+    this.taskBoardService = ServiceFactory.getInstance().getTaskBoardService()
+    this.tagService = ServiceFactory.getInstance().getTaskBoardTagService()
   }
 
   async list(req: Request, res: Response, next: NextFunction) {
-    const tags = await this.tagService.getByTaskboardId(Number(req.params.taskBoardId))
+    const tags = await this.tagService.getByTaskBoardId(Number(req.params.taskBoardId))
 
     const resData = this.responseData(tags)
     res.send(resData)
@@ -29,7 +30,7 @@ export class TaskBoardTagCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
-    data.taskBoardId = Number(req.params.taskBoardId)
+    data.taskBoard = await this.taskBoardService.getById(data.taskBoardId)
 
     const resData = await this.tagService.create(data)
     res.send(resData)

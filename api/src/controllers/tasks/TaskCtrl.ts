@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskService } from '../../services'
-import { FollowService } from '../../services/FollowService'
+import { FollowService } from '../../services'
 import { Actions, Subjects } from '../../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
+import { ServiceFactory } from '../../services/factory/ServiceFactory'
 
 export class TaskCtrl extends BaseCtrl {
   private taskService: TaskService
@@ -11,8 +12,8 @@ export class TaskCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.taskService = TaskService.getInstance()
-    this.followService = FollowService.getInstance()
+    this.taskService = ServiceFactory.getInstance().getTaskService()
+    this.followService = ServiceFactory.getInstance().getFollowService()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {

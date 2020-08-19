@@ -4,7 +4,10 @@ import {
   Column,
   Index,
   CreateDateColumn,
-  UpdateDateColumn, ManyToOne, JoinColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
@@ -50,4 +53,7 @@ export class Doc {
 
   @UpdateDateColumn()
   updated: string
+
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  public deletedAt: Date
 }
