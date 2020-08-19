@@ -354,9 +354,10 @@ export default class TagsPopover extends Vue {
 
   .manage-button,
   .add-button {
-    @apply flex items-center pt-3;
+    @apply flex items-center;
 
     cursor: pointer;
+    padding-top: 16px;
     font-weight: bold;
     font-size: 12px;
     line-height: 14px;

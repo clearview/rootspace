@@ -140,19 +140,6 @@
           </div>
         </div>
         <div class="right-field">
-          <div class="right-field-title">Tags</div>
-          <div class="right-field-content">
-            <ul class="tags" v-if="item.tags && item.tags.length > 0">
-              <li class="tag" v-for="tag in item.tags" :key="tag.id" :style="{background: tag.color, color: textColor(tag.color)}">
-                <span>{{tag.label}}</span>
-              </li>
-            </ul>
-            <template v-else>
-              <span>None</span>
-            </template>
-          </div>
-        </div>
-        <div class="right-field">
           <div class="right-field-title">Attachments</div>
           <div class="right-field-content">
             <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">

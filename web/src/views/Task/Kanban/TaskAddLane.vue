@@ -34,7 +34,7 @@ export default class TaskAddLane extends Vue {
     @apply flex items-center p-2 rounded outline-none w-full;
     background: rgba(theme("colors.gray.100"), 0.25);
 
-    color: theme("colors.gray.400");
+    color: theme("colors.gray.800");
     transition: all 0.3s ease;
     font-weight: bold;
 

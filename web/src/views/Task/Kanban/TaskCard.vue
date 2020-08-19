@@ -317,7 +317,7 @@ export default class TaskCard extends Vue {
   }
 
   .task-card ~ .task-card {
-    @apply mt-3
+    margin-top: 8px;
   }
 
   .item-input-cloak {
