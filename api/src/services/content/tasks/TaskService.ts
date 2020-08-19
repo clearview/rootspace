@@ -12,6 +12,7 @@ import { ActivityService } from '../../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { TaskList } from '../../../database/entities/tasks/TaskList'
 
 export class TaskService {
   private userService: UserService
@@ -52,6 +53,11 @@ export class TaskService {
 
   async getById(id: number): Promise<Task> {
     return this.getTaskRepository().findOneOrFail(id)
+  }
+
+  // Todo: remove when task table gets taskBoardID field
+  async getTaskListByTask(task: Task): Promise<TaskList> {
+    return this.getTaskListRepository().findOne(task.listId)
   }
 
   async getArchivedById(id: number): Promise<Task> {
