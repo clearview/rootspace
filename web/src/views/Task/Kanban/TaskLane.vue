@@ -380,6 +380,12 @@ export default class TaskLane extends Vue {
       box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
       z-index: 50;
     }
+
+    .popover-trigger.show button {
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
   }
 
   .header-title {
@@ -391,6 +397,16 @@ export default class TaskLane extends Vue {
 
   .btn-link {
     @apply py-2 px-2;
+
+    background-color: unset !important;
+
+    &:hover {
+      background-color: unset;
+
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
   }
 
   .btn-link .stroke-current {
@@ -526,8 +542,10 @@ export default class TaskLane extends Vue {
           &:hover{
             border:solid 2px theme("colors.primary.default");
           }
-          .icon-checkmark{
+          .icon-checkmark {
             color: transparent;
+            opacity: 1;
+            right: auto;
           }
         }
         .color-default {

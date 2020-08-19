@@ -130,6 +130,8 @@ export default class TagsPopover extends Vue {
     .icon-checkmark {
       border: 0;
       top: 8px;
+      width: 16px;
+      height: 16px;
     }
 
     &.selected {
