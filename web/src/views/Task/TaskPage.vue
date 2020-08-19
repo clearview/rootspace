@@ -37,7 +37,7 @@
                         <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}">
                           {{ option.label }}
                         </div>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option}">
@@ -61,7 +61,7 @@
                       <div class="member-option">
                         <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                         <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="1.2rem" name="checkmark" viewbox="18" /></span>
+                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option }">
@@ -271,7 +271,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   textColor (bgColor: string) {
-    const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+    const textColor = ['#3A932C', '#C94747', '#DD8435', '#588f9c', '#9C3DBF', '#8c7940', '#883b68', '#394c84', '#47408c', '#2D6FD6']
     const getBgPosition = this.colors.indexOf(bgColor)
 
     return textColor[getBgPosition]
@@ -382,6 +382,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       flex: 1 1 auto;
       color: #fff;
       text-transform: uppercase;
+      border: 1px solid #000;
       font-weight: bold;
       span {
         flex: 1 1 auto;

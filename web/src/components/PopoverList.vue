@@ -43,7 +43,7 @@ export default class PopoverList extends Vue {
 <style lang="postcss" scoped>
 
   .list {
-    @apply py-2;
+    @apply py-1;
   }
 
   .item {

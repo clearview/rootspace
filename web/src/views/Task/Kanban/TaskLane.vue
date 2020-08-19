@@ -28,7 +28,7 @@
               <div class="action-submenu">
                 <div class="colors">
                   <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color);hide()">
-                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                   </div>
                   <div class="color-default" @click="selectColor(defaultColor);hide()">
                     Default
@@ -60,8 +60,7 @@
       <main class="cards" ref="cardContainer"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
-            :opacite="!isColorDefault"/>
+            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id" />
         </Draggable>
 
         <TaskCard default-inputting
@@ -176,10 +175,6 @@ export default class TaskLane extends Vue {
 
     private get defaultScrollColor () {
       return '#0005'
-    }
-
-    private get isColorDefault () {
-      return this.list.settings.color === this.defaultColor
     }
 
     mounted () {
@@ -385,6 +380,12 @@ export default class TaskLane extends Vue {
       box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
       z-index: 50;
     }
+
+    .popover-trigger.show button {
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
   }
 
   .header-title {
@@ -396,6 +397,16 @@ export default class TaskLane extends Vue {
 
   .btn-link {
     @apply py-2 px-2;
+
+    background-color: unset !important;
+
+    &:hover {
+      background-color: unset;
+
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
   }
 
   .btn-link .stroke-current {
@@ -531,8 +542,10 @@ export default class TaskLane extends Vue {
           &:hover{
             border:solid 2px theme("colors.primary.default");
           }
-          .icon-checkmark{
+          .icon-checkmark {
             color: transparent;
+            opacity: 1;
+            right: auto;
           }
         }
         .color-default {

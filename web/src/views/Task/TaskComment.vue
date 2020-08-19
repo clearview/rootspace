@@ -13,7 +13,7 @@
         <div class="header-date">
           {{comment.createdAt | formatDate}}
         </div>
-        <div class="header-actions" v-if="user.id === comment.userId">
+        <div class="header-actions" v-if="user.id === comment.userId && !isEditMode">
           <Popover :with-close="false" position="bottom-start">
             <template #default="{ hide }">
               <div class="action-line" @click="hide();enterEditMode()">
@@ -49,12 +49,8 @@
         />
       </div>
       <div v-if="isEditMode" class="comment-actions">
-        <button class="btn btn-link" @click="exitEditMode">
-          <v-icon name="close2" viewbox="20" title="Close"/>
-        </button>
-        <button class="btn btn-primary" @click="updateComment">
-          Save
-        </button>
+        <span class="cancel" @click="exitEditMode">Cancel</span>
+        <span class="save" @click="updateComment">Save</span>
       </div>
     </div>
 
@@ -198,21 +194,26 @@ export default class TaskComment extends Vue {
     color: theme("colors.gray.900");
     background: rgba(theme("colors.gray.100"), 0.3);
     white-space: pre-line;
+    word-break: break-word;
   }
-
   .comment-actions {
-    @apply mt-2 flex items-center justify-end;
+    @apply flex items-center justify-end;
 
-    .btn {
-      @apply px-4;
+    .save, .cancel {
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 17px;
+      text-align: right;
+    }
 
-      .stroke-current {
-        fill: none;
-      }
+    .save {
+      color: theme("colors.primary.default");
+      margin-left: 16px;
+    }
 
-      > span {
-        @apply ml-2;
-      }
+    .cancel {
+      color: theme("colors.gray.400");
     }
   }
 
@@ -228,39 +229,49 @@ export default class TaskComment extends Vue {
   .comment-header {
     @apply mb-1;
     display: flex;
-    align-items: center;
   }
   .header-name {
     font-weight: bold;
     font-size: 14px;
     flex: 0 0 auto;
     color: theme("colors.gray.900");
+    line-height: 20px;
   }
   .header-date {
     @apply ml-2;
     flex: 0 0 auto;
     color: theme("colors.gray.800");
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 19px;
   }
   .header-actions {
     @apply ml-auto;
     flex: 0 0 auto;
+
+    button {
+      width: 20px;
+      height: 19px;
+    }
+
     .btn {
       @apply p-0;
       color: theme("colors.gray.400");
     }
+
     .btn-link-primary {
       color: theme("colors.primary.default");
+      background: none !important;
     }
   }
   .action-line {
     @apply flex items-center py-2 px-4 my-1;
-    font-size: 14px;
-    font-weight: 600;
     min-width: 168px;
     color: theme("colors.gray.900");
     stroke-width: 3px;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
 
     &:hover{
       background: #F0F2F5;

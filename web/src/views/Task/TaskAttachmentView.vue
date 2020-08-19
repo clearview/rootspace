@@ -64,8 +64,8 @@ export default class TaskAttachmentView extends Vue {
   .attachment-media {
     img {
       @apply rounded;
-      width: 96px;
-      height: 96px;
+      width: 72px;
+      height: 72px;
       object-fit: cover;
     }
   }

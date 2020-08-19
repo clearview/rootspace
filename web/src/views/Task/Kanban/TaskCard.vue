@@ -14,40 +14,43 @@
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
       </div>
     </div>
-    <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
+    <div v-if="!isInputtingNewCard" class="card" @click="openModal()">
       <div class="color"></div>
       <div class="card-item">
-        <div class="header" :class="{ 'mb-8': isHasFooter(itemCopy) }">
-          <div class="title">
+        <div class="header">
+          <div class="title" ref="cardTitle">
             {{item.title}}
           </div>
           <div class="date" v-if="itemCopy.dueDate" :content="formatDateReadable(itemCopy.dueDate)" v-tippy>
             {{ formatDate(itemCopy.dueDate) }}
           </div>
         </div>
-        <div class="footer" v-if="isHasFooter(item)">
-          <div class="tags">
+        <div class="footer" v-if="isHasFooter(item)" :class="{ 'tags-margin': !isTitleMoreThanOneLine}">
+          <div class="tags" ref="tagLists">
             <ul>
               <li v-for="(tag, index) in itemCopy.tags" :key="index">
                 <div :style="{background: tag.color, color: textColor(tag.color)}" class="tag">
                   {{ tag.label }}
                 </div>
               </li>
-              <li v-if="item.attachments && item.attachments > 0">
+              <li v-if="item.attachments && item.attachments.length > 0">
                 <span class="icon">
-                  <v-icon name="attachment" viewbox="20" size="1rem" :withTitle="false" content="Attachment(s)" v-tippy/>
+                  <v-icon name="attachment" viewbox="20" size="20px" :withTitle="false" content="Attachment(s)" v-tippy/>
                 </span>
               </li>
               <li v-if="item.taskComments.length > 0">
                 <span class="icon">
-                  <v-icon name="comment" viewbox="16" size="1rem" :withTitle="false" content="Comment(s)" v-tippy/>
+                  <v-icon name="comment" viewbox="20" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
                 </span>
               </li>
             </ul>
           </div>
-          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
-            <li v-for="(assignee, index) in item.assignees" :key="index" class="assignee">
+          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0" :class="{ 'assignees-margin' : isTagMoreThanOneLine }">
+            <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee">
               <avatar :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+            </li>
+            <li class="assignee more-assignee" v-if="hasMoreAssignee">
+              <avatar :content="`${countMoreAssignee} More`" :username="`+ ${countMoreAssignee}`" v-tippy></avatar>
             </li>
           </ul>
         </div>
@@ -89,20 +92,25 @@ export default class TaskCard extends Vue {
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
 
-    @Prop({ type: Boolean, default: false })
-    private readonly opacite!: boolean
-
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement;
 
     @Ref('dragBlock')
     private readonly dragBlock!: HTMLDivElement;
 
+    @Ref('tagLists')
+    private readonly tagListsRef!: HTMLDivElement;
+
+    @Ref('cardTitle')
+    private readonly cardTitleRef!: HTMLDivElement;
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
     private isDragBlocked = false
     private isShowingPlaceholder = true
+    private isTagMoreThanOneLine = false
+    private isTitleMoreThanOneLine = false
     private titleBackbone = ''
 
     private get isProcessing () {
@@ -160,6 +168,14 @@ export default class TaskCard extends Vue {
       return this.$store.state.task.board.current
     }
 
+    get hasMoreAssignee (): boolean {
+      return this.item.assignees ? this.item.assignees.length > 10 : false
+    }
+
+    get countMoreAssignee (): number {
+      return this.item.assignees ? this.item.assignees.length - 10 : 0
+    }
+
     openModal () {
       if (this.board?.id && this.item.id) {
         this.$router.push({
@@ -212,7 +228,7 @@ export default class TaskCard extends Vue {
     }
 
     textColor (bgColor: string) {
-      const textColor = ['#64a55a', '#ab5d5d', '#9a7a56', '#588f9c', '#733988', '#8c7940', '#883b68', '#394c84', '#47408c', '#5c89cc']
+      const textColor = ['#3A932C', '#C94747', '#DD8435', '#588f9c', '#9C3DBF', '#8c7940', '#883b68', '#394c84', '#47408c', '#2D6FD6']
       const getBgPosition = this.colors.indexOf(bgColor)
 
       return textColor[getBgPosition]
@@ -221,6 +237,21 @@ export default class TaskCard extends Vue {
     @Watch('item')
     updateItem (val: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
       this.itemCopy = val
+
+      if (val.tags) {
+        Vue.nextTick(() => {
+          this.isTagMoreThanOneLine = false
+          this.isTitleMoreThanOneLine = false
+
+          if (this.tagListsRef && this.tagListsRef.clientHeight > 35) {
+            this.isTagMoreThanOneLine = true
+          }
+
+          if (this.cardTitleRef && this.cardTitleRef.clientHeight > 25) {
+            this.isTitleMoreThanOneLine = true
+          }
+        })
+      }
     }
 
     mounted () {
@@ -231,6 +262,16 @@ export default class TaskCard extends Vue {
           this.showModal = true
         }
       }
+
+      Vue.nextTick(() => {
+        if (this.tagListsRef && this.tagListsRef.clientHeight > 35) {
+          this.isTagMoreThanOneLine = true
+        }
+
+        if (this.cardTitleRef && this.cardTitleRef.clientHeight > 25) {
+          this.isTitleMoreThanOneLine = true
+        }
+      })
     }
 
     created () {
@@ -276,7 +317,7 @@ export default class TaskCard extends Vue {
   }
 
   .task-card ~ .task-card {
-    @apply mt-3
+    margin-top: 8px;
   }
 
   .item-input-cloak {
@@ -318,13 +359,12 @@ export default class TaskCard extends Vue {
 
   .card {
     @apply p-2 flex items-center rounded;
+
     margin: 0 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     background: theme("colors.white.default");
     transition: all 0.1s ease;
-    &.opacite{
-      background: rgba(theme("colors.white.default"), 0.8);
-    }
+
     &:hover {
        background: #F9FAFF;
        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
@@ -334,7 +374,7 @@ export default class TaskCard extends Vue {
   .color {
     @apply rounded;
     background: theme("colors.gray.100");
-    width: 4px;
+    width: 3px;
     height: auto;
     align-self: stretch;
     flex: 0 0 auto;
@@ -344,24 +384,34 @@ export default class TaskCard extends Vue {
     @apply ml-2 text-base flex flex-col;
     flex: 1 1 auto;
     width: 0;
-
     font-weight: 500;
     color: theme("colors.gray.900");
 
     .header {
       @apply flex justify-between flex-1;
 
+      font-size: 14px;
+      line-height: 17px;
+      padding: 3px 0;
+
       .title {
         @apply flex-1;
 
         word-break: break-word;
+        width: 168px;
       }
 
       .date {
-        @apply flex-none rounded px-2 py-1 self-start;
+        @apply flex-none rounded py-1 self-start;
 
-        background: theme("colors.gray.100");
-        font-size: .8rem;
+        background: #EFF1F6;
+        font-size: 10px;
+        line-height: 12px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        padding-left: 6px;
+        padding-right: 6px;
+        font-weight: bold;
       }
     }
 
@@ -379,18 +429,24 @@ export default class TaskCard extends Vue {
     .footer {
       /* @apply flex justify-between flex-1; */
       @apply block;
-      width: 220px;
+      width: 240px;
+
+      &.tags-margin {
+        margin-top: 8px;
+      }
 
       .tags {
         @apply flex-1 flex justify-start;
 
         float: left;
+        margin-top: 3px;
 
         ul {
           @apply block;
 
           li {
             display: inline-block;
+            margin-top: 4px;
           }
 
           .tag {
@@ -398,11 +454,10 @@ export default class TaskCard extends Vue {
 
             display: inline;
             color: #fff;
-            margin-right: 5px;
+            margin-right: 8px;
             font-size: 10px;
             line-height: 12px;
-
-            /* identical to box height */
+            font-weight: bold;
             letter-spacing: 0.03em;
             text-transform: uppercase;
           }
@@ -413,7 +468,7 @@ export default class TaskCard extends Vue {
         } */
 
         .icon {
-          @apply p-1 cursor-auto;
+          @apply cursor-auto;
 
           width: 26px;
           height: 26px;
@@ -430,17 +485,28 @@ export default class TaskCard extends Vue {
         @apply flex flex-wrap justify-start flex-row-reverse;
 
         float: right;
-        margin-top: 4px;
+
+        .assignee {
+          margin-top: 5px;
+        }
 
         li {
           .vue-avatar--wrapper {
-            width: 35px !important;
-            height: 35px !important;
-            font: 13px / 24px theme("fontFamily.primary") !important;
+            width: 28px !important;
+            height: 28px !important;
+            font: 10px / 13px theme("fontFamily.primary") !important;
             float: left;
             border: 2px solid #FFF;
             letter-spacing: 0.03em;
             margin-left: -7px;
+            color: #fff !important;
+          }
+        }
+
+        .more-assignee {
+          .vue-avatar--wrapper {
+            background-color: theme("colors.gray.900") !important;
+            color: #FFFFFF !important;
           }
         }
       }
@@ -510,5 +576,9 @@ export default class TaskCard extends Vue {
     100% {
       transform: translateX(0%)
     }
+  }
+
+  .assignees-margin {
+    margin-top: 13px;
   }
 </style>

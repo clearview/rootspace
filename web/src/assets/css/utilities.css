@@ -19,7 +19,14 @@
 }
 
 .icon-checkmark {
-  @apply self-center;
+  @apply rounded-full;
+  @apply flex justify-center items-center;
 
-  color: theme("colors.primary.default");
+  background: theme("colors.primary.default");
+  position: absolute;
+  right: 16px;
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #FFFFFF;
 }

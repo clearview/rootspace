@@ -13,6 +13,7 @@ import { Ability } from '@casl/ability'
 import { Follow } from './Follow'
 import { Notification } from './Notification'
 import { UserSetting } from './UserSetting'
+import { Task } from './tasks/Task'
 import { Length } from 'class-validator'
 
 @Entity('users')
@@ -76,6 +77,9 @@ export class User {
 
   @OneToMany(type => UserSetting, setting => setting.user, {eager: false, onDelete: 'CASCADE'})
   public settings!: UserSetting[]
+
+  @OneToMany(type => Task, task => task.user, {eager: false, onDelete: 'CASCADE'})
+  public tasks: Task[]
 
   public ability: Ability
 }

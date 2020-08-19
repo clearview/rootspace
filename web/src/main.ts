@@ -24,8 +24,6 @@ Vue.use(VueTippy, {
   placement: 'bottom',
   arrow: true,
   animation: 'perspective',
-  followCursor: true,
-  distance: 30,
   a11y: false
 })
 Vue.use(PortalVue)

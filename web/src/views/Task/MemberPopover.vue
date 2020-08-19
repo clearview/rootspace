@@ -8,7 +8,7 @@
             <div class="member-name flex" :class="{selected : isSelectedTag(member)}">
               <avatar :username="memberName(member)"></avatar>
               <span class="self-center">{{ memberName(member) }}</span>
-              <span class="icon-checkmark"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+              <span class="icon-checkmark"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
             </div>
           </li>
         </ul>
@@ -85,7 +85,7 @@ export default class TagsPopover extends Vue {
   }
 
   .member-input {
-    @apply px-4 py-1;
+    @apply px-4 pb-4;
   }
 
   .members {
@@ -95,26 +95,32 @@ export default class TagsPopover extends Vue {
   }
 
   .member {
-    @apply px-4 py-1;
+    @apply py-1;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
+    padding-left: 12px;
+    padding-right: 12px;
 
     &:hover {
-      background: theme("colors.gray.100");
+      background: #F9FAFF;
     }
   }
 
   .member-name {
     color: theme("colors.gray.800");
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 16px;
 
     .vue-avatar--wrapper {
-      width: 35px !important;
-      height: 35px !important;
-      font: 13px / 24px theme("fontFamily.primary") !important;
+      width: 24px !important;
+      height: 24px !important;
+      font: 10px / 13px theme("fontFamily.primary") !important;
       float: left;
-      border: 2px solid #FFF;
+      border: 0;
       letter-spacing: 0.03em;
+      color: #fff !important;
     }
 
     span {
@@ -122,16 +128,15 @@ export default class TagsPopover extends Vue {
     }
 
     .icon-checkmark {
-      color: theme("colors.primary.default");
-      position: absolute;
-      right: 16px;
-      opacity: 0;
+      border: 0;
+      top: 8px;
+      width: 16px;
+      height: 16px;
     }
 
     &.selected {
       .icon-checkmark {
         opacity: 1;
-        color: theme("colors.primary.default");
       }
 
       span {
