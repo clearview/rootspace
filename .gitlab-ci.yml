@@ -32,17 +32,6 @@ build_api:
         --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
 
-heroku_api_deploy:
-  image: node:12.16.2
-  before_script:
-    - apt-get install git
-  type: deploy
-  stage: heroku_api_deploy
-  script:
-      - apt-get update -qy
-      - apt-get install -y ruby-dev
-      - gem install dpl
-      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
   only:
       - master
       - dockerize
