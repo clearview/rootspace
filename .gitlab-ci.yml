@@ -4,7 +4,6 @@ variables:
   WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 stages:
-#  - heroku_api_deploy
   - build_api
 
 build_api:
