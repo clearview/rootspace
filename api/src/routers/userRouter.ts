@@ -23,7 +23,6 @@ router.get(
 router.post('/auth', mapRoute(UsersCtrl, 'auth'))
 
 router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
-router.get('/notifications/:read?', authenticate, mapRoute(UsersCtrl, 'notifications'))
 router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
 router.post('/users/token', authenticate, mapRoute(UsersCtrl, 'refreshToken'))

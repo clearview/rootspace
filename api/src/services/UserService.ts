@@ -53,17 +53,15 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(
-    id: number,
-    additionalFields?: string[]
-  ): Promise<User | undefined> {
+  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
     return this.getUserRepository().getById(id, additionalFields)
   }
 
-  async requireUserById(
-    id: number,
-    additionalFields?: string[]
-  ): Promise<User> {
+  getUserByIdWithNotifications(id: number, read: string): Promise<User | undefined> {
+    return this.getUserRepository().getByIdWithNotifications(id, read)
+  }
+
+  async requireUserById(id: number, additionalFields?: string[]): Promise<User> {
     const user = await this.getUserById(id, additionalFields)
 
     if (!user) {
@@ -77,17 +75,11 @@ export class UserService {
     return user
   }
 
-  getUserByEmail(
-    email: string,
-    selectPassword = false
-  ): Promise<User | undefined> {
+  getUserByEmail(email: string, selectPassword = false): Promise<User | undefined> {
     return this.getUserRepository().getByEmail(email, selectPassword)
   }
 
-  async requireUserByEmail(
-    email: string,
-    selectPassword = false
-  ): Promise<User> {
+  async requireUserByEmail(email: string, selectPassword = false): Promise<User> {
     const user = await this.getUserByEmail(email, selectPassword)
 
     if (!user) {
@@ -101,10 +93,7 @@ export class UserService {
     return user
   }
 
-  getUserByTokenAndId(
-    token: string,
-    userId: number
-  ): Promise<User | undefined> {
+  getUserByTokenAndId(token: string, userId: number): Promise<User | undefined> {
     return this.getUserRepository().findOne(userId, { where: { token } })
   }
 

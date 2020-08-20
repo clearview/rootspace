@@ -8,6 +8,7 @@ import { ServiceFactory } from '../../services/factory/ServiceFactory'
 import { UserSettingService } from '../../services/UserSettingService'
 import { User } from '../../database/entities/User'
 import pug from 'pug'
+import { Task } from '../../database/entities/tasks/Task'
 
 export class TaskWorker extends BaseWorker {
   static mailTemplatesDir = `${process.cwd()}/src/templates/mail/content/`
@@ -69,20 +70,63 @@ export class TaskWorker extends BaseWorker {
   }
 
   private async sendNotificationEmail(user: User, event: ActivityEvent): Promise<boolean> {
-    const actorId = event.actorId
-    const actor = await this.userService.getUserById(actorId)
     const task = await this.taskService.getById(event.entityId)
+    const taskList = await this.taskService.getTaskListByTask(task)
+    const taskUrl = `${config.domain}/taskboard/${taskList.boardId}/item/${task.id}/${task.slug}`
 
-    const subject = `Root, ${actor.fullName()} modified task ${task.title}`
-    const taskUrl = `${config.domain}/`
-
-    const content = pug.renderFile(
-      TaskWorker.mailTemplatesDir + 'modified.pug',
-      { actor, event, task, taskUrl }
-    )
+    const subject = await this.emailSubject(event, task)
+    const content = pug.renderFile(TaskWorker.mailTemplatesDir + 'modified.pug', { subject, taskUrl })
 
     await this.mailService.sendMail(user.email, subject, content)
 
     return true
+  }
+
+  private async emailSubject(event: ActivityEvent, task: Task) : Promise<string> {
+    const actorId = event.actorId
+    const actor = await this.userService.getUserById(actorId)
+
+    let action = ''
+
+    switch (event.action) {
+      case TaskActivities.Created:
+        action = 'created new task'
+        break
+      case TaskActivities.Updated:
+        action = 'updated task'
+        break
+      case TaskActivities.Archived:
+        action = 'archived task'
+        break
+      case TaskActivities.Restored:
+        action = 'restored task'
+        break
+      case TaskActivities.Deleted:
+        action = 'deleted task'
+        break
+      case TaskActivities.Assignee_Added:
+        action = 'added assignee to task'
+        break
+      case TaskActivities.Assignee_Removed:
+        action = 'removed assignee from task'
+        break
+      case TaskActivities.Comment_Created:
+        action = 'commented on task'
+        break
+      case TaskActivities.Comment_Updated:
+        action = 'updated a comment on task'
+        break
+      case TaskActivities.Comment_Deleted:
+        action = 'deleted a comment from task'
+        break
+      case TaskActivities.Tag_Added:
+        action = 'added new tag to task'
+        break
+      case TaskActivities.Tag_Removed:
+        action = 'removed tag from task'
+        break
+    }
+
+    return `Root, ${actor.fullName()} ${action} ${task.title}`
   }
 }

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
-import { TaskService } from '../../services'
-import { FollowService } from '../../services'
+import { FollowService, TaskService } from '../../services'
 import { Actions, Subjects } from '../../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
@@ -18,6 +17,9 @@ export class TaskCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response, next: NextFunction) {
     const task = await this.taskService.getById(Number(req.params.id))
+
+    // Todo: trigger this endpoint from the frontend in order to mark task related notifications read
+    // await this.taskService.readNotificationsForTask(task)
 
     const resData = this.responseData(task)
     res.send(resData)
