@@ -14,4 +14,12 @@ export default class PageMixin extends Vue {
 
     document.title = fragments.filter(x => x).join(' · ')
   }
+
+  get pageReady (): boolean {
+    return this.$store.state.page.ready
+  }
+
+  set pageReady (value: boolean) {
+    this.$store.commit('page/setReady', value)
+  }
 }
