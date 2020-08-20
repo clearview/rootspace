@@ -25,7 +25,7 @@ export class SpaceFacade {
   }
 
   getArchive(spaceId: number) {
-    return this.nodeService.getTreeBySpaceId(spaceId)
+    return this.nodeService.getArchiveBySpaceId(spaceId)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {

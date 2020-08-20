@@ -1,5 +1,5 @@
 import httpRequestContext from 'http-request-context'
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
@@ -75,7 +75,7 @@ export class NodeService {
   }
 
   getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
-    return this.getNodeRepository().getTreeBySpaceId(spaceId)
+    return this.getNodeRepository().getArchiveBySpaceId(spaceId)
   }
 
   getNodeMaxPosition(parentId: number): Promise<number> {
@@ -183,7 +183,7 @@ export class NodeService {
 
     node.parent = parent
     node.position = await this.getNodeNextPosition(parent.id)
-    node = await this.getNodeRepository().save(node)
+    node = await getTreeRepository(Node).save(node)
 
     await this.getNodeRepository().decreasePositions(fromParentId, fromPosition)
 

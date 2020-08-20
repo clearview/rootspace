@@ -7,14 +7,30 @@ export class NodeRepository extends Repository<Node> {
   async getTreeBySpaceId(spaceId: number): Promise<Node[]> {
     const root = await this.getRootBySpaceId(spaceId)
 
-    const query = this.createQueryBuilder('node')
+    let nodes = await this.createQueryBuilder('node')
       .andWhere('node.spaceId = :spaceId', { spaceId })
       .andWhere('node.type != :rootType', { rootType: NodeType.Root })
       .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
+      .getMany()
+
+    nodes = this.buildTree(nodes, root.id)
+    nodes = this.sortTree(nodes)
+
+    return nodes
+  }
+
+  async getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+    const archiveNode = await this.getArchiveNodeBySpaceId(spaceId)
+
+    const query = getTreeRepository(Node).createDescendantsQueryBuilder('node', null, archiveNode).withDeleted()
+
+    console.log(query.getSql())
 
     let nodes = await query.getMany()
 
-    nodes = this.buildTree(nodes, root.id)
+    console.log(nodes)
+
+    nodes = this.buildTree(nodes, archiveNode.id)
     nodes = this.sortTree(nodes)
 
     return nodes
