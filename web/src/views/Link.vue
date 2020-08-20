@@ -3,15 +3,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import parseURL from 'url-parse'
 
 import { LinkResource } from '@/types/resource'
+import PageMixin from '@/mixins/PageMixin'
 
 @Component({
   name: 'Link'
 })
-export default class Link extends Vue {
+export default class Link extends Mixins(PageMixin) {
   get id () {
     return Number(this.$route.params.id)
   }
@@ -36,6 +37,9 @@ export default class Link extends Vue {
   @Watch('id', { immediate: true })
   async watchId (id: number) {
     await this.$store.dispatch('link/view', id)
+
+    this.pageTitle = this.link.title
+    this.pageReady = true
 
     if (this.link.newTab && this.location) {
       window.open(this.location, '_blank')

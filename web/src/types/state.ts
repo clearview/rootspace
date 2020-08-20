@@ -31,6 +31,7 @@ export interface RootState {
   option: OptionState;
   space: SpaceState;
   tree: TreeState;
+  page: PageState;
 }
 
 export interface AuthState {
@@ -89,4 +90,8 @@ export interface SpaceState {
   activeIndex: number;
   spaces: SpaceResource[];
   spacesMeta: SpaceMetaResource[];
+}
+
+export interface PageState {
+  ready: boolean;
 }

@@ -1,5 +1,8 @@
 <template>
-  <div class="SelectSpace" v-click-outside="() => optionsVisible = false">
+  <div
+    class="SelectSpace"
+    v-click-outside="() => optionsVisible = false"
+  >
     <button
       class="btn btn-mute flex-grow p-1 justify-between truncate"
       @click="toggleOptionsVisibility"
@@ -15,7 +18,11 @@
             alt="Space"
           >
         </div>
-        <span class="truncate">{{ activeSpace.title }}</span>
+        <span
+          v-if="!hideLabel"
+          v-text="activeSpace.title"
+          class="truncate"
+        />
       </div>
       <v-icon
         name="down"
@@ -119,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 
 import { SpaceResource, SpaceMetaResource, UserResource } from '@/types/resource'
@@ -141,6 +148,9 @@ interface ModalState {
   }
 })
 export default class SelectSpace extends Vue {
+  @Prop(Boolean)
+  private readonly hideLabel!: boolean
+
   private optionsVisible = false
 
   private modal = {

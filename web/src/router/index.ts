@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import store from '@/store'
-import Main from '@/views/Main.vue'
+import Space from '@/views/Space.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    component: Main,
+    component: Space,
     children: [
       {
         path: '/',
         name: 'Main',
-        component: () => import(/* webpackChunkName: "start" */ '../views/Start.vue')
+        component: () => import(/* webpackChunkName: "blank" */ '../views/Blank.vue')
       },
       {
         path: '/settings',
