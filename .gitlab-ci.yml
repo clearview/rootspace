@@ -1,7 +1,7 @@
 services:
-    - name: docker:dind
-      entrypoint: ["env", "-u", "DOCKER_HOST"]
-      command: ["dockerd-entrypoint.sh"]
+  - name: docker:dind
+    entrypoint: ["env", "-u", "DOCKER_HOST"]
+    command: ["dockerd-entrypoint.sh"]
 
 variables:
   API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
