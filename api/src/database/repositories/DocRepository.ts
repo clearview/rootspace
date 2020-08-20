@@ -8,7 +8,7 @@ export class DocRepository extends BaseRepository<Doc> {
     const query = this.createQueryBuilder('doc').where('doc.id = :id', { id })
 
     if (options.withDeleted) {
-      query.withDeleted(9)
+      query.withDeleted()
     }
 
     return query.getOne()
