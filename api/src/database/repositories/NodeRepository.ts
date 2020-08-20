@@ -8,7 +8,7 @@ export class NodeRepository extends Repository<Node> {
     const root = await this.getRootBySpaceId(spaceId)
 
     let nodes = await this.createQueryBuilder('node')
-      .andWhere('node.spaceId = :spaceId', { spaceId })
+      .where('node.spaceId = :spaceId', { spaceId })
       .andWhere('node.type != :rootType', { rootType: NodeType.Root })
       .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
       .getMany()
@@ -22,13 +22,12 @@ export class NodeRepository extends Repository<Node> {
   async getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
     const archiveNode = await this.getArchiveNodeBySpaceId(spaceId)
 
-    const query = getTreeRepository(Node).createDescendantsQueryBuilder('node', null, archiveNode).withDeleted()
-
-    console.log(query.getSql())
+    const query = this.createQueryBuilder('node')
+      .where('node.spaceId = :spaceId', { spaceId })
+      .andWhere('node.deleted_at IS NOT NULL')
+      .withDeleted()
 
     let nodes = await query.getMany()
-
-    console.log(nodes)
 
     nodes = this.buildTree(nodes, archiveNode.id)
     nodes = this.sortTree(nodes)
