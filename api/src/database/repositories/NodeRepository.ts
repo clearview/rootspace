@@ -8,16 +8,16 @@ export class NodeRepository extends Repository<Node> {
     const root = await this.getRootBySpaceId(spaceId)
 
     const query = this.createQueryBuilder('node')
-      .where('node.spaceId = :spaceId', { spaceId })
+      .andWhere('node.spaceId = :spaceId', { spaceId })
       .andWhere('node.type != :rootType', { rootType: NodeType.Root })
       .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
 
-    const nodes = await query.getMany()
+    let nodes = await query.getMany()
 
-    let tree = this.buildTree(nodes, root.id)
-    tree = this.sortTree(nodes)
+    nodes = this.buildTree(nodes, root.id)
+    nodes = this.sortTree(nodes)
 
-    return tree
+    return nodes
   }
 
   getById(id: number, spaceId?: number, options?: any) {
