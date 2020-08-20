@@ -1,12 +1,15 @@
-image: node:12.16.2
-
-before_script:
-  - apt-get install git
+variables:
+  API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
+  PROXY_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/proxy
+  WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 stages:
   - heroku_api_deploy
 
 heroku_api_deploy:
+  image: node:12.16.2
+  before_script:
+    - apt-get install git
   type: deploy
   stage: heroku_api_deploy
   script:
@@ -16,3 +19,4 @@ heroku_api_deploy:
       - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
   only:
       - master
+      - dockerize
