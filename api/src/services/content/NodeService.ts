@@ -74,6 +74,10 @@ export class NodeService {
     return this.getNodeRepository().getTreeBySpaceId(spaceId)
   }
 
+  getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+    return this.getNodeRepository().getTreeBySpaceId(spaceId)
+  }
+
   getNodeMaxPosition(parentId: number): Promise<number> {
     return this.getNodeRepository().getNodeMaxPosition(parentId)
   }
