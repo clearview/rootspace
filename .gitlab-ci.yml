@@ -4,7 +4,7 @@ variables:
   WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 services:
-- docker:dind
+  - docker:dind
 
 stages:
   - build_api
