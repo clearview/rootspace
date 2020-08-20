@@ -1,5 +1,4 @@
 import { BaseValidator } from '../BaseValidator'
-import { validations } from 'indicative/validator'
 
 export class ChangePasswordValidator extends BaseValidator {
   rules() {

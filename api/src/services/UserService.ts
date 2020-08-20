@@ -24,6 +24,7 @@ import { ActivityEvent } from './events/ActivityEvent'
 import { UserActivities } from '../database/entities/activities/UserActivities'
 import { ActivityService } from './ActivityService'
 import { ServiceFactory } from './factory/ServiceFactory'
+import { UserAuthProvider } from '../values/user/UserAuthProvider'
 
 export class UserService {
   private activityService: ActivityService
@@ -130,14 +131,12 @@ export class UserService {
     data: ISignupProvider,
     sendEmailConfirmation: boolean = true
   ): Promise<User> {
-    const password = await hashPassword(data.password)
-
     let user = new User()
     user.firstName = data.firstName
     user.lastName = data.lastName
     user.email = data.email?.toLowerCase()
-    user.password = String(password)
-    user.authProvider = 'local'
+    user.password = data.password ? await hashPassword(data.password) : null
+    user.authProvider = data.authProvider ? data.authProvider : UserAuthProvider.LOCAL
     user.active = true
     user.emailConfirmed = data.emailConfirmed ? data.emailConfirmed : false
 
@@ -164,24 +163,12 @@ export class UserService {
       )
     }
 
-    if (user.authProvider !== 'local') {
-      throw clientError(
-        'Error updating user',
-        HttpErrName.EntityUpdateFailed,
-        HttpStatusCode.Forbidden
-      )
-    }
-
     Object.assign(user, data.attributes)
     return this.getUserRepository().save(user)
   }
 
-  async changePassword(
-    data: UserChangePasswordValue,
-    userId: number,
-    done: CallbackFunction
-  ) {
-    let user = await this.getUserById(userId, ['password'])
+  async changePassword(data: UserChangePasswordValue, userId: number, done: CallbackFunction) {
+    let user = await this.getUserById(userId, ['password', 'authProvider'])
 
     if (!user) {
       return done(
@@ -194,10 +181,8 @@ export class UserService {
       )
     }
 
-    bcrypt.compare(
-      data.attributes.password,
-      user.password,
-      async (err, res) => {
+    bcrypt.compare(data.attributes.password, user.password, async (err, res) => {
+      if (user.authProvider === UserAuthProvider.LOCAL) {
         if (err) {
           return done(err, null)
         }
@@ -205,21 +190,20 @@ export class UserService {
         if (res !== true) {
           return done(unauthorized(), null)
         }
-
-        const newPassword = await hashPassword(data.attributes.newPassword)
-        user.password = String(newPassword)
-
-        user = await this.getUserRepository().save(user)
-        delete user.password
-
-        return done(null, user)
       }
-    )
+
+      const newPassword = await hashPassword(data.attributes.newPassword)
+      user.password = String(newPassword)
+      user.authProvider = UserAuthProvider.LOCAL
+
+      user = await this.getUserRepository().save(user)
+      delete user.password
+
+      return done(null, user)
+    })
   }
 
-  async createPasswordReset(
-    data: PasswordRecoveryValue
-  ): Promise<PasswordReset> {
+  async createPasswordReset(data: PasswordRecoveryValue): Promise<PasswordReset> {
     let passwordReset = new PasswordReset()
 
     passwordReset.email = data.attributes.email
@@ -236,10 +220,7 @@ export class UserService {
     return passwordReset
   }
 
-  async registerActivityForUserId(
-    userActivity: UserActivities,
-    userId: number
-  ): Promise<Bull.Job> {
+  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
     const user = await this.getUserById(userId)
     return this.registerActivityForUser(userActivity, user)
   }
@@ -265,16 +246,13 @@ export class UserService {
     const newPassword = await hashPassword(data.attributes.password)
     user.password = String(newPassword)
 
-    user = await this.getUserRepository().save(user)
+    await this.getUserRepository().save(user)
 
     passwordReset.active = false
     return this.getPasswordResetRepository().save(passwordReset)
   }
 
-  async registerActivityForUser(
-    userActivity: UserActivities,
-    user: User
-  ): Promise<Bull.Job> {
+  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
     return this.activityService.add(
       ActivityEvent.withAction(userActivity)
         .fromActor(user.id)

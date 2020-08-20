@@ -21,7 +21,7 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
 } from '../values/user'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { UserAuthProvider } from '../values/user/UserAuthProvider'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -62,7 +62,7 @@ export class UsersCtrl extends BaseCtrl {
    */
   async auth(req: Request, res: Response, next: NextFunction) {
     return passport.authenticate(
-      'local',
+      UserAuthProvider.LOCAL,
       { session: false },
       (err, user, info) => {
         if (err || !user) {
@@ -116,10 +116,16 @@ export class UsersCtrl extends BaseCtrl {
     const userId = req.user.id
     const data = req.body.data
 
+    const existingUser = await getCustomRepository(UserRepository).getById(userId, ['authProvider'])
+
+    if (existingUser.authProvider !== UserAuthProvider.LOCAL) {
+      data.password = 'fake-password-placeholder'
+    }
+
     await validateChangePassword(data)
     const value = UserChangePasswordValue.fromObject(data)
 
-    this.userService.changePassword(value, userId, (err, user) => {
+    await this.userService.changePassword(value, userId, (err, user) => {
       if (err) {
         return next(err)
       }

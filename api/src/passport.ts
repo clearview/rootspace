@@ -17,6 +17,7 @@ import { Actions, Subjects } from './middleware/AuthMiddleware'
 import { UserActivities } from './database/entities/activities/UserActivities'
 import { ActivityEvent } from './services/events/ActivityEvent'
 import { ServiceFactory } from './services/factory/ServiceFactory'
+import { UserAuthProvider } from './values/user/UserAuthProvider'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -40,8 +41,7 @@ passport.use(
           lastName: profile.name.familyName,
           email: profile.emails[0].value,
           emailConfirmed: true,
-          password: '',
-          authProvider: 'google',
+          authProvider: UserAuthProvider.GOOGLE,
           active: true,
         }, false)
 
