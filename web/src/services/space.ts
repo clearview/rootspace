@@ -60,6 +60,8 @@ async function view (id: number) {
 }
 
 async function spaceUsers (id: number) {
+  if (!id) throw new Error('ID cannot empty')
+
   const { data } = await api.get(`spaces/${id}/users`)
 
   if (data.status === 'error') {

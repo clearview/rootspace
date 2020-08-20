@@ -62,10 +62,12 @@ export default class TagsPopover extends Vue {
   }
 
   async getSpaceMember () {
-    const id = this.activeSpace.id
-    const viewSpaceUsers = await SpaceService.spaceUsers(id)
+    try {
+      const id = this.activeSpace.id
+      const viewSpaceUsers = await SpaceService.spaceUsers(id)
 
-    this.memberList = viewSpaceUsers.data
+      this.memberList = viewSpaceUsers.data
+    } catch { }
   }
 
   isSelectedTag (member: UserResource) {

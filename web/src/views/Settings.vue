@@ -301,20 +301,22 @@ export default class Settings extends Mixins(PageMixin) {
     }
 
     async viewSpace (id: number) {
-      this.isLoading = true
-      this.loadingMessage = 'Get Space Settings...'
+      try {
+        this.isLoading = true
+        this.loadingMessage = 'Get Space Settings...'
 
-      const viewSpaceUsers = await SpaceService.spaceUsers(id)
-      const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
+        const viewSpaceUsers = await SpaceService.spaceUsers(id)
+        const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
 
-      const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
+        const concatSpaceUsers = viewSpaceUsers.data.concat(viewSpaceUsersPending.data)
 
-      const spaceTitle = this.activeSpace.title
-      this.spaceData = {
-        title: spaceTitle,
-        invites: concatSpaceUsers
-      }
-      this.isLoading = false
+        const spaceTitle = this.activeSpace.title
+        this.spaceData = {
+          title: spaceTitle,
+          invites: concatSpaceUsers
+        }
+        this.isLoading = false
+      } catch { }
     }
 
     swichTab (tab: string) {
