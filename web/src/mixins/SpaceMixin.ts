@@ -3,6 +3,10 @@ import { SpaceResource, SpaceMetaResource } from '@/types/resource'
 
 @Component
 export default class SpaceMixin extends Vue {
+  get spaces (): SpaceResource[] {
+    return this.$store.state.space.spaces || []
+  }
+
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace'] || {}
   }
