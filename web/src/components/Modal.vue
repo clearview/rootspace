@@ -3,7 +3,7 @@
     :to="portal"
     v-if="visible"
   >
-    <div class="modal" @click.self="cancel" :style="modalStyle">
+    <div class="modal" @mousedown.self="cancel" :style="modalStyle">
       <div class="modal-inner" :style="contentStyle">
         <slot
           name="header"
