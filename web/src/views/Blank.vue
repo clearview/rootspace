@@ -43,6 +43,7 @@ export default class Blank extends Mixins(PageMixin, SpaceMixin) {
     const query = this.$route.query
 
     this.pageTitle = null
+    this.pageReady = true
 
     if (query.from === 'invitation' && query.accept === '1') {
       this.alert = {

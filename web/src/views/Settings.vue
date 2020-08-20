@@ -328,6 +328,7 @@ export default class Settings extends Mixins(PageMixin) {
 
     mounted () {
       this.pageTitle = 'Settings'
+      this.pageReady = true
     }
 }
 </script>

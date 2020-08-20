@@ -248,6 +248,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       this.setActiveSpace(0)
     }
     this.isFetching = false
+    this.pageReady = true
   }
 
   async resetFilters () {

@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import parseURL from 'url-parse'
 
 import { LinkResource } from '@/types/resource'
@@ -39,6 +39,7 @@ export default class Link extends Mixins(PageMixin) {
     await this.$store.dispatch('link/view', id)
 
     this.pageTitle = this.link.title
+    this.pageReady = true
 
     if (this.link.newTab && this.location) {
       window.open(this.location, '_blank')

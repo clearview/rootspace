@@ -167,6 +167,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.$router.replace({ name: 'Document' })
       }
       this.initialize = false
+      this.pageReady = true
     }
   }
 

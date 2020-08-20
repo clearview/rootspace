@@ -35,12 +35,12 @@
     </div>
 
     <div class="sidebar-items">
-      <sidebar-tree :locked="locked" />
+      <sidebar-tree v-if="pageReady" :locked="locked" />
     </div>
 
     <div class="sidebar-footer">
       <div class="sidebar-actions relative">
-        <select-space />
+        <select-space :hide-label="!pageReady" />
 
         <div class="btn-group">
           <button-icon
@@ -76,13 +76,15 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 
 import ButtonIcon from '@/components/ButtonIcon.vue'
 import ButtonNodeAdd from '@/components/ButtonNodeAdd.vue'
 import Searchbar from '@/components/Searchbar.vue'
 import SelectSpace from '@/components/SelectSpace.vue'
 import SidebarTree from '@/components/sidebar/SidebarTree.vue'
+
+import PageMixin from '@/mixins/PageMixin'
 
 @Component({
   name: 'Sidebar',
@@ -94,7 +96,7 @@ import SidebarTree from '@/components/sidebar/SidebarTree.vue'
     SidebarTree
   }
 })
-export default class Sidebar extends Vue {
+export default class Sidebar extends Mixins(PageMixin) {
   @Prop(Boolean)
   private readonly noanimate!: boolean
 
