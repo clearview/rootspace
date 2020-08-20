@@ -4,7 +4,7 @@ variables:
   WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
 
 stages:
-  - heroku_api_deploy
+#  - heroku_api_deploy
   - build_api
 
 build_api:
@@ -34,7 +34,7 @@ heroku_api_deploy:
       - apt-get update -qy
       - apt-get install -y ruby-dev
       - gem install dpl
-#      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
+      - dpl --provider=heroku --app=cv-root-staging --api-key=$HEROKU_API_KEY
   only:
       - master
       - dockerize
