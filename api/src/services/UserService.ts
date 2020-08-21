@@ -8,23 +8,19 @@ import { PasswordReset } from '../database/entities/PasswordReset'
 import { ISignupProvider } from '../types/user'
 import {
   UserUpdateValue,
-  UserChangePasswordValue,
+  PasswordChangeValue,
+  PasswordSetValue,
   PasswordRecoveryValue,
   PasswordResetValue,
 } from '../values/user'
-import {
-  HttpErrName,
-  HttpStatusCode,
-  clientError,
-  unauthorized,
-} from '../errors'
+import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../errors'
 import { CallbackFunction } from 'ioredis'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { UserActivities } from '../database/entities/activities/UserActivities'
 import { ActivityService } from './ActivityService'
 import { ServiceFactory } from './factory/ServiceFactory'
-import { UserAuthProvider } from '../values/user/UserAuthProvider'
+import { UserAuthProvider } from '../types/user'
 
 export class UserService {
   private activityService: ActivityService
@@ -66,11 +62,7 @@ export class UserService {
     const user = await this.getUserById(id, additionalFields)
 
     if (!user) {
-      throw clientError(
-        'User not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.BadRequest
-      )
+      throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
     }
 
     return user
@@ -84,11 +76,7 @@ export class UserService {
     const user = await this.getUserByEmail(email, selectPassword)
 
     if (!user) {
-      throw clientError(
-        'User not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.BadRequest
-      )
+      throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
     }
 
     return user
@@ -127,10 +115,7 @@ export class UserService {
     return await this.getUserRepository().save(user)
   }
 
-  async signup(
-    data: ISignupProvider,
-    sendEmailConfirmation: boolean = true
-  ): Promise<User> {
+  async signup(data: ISignupProvider, sendEmailConfirmation: boolean = true): Promise<User> {
     let user = new User()
     user.firstName = data.firstName
     user.lastName = data.lastName
@@ -156,51 +141,45 @@ export class UserService {
     const user = await this.getUserById(userId, ['authProvider'])
 
     if (!user) {
-      throw clientError(
-        'User not found',
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
+      throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     Object.assign(user, data.attributes)
     return this.getUserRepository().save(user)
   }
 
-  async changePassword(data: UserChangePasswordValue, userId: number, done: CallbackFunction) {
-    let user = await this.getUserById(userId, ['password', 'authProvider'])
-
-    if (!user) {
-      return done(
-        clientError(
-          'User not found',
-          HttpErrName.EntityNotFound,
-          HttpStatusCode.NotFound
-        ),
-        null
-      )
-    }
+  async changePassword(data: PasswordChangeValue, userId: number, done: CallbackFunction) {
+    let user = await this.requireUserById(userId, ['password', 'authProvider'])
 
     bcrypt.compare(data.attributes.password, user.password, async (err, res) => {
-      if (user.authProvider === UserAuthProvider.LOCAL) {
-        if (err) {
-          return done(err, null)
-        }
+      if (err) {
+        return done(err, null)
+      }
 
-        if (res !== true) {
-          return done(unauthorized(), null)
-        }
+      if (res !== true) {
+        return done(unauthorized(), null)
       }
 
       const newPassword = await hashPassword(data.attributes.newPassword)
       user.password = String(newPassword)
-      user.authProvider = UserAuthProvider.LOCAL
 
       user = await this.getUserRepository().save(user)
       delete user.password
 
       return done(null, user)
     })
+  }
+
+  async setPassword(data: PasswordSetValue, userId: number): Promise<User> {
+    let user = await this.requireUserById(userId, ['password', 'authProvider'])
+
+    user.password = String(await hashPassword(data.attributes.newPassword))
+    user.authProvider = UserAuthProvider.LOCAL
+
+    user = await this.getUserRepository().save(user)
+    delete user.password
+
+    return user
   }
 
   async createPasswordReset(data: PasswordRecoveryValue): Promise<PasswordReset> {
@@ -211,11 +190,7 @@ export class UserService {
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
 
-    await this.activityService.add(
-      ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(
-        passwordReset
-      )
-    )
+    await this.activityService.add(ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(passwordReset))
 
     return passwordReset
   }
@@ -226,18 +201,13 @@ export class UserService {
   }
 
   async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
-    const passwordReset = await this.getPasswordResetByToken(
-      data.attributes.token
-    )
+    const passwordReset = await this.getPasswordResetByToken(data.attributes.token)
 
     if (!passwordReset) {
       throw clientError('Bad request')
     }
 
-    if (
-      passwordReset.active !== true ||
-      passwordReset.expiration <= new Date(Date.now())
-    ) {
+    if (passwordReset.active !== true || passwordReset.expiration <= new Date(Date.now())) {
       throw clientError('Token not active')
     }
 

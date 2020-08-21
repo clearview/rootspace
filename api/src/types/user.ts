@@ -9,8 +9,7 @@ export interface ISignupProvider {
   emailConfirmed?: boolean
 }
 
-export interface IChangePasswordProvider {
-  password: string
-  newPassword: string
-  newPassword_confirmation: string
+export enum UserAuthProvider {
+  LOCAL = 'local',
+  GOOGLE = 'google'
 }

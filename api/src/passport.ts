@@ -7,17 +7,13 @@ import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { ActivityService, SpaceService, UserService } from './services'
 import { unauthorized } from './errors'
-import {
-    Strategy as JwtStrategy,
-    ExtractJwt,
-    StrategyOptions, VerifiedCallback,
-} from 'passport-jwt'
+import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions, VerifiedCallback } from 'passport-jwt'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
 import { UserActivities } from './database/entities/activities/UserActivities'
 import { ActivityEvent } from './services/events/ActivityEvent'
 import { ServiceFactory } from './services/factory/ServiceFactory'
-import { UserAuthProvider } from './values/user/UserAuthProvider'
+import { UserAuthProvider } from './types/user'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -28,30 +24,36 @@ passport.use(
     {
       clientID: config.google.clientID,
       clientSecret: config.google.clientSecret,
-      callbackURL: googleCallbackURL
+      callbackURL: googleCallbackURL,
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
-
       const activityService = ServiceFactory.getInstance().getActivityService()
-      const existingUser = await ServiceFactory.getInstance().getUserService().getUserByEmail(profile.emails[0].value)
+      const existingUser = await ServiceFactory.getInstance()
+        .getUserService()
+        .getUserByEmail(profile.emails[0].value)
 
       if (!existingUser) {
-        const newUser = await ServiceFactory.getInstance().getUserService().signup({
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          email: profile.emails[0].value,
-          emailConfirmed: true,
-          authProvider: UserAuthProvider.GOOGLE,
-          active: true,
-        }, false)
+        const newUser = await ServiceFactory.getInstance()
+          .getUserService()
+          .signup(
+            {
+              firstName: profile.name.givenName,
+              lastName: profile.name.familyName,
+              email: profile.emails[0].value,
+              emailConfirmed: true,
+              authProvider: UserAuthProvider.GOOGLE,
+              active: true,
+            },
+            false
+          )
 
         return done(null, newUser.id)
       }
 
-      await activityService.add(ActivityEvent
-        .withAction(UserActivities.Login)
-        .fromActor(existingUser.id)
-        .forEntity(existingUser)
+      await activityService.add(
+        ActivityEvent.withAction(UserActivities.Login)
+          .fromActor(existingUser.id)
+          .forEntity(existingUser)
       )
       return done(null, existingUser.id)
     }
@@ -62,7 +64,7 @@ passport.use(
   new LocalStrategy(
     {
       usernameField: 'email',
-      passwordField: 'password'
+      passwordField: 'password',
     },
     async (email: string, password: string, done) => {
       try {
@@ -81,10 +83,10 @@ passport.use(
           }
 
           if (res !== true) {
-            await activityService.add(ActivityEvent
-              .withAction(UserActivities.Login_Failed)
-              .fromActor(user.id)
-              .forEntity(user)
+            await activityService.add(
+              ActivityEvent.withAction(UserActivities.Login_Failed)
+                .fromActor(user.id)
+                .forEntity(user)
             )
             return done(unauthorized())
           }
@@ -96,20 +98,20 @@ passport.use(
           } */
 
           if (user.active !== true) {
-            await activityService.add(ActivityEvent
-              .withAction(UserActivities.Login_Failed)
-              .fromActor(user.id)
-              .forEntity(user)
+            await activityService.add(
+              ActivityEvent.withAction(UserActivities.Login_Failed)
+                .fromActor(user.id)
+                .forEntity(user)
             )
             return done(unauthorized())
           }
 
           httpRequestContext.set('user', user)
 
-          await activityService.add(ActivityEvent
-            .withAction(UserActivities.Login)
-            .fromActor(user.id)
-            .forEntity(user)
+          await activityService.add(
+            ActivityEvent.withAction(UserActivities.Login)
+              .fromActor(user.id)
+              .forEntity(user)
           )
           return done(null, user)
         })
@@ -121,9 +123,9 @@ passport.use(
 )
 
 const jwtOptions: StrategyOptions = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: config.jwtSecretKey,
-    passReqToCallback: true
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.jwtSecretKey,
+  passReqToCallback: true,
 }
 
 passport.use(
@@ -137,7 +139,7 @@ passport.use(
 
     const expirationDate = new Date(tokenExpiryTimestamp * 1000)
 
-    if(expirationDate < new Date()) {
+    if (expirationDate < new Date()) {
       return done(null, false, { message: 'Token expired' })
     }
 
@@ -148,13 +150,15 @@ passport.use(
 
       if (config.env === 'production') {
         Sentry.configureScope((scope) => {
-          scope.setUser({id: user.id.toString(), email: user.email})
+          scope.setUser({ id: user.id.toString(), email: user.email })
         })
       }
 
       const { can, cannot, rules } = new AbilityBuilder()
       const userSpaces = await SpaceService.getInstance().getSpacesByUserId(req.user.id)
-      req.user.userSpaceIds = userSpaces.map(space => { return space.id })
+      req.user.userSpaceIds = userSpaces.map((space) => {
+        return space.id
+      })
 
       // User can manage any subject they own
       can(Actions.Manage, Subjects.All, { userId: user.id })
@@ -163,8 +167,9 @@ passport.use(
       can(Actions.Manage, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
 
       // User can not manage subjects outside spaces they belong to
-      cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } })
-        .because('Access to space not allowed')
+      cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } }).because(
+        'Access to space not allowed'
+      )
 
       // @ts-ignore
       req.user.ability = new Ability<[Actions, Subjects]>(rules)

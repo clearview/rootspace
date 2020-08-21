@@ -1,5 +1,6 @@
 export * from './types'
 export * from './UserUpdateValue'
-export * from './UserChangePasswordValue'
+export * from './PasswordChangeValue'
+export * from './PasswordSetValue'
 export * from './PasswordRecoveryValue'
 export * from './PasswordResetValue'
