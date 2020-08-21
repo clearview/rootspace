@@ -2,8 +2,8 @@
   <input
     v-if="canEdit"
     ref="input"
-    :value="value"
-    v-click-outside="end"
+    v-model="payload"
+    v-click-outside="save"
     @keydown.esc="end"
     @keydown.enter="save"
   />
@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class LabelEditable extends Vue {
@@ -35,6 +35,7 @@ export default class LabelEditable extends Vue {
   // State
 
   private editing = false
+  private payload = ''
 
   // Computed
 
@@ -60,11 +61,17 @@ export default class LabelEditable extends Vue {
     this.editing = false
   }
 
-  save (e: Event) {
-    const target: HTMLInputElement = e.target as HTMLInputElement
-
+  save () {
     this.end()
-    this.$emit('input', target.value)
+
+    this.$emit('input', this.payload)
+  }
+
+  // Watchers
+
+  @Watch('value', { immediate: true })
+  watchValue (value: string) {
+    this.payload = value
   }
 }
 </script>
