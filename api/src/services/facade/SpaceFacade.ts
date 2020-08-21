@@ -34,19 +34,11 @@ export class SpaceFacade {
 
   async createSpace(data: SpaceCreateValue): Promise<Space> {
     const space = await this.spaceService.create(data)
+
     await this.userSpaceService.add(space.userId, space.id)
 
-    await this.nodeService.createRootNode(
-      NodeCreateValue.fromObject({
-        userId: space.userId,
-        spaceId: space.id,
-        contentId: space.id,
-        title: 'root',
-        type: NodeType.Root,
-      })
-    )
-
-    await this.nodeService.createArchiveNodeBySpaceId(space.id)
+    await this.nodeService.createSpaceRootNode(space.id, space.userId)
+    await this.nodeService.createSpaceArchiveNode(space.id)
 
     return space
   }

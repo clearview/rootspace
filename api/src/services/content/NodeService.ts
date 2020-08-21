@@ -67,7 +67,7 @@ export class NodeService {
       return node
     }
 
-    return this.createArchiveNodeBySpaceId(spaceId)
+    return this.createSpaceArchiveNode(spaceId)
   }
 
   getTreeBySpaceId(spaceId: number): Promise<Node[]> {
@@ -87,32 +87,31 @@ export class NodeService {
     return ++position
   }
 
-  async createRootNode(data: NodeCreateValue): Promise<Node> {
+  async createSpaceRootNode(spaceId: number, userId: number): Promise<Node> {
     const node = this.getNodeRepository().create()
-    Object.assign(node, data.attributes)
 
-    node.parent = null
+    node.userId = userId
+    node.spaceId = spaceId
+    node.contentId = spaceId
+    node.title = 'Space'
+    node.type = NodeType.Root
     node.position = 0
 
     return this.getNodeRepository().save(node)
   }
 
-  async createArchiveNodeBySpaceId(spaceId: number) {
+  async createSpaceArchiveNode(spaceId: number): Promise<Node> {
     const rootNode = await this.getRootNodeBySpaceId(spaceId)
-
-    let node = this.getNodeRepository().create()
+    const node = this.getNodeRepository().create()
 
     node.userId = rootNode.userId
     node.spaceId = rootNode.spaceId
     node.contentId = rootNode.spaceId
     node.title = 'Archive'
     node.type = NodeType.Archive
-    node.parent = rootNode
+    node.position = 0
 
-    node = await this.getNodeRepository().save(node)
-    this.updateNodePosition(node, 1)
-
-    return node
+    return this.getNodeRepository().save(node)
   }
 
   async create(data: NodeCreateValue): Promise<Node> {
