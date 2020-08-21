@@ -1,8 +1,6 @@
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
-import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
 import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'

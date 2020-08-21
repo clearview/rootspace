@@ -57,7 +57,7 @@ export class NodeService {
   }
 
   getRootNodeBySpaceId(spaceId: number): Promise<Node> {
-    return this.getNodeRepository().getRootBySpaceId(spaceId)
+    return this.getNodeRepository().getRootNodeBySpaceId(spaceId)
   }
 
   async getArchiveNodeBySpaceId(spaceId: number): Promise<Node> {
@@ -176,7 +176,11 @@ export class NodeService {
       throw clientError('Cant not find node ' + toParentId)
     }
 
-    if (await this.getNodeRepository().hasDescendant(node, parent.id)) {
+    if (node.id === toParentId) {
+      throw clientError('Cant move node into itself')
+    }
+
+    if (await this.getNodeRepository().hasDescendant(node.id, parent.id)) {
       throw clientError('Cant move node into his own descendant ' + parent.id)
     }
 
