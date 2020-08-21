@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: root
+spec:
+  selector:
+    matchLabels:
+      app: api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      imagePullSecrets:
+      - name: us-east-1-ecr-registry
+      containers:
+      - name: api
+        image: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api:latest
+        imagePullPolicy: "Always"
+        # command:
+        # - "/bin/envconsul"
+        # - "-consul-addr=consul-server:8500"
+        # - "-prefix"
+        # - "root"
+        # - "pm2-runtime"
+        # - "start"
+        # - "/srv/docker/api/pm2/staging.json"
+        env:
+        - name: VERSION
+          value: "0.1.1"
+        - name: PORT
+          value: "3001"
+        - name: REDIS
+          value: "redis://redis:6379"
+        - name: MONGO
+          value: "mongodb://mongo:27017/root-mock"
+        ports:
+        - containerPort: 3001
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 3001
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 5
+        #   successThreshold: 1
+        resources:
+          limits:
+            cpu: 400m
+            memory: 512Mi
+          requests:
+            cpu: 20m
+            memory: 256Mi
