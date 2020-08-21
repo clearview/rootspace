@@ -1,6 +1,7 @@
 import * as faker from 'faker'
 import { User } from '../../src/database/entities/User'
 import { UserService } from '../../src/services'
+import { UserAuthProvider } from '../../src/values/user/UserAuthProvider'
 
 async function createUser(email: string, password: string): Promise<User> {
     return UserService.getInstance().signup({
@@ -9,7 +10,7 @@ async function createUser(email: string, password: string): Promise<User> {
         email,
         password,
         password_confirmation: password,
-        authProvider: 'local',
+        authProvider: UserAuthProvider.LOCAL,
         active: true
     }, false)
 }
