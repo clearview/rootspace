@@ -6,6 +6,7 @@ import list from '@/store/modules/task/list'
 import comment from '@/store/modules/task/comment'
 import item from '@/store/modules/task/item'
 import tag from '@/store/modules/task/tag'
+import settings from '@/store/modules/task/settings'
 
 const TaskModule: Module<TaskState, RootState> = {
   namespaced: true,
@@ -14,7 +15,8 @@ const TaskModule: Module<TaskState, RootState> = {
     list: list,
     comment: comment,
     item: item,
-    tag: tag
+    tag: tag,
+    settings: settings
   }
 }
 

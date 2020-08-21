@@ -189,7 +189,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     switch (node.type) {
       case NodeType.Link:
         return this.updateLink(path, node)
-
       case NodeType.Task:
         return this.updateTask(path, node)
     }

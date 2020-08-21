@@ -61,6 +61,7 @@ import IconShareGlobe from './IconShareGlobe.vue'
 import IconColor from '@/components/icon/IconColor.vue'
 import IconArchive from '@/components/icon/IconArchive.vue'
 import IconRight2 from '@/components/icon/IconRight2.vue'
+import IconMessage from '@/components/icon/IconMessage.vue'
 
 @Component({
   name: 'Icon',
@@ -88,6 +89,7 @@ import IconRight2 from '@/components/icon/IconRight2.vue'
     IconList,
     IconLinkEdit,
     IconLock,
+    IconMessage,
     IconPlus,
     IconPlus2,
     IconRandom,
