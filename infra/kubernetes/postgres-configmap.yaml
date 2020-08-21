@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: root-postgres-config
+  namespace: root
+  labels:
+    app: root-postgres
+data:
+  POSTGRES_DB: RootDB
+  POSTGRES_USER: root_pg_user
+  POSTGRES_PASSWORD: 38bf5ac3504c8a426a5ad0f7e4a2882c
