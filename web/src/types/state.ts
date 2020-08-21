@@ -8,6 +8,7 @@ import {
   TaskItemResource,
   DocumentResource
 } from './resource'
+import { TaskSettings } from '@/store/modules/task/settings'
 
 export interface ResourceState<T>{
   processing: boolean;
@@ -56,6 +57,7 @@ export interface TaskState {
   board: TaskBoardState;
   list: TaskListState;
   item: TaskItemState;
+  settings: TaskSettings;
 }
 
 export interface TaskBoardState {

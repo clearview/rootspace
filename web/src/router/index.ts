@@ -36,6 +36,16 @@ const routes: Array<RouteConfig> = [
         component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
       },
       {
+        path: '/tasklist/:id',
+        name: 'ListLane.vue',
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+      },
+      {
+        path: '/tasklist/:id/item/:item/:slug?',
+        name: 'TaskListWithItem',
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+      },
+      {
         path: '/link/:id',
         name: 'Link',
         component: () => import(/* webpackChunkName: "link" */'../views/Link.vue')
