@@ -26,7 +26,7 @@
       <v-icon name="down" />
     </div>
 
-    <div class="tree-node-label" >
+    <div class="tree-node-label overflow-hidden" >
       <div class="tree-node-icon">
         <v-icon :name="iconName" />
       </div>
