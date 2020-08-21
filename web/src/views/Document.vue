@@ -158,7 +158,8 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.value = viewDoc.data.content
         this.readOnly = viewDoc.data.isLocked
 
-        this.setPageTitle(this.title)
+        this.pageTitle = this.title
+
         this.setActiveSpace(viewDoc.data.spaceId, {
           activePage: this.$route.path
         })
@@ -166,6 +167,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.$router.replace({ name: 'Document' })
       }
       this.initialize = false
+      this.pageReady = true
     }
   }
 

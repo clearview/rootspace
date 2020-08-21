@@ -13,7 +13,7 @@
       >
     </v-field>
 
-    <v-field label="Select Board Type">
+    <v-field label="Select Board Type" v-if="false">
       <div class="type-list mt-2">
         <a
           class="type-item mr-4"

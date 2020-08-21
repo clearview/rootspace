@@ -1,10 +1,12 @@
 import { getCustomRepository } from 'typeorm'
 import { NotificationRepository } from '../database/repositories/NotificationRepository'
 import { Notification } from '../database/entities/Notification'
-import { Follow } from '../database/entities/Follow'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
+import { UpdateResult } from 'typeorm/index'
+import { User } from '../database/entities/User'
+import { Task } from '../database/entities/tasks/Task'
 import { ServiceFactory } from './factory/ServiceFactory'
 
 export class NotificationService {
@@ -58,6 +60,29 @@ export class NotificationService {
       event.activity.entityId,
       event.activity.entity
     )
+  }
+
+  getUserNotifications(id: number, spaceId?: number, read?: string): Promise<Notification[]> {
+    return this.getNotificationRepository().getUserNotifications(id, spaceId, read)
+  }
+
+  async readUserNotification(id: number, userId: number): Promise<Notification> {
+    const notification = await this.getNotificationRepository().findOne({ id, userId })
+    notification.isRead = true
+
+    return this.getNotificationRepository().save(notification)
+  }
+
+  async readUsersNotificationsForEntity(user: User, task: Task): Promise<Notification[]> {
+    return this.getNotificationRepository().getUnreadUserNotificationsForEntity(
+      user.id,
+      task.id,
+      task.constructor.name
+      )
+  }
+
+  async readUsersNotificationsForEntityIds(ids: number[], userId: number): Promise<UpdateResult> {
+    return this.getNotificationRepository().read(ids, userId)
   }
 
   async removeNotificationsForTasks(taskIds: number[]): Promise<void> {

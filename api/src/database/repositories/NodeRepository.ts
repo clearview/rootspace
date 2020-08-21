@@ -1,9 +1,4 @@
-import {
-  EntityRepository,
-  Repository,
-  UpdateResult,
-  getTreeRepository,
-} from 'typeorm'
+import { EntityRepository, Repository, UpdateResult, getTreeRepository } from 'typeorm'
 import { Node } from '../entities/Node'
 import { NodeType } from '../../types/node'
 
@@ -12,11 +7,12 @@ export class NodeRepository extends Repository<Node> {
   async getTreeBySpaceId(spaceId: number): Promise<Node[]> {
     const root = await this.getRootBySpaceId(spaceId)
 
-    let nodes = await this.createQueryBuilder('node')
-      .where('node.spaceId = :spaceId', { spaceId })
-      .andWhere('node.id != :id', { id: root.id })
-      .withDeleted()
-      .getMany()
+    const query = this.createQueryBuilder('node')
+      .andWhere('node.spaceId = :spaceId', { spaceId })
+      .andWhere('node.type != :rootType', { rootType: NodeType.Root })
+      .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
+
+    let nodes = await query.getMany()
 
     nodes = this.buildTree(nodes, root.id)
     nodes = this.sortTree(nodes)
@@ -39,9 +35,10 @@ export class NodeRepository extends Repository<Node> {
   }
 
   getByContentIdAndType(contentId: number, type: NodeType, options: any) {
-    const query = this.createQueryBuilder(
-      'node'
-    ).where('node.contentId = :contentId AND type = :type', { contentId, type })
+    const query = this.createQueryBuilder('node').where('node.contentId = :contentId AND type = :type', {
+      contentId,
+      type,
+    })
 
     if (options.withDeleted) {
       query.withDeleted()
@@ -102,11 +99,7 @@ export class NodeRepository extends Repository<Node> {
       .getCount()
   }
 
-  async decreasePositions(
-    parentId: number,
-    fromPosition: number,
-    toPostion?: number
-  ): Promise<UpdateResult> {
+  async decreasePositions(parentId: number, fromPosition: number, toPostion?: number): Promise<UpdateResult> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position - 1' })
@@ -120,11 +113,7 @@ export class NodeRepository extends Repository<Node> {
     return query.execute()
   }
 
-  async increasePositions(
-    parentId: number,
-    fromPosition: number,
-    toPostion?: number
-  ): Promise<UpdateResult> {
+  async increasePositions(parentId: number, fromPosition: number, toPostion?: number): Promise<UpdateResult> {
     const query = this.createQueryBuilder()
       .update()
       .set({ position: () => 'position + 1' })

@@ -1,5 +1,5 @@
 import httpRequestContext from 'http-request-context'
-import { getCustomRepository, UpdateResult } from 'typeorm'
+import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
@@ -12,15 +12,21 @@ import { ActivityService } from '../../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { TaskList } from '../../../database/entities/tasks/TaskList'
+import { NotificationService } from '../../NotificationService'
+import { Notification } from '../../../database/entities/Notification'
 
 export class TaskService {
   private userService: UserService
   private tagService: TaskBoardTagService
   private activityService: ActivityService
+  private notificationService: NotificationService
 
   private constructor() {
-    this.userService = ServiceFactory.getInstance().getUserService()
-    this.tagService = ServiceFactory.getInstance().getTaskBoardTagService()
+    this.userService = UserService.getInstance()
+    this.tagService = TaskBoardTagService.getInstance()
+    this.activityService = ActivityService.getInstance()
+    this.notificationService = NotificationService.getInstance()
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
@@ -54,8 +60,18 @@ export class TaskService {
     return this.getTaskRepository().findOneOrFail(id)
   }
 
+  // Todo: remove when task table gets taskBoardID field
+  async getTaskListByTask(task: Task): Promise<TaskList> {
+    return this.getTaskListRepository().findOne(task.listId)
+  }
+
   async getArchivedById(id: number): Promise<Task> {
     return this.getTaskRepository().findOneArchived(id)
+  }
+
+  async readNotificationsForTask(task: Task): Promise<Notification[]> {
+    const user = httpRequestContext.get('user')
+    return this.notificationService.readUsersNotificationsForEntity(user, task)
   }
 
   async create(data: any): Promise<Task> {
@@ -139,7 +155,6 @@ export class TaskService {
 
       const savedTask = await this.getTaskRepository().save(task)
       await this.registerActivityForTask(TaskActivities.Assignee_Added, task)
-      // await this.followService.follow(user, task)
 
       return savedTask
     }
@@ -154,8 +169,6 @@ export class TaskService {
     task.assignees = task.assignees.filter(assignee => {
       return assignee.id !== user.id
     })
-
-    // await this.followService.unfollow(user, task)
 
     const savedTask = await this.getTaskRepository().save(task)
     await this.registerActivityForTask(TaskActivities.Assignee_Removed, task)

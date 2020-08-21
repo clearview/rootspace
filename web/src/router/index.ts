@@ -1,19 +1,19 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import store from '@/store'
-import Main from '@/views/Main.vue'
+import Space from '@/views/Space.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    component: Main,
+    component: Space,
     children: [
       {
         path: '/',
         name: 'Main',
-        component: () => import(/* webpackChunkName: "start" */ '../views/Start.vue')
+        component: () => import(/* webpackChunkName: "blank" */ '../views/Blank.vue')
       },
       {
         path: '/settings',
@@ -33,6 +33,16 @@ const routes: Array<RouteConfig> = [
       {
         path: '/taskboard/:id/item/:item/:slug?',
         name: 'TaskPageWithItem',
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+      },
+      {
+        path: '/tasklist/:id',
+        name: 'ListLane.vue',
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+      },
+      {
+        path: '/tasklist/:id/item/:item/:slug?',
+        name: 'TaskListWithItem',
         component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
       },
       {

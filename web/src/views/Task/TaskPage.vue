@@ -107,34 +107,47 @@
             </template>
           </Popover>
         </div>
-        <div class="action action-type">
-          <v-icon
-            name="list"
-            size="2.5em"
-            class="icon-circle"
-            :class="{active: !isKanban}"
-          />
-          <v-icon
-            name="kanban"
-            size="2.5em"
-            class="icon-circle"
-            :class="{active: isKanban}"
-          />
-        </div>
+          <Tip :active="shouldShowTip" @close="markTipAsSeen">
+            <template #tip>
+              You can change your view preference between Kanban Board or List using this button
+            </template>
+            <div class="action action-type">
+              <div @click="viewAsList">
+                <v-icon
+                  name="list"
+                  size="2.5em"
+                  class="icon-circle"
+                  :class="{active: !isKanban}"
+                />
+              </div>
+              <div @click="viewAsBoard">
+                <v-icon
+                  name="kanban"
+                  size="2.5em"
+                  class="icon-circle"
+                  :class="{active: isKanban}"
+                />
+              </div>
+            </div>
+          </Tip>
       </div>
     </header>
-    <main class="board">
+    <main class="board" v-if="isKanban">
       <TaskGhost v-if="isFetching" active></TaskGhost>
       <BoardManager :can-drag="!isSearching" v-if="!isFetching && board" :board="board"/>
+    </main>
+    <main class="list" v-if="!isKanban">
+      <ListGhost v-if="isFetching" active></ListGhost>
+      <ListManager :can-drag="!isSearching" v-if="!isFetching && board" :board="board"/>
     </main>
   </section>
 </template>
 
 <script lang="ts">
 import Icon from '@/components/icon/Icon.vue'
-import { Component, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
-import BoardManager from '@/views/Task/BoardManager.vue'
+import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
 import Popover from '@/components/Popover.vue'
 import VSelect from 'vue-select'
 import SpaceService from '@/services/space'
@@ -145,10 +158,17 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
+import ListGhost from '@/components/ListGhost.vue'
+import { TaskSettings } from '@/store/modules/task/settings'
+import Tip from '@/components/Tip.vue'
+import ListManager from '@/views/Task/List/ListManager.vue'
 
 @Component({
   name: 'TaskPage',
   components: {
+    ListManager,
+    Tip,
+    ListGhost,
     TaskGhost,
     BoardManager,
     Icon,
@@ -189,11 +209,19 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   get isKanban (): boolean {
-    return this.board?.type === TaskBoardType.Kanban
+    return this.prefferedView === TaskBoardType.Kanban
   }
 
   get boardId (): number {
     return parseInt(this.$route.params.id)
+  }
+
+  get prefferedView (): TaskBoardType {
+    return this.$store.state.task.settings.viewAs
+  }
+
+  get shouldShowTip (): boolean {
+    return !this.$store.state.task.settings.seenViewTip
   }
 
   async clearMembers (payload: boolean) {
@@ -201,6 +229,24 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       this.filters.assignees = []
     }
     await this.fetchTask()
+  }
+
+  viewAsList () {
+    this.$store.commit('task/settings/setData', (state: TaskSettings) => {
+      state.viewAs = TaskBoardType.List
+    })
+  }
+
+  markTipAsSeen () {
+    this.$store.commit('task/settings/setData', (state: TaskSettings) => {
+      state.seenViewTip = true
+    })
+  }
+
+  viewAsBoard () {
+    this.$store.commit('task/settings/setData', (state: TaskSettings) => {
+      state.viewAs = TaskBoardType.Kanban
+    })
   }
 
   @Watch('boardId')
@@ -238,8 +284,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       }
       if (this.board) {
         this.boardCache = this.board
-
-        this.setPageTitle(this.board.title)
+        this.pageTitle = this.board.title
         this.setActiveSpace(this.board.spaceId, {
           activePage: this.$route.path
         })
@@ -248,6 +293,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       this.setActiveSpace(0)
     }
     this.isFetching = false
+    this.pageReady = true
   }
 
   async resetFilters () {
@@ -349,9 +395,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   @apply rounded-full p-2;
   color: transparent;
   stroke: theme("colors.gray.900");
+  cursor: pointer;
 
   &.active {
     background: theme("colors.primary.default");
+    stroke: #fff;
   }
 }
 

@@ -30,6 +30,7 @@ export class TaskBoardTagCtrl extends BaseCtrl {
 
   async create(req: Request, res: Response, next: NextFunction) {
     const data = req.body.data
+    data.taskBoardId = Number(req.params.taskBoardId)
     data.taskBoard = await this.taskBoardService.getById(data.taskBoardId)
 
     const resData = await this.tagService.create(data)

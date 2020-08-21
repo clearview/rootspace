@@ -17,6 +17,9 @@ const vuexSession = new VuexPersist<RootState>({
       space: state.space,
       tree: {
         folded: state.tree.folded
+      },
+      task: {
+        settings: state.task.settings
       }
     }
   }
