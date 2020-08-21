@@ -20,23 +20,17 @@ spec:
       - name: api
         image: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api:latest
         imagePullPolicy: "Always"
-        # command:
-        # - "/bin/envconsul"
-        # - "-consul-addr=consul-server:8500"
-        # - "-prefix"
-        # - "root"
-        # - "pm2-runtime"
-        # - "start"
-        # - "/srv/docker/api/pm2/staging.json"
+        command: ["/bin/sh"]
+        args: ["-c", "cd /srv/api; yarn install --production=false; yarn build; /bin/envconsul -consul-addr=consul-server:8500 -prefix root/api pm2-runtime start /srv/docker/api/pm2/staging.json"]
         env:
         - name: VERSION
-          value: "0.1.1"
+          value: "0.1.2"
         - name: PORT
           value: "3001"
-        - name: REDIS
-          value: "redis://redis:6379"
-        - name: MONGO
-          value: "mongodb://mongo:27017/root-mock"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "REDIS_PORT"
         ports:
         - containerPort: 3001
         # readinessProbe:
