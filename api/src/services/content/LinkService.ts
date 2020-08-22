@@ -76,7 +76,7 @@ export class LinkService extends NodeContentService {
     Object.assign(link, data.attributes)
     link = await this.getLinkRepository().save(link)
 
-    await this.nodeContentMediator.contentUpdated(link.id, this.getNodeType(), {
+    await this.mediator.contentUpdated(link.id, this.getNodeType(), {
       title: link.title,
     })
 
@@ -124,7 +124,7 @@ export class LinkService extends NodeContentService {
 
     link = await this._restore(link)
 
-    await this.nodeContentMediator.contentRestored(link.id, this.getNodeType())
+    await this.mediator.contentRestored(link.id, this.getNodeType())
     return link
   }
 
@@ -147,7 +147,7 @@ export class LinkService extends NodeContentService {
     // this.verifyRemove(link)
 
     link = await this.getLinkRepository().remove(link)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
     return link
   }

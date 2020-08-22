@@ -72,7 +72,7 @@ export class EmbedService extends NodeContentService {
     Object.assign(embed, data.attributes)
     embed = await this.getEmbedRepository().save(embed)
 
-    await this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), {
+    await this.mediator.contentUpdated(embed.id, this.getNodeType(), {
       title: embed.title,
     })
 
@@ -95,7 +95,7 @@ export class EmbedService extends NodeContentService {
     this.verifyArchive(embed)
 
     embed = await this._archive(embed)
-    await this.nodeContentMediator.contentArchived(embed.id, this.getNodeType())
+    await this.mediator.contentArchived(embed.id, this.getNodeType())
 
     return embed
   }
@@ -111,8 +111,7 @@ export class EmbedService extends NodeContentService {
   }
 
   private async _archive(_embed: Embed): Promise<Embed> {
-    const embed = await this.getEmbedRepository().softRemove(_embed)
-    return embed
+    return this.getEmbedRepository().softRemove(_embed)
   }
 
   async restore(id: number): Promise<Embed> {
@@ -120,7 +119,7 @@ export class EmbedService extends NodeContentService {
     this.verifyRestore(embed)
 
     embed = await this._restore(embed)
-    await this.nodeContentMediator.contentRestored(embed.id, this.getNodeType())
+    await this.mediator.contentRestored(embed.id, this.getNodeType())
 
     return embed
   }
@@ -145,7 +144,7 @@ export class EmbedService extends NodeContentService {
     // this.verifyRemove(embed)
 
     embed = await this._remove(embed)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    await this.mediator.contentRemoved(id, this.getNodeType())
 
     return embed
   }

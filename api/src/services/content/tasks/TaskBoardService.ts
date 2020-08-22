@@ -138,7 +138,7 @@ export class TaskBoardService extends NodeContentService {
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
 
-    await this.nodeContentMediator.contentUpdated(taskBoard.id, this.getNodeType(), {
+    await this.mediator.contentUpdated(taskBoard.id, this.getNodeType(), {
       title: taskBoard.title,
     })
 
@@ -233,7 +233,7 @@ export class TaskBoardService extends NodeContentService {
 
     await this.getTaskBoardRepository().remove(taskBoard)
 
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    await this.mediator.contentRemoved(id, this.getNodeType())
     await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard)
 
     return taskBoard

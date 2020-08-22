@@ -4,7 +4,7 @@ import { INodeContentMediator, INodeContentUpdate } from './contracts'
 export abstract class NodeContentService {
   protected mediator: INodeContentMediator
 
-  constructor(mediator: INodeContentMediator = null) {
+  protected constructor(mediator: INodeContentMediator = null) {
     this.mediator = mediator
   }
 
