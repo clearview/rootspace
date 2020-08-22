@@ -3,11 +3,11 @@ import { WsOutAction, WssInterface } from './contracts'
 import { OutMessage } from '../models/OutMessage'
 import { UserService } from '../UserService'
 import { SpaceService } from '../SpaceService'
-import Primus = require('primus')
+import { PrimusRooms } from '../../declarations/PrimusRooms'
 
 export class WsService implements WssInterface<any> {
   private static instance: WsService
-  private server: Primus
+  private server: PrimusRooms
   private userService: UserService
   private spaceService: SpaceService
 
@@ -22,8 +22,8 @@ export class WsService implements WssInterface<any> {
     return WsService.instance
   }
 
-  write(data: any): void {
-    return this.server.write(data)
+  write(data: OutMessage): void {
+    return this.server.room(data.space.id).write({message: data})
   }
 
   async onCreated(entity: any): Promise<void> {

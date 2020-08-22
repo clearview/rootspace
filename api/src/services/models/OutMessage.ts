@@ -3,11 +3,11 @@ import { User } from '../../database/entities/User'
 import { Space } from '../../database/entities/Space'
 
 export class OutMessage {
-  private action: WsOutAction
-  private target: string
-  private space: Space
-  private user: User
-  private object: any
+  action: WsOutAction
+  target: string
+  space: Space
+  user: User
+  object: any
 
   constructor(action: WsOutAction, user: User, space: Space, entity: any) {
     this.action = action
