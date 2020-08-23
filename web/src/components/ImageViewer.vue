@@ -49,7 +49,7 @@
                       viewbox="120"
                     />
                   </span>
-                  <span class="download-file">
+                  <span class="download-file pointer" @click="open(images[index].path)">
                     <v-icon
                       name="download"
                       size="16px"
@@ -85,16 +85,16 @@
                 </div>
                 <div class="action-separator"></div>
 
-                <Popover :offset="10" :with-close="false" position="right-start" class="delete-attachment left">
-                  <template #default>
+                <Popover :offset="10" :with-close="false" position="right-end" class="delete-attachment left">
+                  <template #default="{ hide }">
                     <div class="delete-confirmation">
-                      <h3>Delete Document</h3>
+                      <h3>Delete File</h3>
 
                       <p>File is about to be permanently deleted...</p>
                       <p>Warning: You can’t undo this action.</p>
 
                       <div class="delete-action">
-                        <p>Cancel</p>
+                        <p @click="hide();">Cancel</p>
                         <button class="btn btn-primary" @click="handleMenu('delete', images[index])">
                           Delete
                         </button>
@@ -118,11 +118,9 @@
                 </button>
               </template>
             </Popover>
-
-            <!-- <button class="btn btn-icon" >
-              <v-icon name="file" viewbox="32"/>
-              Download
-            </button> -->
+          </div>
+          <div class="images-count">
+            {{ showImagesCount(index, images) }}
           </div>
         </div>
       </div>
@@ -254,6 +252,13 @@ export default class ImageViewer extends Vue {
       this.close()
     }
   }
+
+  showImagesCount (index: number, images: UploadResource) {
+    const currentImage = index + 1
+    const totalImages = images.length
+
+    return `${currentImage} / ${totalImages}`
+  }
 }
 </script>
 
@@ -337,6 +342,12 @@ export default class ImageViewer extends Vue {
       color: #fff;
       margin-top: 8px;
       /* position: absolute; */
+      width: 100%;
+    }
+
+    .images-count {
+      text-align: center;
+      color: rgb(255 255 255 / .7);
       width: 100%;
     }
   }

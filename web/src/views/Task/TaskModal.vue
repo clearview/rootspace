@@ -96,10 +96,16 @@
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments">
-            <li v-for="(attachment, index) in item.attachments" :key="attachment.id" class="attachments-item">
+            <li v-for="(attachment, index) in filteredAttachmentItems" :key="attachment.id" class="attachments-item">
               <TaskAttachmentView :attachment="attachment" :index="index" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
+          <div>
+            <p class="show-attachments" @click="attachmentState()">
+              <v-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
+              {{ textAttachmentState }}
+            </p>
+          </div>
         </div>
         <div class="comment-separator"></div>
         <div class="comment-input">
@@ -252,6 +258,7 @@ export default class TaskModal extends Vue {
     private isEditingTitle = false
     private isCommenting = false
     private isCapturingFile = false
+    private isShowAllAttachment = false
     private attachmentIndex: number|null = null
     private toolbarOptions = [
       ['bold', 'italic', 'underline', 'strike'],
@@ -490,6 +497,30 @@ export default class TaskModal extends Vue {
         }
         this.isUploading = false
       }
+    }
+
+    get filteredAttachmentItems () {
+      if (this.isShowAllAttachment) {
+        return this.item.attachments
+      }
+
+      return this.item.attachments.slice(0, 3)
+    }
+
+    get textAttachmentState () {
+      const textState = this.isShowAllAttachment ? 'Less' : 'More'
+
+      return `Show ${textState}`
+    }
+
+    get iconAttachmentState () {
+      const iconState = this.isShowAllAttachment ? 'up' : 'down'
+
+      return iconState
+    }
+
+    attachmentState () {
+      this.isShowAllAttachment = !this.isShowAllAttachment
     }
 
     handlePaste (e: ClipboardEvent) {
@@ -939,12 +970,20 @@ export default class TaskModal extends Vue {
     .attachments-label {
       @apply uppercase pb-2;
 
-      color: theme("colors.gray.800");
+      color: theme("colors.gray.900");
       font-weight: bold;
       font-size: 12px;
       line-height: 14px;
       letter-spacing: 0.05em;
     }
+  }
+
+  .show-attachments {
+    @apply flex items-center;
+
+    cursor: pointer;
+    line-height: 17px;
+    color: theme("colors.gray.800");
   }
 
 </style>

@@ -30,15 +30,15 @@
           <div class="action-separator"></div>
 
           <Popover :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
-            <template #default>
+            <template #default="{ hide }">
               <div class="delete-confirmation">
-                <h3>Delete Document</h3>
+                <h3>Delete File</h3>
 
                 <p>File is about to be permanently deleted...</p>
                 <p>Warning: You can’t undo this action.</p>
 
                 <div class="delete-action">
-                  <p>Cancel</p>
+                  <p @click="hide();">Cancel</p>
                   <button class="btn btn-primary" @click="handleMenu('delete')">
                     Delete
                   </button>
@@ -305,8 +305,24 @@ export default class TaskAttachmentView extends Vue {
 
       &::after {
         left: 15%;
-        top: -19px;
+        top: -20px;
         border-bottom: 10px solid #FFF;
+      }
+
+      &[data-popper-placement="top-start"] {
+        &::before {
+          bottom: -11px;
+          top: unset;
+          border-bottom: unset;
+          border-top: 10px solid theme("colors.primary.default");
+        }
+
+        &::after {
+          bottom: -10px;
+          top: unset;
+          border-bottom: unset;
+          border-top: 10px solid #FFF;
+        }
       }
     }
   }
@@ -316,15 +332,31 @@ export default class TaskAttachmentView extends Vue {
       border: 1px solid theme("colors.primary.default");
 
       &::before {
-        left: -22px;
-        top: 70%;
+        left: -21px;
+        top: 78%;
         border-right: 10px solid theme("colors.primary.default");
       }
 
       &::after {
         left: -20px;
-        top: 70%;
+        top: 78%;
         border-right: 10px solid #FFF;
+      }
+
+      &[data-popper-placement="left-end"] {
+        &::before {
+          right: -11px;
+          left: unset;
+          border-right: unset;
+          border-left: 10px solid theme("colors.primary.default");
+        }
+
+        &::after {
+          right: -10px;
+          left: unset;
+          border-right: unset;
+          border-left: 10px solid #FFF;
+        }
       }
     }
   }
