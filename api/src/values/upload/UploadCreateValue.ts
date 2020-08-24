@@ -4,9 +4,9 @@ import { IUploadAttributes } from './types'
 export const SpaceCreateAttributes = {
   userId: null,
   spaceId: null,
-  entity: null,
   entityId: null,
-  contentType: null,
+  entity: null,
+  type: null,
 }
 
 @attributes(SpaceCreateAttributes)
