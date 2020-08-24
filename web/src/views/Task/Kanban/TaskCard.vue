@@ -429,7 +429,6 @@ export default class TaskCard extends Vue {
     .footer {
       /* @apply flex justify-between flex-1; */
       @apply block;
-      width: 240px;
 
       &.tags-margin {
         margin-top: 8px;
