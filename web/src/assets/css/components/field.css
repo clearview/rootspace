@@ -95,7 +95,15 @@
 .feedback {
   @apply mt-1;
 
+  .has-addon & {
+    @apply w-full;
+  }
+
   &.is-danger {
     @apply text-danger;
+  }
+
+  &.is-success {
+    @apply text-success;
   }
 }

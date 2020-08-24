@@ -194,10 +194,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('boardId')
   async getSpaceMember () {
-    const id = this.activeSpace.id
-    const viewUserAtSpace = await SpaceService.spaceUsers(id)
+    try {
+      const id = this.activeSpace.id
+      const viewUserAtSpace = await SpaceService.spaceUsers(id)
 
-    this.memberList = viewUserAtSpace.data
+      this.memberList = viewUserAtSpace.data
+    } catch { }
   }
 
   get tags (): TagResource[] | null {
