@@ -231,7 +231,7 @@ export default class TaskLane extends Vue {
       const prev = this.orderedCards[prevIndex]
       const next = this.orderedCards[nextIndex]
 
-      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
 
       await this.$store.dispatch('task/item/update', {
         id: data.added.element.id,
@@ -243,7 +243,7 @@ export default class TaskLane extends Vue {
       const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
       const prev = this.orderedCards[prevIndex]
       const next = this.orderedCards[nextIndex]
-      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
       await this.$store.dispatch('task/item/update', {
         id: data.moved.element.id,
         listId: this.list.id,
