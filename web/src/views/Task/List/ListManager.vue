@@ -85,7 +85,7 @@ export default class ListManager extends Vue {
         board: this.board,
         boardId: this.board.id,
         description: null,
-        position: getNextPosition(this.board.taskLists.length),
+        position: getNextPosition(this.board.taskLists.length, this.orderedLanes && this.orderedLanes.length > 0 ? this.orderedLanes[this.orderedLanes.length - 1].position : 0),
         spaceId: this.board.spaceId,
         tasks: [],
         title: '',
@@ -101,7 +101,7 @@ export default class ListManager extends Vue {
         const prev = this.orderedLanes[prevIndex]
         const next = this.orderedLanes[nextIndex]
 
-        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.board.taskLists.length))
+        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.board.taskLists.length, prev.position))
 
         await this.$store.dispatch('task/list/update', {
           id: data.moved.element.id,
