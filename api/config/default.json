@@ -5,11 +5,11 @@
   "jwt": {
     "accessToken": {
       "secretKey": "hxDSkATgxjx-xDmyasD4kR6dxHGEwfoxrbvymeeSI6qaZUP8qsJjAk_AXhBeBZMfaIrdraKnwCVaS1eHl8",
-      "expiresIn": 3600
+      "expiresIn": 1296000
     },
     "refreshToken": {
       "secretKey": "4KMhvZI5uml-G9TkCbLcU6BR3DaWngVfozixEwsPjA1FqSYJdetr87_Q2OyXHpJ9ePyhTHXUuAjQ4OrmRK",
-      "expiresIn": 86400
+      "expiresIn": 2592000
     }
   },
   "google": {
