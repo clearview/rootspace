@@ -12,9 +12,9 @@ import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
 import { FileActivities } from '../database/entities/activities/FileActivities'
 import { ServiceFactory } from './factory/ServiceFactory'
+import { UploadCreateValue } from '../values/upload'
 
 export class UploadService {
-
   private s3: S3
   private activityService: ActivityService
 
@@ -22,7 +22,7 @@ export class UploadService {
     this.activityService = ServiceFactory.getInstance().getActivityService()
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
-      secretAccessKey: config.s3.secretKey
+      secretAccessKey: config.s3.secretKey,
     })
   }
 
@@ -34,46 +34,46 @@ export class UploadService {
     return this.getUploadRepository().findOne(id)
   }
 
-  async upload (file: any, metadata: any) {
-    try {
-      const filePath = path.join(
-        String(metadata.spaceId),
-        nanoid(23),
-        file.originalname.replace(/\s+/g, '-').toLowerCase()
-      )
-      const sFFile: any = await this.sendFileToS3(file, filePath)
-      const fileData: Upload = this.getUploadRepository().create()
+  async create(data: UploadCreateValue) {
+    const filePath = path.join(
+      String(data.attributes.spaceId),
+      nanoid(23),
+      data.file.originalname.replace(/\s+/g, '-').toLowerCase()
+    )
 
-      fileData.spaceId = metadata.spaceId
-      fileData.userId = metadata.userId
-      fileData.type = file.mimetype
-      fileData.size = file.size
-      fileData.path = sFFile.Location
+    const sFFile: any = await this.sendFileToS3(data.file, filePath)
 
-      const upload = await this.getUploadRepository().save(fileData)
-      await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+    let upload = this.getUploadRepository().create()
+    Object.assign(upload, data.attributes)
 
-      return upload
-    } catch (e) {
-      throw new Error(e)
-    }
+    upload.type = data.file.mimetype
+    upload.size = data.file.size
+    upload.path = sFFile.Location
+
+    upload = await this.getUploadRepository().save(upload)
+    await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+
+    return upload
   }
 
-  sendFileToS3 (file: any, filePath: string) {
+  sendFileToS3(file: any, filePath: string) {
     return new Promise((resolve, reject) => {
-      this.s3.upload({
-        Key: filePath,
-        Bucket: config.s3.bucket,
-        ACL: 'public-read',
-        ContentType: file.mimetype,
-        Body: fs.createReadStream(file.path)
-      }, (err, output) => {
-        if (err) {
-          reject(err)
-          return
+      this.s3.upload(
+        {
+          Key: filePath,
+          Bucket: config.s3.bucket,
+          ACL: 'public-read',
+          ContentType: file.mimetype,
+          Body: fs.createReadStream(file.path),
+        },
+        (err, output) => {
+          if (err) {
+            reject(err)
+            return
+          }
+          resolve(output)
         }
-        resolve(output)
-      })
+      )
     })
   }
 
@@ -86,8 +86,7 @@ export class UploadService {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
-      ActivityEvent
-        .withAction(uploadActivity)
+      ActivityEvent.withAction(uploadActivity)
         .fromActor(actor.id)
         .forEntity(upload)
         .inSpace(upload.spaceId)

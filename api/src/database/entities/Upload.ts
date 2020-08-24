@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, Update
 
 @Entity('uploads')
 export class Upload {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -13,6 +12,15 @@ export class Upload {
   @Column('integer')
   @Index()
   spaceId: number
+
+  @Column('varchar')
+  entity: string
+
+  @Column('integer')
+  entityId: number
+
+  @Column('varchar')
+  contentType: string
 
   @Column('varchar')
   type: string
@@ -28,5 +36,3 @@ export class Upload {
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
-
-}
