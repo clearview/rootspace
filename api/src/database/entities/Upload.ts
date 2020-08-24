@@ -13,13 +13,16 @@ export class Upload {
   @Index()
   spaceId: number
 
-  @Column('integer', { nullable: true })
-  entityId: number
-
-  @Column('varchar', { nullable: true })
+  @Column('varchar')
   entity: string
 
-  @Column('varchar', { nullable: true })
+  @Column('integer')
+  entityId: number
+
+  @Column('varchar')
+  contentType: string
+
+  @Column('varchar')
   type: string
 
   @Column('varchar')
