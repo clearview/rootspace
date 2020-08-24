@@ -13,8 +13,8 @@
       </div>
     </div>
     <div class="attachment-name">
-      {{attachment.path | formatAttachmentName}}
-      <span>
+      <span class="title" @click="viewAttachment">{{attachment.path | formatAttachmentName}}</span>
+      <span class="date">
         Added {{attachment.created | formatDate}}
       </span>
     </div>
@@ -165,16 +165,21 @@ export default class TaskAttachmentView extends Vue {
     color: theme("colors.gray.900");
     font-weight: bold;
     line-height: 17px;
+    word-break: break-word;
 
     &::first-letter {
       text-transform: uppercase;
     }
 
-    span {
+    span.date {
       font-weight: normal;
       color: theme("colors.gray.800");
       display: block;
       padding-top: 4px
+    }
+
+    span.title {
+      cursor: pointer;
     }
   }
 

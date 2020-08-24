@@ -504,7 +504,7 @@ export default class TaskModal extends Vue {
         return this.item.attachments
       }
 
-      return this.item.attachments.slice(0, 3)
+      return this.item.attachments ? this.item.attachments.slice(0, 5) : this.item.attachments
     }
 
     get textAttachmentState () {

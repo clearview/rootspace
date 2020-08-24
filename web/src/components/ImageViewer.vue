@@ -253,7 +253,7 @@ export default class ImageViewer extends Vue {
     }
   }
 
-  showImagesCount (index: number, images: UploadResource) {
+  showImagesCount (index: number, images: any) {
     const currentImage = index + 1
     const totalImages = images.length
 
@@ -342,13 +342,14 @@ export default class ImageViewer extends Vue {
       color: #fff;
       margin-top: 8px;
       /* position: absolute; */
-      width: 100%;
+      width: 943px;
+      word-break: break-word;
     }
 
     .images-count {
       text-align: center;
       color: rgb(255 255 255 / .7);
-      width: 100%;
+      width: 943px;
     }
   }
 
