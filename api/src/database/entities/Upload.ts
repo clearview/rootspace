@@ -13,17 +13,17 @@ export class Upload {
   @Index()
   spaceId: number
 
-  @Column('varchar')
-  entity: string
-
-  @Column('integer')
+  @Column('integer', { nullable: true })
   entityId: number
 
-  @Column('varchar')
-  contentType: string
+  @Column('varchar', { nullable: true })
+  entity: string
+
+  @Column('varchar', { nullable: true })
+  type: string
 
   @Column('varchar')
-  type: string
+  mime: string
 
   @Column('integer')
   size: number
@@ -33,6 +33,11 @@ export class Upload {
 
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
+  @Column('json', { nullable: true })
+  versions: object
+
+  @CreateDateColumn()
+  created: string
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
