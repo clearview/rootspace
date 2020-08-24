@@ -100,7 +100,7 @@
               <TaskAttachmentView :attachment="attachment" :index="index" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
-          <div>
+          <div v-if="item.attachments.length > 5">
             <p class="show-attachments" @click="attachmentState()">
               <v-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
               {{ textAttachmentState }}
