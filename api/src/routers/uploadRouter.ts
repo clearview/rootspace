@@ -10,13 +10,9 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 const upload = multer({
-    dest: path.resolve(config.uploadDir),
+  dest: path.resolve(config.uploadDir),
 })
 
-router.post(
-    '/upload',
-    upload.single('file'),
-    mapRoute(UploadsCtrl, 'index')
-)
+router.post('/upload', upload.single('file'), mapRoute(UploadsCtrl, 'index'))
 
 export { router as uploadRouter }
