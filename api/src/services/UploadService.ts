@@ -20,6 +20,7 @@ export class UploadService {
 
   constructor() {
     this.activityService = ServiceFactory.getInstance().getActivityService()
+
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
       secretAccessKey: config.s3.secretKey,
@@ -46,7 +47,7 @@ export class UploadService {
     let upload = this.getUploadRepository().create()
     Object.assign(upload, data.attributes)
 
-    upload.type = data.file.mimetype
+    upload.mime = data.file.mimetype
     upload.size = data.file.size
     upload.path = sFFile.Location
 
