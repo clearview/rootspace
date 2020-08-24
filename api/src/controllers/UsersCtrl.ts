@@ -65,21 +65,38 @@ export class UsersCtrl extends BaseCtrl {
         return next(err)
       }
 
-      const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-      return res.json({ token })
+        return res.json(this.signedTokens(user.id))
     })(req, res)
   }
 
   async authGoogleCallback(req: Request, res: Response) {
     const user = req.user
-    const token = jwt.sign({ id: user }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-    res.send({ token })
+
+    const token = jwt.sign({ id: user }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
+    const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
+
+    res.send({ token, refreshToken })
   }
 
-  async refreshToken(req: Request, res: Response) {
-    const user = req.user
-    const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-    res.send({ token })
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
+    return passport.authenticate(
+      'refreshToken',
+      { session: false },
+      (err, user, info) => {
+        if (err || !user) {
+          return next(err)
+        }
+
+        return res.json(this.signedTokens(user.id))
+      }
+    )(req, res)
+  }
+
+  signedTokens(userId: number) {
+    const token = jwt.sign({ id: userId }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
+    const refreshToken = jwt.sign({ id: userId }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
+
+    return { token, refreshToken }
   }
 
   async whoami(req: Request, res: Response) {

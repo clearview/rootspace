@@ -211,8 +211,7 @@ export class UserService {
       throw clientError('Token not active')
     }
 
-    let user = await this.requireUserByEmail(passwordReset.email)
-
+    const user = await this.requireUserByEmail(passwordReset.email)
     const newPassword = await hashPassword(data.attributes.password)
     user.password = String(newPassword)
 

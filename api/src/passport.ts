@@ -122,26 +122,37 @@ passport.use(
   )
 )
 
+const jwtRefreshOptions: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.jwt.refreshToken.secretKey,
+  passReqToCallback: true
+}
+
+passport.use(
+  'refreshToken',
+  new JwtStrategy(jwtRefreshOptions, async (req: any, payload: any, done: VerifiedCallback) => {
+    const userId = payload.id
+    verifyJWTPayload(payload, done)
+
+    const user = await UserService.getInstance().getUserById(userId)
+    if (user) {
+      return done(null, user)
+    }
+
+    return done(null, false, { message: 'Wrong token' })
+  })
+)
+
 const jwtOptions: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwtSecretKey,
+  secretOrKey: config.jwt.accessToken.secretKey,
   passReqToCallback: true,
 }
 
 passport.use(
   new JwtStrategy(jwtOptions, async (req: any, payload: any, done: VerifiedCallback) => {
     const userId = payload.id
-    const tokenExpiryTimestamp = Number(payload.exp)
-
-    if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
-      return done(null, false, { message: 'Invalid payload' })
-    }
-
-    const expirationDate = new Date(tokenExpiryTimestamp * 1000)
-
-    if (expirationDate < new Date()) {
-      return done(null, false, { message: 'Token expired' })
-    }
+    verifyJWTPayload(payload, done)
 
     const user = await UserService.getInstance().getUserById(userId)
 
@@ -181,6 +192,21 @@ passport.use(
     return done(null, false, { message: 'Wrong token' })
   })
 )
+
+function verifyJWTPayload(payload: any, done: VerifiedCallback) {
+  const userId = payload.id
+  const tokenExpiryTimestamp = Number(payload.exp)
+
+  if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
+    return done(null, false, { message: 'Invalid payload' })
+  }
+
+  const expirationDate = new Date(tokenExpiryTimestamp * 1000)
+
+  if(expirationDate < new Date()) {
+    return done(null, false, { message: 'Token expired' })
+  }
+}
 
 passport.serializeUser((user, done) => {
   done(null, user)
