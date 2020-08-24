@@ -17,6 +17,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
 
   async getBySpaceId(spaceId: number, type?: string): Promise<Activity[]> {
     const qb = this.createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
 
     if (type) {
@@ -33,6 +34,8 @@ export class ActivityRepository extends BaseRepository<Activity> {
     const entity = ActivityRepository.getEntity(type)
 
     return this.createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.actor', 'user')
+      .leftJoinAndMapOne('activity.object', entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.entityId = :entityId', { entityId })
       .orderBy('activity.createdAt', 'DESC')
