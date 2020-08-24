@@ -1,10 +1,5 @@
-import { BaseValidator } from '../BaseValidator'
+import { UploadValidator } from './UploadValidator'
 
-export class UploadValidator extends BaseValidator {
-  rules() {
-    return {
-      spaceId: 'required|number',
-      file: 'required|object'
-    }
-  }
+export function validateUpload(data: object): Promise<any> {
+  return new UploadValidator().validate(data)
 }
