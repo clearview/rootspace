@@ -22,10 +22,13 @@ export class ActivityRepository extends BaseRepository<Activity> {
 
     if (type) {
       const entity = ActivityRepository.getEntity(type)
-      qb.andWhere('activity.entity = :entity', { entity })
+
+      qb.leftJoinAndMapOne('activity.object', entity, entity, `activity.entityId = ${entity}.id`)
+        .andWhere('activity.entity = :entity', { entity })
     }
 
     return qb
+      .limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()
   }
@@ -38,6 +41,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .leftJoinAndMapOne('activity.object', entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.entityId = :entityId', { entityId })
+      .limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()
   }
