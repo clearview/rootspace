@@ -36,6 +36,8 @@ export class Upload {
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
+  @Column('json', { nullable: true })
+  versions: object
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
