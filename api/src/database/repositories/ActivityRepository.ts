@@ -9,9 +9,9 @@ import { ActivityType } from '../../types/activity'
 export class ActivityRepository extends BaseRepository<Activity> {
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return getConnection()
-      .getRepository(event.activity.entity)
+      .getRepository(event.entity)
       .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: event.activity.id})
+      .where('Entity.id = :id', {id: event.entityId})
       .getOne()
   }
 

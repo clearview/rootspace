@@ -14,24 +14,33 @@ import { TaskWorker } from './workers/TaskWorker'
 import { UserWorker } from './workers/UserWorker'
 import { InviteWorker } from './workers/InviteWorker'
 import { Queue } from './Queue'
+import { WsService } from '../services/content/WsService'
 
 export class Worker {
   static async process(queueName: string = Queue.QUEUE_NAME) {
     await db()
 
     await Queue.getActivityInstance().process(queueName, async (job) => {
-      job.data.activity = await Worker.saveActivity(job)
+      // job.data.activity = await Worker.saveActivity(job)
 
       await Worker.dispatch(job)
     })
   }
 
-  private static saveActivity(job: Job<any>): Promise<Activity> {
-    return getCustomRepository(ActivityRepository).save(job.data)
+  // private static saveActivity(job: Job<any>): Promise<Activity> {
+  //   return getCustomRepository(ActivityRepository).save(job.data)
+  // }
+
+  /**
+   * NOT TESTED - requires ws connection from different thread
+   */
+  private static async broadcastWebsocketMessage(event: ActivityEvent): Promise<void> {
+    return WsService.fromWorker().broadcast(event)
   }
 
   private static async dispatch(job: Job<any>) {
     const event: ActivityEvent = job.data
+    // await Worker.wsMessage(event)
 
     switch (event.entity) {
       case ActivityType.User:

@@ -27,28 +27,41 @@ declare global {
 }
 
 export default class Server {
+  private static instance: Server
   app: Application
-  server: http.Server
-  primus: Primus
+  httpServer: http.Server
+  wsServer: Primus
 
-  constructor() {
+  static getInstance() {
+    if (!Server.instance) {
+      Server.instance = new Server()
+    }
+
+    return Server.instance
+  }
+
+  private constructor() {
     this.app = express()
-    this.server = http.createServer(this.app)
+    this.httpServer = http.createServer(this.app)
 
-    this.primus = new Primus(this.server, { transformer: 'websockets' })
-    this.primus.plugin('rooms', Rooms)
-    wsServerHooks(this.primus)
-    this.app.set('wss', this.primus)
+    this.wsServer = new Primus(this.httpServer, {
+      pathname: config.ws.path,
+      parser: 'JSON',
+      transformer: 'websockets',
+      plugin: { 'rooms': Rooms }
+    })
+
+    wsServerHooks(this.wsServer)
 
     this.app.use(httpRequestContext.middleware())
+  }
 
+  async bootstrap() {
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
       this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
     }
-  }
 
-  async bootstrap() {
     if (config.env !== 'test') {
       await db()
     }
@@ -70,14 +83,14 @@ export default class Server {
       port = config.port
     }
 
-    this.server.listen(port, () => {
+    this.httpServer.listen(port, () => {
       console.log(`🚀 Server ready at: http://localhost:${port}`) // tslint:disable-line
     })
   }
 
   close() {
-    if (this.server) {
-      this.server.close()
+    if (this.httpServer) {
+      this.httpServer.close()
     }
   }
 }

@@ -5,9 +5,11 @@ import { getCustomRepository } from 'typeorm/index'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { Activity } from '../database/entities/Activity'
 import { Queue } from '../libs/Queue'
+import { WsService } from './content/WsService'
 
 export class ActivityService {
   readonly queue: Bull.Queue
+  private wsService: WsService
 
   private constructor() {
     this.queue = Queue.getActivityInstance()
@@ -28,7 +30,17 @@ export class ActivityService {
   }
 
   async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(Queue.QUEUE_NAME, activityEvent.toObject())
+    const activityObject = activityEvent.toObject()
+
+    await this.getActivityRepository().save(activityObject)
+    await this.broadcastWebsocketMessage(activityEvent)
+
+    return this.queue.add(Queue.QUEUE_NAME, activityObject)
+  }
+
+  private async broadcastWebsocketMessage(event: ActivityEvent): Promise<void> {
+    this.wsService = WsService.fromServer()
+    await this.wsService.broadcast(event)
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {

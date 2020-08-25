@@ -84,6 +84,10 @@ function onData(spark: Spark): any {
     }
 
     switch (message.action) {
+      case WsInAction.Echo:
+        echo(spark, message)
+        break
+
       case WsInAction.Join:
         joinRoom(spark, message)
         break
@@ -100,9 +104,13 @@ function onData(spark: Spark): any {
         leaveAllRooms(spark)
         break
     }
+  })
+}
 
-    // tslint:disable-next-line:no-console
-    console.log('[server](message): %s', JSON.stringify(message))
+function echo(spark: Spark, message: InMessage) {
+  spark.join(message.room, async () => {
+    const user = spark.request.user
+    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} echo test`)
   })
 }
 
@@ -111,7 +119,7 @@ function joinRoom(spark: Spark, message: InMessage) {
     const user = spark.request.user
 
     // send message to this client
-    spark.write(`${user.firstName} ${user.lastName} joined room ${message.room}`)
+    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} joined room ${message.room}`)
 
     // send message to all clients except this one
     // spark.room(message.room).except(spark.id).write(spark.id + ' joined room ' + message.room)
