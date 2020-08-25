@@ -21,16 +21,27 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .where('activity.spaceId = :spaceId', { spaceId })
 
     if (type) {
-      const entity = ActivityRepository.getEntity(type)
-
-      qb.leftJoinAndMapOne('activity.object', entity, entity, `activity.entityId = ${entity}.id`)
-        .andWhere('activity.entity = :entity', { entity })
+      const entityType = ActivityRepository.getEntity(type)
+      qb
+        .leftJoinAndMapOne(`activity.${entityType}`, entityType, entityType, `activity.entityId = ${entityType}.id AND activity.entity = '${entityType}'`)
+        .andWhere('activity.entity = :entityType', { entityType })
+    } else {
+      const entityList = Object.values(ActivityType)
+      entityList.forEach((entity) => {
+        qb.leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id AND activity.entity = '${entity}'`)
+      })
     }
 
-    return qb
+    const results = await qb
       .limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()
+
+    results.forEach((result) => {
+      Object.keys(result).forEach(index => (!result[index] && result[index] !== undefined) && delete result[index])
+    })
+
+    return results
   }
 
   async getByTypeAndEntityIdId(type: string, entityId: number): Promise<Activity[]> {
@@ -38,7 +49,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
 
     return this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
-      .leftJoinAndMapOne('activity.object', entity, entity, `activity.entityId = ${entity}.id`)
+      .leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.entityId = :entityId', { entityId })
       .limit(100)
