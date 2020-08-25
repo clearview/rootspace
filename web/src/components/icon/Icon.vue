@@ -20,9 +20,12 @@ import IconClose from './IconClose.vue'
 import IconCheckmark from './IconCheckmark.vue'
 import IconDots from './IconDots.vue'
 import IconDown from './IconDown.vue'
+import IconDownload from './IconDownload.vue'
 import IconEdit from './IconEdit.vue'
 import IconEmail from './IconEmail.vue'
 import IconFile from './IconFile.vue'
+import IconFileDocument from './IconFileDocument.vue'
+import IconUpload from './IconUpload.vue'
 import IconFilter from './IconFilter.vue'
 import IconFolder from './IconFolder.vue'
 import IconLeft from './IconLeft.vue'
@@ -76,11 +79,14 @@ import IconMessage from '@/components/icon/IconMessage.vue'
     IconColor,
     IconDots,
     IconDown,
+    IconDownload,
+    IconUpload,
     IconDrag,
     IconEdit,
     IconEmail,
     IconEllipsis,
     IconFile,
+    IconFileDocument,
     IconFilter,
     IconKanban,
     IconFolder,
