@@ -60,11 +60,11 @@ export class User {
   @Index()
   token: string
 
-  @CreateDateColumn({ select: false })
-  created: string
+  @CreateDateColumn({ type: 'timestamptz', select: false })
+  createdAt: Date
 
-  @UpdateDateColumn({ select: false })
-  updated: string
+  @UpdateDateColumn({ type: 'timestamptz', select: false })
+  updatedAt: Date
 
   @OneToMany((type) => UserToSpace, (space) => space.user)
   public spaces!: UserToSpace[]
