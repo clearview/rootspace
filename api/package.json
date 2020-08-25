@@ -59,7 +59,8 @@
     "primus-rooms": "^3.4.1",
     "pug": "^2.0.4",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.24",
+    "sharp": "^0.25.4",
+    "typeorm": "^0.2.25",
     "typeorm-seeding": "^1.6.1"
   },
   "devDependencies": {
@@ -82,6 +83,7 @@
     "@types/passport-local": "^1.0.33",
     "@types/primus": "^7.3.3",
     "@types/pug": "^2.0.4",
+    "@types/sharp": "^0.25.1",
     "@types/validator": "^13.0.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
