@@ -47,7 +47,12 @@ export class WsService implements WssInterface<any> {
   }
 
   async broadcast(event: ActivityEvent): Promise<void> {
+    if (!this.shouldBroadcast(event)) {
+      return null
+    }
+
     const message = await this.createMessageFromActivityEvent(event)
+
     return this.write(message)
   }
 
@@ -70,14 +75,49 @@ export class WsService implements WssInterface<any> {
     return false
   }
 
+  /**
+   * Todo: add boardId to task table in order to get board id for room number!!!
+   */
+  private roomName(message: OutMessage): string {
+    let roomName: string
+    let roomNumber: number
+
+    switch (message.event.entity) {
+      case ActivityType.TaskList:
+        roomName = ActivityType.TaskBoard
+        roomNumber = message.entity.boardId
+        break
+      case ActivityType.Task:
+        roomName = ActivityType.TaskBoard
+        roomNumber = 0 // message.entity.boardId
+        break
+
+      default:
+        roomName = message.event.entity
+        roomNumber = message.event.entityId
+        break
+    }
+
+    return `${roomName}-${roomNumber}`
+  }
+
+  private shouldBroadcast(event: ActivityEvent): boolean {
+    switch (event.entity) {
+      case ActivityType.PasswordReset:
+        return false
+    }
+
+    return true
+  }
+
   private write(message: OutMessage): void {
     if (this.isSidebarRelated(message)) {
       const sideBarRoom = `SideBar-${message.space.id}`
       this.wsServer.room(sideBarRoom).write({message})
     }
 
-    const entityRoom = `${message.event.entity}-${message.event.entityId}`
-    this.wsServer.room(entityRoom).write({message})
+    const roomName = this.roomName(message)
+    this.wsServer.room(roomName).write({message})
 
     // Test: send all activities
     const activitiesRoom = `Activity-${message.space.id}`

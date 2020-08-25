@@ -21,7 +21,7 @@ export function wsServerHooks(primus: Primus) {
       return done(new Error('Missing authorization header'))
     }
 
-    const decoded: any = jwt.verify(token, config.jwtSecretKey)
+    const decoded: any = jwt.verify(token, config.jwt.accessToken.secretKey)
     if (!decoded) {
       return done(new Error('Invalid token'))
     }
