@@ -49,6 +49,11 @@ const routes: Array<RouteConfig> = [
         path: '/link/:id',
         name: 'Link',
         component: () => import(/* webpackChunkName: "link" */'../views/Link.vue')
+      },
+      {
+        path: '/embed/:id',
+        name: 'Embed',
+        component: () => import(/* webpackChunkName: "embed" */'../views/Embed.vue')
       }
     ]
   },
