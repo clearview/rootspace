@@ -24,6 +24,9 @@ export class Embed {
   @Column('varchar')
   title: string
 
+  @Column('varchar')
+  type: string
+
   @Column('text')
   content: string
 
