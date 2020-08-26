@@ -70,7 +70,7 @@ export class TaskBoard {
   @IsDate()
   updatedAt: Date
 
-  @DeleteDateColumn({ name: 'deleted_at' })
+  @DeleteDateColumn({ type: 'timestamptz'})
   public deletedAt: Date
 
   @OneToMany(type => Tag, tag => tag.board, {eager: true, onDelete: 'CASCADE'})

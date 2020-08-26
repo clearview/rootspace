@@ -34,9 +34,9 @@ export class UserSetting {
   @Column({ name: 'data', type: 'jsonb', default: '{}' })
   preferences: Preferences
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz'})
+  @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
 }

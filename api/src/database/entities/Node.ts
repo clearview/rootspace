@@ -55,11 +55,11 @@ export class Node {
   position: number
 
   @CreateDateColumn({ type: 'timestamptz'})
-  created: Date
+  createdAt: Date
 
   @UpdateDateColumn({ type: 'timestamptz'})
-  updated: Date
+  updatedAt: Date
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz'})
+  @DeleteDateColumn({ type: 'timestamptz'})
   public deletedAt: Date
 }

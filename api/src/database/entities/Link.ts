@@ -30,12 +30,12 @@ export class Link {
   @Column('boolean', { default: 'false' })
   newTab: boolean
 
-  @CreateDateColumn()
-  created: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updated: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
+  @DeleteDateColumn({ type: 'timestamptz'})
   public deletedAt: Date
 }
