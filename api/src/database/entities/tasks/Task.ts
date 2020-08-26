@@ -13,6 +13,7 @@ import { TaskComment } from './TaskComment'
 import { User } from '../User'
 import { Tag } from './Tag'
 import { Space } from '../Space'
+import { TaskBoard } from './TaskBoard'
 
 export enum TaskStatus {
   Open = 0,
@@ -40,6 +41,14 @@ export class Task {
   @JoinColumn({ name: 'spaceId' })
   @Index()
   space!: Space
+
+  @Column('integer')
+  boardId: number
+
+  @ManyToOne(type => TaskBoard)
+  @JoinColumn({ name: 'boardId' })
+  @Index()
+  board!: TaskBoard
 
   @Column('integer')
   listId: number

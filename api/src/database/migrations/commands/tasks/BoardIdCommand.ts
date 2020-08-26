@@ -1,15 +1,15 @@
 import chalk from 'chalk'
-import db from '../../db'
+import db from '../../../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
-import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
-import slugify from '@sindresorhus/slugify'
+import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
+import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 
-export class SlugCommand {
+export class BoardIdCommand {
   static async run() {
     await db()
 
     try {
-      await SlugCommand.updateSlugs()
+      await BoardIdCommand.updateBoardIds()
     } catch (e) {
       // tslint:disable-next-line:no-console
       console.log(chalk.red('Operation failed!'))
@@ -20,14 +20,16 @@ export class SlugCommand {
     }
   }
 
-  private static async updateSlugs() {
+  private static async updateBoardIds() {
     // tslint:disable-next-line:no-console
-    console.log(chalk.yellow('Updating slugs...'))
+    console.log(chalk.yellow('Updating board IDs...'))
 
     const tasks = await getCustomRepository(TaskRepository).find()
 
     for (const task of tasks) {
-      task.slug = slugify(task.title)
+      const taskList = await getCustomRepository(TaskListRepository).findOne(task.listId)
+
+      task.boardId = taskList.boardId
     }
 
     await getCustomRepository(TaskRepository).save(tasks, { chunk: 1000 })
