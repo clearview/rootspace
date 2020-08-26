@@ -76,6 +76,7 @@ export default class TasksSeeder implements Seeder {
       .factory(Task)({
         user: this.base.user,
         space: this.base.space,
+        board: taskList.board,
         list: taskList,
       })
       .map(async (task: Task) => {
