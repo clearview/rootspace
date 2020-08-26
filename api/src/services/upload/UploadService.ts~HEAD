@@ -6,27 +6,39 @@ import path from 'path'
 import fs from 'fs'
 import Bull from 'bull'
 import sharp from 'sharp'
+import isImage from 'is-image'
 import { getCustomRepository } from 'typeorm'
-import { UploadRepository } from '../database/repositories/UploadRepository'
-import { Upload } from '../database/entities/Upload'
-import { ActivityEvent } from './events/ActivityEvent'
-import { ActivityService } from './ActivityService'
-import { FileActivities } from '../database/entities/activities/FileActivities'
-import { ServiceFactory } from './factory/ServiceFactory'
-import { UploadValue } from '../values/upload'
-import { UploadType, UploadUniqueTypes, IUploadImageConfig, UploadImageConfig } from '../types/upload'
+import { UploadRepository } from '../../database/repositories/UploadRepository'
+import { Upload } from '../../database/entities/Upload'
+import { ActivityEvent } from '../events/ActivityEvent'
+import { ActivityService } from '../ActivityService'
+import { FileActivities } from '../../database/entities/activities/FileActivities'
+import { ServiceFactory } from '../factory/ServiceFactory'
+import { UploadValue } from '../../values/upload'
+import { UploadType, IUploadImageConfig, IUploadImageSize } from '../../types/upload'
+import { UploadUniqueTypes, UploadImageConfig } from './config'
 
 export class UploadService {
   private s3: S3
   private activityService: ActivityService
 
-  constructor() {
+  private constructor() {
     this.activityService = ServiceFactory.getInstance().getActivityService()
 
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
       secretAccessKey: config.s3.secretKey,
     })
+  }
+
+  private static instance: UploadService
+
+  static getInstance() {
+    if (!UploadService.instance) {
+      UploadService.instance = new UploadService()
+    }
+
+    return UploadService.instance
   }
 
   getUploadRepository(): UploadRepository {
@@ -52,29 +64,33 @@ export class UploadService {
       Body: fs.createReadStream(data.file.path),
     })
 
-    const versions = await this.createImageVersions(data)
+    const versions = isImage(data.file.originalname) ? await this.createImageVersions(data) : null
 
-    let upload = null
-
-    if (UploadUniqueTypes.includes(data.attributes.type)) {
-      upload = await this.getUploadByEntityId(data.attributes.entityId, data.attributes.entity)
-    }
-
-    if (!upload) {
-      upload = this.getUploadRepository().create()
-    }
-
+    let upload = await this.obtainUploadEntity(data)
     Object.assign(upload, data.attributes)
+
+    upload.path = sFFile.Location
+    upload.versions = versions
 
     upload.mimetype = data.file.mimetype
     upload.size = data.file.size
-    upload.path = sFFile.Location
-    upload.versions = versions
 
     upload = await this.getUploadRepository().save(upload)
     await this.registerActivityForUpload(FileActivities.Uploaded, upload)
 
     return upload
+  }
+
+  private async obtainUploadEntity(data: UploadValue): Promise<Upload> {
+    if (UploadUniqueTypes.includes(data.attributes.type)) {
+      const upload = await this.getUploadByEntityId(data.attributes.entityId, data.attributes.entity)
+
+      if (upload) {
+        return upload
+      }
+    }
+
+    return this.getUploadRepository().create()
   }
 
   private createFilePath(fileName: string, spaceId: number) {
@@ -92,19 +108,7 @@ export class UploadService {
     }
 
     const versions = {}
-    const images = []
-
-    for (const size of cnfg.sizes) {
-      await sharp(file.path)
-        .resize(size.width, size.height)
-        .toBuffer()
-        .then((output) => {
-          images[size.name] = output
-        })
-        .catch((err) => {
-          throw err
-        })
-    }
+    const images = await this.generateImages(file, cnfg.sizes)
 
     for (const size of cnfg.sizes) {
       const originalFileName: string = file.originalname
@@ -129,6 +133,24 @@ export class UploadService {
     }
 
     return versions
+  }
+
+  private async generateImages(file: any, sizes: IUploadImageSize[]) {
+    const images = []
+
+    for (const size of sizes) {
+      await sharp(file.path)
+        .resize(size.width, size.height)
+        .toBuffer()
+        .then((output) => {
+          images[size.name] = output
+        })
+        .catch((err) => {
+          throw err
+        })
+    }
+
+    return images
   }
 
   private getUploadImageConfig(uploadType: UploadType): IUploadImageConfig | null {

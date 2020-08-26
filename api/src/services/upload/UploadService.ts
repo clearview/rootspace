@@ -69,11 +69,10 @@ export class UploadService {
     let upload = await this.obtainUploadEntity(data)
     Object.assign(upload, data.attributes)
 
-    upload.path = sFFile.Location
-    upload.versions = versions
-
     upload.mimetype = data.file.mimetype
     upload.size = data.file.size
+    upload.path = sFFile.Location
+    upload.versions = versions
 
     upload = await this.getUploadRepository().save(upload)
     await this.registerActivityForUpload(FileActivities.Uploaded, upload)
