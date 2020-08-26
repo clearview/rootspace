@@ -6,7 +6,7 @@ import { ActivityCtrl } from '../controllers/ActivityCtrl'
 const router = PromiseRouter()
 router.use(authenticate)
 
-router.get('/activities/space/:spaceId', mapRoute(ActivityCtrl, 'listBySpaceId'))
-router.get('/activities/:entityType/:entityId', mapRoute(ActivityCtrl, 'listByEntityTypeAndEntityId'))
+router.get('/activities/space/:spaceId', mapRoute(ActivityCtrl, 'getActivitiesBySpace'))
+router.get('/activities/space/:spaceId/:entityType/:entityId', mapRoute(ActivityCtrl, 'getActivitiesByEntity'))
 
 export { router as activityRouter }

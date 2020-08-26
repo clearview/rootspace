@@ -15,10 +15,14 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .getOne()
   }
 
-  async getBySpaceId(spaceId: number, type?: string): Promise<Activity[]> {
+  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
     const qb = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
+
+    if (action) {
+      qb.andWhere('activity.action = :action', { action })
+    }
 
     if (type) {
       const entityType = ActivityRepository.getEntity(type)
@@ -44,15 +48,21 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return results
   }
 
-  async getByTypeAndEntityIdId(type: string, entityId: number): Promise<Activity[]> {
+  async getByTypeAndEntityIdId(spaceId: number, type: string, entityId: number, action?: string): Promise<Activity[]> {
     const entity = ActivityRepository.getEntity(type)
 
-    return this.createQueryBuilder('activity')
+    const qb = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
+      .andWhere('activity.spaceId = :spaceId', { spaceId })
       .andWhere('activity.entityId = :entityId', { entityId })
-      .limit(100)
+
+    if (action) {
+      qb.andWhere('activity.action = :action', { action })
+    }
+
+    return qb.limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()
   }
