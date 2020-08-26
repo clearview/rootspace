@@ -42,7 +42,7 @@ export class Task {
   @Index()
   space!: Space
 
-  @Column('integer', { nullable: true })
+  @Column('integer')
   boardId: number
 
   @ManyToOne(type => TaskBoard)
