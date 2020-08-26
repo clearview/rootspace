@@ -60,6 +60,29 @@ export class UploadsCtrl extends BaseCtrl {
     res.send(this.responseData(upload))
   }
 
+  async uploadSpaceLogo(req: Request, res: Response, next: NextFunction) {
+    if (req.body.type !== UploadType.SpaceLogo) {
+      return next()
+    }
+
+    const data = {
+      userId: req.user.id,
+      spaceId: req.body.spaceId,
+      entityId: req.body.spaceId,
+      entity: 'Space',
+      type: req.body.type,
+    }
+
+    const file = req.file
+
+    await validateUpload(Object.assign({ ...data }, { file }))
+
+    const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
+    const upload = await this.uploadService.upload(value)
+
+    res.send(upload)
+  }
+
   async upload(req: Request, res: Response) {
     const data = req.body
     const file = req.file
