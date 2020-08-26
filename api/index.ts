@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { nodeCommands } from './src/commands'
-import { migrationCommands } from './src/database/migrations/commands'
+import { migrationCommands } from './src/database/commands'
 
 const program = new Command()
 program
