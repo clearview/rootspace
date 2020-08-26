@@ -76,6 +76,24 @@
         />
       </div>
     </modal>
+
+    <modal
+      title="Add Embed"
+      :visible="isModalVisible('embed')"
+      :loading="modal.loading"
+      :contentStyle="{ width: '456px' }"
+      confirm-text="Create"
+      @cancel="setModalVisible(true, 'index')"
+      @confirm="() => $refs.formEmbed.submit()"
+    >
+      <div class="modal-body">
+        <form-embed
+          @submit="addEmbed"
+          :space="activeSpace.id"
+          ref="formEmbed"
+        />
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -92,6 +110,7 @@ import {
 import FormFolder from '@/components/form/FormFolder.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import FormEmbed from '@/components/form/FormEmbed.vue'
 import Modal from '@/components/Modal.vue'
 import SelectNodeType from '@/components/SelectNodeType.vue'
 
@@ -100,7 +119,8 @@ enum ModalType {
   FOLDER = 'folder',
   LINK = 'link',
   TASK = 'task',
-  DOCUMENT = 'document'
+  DOCUMENT = 'document',
+  EMBED = 'embed'
 }
 
 interface ModalState {
@@ -116,6 +136,7 @@ interface ModalState {
     FormFolder,
     FormLink,
     FormTask,
+    FormEmbed,
     Modal,
     SelectNodeType
   }
@@ -199,6 +220,17 @@ export default class ButtonNodeAdd extends Vue {
           }
         })
       }
+    } catch { }
+
+    this.modal.loading = false
+
+    this.setModalVisible(false)
+  }
+
+  async addEmbed (data: object) {
+    this.modal.loading = true
+    try {
+      console.log(data)
     } catch { }
 
     this.modal.loading = false

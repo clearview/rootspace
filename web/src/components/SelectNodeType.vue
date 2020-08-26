@@ -2,21 +2,6 @@
   <div class="SelectNodeType">
     <a
       class="SelectNodeType-option"
-      @click="$emit('select', 'folder')"
-    >
-      <v-icon
-        name="folder"
-        size="3.5em"
-        class="SelectNodeType-icon"
-      />
-
-      <div class="SelectNodeType-desc">
-        <h5>Folder</h5>
-        <p>GROUP EVERYTING INTO A FOLDER.</p>
-      </div>
-    </a>
-    <a
-      class="SelectNodeType-option"
       @click="$emit('select', 'link')"
     >
       <v-icon
@@ -60,6 +45,36 @@
       <div class="SelectNodeType-desc">
         <h5>Task</h5>
         <p>CREATE BOARD, LIST OR IDEAS.</p>
+      </div>
+    </a>
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'embed')"
+    >
+      <v-icon
+        name="embed"
+        size="3.5em"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Embed</h5>
+        <p>EMBED ANY THIRD-PART APP...</p>
+      </div>
+    </a>
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'folder')"
+    >
+      <v-icon
+        name="folder"
+        size="3.5em"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Folder</h5>
+        <p>GROUPS AND ORGANIZE YOUR FILES.</p>
       </div>
     </a>
   </div>
