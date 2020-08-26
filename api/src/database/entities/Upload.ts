@@ -23,7 +23,7 @@ export class Upload {
   type: string
 
   @Column('varchar')
-  mime: string
+  mimetype: string
 
   @Column('integer')
   size: number

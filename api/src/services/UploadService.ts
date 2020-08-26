@@ -66,7 +66,7 @@ export class UploadService {
 
     Object.assign(upload, data.attributes)
 
-    upload.mime = data.file.mimetype
+    upload.mimetype = data.file.mimetype
     upload.size = data.file.size
     upload.path = sFFile.Location
     upload.versions = versions
