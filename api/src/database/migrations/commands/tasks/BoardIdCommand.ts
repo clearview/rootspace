@@ -1,8 +1,8 @@
 import chalk from 'chalk'
-import db from '../../db'
+import db from '../../../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
-import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
-import { TaskListRepository } from '../../database/repositories/tasks/TaskListRepository'
+import { TaskRepository } from '../../../repositories/tasks/TaskRepository'
+import { TaskListRepository } from '../../../repositories/tasks/TaskListRepository'
 
 export class BoardIdCommand {
   static async run() {

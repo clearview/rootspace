@@ -1,10 +1,10 @@
 import { Command } from 'commander'
-import { SlugCommand } from './SlugCommand'
 import { BoardIdCommand } from './BoardIdCommand'
+import { SlugCommand } from './SlugCommand'
 
 export function taskCommands() {
   const commands = new Command('task')
-    .description('Task related commands')
+    .description('Task migrations commands')
 
   commands
     .command('slugs')
@@ -13,7 +13,6 @@ export function taskCommands() {
       await SlugCommand.run()
     })
 
-  commands
     .command('boardIds')
     .description('Update task board IDs')
     .action(async () => {
