@@ -13,6 +13,7 @@ export function taskCommands() {
       await SlugCommand.run()
     })
 
+  commands
     .command('boardIds')
     .description('Update task board IDs')
     .action(async () => {
