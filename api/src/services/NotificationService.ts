@@ -29,6 +29,10 @@ export class NotificationService {
     return getCustomRepository(NotificationRepository)
   }
 
+  getById(id: number): Promise<Notification> {
+    return this.getNotificationRepository().findOne(id)
+  }
+
   getNotificationsByUserId(userId: number): Promise<Notification[]> {
     return this.getNotificationRepository().find({ id: userId })
   }
@@ -67,18 +71,24 @@ export class NotificationService {
   }
 
   async readUserNotification(id: number, userId: number): Promise<Notification> {
-    const notification = await this.getNotificationRepository().findOne({ id, userId })
+    const notification = await this.getNotificationRepository().findOne({ id, userId, isRead: false })
+
+    if (!notification) {
+      throw new Error('Notification does not exist')
+    }
+
     notification.isRead = true
 
     return this.getNotificationRepository().save(notification)
   }
 
-  async readUsersNotificationsForEntity(user: User, task: Task): Promise<Notification[]> {
-    return this.getNotificationRepository().getUnreadUserNotificationsForEntity(
-      user.id,
-      task.id,
-      task.constructor.name
-      )
+  async readUsersNotificationsForEntity(userId: number, entityName: string, entityId: number): Promise<UpdateResult> {
+    const unreadNotifications = await this.getNotificationRepository().getUnreadUserNotificationsForEntity(userId, entityName, entityId)
+
+    if (unreadNotifications.length > 0) {
+      const ids = unreadNotifications.map((notification) => notification.id)
+      return this.readUsersNotificationsForEntityIds(ids, userId)
+    }
   }
 
   async readUsersNotificationsForEntityIds(ids: number[], userId: number): Promise<UpdateResult> {
