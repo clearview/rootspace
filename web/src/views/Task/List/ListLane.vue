@@ -425,6 +425,13 @@ export default class TaskLane extends Vue {
     }
   }
 }
+.popover-trigger.show .btn-link-primary {
+  background: transparent;
+  .stroke-current {
+    color: theme("colors.primary.default");
+    stroke: theme("colors.primary.default");
+  }
+}
 
 .btn-link-primary .stroke-current {
   stroke-width: 3px;
