@@ -194,12 +194,12 @@ export class UnifyFieldNames1597762575000 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "follows" ALTER COLUMN "created" TYPE TIMESTAMP`)
 
         // Embeds
-        await queryRunner.query(`ALTER TABLE "embeds" ALTER COLUMN "created" TYPE TIMESTAMP WITH TIME ZONE`)
-        await queryRunner.query(`ALTER TABLE "embeds" ALTER COLUMN "updated" TYPE TIMESTAMP WITH TIME ZONE`)
+        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "deletedAt" TO "deleted_at"`)
+        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "updatedAt" TO "updated"`)
+        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "createdAt" TO "created"`)
 
-        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "created" TO "createdAt"`)
-        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "updated" TO "updatedAt"`)
-        await queryRunner.query(`ALTER TABLE "embeds" RENAME COLUMN "deleted_at" TO "deletedAt"`)
+        await queryRunner.query(`ALTER TABLE "embeds" ALTER COLUMN "updated" TYPE TIMESTAMP`)
+        await queryRunner.query(`ALTER TABLE "embeds" ALTER COLUMN "created" TYPE TIMESTAMP`)
 
         // Docs
         await queryRunner.query(`ALTER TABLE "docs" RENAME COLUMN "deletedAt" TO "deleted_at"`)
