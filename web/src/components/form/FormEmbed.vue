@@ -46,20 +46,7 @@ import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import { required } from 'vuelidate/lib/validators'
 import Field from '@/components/Field.vue'
 
-enum EmbedType {
-  AIRTABLE = 'airtable',
-  GOOGLE_SHEETS = 'google-sheets',
-  FIGMA = 'figma',
-  CUSTOM = 'custom'
-}
-
-interface EmbedResource {
-  id: number;
-  spaceId: number;
-  title: string;
-  type: EmbedType | string;
-  content: string;
-}
+import { EmbedResource, EmbedType } from '@/services/embed'
 
 interface EmbedTypeData {
   key: EmbedType;
@@ -107,12 +94,13 @@ const embedTypeData: EmbedTypeData[] = [
 })
 export default class FormEmbed extends Vue {
   @Prop(Object)
-  readonly value!: object
+  readonly value!: EmbedResource
 
   @Prop(Number)
   readonly space!: number
 
-  payload: Partial<EmbedResource> = {
+  payload = {
+    id: 0,
     spaceId: this.space,
     title: 'Untitled',
     type: '',
@@ -136,7 +124,7 @@ export default class FormEmbed extends Vue {
   }
 
   @Watch('value', { immediate: true })
-  watchValue (value: Partial<EmbedResource> = {}) {
+  watchValue (value: EmbedResource) {
     this.payload = {
       ...this.payload,
       ...value

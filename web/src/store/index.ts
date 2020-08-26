@@ -11,6 +11,7 @@ import token from '@/store/plugins/token'
 // Modules
 import auth from '@/store/modules/auth'
 import document from '@/store/modules/document'
+import embed from '@/store/modules/embed'
 import link from '@/store/modules/link'
 import option from '@/store/modules/option'
 import page from '@/store/modules/page'
@@ -25,6 +26,7 @@ export default new Vuex.Store<RootState>({
   modules: {
     auth,
     document,
+    embed,
     link,
     option,
     page,

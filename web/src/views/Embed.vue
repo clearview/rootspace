@@ -1,6 +1,11 @@
 <template>
   <div class="w-full h-full">
-    <iframe :src="url" width="100%" height="100%"/>
+    <iframe
+      v-if="payload"
+      :src="url"
+      width="100%"
+      height="100%"
+    />
   </div>
 </template>
 
@@ -8,6 +13,7 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import getUrls from 'get-urls'
 import PageMixin from '@/mixins/PageMixin'
+import { EmbedResource } from '@/services/embed'
 
 @Component
 export default class Embed extends Mixins(PageMixin) {
@@ -15,12 +21,8 @@ export default class Embed extends Mixins(PageMixin) {
     return Number(this.$route.params.id)
   }
 
-  get payload () {
-    return {
-      title: 'Untitled',
-      type: 'figma',
-      content: '<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Ffile%2FLU0VwmpT92fDc89NSVk3iK%2FRoot-App-UI-Copy%3Fnode-id%3D3850%253A17165&chrome=DOCUMENTATION" allowfullscreen></iframe>'
-    }
+  get payload (): EmbedResource {
+    return this.$store.state.embed.item
   }
 
   get url (): string {
@@ -31,7 +33,9 @@ export default class Embed extends Mixins(PageMixin) {
   }
 
   @Watch('id', { immediate: true })
-  watchId () {
+  async watchId (id: number) {
+    await this.$store.dispatch('embed/view', id)
+
     this.pageTitle = this.payload.title
     this.pageReady = true
   }
@@ -40,6 +44,5 @@ export default class Embed extends Mixins(PageMixin) {
 
 <style lang="postcss" scoped>
 .content {
-
 }
 </style>
