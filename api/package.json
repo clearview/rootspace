@@ -46,6 +46,7 @@
     "http-request-context": "^0.3.1",
     "indicative": "^7.4.4",
     "ioredis": "^4.16.0",
+    "is-image": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
     "nanoid": "^3.1.10",
