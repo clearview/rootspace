@@ -179,7 +179,7 @@ passport.use(
 
       // User can not manage subjects outside spaces they belong to
       cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } }).because(
-        'Access to space not allowed'
+        'Access to space is not allowed'
       )
 
       // @ts-ignore
