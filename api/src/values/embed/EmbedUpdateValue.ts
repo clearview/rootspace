@@ -3,6 +3,7 @@ import { IEmbedUpdateAttributes } from './types'
 
 export const EmbedUpdateAttributes: IEmbedUpdateAttributes = {
   title: undefined,
+  type: undefined,
   content: undefined,
 }
 
