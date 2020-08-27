@@ -15,7 +15,7 @@
     <div class="attachment-name">
       <span class="title" @click="viewAttachment">{{attachment.path | formatAttachmentName}}</span>
       <span class="date">
-        Added {{attachment.created | formatDate}}
+        Added {{attachment.createdAt | formatDate}}
       </span>
     </div>
     <div>
@@ -73,6 +73,7 @@ import { UploadResource } from '@/types/resource'
 
 import Popover from '@/components/Popover.vue'
 import formatRelative from 'date-fns/formatRelative'
+import { formatRelativeTo } from '@/utils/date'
 
   @Component({
     name: 'TaskAttachmentView',
@@ -86,7 +87,7 @@ import formatRelative from 'date-fns/formatRelative'
       },
       formatDate (date: Date | string) {
         const dueDate = date instanceof Date ? date : new Date(date)
-        return formatRelative(dueDate, new Date())
+        return formatRelativeTo(dueDate, new Date())
       }
     }
   })

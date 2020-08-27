@@ -120,8 +120,7 @@
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
         <div class="comment-separator"></div>
-        <TaskActivities></TaskActivities>
-
+        <TaskActivities :item="item"></TaskActivities>
       </div>
       <div class="task-right">
         <div class="right-field">

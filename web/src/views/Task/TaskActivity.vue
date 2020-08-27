@@ -1,26 +1,29 @@
 <template>
   <div class="task-activity">
     <div class="avatar">
-      <avatar :username="'John Doe'" :size="32"></avatar>
+      <avatar :username="`${activity.actor.firstName} ${activity.actor.lastName}`" :size="32"></avatar>
     </div>
     <div class="content">
       <div class="title">
-        <span class="actor">John Doe</span>&nbsp;
-        <span class="action">added</span>&nbsp;
-        <span class="object">Name Nameson</span>&nbsp;
-        <span class="subject">to this card</span>
+        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
+        <span class="action">{{ activity.action | formatAction}}</span>&nbsp;
+        <span class="object"></span>&nbsp;
+        <span class="subject" v-if="activity.action === 'Updated' || activity.action === 'Created'">this card</span>
+        <span class="subject" v-else-if="activity.action === 'Tag_Removed'">from this card</span>
+        <span class="subject" v-else>to this card</span>
       </div>
       <div class="time">
-        {{new Date() | formatDate}}
+        {{activity.createdAt | formatDate}}
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { formatRelativeTo } from '@/utils/date'
 import Avatar from 'vue-avatar'
+import { TaskActivityResource, TaskItemResource } from '@/types/resource'
 
 @Component(
   {
@@ -31,11 +34,16 @@ import Avatar from 'vue-avatar'
       formatDate (date: Date | string) {
         const dueDate = date instanceof Date ? date : new Date(date)
         return formatRelativeTo(dueDate, new Date())
+      },
+      formatAction (action: string) {
+        return action.split('_').reverse().join(' ').toLowerCase()
       }
     }
   }
 )
 export default class TaskActivity extends Vue {
+  @Prop({ type: Object, required: true })
+  private readonly activity!: TaskActivityResource;
 }
 </script>
 
@@ -43,6 +51,7 @@ export default class TaskActivity extends Vue {
 .task-activity{
   display: flex;
   align-items: center;
+  margin-bottom: 24px;
 }
 .avatar{
 
