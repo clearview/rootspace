@@ -45,4 +45,7 @@ export class Upload {
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date
 }
