@@ -76,7 +76,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
         return ActivityType.TaskList
 
       default:
-        return entity.charAt(0).toUpperCase() + entity.slice(1)
+        return entity.ucFirst()
     }
   }
 }
