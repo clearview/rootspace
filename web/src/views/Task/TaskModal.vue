@@ -73,11 +73,15 @@
             <span class="description-title-placeholder">Description</span>
             <v-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <div class="description-content" v-if="!isEditingDescription" v-html="itemCopy.description"></div>
-          <div class="description-input" v-if="isEditingDescription">
+          <div
+            :class="{
+              'description-input': true,
+              'is-disabled': !isEditingDescription
+            }"
+          >
             <quill-editor
-              ref="myQuillEditor"
               :options="editorOption"
+              :disabled="!isEditingDescription"
               v-model="descriptionCopy.description"
             />
             <div class="description-input-actions">
@@ -992,53 +996,27 @@ export default class TaskModal extends Vue {
 </style>
 
 <style lang="postcss">
-.ql-editor, .description-content {
+.ql-editor {
   line-height: 1.5rem;
   font-size: 15px;
-}
-
-.ql-editor {
   font-size: 15px;
   min-height: 180px;
   max-height: 650px;
 }
 
-.description-content {
-  a {
-    border-bottom: 1px dashed;
+.description-input.is-disabled {
+  .ql-toolbar,
+  .ql-blank,
+  .description-input-actions {
+    @apply hidden;
   }
 
-  ol, ul {
-    padding-left: 1.5em;
-
-    li {
-      padding-left: 1.5em;
-
-      &::before {
-          margin-left: -1.5em;
-          margin-right: 0.3em;
-          text-align: right;
-      }
-    }
+  .ql-editor {
+    @apply min-h-0 p-0;
   }
 
-  ol {
-    li {
-      counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
-      counter-increment: list-0;
-
-      &::before {
-        content: counter(list-0, decimal) '. ';
-      }
-    }
-  }
-
-  ul {
-    li {
-      &::before {
-        content: '\2022';
-      }
-    }
+  .ql-disabled {
+    @apply border-none;
   }
 }
 
