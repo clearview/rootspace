@@ -2,6 +2,8 @@ import { EntityRepository, getCustomRepository } from 'typeorm'
 import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
+import { Upload } from '../../entities/Upload'
+import { UploadType } from '../../../types/upload'
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {
@@ -43,12 +45,21 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     return queryBuilder.getOne()
   }
 
-  getCompleteTaskBoard(id: number): Promise<TaskBoard | undefined> {
+  async getCompleteTaskBoard(id: number): Promise<TaskBoard | undefined> {
     const queryBuilder = this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapMany(
+        'task.attachments',
+        Upload,
+        'upload',
+        'upload.entityId = task.id AND upload.entity = :entity',
+        {
+          entity: 'Task',
+        }
+      )
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
