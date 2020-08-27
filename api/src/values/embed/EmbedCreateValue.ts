@@ -5,6 +5,7 @@ export const EmbedCreateAttributes: IEmbedCreateAttributes = {
   userId: null,
   spaceId: null,
   title: null,
+  type: null,
   content: null,
 }
 

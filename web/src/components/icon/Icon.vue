@@ -23,6 +23,7 @@ import IconDown from './IconDown.vue'
 import IconDownload from './IconDownload.vue'
 import IconEdit from './IconEdit.vue'
 import IconEmail from './IconEmail.vue'
+import IconEmbed from './IconEmbed.vue'
 import IconFile from './IconFile.vue'
 import IconFileDocument from './IconFileDocument.vue'
 import IconUpload from './IconUpload.vue'
@@ -84,6 +85,7 @@ import IconMessage from '@/components/icon/IconMessage.vue'
     IconDrag,
     IconEdit,
     IconEmail,
+    IconEmbed,
     IconEllipsis,
     IconFile,
     IconFileDocument,

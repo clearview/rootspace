@@ -2,6 +2,7 @@ export interface IEmbedCreateAttributes {
   readonly userId: number
   readonly spaceId: number
   readonly title: string
+  readonly type: string
   readonly content: string
 }
 

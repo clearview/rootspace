@@ -76,6 +76,24 @@
         />
       </div>
     </modal>
+
+    <modal
+      title="Add Embed"
+      :visible="isModalVisible('embed')"
+      :loading="modal.loading"
+      :contentStyle="{ width: '456px' }"
+      confirm-text="Create"
+      @cancel="setModalVisible(true, 'index')"
+      @confirm="() => $refs.formEmbed.submit()"
+    >
+      <div class="modal-body">
+        <form-embed
+          @submit="addEmbed"
+          :space="activeSpace.id"
+          ref="formEmbed"
+        />
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -92,6 +110,7 @@ import {
 import FormFolder from '@/components/form/FormFolder.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import FormEmbed from '@/components/form/FormEmbed.vue'
 import Modal from '@/components/Modal.vue'
 import SelectNodeType from '@/components/SelectNodeType.vue'
 
@@ -100,7 +119,8 @@ enum ModalType {
   FOLDER = 'folder',
   LINK = 'link',
   TASK = 'task',
-  DOCUMENT = 'document'
+  DOCUMENT = 'document',
+  EMBED = 'embed'
 }
 
 interface ModalState {
@@ -116,6 +136,7 @@ interface ModalState {
     FormFolder,
     FormLink,
     FormTask,
+    FormEmbed,
     Modal,
     SelectNodeType
   }
@@ -159,12 +180,16 @@ export default class ButtonNodeAdd extends Vue {
     this.setModalVisible(true, type)
   }
 
+  async fetchTree () {
+    return this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+  }
+
   async addFolder (data: NodeResource) {
     this.modal.loading = true
 
     try {
       await this.$store.dispatch('tree/createFolder', data)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+      await this.fetchTree()
     } catch { }
 
     this.modal.loading = false
@@ -177,7 +202,7 @@ export default class ButtonNodeAdd extends Vue {
 
     try {
       await this.$store.dispatch('link/create', data)
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+      await this.fetchTree()
     } catch { }
 
     this.modal.loading = false
@@ -190,7 +215,7 @@ export default class ButtonNodeAdd extends Vue {
 
     try {
       const res = await this.$store.dispatch('task/board/create', data) as { data: TaskBoardResource }
-      await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+      await this.fetchTree()
       if (res.data.id) {
         await this.$router.push({
           name: 'TaskPage',
@@ -199,6 +224,18 @@ export default class ButtonNodeAdd extends Vue {
           }
         })
       }
+    } catch { }
+
+    this.modal.loading = false
+
+    this.setModalVisible(false)
+  }
+
+  async addEmbed (data: object) {
+    this.modal.loading = true
+    try {
+      await this.$store.dispatch('embed/create', data)
+      await this.fetchTree()
     } catch { }
 
     this.modal.loading = false

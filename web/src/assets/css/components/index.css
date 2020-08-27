@@ -10,6 +10,7 @@
 @import './sidebar';
 @import './layout';
 @import './list';
+@import './textarea';
 @import './tree';
 @import './tooltip';
 @import './calendar'
