@@ -19,13 +19,24 @@
       />
     </div>
 
-    <field class="my-6">
+    <field
+      class="mt-6"
+      label="Title"
+    >
+      <input
+        v-model="payload.title"
+        class="input w-full"
+        placeholder="Enter title"
+      />
+    </field>
+
+    <field class="mb-6">
       <textarea
         v-model="payload.content"
         class="textarea w-full"
         placeholder="Paste embed code here..."
       />
-    </field>
+      </field>
 
     <a
       class="help"
@@ -102,7 +113,7 @@ export default class FormEmbed extends Vue {
   payload = {
     id: 0,
     spaceId: this.space,
-    title: 'Untitled',
+    title: '',
     type: '',
     content: ''
   }
@@ -142,7 +153,7 @@ export default class FormEmbed extends Vue {
   @apply border border-gray-400 rounded;
   @apply cursor-pointer;
 
-  transition: .3s;
+  transition: 0.3s;
 
   &:nth-child(n + 3) {
     @apply mt-4;
