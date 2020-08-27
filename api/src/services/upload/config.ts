@@ -7,14 +7,9 @@ export const UploadImageConfig: IUploadImageConfig[] = [
     type: UploadType.UserAvatar,
     sizes: [
       {
-        name: 'small',
-        width: 28,
-        height: 28,
-      },
-      {
-        name: 'medium',
-        width: 96,
-        height: 96,
+        name: 'default',
+        width: 110,
+        height: 110,
       },
     ],
   },
@@ -22,12 +17,7 @@ export const UploadImageConfig: IUploadImageConfig[] = [
     type: UploadType.SpaceLogo,
     sizes: [
       {
-        name: 'small',
-        width: 32,
-        height: 32,
-      },
-      {
-        name: 'medium',
+        name: 'default',
         width: 64,
         height: 64,
       },
@@ -37,7 +27,7 @@ export const UploadImageConfig: IUploadImageConfig[] = [
     type: UploadType.TaskAttachment,
     sizes: [
       {
-        name: 'small',
+        name: 'thumbnail',
         width: 80,
         height: 64,
       },
