@@ -34,9 +34,9 @@ export class Upload {
   @Column('integer')
   size: number
 
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date
-
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date
 }
