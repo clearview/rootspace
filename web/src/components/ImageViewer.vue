@@ -1,0 +1,505 @@
+<template>
+  <Modal
+    title="Image"
+    :visible="visible"
+    noheader
+    nosubmit
+    nofooter
+    cancel-text="Okay"
+    portal="secondary"
+    @cancel="close"
+    :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
+    :contentStyle="{ 'background-color': 'unset', height: '60%' }"
+  >
+      <div class="task-modal-body">
+        <span class="close" @click="close">
+          <v-icon
+            name="close"
+            title="Close"
+            size="32"
+            viewbox="32"
+          />
+        </span>
+        <div class="image-container">
+          <div class="image-nav">
+              <span class="previous" @click="prev">
+                <v-icon
+                  name="left"
+                  size="40px"
+                  viewbox="40"
+                  title="Previous"
+                  id="doc-share-button-svg"
+                />
+              </span>
+
+              <div class="image-box">
+                <img
+                  :key="images[index].path || images[index] || ''"
+                  :src="images[index].path || images[index] || ''"
+                  v-if="images[index] &&
+                    images[index].path &&
+                    isAttachmentImage(images[index].type)"
+                  @click.stop="next"
+                >
+                <div v-else class="others-file">
+                  <span class="file">
+                    <v-icon
+                      name="file-document"
+                      size="100px"
+                      viewbox="120"
+                    />
+                  </span>
+                  <span class="download-file pointer" @click="open(images[index].path)">
+                    <v-icon
+                      name="download"
+                      size="16px"
+                      viewbox="16"
+                    />
+                    Download file
+                  </span>
+                </div>
+              </div>
+
+              <span class="next" @click="next">
+                <v-icon
+                  name="right"
+                  size="40px"
+                  viewbox="40"
+                  title="Next"
+                  id="doc-share-button-svg"
+                />
+              </span>
+          </div>
+
+          <div class="title">
+            <p v-if="images[index] && images[index].path !== undefined">
+              {{ images[index].path | formatAttachmentName }}
+            </p>
+            <Popover :offset="10" :with-close="false" position="right-start" class="modal-action">
+              <template #default>
+                <div class="action-line">
+                  <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
+                  <div class="action-line-text" @click="open(images[index].path)">
+                    Download
+                  </div>
+                </div>
+                <div class="action-separator"></div>
+
+                <Popover :offset="10" :with-close="false" position="right-end" class="delete-attachment left">
+                  <template #default="{ hide }">
+                    <div class="delete-confirmation">
+                      <h3>Delete File</h3>
+
+                      <p>File is about to be permanently deleted...</p>
+                      <p>Warning: You can’t undo this action.</p>
+
+                      <div class="delete-action">
+                        <p @click="hide();">Cancel</p>
+                        <button class="btn btn-primary" @click="handleMenu('delete', images[index])">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </template>
+                  <template #trigger="{ visible }">
+                    <div class="action-line danger" :class="{'btn-link-primary': visible}">
+                      <v-icon name="archive" viewbox="16" size="16px"></v-icon>
+                      <div class="action-line-text">
+                        Delete
+                      </div>
+                    </div>
+                  </template>
+                </Popover>
+
+              </template>
+              <template #trigger="{ visible }">
+                <button class="btn btn-link" :class="{'btn-link-primary': visible}">
+                  <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+                </button>
+              </template>
+            </Popover>
+          </div>
+          <div class="images-count">
+            {{ showImagesCount(index, images) }}
+          </div>
+        </div>
+      </div>
+  </Modal>
+</template>
+
+<script lang="ts">
+import { Component, Emit, Prop, Vue, Model, Watch } from 'vue-property-decorator'
+import { UploadResource } from '@/types/resource'
+
+import Modal from '@/components/Modal.vue'
+import Popover from '@/components/Popover.vue'
+
+@Component({
+  name: 'ImageViewer',
+  components: {
+    Modal,
+    Popover
+  },
+  filters: {
+    formatAttachmentName (path: string) {
+      const splits = path.split('/')
+      return splits[splits.length - 1]
+    }
+  }
+})
+export default class ImageViewer extends Vue {
+  @Model('change', { type: Number }) readonly index!: number
+
+  @Prop({ type: Array, default: [] })
+  private readonly images!: Array<UploadResource>;
+
+  private slide = 'next'
+
+  @Emit('close')
+  close () {
+    const oldIndex = this.index
+    this.goto(null, 'none')
+    this.$emit('close', oldIndex)
+  }
+
+  @Emit('remove')
+  remove (attachment: UploadResource) {
+    return attachment
+  }
+
+  async handleMenu (value: string, attachment: UploadResource) {
+    switch (value) {
+      case 'delete':
+        this.remove(attachment)
+        break
+    }
+  }
+
+  open (src: string) {
+    window.open(src, '_blank')
+  }
+
+  @Watch('visible')
+  watchVisible (index: number) {
+    if (index) {
+      window.addEventListener('keyup', this.keyup)
+    } else {
+      window.removeEventListener('keyup', this.keyup)
+    }
+  }
+
+  get visible () {
+    return this.index !== null
+  }
+
+  get prevImage () {
+    if (this.index > 0) {
+      return this.index - 1
+    }
+
+    return this.index
+  }
+
+  get nextImage () {
+    if (this.index < this.images.length - 1) {
+      return this.index + 1
+    }
+
+    return this.index
+  }
+
+  isAttachmentImage (attachmentType: string) {
+    return attachmentType === 'image/jpeg' || attachmentType === 'image/png'
+  }
+
+  prev () {
+    this.$emit('prev', this.prevImage)
+    this.goto(this.prevImage, 'prev')
+  }
+
+  next () {
+    this.$emit('next', this.nextImage)
+    this.goto(this.nextImage, 'next')
+  }
+
+  goto (idx: number | null, slide: string) {
+    const idxGoto = idx !== null ? idx : -1
+    this.slide = slide || (this.index < idxGoto ? 'next' : 'prev')
+    this.$emit('change', idx)
+  }
+
+  keyup (e: any) {
+    if (
+      e.code === 'ArrowRight' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'Right' ||
+      e.keyCode === 39
+    ) {
+      this.next()
+    } else if (
+      e.code === 'ArrowLeft' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'Left' ||
+      e.keyCode === 37
+    ) {
+      this.prev()
+    } else if (
+      e.code === 'Escape' ||
+      e.key === 'Escape' ||
+      e.key === 'Esc' ||
+      e.keyCode === 27
+    ) {
+      this.close()
+    }
+  }
+
+  showImagesCount (index: number, images: any) {
+    const currentImage = index + 1
+    const totalImages = images.length
+
+    return `${currentImage} / ${totalImages}`
+  }
+}
+</script>
+
+<style lang="postcss" scoped>
+
+  .task-modal-body {
+    @apply relative;
+  }
+
+  .image {
+    @apply rounded shadow shadow-lg;
+    max-width: 80vw;
+    max-height: 80vh;
+  }
+
+  .close {
+    @apply fixed;
+
+    top: 40px;
+    right: 40px;
+
+    svg {
+      margin: 7px 0 0 8px;
+    }
+  }
+
+  .image-container {
+    .image-nav {
+      @apply flex items-center;
+
+      width: 943px;
+      height: 600px;
+
+      .image-box {
+        @apply mx-6 items-center flex;
+        width: 800px;
+        height: 600px;
+
+        img {
+          cursor: pointer;
+          margin: 0 auto;
+          border-radius: 4px;
+          /* left: 50px; */
+          /* position: absolute; */
+          max-width: 800px;
+          max-height: 600px;
+        }
+
+        .others-file {
+          @apply flex items-center justify-center flex-col;
+
+          border: 1px solid theme("colors.gray.400");
+          box-sizing: border-box;
+          border-radius: 4px;
+          background-color: rgb(68 71 84);
+          width: 800px;
+          height: 600px;
+
+          .file {
+            color: #FFF;
+            margin-bottom: 24px;
+          }
+
+          .download-file {
+            @apply flex;
+
+            color: #FFF;
+
+            svg {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+
+    .title {
+      @apply flex justify-center;
+
+      text-align: center;
+      color: #fff;
+      margin-top: 8px;
+      /* position: absolute; */
+      width: 943px;
+      word-break: break-word;
+    }
+
+    .images-count {
+      text-align: center;
+      color: rgb(255 255 255 / .7);
+      width: 943px;
+    }
+  }
+
+  .previous, .next, .close {
+    background-color: rgb(255 255 255 / 20%);
+    cursor: pointer;
+    border-radius: 50px;
+    color: #FFF;
+    width: 48px;
+    height: 48px;
+    /* position: absolute; */
+
+    &:hover {
+      background-color: rgb(255 255 255 / 40%);
+    }
+  }
+
+  .previous {
+    svg {
+      margin: 8px 0 0 6px;
+    }
+  }
+
+  .next {
+    svg {
+      margin: 8px 0 0 9px;
+    }
+  }
+
+  .action-line {
+    @apply flex items-center py-2 px-4 my-1 relative;
+    font-size: 13px;
+    line-height: 16px;
+    width: 168px;
+    color: theme("colors.gray.900");
+    stroke-width: 3px;
+    cursor: pointer;
+
+    &:hover{
+      background: #F0F2F5;
+    }
+    &.danger {
+      color: theme("colors.danger.default");
+    }
+  }
+
+  .action-line-text {
+    @apply ml-2;
+    flex: 1 1 auto;
+  }
+  .action-separator{
+    @apply my-1;
+    height:1px;
+    background: theme("colors.gray.100");
+  }
+
+  .btn-link {
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    background-color: rgb(255 255 255 / 20%);
+    cursor: pointer;
+    border-radius: 50px;
+    margin-left: 8px;
+
+    &:hover {
+      background-color: rgb(255 255 255 / 40%);
+    }
+  }
+
+  .popover-trigger.show button {
+    background-color: rgb(255 255 255 / 40%);
+    color: #FFF;
+  }
+
+  .modal-action {
+    text-align: left;
+  }
+
+  .delete-confirmation {
+    width: 272px;
+    padding: 16px;
+    border-radius: 4px;
+    color: theme("colors.gray.900");
+    text-align: left;
+
+    h3 {
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 17px;
+    }
+
+    .delete-action {
+      @apply flex items-center justify-end;
+
+      margin-top: 16px;
+
+      p {
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 17px;
+        font-weight: bold;
+        margin-right: 16px;
+      }
+
+      button {
+        width: 104px;
+        height: 32px;
+        font-size: 14px;
+        line-height: 17px;
+        font-weight: bold;
+        padding: 8px;
+      }
+    }
+  }
+
+</style>
+
+<style lang="postcss">
+/*******************/
+/*   TRANSITIONS   */
+/*******************/
+.fade-enter,
+.next-enter,
+.prev-enter,
+.fade-leave-active,
+.prev-leave-active,
+.next-leave-active {
+  opacity: 0;
+}
+.fade-enter-active,
+.fade-leave-active,
+.prev-leave-active,
+.next-leave-active {
+  transition: opacity 300ms ease;
+}
+.prev-enter {
+  transform: translateX(-40px);
+}
+.next-enter {
+  transform: translateX(40px);
+}
+.next-enter-active,
+.prev-enter-active {
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+</style>

@@ -194,10 +194,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('boardId')
   async getSpaceMember () {
-    const id = this.activeSpace.id
-    const viewUserAtSpace = await SpaceService.spaceUsers(id)
+    try {
+      const id = this.activeSpace.id
+      const viewUserAtSpace = await SpaceService.spaceUsers(id)
 
-    this.memberList = viewUserAtSpace.data
+      this.memberList = viewUserAtSpace.data
+    } catch { }
   }
 
   get tags (): TagResource[] | null {
@@ -217,7 +219,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   get prefferedView (): TaskBoardType {
-    return this.$store.state.task.settings.viewAs
+    return this.$store.state.task.settings.viewAs[this.boardId] ?? TaskBoardType.Kanban
   }
 
   get shouldShowTip (): boolean {
@@ -233,7 +235,10 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   viewAsList () {
     this.$store.commit('task/settings/setData', (state: TaskSettings) => {
-      state.viewAs = TaskBoardType.List
+      if (!isNaN(state.viewAs as any)) {
+        state.viewAs = {}
+      }
+      this.$set(state.viewAs, this.boardId, TaskBoardType.List)
     })
   }
 
@@ -245,7 +250,10 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   viewAsBoard () {
     this.$store.commit('task/settings/setData', (state: TaskSettings) => {
-      state.viewAs = TaskBoardType.Kanban
+      if (!isNaN(state.viewAs as any)) {
+        state.viewAs = {}
+      }
+      this.$set(state.viewAs, this.boardId, TaskBoardType.Kanban)
     })
   }
 

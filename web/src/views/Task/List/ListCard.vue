@@ -19,11 +19,11 @@
         <v-icon name="drag" size="20px" viewbox="20"></v-icon>
       </div>
       <div class="color"></div>
-      <div class="card-item">
-          <div class="title">
+      <div class="card-item" ref="cardItem">
+          <div class="title" ref="title">
             {{item.title}}
           </div>
-          <div class="tags">
+          <div class="tags" ref="tags">
             <ul>
               <li v-for="(tag, index) in displayedTags" :key="index">
                 <div :style="{background: tag.color, color: textColor(tag.color)}" class="tag" :content="tag.label" v-tippy>
@@ -35,16 +35,16 @@
               </div>
             </ul>
           </div>
-          <div class="date" v-if="itemCopy.dueDate" :content="formatDateReadable(itemCopy.dueDate)" v-tippy>
+          <div class="date" v-show="itemCopy.dueDate" :content="formatDateReadable(itemCopy.dueDate)" v-tippy ref="date">
             {{ formatDate(itemCopy.dueDate) }}
           </div>
-          <div class="icon icon-attachment" v-if="item.attachments && item.attachments.length > 0">
+          <div class="icon icon-attachment" v-show="item.attachments && item.attachments.length > 0" ref="attachment">
             <v-icon name="attachment" viewbox="20" size="20" :withTitle="false" content="Attachment(s)" v-tippy/>
           </div>
-          <div class="icon icon-comment" v-if="item.taskComments.length > 0">
+          <div class="icon icon-comment" v-show="item.taskComments.length > 0" ref="comment">
             <v-icon name="message" viewbox="20" size="20" :withTitle="false" content="Comment(s)" v-tippy/>
           </div>
-          <ul class="assignees" v-if="item.assignees && item.assignees.length > 0">
+          <ul class="assignees" v-show="item.assignees && item.assignees.length > 0" ref="assignees">
             <li v-if="moreAssignees" class="assignee">
               <avatar :size="28" :content="moreAssignees.labels" :username="moreAssignees.count+' +'" v-tippy></avatar>
             </li>
@@ -99,12 +99,35 @@ export default class ListCard extends Vue {
     @Ref('dragBlock')
     private readonly dragBlock!: HTMLDivElement;
 
+    @Ref('title')
+    private readonly titleRef!: HTMLDivElement;
+
+    @Ref('cardItem')
+    private readonly cardItemRef!: HTMLDivElement;
+
+    @Ref('tags')
+    private readonly tagsRef!: HTMLDivElement;
+
+    @Ref('date')
+    private readonly dateRef!: HTMLDivElement;
+
+    @Ref('attachment')
+    private readonly attachmentRef!: HTMLDivElement;
+
+    @Ref('comment')
+    private readonly commentRef!: HTMLDivElement;
+
+    @Ref('assignees')
+    private readonly assigneesRef!: HTMLUListElement;
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
     private isDragBlocked = false
     private isShowingPlaceholder = true
     private titleBackbone = ''
+    private tagMax = 5
+    private assigneeMax = 5
 
     private get isProcessing () {
       return this.$store.state.task.item.processing
@@ -119,20 +142,20 @@ export default class ListCard extends Vue {
     }
 
     private get moreTags () {
-      if (this.item.tags && this.item.tags.length > 2) {
+      if (this.item.tags && this.item.tags.length > this.tagMax) {
         return {
-          count: this.item.tags.length - 2,
-          labels: this.item.tags.slice(2, this.item.tags.length).map((next) => next.label).join(', ')
+          count: this.item.tags.length - this.tagMax,
+          labels: this.item.tags.slice(this.tagMax, this.item.tags.length).map((next) => next.label).join(', ')
         }
       }
       return null
     }
 
     private get moreAssignees () {
-      if (this.item.assignees && this.item.assignees.length > 2) {
+      if (this.item.assignees && this.item.assignees.length > this.assigneeMax) {
         return {
-          count: this.item.assignees.length - 2,
-          labels: this.item.assignees.slice(2, this.item.assignees.length).map((next) => next.firstName).join(', ')
+          count: this.item.assignees.length - this.assigneeMax,
+          labels: this.item.assignees.slice(this.assigneeMax, this.item.assignees.length).map((next) => next.firstName).join(', ')
         }
       }
       return null
@@ -140,14 +163,14 @@ export default class ListCard extends Vue {
 
     private get displayedTags () {
       if (this.item.tags && this.item.tags.length > 0) {
-        return this.item.tags.slice(0, 2)
+        return this.item.tags.slice(0, this.tagMax)
       }
       return []
     }
 
     private get displayedAssignees () {
       if (this.item.assignees && this.item.assignees.length > 0) {
-        return this.item.assignees.slice(0, 2)
+        return this.item.assignees.slice(0, this.assigneeMax)
       }
       return []
     }
@@ -256,6 +279,26 @@ export default class ListCard extends Vue {
     @Watch('item')
     updateItem (val: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'>) {
       this.itemCopy = val
+      this.invalidateMeasurement()
+    }
+
+    invalidateMeasurement () {
+      const occupied = this.titleRef.offsetWidth +
+        this.tagsRef.offsetWidth +
+        this.dateRef.offsetWidth +
+        this.attachmentRef.offsetWidth +
+        this.commentRef.offsetWidth +
+        this.assigneesRef.offsetWidth
+      const spare = this.cardItemRef.offsetWidth - occupied
+      // Space too small to display all tags
+      if (spare <= 0) {
+        // 100 is the max width of tag
+        const reductionCost = Math.ceil((Math.abs(spare)) / 100)
+        this.tagMax -= reductionCost
+      } else if (spare > 100) {
+        const additiveCost = Math.floor(spare / 100)
+        this.tagMax += additiveCost
+      }
     }
 
     mounted () {
@@ -266,6 +309,12 @@ export default class ListCard extends Vue {
           this.showModal = true
         }
       }
+      this.invalidateMeasurement()
+      window.addEventListener('resize', this.invalidateMeasurement)
+    }
+
+    destroyed () {
+      window.removeEventListener('resize', this.invalidateMeasurement)
     }
 
     created () {
@@ -426,7 +475,8 @@ export default class ListCard extends Vue {
     color: theme("colors.gray.900");
 
     .title {
-      flex: 0 1 auto;
+      flex: 0 0 auto;
+      max-width: 320px;
       word-break: break-word;
       white-space: nowrap;
       overflow: hidden;

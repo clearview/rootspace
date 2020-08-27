@@ -25,11 +25,11 @@ export class Follow {
   @Column('varchar')
   tableName: string
 
-  @CreateDateColumn()
-  created: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: string
 
-  @UpdateDateColumn()
-  updated: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: string
 
   @DeleteDateColumn({ type: 'timestamptz'})
   deletedAt: Date

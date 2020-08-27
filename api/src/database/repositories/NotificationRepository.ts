@@ -2,6 +2,7 @@ import
 { EntityRepository } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Notification } from '../entities/Notification'
+import { UpdateResult } from 'typeorm/index'
 
 @EntityRepository(Notification)
 export class NotificationRepository extends BaseRepository<Notification> {
@@ -23,7 +24,7 @@ export class NotificationRepository extends BaseRepository<Notification> {
       .getOne()
   }
 
-  async getUnreadUserNotificationsForEntity(userId: number, entityId: number, entity: string): Promise<Notification[]> {
+  async getUnreadUserNotificationsForEntity(userId: number, entity: string, entityId: number): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
       .leftJoinAndSelect('notification.activity', 'activity')
       .where('notification.userId = :userId', { userId })
@@ -60,12 +61,13 @@ export class NotificationRepository extends BaseRepository<Notification> {
       .getMany()
   }
 
-  async read(ids: number[], userId: number) {
+  async read(ids: number[], userId: number): Promise<UpdateResult> {
     return this.createQueryBuilder()
       .update(Notification)
       .set({ isRead: true })
       .whereInIds(ids)
       .andWhere('userId = :userId', { userId })
+      .andWhere('isRead = :isRead', { isRead: false })
       .execute()
   }
 }

@@ -29,7 +29,12 @@
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
       <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
-          Drop a file to upload as attachment
+        <v-icon
+          name="upload"
+          size="32px"
+          viewbox="32"
+        />
+        Drop a file to upload as attachment
       </div>
       <div class="task-left">
         <div class="task-actions">
@@ -79,6 +84,27 @@
               <span class="cancel" @click="cancelDescription">Cancel</span>
               <span class="save" @click="saveDescription">Save</span>
             </div>
+          </div>
+        </div>
+        <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
+          <div class="attachments-label">
+            Attachments
+          </div>
+          <imageViewer
+            v-model="attachmentIndex"
+            :images="item.attachments"
+            @remove="handleRemoveFile"
+          ></imageViewer>
+          <ul class="attachments">
+            <li v-for="(attachment, index) in filteredAttachmentItems" :key="attachment.id" class="attachments-item">
+              <TaskAttachmentView :attachment="attachment" :index="index" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+            </li>
+          </ul>
+          <div v-if="item.attachments.length > 5">
+            <p class="show-attachments" @click="attachmentState()">
+              <v-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
+              {{ textAttachmentState }}
+            </p>
           </div>
         </div>
         <div class="comment-separator"></div>
@@ -142,19 +168,6 @@
           </div>
         </div>
         <div class="right-field">
-          <div class="right-field-title">Attachments</div>
-          <div class="right-field-content">
-            <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">
-              <li v-for="attachment in item.attachments" :key="attachment.id" class="attachments-item">
-                <TaskAttachmentView :attachment="attachment" @remove="handleRemoveFile"/>
-              </li>
-            </ul>
-            <template v-else>
-              <span>None</span>
-            </template>
-          </div>
-        </div>
-        <div class="right-field">
           <div class="right-field-title">Due Date</div>
           <div class="right-field-content" >
             <div class="due-date-box" v-if="item.dueDate">
@@ -186,6 +199,7 @@ import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, Use
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
+import ImageViewer from '@/components/ImageViewer.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
@@ -216,7 +230,8 @@ import TaskActivities from '@/views/Task/TaskActivities.vue'
     Modal,
     Field,
     Avatar,
-    quillEditor
+    quillEditor,
+    ImageViewer
   },
   filters: {
     formatDate (date: Date | string) {
@@ -240,13 +255,15 @@ export default class TaskModal extends Vue {
 
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
-    private isEditingDescription = false;
-    private commentInput = '';
+    private isEditingDescription = false
+    private commentInput = ''
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
     private isCommenting = false
     private isCapturingFile = false
+    private isShowAllAttachment = false
+    private attachmentIndex: number|null = null
     private toolbarOptions = [
       ['bold', 'italic', 'underline', 'strike'],
       ['link'],
@@ -311,6 +328,10 @@ export default class TaskModal extends Vue {
           attachments: this.itemCopy.attachments
         })
       }
+    }
+
+    handleFileClick (index: number|null) {
+      this.attachmentIndex = index
     }
 
     async saveDescription () {
@@ -482,6 +503,30 @@ export default class TaskModal extends Vue {
       }
     }
 
+    get filteredAttachmentItems () {
+      if (this.isShowAllAttachment) {
+        return this.item.attachments
+      }
+
+      return this.item.attachments ? this.item.attachments.slice(0, 5) : this.item.attachments
+    }
+
+    get textAttachmentState () {
+      const textState = this.isShowAllAttachment ? 'Less' : 'More'
+
+      return `Show ${textState}`
+    }
+
+    get iconAttachmentState () {
+      const iconState = this.isShowAllAttachment ? 'up' : 'down'
+
+      return iconState
+    }
+
+    attachmentState () {
+      this.isShowAllAttachment = !this.isShowAllAttachment
+    }
+
     handlePaste (e: ClipboardEvent) {
       e.preventDefault()
       const data = e.clipboardData?.getData('text/plain')
@@ -556,7 +601,7 @@ export default class TaskModal extends Vue {
   .task-right {
     @apply ml-8;
     flex: 0 1 auto;
-    width: 166px;
+    width: 182px;
   }
 
   .action-label {
@@ -829,7 +874,7 @@ export default class TaskModal extends Vue {
   }
 
   .attachments {
-    @apply flex items-center flex-wrap;
+    @apply flex flex-col;
   }
 
   .task-modal-title-editable {
@@ -860,14 +905,23 @@ export default class TaskModal extends Vue {
   }
 
   .task-drag-capture {
-    @apply z-50 absolute flex items-center justify-center text-3xl;
+    @apply z-50 absolute flex items-center justify-center text-3xl flex-col;
     color: theme("colors.gray.900");
     top: 0;
-    left:0;
     width: 100%;
-    height: 100%;
-    background: #fff8;
-    backdrop-filter: saturate(1.5) blur(4px);
+    height: 90%;
+    border: 2px dashed theme("colors.primary.default");
+    font-size: 16px;
+    line-height: 19px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    margin: 0 0 2rem 0;
+    width: 650px;
+    background: #fff;
+
+    svg {
+      color: theme("colors.primary.default");
+    }
   }
 
   .created-by {
@@ -912,6 +966,28 @@ export default class TaskModal extends Vue {
       background: theme("colors.gray.100");
       color: theme("colors.gray.900");
     }
+  }
+
+  .task-attachments {
+    margin-top: 24px;
+
+    .attachments-label {
+      @apply uppercase pb-2;
+
+      color: theme("colors.gray.900");
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 14px;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .show-attachments {
+    @apply flex items-center;
+
+    cursor: pointer;
+    line-height: 17px;
+    color: theme("colors.gray.800");
   }
 
 </style>

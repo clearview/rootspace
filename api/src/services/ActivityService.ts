@@ -38,4 +38,12 @@ export class ActivityService {
   async getEntityFromActivity(event: ActivityEvent): Promise<any> {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
+
+  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
+    return this.getActivityRepository().getBySpaceId(spaceId, type, action)
+  }
+
+  async getByEntityTypeAndEntityId(spaceId: number, type: string, id: number, action?: string): Promise<Activity[]> {
+    return this.getActivityRepository().getByTypeAndEntityIdId(spaceId, type, id, action)
+  }
 }

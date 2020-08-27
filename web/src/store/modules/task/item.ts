@@ -217,17 +217,9 @@ if (item.actions) {
     commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         board.current.taskLists = board.current.taskLists.map(list => {
-          let taskIndex = -1
-
-          list.tasks = list.tasks.map(task => {
-            if (task.id === params.taskId) {
-              taskIndex = list.tasks.indexOf(task)
-            }
-
-            return task
+          list.tasks = list.tasks.filter(task => {
+            return !(task.id === params.taskId && list.id === task.listId)
           })
-
-          list.tasks.splice(taskIndex, 1)
           return list
         })
       }

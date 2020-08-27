@@ -11,17 +11,19 @@ import { UserSettingService } from '../services/UserSettingService'
 import {
   validateUserSignup,
   validateUserUpdate,
-  validateChangePassword,
+  validatePasswordChange,
   validatePasswordRecovery,
   validatePasswordReset,
+  validatePasswordSet,
 } from '../validation/user'
 import {
   UserUpdateValue,
-  UserChangePasswordValue,
+  PasswordChangeValue,
   PasswordRecoveryValue,
   PasswordResetValue,
+  PasswordSetValue,
 } from '../values/user'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { UserAuthProvider } from '../types/user'
 
 export class UsersCtrl extends BaseCtrl {
   protected userService: UserService
@@ -46,10 +48,7 @@ export class UsersCtrl extends BaseCtrl {
 
   async confirmEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await this.userService.confirmEmail(
-        req.body.token,
-        req.body.userId
-      )
+      const user = await this.userService.confirmEmail(req.body.token, req.body.userId)
       res.send(user)
     } catch (err) {
       next(err)
@@ -61,40 +60,48 @@ export class UsersCtrl extends BaseCtrl {
    * @link https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
    */
   async auth(req: Request, res: Response, next: NextFunction) {
+    return passport.authenticate(UserAuthProvider.LOCAL, { session: false }, (err, user, info) => {
+      if (err || !user) {
+        return next(err)
+      }
+
+        return res.json(this.signedTokens(user.id))
+    })(req, res)
+  }
+
+  async authGoogleCallback(req: Request, res: Response) {
+    const user = req.user
+
+    const token = jwt.sign({ id: user }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
+    const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
+
+    res.send({ token, refreshToken })
+  }
+
+  async refreshToken(req: Request, res: Response, next: NextFunction) {
     return passport.authenticate(
-      'local',
+      'refreshToken',
       { session: false },
       (err, user, info) => {
         if (err || !user) {
           return next(err)
         }
 
-        const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-        return res.json({ token })
+        return res.json(this.signedTokens(user.id))
       }
     )(req, res)
   }
 
-  async authGoogleCallback(req: Request, res: Response) {
-    const user = req.user
-    const token = jwt.sign({ id: user }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-    res.send({ token })
-  }
+  signedTokens(userId: number) {
+    const token = jwt.sign({ id: userId }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
+    const refreshToken = jwt.sign({ id: userId }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
 
-  async refreshToken(req: Request, res: Response) {
-    const user = req.user
-    const token = jwt.sign({ id: user.id }, config.jwtSecretKey, { expiresIn: config.jwtExpiresIn })
-    res.send({ token })
+    return { token, refreshToken }
   }
 
   async whoami(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).getById(
-      req.user.id,
-      ['emailConfirmed']
-    )
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(
-      user.id
-    )
+    const user = await getCustomRepository(UserRepository).getById(req.user.id, ['emailConfirmed'])
+    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
 
     res.send({ user, spaces })
   }
@@ -114,18 +121,36 @@ export class UsersCtrl extends BaseCtrl {
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
     const userId = req.user.id
+    const user = await this.userService.requireUserById(userId, ['authProvider'])
+
+    if (user.authProvider !== UserAuthProvider.LOCAL) {
+      return next()
+    }
+
     const data = req.body.data
+    await validatePasswordChange(data)
 
-    await validateChangePassword(data)
-    const value = UserChangePasswordValue.fromObject(data)
+    const value = PasswordChangeValue.fromObject(data)
 
-    this.userService.changePassword(value, userId, (err, user) => {
+    await this.userService.changePassword(value, userId, (err, result) => {
       if (err) {
         return next(err)
       }
 
-      res.send(this.responseData(user))
+      res.send(this.responseData(result))
     })
+  }
+
+  async setPassword(req: Request, res: Response) {
+    const userId = req.user.id
+    const data = req.body.data
+
+    await validatePasswordSet(data)
+
+    const value = PasswordSetValue.fromObject(data)
+    const result = await this.userService.setPassword(value, userId)
+
+    res.send(this.responseData(result))
   }
 
   async passwordRecovery(req: Request, res: Response) {

@@ -316,14 +316,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // Hooks
 
   async created () {
-    await this.fetch()
+    if (this.activeSpace.id) {
+      await this.fetch()
+    }
   }
 
   // Watchers
 
   @Watch('activeSpace')
   async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
-    if (space.id !== prevSpace.id) {
+    if (space.id && space.id !== prevSpace.id) {
       await this.fetch()
     }
   }

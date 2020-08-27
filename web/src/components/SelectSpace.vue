@@ -110,6 +110,7 @@
       title="Add Space"
       :visible="modal.visible"
       :loading="modal.loading"
+      :content-style="{ width: '456px' }"
       confirmText="Add"
       @cancel="modal.visible = false"
       @confirm="() => $refs.formSpace.submit()"

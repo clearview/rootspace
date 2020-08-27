@@ -23,10 +23,10 @@ export class Upload {
   @Column('varchar')
   path: string
 
-  @CreateDateColumn()
-  created: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updated: string
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
 }

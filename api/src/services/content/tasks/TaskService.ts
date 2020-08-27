@@ -69,11 +69,6 @@ export class TaskService {
     return this.getTaskRepository().findOneArchived(id)
   }
 
-  async readNotificationsForTask(task: Task): Promise<Notification[]> {
-    const user = httpRequestContext.get('user')
-    return this.notificationService.readUsersNotificationsForEntity(user, task)
-  }
-
   async create(data: any): Promise<Task> {
     data.list = await this.getTaskListRepository().findOneOrFail(data.listId)
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.boardId)
