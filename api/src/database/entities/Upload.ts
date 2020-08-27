@@ -23,21 +23,20 @@ export class Upload {
   type: string
 
   @Column('varchar')
+  path: string
+
+  @Column('json', { nullable: true })
+  versions: object
+
+  @Column('varchar')
   mimetype: string
 
   @Column('integer')
   size: number
 
-  @Column('varchar')
-  path: string
-
-  @CreateDateColumn({ type: 'timestamptz'})
-  createdAt: Date
-  @Column('json', { nullable: true })
-  versions: object
-
-  @CreateDateColumn()
-  created: string
-
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date
+}
