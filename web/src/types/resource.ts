@@ -24,7 +24,7 @@ export interface LinkResource {
 }
 
 export interface UploadResource {
-  created: Date;
+  createdAt: Date;
   id: number;
   size: 386397;
   path: string;
@@ -154,4 +154,19 @@ export interface DocumentResource {
   title: string;
   content: object;
   access: number;
+}
+
+export interface ActivityResource {
+  action: string;
+  actor: UserResource;
+  actorId: number;
+  createdAt: string;
+  entity: string;
+  entityId: number;
+  id: number;
+  spaceId: number;
+  tableName: string;
+}
+export interface TaskActivityResource extends ActivityResource{
+  Task: TaskItemResource;
 }

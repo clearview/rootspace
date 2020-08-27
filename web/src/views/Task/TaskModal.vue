@@ -119,7 +119,8 @@
         <ul class="comments">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
-
+        <div class="comment-separator"></div>
+        <TaskActivities :item="item"></TaskActivities>
       </div>
       <div class="task-right">
         <div class="right-field">
@@ -212,10 +213,12 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
+import TaskActivities from '@/views/Task/TaskActivities.vue'
 
 @Component({
   name: 'TaskModal',
   components: {
+    TaskActivities,
     TaskAttachmentView,
     DueDatePopover,
     TagsPopover,
