@@ -60,6 +60,16 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
         }
       )
       .leftJoinAndSelect('task.tags', 'tag')
+      .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapMany(
+        'task.attachments',
+        Upload,
+        'upload',
+        'upload.entityId = task.id AND upload.entity = :entity',
+        {
+          entity: 'Task',
+        }
+      )
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
