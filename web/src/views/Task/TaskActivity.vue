@@ -23,7 +23,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { formatRelativeTo } from '@/utils/date'
 import Avatar from 'vue-avatar'
-import { TaskActivityResource, TaskItemResource } from '@/types/resource'
+import { TaskActivityResource } from '@/types/resource'
 
 @Component(
   {

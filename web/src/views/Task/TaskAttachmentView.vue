@@ -72,7 +72,6 @@ import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import { UploadResource } from '@/types/resource'
 
 import Popover from '@/components/Popover.vue'
-import formatRelative from 'date-fns/formatRelative'
 import { formatRelativeTo } from '@/utils/date'
 
   @Component({
