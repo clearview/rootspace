@@ -13,7 +13,7 @@ const upload = multer({
   dest: path.resolve(config.uploadDir),
 })
 
-router.post('/upload', upload.single('file'), [
+router.post('/uploads', upload.single('file'), [
   mapRoute(UploadsCtrl, 'uploadUserAvatar'),
   mapRoute(UploadsCtrl, 'uploadSpaceLogo'),
   mapRoute(UploadsCtrl, 'upload'),
