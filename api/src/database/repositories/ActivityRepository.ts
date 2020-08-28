@@ -1,8 +1,8 @@
 import { EntityRepository } from 'typeorm'
+import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Activity } from '../entities/Activity'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { getConnection } from 'typeorm/index'
 import { ActivityType } from '../../types/activity'
 
 @EntityRepository(Activity)

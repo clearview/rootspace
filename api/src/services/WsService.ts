@@ -1,14 +1,17 @@
-import { UserService } from '../UserService'
-import { SpaceService } from '../SpaceService'
-import { PrimusRooms } from '../../declarations/PrimusRooms'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../ActivityService'
-import { OutMessage } from '../models/OutMessage'
-import Server from '../../server'
-import { ActivityType } from '../../types/activity'
+import { UserService } from './UserService'
+import { SpaceService } from './SpaceService'
+import { PrimusRooms } from '../declarations/PrimusRooms'
+import { ActivityEvent } from './events/ActivityEvent'
+import { ActivityService } from './ActivityService'
+import { OutMessage } from './models/OutMessage'
+import Server from '../server'
+import { ActivityType } from '../types/activity'
+import { WsEventEmitter } from './events/WsEventEmitter'
+import { WsEvent } from './events/WsEvent'
 
 export class WsService {
   private static instance: WsService
+  private wsEventEmitter: WsEventEmitter
   private wsServer: PrimusRooms
   private userService: UserService
   private spaceService: SpaceService
@@ -17,10 +20,15 @@ export class WsService {
   static fromServer() {
     if (!WsService.instance) {
       WsService.instance = new WsService()
+      WsService.instance.wsEventEmitter = WsEventEmitter.getInstance()
       WsService.instance.wsServer = Server.getInstance().wsServer as PrimusRooms
       WsService.instance.userService = UserService.getInstance()
       WsService.instance.spaceService = SpaceService.getInstance()
       WsService.instance.activityService = ActivityService.getInstance()
+
+      WsService.instance.wsEventEmitter.on(WsEvent.NAME, async (event: ActivityEvent) => {
+        await WsService.instance.broadcast(event)
+      })
     }
 
     return WsService.instance
@@ -39,7 +47,7 @@ export class WsService {
   async createMessageFromActivityEvent(event: ActivityEvent): Promise<OutMessage> {
     const user = await this.userService.getUserById(event.actorId)
     const space = await this.spaceService.getSpaceById(event.spaceId)
-    const entity = await this.activityService.getEntityFromActivity(event)
+    const entity = await this.activityService.getEntityFromActivityEvent(event)
 
     return new OutMessage(event, user, space, entity)
   }

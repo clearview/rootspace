@@ -13,6 +13,7 @@ import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
 import Primus = require('primus')
 import Rooms = require('primus-rooms')
+import { WsService } from './services/WsService'
 
 declare global {
   namespace Express {
@@ -57,6 +58,8 @@ export default class Server {
   }
 
   async bootstrap() {
+    WsService.fromServer()
+
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
       this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
