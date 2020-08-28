@@ -57,7 +57,7 @@ export class TaskService {
   }
 
   async getById(id: number): Promise<Task> {
-    return this.getTaskRepository().findOneOrFail(id)
+    return this.getTaskRepository().getById(id)
   }
 
   // Todo: remove when task table gets taskBoardID field
@@ -161,7 +161,7 @@ export class TaskService {
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
-    task.assignees = task.assignees.filter(assignee => {
+    task.assignees = task.assignees.filter((assignee) => {
       return assignee.id !== user.id
     })
 
@@ -193,7 +193,7 @@ export class TaskService {
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
-    task.tags = task.tags.filter(tag => {
+    task.tags = task.tags.filter((tag) => {
       return tag.id !== boardTag.id
     })
 
@@ -212,11 +212,10 @@ export class TaskService {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
-      ActivityEvent
-      .withAction(taskActivity)
-      .fromActor(actor.id)
-      .forEntity(task)
-      .inSpace(task.spaceId)
+      ActivityEvent.withAction(taskActivity)
+        .fromActor(actor.id)
+        .forEntity(task)
+        .inSpace(task.spaceId)
     )
   }
 }
