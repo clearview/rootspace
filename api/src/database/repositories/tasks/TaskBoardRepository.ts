@@ -34,8 +34,8 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     const queryBuilder = this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
-      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
@@ -49,7 +49,6 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     const queryBuilder = this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
-      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndMapMany(
         'task.attachments',
@@ -60,6 +59,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
           entity: 'Task',
         }
       )
+      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
