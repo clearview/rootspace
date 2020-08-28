@@ -1,16 +1,20 @@
-import { EntityRepository, Repository } from 'typeorm'
+import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm'
 import { User } from '../entities/User'
 import { UserToSpace } from '../entities/UserToSpace'
+import { Upload } from '../entities/Upload'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   getBySpaceId(spaceId: number): Promise<User[]> {
-    return this.createQueryBuilder('user')
+    const queryBuilder = this.createQueryBuilder('user')
       .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.userId = user.id')
       .where('userToSpace.spaceId = :spaceId AND userToSpace.active = true', {
         spaceId,
       })
-      .getMany()
+
+    this.mapAvatar(queryBuilder)
+
+    return queryBuilder.getMany()
   }
 
   getById(id: number, additionalFields?: string[]): Promise<User> {
@@ -21,6 +25,8 @@ export class UserRepository extends Repository<User> {
         queryBuilder.addSelect(`User.${field}`, `User_${field}`)
       }
     }
+
+    this.mapAvatar(queryBuilder)
 
     return queryBuilder
       .where('User.id = :id')
@@ -54,5 +60,19 @@ export class UserRepository extends Repository<User> {
       .where('LOWER(User.email) = :email')
       .setParameter('email', email.toLowerCase())
       .getOne()
+  }
+
+  private mapAvatar(queryBuilder: SelectQueryBuilder<User>): SelectQueryBuilder<User> {
+    const alias = queryBuilder.alias
+
+    return queryBuilder.leftJoinAndMapOne(
+      alias + '.avatar',
+      Upload,
+      'upload',
+      'upload.entityId = ' + alias + '.id AND upload.entity = :entity',
+      {
+        entity: 'User',
+      }
+    )
   }
 }
