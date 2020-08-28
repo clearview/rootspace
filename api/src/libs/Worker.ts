@@ -2,9 +2,6 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import db from '../db'
 import { Job } from 'bull'
-import { ActivityRepository } from '../database/repositories/ActivityRepository'
-import { getCustomRepository } from 'typeorm'
-import { Activity } from '../database/entities/Activity'
 import { ActivityType } from '../types/activity'
 import { ActivityEvent } from '../services/events/ActivityEvent'
 import { DocWorker } from './workers/DocWorker'
@@ -14,28 +11,14 @@ import { TaskWorker } from './workers/TaskWorker'
 import { UserWorker } from './workers/UserWorker'
 import { InviteWorker } from './workers/InviteWorker'
 import { Queue } from './Queue'
-import { WsService } from '../services/content/WsService'
 
 export class Worker {
   static async process(queueName: string = Queue.QUEUE_NAME) {
     await db()
 
     await Queue.getActivityInstance().process(queueName, async (job) => {
-      // job.data.activity = await Worker.saveActivity(job)
-
       await Worker.dispatch(job)
     })
-  }
-
-  // private static saveActivity(job: Job<any>): Promise<Activity> {
-  //   return getCustomRepository(ActivityRepository).save(job.data)
-  // }
-
-  /**
-   * NOT TESTED - requires ws connection from different thread
-   */
-  private static async broadcastWebsocketMessage(event: ActivityEvent): Promise<void> {
-    return WsService.fromWorker().broadcast(event)
   }
 
   private static async dispatch(job: Job<any>) {

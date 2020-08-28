@@ -1,6 +1,5 @@
 import { Node } from '../../database/entities/Node'
 import { NodeType } from '../../types/node'
-import { ActivityEvent } from '../events/ActivityEvent'
 
 export interface INodeContentMediator {
   nodeUpdated(node: Node): Promise<void>
@@ -23,16 +22,4 @@ export interface INodeContentUpdate {
 
 export interface IContentNodeUpdate {
   title?: string
-}
-
-export enum WsInAction {
-  Echo = 'echo',
-  Join = 'join',
-  List = 'list',
-  Leave = 'leave',
-  LeaveAll = 'leaveAll'
-}
-
-export interface WssInterface<Entity> {
-  broadcast(event: ActivityEvent): void
 }

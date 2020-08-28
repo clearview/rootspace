@@ -1,4 +1,3 @@
-import { WssInterface } from './contracts'
 import { UserService } from '../UserService'
 import { SpaceService } from '../SpaceService'
 import { PrimusRooms } from '../../declarations/PrimusRooms'
@@ -8,7 +7,7 @@ import { OutMessage } from '../models/OutMessage'
 import Server from '../../server'
 import { ActivityType } from '../../types/activity'
 
-export class WsService implements WssInterface<any> {
+export class WsService {
   private static instance: WsService
   private wsServer: PrimusRooms
   private userService: UserService
@@ -22,25 +21,6 @@ export class WsService implements WssInterface<any> {
       WsService.instance.userService = UserService.getInstance()
       WsService.instance.spaceService = SpaceService.getInstance()
       WsService.instance.activityService = ActivityService.getInstance()
-    }
-
-    return WsService.instance
-  }
-
-  /**
-   * Connect from different thread (worker)?
-   * https://github.com/primus/primus#connecting-from-the-server
-   */
-  static fromWorker() {
-    if (!WsService.instance) {
-      // NOT TESTED
-      // const PrimusSocket = this.wsServer.Socket
-      // const client = new PrimusSocket('http://localhost:3001')
-      //
-      // client.write({
-      //   action: 'echo',
-      //   data: 'test from node'
-      // })
     }
 
     return WsService.instance
@@ -75,9 +55,6 @@ export class WsService implements WssInterface<any> {
     return false
   }
 
-  /**
-   * Todo: add boardId to task table in order to get board id for room number!!!
-   */
   private roomName(message: OutMessage): string {
     let roomName: string
     let roomNumber: number
@@ -89,7 +66,7 @@ export class WsService implements WssInterface<any> {
         break
       case ActivityType.Task:
         roomName = ActivityType.TaskBoard
-        roomNumber = 0 // message.entity.boardId
+        roomNumber = message.entity.boardId
         break
 
       default:
@@ -98,7 +75,7 @@ export class WsService implements WssInterface<any> {
         break
     }
 
-    return `${roomName}-${roomNumber}`
+    return `${message.space.id}.${roomName}.${roomNumber}`
   }
 
   private shouldBroadcast(event: ActivityEvent): boolean {
@@ -112,7 +89,7 @@ export class WsService implements WssInterface<any> {
 
   private write(message: OutMessage): void {
     if (this.isSidebarRelated(message)) {
-      const sideBarRoom = `SideBar-${message.space.id}`
+      const sideBarRoom = `${message.space.id}.Sidebar`
       this.wsServer.room(sideBarRoom).write({message})
     }
 
@@ -120,7 +97,7 @@ export class WsService implements WssInterface<any> {
     this.wsServer.room(roomName).write({message})
 
     // Test: send all activities
-    const activitiesRoom = `Activity-${message.space.id}`
+    const activitiesRoom = `${message.space.id}.Activity`
     this.wsServer.room(activitiesRoom).write({message})
   }
 }

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { UserService, UserSpaceService } from '../services'
 import { Request } from 'express'
 import { InMessage } from '../services/models/InMessage'
-import { WsInAction } from '../services/content/contracts'
+import { WsInAction } from '../services/events/WsInAction'
 import Primus = require('primus')
 import Spark = require('primus-rooms')
 import { Room } from '../types/room'
@@ -127,7 +127,7 @@ function wsRroom(name: string): Room|null {
 
   const aRoom = Room.forSpaceId(spaceId)
 
-  if (entityName !== 'undefined' && entityId) {
+  if (entityName !== 'undefined' && entityName !== '') {
     aRoom.withEntity(entityName)
   }
 
