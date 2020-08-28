@@ -17,7 +17,7 @@ export class WsService {
   private spaceService: SpaceService
   private activityService: ActivityService
 
-  static fromServer() {
+  static initFromServer() {
     if (!WsService.instance) {
       WsService.instance = new WsService()
       WsService.instance.wsEventEmitter = WsEventEmitter.getInstance()

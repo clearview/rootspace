@@ -33,8 +33,7 @@ export class ActivityService {
   async add(event: ActivityEvent): Promise<Bull.Job> {
     const activityObject = event.toObject()
 
-    const activity = await this.getActivityRepository().save(activityObject)
-    const entity = await this.getEntityFromActivityEvent(event)
+    await this.getActivityRepository().save(activityObject)
     this.wsEventEmitter.emit(WsEvent.NAME, event)
 
     return this.queue.add(Queue.QUEUE_NAME, activityObject)

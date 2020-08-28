@@ -58,7 +58,7 @@ export default class Server {
   }
 
   async bootstrap() {
-    WsService.fromServer()
+    WsService.initFromServer()
 
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })
