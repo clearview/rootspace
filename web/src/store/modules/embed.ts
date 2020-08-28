@@ -1,6 +1,5 @@
 import { Module } from 'vuex'
 import { RootState } from '@/types/state'
-import api from '@/utils/api'
 import EmbedService, { EmbedResource } from '@/services/embed'
 
 export interface EmbedState {
@@ -40,7 +39,7 @@ const EmbedModule: Module<EmbedState, RootState> = {
     async update ({ commit }, data: EmbedResource) {
       commit('setItem', data)
 
-      const res = await EmbedService.update(data)
+      await EmbedService.update(data)
 
       commit('setItem', data)
     },
