@@ -1,4 +1,4 @@
-import { WsInAction } from '../content/contracts'
+import { WsInAction } from '../events/WsInAction'
 import { User } from '../../database/entities/User'
 
 export class InMessage {
