@@ -70,6 +70,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
           entity: 'Task',
         }
       )
+      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
       .where('taskBoard.id = :id', { id })
