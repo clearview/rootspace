@@ -34,7 +34,7 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value)
 
-    res.send(upload)
+    res.send(this.responseData(upload))
   }
 
   async uploadSpaceLogo(req: Request, res: Response, next: NextFunction) {
@@ -57,7 +57,7 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value)
 
-    res.send(upload)
+    res.send(this.responseData(upload))
   }
 
   async upload(req: Request, res: Response) {
@@ -69,6 +69,6 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value)
 
-    res.send(upload)
+    res.send(this.responseData(upload))
   }
 }
