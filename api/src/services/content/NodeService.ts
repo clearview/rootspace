@@ -13,7 +13,7 @@ import { NodeActivities } from '../../database/entities/activities/NodeActivitie
 import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class NodeService {
-  private mediator: INodeContentMediator
+  private nodeContentMediator: INodeContentMediator
   private activityService: ActivityService
 
   private static instance: NodeService
@@ -31,7 +31,7 @@ export class NodeService {
   }
 
   setMediator(mediator: INodeContentMediator) {
-    this.mediator = mediator
+    this.nodeContentMediator = mediator
   }
 
   getNodeRepository(): NodeRepository {
@@ -150,7 +150,7 @@ export class NodeService {
       node = await this.updateNodePosition(node, data.position)
     }
 
-    this.mediator.nodeUpdated(node)
+    this.nodeContentMediator.nodeUpdated(node)
 
     await this.registerActivityForNodeId(NodeActivities.Updated, node.id)
 
@@ -231,7 +231,7 @@ export class NodeService {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
     node = await this._archive(node)
 
-    await this.mediator.nodeArchived(node)
+    await this.nodeContentMediator.nodeArchived(node)
     await this.registerActivityForNode(NodeActivities.Archived, node)
 
     return node
@@ -277,7 +277,7 @@ export class NodeService {
       child = await this.getNodeRepository().save(child)
 
       child = await this.getNodeRepository().softRemove(child)
-      await this.mediator.nodeArchived(child)
+      await this.nodeContentMediator.nodeArchived(child)
     }
   }
 
@@ -285,7 +285,7 @@ export class NodeService {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
     node = await this._restore(node)
 
-    await this.mediator.nodeRestored(node)
+    await this.nodeContentMediator.nodeRestored(node)
     return node
   }
 
@@ -305,7 +305,7 @@ export class NodeService {
     this.verifyRestore(node)
 
     const restoreToParent = await this._getRestoreParentNode(node)
-    this.updateNodeParent(node, restoreToParent.id)
+    await this.updateNodeParent(node, restoreToParent.id)
 
     node.restoreParentId = null
     node = await this.getNodeRepository().save(node)
@@ -330,7 +330,7 @@ export class NodeService {
       child = await this.getNodeRepository().save(child)
 
       child = await this.getNodeRepository().recover(child)
-      await this.mediator.nodeRestored(child)
+      await this.nodeContentMediator.nodeRestored(child)
 
       await this._restoreChildren(child)
     }
@@ -350,7 +350,7 @@ export class NodeService {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
     node = await this._remove(node)
 
-    await this.mediator.nodeRemoved(node)
+    await this.nodeContentMediator.nodeRemoved(node)
     await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     return node
@@ -390,7 +390,7 @@ export class NodeService {
       await this._removeChildren(child)
 
       await this.getNodeRepository().remove(child)
-      await this.mediator.nodeRemoved(child)
+      await this.nodeContentMediator.nodeRemoved(child)
     }
   }
 

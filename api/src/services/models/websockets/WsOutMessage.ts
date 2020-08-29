@@ -1,8 +1,8 @@
-import { User } from '../../database/entities/User'
-import { Space } from '../../database/entities/Space'
-import { ActivityEvent } from '../events/ActivityEvent'
+import { User } from '../../../database/entities/User'
+import { Space } from '../../../database/entities/Space'
+import { ActivityEvent } from '../../events/ActivityEvent'
 
-export class OutMessage {
+export class WsOutMessage {
   event: ActivityEvent
   space: Space
   user: User

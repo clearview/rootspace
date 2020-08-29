@@ -95,7 +95,7 @@ export class DocService extends NodeContentService {
 
     doc = await this._archive(doc)
 
-    await this.mediator.contentArchived(doc.id, this.getNodeType())
+    await this.nodeContentMediator.contentArchived(doc.id, this.getNodeType())
 
     return doc
   }
@@ -123,7 +123,7 @@ export class DocService extends NodeContentService {
 
     doc = await this._restore(doc)
 
-    await this.mediator.contentRestored(docId, this.getNodeType())
+    await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
     await this.registerActivityForDoc(DocActivities.Restored, doc)
 
     return doc
@@ -151,7 +151,7 @@ export class DocService extends NodeContentService {
     doc = await this._remove(doc)
 
     await this.registerActivityForDoc(DocActivities.Deleted, doc)
-    await this.mediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return doc
   }

@@ -5,8 +5,8 @@ import { getCustomRepository } from 'typeorm'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { Activity } from '../database/entities/Activity'
 import { Queue } from '../libs/Queue'
-import { WsEventEmitter } from './events/WsEventEmitter'
-import { WsEvent } from './events/WsEvent'
+import { WsEventEmitter } from './events/websockets/WsEventEmitter'
+import { WsEvent } from './events/websockets/WsEvent'
 
 export class ActivityService {
   private static instance: ActivityService

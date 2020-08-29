@@ -3,35 +3,35 @@ import { SpaceService } from './SpaceService'
 import { PrimusRooms } from '../declarations/PrimusRooms'
 import { ActivityEvent } from './events/ActivityEvent'
 import { ActivityService } from './ActivityService'
-import { OutMessage } from './models/OutMessage'
-import Server from '../server'
+import { WsOutMessage } from './models/websockets/WsOutMessage'
+import Primus from 'primus'
 import { ActivityType } from '../types/activity'
-import { WsEventEmitter } from './events/WsEventEmitter'
-import { WsEvent } from './events/WsEvent'
+import { WsEventEmitter } from './events/websockets/WsEventEmitter'
+import { WsEvent } from './events/websockets/WsEvent'
 
-export class WsService {
-  private static instance: WsService
+export class WebSocketsService {
+  private static instance: WebSocketsService
   private wsEventEmitter: WsEventEmitter
   private wsServer: PrimusRooms
   private userService: UserService
   private spaceService: SpaceService
   private activityService: ActivityService
 
-  static initFromServer() {
-    if (!WsService.instance) {
-      WsService.instance = new WsService()
-      WsService.instance.wsEventEmitter = WsEventEmitter.getInstance()
-      WsService.instance.wsServer = Server.getInstance().wsServer as PrimusRooms
-      WsService.instance.userService = UserService.getInstance()
-      WsService.instance.spaceService = SpaceService.getInstance()
-      WsService.instance.activityService = ActivityService.getInstance()
+  static initFromWebSocketServer(wsServer: Primus) {
+    if (!WebSocketsService.instance) {
+      WebSocketsService.instance = new WebSocketsService()
+      WebSocketsService.instance.wsEventEmitter = WsEventEmitter.getInstance()
+      WebSocketsService.instance.wsServer = wsServer as PrimusRooms
+      WebSocketsService.instance.userService = UserService.getInstance()
+      WebSocketsService.instance.spaceService = SpaceService.getInstance()
+      WebSocketsService.instance.activityService = ActivityService.getInstance()
 
-      WsService.instance.wsEventEmitter.on(WsEvent.NAME, async (event: ActivityEvent) => {
-        await WsService.instance.broadcast(event)
+      WebSocketsService.instance.wsEventEmitter.on(WsEvent.NAME, async (event: ActivityEvent) => {
+        await WebSocketsService.instance.broadcast(event)
       })
     }
 
-    return WsService.instance
+    return WebSocketsService.instance
   }
 
   async broadcast(event: ActivityEvent): Promise<void> {
@@ -44,15 +44,15 @@ export class WsService {
     return this.write(message)
   }
 
-  async createMessageFromActivityEvent(event: ActivityEvent): Promise<OutMessage> {
+  async createMessageFromActivityEvent(event: ActivityEvent): Promise<WsOutMessage> {
     const user = await this.userService.getUserById(event.actorId)
     const space = await this.spaceService.getSpaceById(event.spaceId)
     const entity = await this.activityService.getEntityFromActivityEvent(event)
 
-    return new OutMessage(event, user, space, entity)
+    return new WsOutMessage(event, user, space, entity)
   }
 
-  private isSidebarRelated(message: OutMessage): boolean {
+  private isSidebarRelated(message: WsOutMessage): boolean {
     switch (message.event.entity) {
       case ActivityType.Doc:
       case ActivityType.Node:
@@ -63,7 +63,7 @@ export class WsService {
     return false
   }
 
-  private roomName(message: OutMessage): string {
+  private roomName(message: WsOutMessage): string {
     let roomName: string
     let roomNumber: number
 
@@ -95,7 +95,7 @@ export class WsService {
     return true
   }
 
-  private write(message: OutMessage): void {
+  private write(message: WsOutMessage): void {
     if (this.isSidebarRelated(message)) {
       const sideBarRoom = `${message.space.id}.Sidebar`
       this.wsServer.room(sideBarRoom).write({message})

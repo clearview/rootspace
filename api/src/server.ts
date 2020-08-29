@@ -11,9 +11,9 @@ import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
+import { WebSocketsService } from './services'
 import Primus = require('primus')
 import Rooms = require('primus-rooms')
-import { WsService } from './services/WsService'
 
 declare global {
   namespace Express {
@@ -28,20 +28,11 @@ declare global {
 }
 
 export default class Server {
-  private static instance: Server
   app: Application
   httpServer: http.Server
   wsServer: Primus
 
-  static getInstance() {
-    if (!Server.instance) {
-      Server.instance = new Server()
-    }
-
-    return Server.instance
-  }
-
-  private constructor() {
+  constructor() {
     this.app = express()
     this.httpServer = http.createServer(this.app)
 
@@ -49,7 +40,7 @@ export default class Server {
       pathname: config.ws.path,
       parser: 'JSON',
       transformer: 'websockets',
-      plugin: { 'rooms': Rooms }
+      plugin: {'rooms': Rooms}
     })
 
     wsServerHooks(this.wsServer)
@@ -58,10 +49,10 @@ export default class Server {
   }
 
   async bootstrap() {
-    WsService.initFromServer()
+    WebSocketsService.initFromWebSocketServer(this.wsServer)
 
     if (config.env === 'production') {
-      Sentry.init({ dsn: config.sentry.dsn })
+      Sentry.init({dsn: config.sentry.dsn})
       this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
     }
 

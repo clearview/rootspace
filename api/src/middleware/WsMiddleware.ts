@@ -2,17 +2,16 @@ import { config } from 'node-config-ts'
 import jwt from 'jsonwebtoken'
 import { UserService, UserSpaceService } from '../services'
 import { Request } from 'express'
-import { InMessage } from '../services/models/InMessage'
-import { WsInAction } from '../services/events/WsInAction'
+import { WsInAction, WsInMessage } from '../services/models/websockets/WsInMessage'
+import { Room } from '../types/room'
 import Primus = require('primus')
 import Spark = require('primus-rooms')
-import { Room } from '../types/room'
 
 export enum WsEvent {
-  'Error'= 'error',
-  'Connect'= 'connection',
-  'Data'= 'data',
-  'Disconnect'= 'disconnection'
+  'Error' = 'error',
+  'Connect' = 'connection',
+  'Data' = 'data',
+  'Disconnect' = 'disconnection'
 }
 
 export function wsServerHooks(primus: Primus) {
@@ -36,7 +35,7 @@ export function wsServerHooks(primus: Primus) {
 
     const expirationDate = new Date(tokenExpiryTimestamp * 1000)
 
-    if(expirationDate < new Date()) {
+    if (expirationDate < new Date()) {
       return done(new Error('Token expired'))
     }
 
@@ -51,8 +50,8 @@ export function wsServerHooks(primus: Primus) {
   })
 
   primus.on(WsEvent.Connect, (spark: Spark) => {
-     onConnect(spark)
-   })
+    onConnect(spark)
+  })
 
   primus.on(WsEvent.Disconnect, (spark: Spark) => {
     onDisconnect(spark)
@@ -77,7 +76,7 @@ function onData(spark: Spark): any {
     return
   }
 
-  spark.on(WsEvent.Data, async (message: InMessage) => {
+  spark.on(WsEvent.Data, async (message: WsInMessage) => {
     message.user = spark.request.user
 
     if (!message || !message.action) {
@@ -108,14 +107,14 @@ function onData(spark: Spark): any {
   })
 }
 
-function echo(spark: Spark, message: InMessage) {
+function echo(spark: Spark, message: WsInMessage) {
   spark.join(message.room, async () => {
     const user = spark.request.user
     spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} echo test`)
   })
 }
 
-function wsRroom(name: string): Room|null {
+function wsRoom(name: string): Room | null {
   const parts = name.split('.')
   const spaceId = Number(parts[0])
   const entityName = String(parts[1])
@@ -142,9 +141,9 @@ async function canJoin(user: any, room: Room): Promise<boolean> {
   return UserSpaceService.getInstance().isUserInSpace(user.id, room.spaceId)
 }
 
-async function joinRoom(spark: Spark, message: InMessage) {
+async function joinRoom(spark: Spark, message: WsInMessage) {
   const user = spark.request.user
-  const room = wsRroom(message.room)
+  const room = wsRoom(message.room)
 
   if (!room) {
     spark.write(`[${spark.id}] Invalid room name ${message.room}`)
@@ -180,8 +179,8 @@ function listRooms(spark: Spark) {
   spark.write(`${user.firstName} ${user.lastName} is present in ${rooms.join(', ')}`)
 }
 
-function leaveRoom(spark: Spark, message: InMessage) {
-  const room = wsRroom(message.room)
+function leaveRoom(spark: Spark, message: WsInMessage) {
+  const room = wsRoom(message.room)
 
   if (!room) {
     spark.write(`[${spark.id}] Invalid room name ${message.room}`)

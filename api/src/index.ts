@@ -1,7 +1,7 @@
 import Server from './server'
 
 async function main() {
-  const server = Server.getInstance()
+  const server = new Server()
   await server.bootstrap()
   server.listen()
 }
