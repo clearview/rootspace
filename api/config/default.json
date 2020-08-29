@@ -39,7 +39,7 @@
     "dsn": "@@SENTRY_DSN"
   },
   "ws": {
-    "path": "@@WS_PATH"
+    "path": "primus"
   },
   "redis": {
     "host": "@@REDIS_HOST",
