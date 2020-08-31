@@ -66,6 +66,8 @@ export class InviteFacade {
 
     await this.inviteService.accept(invite)
 
+    await this.registerActivityForInvite(UserActivities.Invite_Accepted, invite)
+
     return invite
   }
 
