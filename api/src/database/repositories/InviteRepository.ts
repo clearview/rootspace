@@ -3,6 +3,13 @@ import { Invite } from '../entities/Invite'
 
 @EntityRepository(Invite)
 export class InviteRepository extends Repository<Invite> {
+  getUnusedByToken(token: string): Promise<Invite> {
+    return this.createQueryBuilder('invite')
+      .where('invite.token = :token', { token })
+      .andWhere('invite.accepted = false')
+      .getOne()
+  }
+
   getByEmailAndSpaceId(email: string, spaceId: number): Promise<Invite> {
     return this.createQueryBuilder('invite')
       .where('invite.email = :email AND invite.spaceId = :spaceId', {

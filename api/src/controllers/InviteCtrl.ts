@@ -49,11 +49,7 @@ export class InviteCtrl extends BaseCtrl {
       const data = req.body.data
       await validateInviteAccept(data)
 
-      const invite = await this.inviteFacade.accept(
-        data.token,
-        data.id,
-        req.user.id
-      )
+      const invite = await this.inviteFacade.accept(data.token, req.user.id)
 
       const resData = this.responseData(invite)
       res.send(resData)

@@ -82,7 +82,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/invitation/:token/:id',
+    path: '/invitation/:token',
     name: 'Invitation',
     component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue')
   },

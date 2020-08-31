@@ -28,10 +28,6 @@ export class UserSpaceService {
     )
   }
 
-  getCountSpaceUsers(spaceId: number): Promise<number> {
-    return this.getUserToSpaceRepository().getCountUsersBySpaceId(spaceId)
-  }
-
   async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
     const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
     return !!userSpace

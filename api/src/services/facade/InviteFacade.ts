@@ -47,14 +47,14 @@ export class InviteFacade {
     return invites
   }
 
-  async accept(token: string, id: number, authUserId: number): Promise<Invite> {
-    const invite = await this.inviteService.requireInviteByTokenAndId(token, id)
+  async accept(token: string, authorizedUserId: number): Promise<Invite> {
+    const invite = await this.inviteService.requireUnusedInviteByToken(token)
 
     const user = invite.userId
       ? await this.userService.getUserById(invite.userId)
       : await this.userService.getUserByEmail(invite.email)
 
-    if (!user || user.id !== authUserId) {
+    if (!user || user.id !== authorizedUserId) {
       throw clientError('Invalid request')
     }
 
