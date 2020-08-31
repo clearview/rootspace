@@ -19,6 +19,11 @@ export class SpacesCtrl extends BaseCtrl {
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
+  async listAll(req: Request, res: Response, next: NextFunction) {
+    const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
+    res.send(spaces)
+  }
+
   async getTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
 
@@ -32,9 +37,17 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(data)
   }
 
-  async listAll(req: Request, res: Response, next: NextFunction) {
-    const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
-    res.send(spaces)
+  async getArchive(req: Request, res: Response) {
+    const spaceId = Number(req.params.id)
+
+    if (!spaceId) {
+      throw clientError('Error fetching archive')
+    }
+
+    const nodes = await this.spaceFacade.getArchive(spaceId)
+    const data = this.responseData(nodes)
+
+    res.send(data)
   }
 
   async invites(req: Request, res: Response, next: NextFunction) {

@@ -1,5 +1,5 @@
 import httpRequestContext from 'http-request-context'
-import { getCustomRepository } from 'typeorm'
+import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
@@ -57,7 +57,7 @@ export class NodeService {
   }
 
   getRootNodeBySpaceId(spaceId: number): Promise<Node> {
-    return this.getNodeRepository().getRootBySpaceId(spaceId)
+    return this.getNodeRepository().getRootNodeBySpaceId(spaceId)
   }
 
   async getArchiveNodeBySpaceId(spaceId: number): Promise<Node> {
@@ -67,11 +67,15 @@ export class NodeService {
       return node
     }
 
-    return this.createArchiveNodeBySpaceId(spaceId)
+    return this.createSpaceArchiveNode(spaceId)
   }
 
   getTreeBySpaceId(spaceId: number): Promise<Node[]> {
     return this.getNodeRepository().getTreeBySpaceId(spaceId)
+  }
+
+  getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+    return this.getNodeRepository().getArchiveBySpaceId(spaceId)
   }
 
   getNodeMaxPosition(parentId: number): Promise<number> {
@@ -83,32 +87,31 @@ export class NodeService {
     return ++position
   }
 
-  async createRootNode(data: NodeCreateValue): Promise<Node> {
+  async createSpaceRootNode(spaceId: number, userId: number): Promise<Node> {
     const node = this.getNodeRepository().create()
-    Object.assign(node, data.attributes)
 
-    node.parent = null
+    node.userId = userId
+    node.spaceId = spaceId
+    node.contentId = spaceId
+    node.title = 'Space'
+    node.type = NodeType.Root
     node.position = 0
 
     return this.getNodeRepository().save(node)
   }
 
-  async createArchiveNodeBySpaceId(spaceId: number) {
+  async createSpaceArchiveNode(spaceId: number): Promise<Node> {
     const rootNode = await this.getRootNodeBySpaceId(spaceId)
-
-    let node = this.getNodeRepository().create()
+    const node = this.getNodeRepository().create()
 
     node.userId = rootNode.userId
     node.spaceId = rootNode.spaceId
     node.contentId = rootNode.spaceId
     node.title = 'Archive'
     node.type = NodeType.Archive
-    node.parent = rootNode
+    node.position = 0
 
-    node = await this.getNodeRepository().save(node)
-    this.updateNodePosition(node, 1)
-
-    return node
+    return this.getNodeRepository().save(node)
   }
 
   async create(data: NodeCreateValue): Promise<Node> {
@@ -173,13 +176,17 @@ export class NodeService {
       throw clientError('Cant not find node ' + toParentId)
     }
 
-    if (await this.getNodeRepository().hasDescendant(node, parent.id)) {
+    if (node.id === toParentId) {
+      throw clientError('Cant move node into itself')
+    }
+
+    if (await this.getNodeRepository().hasDescendant(node.id, parent.id)) {
       throw clientError('Cant move node into his own descendant ' + parent.id)
     }
 
     node.parent = parent
     node.position = await this.getNodeNextPosition(parent.id)
-    node = await this.getNodeRepository().save(node)
+    node = await getTreeRepository(Node).save(node)
 
     await this.getNodeRepository().decreasePositions(fromParentId, fromPosition)
 
