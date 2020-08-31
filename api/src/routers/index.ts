@@ -26,6 +26,7 @@ const routers = [
   uploadRouter,
   folderRouter,
   embedRouter,
+  folderRouter,
   notificationRouter,
   activityRouter
 ]

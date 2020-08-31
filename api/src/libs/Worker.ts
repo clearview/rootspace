@@ -2,9 +2,6 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import db from '../db'
 import { Job } from 'bull'
-import { ActivityRepository } from '../database/repositories/ActivityRepository'
-import { getCustomRepository } from 'typeorm'
-import { Activity } from '../database/entities/Activity'
 import { ActivityType } from '../types/activity'
 import { ActivityEvent } from '../services/events/ActivityEvent'
 import { DocWorker } from './workers/DocWorker'
@@ -20,18 +17,13 @@ export class Worker {
     await db()
 
     await Queue.getActivityInstance().process(queueName, async (job) => {
-      job.data.activity = await Worker.saveActivity(job)
-
       await Worker.dispatch(job)
     })
   }
 
-  private static saveActivity(job: Job<any>): Promise<Activity> {
-    return getCustomRepository(ActivityRepository).save(job.data)
-  }
-
   private static async dispatch(job: Job<any>) {
     const event: ActivityEvent = job.data
+    // await Worker.wsMessage(event)
 
     switch (event.entity) {
       case ActivityType.User:

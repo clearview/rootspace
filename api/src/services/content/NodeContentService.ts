@@ -4,11 +4,11 @@ import { INodeContentMediator, INodeContentUpdate } from './contracts'
 export abstract class NodeContentService {
   protected nodeContentMediator: INodeContentMediator
 
-  constructor(mediator: INodeContentMediator = null) {
+  protected constructor(mediator: INodeContentMediator = null) {
     this.nodeContentMediator = mediator
   }
 
-  public setNodeContentMediator(mediator: INodeContentMediator): void {
+  public setMediator(mediator: INodeContentMediator): void {
     this.nodeContentMediator = mediator
   }
 
