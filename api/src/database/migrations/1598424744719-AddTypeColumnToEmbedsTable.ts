@@ -1,4 +1,4 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class AddTypeColumnToEmbedsTable1598424744719 implements MigrationInterface {
 

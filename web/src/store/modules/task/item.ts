@@ -149,16 +149,16 @@ if (item.actions) {
     }
     const formData = new FormData()
     formData.append('file', params.file)
+    formData.append('entityId', params.task.id.toString())
+    formData.append('entity', 'Task')
+    formData.append('type', 'taskAttachment')
+    formData.append('spaceId', activeSpace.id)
     commit('setProcessing', true)
-    const res = await api.post(`/upload?spaceId=${activeSpace.id}`, formData)
+    const res = await api.post('/uploads', formData)
     if (!params.task.attachments) {
       params.task.attachments = []
     }
-    params.task.attachments.push(res.data)
-    await dispatch('update', {
-      id: params.task.id,
-      attachments: params.task.attachments
-    })
+    params.task.attachments.push(res.data.data)
     commit('setProcessing', false)
 
     return res

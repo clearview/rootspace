@@ -68,7 +68,7 @@
         :key="'l-' + indexList"
       >
         <div class="flex flex-grow">
-          <avatar :username="memberName(list)"></avatar>
+          <avatar :size="28" :src="list.avatar ? list.avatar.versions.default : ''"  :username="memberName(list)"></avatar>
           <span class="text-gray-900 pl-2 self-center flex-grow">{{ list.email }}</span>
           <div class="float-right self-center" v-if="list.accepted == false">
 

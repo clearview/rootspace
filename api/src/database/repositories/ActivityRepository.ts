@@ -4,6 +4,8 @@ import { Activity } from '../entities/Activity'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
 import { getConnection } from 'typeorm/index'
 import { ActivityType } from '../../types/activity'
+import { Upload } from '../entities/Upload'
+import { User } from '../entities/User'
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -52,7 +54,8 @@ export class ActivityRepository extends BaseRepository<Activity> {
     const entity = ActivityRepository.getEntity(type)
 
     const qb = this.createQueryBuilder('activity')
-      .leftJoinAndSelect('activity.actor', 'user')
+      .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
+      .leftJoinAndMapOne('actor.avatar', Upload, 'upload', 'upload.entityId = activity.actorId and upload.entity = \'User\'')
       .leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.spaceId = :spaceId', { spaceId })

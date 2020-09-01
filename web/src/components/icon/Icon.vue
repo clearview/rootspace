@@ -66,6 +66,7 @@ import IconColor from '@/components/icon/IconColor.vue'
 import IconArchive from '@/components/icon/IconArchive.vue'
 import IconRight2 from '@/components/icon/IconRight2.vue'
 import IconMessage from '@/components/icon/IconMessage.vue'
+import IconEdit2 from '@/components/icon/IconEdit2.vue'
 
 @Component({
   name: 'Icon',
@@ -84,6 +85,7 @@ import IconMessage from '@/components/icon/IconMessage.vue'
     IconUpload,
     IconDrag,
     IconEdit,
+    IconEdit2,
     IconEmail,
     IconEmbed,
     IconEllipsis,
