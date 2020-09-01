@@ -182,17 +182,22 @@ export class UserService {
     return user
   }
 
-  async createPasswordReset(data: PasswordRecoveryValue): Promise<PasswordReset> {
+  async createPasswordReset(data: PasswordRecoveryValue): Promise<string> {
+    const user = await this.getUserByEmail(data.attributes.email)
+
+    if (!user) {
+      return 'Request completed'
+    }
+
     let passwordReset = new PasswordReset()
 
     passwordReset.email = data.attributes.email
     passwordReset.expiration = new Date(Date.now() + 3600000)
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
-
     await this.activityService.add(ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(passwordReset))
 
-    return passwordReset
+    return 'Request completed'
   }
 
   async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
