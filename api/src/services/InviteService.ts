@@ -28,22 +28,22 @@ export class InviteService {
     return this.getInviteRepository().getByEmailAndSpaceId(email, spaceId)
   }
 
-  getInviteByUnusedToken(token: string): Promise<Invite | undefined> {
-    return this.getInviteRepository().getUnusedByToken(token)
+  getInviteByToken(token: string, params: any = {}): Promise<Invite | undefined> {
+    return this.getInviteRepository().getByToken(token, params)
   }
 
-  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
-    return this.getInviteRepository().getBySpaceId(spaceId)
-  }
-
-  async requireUnusedInviteByToken(token: string) {
-    const invite = await this.getInviteByUnusedToken(token)
+  async requireInviteByToken(token: string, params: any = {}) {
+    const invite = await this.getInviteByToken(token, params)
 
     if (!invite) {
       throw clientError('Invalid invite request', HttpErrName.InvalidToken)
     }
 
     return invite
+  }
+
+  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
+    return this.getInviteRepository().getBySpaceId(spaceId)
   }
 
   async accept(invite: Invite): Promise<Invite> {
