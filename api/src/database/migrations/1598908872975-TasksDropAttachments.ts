@@ -6,7 +6,7 @@ export class TasksDropAttachments1598908872975 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "tasks" DROP COLUMN IF EXISTS "attachments"`)
   }
 
-  // TODO @Mujo this cause tslint error
-  // tslint:disable-next-line:no-empty
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    //
+  }
 }
