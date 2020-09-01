@@ -120,7 +120,7 @@
             @submit-comment="commentHandler"
           />
         </div>
-        <ul class="comments">
+        <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
         <div class="comment-separator"></div>

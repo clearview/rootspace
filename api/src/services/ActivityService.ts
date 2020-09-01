@@ -1,19 +1,22 @@
 import 'dotenv/config'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
-import { getCustomRepository } from 'typeorm/index'
+import { getCustomRepository } from 'typeorm'
 import { ActivityRepository } from '../database/repositories/ActivityRepository'
 import { Activity } from '../database/entities/Activity'
 import { Queue } from '../libs/Queue'
+import { WsEventEmitter } from './events/websockets/WsEventEmitter'
+import { WsEvent } from './events/websockets/WsEvent'
 
 export class ActivityService {
+  private static instance: ActivityService
   readonly queue: Bull.Queue
+  readonly wsEventEmitter: WsEventEmitter
 
   private constructor() {
     this.queue = Queue.getActivityInstance()
+    this.wsEventEmitter = WsEventEmitter.getInstance()
   }
-
-  private static instance: ActivityService
 
   static getInstance() {
     if (!ActivityService.instance) {
@@ -27,15 +30,20 @@ export class ActivityService {
     return getCustomRepository(ActivityRepository)
   }
 
-  async add(activityEvent: ActivityEvent): Promise<Bull.Job> {
-    return this.queue.add(Queue.QUEUE_NAME, activityEvent.toObject())
+  async add(event: ActivityEvent): Promise<Bull.Job> {
+    const activityObject = event.toObject()
+
+    await this.getActivityRepository().save(activityObject)
+    this.wsEventEmitter.emit(WsEvent.NAME, event)
+
+    return this.queue.add(Queue.QUEUE_NAME, activityObject)
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
     return this.getActivityRepository().find({ spaceId })
   }
 
-  async getEntityFromActivity(event: ActivityEvent): Promise<any> {
+  async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 

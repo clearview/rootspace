@@ -55,6 +55,7 @@ passport.use(
           .fromActor(existingUser.id)
           .forEntity(existingUser)
       )
+
       return done(null, existingUser.id)
     }
   )

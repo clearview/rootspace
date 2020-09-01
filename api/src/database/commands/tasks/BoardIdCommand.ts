@@ -24,7 +24,10 @@ export class BoardIdCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Updating board IDs...'))
 
-    const tasks = await getCustomRepository(TaskRepository).find()
+    const tasks = await getCustomRepository(TaskRepository)
+      .createQueryBuilder('tasks')
+      .withDeleted()
+      .getMany()
 
     for (const task of tasks) {
       const taskList = await getCustomRepository(TaskListRepository).findOne(task.listId)

@@ -9,7 +9,11 @@ import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
+import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
+import { WebSocketsService } from './services'
+import Primus = require('primus')
+import Rooms = require('primus-rooms')
 
 declare global {
   namespace Express {
@@ -25,20 +29,33 @@ declare global {
 
 export default class Server {
   app: Application
-  instance: http.Server
+  httpServer: http.Server
+  wsServer: Primus
 
   constructor() {
     this.app = express()
-    this.app.use(httpRequestContext.middleware())
-    this.instance = null
+    this.httpServer = http.createServer(this.app)
 
-    if (config.env === 'production') {
-      Sentry.init({ dsn: config.sentry.dsn })
-      this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
-    }
+    this.wsServer = new Primus(this.httpServer, {
+      pathname: config.ws.path,
+      parser: 'JSON',
+      transformer: 'websockets',
+      plugin: {'rooms': Rooms}
+    })
+
+    wsServerHooks(this.wsServer)
+
+    this.app.use(httpRequestContext.middleware())
   }
 
   async bootstrap() {
+    WebSocketsService.initFromWebSocketServer(this.wsServer)
+
+    if (config.env === 'production') {
+      Sentry.init({dsn: config.sentry.dsn})
+      this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
+    }
+
     if (config.env !== 'test') {
       await db()
     }
@@ -60,14 +77,14 @@ export default class Server {
       port = config.port
     }
 
-    this.instance = this.app.listen(port, () => {
+    this.httpServer.listen(port, () => {
       console.log(`🚀 Server ready at: http://localhost:${port}`) // tslint:disable-line
     })
   }
 
   close() {
-    if (this.instance) {
-      this.instance.close()
+    if (this.httpServer) {
+      this.httpServer.close()
     }
   }
 }

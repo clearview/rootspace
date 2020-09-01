@@ -38,6 +38,9 @@
   "sentry": {
     "dsn": "@@SENTRY_DSN"
   },
+  "ws": {
+    "path": "primus"
+  },
   "redis": {
     "host": "@@REDIS_HOST",
     "port": "@@REDIS_PORT"

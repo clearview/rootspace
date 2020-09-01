@@ -1,8 +1,8 @@
 import { EntityRepository } from 'typeorm'
+import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Activity } from '../entities/Activity'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { getConnection } from 'typeorm/index'
 import { ActivityType } from '../../types/activity'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
@@ -11,9 +11,9 @@ import { User } from '../entities/User'
 export class ActivityRepository extends BaseRepository<Activity> {
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return getConnection()
-      .getRepository(event.activity.entity)
+      .getRepository(event.entity)
       .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: event.activity.id})
+      .where('Entity.id = :id', {id: event.entityId})
       .getOne()
   }
 

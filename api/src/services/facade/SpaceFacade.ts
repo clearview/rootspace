@@ -1,8 +1,6 @@
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
-import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
 import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
@@ -24,25 +22,21 @@ export class SpaceFacade {
     return this.nodeService.getTreeBySpaceId(spaceId)
   }
 
+  getArchive(spaceId: number) {
+    return this.nodeService.getArchiveBySpaceId(spaceId)
+  }
+
   getUserSpaces(userId: number): Promise<Space[]> {
     return this.spaceService.getSpacesByUserId(userId)
   }
 
   async createSpace(data: SpaceCreateValue): Promise<Space> {
     const space = await this.spaceService.create(data)
+
     await this.userSpaceService.add(space.userId, space.id)
 
-    await this.nodeService.createRootNode(
-      NodeCreateValue.fromObject({
-        userId: space.userId,
-        spaceId: space.id,
-        contentId: space.id,
-        title: 'root',
-        type: NodeType.Root,
-      })
-    )
-
-    await this.nodeService.createArchiveNodeBySpaceId(space.id)
+    await this.nodeService.createSpaceRootNode(space.id, space.userId)
+    await this.nodeService.createSpaceArchiveNode(space.id)
 
     return space
   }

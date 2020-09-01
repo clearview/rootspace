@@ -111,8 +111,7 @@ export class EmbedService extends NodeContentService {
   }
 
   private async _archive(_embed: Embed): Promise<Embed> {
-    const embed = await this.getEmbedRepository().softRemove(_embed)
-    return embed
+    return this.getEmbedRepository().softRemove(_embed)
   }
 
   async restore(id: number): Promise<Embed> {
