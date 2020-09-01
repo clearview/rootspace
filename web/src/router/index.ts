@@ -111,6 +111,22 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import(/* webpackChunkName: "forgot-password" */ '../views/Public/ForgotPassword.vue'),
+    meta: {
+      noAuth: true
+    }
+  },
+  {
+    path: '/password-reset/:token',
+    name: 'PasswordReset',
+    component: () => import(/* webpackChunkName: "password-reset/" */ '../views/Public/SetPassword.vue'),
+    meta: {
+      noAuth: true
+    }
+  },
+  {
     path: '/create-space',
     name: 'SpaceInit',
     component: () => import(/* webpackChunkName: "space-init" */ '../views/SpaceInit.vue')

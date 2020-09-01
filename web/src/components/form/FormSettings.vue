@@ -198,7 +198,7 @@
       </template>
     </v-field>
 
-    <p class="password-hint">Password must contain at least 8 characters</p>
+    <p class="password-hint">Password must contain at least 6 characters</p>
 
     <button
       class="btn btn-primary w-full mx-0 mt-5"

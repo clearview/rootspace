@@ -53,6 +53,12 @@ const AuthModule: Module<AuthState, RootState> = {
     async signout ({ commit }) {
       commit('setToken', null)
       commit('setUser', null)
+    },
+    async recoverPassword (_, payload) {
+      await AuthService.recoverPassword(payload)
+    },
+    async passwordReset (_, payload) {
+      await AuthService.passwordReset(payload)
     }
   }
 }
