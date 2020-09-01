@@ -15,15 +15,14 @@
       <div class="settings-content">
         <div class="settings-myaccount" v-if="(tab === 'account')">
           <div class="col-left">
-            <div class="avatar">
-              <img class="rounded-full" src="@/assets/logo@2x.png" alt="Avatar Logo">
-              <div class="icon-edit">
-                <v-icon
-                  name="edit"
-                  size="1.2em"
-                  viewbox="36"
-                />
-              </div>
+            <div class="user-avatar">
+              <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
+                               edit-offset="0px"
+                               :upload="currentUser.avatar">
+                <template #fallback>
+                  <img src="@/assets/logo@2x.png" alt="User Avatar">
+                </template>
+              </UploadableImage>
             </div>
           </div>
           <div class="col-right">
@@ -36,10 +35,14 @@
           <div class="col-center">
             <v-alert v-model="space.alert"/>
 
-            <div class="space-avatar">
-              <img src="@/assets/logo@2x.png" alt="Root Logo"/>
+            <div class="space-logo">
+            <UploadableImage width="64px" height="64px" radius="4px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
+              :upload="activeSpace.avatar" edit-offset="-12px">
+              <template #fallback>
+                <img src="@/assets/logo@2x.png" alt="Avatar Logo">
+              </template>
+            </UploadableImage>
             </div>
-
             <form-space
               @submit="updateSpace"
               @addUser="addSpaceUser"
@@ -77,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins, Ref } from 'vue-property-decorator'
 import { find } from 'lodash'
 
 import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
@@ -93,6 +96,8 @@ import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/Modal.vue'
 
 import PageMixin from '@/mixins/PageMixin'
+import api from '@/utils/api'
+import UploadableImage from '@/components/UploadableImage.vue'
 
 type ComponentData = {
   tab: string;
@@ -121,6 +126,7 @@ type ComponentData = {
 @Component({
   name: 'Settings',
   components: {
+    UploadableImage,
     ButtonSwitch,
     FormSettings,
     FormSpace,
@@ -131,9 +137,6 @@ type ComponentData = {
 })
 export default class Settings extends Mixins(PageMixin) {
     private tab = 'account';
-    private errorAccount = {};
-    private errorSpace = {};
-    private mobileNotifications = false;
     private emailNotifications = true;
     private loadingMessage = 'Update Settings...';
     private isLoading = false;
@@ -358,7 +361,17 @@ export default class Settings extends Mixins(PageMixin) {
         cursor: pointer;
 
         img {
-          @apply w-24;
+          width: 109px;
+          hegith: 109px;
+          object-fit: cover;
+        }
+        .fake-avatar {
+          filter: blur(4px)
+        }
+        .icon-loading{
+          position: absolute;
+          top: 28px;
+          left: 28px;
         }
 
         .icon-edit {
@@ -366,16 +379,21 @@ export default class Settings extends Mixins(PageMixin) {
 
           display: none;
           padding: 3px;
-          width: 22px;
+          width: 28px;
+          height: 28px;
           top: 0;
           right: 0;
           position: absolute;
           background: theme("colors.secondary.default");
+          .fill-current {
+            fill: none;
+          }
         }
-
         &:hover {
           .icon-edit {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         }
       }
@@ -403,14 +421,57 @@ export default class Settings extends Mixins(PageMixin) {
   }
 
   .space-avatar {
-    @apply mb-5;
+    @apply mb-5 relative;
+    width: 64px;
+    height: 64px;
 
     img {
       height: 64px;
+      width: 64px;
+
+    }
+
+    .fake-avatar {
+      filter: blur(4px)
+    }
+    .icon-loading{
+      position: absolute;
+      top: 28px;
+      left: 28px;
+    }
+
+    .icon-edit {
+      @apply rounded-full;
+
+      display: none;
+      padding: 3px;
+      width: 28px;
+      height: 28px;
+      top: 0;
+      right: 0;
+      position: absolute;
+      background: theme("colors.secondary.default");
+      .fill-current {
+        fill: none;
+      }
+    }
+    &:hover {
+      .icon-edit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 
   .form-border {
     @apply flex flex-row justify-between p-2 my-4;
+  }
+  .avatar-file-input{
+    display: none;
+  }
+
+  .space-logo {
+    margin-bottom: 16px;
   }
 </style>

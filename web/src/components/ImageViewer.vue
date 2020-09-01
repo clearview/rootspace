@@ -28,17 +28,17 @@
                   size="40px"
                   viewbox="40"
                   title="Previous"
-                  id="doc-share-button-svg"
+                  id="doc-share-button-svg-first"
                 />
               </span>
 
               <div class="image-box">
                 <img
-                  :key="images[index].path || images[index] || ''"
-                  :src="images[index].path || images[index] || ''"
+                  :key="images[index].versions.preview || images[index] || ''"
+                  :src="images[index].versions.preview || images[index] || ''"
                   v-if="images[index] &&
-                    images[index].path &&
-                    isAttachmentImage(images[index].type)"
+                    images[index].versions.preview &&
+                    isAttachmentImage(images[index].mimetype)"
                   @click.stop="next"
                 >
                 <div v-else class="others-file">
@@ -129,7 +129,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Model, Watch } from 'vue-property-decorator'
-import { UploadResource } from '@/types/resource'
+import { NewUploadResource, UploadResource } from '@/types/resource'
 
 import Modal from '@/components/Modal.vue'
 import Popover from '@/components/Popover.vue'
@@ -151,7 +151,7 @@ export default class ImageViewer extends Vue {
   @Model('change', { type: Number }) readonly index!: number
 
   @Prop({ type: Array, default: [] })
-  private readonly images!: Array<UploadResource>;
+  private readonly images!: Array<NewUploadResource>;
 
   private slide = 'next'
 
@@ -163,11 +163,11 @@ export default class ImageViewer extends Vue {
   }
 
   @Emit('remove')
-  remove (attachment: UploadResource) {
+  remove (attachment: NewUploadResource) {
     return attachment
   }
 
-  async handleMenu (value: string, attachment: UploadResource) {
+  async handleMenu (value: string, attachment: NewUploadResource) {
     switch (value) {
       case 'delete':
         this.remove(attachment)
@@ -209,7 +209,7 @@ export default class ImageViewer extends Vue {
   }
 
   isAttachmentImage (attachmentType: string) {
-    return attachmentType === 'image/jpeg' || attachmentType === 'image/png'
+    return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(attachmentType) !== -1
   }
 
   prev () {

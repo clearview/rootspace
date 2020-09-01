@@ -10,11 +10,8 @@
       <div class="flex flex-row items-center truncate">
         <div class="mr-2">
           <img
-            srcset="
-              @/assets/images/space.png 1x,
-              @/assets/images/space@2x.png 2x
-            "
-            src="@/assets/images/space.png"
+            class="space-logo"
+            :src="activeSpace.avatar ? activeSpace.avatar.versions.default : '@/assets/images/space.png'"
             alt="Space"
           >
         </div>
@@ -47,11 +44,8 @@
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
               <img
-                srcset="
-                @/assets/images/space.png 1x,
-                @/assets/images/space@2x.png 2x
-              "
-                src="@/assets/images/space.png"
+                class="space-logo"
+                :src="item.avatar ? item.avatar.versions.default : '@/assets/images/space.png'"
                 alt="Space"
               >
             </div>
@@ -326,5 +320,10 @@ export default class SelectSpace extends Vue {
   @apply inline-block truncate;
 
   max-width: calc(100% - 60px);
+}
+.space-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
 }
 </style>
