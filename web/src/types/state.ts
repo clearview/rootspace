@@ -6,7 +6,8 @@ import {
   TaskBoardResource,
   TaskListResource,
   TaskItemResource,
-  DocumentResource
+  DocumentResource,
+  UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
 
@@ -33,11 +34,12 @@ export interface RootState {
   space: SpaceState;
   tree: TreeState;
   page: PageState;
+  userSetting: UserSettingState;
 }
 
 export interface AuthState {
   token: string | null;
-  user: object | null;
+  user: UserResource | null;
   spaces: SpaceResource[] | null;
   currentSpace: SpaceResource | null;
 }
@@ -96,4 +98,9 @@ export interface SpaceState {
 
 export interface PageState {
   ready: boolean;
+}
+
+export interface UserSettingState {
+  lastPull: number;
+  lastPush: number;
 }

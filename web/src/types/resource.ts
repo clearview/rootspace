@@ -161,7 +161,7 @@ export interface SpaceMetaResource {
 }
 
 export interface UserResource {
-  id?: number;
+  id: number;
   active?: boolean;
   email: string;
   firstName: string;
@@ -195,4 +195,22 @@ export interface ActivityResource {
 }
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;
+}
+
+export interface UserSettingResource {
+  sidebar: {
+    collapse: boolean;
+    size: number;
+  };
+  space: {
+    activeIndex: number;
+    spacesMeta: SpaceMetaResource[];
+  };
+  task: {
+    viewAs: Record<number, TaskBoardType>;
+    seenViewTip: boolean;
+  };
+  tree: {
+    folded: object;
+  };
 }
