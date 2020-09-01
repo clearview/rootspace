@@ -39,10 +39,8 @@ export default class Invitation extends Mixins(SpaceMixin) {
     async submit () {
       try {
         const { token } = this.$route.params
-        const { id } = this.$route.params
         const payload = {
-          token: token,
-          id: id
+          token: token
         }
 
         this.isLoading = true

@@ -79,9 +79,7 @@ export class InviteWorker {
       config.domain +
       config.domainInviteAcceptPath +
       '/' +
-      invite.token +
-      '/' +
-      invite.id
+      invite.token
     )
   }
 
