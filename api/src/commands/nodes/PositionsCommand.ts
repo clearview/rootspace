@@ -3,6 +3,7 @@ import db from '../../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
+import { NodeType } from '../../types/node'
 
 export class PositionsCommand {
   static async run() {
@@ -30,15 +31,14 @@ export class PositionsCommand {
       .createQueryBuilder('node')
       .select(['node.parentId'])
       .distinctOn(['node.parentId'])
-      .where('node.type != :type', { type: 'root' })
+      .where('node.type != :rootType', { rootType: NodeType.Root })
+      .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
       .getRawMany()
 
     await Promise.all(
-      parents.map(
-        async (parent: any) => {
-          return PositionsCommand.setPositions(parent.node_parentId)
-        }
-      )
+      parents.map(async (parent: any) => {
+        return PositionsCommand.setPositions(parent.node_parentId)
+      })
     )
 
     // tslint:disable-next-line:no-console
@@ -55,7 +55,8 @@ export class PositionsCommand {
       .set({
         position: 0,
       })
-      .where('type = :type', { type: 'root' })
+      .where('type != :rootType', { rootType: NodeType.Root })
+      .andWhere('type != :archiveType', { archiveType: NodeType.Archive })
       .execute()
   }
 
