@@ -105,6 +105,7 @@
       label="Old Password"
       name="oldpassword"
       has-icon-right
+      v-if="this.user.authProvider !== 'google'"
     >
       <input
         class="input w-full leading-tight mx-0"
@@ -198,7 +199,7 @@
       </template>
     </v-field>
 
-    <p class="password-hint">Password must contain at least 6 characters</p>
+    <p class="password-hint">Password must contain at least 8 characters</p>
 
     <button
       class="btn btn-primary w-full mx-0 mt-5"
@@ -232,16 +233,16 @@ import { Component, Vue } from 'vue-property-decorator'
     password: {
       password: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       newPassword: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       newPassword_confirmation: {
         required,
-        minLength: minLength(6),
+        minLength: minLength(8),
         sameAsPassword: sameAs('newPassword')
       }
     }

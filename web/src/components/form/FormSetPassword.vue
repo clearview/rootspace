@@ -98,7 +98,7 @@
       </template>
     </v-field>
 
-    <p class="password-hint">Password must contain at least 6 characters</p>
+    <p class="password-hint">Password must contain at least 8 characters</p>
 
     <button
       class="btn btn-primary w-full mx-0 mt-8"
@@ -128,12 +128,12 @@ import { Component, Vue } from 'vue-property-decorator'
       email: { required, email },
       password: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       password_confirmation: {
         required,
-        minLength: minLength(6),
+        minLength: minLength(8),
         sameAsPassword: sameAs('password')
       }
     }
