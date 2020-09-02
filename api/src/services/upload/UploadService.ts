@@ -17,6 +17,7 @@ import { ServiceFactory } from '../factory/ServiceFactory'
 import { UploadValue } from '../../values/upload'
 import { UploadType, IUploadImageConfig, IUploadImageSize } from '../../types/upload'
 import { UploadUniqueTypes, UploadImageConfig } from './config'
+import { HttpErrName, HttpStatusCode, clientError } from '../../errors'
 
 export class UploadService {
   private s3: S3
@@ -45,8 +46,18 @@ export class UploadService {
     return getCustomRepository(UploadRepository)
   }
 
-  getUploadById(id: number): Promise<Upload> {
+  getUploadById(id: number): Promise<Upload | undefined> {
     return this.getUploadRepository().findOne(id)
+  }
+
+  async requireUploadById(id: number): Promise<Upload> {
+    const upload = await this.getUploadById(id)
+
+    if (!upload) {
+      throw clientError('Can not find uplaod id ' + id, HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return upload
   }
 
   getUploadByEntityId(entityId: number, entity: string): Promise<Upload | undefined> {
@@ -161,6 +172,11 @@ export class UploadService {
     }
 
     return null
+  }
+
+  async remove(id: number) {
+    const upload = await this.requireUploadById(id)
+    return this.getUploadRepository().remove(upload)
   }
 
   sendFileToS3(params: S3.Types.PutObjectRequest): Promise<S3.ManagedUpload.SendData> {
