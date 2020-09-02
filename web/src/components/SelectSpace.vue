@@ -204,7 +204,7 @@ export default class SelectSpace extends Vue {
     const { activePage } = this.spacesMeta[index] || {}
 
     try {
-      if (!activePage) {
+      if (!activePage || activePage === this.$route.path) {
         this.$store.commit('space/setActive', { space })
       }
 
