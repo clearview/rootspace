@@ -88,6 +88,9 @@ export class Task {
   @Column('double precision', { default: 0 })
   position: number
 
+  @Column('json', { nullable: true })
+  attachments: object
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
