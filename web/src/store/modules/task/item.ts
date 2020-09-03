@@ -171,7 +171,6 @@ if (item.actions) {
   }
   item.actions.deleteUpload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; upload: NewUploadResource }) => {
     const activeSpace = rootGetters['space/activeSpace']
-    console.log(params)
     if (!activeSpace) {
       throw new Error('Not in an active space')
     }
@@ -179,13 +178,10 @@ if (item.actions) {
       throw new Error('Invalid task ID')
     }
     commit('setProcessing', true)
-    console.log(params)
     const res = await api.delete(`/uploads/${params.upload.id}`)
-    console.log(res)
-    // if (!params.task.attachments) {
-    //   params.task.attachments = []
-    // }
-    // params.task.attachments.push(res.data.data)
+    if (params.task.attachments) {
+      params.task.attachments = params.task.attachments.filter(attc => attc.id !== params.upload.id)
+    }
     commit('setProcessing', false)
     return res
   }

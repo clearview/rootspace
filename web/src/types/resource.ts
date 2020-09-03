@@ -89,7 +89,7 @@ export interface TaskItemResource extends ApiResource {
   slug: string | null;
   status: TaskItemStatus;
   tags: TagResource[] | null;
-  attachments: UploadResource[] | null;
+  attachments: NewUploadResource[] | null;
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;
