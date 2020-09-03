@@ -1,12 +1,13 @@
 import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import { nanoid } from 'nanoid'
-import S3 from 'aws-sdk/clients/s3'
 import path from 'path'
 import fs from 'fs'
 import Bull from 'bull'
 import sharp from 'sharp'
 import isImage from 'is-image'
+import S3, { ManagedUpload, DeleteObjectOutput } from 'aws-sdk/clients/s3'
+import { AWSError } from 'aws-sdk/lib/error'
 import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
@@ -15,7 +16,7 @@ import { ActivityService } from '../ActivityService'
 import { FileActivities } from '../../database/entities/activities/FileActivities'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { UploadValue } from '../../values/upload'
-import { UploadType, IUploadImageConfig, IUploadImageSize } from '../../types/upload'
+import { UploadType, IUploadImageConfig, IUploadImageSize, IUploadVersions } from '../../types/upload'
 import { UploadUniqueTypes, UploadImageConfig } from './config'
 import { HttpErrName, HttpStatusCode, clientError } from '../../errors'
 
@@ -42,6 +43,22 @@ export class UploadService {
     return UploadService.instance
   }
 
+  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
+    const upload = await this.getUploadById(uploadId)
+    return this.registerActivityForUpload(uploadActivity, upload)
+  }
+
+  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
+    const actor = httpRequestContext.get('user')
+
+    return this.activityService.add(
+      ActivityEvent.withAction(uploadActivity)
+        .fromActor(actor.id)
+        .forEntity(upload)
+        .inSpace(upload.spaceId)
+    )
+  }
+
   getUploadRepository(): UploadRepository {
     return getCustomRepository(UploadRepository)
   }
@@ -65,12 +82,10 @@ export class UploadService {
   }
 
   async upload(data: UploadValue) {
-    const filePath = this.createFilePath(data.file.originalname, data.attributes.spaceId)
+    const filePath = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
-    const sFFile = await this.sendFileToS3({
+    const sFFile = await this.S3Upload({
       Key: filePath,
-      Bucket: config.s3.bucket,
-      ACL: 'public-read',
       ContentType: data.file.mimetype,
       Body: fs.createReadStream(data.file.path),
     })
@@ -81,6 +96,7 @@ export class UploadService {
     Object.assign(upload, data.attributes)
 
     upload.path = sFFile.Location
+    upload.key = sFFile.Key
     upload.versions = versions
 
     upload.mimetype = data.file.mimetype
@@ -93,10 +109,11 @@ export class UploadService {
   }
 
   private async obtainUploadEntity(data: UploadValue): Promise<Upload> {
-    if (UploadUniqueTypes.includes(data.attributes.type)) {
+    if (this.isUploadUniqueType(data.attributes.type)) {
       const upload = await this.getUploadByEntityId(data.attributes.entityId, data.attributes.entity)
 
       if (upload) {
+        await this.removeUploadFiles(upload)
         return upload
       }
     }
@@ -104,25 +121,33 @@ export class UploadService {
     return this.getUploadRepository().create()
   }
 
-  private createFilePath(fileName: string, spaceId: number) {
-    return path.join(String(spaceId), nanoid(23), fileName.replace(/\s+/g, '-').toLowerCase())
+  private isUploadUniqueType(type: UploadType): boolean {
+    if (UploadUniqueTypes.includes(type)) {
+      return true
+    }
+
+    return false
   }
 
-  private async createImageVersions(data: UploadValue): Promise<object | null> {
-    const uploadType = data.attributes.type
-    const file = data.file
+  private createFilePath(fileName: string, spaceId: number, entityId: number) {
+    if (!spaceId) {
+      spaceId = 0
+    }
 
-    const cnfg = this.getUploadImageConfig(uploadType)
+    return path.join(String(spaceId), String(entityId), nanoid(23), fileName.replace(/\s+/g, '-').toLowerCase())
+  }
+
+  private async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
+    const cnfg = this.getUploadImageConfig(data.attributes.type)
 
     if (!cnfg) {
       return null
     }
 
     const versions = {}
-    const images = await this.generateImages(file, cnfg.sizes)
 
     for (const size of cnfg.sizes) {
-      const originalFileName: string = file.originalname
+      const originalFileName: string = data.file.originalname
 
       const versionfileName = [
         originalFileName.slice(0, originalFileName.lastIndexOf('.')),
@@ -130,38 +155,36 @@ export class UploadService {
         originalFileName.slice(originalFileName.lastIndexOf('.')),
       ].join('')
 
-      const filePath = this.createFilePath(versionfileName, data.attributes.spaceId)
+      const filePath = this.createFilePath(versionfileName, data.attributes.spaceId, data.attributes.entityId)
+      const image = await this.generateImage(data.file, size)
 
-      const S3Result = await this.sendFileToS3({
+      const S3Result = await this.S3Upload({
         Key: filePath,
-        Bucket: config.s3.bucket,
-        ACL: 'public-read',
         ContentType: data.file.mimetype,
-        Body: images[size.name],
+        Body: image,
       })
 
-      versions[size.name] = S3Result.Location
+      versions[size.name] = {
+        path: S3Result.Location,
+        key: S3Result.Key,
+      }
     }
 
     return versions
   }
 
-  private async generateImages(file: any, sizes: IUploadImageSize[]) {
-    const images = []
-
-    for (const size of sizes) {
-      await sharp(file.path)
+  private generateImage(file: any, size: IUploadImageSize): Promise<Buffer | null> {
+    return new Promise((resolve, reject) => {
+      sharp(file.path)
         .resize(size.width, size.height)
         .toBuffer()
         .then((output) => {
-          images[size.name] = output
+          resolve(output)
         })
         .catch((err) => {
-          throw err
+          reject(err)
         })
-    }
-
-    return images
+    })
   }
 
   private getUploadImageConfig(uploadType: UploadType): IUploadImageConfig | null {
@@ -176,12 +199,37 @@ export class UploadService {
 
   async remove(id: number) {
     const upload = await this.requireUploadById(id)
+
+    this.removeUploadFiles(upload)
     return this.getUploadRepository().remove(upload)
   }
 
-  sendFileToS3(params: S3.Types.PutObjectRequest): Promise<S3.ManagedUpload.SendData> {
+  private async removeUploadFiles(upload: Upload): Promise<void> {
+    if (upload.key) {
+      await this.S3DeleteObject({ Key: upload.key })
+    }
+
+    if (upload.versions) {
+      for (const name in upload.versions) {
+        if (upload.versions.hasOwnProperty(name)) {
+          const version = upload.versions[name]
+          await this.S3DeleteObject({ Key: version.key })
+        }
+      }
+    }
+  }
+
+  private S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
+    const _parmas = {
+      Key: params.Key,
+      Bucket: params.Bucket ?? config.s3.bucket,
+      ACL: params.ACL ?? 'public-read',
+      ContentType: params.ContentType,
+      Body: params.Body,
+    }
+
     return new Promise((resolve, reject) => {
-      this.s3.upload(params, (err, output) => {
+      this.s3.upload(_parmas, (err: Error, output: ManagedUpload.SendData) => {
         if (err) {
           reject(err)
           return
@@ -191,19 +239,20 @@ export class UploadService {
     })
   }
 
-  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
-    const upload = await this.getUploadById(uploadId)
-    return this.registerActivityForUpload(uploadActivity, upload)
-  }
+  private S3DeleteObject(params: Partial<S3.Types.DeleteObjectRequest>) {
+    const _params = {
+      Bucket: params.Bucket ?? config.s3.bucket,
+      Key: params.Key,
+    }
 
-  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(uploadActivity)
-        .fromActor(actor.id)
-        .forEntity(upload)
-        .inSpace(upload.spaceId)
-    )
+    return new Promise((resolve, reject) => {
+      this.s3.deleteObject(_params, (err: AWSError, output: DeleteObjectOutput) => {
+        if (err) {
+          reject(err)
+          return
+        }
+        resolve(output)
+      })
+    })
   }
 }
