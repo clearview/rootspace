@@ -43,6 +43,9 @@ export class Activity {
   @Column('varchar')
   tableName: string
 
+  @Column({ name: 'data', type: 'jsonb', default: '{}' })
+  context: object
+
   @Column('varchar')
   action: string
 
