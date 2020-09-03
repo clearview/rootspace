@@ -145,15 +145,15 @@ export class TaskBoardService extends NodeContentService {
       title: taskBoard.title,
     })
 
-    const fields = []
+    const fields = {}
 
     for(const key of Object.keys(data)){
       if(data[key] !== existingTaskBoard[key]){
-        fields.push(key)
+        fields[key] = taskBoard[key]
       }
     }
 
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard, { fields })
+    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard, fields)
 
     return taskBoard
   }

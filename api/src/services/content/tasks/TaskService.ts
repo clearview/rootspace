@@ -88,15 +88,15 @@ export class TaskService {
 
     await this.assigneesUpdate(task, data)
 
-    const fields = []
+    const fields = {}
 
     for(const key of Object.keys(data)){
       if(data[key] !== existingTask[key]){
-        fields.push(key)
+        fields[key] = task[key]
       }
     }
 
-    await this.registerActivityForTaskId(TaskActivities.Updated, task.id, { fields })
+    await this.registerActivityForTaskId(TaskActivities.Updated, task.id, fields)
 
     return this.getTaskRepository().getById(task.id)
   }
