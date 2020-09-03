@@ -19,17 +19,18 @@ export default class SpaceMixin extends Vue {
     return this.$store.getters['space/hasSpace']
   }
 
-  setActiveSpace (id: number, meta?: SpaceMetaResource) {
-    const space = { id }
-
-    if (this.activeSpace.id !== space.id) {
-      this.$store.commit('space/setActive', { space })
+  switchActiveSpace (id?: number) {
+    if (id && id !== this.activeSpace.id) {
+      this.$store.commit('space/setActive', {
+        space: { id }
+      })
     }
 
-    if (meta) {
-      const index = this.$store.state.space.activeIndex
-
-      this.$store.commit('space/updateMeta', { index, meta })
-    }
+    this.$store.commit('space/updateMeta', {
+      index: this.$store.state.space.activeIndex,
+      meta: {
+        activePage: this.$route.path
+      }
+    })
   }
 }

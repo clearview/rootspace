@@ -44,6 +44,7 @@ export default class Blank extends Mixins(PageMixin, SpaceMixin) {
 
     this.pageTitle = null
     this.pageReady = true
+    this.switchActiveSpace()
 
     if (query.from === 'invitation' && query.accept === '1') {
       this.alert = {

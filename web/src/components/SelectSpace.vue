@@ -203,11 +203,9 @@ export default class SelectSpace extends Vue {
     const index = this.spaces.findIndex(item => space.id === item.id)
     const { activePage } = this.spacesMeta[index] || {}
 
-    try {
-      if (!activePage || activePage === this.$route.path) {
-        this.$store.commit('space/setActive', { space })
-      }
+    this.$store.commit('space/setActive', { space })
 
+    try {
       await this.$router.push(activePage || '/')
     } catch { }
   }
