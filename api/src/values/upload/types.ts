@@ -1,9 +1,9 @@
-import { UploadType } from '../../types/upload'
+import { UploadType, UploadEntity } from '../../types/upload'
 
 export interface IUploadAttributes {
   userId: number
   spaceId?: number
   entityId: number
-  entity: string
+  entity: UploadEntity
   type: UploadType
 }
