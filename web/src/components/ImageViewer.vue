@@ -76,7 +76,7 @@
               {{ images[index].path | formatAttachmentName }}
             </p>
             <Popover :offset="10" :with-close="false" position="right-start" class="modal-action">
-              <template #default>
+              <template #default="{ hide: topHide }">
                 <div class="action-line">
                   <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
                   <div class="action-line-text" @click="open(images[index].path)">
@@ -95,7 +95,7 @@
 
                       <div class="delete-action">
                         <p @click="hide();">Cancel</p>
-                        <button class="btn btn-primary" @click="handleMenu('delete', images[index])">
+                        <button class="btn btn-primary" @click="handleMenu('delete', images[index]);hide();topHide();">
                           Delete
                         </button>
                       </div>
@@ -152,6 +152,17 @@ export default class ImageViewer extends Vue {
 
   @Prop({ type: Array, default: [] })
   private readonly images!: Array<NewUploadResource>;
+
+  @Watch('images')
+  private resetIndex () {
+    if (this.index >= this.images.length) {
+      this.goto(this.prevImage, 'prev')
+    }
+    if (this.images.length === 0) {
+      console.log('close everything')
+      this.close()
+    }
+  }
 
   private slide = 'next'
 

@@ -18,9 +18,10 @@
             <div class="user-avatar">
               <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
                                edit-offset="0px"
+                               key="avatar"
                                :upload="currentUser.avatar">
                 <template #fallback>
-                  <img src="@/assets/logo@2x.png" alt="User Avatar">
+                  <avatar :size="109" :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
                 </template>
               </UploadableImage>
             </div>
@@ -37,7 +38,7 @@
 
             <div class="space-logo">
             <UploadableImage width="64px" height="64px" radius="4px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
-              :upload="activeSpace.avatar" edit-offset="-12px">
+              :upload="activeSpace.avatar" edit-offset="-12px" key="space">
               <template #fallback>
                 <img src="@/assets/logo@2x.png" alt="Avatar Logo">
               </template>
@@ -96,8 +97,8 @@ import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/Modal.vue'
 
 import PageMixin from '@/mixins/PageMixin'
-import api from '@/utils/api'
 import UploadableImage from '@/components/UploadableImage.vue'
+import Avatar from 'vue-avatar'
 
 type ComponentData = {
   tab: string;
@@ -130,6 +131,7 @@ type ComponentData = {
     ButtonSwitch,
     FormSettings,
     FormSpace,
+    Avatar,
     VAlert,
     VLoading,
     VModal
@@ -474,4 +476,10 @@ export default class Settings extends Mixins(PageMixin) {
   .space-logo {
     margin-bottom: 16px;
   }
+</style>
+<style lang="postcss">
+.settings-content .settings-myaccount .user-avatar .vue-avatar--wrapper > span{
+  margin: 1px 1px 0 0 !important;
+  color: #fff;
+}
 </style>

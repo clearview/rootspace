@@ -99,9 +99,9 @@
             :images="item.attachments"
             @remove="handleRemoveFile"
           ></imageViewer>
-          <ul class="attachments">
-            <li v-for="(attachment, index) in filteredAttachmentItems" :key="attachment.id" class="attachments-item">
-              <TaskAttachmentView :attachment="attachment" :index="index" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+          <ul class="attachments" v-if="item.attachments">
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1].id" class="attachments-item">
+              <TaskAttachmentView :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">
@@ -510,12 +510,13 @@ export default class TaskModal extends Vue {
       }
     }
 
-    get filteredAttachmentItems () {
-      if (this.isShowAllAttachment) {
-        return this.item.attachments
+    get maxShownAttachment () {
+      if (this.isShowAllAttachment && this.item.attachments) {
+        return this.item.attachments.length
+      } else if (this.item.attachments && this.item.attachments.length > 0) {
+        return this.item.attachments.length > 5 ? 5 : this.item.attachments.length
       }
-
-      return this.item.attachments ? this.item.attachments.slice(0, 5) : this.item.attachments
+      return 0
     }
 
     get textAttachmentState () {
