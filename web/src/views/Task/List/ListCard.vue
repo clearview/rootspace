@@ -283,6 +283,9 @@ export default class ListCard extends Vue {
     }
 
     invalidateMeasurement () {
+      if (!this.titleRef) {
+        return
+      }
       const occupied = this.titleRef.offsetWidth +
         this.tagsRef.offsetWidth +
         this.dateRef.offsetWidth +

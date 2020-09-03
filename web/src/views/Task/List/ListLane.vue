@@ -265,6 +265,7 @@ export default class TaskLane extends Vue {
   }
 
   @Emit('save')
+  @Emit('drag:enable')
   async save () {
     if (!this.canSave) {
       return
@@ -290,7 +291,7 @@ export default class TaskLane extends Vue {
   }
 
   @Emit('cancel')
-  @Emit('drag:disable')
+  @Emit('drag:enable')
   cancel () {
     if (this.list) {
       this.listCopy = { ...this.list }
@@ -307,6 +308,7 @@ export default class TaskLane extends Vue {
 
   @Emit('drag:disable')
   addCard () {
+    this.cancel()
     this.isInputtingNewItem = true
     this.newItem = {
       assignees: null,
