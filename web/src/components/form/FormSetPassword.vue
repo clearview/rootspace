@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { email, minLength, required, sameAs } from 'vuelidate/lib/validators'
+import { minLength, required, sameAs } from 'vuelidate/lib/validators'
 
 import { PasswordResetResource } from '@/types/resource'
 
