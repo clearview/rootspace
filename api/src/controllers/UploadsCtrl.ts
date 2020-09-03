@@ -21,7 +21,6 @@ export class UploadsCtrl extends BaseCtrl {
 
     const data = {
       userId: req.user.id,
-      spaceId: 0,
       entityId: req.user.id,
       entity: 'User',
       type: req.body.type,

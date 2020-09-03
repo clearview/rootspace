@@ -4,7 +4,7 @@ import { UploadType } from '../../types/upload'
 export class UploadValidator extends BaseValidator {
   rules() {
     return {
-      spaceId: 'required|number',
+      spaceId: 'number',
       entityId: 'required|number',
       entity: 'required|string',
       type: [validations.required(), validations.in(Object.values(UploadType))],
