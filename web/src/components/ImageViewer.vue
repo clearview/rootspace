@@ -129,7 +129,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Model, Watch } from 'vue-property-decorator'
-import { NewUploadResource, UploadResource } from '@/types/resource'
+import { NewUploadResource } from '@/types/resource'
 
 import Modal from '@/components/Modal.vue'
 import Popover from '@/components/Popover.vue'
