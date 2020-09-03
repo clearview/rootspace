@@ -5,7 +5,6 @@ import Vuex from 'vuex'
 import { RootState } from '@/types/state'
 
 // Plugins
-import local from '@/store/plugins/local'
 import token from '@/store/plugins/token'
 import userSetting from '@/store/plugins/userSetting'
 
@@ -17,7 +16,6 @@ Vue.use(Vuex)
 export default new Vuex.Store<RootState>({
   modules,
   plugins: [
-    local.plugin,
     token.plugin,
     userSetting.plugin
   ]
