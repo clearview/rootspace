@@ -124,7 +124,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
     },
 
     async clean ({ commit }) {
-      commit('setActive', { id: 0 })
+      commit('setActive', { space: { id: 0 } })
       commit('setSpaces', { spaces: [] })
       commit('setSpacesMeta', { spacesMeta: [] })
     }

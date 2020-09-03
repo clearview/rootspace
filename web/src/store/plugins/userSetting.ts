@@ -1,7 +1,7 @@
 import { Store } from 'vuex'
 import Service from '@/services/userSetting'
 import { RootState } from '@/types/state'
-import { merge, debounce } from 'lodash'
+import { get, merge, debounce } from 'lodash'
 
 function reducer (state: RootState) {
   return {
@@ -24,8 +24,8 @@ function reducer (state: RootState) {
 
 async function restoreState (id: number, state: RootState) {
   try {
-    const { preferences } = await Service.view(id)
-    const { data } = preferences
+    const response = await Service.view(id)
+    const data = get(response, 'preferences.data', {})
 
     return merge({}, state, data)
   } catch { }
