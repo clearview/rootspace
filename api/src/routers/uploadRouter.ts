@@ -19,4 +19,6 @@ router.post('/uploads', upload.single('file'), [
   mapRoute(UploadsCtrl, 'upload'),
 ])
 
+router.delete('/uploads/:id', mapRoute(UploadsCtrl, 'delete'))
+
 export { router as uploadRouter }
