@@ -1,6 +1,12 @@
 import { createServiceModule } from '@/store/utils/createServiceModule'
 import { ItemService } from '@/services/task'
-import { TaskBoardResource, TaskItemResource, TaskListResource, UserResource } from '@/types/resource'
+import {
+  NewUploadResource,
+  TaskBoardResource,
+  TaskItemResource,
+  TaskListResource,
+  UserResource
+} from '@/types/resource'
 import api from '@/utils/api'
 import { ResourceState, RootState } from '@/types/state'
 import { ActionContext } from 'vuex'
@@ -161,6 +167,26 @@ if (item.actions) {
     params.task.attachments.push(res.data.data)
     commit('setProcessing', false)
 
+    return res
+  }
+  item.actions.deleteUpload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; upload: NewUploadResource }) => {
+    const activeSpace = rootGetters['space/activeSpace']
+    console.log(params)
+    if (!activeSpace) {
+      throw new Error('Not in an active space')
+    }
+    if (!params.task.id) {
+      throw new Error('Invalid task ID')
+    }
+    commit('setProcessing', true)
+    console.log(params)
+    const res = await api.delete(`/uploads/${params.upload.id}`)
+    console.log(res)
+    // if (!params.task.attachments) {
+    //   params.task.attachments = []
+    // }
+    // params.task.attachments.push(res.data.data)
+    commit('setProcessing', false)
     return res
   }
   item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number; user?: UserResource }) => {

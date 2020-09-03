@@ -11,9 +11,11 @@
         <div class="mr-2">
           <img
             class="space-logo"
-            :src="activeSpace.avatar ? activeSpace.avatar.versions.default : '@/assets/images/space.png'"
+            v-if="activeSpace.avatar"
+            :src="activeSpace.avatar.versions.default"
             alt="Space"
           >
+          <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
         </div>
         <span
           v-if="!hideLabel"
@@ -45,9 +47,11 @@
             <div class="SelectSpace-option-logo">
               <img
                 class="space-logo"
-                :src="item.avatar ? item.avatar.versions.default : '@/assets/images/space.png'"
+                v-if="activeSpace.avatar"
+                :src="activeSpace.avatar.versions.default"
                 alt="Space"
               >
+              <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
             </div>
             <div class="SelectSpace-option-label">
               <strong
