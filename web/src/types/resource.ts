@@ -150,7 +150,6 @@ export interface PasswordResource {
 }
 
 export interface PasswordResetResource {
-  email: string;
   token: string;
   password: string;
   password_confirmation: string; // eslint-disable-line

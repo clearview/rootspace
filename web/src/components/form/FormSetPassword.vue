@@ -1,41 +1,6 @@
 <template>
   <form class="form" @submit.prevent="submit">
     <v-field
-      label="Email"
-      name="email"
-      has-icon-right
-    >
-      <input
-        class="input"
-        :class="{
-          'is-danger': $v.payload.email.$error
-        }"
-        type="text"
-        placeholder="Enter your email"
-        v-model.trim="$v.payload.email.$model"
-      />
-      <v-icon
-        class="icon is-right"
-        name="email"
-      />
-
-      <template #feedback>
-        <p
-          v-if="$v.payload.email.$error && !$v.payload.email.required"
-          class="feedback is-danger"
-        >
-          Field is required.
-        </p>
-        <p
-          v-if="$v.payload.email.$error && !$v.payload.email.email"
-          class="feedback is-danger"
-        >
-          Email format is not valid.
-        </p>
-      </template>
-    </v-field>
-
-    <v-field
       label="New Password"
       name="password"
       has-icon-right
@@ -125,7 +90,6 @@ import { Component, Vue } from 'vue-property-decorator'
   },
   validations: {
     payload: {
-      email: { required, email },
       password: {
         required,
         minLength: minLength(8)
@@ -141,7 +105,6 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class FormSetPassword extends Vue {
   private payload: PasswordResetResource = {
-    email: '',
     token: '',
     password: '',
     // eslint-disable-next-line @typescript-eslint/camelcase
