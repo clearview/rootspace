@@ -22,3 +22,12 @@ export interface IUploadImageConfig {
   type: UploadType
   sizes: IUploadImageSize[]
 }
+
+export interface IUploadVersion {
+  path: string
+  key: string
+}
+
+export interface IUploadVersions {
+  [key: string]: IUploadVersion
+}
