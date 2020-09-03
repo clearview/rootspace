@@ -203,7 +203,6 @@ import {
   TagResource,
   TaskCommentResource,
   TaskItemResource,
-  UploadResource,
   UserResource
 } from '@/types/resource'
 import Field from '@/components/Field.vue'

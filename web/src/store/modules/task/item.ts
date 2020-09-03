@@ -144,7 +144,7 @@ const item = createServiceModule(ItemService, {
   }
 })
 if (item.actions) {
-  item.actions.upload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; file: File }) => {
+  item.actions.upload = async ({ commit, rootGetters }, params: { task: TaskItemResource; file: File }) => {
     const activeSpace = rootGetters['space/activeSpace']
 
     if (!activeSpace) {
@@ -169,7 +169,7 @@ if (item.actions) {
 
     return res
   }
-  item.actions.deleteUpload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; upload: NewUploadResource }) => {
+  item.actions.deleteUpload = async ({ commit, rootGetters }, params: { task: TaskItemResource; upload: NewUploadResource }) => {
     const activeSpace = rootGetters['space/activeSpace']
     if (!activeSpace) {
       throw new Error('Not in an active space')

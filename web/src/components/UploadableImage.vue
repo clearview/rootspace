@@ -81,7 +81,7 @@ export default class UploadableImage extends Vue {
       }
       this.isUploadingImage = true
       const reader = new FileReader()
-      reader.addEventListener('loadend', (ev) => {
+      reader.addEventListener('loadend', () => {
         this.fakeImage = reader.result as string
       })
       reader.readAsDataURL(file)

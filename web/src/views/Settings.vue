@@ -81,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Mixins, Ref } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { find } from 'lodash'
 
 import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
