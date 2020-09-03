@@ -131,7 +131,7 @@
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by">
-              <avatar :size="24" :src="item.user.avatar ? item.user.avatar.versions.default : ''" :username="memberName(item.user)"></avatar>
+              <avatar :size="24" :src="item.user && item.user.avatar ? item.user.avatar.versions.default : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
           </div>
@@ -198,7 +198,14 @@
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
+import {
+  NewUploadResource,
+  TagResource,
+  TaskCommentResource,
+  TaskItemResource,
+  UploadResource,
+  UserResource
+} from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
@@ -323,14 +330,11 @@ export default class TaskModal extends Vue {
       }
     }
 
-    async handleRemoveFile (attachment: UploadResource) {
-      if (this.itemCopy.attachments) {
-        this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
-        await this.$store.dispatch('task/item/update', {
-          id: this.item.id,
-          attachments: this.itemCopy.attachments
-        })
-      }
+    async handleRemoveFile (attachment: NewUploadResource) {
+      await this.$store.dispatch('task/item/deleteUpload', {
+        task: this.item,
+        upload: attachment
+      })
     }
 
     handleFileClick (index: number|null) {
