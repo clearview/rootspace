@@ -79,7 +79,7 @@ export class TaskService {
     await this.registerActivityForTaskId(TaskActivities.Created, task.id)
     await this.assigneesUpdate(task, data)
 
-    return this.getTaskRepository().reload(task)
+    return this.getTaskRepository().getById(task.id)
   }
 
   async update(id: number, data: any): Promise<Task> {
@@ -92,7 +92,7 @@ export class TaskService {
     await this.assigneesUpdate(task, data)
     await this.registerActivityForTaskId(TaskActivities.Updated, task.id)
 
-    return this.getTaskRepository().reload(task)
+    return this.getTaskRepository().getById(task.id)
   }
 
   async archive(taskId: number): Promise<Task | undefined> {

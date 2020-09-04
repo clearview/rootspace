@@ -131,7 +131,7 @@
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by">
-              <avatar :size="24" :src="item.user && item.user.avatar ? item.user.avatar.versions.default : ''" :username="memberName(item.user)"></avatar>
+              <avatar :size="24" :src="item.user && item.user.avatar ? item.user.avatar.versions.default.path : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@
                     </template>
                   </MemberPopover>
                 <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
-                  <avatar :size="28" :src="assignee.avatar ? assignee.avatar.versions.default : ''"  :username="memberName(assignee)"></avatar>
+                  <avatar :size="28" :src="assignee.avatar ? assignee.avatar.versions.default.path : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>

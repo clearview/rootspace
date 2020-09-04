@@ -36,7 +36,10 @@ export interface UploadResource {
   updated: Date;
   userId: number;
 }
-
+export interface UploadKeyPath {
+  path: string;
+  key: string;
+}
 export interface NewUploadResource {
   createdAt: Date;
   entity: 'Task';
@@ -50,9 +53,9 @@ export interface NewUploadResource {
   updatedAt: Date;
   userId: number;
   versions: {
-    thumbnail?: string;
-    preview?: string;
-    default?: string;
+    thumbnail?: UploadKeyPath;
+    preview?: UploadKeyPath;
+    default?: UploadKeyPath;
   };
   index?: number;
 }
