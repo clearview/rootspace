@@ -292,15 +292,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       }
       if (this.board) {
         this.boardCache = this.board
-        this.pageTitle = this.board.title
 
-        this.switchActiveSpace(this.board.spaceId)
+        if (!this.pageReady) {
+          this.activateSpace(this.board.spaceId)
+        }
+
+        this.pageTitle = this.board.title
+        this.pageReady = true
       }
-    } catch (e) {
-      this.switchActiveSpace()
-    }
+    } catch { }
+
     this.isFetching = false
-    this.pageReady = true
   }
 
   async resetFilters () {

@@ -10,6 +10,7 @@ import {
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
+import { Dictionary, NumericDictionary } from 'lodash'
 
 export interface ResourceState<T>{
   processing: boolean;
@@ -92,8 +93,8 @@ export interface DocumentState {
 
 export interface SpaceState {
   activeIndex: number;
-  spaces: SpaceResource[];
-  spacesMeta: SpaceMetaResource[];
+  list: SpaceResource[];
+  activePages: string[];
 }
 
 export interface PageState {

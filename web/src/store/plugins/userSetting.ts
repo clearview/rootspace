@@ -11,7 +11,7 @@ function reducer (state: RootState) {
     },
     space: {
       activeIndex: state.space.activeIndex,
-      spacesMeta: state.space.spacesMeta
+      activePages: state.space.activePages
     },
     task: {
       settings: state.task.settings
@@ -42,7 +42,7 @@ function filter (type: string) {
     'sidebar/setCollapse',
     'sidebar/setSize',
     'space/setActiveIndex',
-    'space/setSpaceMeta',
+    'space/setActivePages',
     'tree/setFolded',
     'task/settings/setData'
   ].includes(type)
@@ -60,11 +60,9 @@ export default {
       if (!user) return
 
       if (mutations.type === 'auth/setUser') {
-        store.commit('page/setReady', false)
         const nextState = await restoreState(user.id, state)
 
         store.replaceState(nextState)
-        store.commit('page/setReady', true)
       }
 
       if (filter(mutations.type)) {

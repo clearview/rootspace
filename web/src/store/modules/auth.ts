@@ -35,7 +35,7 @@ const AuthModule: Module<AuthState, RootState> = {
         const { data } = await AuthService.whoami()
 
         commit('setUser', data.user)
-        commit('space/setSpaces', data, { root: true })
+        commit('space/setList', data.spaces, { root: true })
       } catch (err) {
         dispatch('signout')
       }

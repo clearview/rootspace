@@ -41,7 +41,7 @@
           :class="{
             'is-active': item.id === activeSpace.id
           }"
-          @click="switchSpace(item)"
+          @click="activateSpace(item.id)"
         >
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
@@ -125,13 +125,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
+import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 
-import { SpaceResource, SpaceMetaResource, UserResource } from '@/types/resource'
+import { SpaceResource, UserResource } from '@/types/resource'
 
 import FormSpace from '@/components/form/FormSpace.vue'
 import Modal from '@/components/Modal.vue'
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 interface ModalState {
   visible: boolean;
@@ -146,7 +147,7 @@ interface ModalState {
     Modal
   }
 })
-export default class SelectSpace extends Vue {
+export default class SelectSpace extends Mixins(SpaceMixin) {
   @Prop(Boolean)
   private readonly hideLabel!: boolean
 
@@ -155,18 +156,6 @@ export default class SelectSpace extends Vue {
   private modal = {
     visible: false,
     loading: false
-  }
-
-  get spaces (): SpaceResource[] {
-    return this.$store.state.space.spaces
-  }
-
-  get spacesMeta (): SpaceMetaResource[] {
-    return this.$store.state.space.spacesMeta
-  }
-
-  get activeSpace (): SpaceResource {
-    return this.$store.getters['space/activeSpace']
   }
 
   get user (): UserResource {
@@ -199,22 +188,13 @@ export default class SelectSpace extends Vue {
     this.$store.dispatch('auth/signout')
   }
 
-  async switchSpace (space: SpaceResource) {
-    const index = this.spaces.findIndex(item => space.id === item.id)
-    const { activePage } = this.spacesMeta[index] || {}
-
-    this.$store.commit('space/setActive', { space })
-
-    try {
-      await this.$router.push(activePage || '/')
-    } catch { }
-  }
-
   async addSpace (data: SpaceResource) {
     this.modal.loading = true
 
     try {
-      await this.$store.dispatch('space/create', data)
+      const space = await this.$store.dispatch('space/create', data)
+
+      this.$store.dispatch('space/activateSpace', space.id)
     } catch { }
 
     this.modal.loading = false

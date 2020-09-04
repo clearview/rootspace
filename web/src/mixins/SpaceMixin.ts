@@ -1,36 +1,29 @@
 import { Vue, Component } from 'vue-property-decorator'
-import { SpaceResource, SpaceMetaResource } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 
 @Component
 export default class SpaceMixin extends Vue {
   get spaces (): SpaceResource[] {
-    return this.$store.state.space.spaces || []
+    return this.$store.state.space.list
   }
 
   get activeSpace (): SpaceResource {
-    return this.$store.getters['space/activeSpace'] || {}
+    return this.$store.getters['space/activeSpace']
   }
 
-  get activeSpaceMeta (): SpaceMetaResource {
-    return this.$store.getters['space/activeSpaceMeta'] || {}
+  get activeSpacePage (): string {
+    return this.$store.getters['space/activePage'] || '/'
   }
 
   get hasSpace (): boolean {
-    return this.$store.getters['space/hasSpace']
+    return this.$store.getters['space/isListEmpty'] === false
   }
 
-  switchActiveSpace (id?: number) {
-    if (id && id !== this.activeSpace.id) {
-      this.$store.commit('space/setActive', {
-        space: { id }
-      })
-    }
+  activateSpace (id: number) {
+    this.$store.dispatch('space/activateSpace', id)
+  }
 
-    this.$store.commit('space/updateMeta', {
-      index: this.$store.state.space.activeIndex,
-      meta: {
-        activePage: this.$route.path
-      }
-    })
+  updateSpaceActivePage (id: number, path: string) {
+    this.$store.dispatch('space/updateActivePage', { id, path })
   }
 }

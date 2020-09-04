@@ -39,12 +39,8 @@ type AlertData = {
 export default class Blank extends Mixins(PageMixin, SpaceMixin) {
   private alert: AlertData | null = null
 
-  created () {
+  async created () {
     const query = this.$route.query
-
-    this.pageTitle = null
-    this.pageReady = true
-    this.switchActiveSpace()
 
     if (query.from === 'invitation' && query.accept === '1') {
       this.alert = {
@@ -53,6 +49,11 @@ export default class Blank extends Mixins(PageMixin, SpaceMixin) {
         noicon: true
       }
     }
+
+    await this.$nextTick()
+
+    this.pageTitle = null
+    this.pageReady = true
   }
 
   @Watch('$route')

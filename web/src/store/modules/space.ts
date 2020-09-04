@@ -2,25 +2,11 @@ import api from '@/utils/api'
 import { Module } from 'vuex'
 
 import { RootState, SpaceState } from '@/types/state'
-import { SpaceResource, SpaceMetaResource } from '@/types/resource'
-import router from '@/router'
+import { SpaceResource } from '@/types/resource'
 
-type SpaceCollectionPayload = {
-  spaces: SpaceResource[];
-}
-
-type SpaceMetaCollectionPayload = {
-  spacesMeta: SpaceMetaResource[];
-}
-
-type SpacePayload = {
-  index: number;
-  space: SpaceResource;
-}
-
-type SpaceMetaPayload = {
-  index: number;
-  meta: SpaceMetaResource;
+interface UpdateActivePagePayload {
+  id: number;
+  path: string;
 }
 
 const SpaceModule: Module<SpaceState, RootState> = {
@@ -29,8 +15,8 @@ const SpaceModule: Module<SpaceState, RootState> = {
   state () {
     return {
       activeIndex: 0,
-      spaces: [],
-      spacesMeta: []
+      list: [],
+      activePages: []
     }
   },
 
@@ -38,95 +24,89 @@ const SpaceModule: Module<SpaceState, RootState> = {
     activeSpace (state): SpaceResource {
       const index = state.activeIndex
 
-      return state.spaces[index] || {}
+      return state.list[index] || {}
     },
-    activeSpaceMeta (state): SpaceMetaResource {
+    activePage (state): string {
       const index = state.activeIndex
 
-      return state.spacesMeta[index] || {}
+      return state.activePages[index] || ''
     },
-    hasSpace (state): boolean {
-      return state.spaces.length > 0
-    }
+    isListEmpty (state): boolean {
+      return state.list.length < 1
+    },
+    getIndex: state => (id: number) => (
+      state.list.findIndex(x => x.id === id)
+    )
   },
 
   mutations: {
-    setActive (state, { space }: SpacePayload) {
-      const nextActiveIndex = state.spaces.findIndex(
-        (item) => item.id === space.id
-      )
-
-      if (nextActiveIndex < 0) {
-        state.activeIndex = 0
-      } else {
-        state.activeIndex = nextActiveIndex
-      }
+    setActiveIndex (state, activeIndex: number) {
+      state.activeIndex = activeIndex
     },
 
-    setSpaces (state, { spaces }: SpaceCollectionPayload) {
-      state.spaces = spaces
+    setList (state, list: SpaceResource[]) {
+      state.list = list
     },
 
-    setSpacesMeta (state, { spacesMeta }: SpaceMetaCollectionPayload) {
-      state.spacesMeta = spacesMeta
-    },
-
-    addSpace (state, { space }: SpacePayload) {
-      state.spaces.push(space)
-    },
-
-    updateSpace (state, { index, space }: SpacePayload) {
-      const spaces = [...state.spaces]
-
-      spaces[index] = {
-        ...state.spaces[index] || {},
-        ...space
-      }
-
-      state.spaces = spaces
-    },
-
-    updateMeta (state, { index, meta }: SpaceMetaPayload) {
-      const spacesMeta = [...state.spacesMeta]
-
-      spacesMeta[index] = {
-        ...state.spacesMeta[index] || {},
-        ...meta
-      }
-
-      state.spacesMeta = spacesMeta
+    setActivePages (state, activePage: string[]) {
+      state.activePages = activePage
     }
   },
 
   actions: {
-    async fetch ({ commit }, params) {
+    async fetch ({ commit }, params: object) {
       const res = await api.get('/spaces', { params })
 
-      commit('setSpaces', { spaces: res.data })
+      commit('setList', res.data)
     },
 
-    async create ({ commit }, space) {
+    async create ({ commit, state }, space: SpaceResource) {
       const res = await api.post('/spaces', space)
-      const newSpace = res.data
-      commit('addSpace', { space: newSpace })
-      commit('setActive', { space: newSpace })
-      await router.push('/')
+
+      const list = [
+        ...state.list,
+        res.data
+      ]
+
+      commit('setList', list)
+
+      return res.data
     },
 
-    async update ({ commit, state }, space) {
-      const index = state.spaces.findIndex(
-        (item) => item.id === space.id
-      )
+    async update ({ commit, state, getters }, space: SpaceResource) {
+      const index = getters.getIndex(space.id)
+      const list = [...state.list]
 
-      commit('updateSpace', { index, space })
+      list[index] = space
 
-      await api.patch(`/spaces/${space.id}`, space)
+      commit('setList', list)
+
+      const res = await api.patch(`/spaces/${space.id}`, space)
+
+      return res.data
+    },
+
+    activateSpace ({ commit, state, getters }, id: number) {
+      const index = getters.getIndex(id)
+
+      if (state.activeIndex !== index) {
+        commit('setActiveIndex', index)
+      }
+    },
+
+    updateActivePage ({ commit, state, getters }, { id, path }: UpdateActivePagePayload) {
+      const index = getters.getIndex(id)
+      const pages = state.activePages
+
+      pages[index] = path
+
+      commit('setActivePages', pages)
     },
 
     async clean ({ commit }) {
-      commit('setActive', { space: { id: 0 } })
-      commit('setSpaces', { spaces: [] })
-      commit('setSpacesMeta', { spacesMeta: [] })
+      commit('setActiveIndex', 0)
+      commit('setSpaces', [])
+      commit('setActivePage', [])
     }
   }
 }

@@ -1,34 +1,37 @@
 <template>
-  <layout-main v-if="hasSpace" :key="activeSpace.id">
+  <layout-main v-if="hasSpace">
     <router-view />
   </layout-main>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import LayoutMain from '@/components/LayoutMain.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
   components: {
     LayoutMain
-  },
-  beforeRouteEnter (to, from, next) {
-    next(async vm => {
-      const hasSpace = vm.$store.getters['space/hasSpace']
-      const { activePage } = vm.$store.getters['space/activeSpaceMeta'] || {}
-
-      try {
-        if (!hasSpace) {
-          return vm.$router.replace({ name: 'SpaceInit' })
-        }
-
-        if (activePage && from.name && to.name === 'Main') {
-          return vm.$router.replace(activePage)
-        }
-      } catch { }
-    })
   }
 })
-export default class Space extends Mixins(SpaceMixin) { }
+export default class Space extends Mixins(SpaceMixin) {
+  async created () {
+    try {
+      if (!this.hasSpace) {
+        await this.$router.replace({ name: 'SpaceInit' })
+      } else if (this.$route.path === '/') {
+        await this.$router.replace(this.activeSpacePage)
+      }
+    } catch { }
+  }
+
+  @Watch('activeSpace.id')
+  async watchActiveSpaceId (id: number, prevId: number) {
+    this.updateSpaceActivePage(prevId, this.$route.path)
+
+    try {
+      await this.$router.push(this.activeSpacePage)
+    } catch { }
+  }
+}
 </script>
