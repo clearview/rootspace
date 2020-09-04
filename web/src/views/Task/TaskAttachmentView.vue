@@ -2,7 +2,7 @@
   <div class="attachment">
     <div class="flex-initial" @click="viewAttachment">
       <div class="attachment-media" v-if="isAttachmentImage">
-        <img :src="attachment.versions.thumbnail" :alt="attachment.id">
+        <img :src="attachment.versions.thumbnail.path" :alt="attachment.id">
       </div>
       <div v-else class="attachment-media others">
         <v-icon

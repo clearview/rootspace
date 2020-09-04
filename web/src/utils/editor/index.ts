@@ -18,6 +18,7 @@ import { createHeading } from './createHeader'
 
 import api from '@/utils/api'
 import store from '@/store'
+import router from '@/router'
 
 type EditorConfig = Partial<EditorJS.EditorConfig>
 type EditorData = EditorJS.OutputData
@@ -73,15 +74,21 @@ export function createEditor (config: EditorConfig): EditorJS {
           uploader: {
             uploadByFile (file: any) {
               const currentSpaceId = store.getters['space/activeSpace'].id
+              const docId = router.currentRoute.params.id
+
               const formData = new FormData()
               formData.append('file', file)
+              formData.append('entityId', docId)
+              formData.append('entity', 'Doc')
+              formData.append('type', 'docContent')
+              formData.append('spaceId', currentSpaceId)
 
-              const uploadFile = api.post(`/upload?spaceId=${currentSpaceId}`, formData)
+              const uploadFile = api.post('/uploads', formData)
               return uploadFile.then((response) => {
                 return {
                   success: 1,
                   file: {
-                    url: response.data.path
+                    url: response.data.data.path
                   }
                 }
               })

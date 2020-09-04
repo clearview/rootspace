@@ -34,10 +34,10 @@
 
               <div class="image-box">
                 <img
-                  :key="images[index].versions.preview || images[index] || ''"
-                  :src="images[index].versions.preview || images[index] || ''"
+                  :key="images[index].versions.preview.path || images[index] || ''"
+                  :src="images[index].versions.preview.path || images[index] || ''"
                   v-if="images[index] &&
-                    images[index].versions.preview &&
+                    images[index].versions.preview.path &&
                     isAttachmentImage(images[index].mimetype)"
                   @click.stop="next"
                 >
@@ -159,7 +159,6 @@ export default class ImageViewer extends Vue {
       this.goto(this.prevImage, 'prev')
     }
     if (this.images.length === 0) {
-      console.log('close everything')
       this.close()
     }
   }

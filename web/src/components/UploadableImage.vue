@@ -1,7 +1,7 @@
 <template>
   <div class="uploadable-image" :style="{width, height, borderRadius: radius}" @click="pickFile">
     <input type="file" ref="file" class="file" @change="processFile">
-    <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default" alt="" class="img" :style="{width, height, borderRadius: radius}">
+    <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default.path" alt="" class="img" :style="{width, height, borderRadius: radius}">
     <img v-if="isUploadingImage" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
     <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
     </slot>
