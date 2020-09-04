@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { IUploadVersions } from '../../types/upload'
 
 @Entity('uploads')
 export class Upload {
@@ -25,8 +26,11 @@ export class Upload {
   @Column('varchar')
   path: string
 
+  @Column('varchar', { nullable: true })
+  key: string
+
   @Column('json', { nullable: true })
-  versions: object
+  versions: IUploadVersions
 
   @Column('varchar')
   mimetype: string

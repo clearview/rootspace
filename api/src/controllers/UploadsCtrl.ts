@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { UploadValue } from '../values/upload'
-import { UploadType } from '../types/upload'
+import { UploadType, UploadEntity } from '../types/upload'
 import { validateUpload } from '../validation/upload'
 import { UploadService } from '../services/upload/UploadService'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
@@ -21,9 +21,8 @@ export class UploadsCtrl extends BaseCtrl {
 
     const data = {
       userId: req.user.id,
-      spaceId: 0,
       entityId: req.user.id,
-      entity: 'User',
+      entity: UploadEntity.User,
       type: req.body.type,
     }
 
@@ -46,7 +45,7 @@ export class UploadsCtrl extends BaseCtrl {
       userId: req.user.id,
       spaceId: req.body.spaceId,
       entityId: req.body.spaceId,
-      entity: 'Space',
+      entity: UploadEntity.Space,
       type: req.body.type,
     }
 
