@@ -194,20 +194,30 @@ export default class Settings extends Mixins(PageMixin) {
         const userUpdate = await UserService.update(setting)
 
         const { authProvider } = this.$store.state.auth.user
+        let message = 'Your settings '
 
         if (
           (password.password !== '' && password.newPassword !== '') ||
           (authProvider === 'google' && password.newPassword !== '')
         ) {
           await UserService.passwordChange(password)
+          message += 'and password '
+        }
+
+        message += 'have been saved'
+        this.account.alert = {
+          type: 'success',
+          message: message
         }
 
         const getUserData = userUpdate.data
         this.$store.commit('auth/setUser', getUserData)
       } catch (err) {
+        const message = err.message === 'Unauthorized' ? 'The old password you entered is incorrect' : err.message
+
         this.account.alert = {
           type: 'danger',
-          message: err.message,
+          message: message,
           fields: err.fields
         }
       } finally {

@@ -100,7 +100,9 @@ export default class AuthService {
       const { response } = err
 
       if (response) {
-        throw new Error(response.data.error.message)
+        const { message, fields } = response.data.error
+
+        throw new ValidationError(message, fields)
       } else {
         throw err
       }
