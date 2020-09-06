@@ -27,6 +27,7 @@
     "@sendgrid/mail": "^7.0.0",
     "@sentry/node": "5.18.1",
     "@sindresorhus/slugify": "^1.0.0",
+    "amazon-s3-uri": "^0.0.3",
     "aws-sdk": "^2.673.0",
     "basic-auth": "^2.0.1",
     "bcryptjs": "^2.4.3",

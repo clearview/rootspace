@@ -1,7 +1,8 @@
 import chalk from 'chalk'
 import isImage from 'is-image'
-import db from '../../db'
 import got from 'got'
+import AmazonS3URI from 'amazon-s3-uri'
+import db from '../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
 import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
@@ -44,17 +45,29 @@ export class UploadsRelations {
 
       for (const attachment of attachments) {
         // tslint:disable-next-line:no-console
-        console.log(chalk.yellow('Processing upload id ' + attachment.id))
+        console.log(chalk.yellowBright('Processing upload id ' + attachment.id))
 
         const upload = await getCustomRepository(UploadRepository).findOne(attachment.id)
+
+        if (upload.key !== null) {
+          // tslint:disable-next-line:no-console
+          console.log(chalk.yellow('Uplaod id ' + upload.id + ' has key value, skip.'))
+          continue
+        }
+
         const fileName = upload.path.split('/').pop()
+        const { region, bucket, key } = AmazonS3URI(upload.path)
 
         // tslint:disable-next-line:no-console
         console.log(chalk.yellow('File name ' + fileName))
 
+        // tslint:disable-next-line:no-console
+        console.log(chalk.yellow('Key ' + key))
+
         upload.entityId = task.id
         upload.entity = 'Task'
         upload.type = UploadType.TaskAttachment
+        upload.key = key
 
         await getCustomRepository(UploadRepository).save(upload)
 
