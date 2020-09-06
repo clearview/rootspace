@@ -82,10 +82,10 @@ export class UploadService {
   }
 
   async upload(data: UploadValue) {
-    const filePath = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
+    const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
     const sFFile = await this.S3Upload({
-      Key: filePath,
+      Key: key,
       ContentType: data.file.mimetype,
       Body: fs.createReadStream(data.file.path),
     })
@@ -108,7 +108,7 @@ export class UploadService {
     return upload
   }
 
-  private async obtainUploadEntity(data: UploadValue): Promise<Upload> {
+  async obtainUploadEntity(data: UploadValue): Promise<Upload> {
     if (this.isUploadUniqueType(data.attributes.type)) {
       const upload = await this.getUploadByEntityId(data.attributes.entityId, data.attributes.entity)
 
@@ -121,7 +121,7 @@ export class UploadService {
     return this.getUploadRepository().create()
   }
 
-  private isUploadUniqueType(type: UploadType): boolean {
+  isUploadUniqueType(type: UploadType): boolean {
     if (UploadUniqueTypes.includes(type)) {
       return true
     }
@@ -129,7 +129,7 @@ export class UploadService {
     return false
   }
 
-  private createFilePath(fileName: string, spaceId: number, entityId: number) {
+  createFilePath(fileName: string, spaceId: number, entityId: number) {
     if (!spaceId) {
       spaceId = 0
     }
@@ -137,7 +137,7 @@ export class UploadService {
     return path.join(String(spaceId), String(entityId), nanoid(23), fileName.replace(/\s+/g, '-').toLowerCase())
   }
 
-  private async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
+  async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
     const cnfg = this.getUploadImageConfig(data.attributes.type)
 
     if (!cnfg) {
@@ -147,19 +147,13 @@ export class UploadService {
     const versions = {}
 
     for (const size of cnfg.sizes) {
-      const originalFileName: string = data.file.originalname
+      const versionfileName = this.createVersionFileName(data.file.originalname, size.name)
 
-      const versionfileName = [
-        originalFileName.slice(0, originalFileName.lastIndexOf('.')),
-        '-' + size.name,
-        originalFileName.slice(originalFileName.lastIndexOf('.')),
-      ].join('')
-
-      const filePath = this.createFilePath(versionfileName, data.attributes.spaceId, data.attributes.entityId)
-      const image = await this.generateImage(data.file, size)
+      const key = this.createFilePath(versionfileName, data.attributes.spaceId, data.attributes.entityId)
+      const image = await this.generateImage(data.file.path, size)
 
       const S3Result = await this.S3Upload({
-        Key: filePath,
+        Key: key,
         ContentType: data.file.mimetype,
         Body: image,
       })
@@ -173,9 +167,15 @@ export class UploadService {
     return versions
   }
 
-  private generateImage(file: any, size: IUploadImageSize): Promise<Buffer | null> {
+  createVersionFileName(fileName: string, suffix: string) {
+    return [fileName.slice(0, fileName.lastIndexOf('.')), '-' + suffix, fileName.slice(fileName.lastIndexOf('.'))].join(
+      ''
+    )
+  }
+
+  generateImage(file: any, size: IUploadImageSize): Promise<Buffer | null> {
     return new Promise((resolve, reject) => {
-      sharp(file.path)
+      sharp(file)
         .resize(size.width, size.height)
         .toBuffer()
         .then((output) => {
@@ -187,7 +187,7 @@ export class UploadService {
     })
   }
 
-  private getUploadImageConfig(uploadType: UploadType): IUploadImageConfig | null {
+  getUploadImageConfig(uploadType: UploadType): IUploadImageConfig | null {
     for (const cnfg of UploadImageConfig) {
       if (cnfg.type === uploadType) {
         return cnfg
@@ -204,7 +204,7 @@ export class UploadService {
     return this.getUploadRepository().remove(upload)
   }
 
-  private async removeUploadFiles(upload: Upload): Promise<void> {
+  async removeUploadFiles(upload: Upload): Promise<void> {
     if (upload.key) {
       await this.S3DeleteObject({ Key: upload.key })
     }
@@ -219,7 +219,7 @@ export class UploadService {
     }
   }
 
-  private S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
+  S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
     const _parmas = {
       Key: params.Key,
       Bucket: params.Bucket ?? config.s3.bucket,
@@ -239,7 +239,7 @@ export class UploadService {
     })
   }
 
-  private S3DeleteObject(params: Partial<S3.Types.DeleteObjectRequest>) {
+  S3DeleteObject(params: Partial<S3.Types.DeleteObjectRequest>) {
     const _params = {
       Bucket: params.Bucket ?? config.s3.bucket,
       Key: params.Key,
