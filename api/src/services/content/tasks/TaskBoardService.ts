@@ -145,11 +145,12 @@ export class TaskBoardService extends NodeContentService {
       title: taskBoard.title,
     })
 
-    const fields = {}
+    const fields = { old: {}, new: {} }
 
     for(const key of Object.keys(data)){
       if(data[key] !== existingTaskBoard[key]){
-        fields[key] = taskBoard[key]
+        fields.old[key] = existingTaskBoard[key]
+        fields.new[key] = taskBoard[key]
       }
     }
 

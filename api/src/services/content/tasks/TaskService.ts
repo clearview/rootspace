@@ -88,11 +88,21 @@ export class TaskService {
 
     await this.assigneesUpdate(task, data)
 
-    const fields = {}
+    const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data)){
-      if(data[key] !== existingTask[key]){
-        fields[key] = task[key]
+    for(const key of Object.keys(data)) {
+      if(data[key] !== existingTask[key]) {
+        fields.old[key] = existingTask[key]
+        fields.new[key] = task[key]
+
+        if (key === 'listId') {
+          const oldList = await this.getTaskListRepository().findOne(existingTask.listId)
+          const newList = await this.getTaskListRepository().findOne(task.listId)
+
+          const listKey = 'list'
+          fields.old[listKey] = { title: oldList.title }
+          fields.new[listKey] = { title: newList.title }
+        }
       }
     }
 

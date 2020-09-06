@@ -86,11 +86,12 @@ export class TaskListService {
 
     taskList = await this.getTaskListRepository().reload(taskList)
 
-    const fields = {}
+    const fields = { old: {}, new: {} }
 
     for(const key of Object.keys(data)){
       if(data[key] !== existingTaskList[key]){
-        fields[key] = taskList[key]
+        fields.old[key] = existingTaskList[key]
+        fields.new[key] = taskList[key]
       }
     }
 
