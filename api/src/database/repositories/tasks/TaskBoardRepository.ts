@@ -3,7 +3,7 @@ import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
 import { Upload } from '../../entities/Upload'
-import { UploadType } from '../../../types/upload'
+import { UploadEntity } from '../../../types/upload'
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {
@@ -49,18 +49,22 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     const queryBuilder = this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
-      .leftJoinAndSelect('task.assignees', 'assignee')
-      .leftJoinAndMapMany(
-        'task.attachments',
+      .leftJoinAndSelect('task.user', 'createdBy')
+      .leftJoinAndMapOne(
+        'createdBy.avatar',
         Upload,
-        'upload',
-        'upload.entityId = task.id AND upload.entity = :entity',
-        {
-          entity: 'Task',
-        }
+        'avatar',
+        'avatar.entityId = createdBy.id AND avatar.entity = :avatarEntity',
+        { avatarEntity: UploadEntity.User }
       )
-      .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapOne(
+        'assignee.avatar',
+        Upload,
+        'assigneeAvatar',
+        'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = :assigneeAvatarEntity',
+        { assigneeAvatarEntity: UploadEntity.User }
+      )
       .leftJoinAndMapMany(
         'task.attachments',
         Upload,
