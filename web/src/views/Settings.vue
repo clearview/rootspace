@@ -19,7 +19,8 @@
               <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
                                edit-offset="0px"
                                key="avatar"
-                               :upload="currentUser.avatar">
+                               :upload="currentUser.avatar"
+                               @uploaded="refreshWhoami">
                 <template #fallback>
                   <avatar :size="109" :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
                 </template>
@@ -38,9 +39,10 @@
 
             <div class="space-logo">
             <UploadableImage width="64px" height="64px" radius="4px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
-              :upload="activeSpace.avatar" edit-offset="-12px" key="space">
+              :upload="activeSpace.avatar" edit-offset="-12px" key="space"
+                             @uploaded="refreshWhoami">
               <template #fallback>
-                <img src="@/assets/logo@2x.png" alt="Avatar Logo">
+                <img src="../assets/images/default-space.png" alt="Avatar Logo">
               </template>
             </UploadableImage>
             </div>
@@ -99,6 +101,7 @@ import VModal from '@/components/Modal.vue'
 import PageMixin from '@/mixins/PageMixin'
 import UploadableImage from '@/components/UploadableImage.vue'
 import Avatar from 'vue-avatar'
+import store from '@/store'
 
 type ComponentData = {
   tab: string;
@@ -336,6 +339,10 @@ export default class Settings extends Mixins(PageMixin) {
     mounted () {
       this.pageTitle = 'Settings'
       this.pageReady = true
+    }
+
+    async refreshWhoami () {
+      await store.dispatch('auth/whoami', { updateSpace: true })
     }
 }
 </script>
