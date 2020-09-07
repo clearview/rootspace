@@ -10,7 +10,9 @@ export class TaskRepository extends BaseRepository<Task> {
     return this.createQueryBuilder('task')
       .where('task.id = :id', { id })
       .leftJoinAndSelect('task.user', 'createdBy')
+      .leftJoinAndMapOne('createdBy.avatar', Upload, 'avatar', 'avatar.entityId = createdBy.id and avatar.entity = \'User\'')
       .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapOne('assignee.avatar', Upload, 'assigneeAvatar', 'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = \'User\'')
       .leftJoinAndMapMany(
         'task.attachments',
         Upload,
@@ -23,6 +25,7 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndMapOne('user.avatar', Upload, 'commentAvatar', 'commentAvatar.entityId = user.id and commentAvatar.entity = \'User\'')
       .getOne()
   }
   async filterByTaskBoardId(taskBoardId: number, searchParam?: string, filterParam?: any): Promise<Task[]> {

@@ -16,6 +16,7 @@
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
+import store from '@/store'
 
 @Component({
   name: 'UploadableImage',
@@ -87,6 +88,7 @@ export default class UploadableImage extends Vue {
       reader.readAsDataURL(file)
       const res = await api.post('uploads', formData)
       this.uploadCopy = res.data.data
+      await store.dispatch('auth/whoami', { updateSpace: true })
       this.isUploadingImage = false
       this.fakeImage = ''
     }
