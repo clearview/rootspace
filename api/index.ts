@@ -1,5 +1,5 @@
 import { Command } from 'commander'
-import { nodeCommands } from './src/commands'
+import { nodeCommands, taskCommands } from './src/commands'
 import { taskCommands } from './src/commands'
 import { migrationCommands } from './src/database/commands'
 
