@@ -36,6 +36,9 @@ export class Doc {
   @Column('varchar')
   title: string
 
+  @Column('varchar')
+  slug: string
+
   @Column('json')
   content: object
 
