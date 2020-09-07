@@ -101,7 +101,7 @@ export class UserService {
     })
 
     if (!user) {
-      throw clientError('Invalid confirmation token', HttpErrName.InvalidToken)
+      throw clientError('This email confirmation token is invalid', HttpErrName.InvalidToken)
     }
 
     if (user.emailConfirmed) {
@@ -219,7 +219,7 @@ export class UserService {
     const passwordReset = await this.getPasswordResetByToken(data.attributes.token)
 
     if (!passwordReset || this.isPasswordResetExpired(passwordReset)) {
-      throw clientError('Not valid request', HttpErrName.InvalidToken, HttpStatusCode.NotFound)
+      throw clientError('The reset password token has expired', HttpErrName.InvalidToken, HttpStatusCode.NotFound)
     }
 
     const user = await this.requireUserByEmail(passwordReset.email)

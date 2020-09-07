@@ -25,14 +25,14 @@ export class ValidationError extends Error {
   }
 
   static parser: ValidationParser = {
-    dbUnique: label => `${label} is already exist`,
-    required: label => `${label} is required`,
-    min: label => `${label} should contain at least 8 characters`,
-    compromisedPassword: label => `${label} is weak and can be easily guessed`
+    dbUnique: label => `${label} already exist within the app.`,
+    required: label => `${label} is required.`,
+    min: label => `Please use a ${label} that is at least 8 characters long.`,
+    compromisedPassword: label => `This is a commonly used ${label}, please enter something harder to gues.`
   }
 
   constructor (message: string, fields: ValidationField[]) {
-    super(message.includes('invalid input syntax for type uuid') ? 'Invalid Token' : message)
+    super(message.includes('invalid input syntax for type uuid') ? 'The token is invalid' : message)
 
     if (fields) {
       this.fields = fields.map(

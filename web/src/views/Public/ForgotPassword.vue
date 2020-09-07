@@ -19,7 +19,11 @@
         </div>
       </div>
       <h2 class="text-center">Check your Email</h2>
-      <p class="text-center mb-2">We’ve sent you an email with password recovery instructions.</p>
+      <p class="text-center">We’ve sent you an email with password recovery instructions.</p>
+      <p class="text-center mb-2">
+        <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
+        to login to the Root App
+      </p>
     </div>
 
     <v-loading :loading="isLoading">
@@ -87,5 +91,11 @@ export default class Forgotpassword extends Vue {
     right: 0;
     border-radius: 26px;
   }
+}
+
+a {
+  border-bottom: 1px dotted;
+  color: theme("colors.primary.default");
+  cursor: pointer;
 }
 </style>

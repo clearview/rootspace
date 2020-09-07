@@ -28,9 +28,9 @@ import SpaceMixin from '@/mixins/SpaceMixin'
   }
 })
 export default class Invitation extends Mixins(SpaceMixin) {
-    private isLoading = false;
-    private message = '';
-    private code = 0;
+    private isLoading = false
+    private message = ''
+    private code = 0
 
     created () {
       this.submit()
@@ -54,7 +54,7 @@ export default class Invitation extends Mixins(SpaceMixin) {
         this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
-        this.message = err.message
+        this.message = err.message.includes('invalid input syntax for type uuid') ? 'The invitation token is invalid' : err.message
         this.code = err.code
       } finally {
         this.isLoading = false

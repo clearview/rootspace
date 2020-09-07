@@ -91,7 +91,7 @@ export default class SignIn extends Vue {
           this.$router.push({ name: 'Main' })
         }
       } catch (err) {
-        const message = err.message === 'Unauthorized' ? 'Invalid combination of email and password' : err.message
+        const message = err.message === 'Unauthorized' ? 'Incorrect email or password entered.' : err.message
 
         this.alert = {
           type: 'danger',
