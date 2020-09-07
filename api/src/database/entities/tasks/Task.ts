@@ -85,6 +85,9 @@ export class Task {
   @Column('timestamptz', { nullable: true })
   dueDate: Date
 
+  @Column('boolean', { default: false })
+  isOverdue: boolean
+
   @Column('double precision', { default: 0 })
   position: number
 
