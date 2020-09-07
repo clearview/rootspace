@@ -69,9 +69,7 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.registerActivityForTaskId(TaskActivities.Created, task.id, {
-      title: task.title
-    })
+    await this.registerActivityForTaskId(TaskActivities.Created, task.id, { title: task.title })
 
     await this.assigneesUpdate(task, data)
 
@@ -115,9 +113,7 @@ export class TaskService {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.registerActivityForTaskId(TaskActivities.Archived, taskId, {
-        title: task.title
-      })
+      await this.registerActivityForTaskId(TaskActivities.Archived, taskId, { title: task.title })
 
       return this.getTaskRepository().softRemove(task)
     }
@@ -129,18 +125,14 @@ export class TaskService {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     const recoveredTask = await this.getTaskRepository().recover(task)
-    await this.registerActivityForTaskId(TaskActivities.Restored, taskId, {
-      title: task.title
-    })
+    await this.registerActivityForTaskId(TaskActivities.Restored, taskId, { title: task.title })
 
     return recoveredTask
   }
 
   async remove(taskId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId)
-    await this.registerActivityForTask(TaskActivities.Deleted, task, {
-      title: task.title
-    })
+    await this.registerActivityForTask(TaskActivities.Deleted, task, { title: task.title })
 
     return this.getTaskRepository().remove(task)
   }

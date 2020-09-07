@@ -85,12 +85,18 @@ export class TaskCommentService {
     return this.getTaskCommentRepository().delete({ id: taskCommentId })
   }
 
-  async registerActivityForTaskCommentId(taskActivity: TaskActivities, taskCommentId: number, context?: any): Promise<any> {
+  async registerActivityForTaskCommentId(
+    taskActivity: TaskActivities,
+    taskCommentId: number,
+    context?: any): Promise<any> {
     const taskComment = await this.getById(taskCommentId)
     return this.registerActivityForTaskComment(taskActivity, taskComment, context)
   }
 
-  async registerActivityForTaskComment(taskActivity: TaskActivities, taskComment: TaskComment, context?: any): Promise<any> {
+  async registerActivityForTaskComment(
+    taskActivity: TaskActivities,
+    taskComment: TaskComment,
+    context?: any): Promise<any> {
     const task = await this.taskService.getById(taskComment.taskId)
     return this.taskService.registerActivityForTask(taskActivity, task, context)
   }

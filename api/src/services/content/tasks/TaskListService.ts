@@ -69,9 +69,7 @@ export class TaskListService {
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
 
     const taskList = await this.getTaskListRepository().save(data)
-    await this.registerActivityForTaskListId(TaskListActivities.Created, taskList.id, {
-      title: taskList.title
-    })
+    await this.registerActivityForTaskListId(TaskListActivities.Created, taskList.id, { title: taskList.title })
 
     return this.getTaskListRepository().reload(taskList)
   }
@@ -129,9 +127,7 @@ export class TaskListService {
 
     const recoveredTaskList = await this.getTaskListRepository().recover(taskList)
 
-    await this.registerActivityForTaskListId(TaskListActivities.Restored, taskListId, {
-      title: taskList.title
-    })
+    await this.registerActivityForTaskListId(TaskListActivities.Restored, taskListId, { title: taskList.title })
 
     return recoveredTaskList
   }
@@ -145,12 +141,18 @@ export class TaskListService {
     return this.getTaskListRepository().remove(taskList)
   }
 
-  async registerActivityForTaskListId(taskListActivity: TaskListActivities, taskListId: number, context?: any): Promise<Bull.Job> {
+  async registerActivityForTaskListId(
+    taskListActivity: TaskListActivities,
+    taskListId: number,
+    context?: any): Promise<Bull.Job> {
     const taskList = await this.getById(taskListId)
     return this.registerActivityForTaskList(taskListActivity, taskList, context)
   }
 
-  async registerActivityForTaskList(taskListActivity: TaskListActivities, taskList: TaskList, context?: any): Promise<Bull.Job> {
+  async registerActivityForTaskList(
+    taskListActivity: TaskListActivities,
+    taskList: TaskList,
+    context?: any): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
