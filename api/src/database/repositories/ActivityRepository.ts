@@ -28,14 +28,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
 
     if (type) {
       const entityType = ActivityRepository.getEntity(type)
-      qb
-        .leftJoinAndMapOne(`activity.${entityType}`, entityType, entityType, `activity.entityId = ${entityType}.id AND activity.entity = '${entityType}'`)
-        .andWhere('activity.entity = :entityType', { entityType })
-    } else {
-      const entityList = Object.values(ActivityType)
-      entityList.forEach((entity) => {
-        qb.leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id AND activity.entity = '${entity}'`)
-      })
+      qb.andWhere('activity.entity = :entityType', { entityType })
     }
 
     const results = await qb
@@ -56,7 +49,6 @@ export class ActivityRepository extends BaseRepository<Activity> {
     const qb = this.createQueryBuilder('activity')
       .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
       .leftJoinAndMapOne('actor.avatar', Upload, 'upload', 'upload.entityId = activity.actorId and upload.entity = \'User\'')
-      .leftJoinAndMapOne(`activity.${entity}`, entity, entity, `activity.entityId = ${entity}.id`)
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.spaceId = :spaceId', { spaceId })
       .andWhere('activity.entityId = :entityId', { entityId })
