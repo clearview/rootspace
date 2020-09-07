@@ -85,13 +85,13 @@ export class UploadsRelations {
           for (const size of uploadImageConfig.sizes) {
             const versionfileName = uploadService.createVersionFileName(fileName, size.name)
 
-            const key = uploadService.createFilePath(versionfileName, task.spaceId, task.id)
-            const image = await uploadService.generateImage(file, size)
+            const versionKey = uploadService.createFilePath(versionfileName, task.spaceId, task.id)
+            const versionImage = await uploadService.generateImage(file, size)
 
             const S3Result = await uploadService.S3Upload({
-              Key: key,
+              Key: versionKey,
               ContentType: attachment.type,
-              Body: image,
+              Body: versionImage,
             })
 
             versions[size.name] = {
