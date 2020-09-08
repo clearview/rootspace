@@ -89,7 +89,8 @@ export const nodeIconNames = {
   doc: 'file',
   taskBoard: 'file',
   embed: 'embed',
-  folder: 'folder'
+  folder: 'folder',
+  archive: 'folder'
 } as const
 
 // Types

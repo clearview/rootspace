@@ -3,6 +3,7 @@ import { Module } from 'vuex'
 
 import { RootState, SpaceState } from '@/types/state'
 import { SpaceResource, SpaceMetaResource } from '@/types/resource'
+import router from '@/router'
 
 type SpaceCollectionPayload = {
   spaces: SpaceResource[];
@@ -104,16 +105,12 @@ const SpaceModule: Module<SpaceState, RootState> = {
       commit('setSpaces', { spaces: res.data })
     },
 
-    async create ({ commit, state }, space) {
-      commit('addSpace', { space })
-      commit('setActive', { space })
-
+    async create ({ commit }, space) {
       const res = await api.post('/spaces', space)
-
-      commit('updateSpace', {
-        index: state.activeIndex,
-        space: res.data
-      })
+      const newSpace = res.data
+      commit('addSpace', { space: newSpace })
+      commit('setActive', { space: newSpace })
+      await router.push('/')
     },
 
     async update ({ commit, state }, space) {
