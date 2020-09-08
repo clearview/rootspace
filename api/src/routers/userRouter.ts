@@ -33,6 +33,7 @@ router.patch('/users/password', authenticate, [
 ])
 router.post('/users/password/recovery', mapRoute(UsersCtrl, 'passwordRecovery'))
 router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
+router.post('/password/reset/verify', mapRoute(UsersCtrl, 'verifyPasswordReset'))
 
 router
   .route('/users/settings/:spaceId?')
