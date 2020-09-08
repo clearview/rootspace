@@ -99,9 +99,9 @@
             :images="item.attachments"
             @remove="handleRemoveFile"
           ></imageViewer>
-          <ul class="attachments">
-            <li v-for="(attachment, index) in filteredAttachmentItems" :key="attachment.id" class="attachments-item">
-              <TaskAttachmentView :attachment="attachment" :index="index" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+          <ul class="attachments" v-if="item.attachments">
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1].id" class="attachments-item">
+              <TaskAttachmentView :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">
@@ -131,7 +131,7 @@
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by">
-              <avatar :username="memberName(item.user)"></avatar>
+              <avatar :size="24" :src="item.user && item.user.avatar ? item.user.avatar.versions.default.path : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@
                     </template>
                   </MemberPopover>
                 <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
-                  <avatar :username="memberName(assignee)"></avatar>
+                  <avatar :size="28" :src="assignee.avatar ? assignee.avatar.versions.default.path : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>
@@ -198,7 +198,13 @@
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
+import {
+  NewUploadResource,
+  TagResource,
+  TaskCommentResource,
+  TaskItemResource,
+  UserResource
+} from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
@@ -323,14 +329,11 @@ export default class TaskModal extends Vue {
       }
     }
 
-    async handleRemoveFile (attachment: UploadResource) {
-      if (this.itemCopy.attachments) {
-        this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
-        await this.$store.dispatch('task/item/update', {
-          id: this.item.id,
-          attachments: this.itemCopy.attachments
-        })
-      }
+    async handleRemoveFile (attachment: NewUploadResource) {
+      await this.$store.dispatch('task/item/deleteUpload', {
+        task: this.item,
+        upload: attachment
+      })
     }
 
     handleFileClick (index: number|null) {
@@ -506,12 +509,13 @@ export default class TaskModal extends Vue {
       }
     }
 
-    get filteredAttachmentItems () {
-      if (this.isShowAllAttachment) {
-        return this.item.attachments
+    get maxShownAttachment () {
+      if (this.isShowAllAttachment && this.item.attachments) {
+        return this.item.attachments.length
+      } else if (this.item.attachments && this.item.attachments.length > 0) {
+        return this.item.attachments.length > 5 ? 5 : this.item.attachments.length
       }
-
-      return this.item.attachments ? this.item.attachments.slice(0, 5) : this.item.attachments
+      return 0
     }
 
     get textAttachmentState () {

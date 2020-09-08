@@ -10,13 +10,12 @@
       <div class="flex flex-row items-center truncate">
         <div class="mr-2">
           <img
-            srcset="
-              @/assets/images/space.png 1x,
-              @/assets/images/space@2x.png 2x
-            "
-            src="@/assets/images/space.png"
+            class="space-logo"
+            v-if="activeSpace.avatar"
+            :src="activeSpace.avatar.versions.default.path"
             alt="Space"
           >
+          <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
         </div>
         <span
           v-if="!hideLabel"
@@ -47,13 +46,12 @@
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
               <img
-                srcset="
-                @/assets/images/space.png 1x,
-                @/assets/images/space@2x.png 2x
-              "
-                src="@/assets/images/space.png"
+                class="space-logo"
+                v-if="activeSpace.avatar"
+                :src="activeSpace.avatar.versions.default.path"
                 alt="Space"
               >
+              <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
             </div>
             <div class="SelectSpace-option-label">
               <strong
@@ -326,5 +324,10 @@ export default class SelectSpace extends Vue {
   @apply inline-block truncate;
 
   max-width: calc(100% - 60px);
+}
+.space-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
 }
 </style>

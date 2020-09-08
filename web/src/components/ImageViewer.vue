@@ -28,17 +28,17 @@
                   size="40px"
                   viewbox="40"
                   title="Previous"
-                  id="doc-share-button-svg"
+                  id="doc-share-button-svg-first"
                 />
               </span>
 
               <div class="image-box">
                 <img
-                  :key="images[index].path || images[index] || ''"
-                  :src="images[index].path || images[index] || ''"
+                  :key="images[index].versions.preview.path || images[index] || ''"
+                  :src="images[index].versions.preview.path || images[index] || ''"
                   v-if="images[index] &&
-                    images[index].path &&
-                    isAttachmentImage(images[index].type)"
+                    images[index].versions.preview.path &&
+                    isAttachmentImage(images[index].mimetype)"
                   @click.stop="next"
                 >
                 <div v-else class="others-file">
@@ -76,7 +76,7 @@
               {{ images[index].path | formatAttachmentName }}
             </p>
             <Popover :offset="10" :with-close="false" position="right-start" class="modal-action">
-              <template #default>
+              <template #default="{ hide: topHide }">
                 <div class="action-line">
                   <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
                   <div class="action-line-text" @click="open(images[index].path)">
@@ -95,7 +95,7 @@
 
                       <div class="delete-action">
                         <p @click="hide();">Cancel</p>
-                        <button class="btn btn-primary" @click="handleMenu('delete', images[index])">
+                        <button class="btn btn-primary" @click="handleMenu('delete', images[index]);hide();topHide();">
                           Delete
                         </button>
                       </div>
@@ -129,7 +129,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Model, Watch } from 'vue-property-decorator'
-import { UploadResource } from '@/types/resource'
+import { NewUploadResource } from '@/types/resource'
 
 import Modal from '@/components/Modal.vue'
 import Popover from '@/components/Popover.vue'
@@ -151,7 +151,17 @@ export default class ImageViewer extends Vue {
   @Model('change', { type: Number }) readonly index!: number
 
   @Prop({ type: Array, default: [] })
-  private readonly images!: Array<UploadResource>;
+  private readonly images!: Array<NewUploadResource>;
+
+  @Watch('images')
+  private resetIndex () {
+    if (this.index >= this.images.length) {
+      this.goto(this.prevImage, 'prev')
+    }
+    if (this.images.length === 0) {
+      this.close()
+    }
+  }
 
   private slide = 'next'
 
@@ -163,11 +173,11 @@ export default class ImageViewer extends Vue {
   }
 
   @Emit('remove')
-  remove (attachment: UploadResource) {
+  remove (attachment: NewUploadResource) {
     return attachment
   }
 
-  async handleMenu (value: string, attachment: UploadResource) {
+  async handleMenu (value: string, attachment: NewUploadResource) {
     switch (value) {
       case 'delete':
         this.remove(attachment)
@@ -209,7 +219,7 @@ export default class ImageViewer extends Vue {
   }
 
   isAttachmentImage (attachmentType: string) {
-    return attachmentType === 'image/jpeg' || attachmentType === 'image/png'
+    return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(attachmentType) !== -1
   }
 
   prev () {

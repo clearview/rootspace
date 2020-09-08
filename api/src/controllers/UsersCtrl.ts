@@ -65,7 +65,7 @@ export class UsersCtrl extends BaseCtrl {
         return next(err)
       }
 
-        return res.json(this.signedTokens(user.id))
+      return res.json(this.signedTokens(user.id))
     })(req, res)
   }
 

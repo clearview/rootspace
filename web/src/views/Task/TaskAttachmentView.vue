@@ -2,7 +2,7 @@
   <div class="attachment">
     <div class="flex-initial" @click="viewAttachment">
       <div class="attachment-media" v-if="isAttachmentImage">
-        <img :src="attachment.path" :alt="attachment.id">
+        <img :src="attachment.versions.thumbnail.path" :alt="attachment.id">
       </div>
       <div v-else class="attachment-media others">
         <v-icon
@@ -69,7 +69,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
-import { UploadResource } from '@/types/resource'
+import { NewUploadResource } from '@/types/resource'
 
 import Popover from '@/components/Popover.vue'
 import { formatRelativeTo } from '@/utils/date'
@@ -92,7 +92,7 @@ import { formatRelativeTo } from '@/utils/date'
   })
 export default class TaskAttachmentView extends Vue {
     @Prop({ type: Object, required: true })
-    private readonly attachment!: UploadResource;
+    private readonly attachment!: NewUploadResource;
 
     @Prop({ type: Number, required: true })
     private readonly index!: number;
@@ -100,7 +100,7 @@ export default class TaskAttachmentView extends Vue {
     private isShowImage = false
 
     @Emit('remove')
-    remove (attachment: UploadResource) {
+    remove (attachment: NewUploadResource) {
       return attachment
     }
 
@@ -118,7 +118,7 @@ export default class TaskAttachmentView extends Vue {
     }
 
     get isAttachmentImage () {
-      return this.attachment.type === 'image/jpeg' || this.attachment.type === 'image/png'
+      return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(this.attachment.mimetype) !== -1
     }
 
     viewAttachment () {

@@ -59,14 +59,14 @@
                             @input="fetchTask">
                     <template slot="option" slot-scope="option">
                       <div class="member-option">
-                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
+                        <avatar :src="option.avatar ? option.avatar.versions.default.path : ''" :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                         <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
                         <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option }">
                       <div class="member-option-display" @click="removeMember(option)">
-                        <avatar :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
+                        <avatar :src="option.avatar ? option.avatar.versions.default.path : ''" :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                       </div>
                     </template>
                   </v-select>

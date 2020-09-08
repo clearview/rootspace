@@ -5,6 +5,7 @@ import { TaskActivities } from '../../../database/entities/activities/TaskActivi
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { TaskService } from './TaskService'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { Upload } from '../../../database/entities/Upload'
 
 export class TaskCommentService {
   private static instance: TaskCommentService
@@ -35,7 +36,12 @@ export class TaskCommentService {
 
     const taskComment = await this.getTaskCommentRepository().save(data)
     await this.registerActivityForTaskCommentId(TaskActivities.Comment_Created, taskComment.id)
-    return this.getTaskCommentRepository().reload(taskComment)
+    return this.getTaskCommentRepository()
+      .createQueryBuilder('comment')
+      .where('comment.id = :id', { id: taskComment.id })
+      .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', 'avatar.entityId = user.id and avatar.entity = \'User\'')
+      .getOne()
   }
 
   async update(id: number, data: any): Promise<TaskComment> {
@@ -47,7 +53,12 @@ export class TaskCommentService {
 
     await this.registerActivityForTaskComment(TaskActivities.Comment_Updated, taskComment)
 
-    return this.getTaskCommentRepository().reload(taskComment)
+    return this.getTaskCommentRepository()
+      .createQueryBuilder('comment')
+      .where('comment.id = :id', { id: taskComment.id })
+      .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', 'avatar.entityId = user.id and avatar.entity = \'User\'')
+      .getOne()
   }
 
   async delete(taskCommentId: number): Promise<DeleteResult> {

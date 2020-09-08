@@ -23,6 +23,9 @@ export interface LinkResource {
   newTab: boolean;
 }
 
+/**
+ * @deprecated
+ */
 export interface UploadResource {
   createdAt: Date;
   id: number;
@@ -32,6 +35,29 @@ export interface UploadResource {
   type: string;
   updated: Date;
   userId: number;
+}
+export interface UploadKeyPath {
+  path: string;
+  key: string;
+}
+export interface NewUploadResource {
+  createdAt: Date;
+  entity: 'Task';
+  entityId: number;
+  id: number;
+  mimetype: string;
+  path: string;
+  size: number;
+  spaceId: number;
+  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo';
+  updatedAt: Date;
+  userId: number;
+  versions: {
+    thumbnail?: UploadKeyPath;
+    preview?: UploadKeyPath;
+    default?: UploadKeyPath;
+  };
+  index?: number;
 }
 
 export interface ApiResource {
@@ -66,7 +92,7 @@ export interface TaskItemResource extends ApiResource {
   slug: string | null;
   status: TaskItemStatus;
   tags: TagResource[] | null;
-  attachments: UploadResource[] | null;
+  attachments: NewUploadResource[] | null;
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;
@@ -140,7 +166,7 @@ export interface UserResource {
   email: string;
   firstName: string;
   lastName: string;
-  avatar?: string;
+  avatar?: NewUploadResource;
   authProvider?: string;
   emailConfirmed?: boolean;
   token?: string;

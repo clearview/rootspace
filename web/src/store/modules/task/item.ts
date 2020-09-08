@@ -1,6 +1,12 @@
 import { createServiceModule } from '@/store/utils/createServiceModule'
 import { ItemService } from '@/services/task'
-import { TaskBoardResource, TaskItemResource, TaskListResource, UserResource } from '@/types/resource'
+import {
+  NewUploadResource,
+  TaskBoardResource,
+  TaskItemResource,
+  TaskListResource,
+  UserResource
+} from '@/types/resource'
 import api from '@/utils/api'
 import { ResourceState, RootState } from '@/types/state'
 import { ActionContext } from 'vuex'
@@ -138,7 +144,7 @@ const item = createServiceModule(ItemService, {
   }
 })
 if (item.actions) {
-  item.actions.upload = async ({ dispatch, commit, rootGetters }, params: { task: TaskItemResource; file: File }) => {
+  item.actions.upload = async ({ commit, rootGetters }, params: { task: TaskItemResource; file: File }) => {
     const activeSpace = rootGetters['space/activeSpace']
 
     if (!activeSpace) {
@@ -149,18 +155,34 @@ if (item.actions) {
     }
     const formData = new FormData()
     formData.append('file', params.file)
+    formData.append('entityId', params.task.id.toString())
+    formData.append('entity', 'Task')
+    formData.append('type', 'taskAttachment')
+    formData.append('spaceId', activeSpace.id)
     commit('setProcessing', true)
-    const res = await api.post(`/upload?spaceId=${activeSpace.id}`, formData)
+    const res = await api.post('/uploads', formData)
     if (!params.task.attachments) {
       params.task.attachments = []
     }
-    params.task.attachments.push(res.data)
-    await dispatch('update', {
-      id: params.task.id,
-      attachments: params.task.attachments
-    })
+    params.task.attachments.push(res.data.data)
     commit('setProcessing', false)
 
+    return res
+  }
+  item.actions.deleteUpload = async ({ commit, rootGetters }, params: { task: TaskItemResource; upload: NewUploadResource }) => {
+    const activeSpace = rootGetters['space/activeSpace']
+    if (!activeSpace) {
+      throw new Error('Not in an active space')
+    }
+    if (!params.task.id) {
+      throw new Error('Invalid task ID')
+    }
+    commit('setProcessing', true)
+    const res = await api.delete(`/uploads/${params.upload.id}`)
+    if (params.task.attachments) {
+      params.task.attachments = params.task.attachments.filter(attc => attc.id !== params.upload.id)
+    }
+    commit('setProcessing', false)
     return res
   }
   item.actions.addAssigneeToTask = async ({ commit }, params: { taskId: number; userId: number; user?: UserResource }) => {
