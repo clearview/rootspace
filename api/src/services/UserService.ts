@@ -205,15 +205,21 @@ export class UserService {
     return this.registerActivityForUser(userActivity, user)
   }
 
+  async verifyPasswordReset(token: string): Promise<boolean> {
+    const passwordReset = await this.getPasswordResetByToken(token)
+
+    if (!passwordReset || this.isPasswordResetExpired(passwordReset)) {
+      return false
+    }
+
+    return true
+  }
+
   async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
     const passwordReset = await this.getPasswordResetByToken(data.attributes.token)
 
-    if (!passwordReset) {
-      throw clientError('Bad request')
-    }
-
-    if (passwordReset.active !== true || passwordReset.expiration <= new Date(Date.now())) {
-      throw clientError('Token not active')
+    if (!passwordReset || this.isPasswordResetExpired(passwordReset)) {
+      throw clientError('Not valid request', HttpErrName.InvalidToken, HttpStatusCode.Unauthorized)
     }
 
     const user = await this.requireUserByEmail(passwordReset.email)
@@ -224,6 +230,14 @@ export class UserService {
 
     passwordReset.active = false
     return this.getPasswordResetRepository().save(passwordReset)
+  }
+
+  isPasswordResetExpired(passwordReset: PasswordReset): boolean {
+    if (passwordReset.active !== true || passwordReset.expiration <= new Date(Date.now())) {
+      return true
+    }
+
+    return false
   }
 
   async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {

@@ -168,7 +168,10 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async verifyPasswordReset(req: Request, res: Response) {
-    //
+    const token = req.params.token
+    const result = await this.userService.verifyPasswordReset(token)
+
+    res.send(this.responseData({ valid: result }))
   }
 
   async passwordReset(req: Request, res: Response) {

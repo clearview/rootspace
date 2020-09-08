@@ -32,8 +32,9 @@ router.patch('/users/password', authenticate, [
   mapRoute(UsersCtrl, 'setPassword'),
 ])
 router.post('/users/password/recovery', mapRoute(UsersCtrl, 'passwordRecovery'))
+router.get('/password/reset/verify/:token', mapRoute(UsersCtrl, 'verifyPasswordReset'))
 router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
-router.post('/password/reset/verify', mapRoute(UsersCtrl, 'verifyPasswordReset'))
+
 
 router
   .route('/users/settings/:spaceId?')
