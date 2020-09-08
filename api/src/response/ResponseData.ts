@@ -1,10 +1,10 @@
 import { isArray } from 'util'
 
 export class ResponseData {
-  protected data: object | object[]
+  protected data: object | object[] | string
   protected included: object
 
-  constructor(data: object) {
+  constructor(data: object | object[] | string) {
     this.data = this.buildData(data)
   }
 
@@ -19,7 +19,7 @@ export class ResponseData {
     Object.assign(this.included, include)
   }
 
-  protected buildData(data: object | object[]): object | object[] {
+  protected buildData(data: object | object[] | string): object | object[] | string {
     if (!isArray(data)) {
       return data
     }
