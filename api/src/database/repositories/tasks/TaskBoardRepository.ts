@@ -88,6 +88,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     const taskBoard = await this.createQueryBuilder('taskBoard')
       .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .where('taskBoard.id = :id', { id })
+      .andWhere('taskList.deletedAt IS NULL')
       .getOne()
 
     const tasks = await this.getTaskRepository().filterByTaskBoardId(taskBoard.id, searchParam, filterParam)

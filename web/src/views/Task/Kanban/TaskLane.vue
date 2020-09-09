@@ -37,7 +37,7 @@
               </div>
             </div>
             <div class="action-separator"></div>
-            <div class="action-line danger" @click="hide();handleMenu('delete')">
+            <div class="action-line danger" @click="hide();handleMenu('archive')">
               <v-icon name="archive" viewbox="16" size="18px"></v-icon>
               <div class="action-line-text">
                 Archive
@@ -338,8 +338,8 @@ export default class TaskLane extends Vue {
 
     async handleMenu (value: string) {
       switch (value) {
-        case 'delete':
-          await this.$store.dispatch('task/list/destroy', this.listCopy)
+        case 'archive':
+          await this.$store.dispatch('task/list/archive', this.listCopy)
           break
       }
     }

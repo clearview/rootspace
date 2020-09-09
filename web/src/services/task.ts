@@ -11,6 +11,7 @@ export interface ApiService<T, TFetch> {
   view(id: number): Promise<ApiResponse<T> | null>;
   update(id: number, data: T): Promise<T>;
   destroy(id: number): Promise<void>;
+  archive(id: number): Promise<void>;
 }
 
 export interface ChildApiService<T, TFetch> {
@@ -50,6 +51,10 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
 
     async destroy (id: number): Promise<void> {
       await api.delete(`${url}/${id}`)
+    }
+
+    async archive (id: number): Promise<void> {
+      await api.post(`${url}/${id}/archive`)
     }
 
     async fetch (params: TFetch): Promise<T[]> {
