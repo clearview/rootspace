@@ -164,7 +164,7 @@ export class UsersCtrl extends BaseCtrl {
     const value = PasswordRecoveryValue.fromObject(data)
     const result = await this.userService.createPasswordReset(value)
 
-    res.send(this.responseData(result))
+    res.send(this.responseData({ result }))
   }
 
   async verifyPasswordReset(req: Request, res: Response) {
@@ -181,7 +181,7 @@ export class UsersCtrl extends BaseCtrl {
     const value = PasswordResetValue.fromObject(data)
 
     const result = await this.userService.passwordReset(value)
-    res.send(this.responseData(result))
+    res.send(this.responseData({ result }))
   }
 
   async settings(req: Request, res: Response) {
