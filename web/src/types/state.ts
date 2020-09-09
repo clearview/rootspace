@@ -2,7 +2,7 @@ import {
   NodeResource,
   LinkResource,
   SpaceResource,
-  SpaceMetaResource,
+  SpaceSettingResource,
   TaskBoardResource,
   TaskListResource,
   TaskItemResource,
@@ -10,7 +10,6 @@ import {
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
-import { Dictionary, NumericDictionary } from 'lodash'
 
 export interface ResourceState<T>{
   processing: boolean;
@@ -35,7 +34,6 @@ export interface RootState {
   space: SpaceState;
   tree: TreeState;
   page: PageState;
-  userSetting: UserSettingState;
 }
 
 export interface AuthState {
@@ -94,14 +92,9 @@ export interface DocumentState {
 export interface SpaceState {
   activeIndex: number;
   list: SpaceResource[];
-  activePages: string[];
+  settings: SpaceSettingResource[];
 }
 
 export interface PageState {
   ready: boolean;
-}
-
-export interface UserSettingState {
-  lastPull: number;
-  lastPush: number;
 }

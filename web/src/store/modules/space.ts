@@ -1,13 +1,10 @@
-import api from '@/utils/api'
 import { Module } from 'vuex'
+import { get, has, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
-import { SpaceResource } from '@/types/resource'
+import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
-interface UpdateActivePagePayload {
-  id: number;
-  path: string;
-}
+import api from '@/utils/api'
 
 const SpaceModule: Module<SpaceState, RootState> = {
   namespaced: true,
@@ -16,40 +13,84 @@ const SpaceModule: Module<SpaceState, RootState> = {
     return {
       activeIndex: 0,
       list: [],
-      activePages: []
+      settings: []
     }
   },
 
   getters: {
-    activeSpace (state): SpaceResource {
-      const index = state.activeIndex
-
-      return state.list[index] || {}
-    },
-    activePage (state): string {
-      const index = state.activeIndex
-
-      return state.activePages[index] || ''
-    },
     isListEmpty (state): boolean {
       return state.list.length < 1
     },
+
     getIndex: state => (id: number) => (
       state.list.findIndex(x => x.id === id)
-    )
+    ),
+
+    getSpaceByIndex: state => (index: number) => (
+      state.list[index] || null
+    ),
+
+    getSettingByIndex: state => (index: number) => (
+      state.settings[index] || null
+    ),
+
+    getSpaceById: (_, getters) => (id: number) => getters.getSpaceByIndex(
+      getters.getIndex(id)
+    ),
+
+    getSettingById: (_, getters) => (id: number) => getters.getSettingByIndex(
+      getters.getIndex(id)
+    ),
+
+    activeSpace: (state, getters) => getters.getSpaceByIndex(
+      state.activeIndex
+    ) || {},
+
+    activeSetting: (state, getters) => getters.getSettingByIndex(
+      state.activeIndex
+    ) || {}
   },
 
   mutations: {
-    setActiveIndex (state, activeIndex: number) {
-      state.activeIndex = activeIndex
+    setActiveIndex (state, payload: number) {
+      state.activeIndex = payload
     },
 
-    setList (state, list: SpaceResource[]) {
+    setList (state, payload: SpaceResource[]) {
+      state.list = payload
+    },
+
+    addListItem (state, payload: SpaceResource) {
+      state.list = [
+        ...state.list,
+        payload
+      ]
+    },
+
+    updateListItem (state, payload: { index: number; data: SpaceResource}) {
+      const list = [...state.list]
+
+      list[payload.index] = {
+        ...list[payload.index],
+        ...payload.data
+      }
+
       state.list = list
     },
 
-    setActivePages (state, activePage: string[]) {
-      state.activePages = activePage
+    setSettings (state, payload: SpaceSettingResource[]) {
+      state.settings = payload
+    },
+
+    updateSettingsItem (state, payload: { index: number; data: SpaceSettingResource }) {
+      const settings = [...state.settings]
+
+      settings[payload.index] = {
+        ...settings[payload.index],
+        ...payload.data
+      }
+
+      state.settings = settings
     }
   },
 
@@ -60,53 +101,75 @@ const SpaceModule: Module<SpaceState, RootState> = {
       commit('setList', res.data)
     },
 
-    async create ({ commit, state }, space: SpaceResource) {
+    async create ({ commit }, space: SpaceResource) {
       const res = await api.post('/spaces', space)
 
-      const list = [
-        ...state.list,
-        res.data
-      ]
-
-      commit('setList', list)
+      commit('addListItem', res.data)
 
       return res.data
     },
 
-    async update ({ commit, state, getters }, space: SpaceResource) {
-      const index = getters.getIndex(space.id)
-      const list = [...state.list]
+    async update ({ commit, getters }, data: SpaceResource) {
+      const index = getters.getIndex(data.id)
 
-      list[index] = space
+      commit('updateListItem', { index, data })
 
-      commit('setList', list)
-
-      const res = await api.patch(`/spaces/${space.id}`, space)
+      const res = await api.patch('/spaces/' + data.id, data)
 
       return res.data
     },
 
-    activateSpace ({ commit, state, getters }, id: number) {
+    async initSetting ({ commit, dispatch, state, getters }) {
+      const { data } = await api.get('/users/settings/')
+      const activeIndex = get(data, 'preferences.activeIndex', 0)
+
+      if (activeIndex !== state.activeIndex) {
+        commit('setActiveIndex', activeIndex)
+      }
+
+      await dispatch('fetchSetting', getters.activeSpace.id)
+    },
+
+    async fetchSetting ({ commit, state, getters }, id: number) {
       const index = getters.getIndex(id)
 
-      if (state.activeIndex !== index) {
+      if (has(state.settings, index)) return
+
+      const res = await api.get('/users/settings/' + id)
+      const data = get(res, 'data.preferences', {})
+
+      commit('updateSettingsItem', { index, data })
+
+      return data
+    },
+
+    async updateSetting ({ commit, getters }, payload: { id: number; data: Partial<SpaceSettingResource>}) {
+      const index = getters.getIndex(payload.id)
+
+      if (isEmpty(payload.data)) return
+
+      commit('updateSettingsItem', { index, data: payload.data })
+
+      const res = await api.put('/users/settings/' + payload.id, getters.getSettingByIndex(index))
+
+      return res.data
+    },
+
+    async activate ({ commit, dispatch, state, getters }, id: number) {
+      const index = getters.getIndex(id)
+
+      await dispatch('fetchSetting', id)
+
+      if (index !== state.activeIndex) {
         commit('setActiveIndex', index)
+
+        await api.put('/users/settings/', { activeIndex: index })
       }
     },
 
-    updateActivePage ({ commit, state, getters }, { id, path }: UpdateActivePagePayload) {
-      const index = getters.getIndex(id)
-      const pages = state.activePages
-
-      pages[index] = path
-
-      commit('setActivePages', pages)
-    },
-
     async clean ({ commit }) {
-      commit('setActiveIndex', 0)
-      commit('setSpaces', [])
-      commit('setActivePage', [])
+      commit('setList', [])
+      commit('setSettings', [])
     }
   }
 }

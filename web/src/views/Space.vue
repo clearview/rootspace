@@ -20,17 +20,22 @@ export default class Space extends Mixins(SpaceMixin) {
       if (!this.hasSpace) {
         await this.$router.replace({ name: 'SpaceInit' })
       } else if (this.$route.path === '/') {
-        await this.$router.replace(this.activeSpacePage)
+        await this.$router.replace(this.activeSpaceSetting.activePage)
       }
     } catch { }
   }
 
-  @Watch('activeSpace.id')
-  async watchActiveSpaceId (id: number, prevId: number) {
-    this.updateSpaceActivePage(prevId, this.$route.path)
+  @Watch('$route.path')
+  async watchRoutePath (path: string) {
+    await this.updateSpaceSetting(this.activeSpace.id, {
+      activePage: path
+    })
+  }
 
+  @Watch('activeSpace.id')
+  async watchActiveSpaceId () {
     try {
-      await this.$router.push(this.activeSpacePage)
+      await this.$router.push(this.activeSpaceSetting.activePage || '/')
     } catch { }
   }
 }

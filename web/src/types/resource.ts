@@ -156,8 +156,13 @@ export interface SpaceResource {
   settings?: object;
 }
 
-export interface SpaceMetaResource {
-  activePage?: string;
+export interface SpaceSettingResource {
+  activePage: string;
+  sidebarCollapse: boolean;
+  sidebarSize: boolean;
+  treeFolded: Record<string, boolean>;
+  taskViewAs: Record<number, TaskBoardType>;
+  taskSeenViewTip: boolean;
 }
 
 export interface UserResource {
@@ -195,22 +200,4 @@ export interface ActivityResource {
 }
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;
-}
-
-export interface UserSettingResource {
-  sidebar: {
-    collapse: boolean;
-    size: number;
-  };
-  space: {
-    activeIndex: number;
-    spacesMeta: SpaceMetaResource[];
-  };
-  task: {
-    viewAs: Record<number, TaskBoardType>;
-    seenViewTip: boolean;
-  };
-  tree: {
-    folded: object;
-  };
 }

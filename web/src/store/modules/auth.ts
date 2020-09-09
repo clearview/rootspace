@@ -36,6 +36,8 @@ const AuthModule: Module<AuthState, RootState> = {
 
         commit('setUser', data.user)
         commit('space/setList', data.spaces, { root: true })
+
+        await dispatch('space/initSetting', null, { root: true })
       } catch (err) {
         dispatch('signout')
       }

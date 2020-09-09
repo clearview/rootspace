@@ -1,5 +1,5 @@
 import { Vue, Component } from 'vue-property-decorator'
-import { SpaceResource } from '@/types/resource'
+import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
 @Component
 export default class SpaceMixin extends Vue {
@@ -11,8 +11,8 @@ export default class SpaceMixin extends Vue {
     return this.$store.getters['space/activeSpace']
   }
 
-  get activeSpacePage (): string {
-    return this.$store.getters['space/activePage'] || '/'
+  get activeSpaceSetting (): SpaceSettingResource {
+    return this.$store.getters['space/activeSetting']
   }
 
   get hasSpace (): boolean {
@@ -20,10 +20,14 @@ export default class SpaceMixin extends Vue {
   }
 
   activateSpace (id: number) {
-    this.$store.dispatch('space/activateSpace', id)
+    this.$store.dispatch('space/activate', id)
   }
 
-  updateSpaceActivePage (id: number, path: string) {
-    this.$store.dispatch('space/updateActivePage', { id, path })
+  async updateSpaceSetting (id: number, data: Partial<SpaceSettingResource>) {
+    await this.$store.dispatch('space/updateSetting', { id, data })
+  }
+
+  getSpaceSettingById (id: number) {
+    return this.$store.getters['space/getSettingById'](id)
   }
 }
