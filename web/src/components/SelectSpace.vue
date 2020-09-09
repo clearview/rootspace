@@ -349,4 +349,37 @@ button {
   }
 
 }
+
+button {
+  @apply flex items-center;
+
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 3px;
+
+  &:hover {
+    background: #F8F9FD;
+  }
+
+  .SelectSpace-header {
+    @apply flex items-center;
+
+    padding-left: 8px;
+    transition: 300ms;
+
+    img {
+      width: 24px;
+      height: 24px;
+      max-width: 24px;
+      max-height: 24px;
+      border-radius: 24px;
+    }
+
+    .title {
+      margin-left: 8px;
+    }
+  }
+
+}
 </style>
