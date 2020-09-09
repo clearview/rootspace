@@ -20,6 +20,7 @@ import IconClose from './IconClose.vue'
 import IconCheckmark from './IconCheckmark.vue'
 import IconDots from './IconDots.vue'
 import IconDown from './IconDown.vue'
+import IconDown2 from './IconDown2.vue'
 import IconDownload from './IconDownload.vue'
 import IconEdit from './IconEdit.vue'
 import IconEmail from './IconEmail.vue'
@@ -68,6 +69,7 @@ import IconArchive from '@/components/icon/IconArchive.vue'
 import IconRight2 from '@/components/icon/IconRight2.vue'
 import IconMessage from '@/components/icon/IconMessage.vue'
 import IconEdit2 from '@/components/icon/IconEdit2.vue'
+import IconGrid from '@/components/icon/IconGrid.vue'
 
 @Component({
   name: 'Icon',
@@ -82,6 +84,7 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconColor,
     IconDots,
     IconDown,
+    IconDown2,
     IconDownload,
     IconUpload,
     IconDrag,
@@ -124,7 +127,8 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconContextMenu,
     IconShare,
     IconHistory,
-    IconShareGlobe
+    IconShareGlobe,
+    IconGrid
   }
 })
 export default class Icon extends Vue {

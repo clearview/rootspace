@@ -1,7 +1,7 @@
 .sidebar {
   @apply flex flex-col items-start h-screen;
-  width: 282px;
-  min-width: 282px;
+  width: 304px;
+  min-width: 304px;
   max-width: 70%;
   transition: 300ms;
   overflow: hidden;
@@ -34,28 +34,9 @@
 }
 
 .sidebar-footer {
-  @apply w-full p-4;
+  @apply w-full;
 
-  .btn {
-    @apply whitespace-no-wrap;
-  }
-
-  .btn-icon {
-    @apply p-2 whitespace-no-wrap;
-    font-size: 22px;
-  }
-
-  .sidebar-actions {
-    @apply flex mt-4;
-
-    &:first-child {
-      @apply mt-0;
-    }
-  }
-
-  .sidebar-expand {
-    @apply hidden;
-  }
+  border-top: 1px solid #EAEAEA;
 }
 
 .sidebar-items {
@@ -67,14 +48,18 @@
 }
 
 .sidebar.sidebar--collapse {
-  @apply bg-gray-900 text-white;
   @apply cursor-pointer;
-  width: 52px !important;
-  min-width: 52px;
 
-  .sidebar-header,
+  background: white;
+  width: 50px !important;
+  min-width: 50px;
+
   .sidebar-footer {
     @apply p-2;
+  }
+
+  .sidebar-header {
+    padding-right: 8px;
   }
 
   .sidebar-logo {
@@ -85,10 +70,34 @@
     visibility: hidden;
   }
 
-  .sidebar-search,
-  .sidebar-collapse,
-  .sidebar-actions {
+  .sidebar-footer,
+  .empty-content,
+  .collapse-hidden {
     @apply hidden;
+  }
+
+  .SelectSpace-header,
+  .sidebar-header .sidebar-icon {
+    padding-left: 0;
+  }
+
+  .space-header {
+    padding-right: 0;
+  }
+
+  .select-space {
+    button {
+      width: 34px;
+    }
+  }
+
+  .sidebar-header .header {
+    padding: 9px;
+
+    &.space-header {
+      padding: 0;
+      margin-bottom: 8px;
+    }
   }
 
   .sidebar-expand {

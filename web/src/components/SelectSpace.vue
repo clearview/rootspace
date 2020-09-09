@@ -4,29 +4,33 @@
     v-click-outside="() => optionsVisible = false"
   >
     <button
-      class="btn btn-mute flex-grow p-1 justify-between truncate"
+      class="btn truncate"
       @click="toggleOptionsVisibility"
     >
-      <div class="flex flex-row items-center truncate">
-        <div class="mr-2">
+      <div class="SelectSpace-header truncate">
+        <div>
           <img
             class="space-logo"
             v-if="activeSpace.avatar"
             :src="activeSpace.avatar.versions.default.path"
             alt="Space"
           >
-          <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
+          <img src="@/assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
         </div>
         <span
           v-if="!hideLabel"
           v-text="activeSpace.title"
-          class="truncate"
+          class="title collapse-hidden truncate"
         />
       </div>
-      <v-icon
-        name="down"
-        class="flex flex-none ml-1 text-gray-400"
-      />
+      <span class="collapse-hidden">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="flex flex-none text-gray-400"
+        />
+      </span>
     </button>
 
     <transition name="menu">
@@ -216,7 +220,7 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
   @apply bg-white;
 
   @apply border rounded border-gray-400;
-  bottom: calc(100% + 16px);
+  top: 100%;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
 
   &::after {
@@ -305,10 +309,44 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
   max-width: calc(100% - 60px);
 }
+
 .space-logo {
   width: 32px;
   height: 32px;
   border-radius: 4px;
   max-width: none;
+}
+
+button {
+  @apply flex items-center;
+
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 3px;
+
+  &:hover {
+    background: #F8F9FD;
+  }
+
+  .SelectSpace-header {
+    @apply flex items-center;
+
+    padding-left: 8px;
+    transition: 300ms;
+
+    img {
+      width: 24px;
+      height: 24px;
+      max-width: 24px;
+      max-height: 24px;
+      border-radius: 24px;
+    }
+
+    .title {
+      margin-left: 8px;
+    }
+  }
+
 }
 </style>
