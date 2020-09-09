@@ -36,7 +36,7 @@ export class ActivityService {
     await this.getActivityRepository().save(activityObject)
     this.wsEventEmitter.emit(WsEvent.NAME, event)
 
-    return this.queue.add(Queue.QUEUE_NAME, activityObject)
+    return this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {

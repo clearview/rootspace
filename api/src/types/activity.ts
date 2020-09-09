@@ -7,5 +7,5 @@ export enum ActivityType {
   Task = 'Task',
   TaskBoard = 'TaskBoard',
   TaskList = 'TaskList',
-  Upload = 'Upload',
+  Upload = 'Upload'
 }
