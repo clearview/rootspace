@@ -171,7 +171,7 @@ export class UsersCtrl extends BaseCtrl {
     const token = req.params.token
     const result = await this.userService.verifyPasswordReset(token)
 
-    res.send(this.responseData({ valid: result }))
+    res.send(this.responseData({ result }))
   }
 
   async passwordReset(req: Request, res: Response) {
