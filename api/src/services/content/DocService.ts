@@ -1,6 +1,7 @@
 import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../database/repositories/DocRepository'
+import { DocRevisionRepository } from '../../database/repositories/DocRevisionRepository'
 import { Doc } from '../../database/entities/Doc'
 import { DocCreateValue, DocUpdateValue } from '../../values/doc'
 import { NodeCreateValue } from '../../values/node'
@@ -36,6 +37,10 @@ export class DocService extends NodeContentService {
 
   getDocRepository(): DocRepository {
     return getCustomRepository(DocRepository)
+  }
+
+  getDocRevisionRepository(): DocRevisionRepository {
+    return getCustomRepository(DocRevisionRepository)
   }
 
   getNodeType(): NodeType {
@@ -83,6 +88,8 @@ export class DocService extends NodeContentService {
     let doc = await this.getById(id)
 
     Object.assign(doc, data.attributes)
+    doc.updatedBy = userId
+
     doc = await this.getDocRepository().save(doc)
 
     /**

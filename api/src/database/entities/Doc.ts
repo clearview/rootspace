@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
@@ -20,7 +20,7 @@ export class Doc {
   @Column('integer')
   userId: number
 
-  @ManyToOne((type) => User, {eager: true})
+  @ManyToOne((type) => User, { eager: true })
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
@@ -51,12 +51,15 @@ export class Doc {
   @Column('integer', { default: 0 })
   revision: number
 
-  @CreateDateColumn({ type: 'timestamptz'})
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
 
-  @DeleteDateColumn({ type: 'timestamptz'})
-  public deletedAt: Date
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date
+
+  @Column('integer', { nullable: true })
+  updatedBy: number
 }
