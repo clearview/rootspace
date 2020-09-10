@@ -1,27 +1,10 @@
-import api from '@/utils/api'
 import { Module } from 'vuex'
+import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
-import { SpaceResource, SpaceMetaResource } from '@/types/resource'
-import router from '@/router'
+import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
-type SpaceCollectionPayload = {
-  spaces: SpaceResource[];
-}
-
-type SpaceMetaCollectionPayload = {
-  spacesMeta: SpaceMetaResource[];
-}
-
-type SpacePayload = {
-  index: number;
-  space: SpaceResource;
-}
-
-type SpaceMetaPayload = {
-  index: number;
-  meta: SpaceMetaResource;
-}
+import api from '@/utils/api'
 
 const SpaceModule: Module<SpaceState, RootState> = {
   namespaced: true,
@@ -29,104 +12,162 @@ const SpaceModule: Module<SpaceState, RootState> = {
   state () {
     return {
       activeIndex: 0,
-      spaces: [],
-      spacesMeta: []
+      list: [],
+      settings: []
     }
   },
 
   getters: {
-    activeSpace (state): SpaceResource {
-      const index = state.activeIndex
-
-      return state.spaces[index] || {}
+    isListEmpty (state): boolean {
+      return state.list.length < 1
     },
-    activeSpaceMeta (state): SpaceMetaResource {
-      const index = state.activeIndex
 
-      return state.spacesMeta[index] || {}
-    },
-    hasSpace (state): boolean {
-      return state.spaces.length > 0
-    }
+    getIndex: state => (id: number) => (
+      state.list.findIndex(x => x.id === id)
+    ),
+
+    getSpaceByIndex: state => (index: number) => (
+      state.list[index] || null
+    ),
+
+    getSettingByIndex: state => (index: number) => (
+      state.settings[index] || null
+    ),
+
+    getSpaceById: (_, getters) => (id: number) => getters.getSpaceByIndex(
+      getters.getIndex(id)
+    ),
+
+    getSettingById: (_, getters) => (id: number) => getters.getSettingByIndex(
+      getters.getIndex(id)
+    ),
+
+    activeSpace: (state, getters) => getters.getSpaceByIndex(
+      state.activeIndex
+    ) || {},
+
+    activeSetting: (state, getters) => getters.getSettingByIndex(
+      state.activeIndex
+    ) || {}
   },
 
   mutations: {
-    setActive (state, { space }: SpacePayload) {
-      const nextActiveIndex = state.spaces.findIndex(
-        (item) => item.id === space.id
-      )
-
-      if (nextActiveIndex < 0) {
-        state.activeIndex = 0
-      } else {
-        state.activeIndex = nextActiveIndex
-      }
+    setActiveIndex (state, payload: number) {
+      state.activeIndex = payload
     },
 
-    setSpaces (state, { spaces }: SpaceCollectionPayload) {
-      state.spaces = spaces
+    setList (state, payload: SpaceResource[]) {
+      state.list = payload
     },
 
-    setSpacesMeta (state, { spacesMeta }: SpaceMetaCollectionPayload) {
-      state.spacesMeta = spacesMeta
+    addListItem (state, payload: SpaceResource) {
+      state.list = [
+        ...state.list,
+        payload
+      ]
     },
 
-    addSpace (state, { space }: SpacePayload) {
-      state.spaces.push(space)
-    },
+    updateListItem (state, payload: { index: number; data: SpaceResource}) {
+      const list = [...state.list]
 
-    updateSpace (state, { index, space }: SpacePayload) {
-      const spaces = [...state.spaces]
-
-      spaces[index] = {
-        ...state.spaces[index] || {},
-        ...space
+      list[payload.index] = {
+        ...list[payload.index],
+        ...payload.data
       }
 
-      state.spaces = spaces
+      state.list = list
     },
 
-    updateMeta (state, { index, meta }: SpaceMetaPayload) {
-      const spacesMeta = [...state.spacesMeta]
+    setSettings (state, payload: SpaceSettingResource[]) {
+      state.settings = payload
+    },
 
-      spacesMeta[index] = {
-        ...state.spacesMeta[index] || {},
-        ...meta
+    updateSettingsItem (state, payload: { index: number; data: SpaceSettingResource }) {
+      const settings = [...state.settings]
+
+      settings[payload.index] = {
+        ...settings[payload.index],
+        ...payload.data
       }
 
-      state.spacesMeta = spacesMeta
+      state.settings = settings
     }
   },
 
   actions: {
-    async fetch ({ commit }, params) {
+    async fetch ({ commit }, params: object) {
       const res = await api.get('/spaces', { params })
 
-      commit('setSpaces', { spaces: res.data })
+      commit('setList', res.data)
     },
 
-    async create ({ commit }, space) {
+    async create ({ commit }, space: SpaceResource) {
       const res = await api.post('/spaces', space)
-      const newSpace = res.data
-      commit('addSpace', { space: newSpace })
-      commit('setActive', { space: newSpace })
-      await router.push('/')
+
+      commit('addListItem', res.data)
+
+      return res.data
     },
 
-    async update ({ commit, state }, space) {
-      const index = state.spaces.findIndex(
-        (item) => item.id === space.id
-      )
+    async update ({ commit, getters }, data: SpaceResource) {
+      const index = getters.getIndex(data.id)
 
-      commit('updateSpace', { index, space })
+      commit('updateListItem', { index, data })
 
-      await api.patch(`/spaces/${space.id}`, space)
+      const res = await api.patch('/spaces/' + data.id, data)
+
+      return res.data
+    },
+
+    async initSetting ({ commit, dispatch, state, getters }) {
+      const { data } = await api.get('/users/settings/')
+      const activeIndex = get(data, 'preferences.activeIndex', 0)
+
+      if (activeIndex !== state.activeIndex) {
+        commit('setActiveIndex', activeIndex)
+      }
+
+      await dispatch('fetchSetting', getters.activeSpace.id)
+    },
+
+    async fetchSetting ({ commit, getters }, id: number) {
+      const index = getters.getIndex(id)
+
+      const res = await api.get('/users/settings/' + id)
+      const data = get(res, 'data.preferences', {})
+
+      commit('updateSettingsItem', { index, data })
+
+      return data
+    },
+
+    async updateSetting ({ commit, getters }, payload: { id: number; data: Partial<SpaceSettingResource>}) {
+      const index = getters.getIndex(payload.id)
+
+      if (isEmpty(payload.data)) return
+
+      commit('updateSettingsItem', { index, data: payload.data })
+
+      const res = await api.put('/users/settings/' + payload.id, getters.getSettingByIndex(index))
+
+      return res.data
+    },
+
+    async activate ({ commit, dispatch, state, getters }, id: number) {
+      const index = getters.getIndex(id)
+
+      await dispatch('fetchSetting', id)
+
+      if (index !== state.activeIndex) {
+        commit('setActiveIndex', index)
+
+        await api.put('/users/settings/', { activeIndex: index })
+      }
     },
 
     async clean ({ commit }) {
-      commit('setActive', { id: 0 })
-      commit('setSpaces', { spaces: [] })
-      commit('setSpacesMeta', { spacesMeta: [] })
+      commit('setList', [])
+      commit('setSettings', [])
     }
   }
 }

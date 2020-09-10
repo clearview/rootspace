@@ -152,22 +152,22 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.initialize = true
       try {
         this.isFromLoad = true
-        const viewDoc = await DocumentService.view(id)
+        const { data } = await DocumentService.view(id)
 
-        this.title = viewDoc.data.title
-        this.value = viewDoc.data.content
-        this.readOnly = viewDoc.data.isLocked
+        this.title = data.title
+        this.value = data.content
+        this.readOnly = data.isLocked
+
+        if (!this.pageReady) {
+          await this.activateSpace(data.spaceId)
+        }
 
         this.pageTitle = this.title
-
-        this.setActiveSpace(viewDoc.data.spaceId, {
-          activePage: this.$route.path
-        })
+        this.pageReady = true
       } catch (e) {
         this.$router.replace({ name: 'Document' })
       }
       this.initialize = false
-      this.pageReady = true
     }
   }
 

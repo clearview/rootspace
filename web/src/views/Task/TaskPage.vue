@@ -238,7 +238,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       if (!isNaN(state.viewAs as any)) {
         state.viewAs = {}
       }
-      this.$set(state.viewAs, this.boardId, TaskBoardType.List)
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.boardId]: TaskBoardType.List
+      }
     })
   }
 
@@ -253,7 +257,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       if (!isNaN(state.viewAs as any)) {
         state.viewAs = {}
       }
-      this.$set(state.viewAs, this.boardId, TaskBoardType.Kanban)
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.boardId]: TaskBoardType.Kanban
+      }
     })
   }
 
@@ -292,16 +300,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       }
       if (this.board) {
         this.boardCache = this.board
+
+        if (!this.pageReady) {
+          await this.activateSpace(this.board.spaceId)
+        }
+
         this.pageTitle = this.board.title
-        this.setActiveSpace(this.board.spaceId, {
-          activePage: this.$route.path
-        })
+        this.pageReady = true
       }
-    } catch (e) {
-      this.setActiveSpace(0)
-    }
+    } catch { }
+
     this.isFetching = false
-    this.pageReady = true
   }
 
   async resetFilters () {

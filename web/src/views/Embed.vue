@@ -13,10 +13,11 @@
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import getUrls from 'get-urls'
 import PageMixin from '@/mixins/PageMixin'
+import SpaceMixin from '@/mixins/SpaceMixin'
 import { EmbedResource } from '@/services/embed'
 
 @Component
-export default class Embed extends Mixins(PageMixin) {
+export default class Embed extends Mixins(PageMixin, SpaceMixin) {
   get id () {
     return Number(this.$route.params.id)
   }
@@ -35,6 +36,10 @@ export default class Embed extends Mixins(PageMixin) {
   @Watch('id', { immediate: true })
   async watchId (id: number) {
     await this.$store.dispatch('embed/view', id)
+
+    if (!this.pageReady) {
+      await this.activateSpace(this.payload.spaceId)
+    }
 
     this.pageTitle = this.payload.title
     this.pageReady = true

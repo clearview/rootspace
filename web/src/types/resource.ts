@@ -156,12 +156,17 @@ export interface SpaceResource {
   settings?: object;
 }
 
-export interface SpaceMetaResource {
-  activePage?: string;
+export interface SpaceSettingResource {
+  activePage: string;
+  sidebarCollapse: boolean;
+  sidebarSize: boolean;
+  treeFolded: Record<string, boolean>;
+  taskViewAs: Record<number, TaskBoardType>;
+  taskSeenViewTip: boolean;
 }
 
 export interface UserResource {
-  id?: number;
+  id: number;
   active?: boolean;
   email: string;
   firstName: string;
