@@ -1,33 +1,25 @@
-import { Worker } from './libs/Worker'
+import * as dotenv from 'dotenv'
+dotenv.config()
+import { config } from 'node-config-ts'
 import Bull from 'bull'
 import { Queue } from './libs/Queue'
 import { CronEvent } from './services/events/CronEvent'
-import { MarkOverdueTasks } from './libs/cron/MarkOverdueTasks'
 import { Cron } from './libs/Cron'
 
 async function main() {
   await addRepeatableTasks()
-
-  /**
-   * Spawn another process for cron processor ?
-   */
-  // await Cron.process()
-  await Worker.process()
+  await Cron.process()
 }
 
 async function addRepeatableTasks(): Promise<Bull.Job> {
+  const className = config.cron.markOverdueTask.className
+  const repeatableOptions = config.cron.markOverdueTask.repeatableOptions
+
   const queue = Queue.getCronInstance()
 
   const taskOverdue = CronEvent
-    .forClass(MarkOverdueTasks.name)
-
-  const repeatableOptions = {
-    repeat: {
-      // cron: '0 0 * * *'
-      every: 10000,
-      limit: 100
-    }
-  }
+    .forClass(className)
+    .toObject()
 
   return queue.add(
     Queue.CRON_QUEUE_NAME,

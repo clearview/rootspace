@@ -48,5 +48,15 @@
   "arena": {
     "username": "@@ARENA_USERNAME",
     "password": "@@ARENA_PASSWORD"
+  },
+  "cron": {
+    "markOverdueTask": {
+      "className": "MarkOverdueTasks",
+      "repeatableOptions": {
+        "repeat": {
+          "every": 10000
+        }
+      }
+    }
   }
 }

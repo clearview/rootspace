@@ -1,4 +1,12 @@
 {
   "uploadDir": "/tmp",
-  "domain": "https://root.clearviewdev.io"
+  "domain": "https://root.clearviewdev.io",
+  "cron": {
+    "markOverdueTask": {
+      "className": "MarkOverdueTasks",
+      "repeatableOptions": {
+        "cron": "0 0 * * *"
+      }
+    }
+  }
 }

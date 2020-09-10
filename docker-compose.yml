@@ -68,9 +68,9 @@ services:
         max-size: "100MB"
         max-file: "3"
 
-  worker:
+  queue_activity:
     image: node:12
-    container_name: root_worker
+    container_name: root_queue_activity
     depends_on:
       - postgres
       - redis
@@ -82,6 +82,26 @@ services:
       - backend
     ports:
       - "9230:9230"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  queue_cron:
+    image: node:12
+    container_name: root_queue_cron
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project/
+    working_dir: /opt/project
+    command: yarn queue:cron
+    networks:
+      - backend
+    ports:
+      - "9231:9231"
     logging:
       driver: "json-file"
       options:

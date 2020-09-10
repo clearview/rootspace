@@ -1,11 +1,17 @@
-import { getCustomRepository, IsNull, Not } from 'typeorm'
+import { getCustomRepository, LessThan } from 'typeorm'
 import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
 import { Task } from '../../database/entities/tasks/Task'
 import moment from 'moment'
 
 export class MarkOverdueTasks {
   static async run() {
-    const tasks = await getCustomRepository(TaskRepository).find({ isOverdue: false, dueDate: Not(IsNull()) })
+    const yesterday = moment().subtract(1, 'days')
+    const tasks = await getCustomRepository(TaskRepository).find(
+      {
+        isOverdue: false,
+        dueDate: LessThan(yesterday)
+      }
+    )
 
     for (const task of tasks) {
       task.isOverdue = MarkOverdueTasks.isOverdue(task)
@@ -15,10 +21,6 @@ export class MarkOverdueTasks {
   }
 
   private static isOverdue(task: Task): boolean {
-    if (!task.dueDate) {
-      return false
-    }
-
     const now = moment()
     const dueDate = moment(task.dueDate)
 

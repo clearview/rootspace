@@ -52,20 +52,10 @@ Note: You can also run `docker-compose up` or `docker-compose up -d` from `tests
 ```
 - visit web on your machine's port 80 or port 3000
 - access api through port 3001
+- access Arena on port 3001/arena (use user/pass from .env file) 
 - connect from your machine to postgresql on port 5432
 - watch container logs in realtime on port 9999
-- access sent emails on port 8025
+- access sent emails with Mailhog on port 8025
 - run container-related commands with docker/cli.sh script
 ```
 
-# Infra related
-
-* http://consul.root.prod.clearviewdev.io:8080/
-* http://nomad.root.prod.clearviewdev.io:8080/
-
-## Credentials for Nomad and Consul
-
-````
-username: nomad
-password: 67ce7dd7dAa28f4835915d3c7fbfA27a4a8c83c1380f157453b469de01813c228_2020
-````

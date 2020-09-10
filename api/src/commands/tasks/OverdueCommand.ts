@@ -1,6 +1,6 @@
 import chalk from 'chalk'
 import db from '../../db'
-import { getConnection, getCustomRepository, IsNull, Not } from 'typeorm'
+import { getConnection, getCustomRepository, LessThan } from 'typeorm'
 import { TaskRepository } from '../../database/repositories/tasks/TaskRepository'
 import { Task } from '../../database/entities/tasks/Task'
 import moment from 'moment'
@@ -24,8 +24,14 @@ export class OverdueCommand {
   private static async updateTasks() {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Updating isOverdue...'))
+    const yesterday = moment().subtract(1, 'days')
 
-    const tasks = await getCustomRepository(TaskRepository).find({ isOverdue: false, dueDate: Not(IsNull()) })
+    const repository = getCustomRepository(TaskRepository)
+    const tasks = await repository.find(
+      {
+        isOverdue: false,
+        dueDate: LessThan(yesterday)
+      })
 
     for (const task of tasks) {
       task.isOverdue = OverdueCommand.isOverdue(task)
@@ -38,10 +44,6 @@ export class OverdueCommand {
   }
 
   private static isOverdue(task: Task): boolean {
-    if (!task.dueDate) {
-      return false
-    }
-
     const now = moment()
     const dueDate = moment(task.dueDate)
 
