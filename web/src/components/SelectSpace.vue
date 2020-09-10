@@ -194,7 +194,7 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
     try {
       const space = await this.$store.dispatch('space/create', data)
 
-      this.activateSpace(space.id)
+      await this.activateSpace(space.id)
     } catch { }
 
     this.modal.loading = false

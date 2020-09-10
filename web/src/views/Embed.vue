@@ -38,7 +38,7 @@ export default class Embed extends Mixins(PageMixin, SpaceMixin) {
     await this.$store.dispatch('embed/view', id)
 
     if (!this.pageReady) {
-      this.activateSpace(this.payload.spaceId)
+      await this.activateSpace(this.payload.spaceId)
     }
 
     this.pageTitle = this.payload.title

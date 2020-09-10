@@ -19,8 +19,8 @@ export default class SpaceMixin extends Vue {
     return this.$store.getters['space/isListEmpty'] === false
   }
 
-  activateSpace (id: number) {
-    this.$store.dispatch('space/activate', id)
+  async activateSpace (id: number) {
+    await this.$store.dispatch('space/activate', id)
   }
 
   async updateSpaceSetting (id: number, data: Partial<SpaceSettingResource>) {

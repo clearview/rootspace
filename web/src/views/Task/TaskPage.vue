@@ -294,7 +294,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
         this.boardCache = this.board
 
         if (!this.pageReady) {
-          this.activateSpace(this.board.spaceId)
+          await this.activateSpace(this.board.spaceId)
         }
 
         this.pageTitle = this.board.title

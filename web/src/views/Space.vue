@@ -19,6 +19,8 @@ import { SpaceSettingResource } from '@/types/resource'
   }
 })
 export default class Space extends Mixins(SpaceMixin) {
+  redirection = true
+
   get setting (): SpaceSettingResource {
     const { sidebar, tree, task } = this.$store.state
 
@@ -51,6 +53,8 @@ export default class Space extends Mixins(SpaceMixin) {
 
         if (this.$route.path === '/') {
           await this.$router.replace(this.activeSpaceSetting.activePage)
+        } else {
+          this.redirection = false
         }
       }
     } catch { }
@@ -61,7 +65,11 @@ export default class Space extends Mixins(SpaceMixin) {
     try {
       this.setting = this.activeSpaceSetting
 
-      await this.$router.push(this.activeSpaceSetting.activePage || '/')
+      if (this.redirection) {
+        await this.$router.push(this.activeSpaceSetting.activePage || '/')
+      } else {
+        this.redirection = true
+      }
     } catch { }
   }
 

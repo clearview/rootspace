@@ -159,7 +159,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.readOnly = data.isLocked
 
         if (!this.pageReady) {
-          this.activateSpace(data.spaceId)
+          await this.activateSpace(data.spaceId)
         }
 
         this.pageTitle = this.title
