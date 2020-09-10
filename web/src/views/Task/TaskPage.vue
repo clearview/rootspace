@@ -238,7 +238,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       if (!isNaN(state.viewAs as any)) {
         state.viewAs = {}
       }
-      this.$set(state.viewAs, this.boardId, TaskBoardType.List)
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.boardId]: TaskBoardType.List
+      }
     })
   }
 
@@ -253,7 +257,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       if (!isNaN(state.viewAs as any)) {
         state.viewAs = {}
       }
-      this.$set(state.viewAs, this.boardId, TaskBoardType.Kanban)
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.boardId]: TaskBoardType.Kanban
+      }
     })
   }
 
