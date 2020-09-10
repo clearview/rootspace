@@ -1,5 +1,5 @@
 import { Module } from 'vuex'
-import { get, has, isEmpty } from 'lodash'
+import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
 import { SpaceResource, SpaceSettingResource } from '@/types/resource'
@@ -130,10 +130,8 @@ const SpaceModule: Module<SpaceState, RootState> = {
       await dispatch('fetchSetting', getters.activeSpace.id)
     },
 
-    async fetchSetting ({ commit, state, getters }, id: number) {
+    async fetchSetting ({ commit, getters }, id: number) {
       const index = getters.getIndex(id)
-
-      if (has(state.settings, index)) return
 
       const res = await api.get('/users/settings/' + id)
       const data = get(res, 'data.preferences', {})
