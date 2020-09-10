@@ -1,6 +1,6 @@
 <template>
   <div class="uploadable-image" :style="{width, height, borderRadius: radius}" @click="pickFile">
-    <input type="file" ref="file" class="file" @change="processFile">
+    <input type="file" ref="file" class="file" @change="processFile" accept=".jpg,.png,.jpeg,.gif,image/jpg,image/jpeg,image/png,image/gif">
     <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default.path" alt="" class="img" :style="{width, height, borderRadius: radius}">
     <img v-if="isUploadingImage" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
     <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
@@ -71,7 +71,8 @@ export default class UploadableImage extends Vue {
   async processFile () {
     const files = this.fileRef.files
     const file = files?.item(0)
-    if (file) {
+    const acceptable = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+    if (file && acceptable.indexOf(file.type) !== -1) {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('type', this.type)
