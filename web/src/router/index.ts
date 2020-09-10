@@ -17,8 +17,24 @@ const routes: Array<RouteConfig> = [
       },
       {
         path: '/settings',
-        name: 'Settings',
-        component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue')
+        component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Settings.vue'),
+        children: [
+          {
+            path: '',
+            redirect: { name: 'SettingsAccount' },
+            name: 'Settings'
+          },
+          {
+            path: 'account',
+            name: 'SettingsAccount',
+            component: () => import(/* webpackChunkName: "settings-account" */ '../views/Settings/Account.vue')
+          },
+          {
+            path: 'space',
+            name: 'SettingsSpace',
+            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue')
+          }
+        ]
       },
       {
         path: '/document/:id?',
