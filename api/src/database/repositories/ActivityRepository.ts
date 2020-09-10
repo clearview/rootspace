@@ -6,6 +6,7 @@ import { ActivityEvent } from '../../services/events/ActivityEvent'
 import { ActivityType } from '../../types/activity'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
+import { ucFirst } from '../../utils'
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -79,7 +80,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
         return ActivityType.TaskList
 
       default:
-        return entity.ucFirst()
+        return ucFirst(entity)
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { NotificationService, UserService } from '../services'
+import { ucFirst } from '../utils'
 
 export class NotificationsCtrl extends BaseCtrl {
   protected userService: UserService
@@ -24,7 +25,7 @@ export class NotificationsCtrl extends BaseCtrl {
 
   async readForEntity(req: Request, res: Response) {
     const user = req.user
-    const entity = String(req.params.entity).ucFirst()
+    const entity = ucFirst(req.params.entity)
     const entityId = Number(req.params.id)
 
     const updateResult = await this.notificationService.readUsersNotificationsForEntity(user.id, entity, entityId)

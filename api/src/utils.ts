@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 
-String.prototype.ucFirst = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1)
+export function ucFirst(aString: string): string {
+  return aString.charAt(0).toUpperCase() + aString.slice(1)
 }
 
 export function mapRoute(ctrl: any, fn: string) {
