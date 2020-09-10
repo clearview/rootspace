@@ -72,29 +72,33 @@ export class UsersCtrl extends BaseCtrl {
   async authGoogleCallback(req: Request, res: Response) {
     const user = req.user
 
-    const token = jwt.sign({ id: user }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
-    const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
+    const token = jwt.sign({ id: user }, config.jwt.accessToken.secretKey, {
+      expiresIn: config.jwt.accessToken.expiresIn,
+    })
+    const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshToken.secretKey, {
+      expiresIn: config.jwt.refreshToken.expiresIn,
+    })
 
     res.send({ token, refreshToken })
   }
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
-    return passport.authenticate(
-      'refreshToken',
-      { session: false },
-      (err, user, info) => {
-        if (err || !user) {
-          return next(err)
-        }
-
-        return res.json(this.signedTokens(user.id))
+    return passport.authenticate('refreshToken', { session: false }, (err, user, info) => {
+      if (err || !user) {
+        return next(err)
       }
-    )(req, res)
+
+      return res.json(this.signedTokens(user.id))
+    })(req, res)
   }
 
   signedTokens(userId: number) {
-    const token = jwt.sign({ id: userId }, config.jwt.accessToken.secretKey, { expiresIn: config.jwt.accessToken.expiresIn })
-    const refreshToken = jwt.sign({ id: userId }, config.jwt.refreshToken.secretKey, { expiresIn: config.jwt.refreshToken.expiresIn })
+    const token = jwt.sign({ id: userId }, config.jwt.accessToken.secretKey, {
+      expiresIn: config.jwt.accessToken.expiresIn,
+    })
+    const refreshToken = jwt.sign({ id: userId }, config.jwt.refreshToken.secretKey, {
+      expiresIn: config.jwt.refreshToken.expiresIn,
+    })
 
     return { token, refreshToken }
   }
@@ -160,7 +164,14 @@ export class UsersCtrl extends BaseCtrl {
     const value = PasswordRecoveryValue.fromObject(data)
     const result = await this.userService.createPasswordReset(value)
 
-    res.send(this.responseData(result))
+    res.send(this.responseData({ result }))
+  }
+
+  async verifyPasswordReset(req: Request, res: Response) {
+    const token = req.params.token
+    const result = await this.userService.verifyPasswordReset(token)
+
+    res.send(this.responseData({ result }))
   }
 
   async passwordReset(req: Request, res: Response) {
@@ -170,7 +181,7 @@ export class UsersCtrl extends BaseCtrl {
     const value = PasswordResetValue.fromObject(data)
 
     const result = await this.userService.passwordReset(value)
-    res.send(this.responseData(result))
+    res.send(this.responseData({ result }))
   }
 
   async settings(req: Request, res: Response) {

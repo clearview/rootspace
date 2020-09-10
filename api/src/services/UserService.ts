@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
+import { validate as uuidValidate } from 'uuid'
 import { getCustomRepository } from 'typeorm'
 import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserRepository } from '../database/repositories/UserRepository'
@@ -182,11 +183,11 @@ export class UserService {
     return user
   }
 
-  async createPasswordReset(data: PasswordRecoveryValue): Promise<string> {
+  async createPasswordReset(data: PasswordRecoveryValue): Promise<boolean> {
     const user = await this.getUserByEmail(data.attributes.email)
 
     if (!user) {
-      return 'Request completed'
+      return true
     }
 
     let passwordReset = new PasswordReset()
@@ -197,23 +198,28 @@ export class UserService {
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
     await this.activityService.add(ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(passwordReset))
 
-    return 'Request completed'
+    return true
   }
 
-  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
-    const user = await this.getUserById(userId)
-    return this.registerActivityForUser(userActivity, user)
-  }
-
-  async passwordReset(data: PasswordResetValue): Promise<PasswordReset> {
-    const passwordReset = await this.getPasswordResetByToken(data.attributes.token)
-
-    if (!passwordReset) {
-      throw clientError('Bad request')
+  async verifyPasswordReset(token: string): Promise<boolean> {
+    if (uuidValidate(token) === false) {
+      return false
     }
 
-    if (passwordReset.active !== true || passwordReset.expiration <= new Date(Date.now())) {
-      throw clientError('Token not active')
+    const passwordReset = await this.getPasswordResetByToken(token)
+
+    if (!passwordReset || this.isPasswordResetExpired(passwordReset)) {
+      return false
+    }
+
+    return true
+  }
+
+  async passwordReset(data: PasswordResetValue): Promise<boolean> {
+    const passwordReset = await this.getPasswordResetByToken(data.attributes.token)
+
+    if (!passwordReset || this.isPasswordResetExpired(passwordReset)) {
+      throw clientError('Not valid request', HttpErrName.InvalidToken, HttpStatusCode.NotFound)
     }
 
     const user = await this.requireUserByEmail(passwordReset.email)
@@ -223,7 +229,22 @@ export class UserService {
     await this.getUserRepository().save(user)
 
     passwordReset.active = false
-    return this.getPasswordResetRepository().save(passwordReset)
+    await this.getPasswordResetRepository().save(passwordReset)
+
+    return true
+  }
+
+  isPasswordResetExpired(passwordReset: PasswordReset): boolean {
+    if (passwordReset.active !== true || passwordReset.expiration <= new Date(Date.now())) {
+      return true
+    }
+
+    return false
+  }
+
+  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
+    const user = await this.getUserById(userId)
+    return this.registerActivityForUser(userActivity, user)
   }
 
   async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {

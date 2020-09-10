@@ -5,6 +5,7 @@ import { Schema, ParsedRule } from 'indicative-parser'
 import { validationFailed } from '../errors'
 import { configure } from 'indicative/validator'
 import { pwnedPassword } from 'hibp'
+import { validate as uuidValidate } from 'uuid'
 
 declare module 'indicative-rules' {
   interface ValidationRulesContract {
@@ -76,6 +77,19 @@ export abstract class BaseValidator {
            */
           return true
         }
+      },
+    })
+
+    extend('uuid', {
+      async: true,
+
+      compile(args) {
+        return args
+      },
+
+      async validate(data, field, args, config) {
+        const fieldValue = getValue(data, field)
+        return uuidValidate(fieldValue)
       },
     })
   }
