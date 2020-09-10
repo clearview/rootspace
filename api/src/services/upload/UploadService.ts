@@ -43,12 +43,12 @@ export class UploadService {
     return UploadService.instance
   }
 
-  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
+  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number, context?: any): Promise<Bull.Job> {
     const upload = await this.getUploadById(uploadId)
-    return this.registerActivityForUpload(uploadActivity, upload)
+    return this.registerActivityForUpload(uploadActivity, upload, context)
   }
 
-  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
+  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload, context?: any): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
@@ -56,6 +56,7 @@ export class UploadService {
         .fromActor(actor.id)
         .forEntity(upload)
         .inSpace(upload.spaceId)
+        .withContext(context)
     )
   }
 
@@ -81,6 +82,10 @@ export class UploadService {
     return this.getUploadRepository().getByEntityId(entityId, entity)
   }
 
+  getEntityFromUpload(upload: Upload): Promise<any | undefined> {
+    return this.getUploadRepository().getEntityFromUpload(upload)
+  }
+
   async upload(data: UploadValue) {
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
@@ -103,7 +108,15 @@ export class UploadService {
     upload.size = data.file.size
 
     upload = await this.getUploadRepository().save(upload)
-    await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+
+    const entity = await this.getEntityFromUpload(upload)
+    await this.registerActivityForUpload(FileActivities.Uploaded, upload, {
+      [upload.entity]:
+        {
+          id: entity.id,
+          title: entity.title
+        }
+    })
 
     return upload
   }
