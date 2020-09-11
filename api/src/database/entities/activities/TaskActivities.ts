@@ -10,5 +10,7 @@ export enum TaskActivities {
   Comment_Updated = 'Comment_Updated',
   Comment_Deleted = 'Comment_Deleted',
   Tag_Added = 'Tag_Added',
-  Tag_Removed = 'Tag_Removed'
+  Tag_Removed = 'Tag_Removed',
+  Attachment_Added = 'Attachment_Added',
+  Attachment_Removed = 'Attachment_Removed'
 }

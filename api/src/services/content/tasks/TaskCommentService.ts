@@ -35,7 +35,12 @@ export class TaskCommentService {
     data.task = await this.taskService.getById(data.taskId)
 
     const taskComment = await this.getTaskCommentRepository().save(data)
-    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Created, taskComment.id)
+    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Created, taskComment.id, {
+      task: {
+        title: data.task.title
+      }
+    })
+
     return this.getTaskCommentRepository()
       .createQueryBuilder('comment')
       .where('comment.id = :id', { id: taskComment.id })
@@ -46,12 +51,18 @@ export class TaskCommentService {
 
   async update(id: number, data: any): Promise<TaskComment> {
     let taskComment = await this.getById(id)
+
     taskComment = await this.getTaskCommentRepository().save({
       ...taskComment,
-      ...data,
+      ...data
     })
 
-    await this.registerActivityForTaskComment(TaskActivities.Comment_Updated, taskComment)
+    const task = await this.taskService.getById(taskComment.taskId)
+    await this.registerActivityForTaskComment(TaskActivities.Comment_Updated, taskComment, {
+      task: {
+        title: task.title
+      }
+    })
 
     return this.getTaskCommentRepository()
       .createQueryBuilder('comment')
@@ -62,17 +73,31 @@ export class TaskCommentService {
   }
 
   async delete(taskCommentId: number): Promise<DeleteResult> {
-    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Deleted, taskCommentId)
+    const taskComment = await this.getById(taskCommentId)
+    const task = await this.taskService.getById(taskComment.taskId)
+
+    await this.registerActivityForTaskCommentId(TaskActivities.Comment_Deleted, taskCommentId, {
+      task: {
+        title: task.title
+      }
+    })
+
     return this.getTaskCommentRepository().delete({ id: taskCommentId })
   }
 
-  async registerActivityForTaskCommentId(taskActivity: TaskActivities, taskCommentId: number): Promise<any> {
+  async registerActivityForTaskCommentId(
+    taskActivity: TaskActivities,
+    taskCommentId: number,
+    context?: any): Promise<any> {
     const taskComment = await this.getById(taskCommentId)
-    return this.registerActivityForTaskComment(taskActivity, taskComment)
+    return this.registerActivityForTaskComment(taskActivity, taskComment, context)
   }
 
-  async registerActivityForTaskComment(taskActivity: TaskActivities, taskComment: TaskComment): Promise<any> {
+  async registerActivityForTaskComment(
+    taskActivity: TaskActivities,
+    taskComment: TaskComment,
+    context?: any): Promise<any> {
     const task = await this.taskService.getById(taskComment.taskId)
-    return this.taskService.registerActivityForTask(taskActivity, task)
+    return this.taskService.registerActivityForTask(taskActivity, task, context)
   }
 }

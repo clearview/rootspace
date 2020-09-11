@@ -10,6 +10,7 @@ export class ActivityEvent {
   private _entityId: number
   private _entity: string
   private _tableName: string
+  private _context: any
 
   private constructor(action: string) {
     this._action = action
@@ -33,6 +34,11 @@ export class ActivityEvent {
 
   inSpace(spaceId: number): ActivityEvent {
     this._spaceId = spaceId
+    return this
+  }
+
+  withContext(context: any): ActivityEvent {
+    this._context = context
     return this
   }
 
@@ -76,6 +82,10 @@ export class ActivityEvent {
     return this._tableName
   }
 
+  get context(): object {
+    return this._context
+  }
+
   toObject(): object {
     return {
       action: this.action,
@@ -83,7 +93,8 @@ export class ActivityEvent {
       spaceId: this.spaceId,
       entityId: this.entityId,
       entity: this.entity,
-      tableName: this.tableName
+      tableName: this.tableName,
+      context: this.context
     }
   }
 }

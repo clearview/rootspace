@@ -12,9 +12,7 @@ import { ActivityService } from '../../ActivityService'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import Bull from 'bull'
 import { ServiceFactory } from '../../factory/ServiceFactory'
-import { TaskList } from '../../../database/entities/tasks/TaskList'
 import { NotificationService } from '../../NotificationService'
-import { Notification } from '../../../database/entities/Notification'
 
 export class TaskService {
   private userService: UserService
@@ -60,11 +58,6 @@ export class TaskService {
     return this.getTaskRepository().getById(id)
   }
 
-  // Todo: remove when task table gets taskBoardID field
-  async getTaskListByTask(task: Task): Promise<TaskList> {
-    return this.getTaskListRepository().findOne(task.listId)
-  }
-
   async getArchivedById(id: number): Promise<Task> {
     return this.getTaskRepository().findOneArchived(id)
   }
@@ -76,21 +69,42 @@ export class TaskService {
 
     const task = await this.getTaskRepository().save(data)
 
-    await this.registerActivityForTaskId(TaskActivities.Created, task.id)
+    await this.registerActivityForTaskId(TaskActivities.Created, task.id, { title: task.title })
+
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().getById(task.id)
   }
 
   async update(id: number, data: any): Promise<Task> {
+    const existingTask = await this.getById(id)
     let task = await this.getById(id)
     task = await this.getTaskRepository().save({
       ...task,
-      ...data,
+      ...data
     })
 
     await this.assigneesUpdate(task, data)
-    await this.registerActivityForTaskId(TaskActivities.Updated, task.id)
+
+    const fields = { old: {}, new: {} }
+
+    for(const key of Object.keys(data)) {
+      if(data[key] !== existingTask[key]) {
+        fields.old[key] = existingTask[key]
+        fields.new[key] = task[key]
+
+        if (key === 'listId') {
+          const oldList = await this.getTaskListRepository().findOne(existingTask.listId)
+          const newList = await this.getTaskListRepository().findOne(task.listId)
+
+          const listKey = 'list'
+          fields.old[listKey] = { title: oldList.title }
+          fields.new[listKey] = { title: newList.title }
+        }
+      }
+    }
+
+    await this.registerActivityForTaskId(TaskActivities.Updated, task.id, fields)
 
     return this.getTaskRepository().getById(task.id)
   }
@@ -99,7 +113,8 @@ export class TaskService {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.registerActivityForTaskId(TaskActivities.Archived, taskId)
+      await this.registerActivityForTaskId(TaskActivities.Archived, taskId, { title: task.title })
+
       return this.getTaskRepository().softRemove(task)
     }
 
@@ -110,14 +125,14 @@ export class TaskService {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     const recoveredTask = await this.getTaskRepository().recover(task)
-    await this.registerActivityForTaskId(TaskActivities.Restored, taskId)
+    await this.registerActivityForTaskId(TaskActivities.Restored, taskId, { title: task.title })
 
     return recoveredTask
   }
 
   async remove(taskId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId)
-    await this.registerActivityForTask(TaskActivities.Deleted, task)
+    await this.registerActivityForTask(TaskActivities.Deleted, task, { title: task.title })
 
     return this.getTaskRepository().remove(task)
   }
@@ -149,7 +164,11 @@ export class TaskService {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.registerActivityForTask(TaskActivities.Assignee_Added, task)
+      await this.registerActivityForTask(TaskActivities.Assignee_Added, task, {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      })
 
       return savedTask
     }
@@ -166,7 +185,11 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Assignee_Removed, task)
+    await this.registerActivityForTask(TaskActivities.Assignee_Removed, task, {
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName
+    })
 
     return savedTask
   }
@@ -181,7 +204,9 @@ export class TaskService {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.registerActivityForTask(TaskActivities.Tag_Added, task)
+      await this.registerActivityForTask(TaskActivities.Tag_Added, task, {
+        label: boardTag.label
+      })
 
       return savedTask
     }
@@ -198,17 +223,19 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Tag_Removed, task)
+    await this.registerActivityForTask(TaskActivities.Tag_Removed, task, {
+      label: boardTag.label
+    })
 
     return savedTask
   }
 
-  async registerActivityForTaskId(taskActivity: TaskActivities, taskId: number): Promise<Bull.Job> {
+  async registerActivityForTaskId(taskActivity: TaskActivities, taskId: number, context?: any): Promise<Bull.Job> {
     const task = await this.getById(taskId)
-    return this.registerActivityForTask(taskActivity, task)
+    return this.registerActivityForTask(taskActivity, task, context)
   }
 
-  async registerActivityForTask(taskActivity: TaskActivities, task: Task): Promise<Bull.Job> {
+  async registerActivityForTask(taskActivity: TaskActivities, task: Task, context?: any): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
@@ -216,6 +243,7 @@ export class TaskService {
         .fromActor(actor.id)
         .forEntity(task)
         .inSpace(task.spaceId)
+      .withContext(context)
     )
   }
 }

@@ -6,19 +6,20 @@ import fs from 'fs'
 import Bull from 'bull'
 import sharp from 'sharp'
 import isImage from 'is-image'
-import S3, { ManagedUpload, DeleteObjectOutput } from 'aws-sdk/clients/s3'
+import S3, { DeleteObjectOutput, ManagedUpload } from 'aws-sdk/clients/s3'
 import { AWSError } from 'aws-sdk/lib/error'
 import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { ActivityService } from '../ActivityService'
-import { FileActivities } from '../../database/entities/activities/FileActivities'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { UploadValue } from '../../values/upload'
-import { UploadType, IUploadImageConfig, IUploadImageSize, IUploadVersions } from '../../types/upload'
-import { UploadUniqueTypes, UploadImageConfig } from './config'
-import { HttpErrName, HttpStatusCode, clientError } from '../../errors'
+import { IUploadImageConfig, IUploadImageSize, IUploadVersions, UploadType } from '../../types/upload'
+import { UploadImageConfig, UploadUniqueTypes } from './config'
+import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { TaskActivities } from '../../database/entities/activities/TaskActivities'
+import { FileActivities } from '../../database/entities/activities/FileActivities'
 
 export class UploadService {
   private s3: S3
@@ -43,20 +44,38 @@ export class UploadService {
     return UploadService.instance
   }
 
-  async registerActivityForUploadId(uploadActivity: FileActivities, uploadId: number): Promise<Bull.Job> {
-    const upload = await this.getUploadById(uploadId)
-    return this.registerActivityForUpload(uploadActivity, upload)
-  }
-
-  async registerActivityForUpload(uploadActivity: FileActivities, upload: Upload): Promise<Bull.Job> {
+  async registerActivityForUpload(fileActivity: FileActivities, upload: Upload, context?: any): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
+    const activity = UploadService.getActivityAction(fileActivity, upload)
+
+    if (!activity) {
+      return Promise.reject('Unknown activity')
+    }
+
+    const entity = await this.getEntityFromUpload(upload)
+
+    if (!entity) {
+      return Promise.reject('Unknown entity')
+    }
 
     return this.activityService.add(
-      ActivityEvent.withAction(uploadActivity)
+      ActivityEvent.withAction(activity)
         .fromActor(actor.id)
-        .forEntity(upload)
-        .inSpace(upload.spaceId)
+        .forEntity(entity)
+        .inSpace(entity.spaceId)
+        .withContext({
+          versions: upload.versions
+        })
     )
+  }
+
+  private static getActivityAction(fileActivity: FileActivities, upload: Upload): string | undefined {
+    switch (upload.type) {
+      case 'taskAttachment':
+        return fileActivity === FileActivities.Uploaded ? TaskActivities.Attachment_Added : TaskActivities.Attachment_Removed
+    }
+
+    return null
   }
 
   getUploadRepository(): UploadRepository {
@@ -81,6 +100,10 @@ export class UploadService {
     return this.getUploadRepository().getByEntityId(entityId, entity)
   }
 
+  getEntityFromUpload(upload: Upload): Promise<any | undefined> {
+    return this.getUploadRepository().getEntityFromUpload(upload)
+  }
+
   async upload(data: UploadValue) {
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
@@ -103,6 +126,7 @@ export class UploadService {
     upload.size = data.file.size
 
     upload = await this.getUploadRepository().save(upload)
+
     await this.registerActivityForUpload(FileActivities.Uploaded, upload)
 
     return upload
@@ -197,11 +221,16 @@ export class UploadService {
     return null
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<Upload> {
     const upload = await this.requireUploadById(id)
 
-    this.removeUploadFiles(upload)
-    return this.getUploadRepository().remove(upload)
+    await this.removeUploadFiles(upload)
+
+    const removed = await this.getUploadRepository().remove(upload)
+
+    await this.registerActivityForUpload(FileActivities.Deleted, upload)
+
+    return removed
   }
 
   async removeUploadFiles(upload: Upload): Promise<void> {

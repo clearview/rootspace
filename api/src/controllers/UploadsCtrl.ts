@@ -3,7 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { UploadValue } from '../values/upload'
 import { UploadType, UploadEntity } from '../types/upload'
 import { validateUpload } from '../validation/upload'
-import { UploadService } from '../services/upload/UploadService'
+import { UploadService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class UploadsCtrl extends BaseCtrl {
