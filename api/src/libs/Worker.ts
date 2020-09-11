@@ -11,19 +11,19 @@ import { TaskWorker } from './workers/TaskWorker'
 import { UserWorker } from './workers/UserWorker'
 import { InviteWorker } from './workers/InviteWorker'
 import { Queue } from './Queue'
+import { Cron } from './Cron'
 
 export class Worker {
-  static async process(queueName: string = Queue.QUEUE_NAME) {
+  static async process() {
     await db()
 
-    await Queue.getActivityInstance().process(queueName, async (job) => {
+    await Queue.getActivityInstance().process(Queue.ACTIVITY_QUEUE_NAME, async (job) => {
       await Worker.dispatch(job)
     })
   }
 
   private static async dispatch(job: Job<any>) {
     const event: ActivityEvent = job.data
-    // await Worker.wsMessage(event)
 
     switch (event.entity) {
       case ActivityType.User:

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
 import { Follow } from '../../database/entities/Follow'
-import { DeleteResult } from 'typeorm/index'
+import { DeleteResult } from 'typeorm'
 import { FollowService, NotificationService } from '../../services'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 

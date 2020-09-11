@@ -44,8 +44,6 @@ export class UserSettingService {
 
     settings = await this.getUserSettingRepository().save(settings)
 
-    await this.userService.registerActivityForUserId(UserActivities.Settings_Updated, userId)
-
     return settings
   }
 

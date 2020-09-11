@@ -25,21 +25,26 @@ const redisOpts = {
 }
 
 export class Queue {
-  static QUEUE_NAME = 'Activity'
+  static ACTIVITY_QUEUE_NAME = 'Activity'
+  static CRON_QUEUE_NAME = 'Cron'
+
+  // @ts-ignore
+  static options: Bull.QueueOptions = {
+    ...redisOpts,
+    limiter: {
+      max: 16,
+      duration: 1000
+    },
+    defaultJobOptions: {
+      removeOnComplete: false
+    }
+  }
 
   static getActivityInstance(): Bull.Queue {
-    // @ts-ignore
-    const options: Bull.QueueOptions = {
-      ...redisOpts,
-      limiter: {
-        max: 16,
-        duration: 1000
-      },
-      defaultJobOptions: {
-        removeOnComplete: false
-      }
-    }
+    return new Bull(Queue.ACTIVITY_QUEUE_NAME, Queue.options)
+  }
 
-    return new Bull(Queue.QUEUE_NAME, options)
+  static getCronInstance(): Bull.Queue {
+    return new Bull(Queue.CRON_QUEUE_NAME, Queue.options)
   }
 }
