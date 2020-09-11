@@ -70,6 +70,7 @@ import IconRight2 from '@/components/icon/IconRight2.vue'
 import IconMessage from '@/components/icon/IconMessage.vue'
 import IconEdit2 from '@/components/icon/IconEdit2.vue'
 import IconGrid from '@/components/icon/IconGrid.vue'
+import IconLogout from '@/components/icon/IconLogout.vue'
 
 @Component({
   name: 'Icon',
@@ -128,7 +129,8 @@ import IconGrid from '@/components/icon/IconGrid.vue'
     IconShare,
     IconHistory,
     IconShareGlobe,
-    IconGrid
+    IconGrid,
+    IconLogout
   }
 })
 export default class Icon extends Vue {
