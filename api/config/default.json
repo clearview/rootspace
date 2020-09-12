@@ -52,11 +52,7 @@
   "cron": {
     "markOverdueTask": {
       "className": "MarkOverdueTasks",
-      "repeatableOptions": {
-        "repeat": {
-          "every": 10000
-        }
-      }
+      "repeatableOptions": {}
     }
   }
 }
