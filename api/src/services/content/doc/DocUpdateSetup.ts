@@ -1,6 +1,7 @@
 import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
 
+// seconds
 const revisonIdleTime = 5
 
 export class DocUpdateSetup {
@@ -22,8 +23,7 @@ export class DocUpdateSetup {
     this._time = Date.now()
 
     this._contentUpdated = this._isContentUpdated()
-    this._updatedAttributes = this._getUpdatedattributes()
-
+    this._updatedAttributes = this._getUpdatedAttributes()
     this._createRevision = this._doCreateRevision()
     this._registerActivity = this._doRegisterActivity()
   }
@@ -55,7 +55,7 @@ export class DocUpdateSetup {
     return true
   }
 
-  private _getUpdatedattributes(): string[] {
+  private _getUpdatedAttributes(): string[] {
     const attributes = ['title', 'slug', 'content', 'access', 'isLocked']
     const updated = []
 

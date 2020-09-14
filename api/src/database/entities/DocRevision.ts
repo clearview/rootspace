@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm'
 import { IDocContent } from '../../types/doc'
+import { Doc } from './Doc'
 
 @Entity('doc_revisions')
 export class DocRevision {
@@ -29,4 +30,10 @@ export class DocRevision {
 
   @Column({ type: 'timestamptz' })
   revisionAt: Date
+
+  @ManyToOne(
+    (type) => Doc,
+    (doc) => doc.revisions
+  )
+  doc: Doc
 }

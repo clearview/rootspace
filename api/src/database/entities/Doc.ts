@@ -8,10 +8,12 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
 import { IDocContent } from '../../types/doc'
+import { DocRevision } from './DocRevision'
 
 @Entity('docs')
 export class Doc {
@@ -66,4 +68,11 @@ export class Doc {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date
+
+  @OneToMany(
+    (type) => DocRevision,
+    (revisions) => revisions.doc,
+    { eager: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' }
+  )
+  revisions: DocRevision[]
 }
