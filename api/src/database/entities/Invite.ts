@@ -29,10 +29,9 @@ export class Invite {
   @Column('timestamp', { nullable: true })
   acceptedDate: Date
 
-  @CreateDateColumn()
-  created: string
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updated: string
-
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 }

@@ -28,9 +28,9 @@ export class PasswordReset {
   @Index()
   active: boolean
 
-  @CreateDateColumn()
-  created: Date
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updated: Date
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { NotificationService, UserService } from '../services'
+import { ucFirst } from '../utils'
 
 export class NotificationsCtrl extends BaseCtrl {
   protected userService: UserService
@@ -22,16 +23,26 @@ export class NotificationsCtrl extends BaseCtrl {
     res.send(notifications)
   }
 
-  async read(req: Request, res: Response) {
-    const notificationId = Number(req.params?.id)
-    const notification = await this.notificationService.readUserNotification(notificationId, req.user.id)
+  async readForEntity(req: Request, res: Response) {
+    const user = req.user
+    const entity = ucFirst(req.params.entity)
+    const entityId = Number(req.params.id)
 
-    res.send(notification)
+    const updateResult = await this.notificationService.readUsersNotificationsForEntity(user.id, entity, entityId)
+
+    res.send(updateResult)
   }
 
-  async readForEntity(req: Request, res: Response) {
+  async readNotification(req: Request, res: Response) {
+    const notificationId = Number(req.params?.id)
+    const readNotification = await this.notificationService.readUserNotification(notificationId, req.user.id)
+
+    res.send(readNotification)
+  }
+
+  async readNotifications(req: Request, res: Response) {
     const notificationIds = req.body
-    const updateResult = this.notificationService.readUsersNotificationsForEntityIds(notificationIds, req.user.id)
+    const updateResult = await this.notificationService.readUsersNotificationsForEntityIds(notificationIds, req.user.id)
 
     res.send(updateResult)
   }

@@ -1,5 +1,5 @@
 <template>
-  <iframe class="Link-embed" :src="location" />
+  <div/>
 </template>
 
 <script lang="ts">
@@ -38,21 +38,16 @@ export default class Link extends Mixins(PageMixin) {
   async watchId (id: number) {
     await this.$store.dispatch('link/view', id)
 
+    const target = this.link.newTab ? '_blank' : '_self'
+
     this.pageTitle = this.link.title
     this.pageReady = true
 
-    if (this.link.newTab && this.location) {
-      window.open(this.location, '_blank')
+    if (!this.location) return
 
-      await this.$router.replace('/')
-    }
+    await this.$router.replace({ name: 'Main' })
+
+    window.open(this.location, target)
   }
 }
 </script>
-
-<style lang="postcss" scoped>
-.Link-embed {
-  width: 100%;
-  height: 100%;
-}
-</style>

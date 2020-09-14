@@ -1,15 +1,21 @@
 import { Command } from 'commander'
-import { SlugCommand } from './SlugCommand'
+import { OverdueCommand } from './OverdueCommand'
+import { UploadsRelations } from './UploadsRelations'
 
 export function taskCommands() {
-  const commands = new Command('task')
-    .description('Task related commands')
+  const commands = new Command('task').description('Task related commands')
 
   commands
-    .command('slugs')
-    .description('Update task slugs')
+    .command('overdue')
+    .description('Update task overdue status')
     .action(async () => {
-      await SlugCommand.run()
+      await OverdueCommand.run()
+    })
+
+  commands.command('uploads-relations')
+    .description('Update task attachments uploads')
+    .action(async () => {
+      await UploadsRelations.run()
     })
 
   return commands

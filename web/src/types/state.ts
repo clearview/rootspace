@@ -2,11 +2,12 @@ import {
   NodeResource,
   LinkResource,
   SpaceResource,
-  SpaceMetaResource,
+  SpaceSettingResource,
   TaskBoardResource,
   TaskListResource,
   TaskItemResource,
-  DocumentResource
+  DocumentResource,
+  UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
 
@@ -37,7 +38,7 @@ export interface RootState {
 
 export interface AuthState {
   token: string | null;
-  user: object | null;
+  user: UserResource | null;
   spaces: SpaceResource[] | null;
   currentSpace: SpaceResource | null;
 }
@@ -90,8 +91,8 @@ export interface DocumentState {
 
 export interface SpaceState {
   activeIndex: number;
-  spaces: SpaceResource[];
-  spacesMeta: SpaceMetaResource[];
+  list: SpaceResource[];
+  settings: SpaceSettingResource[];
 }
 
 export interface PageState {

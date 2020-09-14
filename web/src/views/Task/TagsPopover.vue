@@ -264,7 +264,6 @@ export default class TagsPopover extends Vue {
   }
 
   .tags {
-    max-height: 30vh;
     overflow-y:auto;
   }
 

@@ -23,8 +23,11 @@ export interface LinkResource {
   newTab: boolean;
 }
 
+/**
+ * @deprecated
+ */
 export interface UploadResource {
-  created: Date;
+  createdAt: Date;
   id: number;
   size: 386397;
   path: string;
@@ -32,6 +35,29 @@ export interface UploadResource {
   type: string;
   updated: Date;
   userId: number;
+}
+export interface UploadKeyPath {
+  path: string;
+  key: string;
+}
+export interface NewUploadResource {
+  createdAt: Date;
+  entity: 'Task';
+  entityId: number;
+  id: number;
+  mimetype: string;
+  path: string;
+  size: number;
+  spaceId: number;
+  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo';
+  updatedAt: Date;
+  userId: number;
+  versions: {
+    thumbnail?: UploadKeyPath;
+    preview?: UploadKeyPath;
+    default?: UploadKeyPath;
+  };
+  index?: number;
 }
 
 export interface ApiResource {
@@ -66,7 +92,7 @@ export interface TaskItemResource extends ApiResource {
   slug: string | null;
   status: TaskItemStatus;
   tags: TagResource[] | null;
-  attachments: UploadResource[] | null;
+  attachments: NewUploadResource[] | null;
   dueDate: Date | null;
   position: number;
   list: TaskListResource | null;
@@ -130,17 +156,22 @@ export interface SpaceResource {
   settings?: object;
 }
 
-export interface SpaceMetaResource {
-  activePage?: string;
+export interface SpaceSettingResource {
+  activePage: string;
+  sidebarCollapse: boolean;
+  sidebarSize: boolean;
+  treeFolded: Record<string, boolean>;
+  taskViewAs: Record<number, TaskBoardType>;
+  taskSeenViewTip: boolean;
 }
 
 export interface UserResource {
-  id?: number;
+  id: number;
   active?: boolean;
   email: string;
   firstName: string;
   lastName: string;
-  avatar?: string;
+  avatar?: NewUploadResource;
   authProvider?: string;
   emailConfirmed?: boolean;
   token?: string;
@@ -154,4 +185,19 @@ export interface DocumentResource {
   title: string;
   content: object;
   access: number;
+}
+
+export interface ActivityResource {
+  action: string;
+  actor: UserResource;
+  actorId: number;
+  createdAt: string;
+  entity: string;
+  entityId: number;
+  id: number;
+  spaceId: number;
+  tableName: string;
+}
+export interface TaskActivityResource extends ActivityResource{
+  Task: TaskItemResource;
 }

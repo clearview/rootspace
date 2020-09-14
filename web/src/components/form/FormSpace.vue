@@ -45,19 +45,19 @@
         </button>
       </template>
 
-      <template #feedback v-if="$v.invitation.$error">
-        <div
-          v-if="!$v.invitation.email"
-          class="feedback is-error"
+      <template #feedback v-if="$v.invitation.$error || duplicateMessage">
+        <p
+          v-if="$v.invitation.$error && !$v.invitation.email"
+          class="feedback is-danger"
         >
           Email format is not valid.
-        </div>
-      </template>
-
-      <template #feedback v-if="duplicateMessage">
-        <p class="feedback is-success">
-          {{ duplicateMessage }}
         </p>
+
+        <p
+          v-if="duplicateMessage"
+          v-text="duplicateMessage"
+          class="feedback is-success"
+        />
       </template>
     </v-field>
 
@@ -68,7 +68,7 @@
         :key="'l-' + indexList"
       >
         <div class="flex flex-grow">
-          <avatar :username="memberName(list)"></avatar>
+          <avatar :size="28" :src="list.avatar && avatar.versions ? list.avatar.versions.default.path : ''"  :username="memberName(list)"></avatar>
           <span class="text-gray-900 pl-2 self-center flex-grow">{{ list.email }}</span>
           <div class="float-right self-center" v-if="list.accepted == false">
 
@@ -207,6 +207,8 @@ export default class FormSpace extends Vue {
 
       if (this.isEdit) {
         this.$emit('addUser', email)
+      } else {
+        this.payload.invites.push(email)
       }
     }
 

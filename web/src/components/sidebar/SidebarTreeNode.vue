@@ -26,7 +26,7 @@
       <v-icon name="down" />
     </div>
 
-    <div class="tree-node-label" >
+    <div class="tree-node-label overflow-hidden" >
       <div class="tree-node-icon">
         <v-icon :name="iconName" />
       </div>
@@ -72,13 +72,15 @@ export enum NodeType {
   Link = 'link',
   Doc = 'doc',
   Task = 'taskBoard',
-  Folder = 'folder'
+  Folder = 'folder',
+  Embed = 'embed'
 }
 
 export const nodeRouteNames = {
   link: 'Link',
   doc: 'Document',
   taskBoard: 'TaskPage',
+  embed: 'Embed',
   folder: ''
 } as const
 
@@ -86,7 +88,9 @@ export const nodeIconNames = {
   link: 'link',
   doc: 'file',
   taskBoard: 'file',
-  folder: 'folder'
+  embed: 'embed',
+  folder: 'folder',
+  archive: 'folder'
 } as const
 
 // Types

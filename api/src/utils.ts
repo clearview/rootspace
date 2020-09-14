@@ -1,5 +1,9 @@
 import bcrypt from 'bcryptjs'
 
+export function ucFirst(aString: string): string {
+  return aString.charAt(0).toUpperCase() + aString.slice(1)
+}
+
 export function mapRoute(ctrl: any, fn: string) {
   const instances = {}
   if (instances[ctrl] instanceof ctrl === false) {

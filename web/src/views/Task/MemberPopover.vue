@@ -6,7 +6,7 @@
         <ul class="members">
           <li class="member" v-for="(member, index) in filteredMembers" :key="index" @click="input(member)">
             <div class="member-name flex" :class="{selected : isSelectedTag(member)}">
-              <avatar :username="memberName(member)"></avatar>
+              <avatar :size="24" :src="member.avatar && member.avatar.versions ? member.avatar.versions.default.path : ''" :username="memberName(member)"></avatar>
               <span class="self-center">{{ memberName(member) }}</span>
               <span class="icon-checkmark"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
             </div>
@@ -62,10 +62,12 @@ export default class TagsPopover extends Vue {
   }
 
   async getSpaceMember () {
-    const id = this.activeSpace.id
-    const viewSpaceUsers = await SpaceService.spaceUsers(id)
+    try {
+      const id = this.activeSpace.id
+      const viewSpaceUsers = await SpaceService.spaceUsers(id)
 
-    this.memberList = viewSpaceUsers.data
+      this.memberList = viewSpaceUsers.data
+    } catch { }
   }
 
   isSelectedTag (member: UserResource) {

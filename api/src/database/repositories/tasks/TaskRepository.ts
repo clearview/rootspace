@@ -1,16 +1,64 @@
 import { Brackets, EntityRepository } from 'typeorm'
 import { Task } from '../../entities/tasks/Task'
 import { BaseRepository } from '../BaseRepository'
+import { Upload } from '../../entities/Upload'
+import { UploadEntity } from '../../../types/upload'
 
 @EntityRepository(Task)
 export class TaskRepository extends BaseRepository<Task> {
+  getById(id: number): Promise<Task> {
+    return this.createQueryBuilder('task')
+      .where('task.id = :id', { id })
+      .leftJoinAndSelect('task.user', 'createdBy')
+      .leftJoinAndMapOne('createdBy.avatar', Upload, 'avatar', 'avatar.entityId = createdBy.id and avatar.entity = \'User\'')
+      .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapOne('assignee.avatar', Upload, 'assigneeAvatar', 'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = \'User\'')
+      .leftJoinAndMapMany(
+        'task.attachments',
+        Upload,
+        'upload',
+        'upload.entityId = task.id AND upload.entity = :entity',
+        {
+          entity: 'Task',
+        }
+      )
+      .leftJoinAndSelect('task.tags', 'tag')
+      .leftJoinAndSelect('task.taskComments', 'comment')
+      .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndMapOne('user.avatar', Upload, 'commentAvatar', 'commentAvatar.entityId = user.id and commentAvatar.entity = \'User\'')
+      .getOne()
+  }
   async filterByTaskBoardId(taskBoardId: number, searchParam?: string, filterParam?: any): Promise<Task[]> {
     const searchQuery = this.createQueryBuilder('task')
-      .leftJoinAndSelect('task.tags', 'tag')
-      .leftJoinAndSelect('task.assignees', 'assignee')
-      .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('task.user', 'createdBy')
+      .leftJoinAndMapOne(
+        'createdBy.avatar',
+        Upload,
+        'avatar',
+        'avatar.entityId = createdBy.id AND avatar.entity = :avatarEntity',
+        { avatarEntity: UploadEntity.User }
+      )
+      .leftJoinAndSelect('task.assignees', 'assignee')
+      .leftJoinAndMapOne(
+        'assignee.avatar',
+        Upload,
+        'assigneeAvatar',
+        'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = :assigneeAvatarEntity',
+        { assigneeAvatarEntity: UploadEntity.User }
+      )
+      .leftJoinAndMapMany(
+        'task.attachments',
+        Upload,
+        'upload',
+        'upload.entityId = task.id AND upload.entity = :entity',
+        {
+          entity: 'Task',
+        }
+      )
+      .leftJoinAndSelect('task.tags', 'tag')
+      .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
+      .leftJoinAndMapOne('user.avatar', Upload, 'commentAvatar', 'commentAvatar.entityId = user.id and commentAvatar.entity = \'User\'')
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')
       .where('taskBoard.id = :taskBoardId', { taskBoardId })
@@ -37,10 +85,9 @@ export class TaskRepository extends BaseRepository<Task> {
       })
     }
 
-    if(filterParam?.unassigned){
+    if (filterParam?.unassigned) {
       searchQuery.andWhere('assignee IS NULL')
-    }
-    else if (filterParam?.assignees?.length > 0) {
+    } else if (filterParam?.assignees?.length > 0) {
       searchQuery.andWhere('assignee.id IN (:...assignees)', {
         assignees: filterParam.assignees,
       })
@@ -54,8 +101,7 @@ export class TaskRepository extends BaseRepository<Task> {
   }
 
   async findOneArchived(id: number): Promise<Task> {
-    return this
-      .createQueryBuilder('task')
+    return this.createQueryBuilder('task')
       .where('task.id = :id', { id })
       .withDeleted()
       .getOne()

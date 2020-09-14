@@ -11,6 +11,7 @@ import { uploadRouter } from './uploadRouter'
 import { folderRouter } from './folderRouter'
 import { embedRouter } from './embedRouter'
 import { notificationRouter } from './notificationRouter'
+import { activityRouter } from './activityRouter'
 
 const routers = [
   defaultRouter,
@@ -25,7 +26,9 @@ const routers = [
   uploadRouter,
   folderRouter,
   embedRouter,
-  notificationRouter
+  folderRouter,
+  notificationRouter,
+  activityRouter
 ]
 
 export default routers

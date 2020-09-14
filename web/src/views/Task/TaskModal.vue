@@ -29,7 +29,12 @@
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
       <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
-          Drop a file to upload as attachment
+        <v-icon
+          name="upload"
+          size="32px"
+          viewbox="32"
+        />
+        Drop a file to upload as attachment
       </div>
       <div class="task-left">
         <div class="task-actions">
@@ -68,17 +73,42 @@
             <span class="description-title-placeholder">Description</span>
             <v-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <div class="description-content" v-if="!isEditingDescription" v-html="itemCopy.description"></div>
-          <div class="description-input" v-if="isEditingDescription">
+          <div
+            :class="{
+              'description-input': true,
+              'is-disabled': !isEditingDescription
+            }"
+          >
             <quill-editor
-              ref="myQuillEditor"
               :options="editorOption"
+              :disabled="!isEditingDescription"
               v-model="descriptionCopy.description"
             />
             <div class="description-input-actions">
               <span class="cancel" @click="cancelDescription">Cancel</span>
               <span class="save" @click="saveDescription">Save</span>
             </div>
+          </div>
+        </div>
+        <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
+          <div class="attachments-label">
+            Attachments
+          </div>
+          <imageViewer
+            v-model="attachmentIndex"
+            :images="item.attachments"
+            @remove="handleRemoveFile"
+          ></imageViewer>
+          <ul class="attachments" v-if="item.attachments">
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1].id" class="attachments-item">
+              <TaskAttachmentView :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+            </li>
+          </ul>
+          <div v-if="item.attachments.length > 5">
+            <p class="show-attachments" @click="attachmentState()">
+              <v-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
+              {{ textAttachmentState }}
+            </p>
           </div>
         </div>
         <div class="comment-separator"></div>
@@ -90,17 +120,18 @@
             @submit-comment="commentHandler"
           />
         </div>
-        <ul class="comments">
+        <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
-
+        <div class="comment-separator"></div>
+        <TaskActivities :item="item"></TaskActivities>
       </div>
       <div class="task-right">
         <div class="right-field">
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by">
-              <avatar :username="memberName(item.user)"></avatar>
+              <avatar :size="24" :src="item.user && item.user.avatar && item.user.avatar.versions ? item.user.avatar.versions.default.path : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
           </div>
@@ -133,23 +164,10 @@
                     </template>
                   </MemberPopover>
                 <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
-                  <avatar :username="memberName(assignee)"></avatar>
+                  <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.path : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>
-          </div>
-        </div>
-        <div class="right-field">
-          <div class="right-field-title">Attachments</div>
-          <div class="right-field-content">
-            <ul class="attachments" v-if="item.attachments && item.attachments.length > 0">
-              <li v-for="attachment in item.attachments" :key="attachment.id" class="attachments-item">
-                <TaskAttachmentView :attachment="attachment" @remove="handleRemoveFile"/>
-              </li>
-            </ul>
-            <template v-else>
-              <span>None</span>
-            </template>
           </div>
         </div>
         <div class="right-field">
@@ -180,10 +198,17 @@
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/Modal.vue'
-import { TagResource, TaskCommentResource, TaskItemResource, UploadResource, UserResource } from '@/types/resource'
+import {
+  NewUploadResource,
+  TagResource,
+  TaskCommentResource,
+  TaskItemResource,
+  UserResource
+} from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
+import ImageViewer from '@/components/ImageViewer.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
 import TagsPopover from '@/views/Task/TagsPopover.vue'
@@ -198,10 +223,12 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
+import TaskActivities from '@/views/Task/TaskActivities.vue'
 
 @Component({
   name: 'TaskModal',
   components: {
+    TaskActivities,
     TaskAttachmentView,
     DueDatePopover,
     TagsPopover,
@@ -212,7 +239,8 @@ import { quillEditor } from 'vue-quill-editor'
     Modal,
     Field,
     Avatar,
-    quillEditor
+    quillEditor,
+    ImageViewer
   },
   filters: {
     formatDate (date: Date | string) {
@@ -236,13 +264,15 @@ export default class TaskModal extends Vue {
 
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
-    private isEditingDescription = false;
-    private commentInput = '';
+    private isEditingDescription = false
+    private commentInput = ''
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
     private isCommenting = false
     private isCapturingFile = false
+    private isShowAllAttachment = false
+    private attachmentIndex: number|null = null
     private toolbarOptions = [
       ['bold', 'italic', 'underline', 'strike'],
       ['link'],
@@ -299,14 +329,15 @@ export default class TaskModal extends Vue {
       }
     }
 
-    async handleRemoveFile (attachment: UploadResource) {
-      if (this.itemCopy.attachments) {
-        this.itemCopy.attachments = this.itemCopy.attachments?.filter(attc => attc.id !== attachment.id)
-        await this.$store.dispatch('task/item/update', {
-          id: this.item.id,
-          attachments: this.itemCopy.attachments
-        })
-      }
+    async handleRemoveFile (attachment: NewUploadResource) {
+      await this.$store.dispatch('task/item/deleteUpload', {
+        task: this.item,
+        upload: attachment
+      })
+    }
+
+    handleFileClick (index: number|null) {
+      this.attachmentIndex = index
     }
 
     async saveDescription () {
@@ -478,6 +509,31 @@ export default class TaskModal extends Vue {
       }
     }
 
+    get maxShownAttachment () {
+      if (this.isShowAllAttachment && this.item.attachments) {
+        return this.item.attachments.length
+      } else if (this.item.attachments && this.item.attachments.length > 0) {
+        return this.item.attachments.length > 5 ? 5 : this.item.attachments.length
+      }
+      return 0
+    }
+
+    get textAttachmentState () {
+      const textState = this.isShowAllAttachment ? 'Less' : 'More'
+
+      return `Show ${textState}`
+    }
+
+    get iconAttachmentState () {
+      const iconState = this.isShowAllAttachment ? 'up' : 'down'
+
+      return iconState
+    }
+
+    attachmentState () {
+      this.isShowAllAttachment = !this.isShowAllAttachment
+    }
+
     handlePaste (e: ClipboardEvent) {
       e.preventDefault()
       const data = e.clipboardData?.getData('text/plain')
@@ -552,7 +608,7 @@ export default class TaskModal extends Vue {
   .task-right {
     @apply ml-8;
     flex: 0 1 auto;
-    width: 166px;
+    width: 182px;
   }
 
   .action-label {
@@ -825,7 +881,7 @@ export default class TaskModal extends Vue {
   }
 
   .attachments {
-    @apply flex items-center flex-wrap;
+    @apply flex flex-col;
   }
 
   .task-modal-title-editable {
@@ -856,14 +912,23 @@ export default class TaskModal extends Vue {
   }
 
   .task-drag-capture {
-    @apply z-50 absolute flex items-center justify-center text-3xl;
+    @apply z-50 absolute flex items-center justify-center text-3xl flex-col;
     color: theme("colors.gray.900");
     top: 0;
-    left:0;
     width: 100%;
-    height: 100%;
-    background: #fff8;
-    backdrop-filter: saturate(1.5) blur(4px);
+    height: 90%;
+    border: 2px dashed theme("colors.primary.default");
+    font-size: 16px;
+    line-height: 19px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    margin: 0 0 2rem 0;
+    width: 650px;
+    background: #fff;
+
+    svg {
+      color: theme("colors.primary.default");
+    }
   }
 
   .created-by {
@@ -910,56 +975,52 @@ export default class TaskModal extends Vue {
     }
   }
 
+  .task-attachments {
+    margin-top: 24px;
+
+    .attachments-label {
+      @apply uppercase pb-2;
+
+      color: theme("colors.gray.900");
+      font-weight: bold;
+      font-size: 12px;
+      line-height: 14px;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .show-attachments {
+    @apply flex items-center;
+
+    cursor: pointer;
+    line-height: 17px;
+    color: theme("colors.gray.800");
+  }
+
 </style>
 
 <style lang="postcss">
-.ql-editor, .description-content {
+.ql-editor {
   line-height: 1.5rem;
   font-size: 15px;
-}
-
-.ql-editor {
   font-size: 15px;
   min-height: 180px;
   max-height: 650px;
 }
 
-.description-content {
-  a {
-    border-bottom: 1px dashed;
+.description-input.is-disabled {
+  .ql-toolbar,
+  .ql-blank,
+  .description-input-actions {
+    @apply hidden;
   }
 
-  ol, ul {
-    padding-left: 1.5em;
-
-    li {
-      padding-left: 1.5em;
-
-      &::before {
-          margin-left: -1.5em;
-          margin-right: 0.3em;
-          text-align: right;
-      }
-    }
+  .ql-editor {
+    @apply min-h-0 p-0;
   }
 
-  ol {
-    li {
-      counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
-      counter-increment: list-0;
-
-      &::before {
-        content: counter(list-0, decimal) '. ';
-      }
-    }
-  }
-
-  ul {
-    li {
-      &::before {
-        content: '\2022';
-      }
-    }
+  .ql-disabled {
+    @apply border-none;
   }
 }
 

@@ -1,26 +1,10 @@
-import { EntityRepository, Repository, UpdateResult, getTreeRepository } from 'typeorm'
+import { EntityRepository, Repository, UpdateResult } from 'typeorm'
 import { Node } from '../entities/Node'
 import { NodeType } from '../../types/node'
 
 @EntityRepository(Node)
 export class NodeRepository extends Repository<Node> {
-  async getTreeBySpaceId(spaceId: number): Promise<Node[]> {
-    const root = await this.getRootBySpaceId(spaceId)
-
-    const query = this.createQueryBuilder('node')
-      .andWhere('node.spaceId = :spaceId', { spaceId })
-      .andWhere('node.type != :rootType', { rootType: NodeType.Root })
-      .andWhere('node.type != :archiveType', { archiveType: NodeType.Archive })
-
-    let nodes = await query.getMany()
-
-    nodes = this.buildTree(nodes, root.id)
-    nodes = this.sortTree(nodes)
-
-    return nodes
-  }
-
-  getById(id: number, spaceId?: number, options?: any) {
+  getById(id: number, spaceId?: number, options: any = {}) {
     const query = this.createQueryBuilder('node').where('node.id = :id', { id })
 
     if (spaceId) {
@@ -47,7 +31,7 @@ export class NodeRepository extends Repository<Node> {
     return query.getOne()
   }
 
-  getRootBySpaceId(spaceId: number): Promise<Node> {
+  getRootNodeBySpaceId(spaceId: number): Promise<Node> {
     return this.createQueryBuilder('node')
       .where('node.type = :type AND node.contentId = :contentId', {
         type: NodeType.Root,
@@ -65,6 +49,39 @@ export class NodeRepository extends Repository<Node> {
       .getOne()
   }
 
+  getBySpaceId(spaceId: number): Promise<Node[]> {
+    return this.createQueryBuilder('node')
+      .andWhere('node.spaceId = :spaceId', { spaceId })
+      .andWhere('node.type != :rootType', { rootType: NodeType.Root })
+      .getMany()
+  }
+
+  async getTreeBySpaceId(spaceId: number): Promise<Node[]> {
+    const root = await this.getRootNodeBySpaceId(spaceId)
+    let nodes = await this.getBySpaceId(spaceId)
+
+    nodes = this.buildTree(nodes, root.id)
+    nodes = this.sortTree(nodes)
+
+    return nodes
+  }
+
+  async getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+    const archiveNode = await this.getArchiveNodeBySpaceId(spaceId)
+
+    const query = this.createQueryBuilder('node')
+      .where('node.spaceId = :spaceId', { spaceId })
+      .andWhere('node.deleted_at IS NOT NULL')
+      .withDeleted()
+
+    let nodes = await query.getMany()
+
+    nodes = this.buildTree(nodes, archiveNode.id)
+    nodes = this.sortTree(nodes)
+
+    return nodes
+  }
+
   getChildren(parentId: number, options: any = {}): Promise<Node[]> {
     const query = this.createQueryBuilder('node')
       .where('node.parentId = :parentId', {
@@ -79,18 +96,21 @@ export class NodeRepository extends Repository<Node> {
     return query.getMany()
   }
 
-  async hasDescendant(ancestor: Node, descendantId: number): Promise<boolean> {
-    const count = await getTreeRepository(Node)
-      .createDescendantsQueryBuilder('node', null, ancestor)
-      .andWhere('node.id = :descendantId', { descendantId })
-      .andWhere('node.spaceId = :spaceId', { spaceId: ancestor.spaceId })
-      .getCount()
+  async getDescendantsTree(parentId: number): Promise<Node[]> {
+    const parent = await this.getById(parentId)
+    let nodes = await this.getBySpaceId(parent.spaceId)
 
-    if (count) {
-      return true
-    }
+    nodes = this.buildTree(nodes, parent.id)
+    nodes = this.sortTree(nodes)
 
-    return false
+    return nodes
+  }
+
+  async hasDescendant(ancestorId: number, descendantId: number): Promise<boolean> {
+    const descendantsTree = await this.getDescendantsTree(ancestorId)
+    const node = this.findInTree(descendantsTree, descendantId)
+
+    return node ? true : false
   }
 
   async getNodeMaxPosition(parentId: number): Promise<number> {
@@ -178,5 +198,23 @@ export class NodeRepository extends Repository<Node> {
     })
 
     return sorted
+  }
+
+  private findInTree(nodes: Node[], findId: number): Node | null {
+    for (const node of nodes) {
+      if (node.id === findId) {
+        return node
+      }
+
+      if (node.children && node.children.length > 0) {
+        const result = this.findInTree(node.children, findId)
+
+        if (result) {
+          return result
+        }
+      }
+    }
+
+    return null
   }
 }

@@ -20,11 +20,7 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
-  getByUserIdAndSpaceId(
-    userId: number,
-    spaceId: number,
-    active?: boolean
-  ): Promise<UserToSpace> {
+  getByUserIdAndSpaceId(userId: number, spaceId: number, active?: boolean): Promise<UserToSpace> {
     return this.getUserToSpaceRepository().getByUserIdAndSpaceId(
       userId,
       spaceId,
@@ -32,18 +28,9 @@ export class UserSpaceService {
     )
   }
 
-  getCountSpaceUsers(spaceId: number): Promise<number> {
-    return this.getUserToSpaceRepository().getCountUsersBySpaceId(spaceId)
-  }
-
   async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
     const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
-
-    if (userSpace) {
-      return true
-    }
-
-    return false
+    return !!userSpace
   }
 
   async add(userId: number, spaceId: number): Promise<UserToSpace> {

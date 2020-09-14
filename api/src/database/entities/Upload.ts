@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { IUploadVersions } from '../../types/upload'
 
 @Entity('uploads')
 export class Upload {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -14,19 +14,33 @@ export class Upload {
   @Index()
   spaceId: number
 
-  @Column('varchar')
-  type: string
+  @Column('integer', { nullable: true })
+  entityId: number
 
-  @Column('integer')
-  size: number
+  @Column('varchar', { nullable: true })
+  entity: string
+
+  @Column('varchar', { nullable: true })
+  type: string
 
   @Column('varchar')
   path: string
 
-  @CreateDateColumn()
-  created: string
+  @Column('varchar', { nullable: true })
+  key: string
 
-  @UpdateDateColumn()
-  updated: string
+  @Column('json', { nullable: true })
+  versions: IUploadVersions
 
+  @Column('varchar')
+  mimetype: string
+
+  @Column('integer')
+  size: number
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date
 }

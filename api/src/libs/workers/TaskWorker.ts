@@ -71,8 +71,7 @@ export class TaskWorker extends BaseWorker {
 
   private async sendNotificationEmail(user: User, event: ActivityEvent): Promise<boolean> {
     const task = await this.taskService.getById(event.entityId)
-    const taskList = await this.taskService.getTaskListByTask(task)
-    const taskUrl = `${config.domain}/taskboard/${taskList.boardId}/item/${task.id}/${task.slug}`
+    const taskUrl = `${config.domain}/taskboard/${task.boardId}/item/${task.id}/${task.slug}`
 
     const subject = await this.emailSubject(event, task)
     const content = pug.renderFile(TaskWorker.mailTemplatesDir + 'modified.pug', { subject, taskUrl })

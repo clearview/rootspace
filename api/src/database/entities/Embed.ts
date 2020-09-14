@@ -24,15 +24,18 @@ export class Embed {
   @Column('varchar')
   title: string
 
+  @Column('varchar')
+  type: string
+
   @Column('text')
   content: string
 
-  @CreateDateColumn()
-  created: Date
+  @CreateDateColumn({ type: 'timestamptz'})
+  createdAt: Date
 
-  @UpdateDateColumn()
-  updated: Date
+  @UpdateDateColumn({ type: 'timestamptz'})
+  updatedAt: Date
 
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
+  @DeleteDateColumn({ type: 'timestamptz'})
   public deletedAt: Date
 }

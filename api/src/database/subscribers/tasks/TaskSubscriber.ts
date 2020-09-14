@@ -4,6 +4,7 @@ import {
   InsertEvent, UpdateEvent
 } from 'typeorm'
 import { Task } from '../../entities/tasks/Task'
+import moment from 'moment'
 import slugify from '@sindresorhus/slugify'
 
 @EventSubscriber()
@@ -14,7 +15,9 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
 
   async beforeInsert(event: InsertEvent<Task>) {
     const task = event.entity
+
     task.slug = slugify(task.title)
+    task.isOverdue = TaskSubscriber.isOverdue(task)
   }
 
   async beforeUpdate(event: UpdateEvent<Task>) {
@@ -27,5 +30,17 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     }
 
     task.slug = slugify(task.title)
+    task.isOverdue = TaskSubscriber.isOverdue(task)
+  }
+
+  private static isOverdue(task: Task): boolean {
+    if (!task.dueDate) {
+      return false
+    }
+
+    const now = moment()
+    const dueDate = moment(task.dueDate)
+
+    return dueDate < now
   }
 }

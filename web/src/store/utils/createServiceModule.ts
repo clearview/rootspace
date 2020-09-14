@@ -11,6 +11,7 @@ export interface Hooks<TResource> {
   afterUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   beforeUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterDestroy?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  afterArchive?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
 }
 
 export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>, hooks?: Hooks<TResource>): Module<ResourceState<TResource>, RootState> {
@@ -117,6 +118,19 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
 
         if (hooks && hooks.afterDestroy) {
           hooks.afterDestroy(context, data)
+        }
+      },
+
+      async archive (context, data: TResource): Promise<void> {
+        if (data.id === null) {
+          throw new Error('Unable to archive data without ID')
+        }
+        context.commit('setProcessing', true)
+        await service.archive(data.id)
+        context.commit('setProcessing', false)
+
+        if (hooks && hooks.afterArchive) {
+          hooks.afterArchive(context, data)
         }
       }
     }

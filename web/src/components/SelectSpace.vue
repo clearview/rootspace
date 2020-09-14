@@ -10,13 +10,12 @@
       <div class="flex flex-row items-center truncate">
         <div class="mr-2">
           <img
-            srcset="
-              @/assets/images/space.png 1x,
-              @/assets/images/space@2x.png 2x
-            "
-            src="@/assets/images/space.png"
+            class="space-logo"
+            v-if="activeSpace.avatar"
+            :src="activeSpace.avatar.versions.default.path"
             alt="Space"
           >
+          <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
         </div>
         <span
           v-if="!hideLabel"
@@ -42,18 +41,17 @@
           :class="{
             'is-active': item.id === activeSpace.id
           }"
-          @click="switchSpace(item)"
+          @click="activateSpace(item.id)"
         >
           <div class="SelectSpace-option-content">
             <div class="SelectSpace-option-logo">
               <img
-                srcset="
-                @/assets/images/space.png 1x,
-                @/assets/images/space@2x.png 2x
-              "
-                src="@/assets/images/space.png"
+                class="space-logo"
+                v-if="activeSpace.avatar"
+                :src="activeSpace.avatar.versions.default.path"
                 alt="Space"
               >
+              <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
             </div>
             <div class="SelectSpace-option-label">
               <strong
@@ -110,6 +108,7 @@
       title="Add Space"
       :visible="modal.visible"
       :loading="modal.loading"
+      :content-style="{ width: '456px' }"
       confirmText="Add"
       @cancel="modal.visible = false"
       @confirm="() => $refs.formSpace.submit()"
@@ -126,13 +125,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from 'vue-property-decorator'
+import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 
-import { SpaceResource, SpaceMetaResource, UserResource } from '@/types/resource'
+import { SpaceResource, UserResource } from '@/types/resource'
 
 import FormSpace from '@/components/form/FormSpace.vue'
 import Modal from '@/components/Modal.vue'
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 interface ModalState {
   visible: boolean;
@@ -147,7 +147,7 @@ interface ModalState {
     Modal
   }
 })
-export default class SelectSpace extends Vue {
+export default class SelectSpace extends Mixins(SpaceMixin) {
   @Prop(Boolean)
   private readonly hideLabel!: boolean
 
@@ -156,18 +156,6 @@ export default class SelectSpace extends Vue {
   private modal = {
     visible: false,
     loading: false
-  }
-
-  get spaces (): SpaceResource[] {
-    return this.$store.state.space.spaces
-  }
-
-  get spacesMeta (): SpaceMetaResource[] {
-    return this.$store.state.space.spacesMeta
-  }
-
-  get activeSpace (): SpaceResource {
-    return this.$store.getters['space/activeSpace']
   }
 
   get user (): UserResource {
@@ -200,24 +188,13 @@ export default class SelectSpace extends Vue {
     this.$store.dispatch('auth/signout')
   }
 
-  async switchSpace (space: SpaceResource) {
-    const index = this.spaces.findIndex(item => space.id === item.id)
-    const { activePage } = this.spacesMeta[index] || {}
-
-    try {
-      if (!activePage) {
-        this.$store.commit('space/setActive', { space })
-      }
-
-      await this.$router.push(activePage || '/')
-    } catch { }
-  }
-
   async addSpace (data: SpaceResource) {
     this.modal.loading = true
 
     try {
-      await this.$store.dispatch('space/create', data)
+      const space = await this.$store.dispatch('space/create', data)
+
+      await this.activateSpace(space.id)
     } catch { }
 
     this.modal.loading = false
@@ -325,5 +302,10 @@ export default class SelectSpace extends Vue {
   @apply inline-block truncate;
 
   max-width: calc(100% - 60px);
+}
+.space-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
 }
 </style>

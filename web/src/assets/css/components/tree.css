@@ -7,6 +7,13 @@
   margin: 6px auto;
 }
 
+.tree-placeholder-node{
+  @apply bg-gray-100 opacity-25;
+
+  border-radius: 4px;
+  height: 28px;
+}
+
 .tree-node-content {
   @apply flex flex-row flex-1;
 
@@ -23,18 +30,15 @@
 .tree-node-arrow,
 .tree-node-icon,
 .tree-node-actions {
-  @apply flex flex-none items-center;
+  @apply flex flex-initial items-center;
   @apply text-gray-400;
 
   margin-right: 6px;
 }
 
 .tree-node-handle {
-  @apply absolute;
-  @apply cursor-pointer;
-
-  visibility: hidden;
-  top: calc(50% - 10px);
+  @apply invisible cursor-pointer;
+  @apply mr-0;
 }
 
 .tree-node-label {
@@ -44,11 +48,10 @@
 .tree-node-arrow {
   @apply cursor-pointer;
 
-  margin-left: 1em;
   transition: transform .3s;
 
   &.is-hidden {
-    visibility: hidden;
+    @apply invisible;
   }
 
   &.is-folded {
@@ -57,7 +60,7 @@
 }
 
 .tree-node-text {
-  @apply flex flex-1;
+  @apply block;
   @apply overflow-hidden leading-tight;
 
   input {
@@ -68,25 +71,20 @@
 }
 
 .tree-node-actions {
-  @apply ml-1;
+  @apply hidden ml-1;
 
-  visibility: hidden;
-}
-
-.tree-placeholder-node{
-  @apply bg-gray-100 opacity-25;
-
-  border-radius: 4px;
-  height: 28px;
+  height: 1em;
 }
 
 .tree-node-content.is-editable {
   @apply cursor-auto;
 
-  .tree-node-handle,
+  .tree-node-handle {
+    @apply visible;
+  }
+
   .tree-node-actions {
-    /* @apply block; */
-    visibility: visible;
+    @apply block;
   }
 }
 

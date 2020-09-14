@@ -1,8 +1,9 @@
-import { EntityRepository, Repository } from 'typeorm'
+import { EntityRepository } from 'typeorm'
 import { Link } from '../entities/Link'
+import { BaseRepository } from './BaseRepository'
 
 @EntityRepository(Link)
-export class LinkRepository extends Repository<Link> {
+export class LinkRepository extends BaseRepository<Link> {
   getById(id: number, spaceId: number = null, options: any = {}) {
     const query = this.createQueryBuilder('link').where('link.id = :id', { id })
 

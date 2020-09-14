@@ -213,7 +213,7 @@
 <script lang="ts">
 import { email, minLength, required, sameAs } from 'vuelidate/lib/validators'
 
-import { PasswordResource, UserResource } from '@/types/resource'
+import { PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 import { Component, Vue } from 'vue-property-decorator'
@@ -248,7 +248,7 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class FormSettings extends Vue {
-  private payload: UserResource = {
+  private payload = {
     firstName: '',
     lastName: '',
     email: ''

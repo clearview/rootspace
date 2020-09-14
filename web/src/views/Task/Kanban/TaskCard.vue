@@ -47,7 +47,7 @@
           </div>
           <ul class="assignees" v-if="item.assignees && item.assignees.length > 0" :class="{ 'assignees-margin' : isTagMoreThanOneLine }">
             <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee">
-              <avatar :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+              <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.path : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
             <li class="assignee more-assignee" v-if="hasMoreAssignee">
               <avatar :content="`${countMoreAssignee} More`" :username="`+ ${countMoreAssignee}`" v-tippy></avatar>
@@ -429,7 +429,6 @@ export default class TaskCard extends Vue {
     .footer {
       /* @apply flex justify-between flex-1; */
       @apply block;
-      width: 240px;
 
       &.tags-margin {
         margin-top: 8px;

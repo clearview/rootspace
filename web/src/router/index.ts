@@ -17,8 +17,24 @@ const routes: Array<RouteConfig> = [
       },
       {
         path: '/settings',
-        name: 'Settings',
-        component: () => import(/* webpackChunkName: "settings" */ '../views/Settings.vue')
+        component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Settings.vue'),
+        children: [
+          {
+            path: '',
+            redirect: { name: 'SettingsAccount' },
+            name: 'Settings'
+          },
+          {
+            path: 'account',
+            name: 'SettingsAccount',
+            component: () => import(/* webpackChunkName: "settings-account" */ '../views/Settings/Account.vue')
+          },
+          {
+            path: 'space',
+            name: 'SettingsSpace',
+            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue')
+          }
+        ]
       },
       {
         path: '/document/:id?',
@@ -49,6 +65,11 @@ const routes: Array<RouteConfig> = [
         path: '/link/:id',
         name: 'Link',
         component: () => import(/* webpackChunkName: "link" */'../views/Link.vue')
+      },
+      {
+        path: '/embed/:id',
+        name: 'Embed',
+        component: () => import(/* webpackChunkName: "embed" */'../views/Embed.vue')
       }
     ]
   },
@@ -77,7 +98,7 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/invitation/:token/:id',
+    path: '/invitation/:token',
     name: 'Invitation',
     component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue')
   },

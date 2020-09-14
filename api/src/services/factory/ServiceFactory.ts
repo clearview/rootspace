@@ -13,7 +13,8 @@ import {
   SpaceService,
   InviteService,
   ActivityService,
-  UserSpaceService
+  UserSpaceService,
+  UploadService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -27,6 +28,7 @@ export class ServiceFactory {
   private constructor() {}
 
   static instance: ServiceFactory
+
   static getInstance() {
     if (ServiceFactory.instance) {
       return ServiceFactory.instance
@@ -96,7 +98,7 @@ export class ServiceFactory {
   }
 
   getSpaceService() {
-   return SpaceService.getInstance()
+    return SpaceService.getInstance()
   }
 
   getInviteService() {
@@ -108,11 +110,15 @@ export class ServiceFactory {
   }
 
   getActivityService() {
-   return ActivityService.getInstance()
+    return ActivityService.getInstance()
   }
 
   getUserSpaceService() {
     return UserSpaceService.getInstance()
+  }
+
+  getUploadService() {
+    return UploadService.getInstance()
   }
 
   private initNodeContentServices() {

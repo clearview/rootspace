@@ -73,18 +73,34 @@ export class DocService extends NodeContentService {
     )
 
     doc = await this.getDocRepository().reload(doc)
-    await this.registerActivityForDoc(DocActivities.Created, doc)
+    await this.registerActivityForDoc(DocActivities.Created, doc, { title: doc.title })
 
     return doc
   }
 
   async update(data: DocUpdateValue, id: number): Promise<Doc> {
+    const existingDoc = await this.getById(id)
     let doc = await this.getById(id)
 
     Object.assign(doc, data.attributes)
     doc = await this.getDocRepository().save(doc)
 
-    await this.registerActivityForDocId(DocActivities.Updated, doc.id)
+    /**
+     * Todo: register context within session
+     * since content updates are too frequent
+     */
+    const fields = { old: {}, new: {} }
+
+    for(const key of Object.keys(data.attributes)) {
+      if(key === 'title' && data.attributes[key] !== existingDoc[key]) {
+        fields.old[key] = existingDoc[key]
+        fields.new[key] = doc[key]
+      }
+    }
+
+    if (Object.keys(fields.new).length) {
+      await this.registerActivityForDocId(DocActivities.Updated, doc.id, fields)
+    }
 
     return this.getDocRepository().reload(doc)
   }
@@ -112,7 +128,7 @@ export class DocService extends NodeContentService {
 
   private async _archive(_doc: Doc): Promise<Doc> {
     const doc = await this.getDocRepository().softRemove(_doc)
-    await this.registerActivityForDoc(DocActivities.Archived, doc)
+    await this.registerActivityForDoc(DocActivities.Archived, doc, { title: doc.title })
 
     return doc
   }
@@ -124,7 +140,7 @@ export class DocService extends NodeContentService {
     doc = await this._restore(doc)
 
     await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
-    await this.registerActivityForDoc(DocActivities.Restored, doc)
+    await this.registerActivityForDoc(DocActivities.Restored, doc, { title: doc.title })
 
     return doc
   }
@@ -150,7 +166,7 @@ export class DocService extends NodeContentService {
 
     doc = await this._remove(doc)
 
-    await this.registerActivityForDoc(DocActivities.Deleted, doc)
+    await this.registerActivityForDoc(DocActivities.Deleted, doc, { title: doc.title })
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return doc
@@ -185,12 +201,12 @@ export class DocService extends NodeContentService {
     }
   }
 
-  async registerActivityForDocId(docActivity: DocActivities, docId: number): Promise<Bull.Job> {
+  async registerActivityForDocId(docActivity: DocActivities, docId: number, context?: any): Promise<Bull.Job> {
     const doc = await this.getById(docId)
-    return this.registerActivityForDoc(docActivity, doc)
+    return this.registerActivityForDoc(docActivity, doc, context)
   }
 
-  async registerActivityForDoc(docActivity: DocActivities, doc: Doc): Promise<Bull.Job> {
+  async registerActivityForDoc(docActivity: DocActivities, doc: Doc, context?: any): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
@@ -198,6 +214,7 @@ export class DocService extends NodeContentService {
         .fromActor(actor.id)
         .forEntity(doc)
         .inSpace(doc.spaceId)
+        .withContext(context)
     )
   }
 }

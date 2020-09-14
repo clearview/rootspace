@@ -1,31 +1,80 @@
-import { NextFunction, Request, Response } from 'express'
-import { UploadService } from '../services/UploadService'
-import { UploadValidator } from '../validation/upload'
+import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
+import { UploadValue } from '../values/upload'
+import { UploadType, UploadEntity } from '../types/upload'
+import { validateUpload } from '../validation/upload'
+import { UploadService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class UploadsCtrl extends BaseCtrl {
-
   private uploadService: UploadService
 
   constructor() {
     super()
-    this.uploadService = new UploadService()
+    this.uploadService = ServiceFactory.getInstance().getUploadService()
   }
 
-  async index(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = {
-        spaceId: req.query.spaceId,
-        userId: req.user.id,
-        file: req.file
-      }
-      const validator = new UploadValidator()
-      await validator.validate(data)
-
-      const upload = await this.uploadService.upload(req.file, data)
-      res.send(upload)
-    } catch (err) {
-      next(err)
+  async uploadUserAvatar(req: Request, res: Response, next: NextFunction) {
+    if (req.body.type !== UploadType.UserAvatar) {
+      return next()
     }
+
+    const data = {
+      userId: req.user.id,
+      entityId: req.user.id,
+      entity: UploadEntity.User,
+      type: req.body.type,
+    }
+
+    const file = req.file
+
+    await validateUpload(Object.assign({ ...data }, { file }))
+
+    const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
+    const upload = await this.uploadService.upload(value)
+
+    res.send(this.responseData(upload))
+  }
+
+  async uploadSpaceLogo(req: Request, res: Response, next: NextFunction) {
+    if (req.body.type !== UploadType.SpaceLogo) {
+      return next()
+    }
+
+    const data = {
+      userId: req.user.id,
+      spaceId: req.body.spaceId,
+      entityId: req.body.spaceId,
+      entity: UploadEntity.Space,
+      type: req.body.type,
+    }
+
+    const file = req.file
+
+    await validateUpload(Object.assign({ ...data }, { file }))
+
+    const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
+    const upload = await this.uploadService.upload(value)
+
+    res.send(this.responseData(upload))
+  }
+
+  async upload(req: Request, res: Response) {
+    const data = req.body
+    const file = req.file
+
+    await validateUpload(Object.assign({ ...data }, { file }))
+
+    const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
+    const upload = await this.uploadService.upload(value)
+
+    res.send(this.responseData(upload))
+  }
+
+  async delete(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const result = await this.uploadService.remove(id)
+
+    res.send(this.responseData(result))
   }
 }

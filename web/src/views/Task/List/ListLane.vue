@@ -47,7 +47,7 @@
               </div>
             </div>
             <div class="action-separator"></div>
-            <div class="action-line danger" @click="hide();handleMenu('delete')">
+            <div class="action-line danger" @click="hide();handleMenu('archive')">
               <v-icon name="archive" viewbox="16" size="18px"></v-icon>
               <div class="action-line-text">
                 Archive
@@ -231,7 +231,7 @@ export default class TaskLane extends Vue {
       const prev = this.orderedCards[prevIndex]
       const next = this.orderedCards[nextIndex]
 
-      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
 
       await this.$store.dispatch('task/item/update', {
         id: data.added.element.id,
@@ -243,7 +243,7 @@ export default class TaskLane extends Vue {
       const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
       const prev = this.orderedCards[prevIndex]
       const next = this.orderedCards[nextIndex]
-      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length))
+      const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
       await this.$store.dispatch('task/item/update', {
         id: data.moved.element.id,
         listId: this.list.id,
@@ -265,6 +265,7 @@ export default class TaskLane extends Vue {
   }
 
   @Emit('save')
+  @Emit('drag:enable')
   async save () {
     if (!this.canSave) {
       return
@@ -290,7 +291,7 @@ export default class TaskLane extends Vue {
   }
 
   @Emit('cancel')
-  @Emit('drag:disable')
+  @Emit('drag:enable')
   cancel () {
     if (this.list) {
       this.listCopy = { ...this.list }
@@ -307,6 +308,7 @@ export default class TaskLane extends Vue {
 
   @Emit('drag:disable')
   addCard () {
+    this.cancel()
     this.isInputtingNewItem = true
     this.newItem = {
       assignees: null,
@@ -347,8 +349,8 @@ export default class TaskLane extends Vue {
 
   async handleMenu (value: string) {
     switch (value) {
-      case 'delete':
-        await this.$store.dispatch('task/list/destroy', this.listCopy)
+      case 'archive':
+        await this.$store.dispatch('task/list/archive', this.listCopy)
         break
     }
   }
@@ -423,6 +425,13 @@ export default class TaskLane extends Vue {
       color: theme("colors.primary.default");
       stroke: theme("colors.primary.default");
     }
+  }
+}
+.popover-trigger.show .btn-link-primary {
+  background: transparent;
+  .stroke-current {
+    color: theme("colors.primary.default");
+    stroke: theme("colors.primary.default");
   }
 }
 

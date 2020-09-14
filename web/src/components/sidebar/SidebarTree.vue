@@ -63,6 +63,24 @@
     </modal>
 
     <modal
+      v-if="modal.type === 'UpdateEmbed'"
+      title="Update Embed"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      :contentStyle="{ width: '456px' }"
+      @cancel="modalClose"
+      @confirm="() => $refs.embedForm.submit()"
+    >
+      <div class="modal-body">
+        <form-embed
+          ref="embedForm"
+          :value="modal.data"
+          @submit="modalConfirm"
+        />
+      </div>
+    </modal>
+
+    <modal
       v-if="modal.type == 'Destroy'"
       title="Delete Item"
       :visible="modal.visible"
@@ -102,19 +120,23 @@ import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import FormEmbed from '@/components/form/FormEmbed.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
+import { EmbedResource } from '@/services/embed'
 
 enum NodeType {
   Link = 'link',
   Doc = 'doc',
   Task = 'taskBoard',
+  Embed = 'embed',
   Folder = 'folder'
 }
 
 enum ModalType {
   UpdateLink = 'UpdateLink',
   UpdateTask = 'UpdateTask',
+  UpdateEmbed = 'UpdateEmbed',
   Destroy = 'Destroy'
 }
 
@@ -125,7 +147,8 @@ enum ModalType {
     TreeNode,
     Modal,
     FormLink,
-    FormTask
+    FormTask,
+    FormEmbed
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
@@ -191,6 +214,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         return this.updateLink(path, node)
       case NodeType.Task:
         return this.updateTask(path, node)
+      case NodeType.Embed:
+        return this.updateEmbed(path, node)
     }
   }
 
@@ -216,6 +241,17 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
+  async updateEmbed (path: number[], { contentId }: Node) {
+    try {
+      await this.$store.dispatch('embed/view', contentId)
+
+      const data = await this.modalOpen(ModalType.UpdateEmbed, this.$store.state.embed.item) as EmbedResource
+
+      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.$store.dispatch('embed/update', data)
+    } catch { }
+  }
+
   async removeNode (path: number[], node: Node) {
     try {
       await this.modalOpen(ModalType.Destroy)
@@ -224,6 +260,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.treeData = this.$refs.tree.cloneTreeData()
 
       await this.$store.dispatch('tree/destroy', node)
+
+      this.$router.push({ name: 'Main' })
     } catch { }
   }
 
@@ -316,14 +354,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // Hooks
 
   async created () {
-    await this.fetch()
+    if (this.activeSpace.id) {
+      await this.fetch()
+    }
   }
 
   // Watchers
 
   @Watch('activeSpace')
   async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
-    if (space.id !== prevSpace.id) {
+    if (space.id && space.id !== prevSpace.id) {
       await this.fetch()
     }
   }

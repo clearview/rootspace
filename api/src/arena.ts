@@ -11,8 +11,17 @@ const redisPort = config.redis.port
 const arenaConfig: e.RequestHandler<ParamsDictionary> = Arena({
   queues: [
     {
-      name: Queue.QUEUE_NAME,
+      name: Queue.ACTIVITY_QUEUE_NAME,
       hostId: 'Root Queue',
+      type: 'bull',
+      redis: {
+        host: redisHost,
+        port: redisPort
+      }
+    },
+    {
+      name: Queue.CRON_QUEUE_NAME,
+      hostId: 'Cron Queue',
       type: 'bull',
       redis: {
         host: redisHost,

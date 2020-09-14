@@ -14,13 +14,12 @@
 </template>
 
 <script lang="ts">
-
+import { Component, Mixins } from 'vue-property-decorator'
 import { find } from 'lodash'
 
 import UserService from '@/services/user'
-
 import RootHeader from '@/components/RootHeader.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import SpaceMixin from '@/mixins/SpaceMixin'
 
 @Component({
   name: 'ConfirmEmail',
@@ -28,7 +27,7 @@ import { Component, Vue } from 'vue-property-decorator'
     RootHeader
   }
 })
-export default class Invitation extends Vue {
+export default class Invitation extends Mixins(SpaceMixin) {
     private isLoading = false;
     private message = '';
     private code = 0;
@@ -40,10 +39,8 @@ export default class Invitation extends Vue {
     async submit () {
       try {
         const { token } = this.$route.params
-        const { id } = this.$route.params
         const payload = {
-          token: token,
-          id: id
+          token: token
         }
 
         this.isLoading = true
@@ -52,10 +49,9 @@ export default class Invitation extends Vue {
 
         await this.$store.dispatch('auth/whoami')
 
-        const spaces = this.$store.state.auth.spaces
-        const space = find(spaces, ['id', data.data.spaceId])
+        const space = find(this.spaces, ['id', data.data.spaceId])
 
-        this.$store.commit('space/setActive', space)
+        this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         this.message = err.message

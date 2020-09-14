@@ -47,14 +47,14 @@ export class InviteFacade {
     return invites
   }
 
-  async accept(token: string, id: number, authUserId: number): Promise<Invite> {
-    const invite = await this.inviteService.requireInviteByTokenAndId(token, id)
+  async accept(token: string, authorizedUserId: number): Promise<Invite> {
+    const invite = await this.inviteService.requireInviteByToken(token)
 
     const user = invite.userId
       ? await this.userService.getUserById(invite.userId)
       : await this.userService.getUserByEmail(invite.email)
 
-    if (!user || user.id !== authUserId) {
+    if (!user || user.id !== authorizedUserId) {
       throw clientError('Invalid request')
     }
 
@@ -65,6 +65,8 @@ export class InviteFacade {
     }
 
     await this.inviteService.accept(invite)
+
+    await this.registerActivityForInvite(UserActivities.Invite_Accepted, invite)
 
     return invite
   }
@@ -77,8 +79,7 @@ export class InviteFacade {
   async registerActivityForInvite(userActivity: UserActivities, invite: Invite): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
-    const activity = ActivityEvent
-      .withAction(userActivity)
+    const activity = ActivityEvent.withAction(userActivity)
       .fromActor(actor.id)
       .forEntity(invite)
       .inSpace(invite.spaceId)

@@ -1,0 +1,5 @@
+.textarea {
+  @apply p-3 leading-none;
+  @apply border rounded border-gray-400;
+  @apply outline-none !important;
+}

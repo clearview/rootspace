@@ -1,5 +1,5 @@
 <template>
-  <div class="textarea">
+  <div>
     <textarea
       class="input"
       :style="computedStyles"

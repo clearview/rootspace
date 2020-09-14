@@ -8,7 +8,8 @@ router.use(authenticate)
 
 router.get('/notifications/:read?', authenticate, mapRoute(NotificationsCtrl, 'notifications'))
 router.get('/notifications/space/:spaceId/:read?', authenticate, mapRoute(NotificationsCtrl, 'notifications'))
-router.patch('/notifications/read', authenticate, mapRoute(NotificationsCtrl, 'readForEntity'))
-router.patch('/notifications/:id', authenticate, mapRoute(NotificationsCtrl, 'read'))
+router.patch('/notifications/read', authenticate, mapRoute(NotificationsCtrl, 'readNotifications'))
+router.patch('/notifications/:id', authenticate, mapRoute(NotificationsCtrl, 'readNotification'))
+router.post('/notifications/:entity/:id/read', authenticate, mapRoute(NotificationsCtrl, 'readForEntity'))
 
 export { router as notificationRouter }
