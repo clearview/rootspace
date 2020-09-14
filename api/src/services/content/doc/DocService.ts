@@ -3,6 +3,7 @@ import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../../database/repositories/DocRepository'
 import { DocRevisionRepository } from '../../../database/repositories/DocRevisionRepository'
 import { Doc } from '../../../database/entities/Doc'
+import { DocRevision } from '../../../database/entities/DocRevision'
 import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
 import { NodeCreateValue } from '../../../values/node'
 import { NodeType } from '../../../types/node'
@@ -56,10 +57,29 @@ export class DocService extends NodeContentService {
     const doc = await this.getById(id, options)
 
     if (!doc) {
-      throw clientError('Document not found', HttpErrName.EntityNotFound)
+      throw clientError('Document not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     return doc
+  }
+
+  getDocRevisionById(id: number): Promise<DocRevision | undefined> {
+    return this.getDocRevisionRepository().findOne(id)
+  }
+
+  async requireDocRevisionById(id: number, options: any = {}): Promise<DocRevision> {
+    const docRevision = await this.getDocRevisionById(id)
+
+    if (!docRevision) {
+      throw clientError('Document revision not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return docRevision
+  }
+
+  async getDocRevisons(docId: number): Promise<DocRevision[]> {
+    const doc = await this.requireById(docId)
+    return this.getDocRevisionRepository().getByDocId(doc.id)
   }
 
   async create(data: DocCreateValue): Promise<Doc> {
@@ -90,16 +110,12 @@ export class DocService extends NodeContentService {
 
     const setup = new DocUpdateSetup(data, doc, userId)
 
-    console.log('Content updated: ' + setup.contentUpdated)
-    console.log('Create revision: ' + setup.createRevision)
-    console.log('Register activity: ' + setup.registerActivity)
-
     if (setup.contentUpdated === true) {
       doc.contentUpdatedAt = new Date(Date.now())
     }
 
     if (setup.createRevision === true) {
-      this.createRevision(doc)
+      await this.createRevision(doc)
       doc.revision = doc.revision + 1
     }
 
@@ -129,19 +145,34 @@ export class DocService extends NodeContentService {
   }
 
   private async createRevision(doc: Doc): Promise<void> {
-    const attributes = ['userId', 'spaceId', 'title', 'slug', 'content']
-
     const docRevision = this.getDocRevisionRepository().create()
 
-    for (const attribute of attributes) {
-      docRevision[attribute] = doc[attribute]
-    }
-
+    docRevision.userId = doc.userId
+    docRevision.spaceId = doc.spaceId
     docRevision.docId = doc.id
+    docRevision.content = doc.content
+    docRevision.number = doc.revision
     docRevision.revisionBy = doc.updatedBy ?? doc.userId
     docRevision.revisionAt = doc.updatedAt ?? doc.createdAt
 
     await this.getDocRevisionRepository().save(docRevision)
+  }
+
+  async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
+    const docRevision = await this.requireDocRevisionById(docRevisionId)
+    const doc = await this.requireById(docRevision.docId)
+
+    const data = DocUpdateValue.fromObject({ content: docRevision.content })
+    const setup = new DocUpdateSetup(data, doc, userId)
+
+    if (setup.contentUpdated) {
+      this.createRevision(doc)
+      doc.revision = doc.revision + 1
+    }
+
+    doc.content = docRevision.content
+
+    return this.getDocRepository().save(doc)
   }
 
   async archive(id: number): Promise<Doc> {

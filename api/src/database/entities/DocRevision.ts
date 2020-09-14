@@ -8,22 +8,19 @@ export class DocRevision {
   id: number
 
   @Column('integer')
-  docId: number
-
-  @Column('integer')
   userId: number
 
   @Column('integer')
   spaceId: number
 
-  @Column('varchar')
-  title: string
-
-  @Column('varchar')
-  slug: string
+  @Column('integer')
+  docId: number
 
   @Column('json')
   content: IDocContent
+
+  @Column('integer')
+  number: number
 
   @Column('integer')
   revisionBy: number

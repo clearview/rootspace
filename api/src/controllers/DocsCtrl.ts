@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
@@ -23,6 +23,13 @@ export class DocsCtrl extends BaseCtrl {
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
     res.send(this.responseData(doc))
+  }
+
+  async history(req: Request, res: Response) {
+    const doc = await this.docService.getDocRevisons(Number(req.params.id))
+    const resData = this.responseData(doc)
+
+    res.send(resData)
   }
 
   async create(req: Request, res: Response) {
@@ -50,6 +57,11 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
+  async restoreRevision(req: Request, res: Response) {
+    const result = await this.docService.restoreRevision(Number(req.params.revisionId), Number(req.user.id))
+    res.send(this.responseData(result))
+  }
+
   async archive(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, doc)
@@ -74,7 +86,7 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async follow(req: Request, res: Response, next: NextFunction) {
+  async follow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
@@ -82,7 +94,7 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async unfollow(req: Request, res: Response, next: NextFunction) {
+  async unfollow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 

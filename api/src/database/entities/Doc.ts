@@ -72,7 +72,7 @@ export class Doc {
   @OneToMany(
     (type) => DocRevision,
     (revisions) => revisions.doc,
-    { eager: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' }
+    { eager: false, onDelete: 'CASCADE', onUpdate: 'CASCADE' }
   )
   revisions: DocRevision[]
 }
