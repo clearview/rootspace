@@ -221,11 +221,12 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
 .SelectSpace-options {
   @apply absolute z-10;
-  @apply w-full py-2;
+  @apply py-2;
   @apply bg-white;
 
   @apply rounded;
   top: 100%;
+  width: 250px;
   box-shadow: 0px 1px 12px rgba(0, 0, 0, 0.2);
 
   .SelectSpace-options-lists {

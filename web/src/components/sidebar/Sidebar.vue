@@ -31,24 +31,52 @@
             class="flex flex-none text-gray-400"
           />
         </span>
-        <span class="title collapse-hidden">
+        <span class="title">
           Activities
         </span>
       </div>
 
-      <div class="header settings-header">
-        <span class="sidebar-icon">
-          <v-icon
-            name="settings"
-            size="16px"
-            viewbox="30"
-            class="flex flex-none text-gray-400"
-          />
-        </span>
-        <span class="title collapse-hidden">
-          Settings
-        </span>
-      </div>
+      <Popover top="38px"
+        :with-close="false"
+        position="bottom-end"
+        class="settings-contextmenu header settings-header">
+        <template #default>
+          <router-link :to="{name: 'SettingsAccount'}" class="action-line">
+            <v-icon class="action-icon" name="user" viewbox="32" size="16px"></v-icon>
+            <div class="action-line-text" @click="open(images[index].path)">
+              My Account
+            </div>
+          </router-link>
+          <div class="action-separator"></div>
+          <router-link :to="{name: 'SettingsSpace'}" class="action-line">
+            <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
+            <div class="action-line-text" @click="open(images[index].path)">
+              Space Settings
+            </div>
+          </router-link>
+        </template>
+        <template #trigger="{ visible }">
+          <span class="sidebar-icon">
+            <v-icon
+              name="settings"
+              size="16px"
+              viewbox="30"
+              class="flex flex-none text-gray-400"
+            />
+          </span>
+          <span class="title flex-grow">
+            Settings
+          </span>
+          <span class="more-menu" :class="{'btn-link-primary': visible}">
+            <v-icon
+              name="down2"
+              size="20px"
+              viewbox="16"
+              class="flex flex-none text-gray-400 -rotate-90"
+            />
+          </span>
+        </template>
+      </Popover>
     </div>
 
     <div class="sidebar-items">
@@ -71,6 +99,7 @@ import ButtonNodeAdd from '@/components/ButtonNodeAdd.vue'
 import Searchbar from '@/components/Searchbar.vue'
 import SelectSpace from '@/components/SelectSpace.vue'
 import SidebarTree from '@/components/sidebar/SidebarTree.vue'
+import Popover from '@/components/Popover.vue'
 
 import { SpaceResource } from '@/types/resource'
 import PageMixin from '@/mixins/PageMixin'
@@ -82,7 +111,8 @@ import PageMixin from '@/mixins/PageMixin'
     ButtonNodeAdd,
     Searchbar,
     SelectSpace,
-    SidebarTree
+    SidebarTree,
+    Popover
   }
 })
 export default class Sidebar extends Mixins(PageMixin) {
@@ -113,17 +143,16 @@ export default class Sidebar extends Mixins(PageMixin) {
 
 <style lang="postcss" scoped>
 .sidebar-header {
-  @apply flex flex-col justify-start;
+  @apply flex flex-col justify-start py-2;
 
-  padding-left: 8px;
-  padding-bottom: 8px;
   border-bottom: 1px solid #EAEAEA;
 
   .header {
-    @apply flex items-center;
+    @apply flex items-center p-4;
 
     width: 100%;
     color: #2C2B35;
+    padding-left: 8px;
 
     span {
       &.title {
@@ -138,7 +167,6 @@ export default class Sidebar extends Mixins(PageMixin) {
     position: relative;
     padding: 8px;
     padding-top: 0;
-    padding-left: 0;
 
     .select-space {
       @apply flex-grow;
@@ -155,8 +183,7 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   .activities-header,
   .settings-header {
-    padding: 8px 10px;
-    padding-left: 0;
+    padding: 8px;
     cursor: pointer;
     border-radius: 3px;
     height: 40px;
@@ -172,5 +199,46 @@ export default class Sidebar extends Mixins(PageMixin) {
     transition: 300ms;
   }
 
+  .more-menu {
+    svg {
+      transform: rotate(-90deg);
+    }
+  }
+}
+
+.action-line {
+  @apply flex items-center py-2 px-4 my-1 relative;
+  font-size: 13px;
+  line-height: 16px;
+  width: 168px;
+  color: theme("colors.gray.900");
+  stroke-width: 3px;
+  cursor: pointer;
+
+  &:hover{
+    background: #F0F2F5;
+  }
+  &.danger {
+    color: theme("colors.danger.default");
+  }
+}
+
+.action-line-text {
+  @apply ml-2;
+  flex: 1 1 auto;
+}
+.action-separator{
+  @apply my-1;
+  height:1px;
+  background: theme("colors.gray.100");
+}
+</style>
+
+<style lang="postcss">
+.settings-contextmenu {
+  .popover-trigger {
+    @apply flex items-center;
+    @apply w-full;
+  }
 }
 </style>

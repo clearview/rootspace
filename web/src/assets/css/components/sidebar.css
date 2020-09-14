@@ -15,7 +15,7 @@
 .sidebar-header {
   @apply flex flex-row items-center;
 
-  @apply w-full p-4;
+  @apply w-full;
 
   .sidebar-logo {
     @apply flex flex-none;
