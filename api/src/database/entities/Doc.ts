@@ -11,6 +11,7 @@ import {
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
+import { IDocContent } from '../../types/doc'
 
 @Entity('docs')
 export class Doc {
@@ -40,7 +41,7 @@ export class Doc {
   slug: string
 
   @Column('json')
-  content: object
+  content: IDocContent
 
   @Column('integer')
   access: number
@@ -51,6 +52,12 @@ export class Doc {
   @Column('integer', { default: 0 })
   revision: number
 
+  @Column({ type: 'timestamptz' })
+  contentUpdatedAt: Date
+
+  @Column('integer', { nullable: true })
+  updatedBy: number
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
@@ -59,7 +66,4 @@ export class Doc {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date
-
-  @Column('integer', { nullable: true })
-  updatedBy: number
 }

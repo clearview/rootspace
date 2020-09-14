@@ -1,19 +1,20 @@
 import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
-import { DocRepository } from '../../database/repositories/DocRepository'
-import { DocRevisionRepository } from '../../database/repositories/DocRevisionRepository'
-import { Doc } from '../../database/entities/Doc'
-import { DocCreateValue, DocUpdateValue } from '../../values/doc'
-import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
-import { NodeService } from './NodeService'
-import { NodeContentService } from './NodeContentService'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { DocActivities } from '../../database/entities/activities/DocActivities'
+import { DocRepository } from '../../../database/repositories/DocRepository'
+import { DocRevisionRepository } from '../../../database/repositories/DocRevisionRepository'
+import { Doc } from '../../../database/entities/Doc'
+import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
+import { NodeCreateValue } from '../../../values/node'
+import { NodeType } from '../../../types/node'
+import { NodeService } from '../NodeService'
+import { NodeContentService } from '../NodeContentService'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
+import { DocActivities } from '../../../database/entities/activities/DocActivities'
 import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../ActivityService'
-import { ServiceFactory } from '../factory/ServiceFactory'
+import { ActivityEvent } from '../../events/ActivityEvent'
+import { ActivityService } from '../../ActivityService'
+import { ServiceFactory } from '../../factory/ServiceFactory'
+import { DocUpdateSetup } from './DocUpdateSetup'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -87,6 +88,21 @@ export class DocService extends NodeContentService {
     const existingDoc = await this.getById(id)
     let doc = await this.getById(id)
 
+    const setup = new DocUpdateSetup(data, doc, userId)
+
+    console.log('Content updated: ' + setup.contentUpdated)
+    console.log('Create revision: ' + setup.createRevision)
+    console.log('Register activity: ' + setup.registerActivity)
+
+    if (setup.contentUpdated === true) {
+      doc.contentUpdatedAt = new Date(Date.now())
+    }
+
+    if (setup.createRevision === true) {
+      this.createRevision(doc)
+      doc.revision = doc.revision + 1
+    }
+
     Object.assign(doc, data.attributes)
     doc.updatedBy = userId
 
@@ -110,6 +126,22 @@ export class DocService extends NodeContentService {
     }
 
     return this.getDocRepository().reload(doc)
+  }
+
+  private async createRevision(doc: Doc): Promise<void> {
+    const attributes = ['userId', 'spaceId', 'title', 'slug', 'content']
+
+    const docRevision = this.getDocRevisionRepository().create()
+
+    for (const attribute of attributes) {
+      docRevision[attribute] = doc[attribute]
+    }
+
+    docRevision.docId = doc.id
+    docRevision.revisionBy = doc.updatedBy ?? doc.userId
+    docRevision.revisionAt = doc.updatedAt ?? doc.createdAt
+
+    await this.getDocRevisionRepository().save(docRevision)
   }
 
   async archive(id: number): Promise<Doc> {

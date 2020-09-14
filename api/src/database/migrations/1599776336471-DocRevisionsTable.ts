@@ -16,6 +16,10 @@ export class DocRevisionsTable1599776336471 implements MigrationInterface {
             generationStrategy: 'increment',
           },
           {
+            name: 'docId',
+            type: 'integer',
+          },
+          {
             name: 'userId',
             type: 'integer',
           },
@@ -23,10 +27,7 @@ export class DocRevisionsTable1599776336471 implements MigrationInterface {
             name: 'spaceId',
             type: 'integer',
           },
-          {
-            name: 'revisionBy',
-            type: 'integer',
-          },
+
           {
             name: 'slug',
             type: 'varchar',
@@ -40,9 +41,12 @@ export class DocRevisionsTable1599776336471 implements MigrationInterface {
             type: 'json',
           },
           {
-            name: 'createdAt',
-            type: 'timestamp with time zone',
-            default: 'now()',
+            name: 'revisionBy',
+            type: 'integer',
+          },
+          {
+            name: 'revisionAt',
+            type: 'TIMESTAMP WITH TIME ZONE',
           },
         ],
       }),

@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm'
+import { IDocContent } from '../../types/doc'
 
 @Entity('doc_revisions')
 export class DocRevision {
@@ -6,13 +7,13 @@ export class DocRevision {
   id: number
 
   @Column('integer')
+  docId: number
+
+  @Column('integer')
   userId: number
 
   @Column('integer')
   spaceId: number
-
-  @Column('integer')
-  revisionBy: number
 
   @Column('varchar')
   title: string
@@ -21,8 +22,11 @@ export class DocRevision {
   slug: string
 
   @Column('json')
-  content: object
+  content: IDocContent
 
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date
+  @Column('integer')
+  revisionBy: number
+
+  @Column({ type: 'timestamptz' })
+  revisionAt: Date
 }
