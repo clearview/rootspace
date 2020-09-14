@@ -40,6 +40,10 @@ export class DocRevisionsTable1599776336471 implements MigrationInterface {
           type: 'json',
         },
         {
+          name: 'revisionNumber',
+          type: 'integer',
+        },
+        {
           name: 'revisionBy',
           type: 'integer',
         },
