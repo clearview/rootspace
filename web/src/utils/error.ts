@@ -21,6 +21,7 @@ export class ValidationError extends Error {
     email: 'Email',
     password: 'Password',
     newPassword: 'New Password',
+    newPassword_confirmation: 'New Password Confirmation', // eslint-disable-line
     password_confirmation: 'Password Confirmation' // eslint-disable-line
   }
 
@@ -28,6 +29,7 @@ export class ValidationError extends Error {
     dbUnique: label => `${label} already exist within the app.`,
     required: label => `${label} is required.`,
     min: label => `Please use a ${label} that is at least 8 characters long.`,
+    confirmed: label => `${label} doesn't match.`,
     compromisedPassword: label => `This is a commonly used ${label}, please enter something harder to gues.`
   }
 

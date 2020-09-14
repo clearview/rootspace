@@ -102,7 +102,7 @@
     <div class="divider"></div>
 
     <v-field
-      label="Old Password"
+      label="Current Password"
       name="oldpassword"
       has-icon-right
       v-if="this.user.authProvider !== 'google'"

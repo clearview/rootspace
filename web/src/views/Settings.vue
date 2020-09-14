@@ -213,7 +213,7 @@ export default class Settings extends Mixins(PageMixin) {
         const getUserData = userUpdate.data
         this.$store.commit('auth/setUser', getUserData)
       } catch (err) {
-        const message = err.message === 'Unauthorized' ? 'You have entered an incorrect old password' : err.message
+        const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
 
         this.account.alert = {
           type: 'danger',
