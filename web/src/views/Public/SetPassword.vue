@@ -42,6 +42,8 @@ export default class Forgotpassword extends Vue {
     mounted () {
       this.redirectTo = this.$route.query ? this.$route.query : {}
       this.$store.commit('option/setRedirect', this.redirectTo)
+
+      this.passwordResetVerify()
     }
 
     async userPasswordReset (data: PasswordResetResource) {
@@ -51,6 +53,24 @@ export default class Forgotpassword extends Vue {
         await this.$store.dispatch('auth/passwordReset', { data })
         this.$router.push({ name: 'SignIn', query: { from: 'passwordreset' } })
       } catch (err) {
+        this.alert = {
+          type: 'danger',
+          message: err.message,
+          fields: err.fields
+        }
+      } finally {
+        this.isLoading = false
+      }
+    }
+
+    async passwordResetVerify () {
+      this.isLoading = true
+
+      try {
+        const test = await this.$store.dispatch('auth/passwordResetVerify', this.$route.params.token)
+        console.log('test', test)
+      } catch (err) {
+        console.log('err.message', err.message)
         this.alert = {
           type: 'danger',
           message: err.message,
