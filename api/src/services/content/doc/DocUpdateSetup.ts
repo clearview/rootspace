@@ -2,7 +2,7 @@ import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
 
 // seconds
-const revisonIdleTime = 5
+const revisonIdleTime = 180
 
 export class DocUpdateSetup {
   private _data: DocUpdateValue
@@ -81,10 +81,17 @@ export class DocUpdateSetup {
   }
 
   private _doCreateRevision(): boolean {
-    if (this.contentUpdated === false) {
+    if (this._doc.content.blocks === undefined) {
       return false
     }
 
+    if (this._doc.content.blocks.length === 0) {
+      return false
+    }
+
+    if (this.contentUpdated === false) {
+      return false
+    }
     // seconds
     const timeSpan = (this._time - this._doc.contentUpdatedAt.valueOf()) / 1000
 
