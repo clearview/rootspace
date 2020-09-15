@@ -34,9 +34,10 @@ import store from '@/store'
 import { PasswordResource, UserResource } from '@/types/resource'
 import UserService from '@/services/user'
 import Loading from '@/components/Loading.vue'
+import Avatar from 'vue-avatar'
 import Modal from '@/components/Modal.vue'
 @Component({
-  components: { Modal, Loading, FormSettings, Alert, UploadableImage }
+  components: { Modal, Loading, FormSettings, Alert, UploadableImage, Avatar }
 })
 export default class Account extends Vue {
   private loadingMessage = 'Update Settings...';
@@ -61,16 +62,31 @@ export default class Account extends Vue {
       this.loadingMessage = 'Update Account Settings...'
       const userUpdate = await UserService.update(setting)
 
-      if (password.password !== '' && password.newPassword !== '') {
+      const { authProvider } = this.$store.state.auth.user
+      let message = 'Your settings '
+
+      if (
+        (password.password !== '' && password.newPassword !== '') ||
+        (authProvider === 'google' && password.newPassword !== '')
+      ) {
         await UserService.passwordChange(password)
+        message += 'and password '
+      }
+
+      message += 'have been saved'
+      this.account.alert = {
+        type: 'success',
+        message: message
       }
 
       const getUserData = userUpdate.data
       this.$store.commit('auth/setUser', getUserData)
     } catch (err) {
+      const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
+
       this.account.alert = {
         type: 'danger',
-        message: err.message,
+        message: message,
         fields: err.fields
       }
     } finally {

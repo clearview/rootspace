@@ -100,7 +100,59 @@ export default class AuthService {
       const { response } = err
 
       if (response) {
+        const { message, fields } = response.data.error
+
+        throw new ValidationError(message, fields)
+      } else {
+        throw err
+      }
+    }
+  }
+
+  static async recoverPassword (payload: object) {
+    try {
+      const res = await api.post('users/password/recovery', payload)
+
+      if (!res.data) {
+        throw new Error('Invalid response from server')
+      }
+
+      if (res.data.status === 'error') {
+        throw new Error(res.data.msg)
+      }
+
+      return res
+    } catch (err) {
+      const { response } = err
+
+      if (response) {
         throw new Error(response.data.error.message)
+      } else {
+        throw err
+      }
+    }
+  }
+
+  static async passwordReset (payload: object) {
+    try {
+      const res = await api.post('users/password/reset', payload)
+
+      if (!res.data) {
+        throw new Error('Invalid response from server')
+      }
+
+      if (res.data.status === 'error') {
+        throw new Error(res.data.msg)
+      }
+
+      return res
+    } catch (err) {
+      const { response } = err
+
+      if (response) {
+        const { message, fields } = response.data.error
+
+        throw new ValidationError(message, fields)
       } else {
         throw err
       }

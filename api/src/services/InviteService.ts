@@ -36,7 +36,7 @@ export class InviteService {
     const invite = await this.getInviteByToken(token, params)
 
     if (!invite) {
-      throw clientError('Invalid invite request', HttpErrName.InvalidToken)
+      throw clientError('The invitation token is invalid', HttpErrName.InvalidToken)
     }
 
     return invite
@@ -48,7 +48,7 @@ export class InviteService {
 
   async accept(invite: Invite): Promise<Invite> {
     if (invite.accepted) {
-      throw clientError('This invite is no longer active')
+      throw clientError('This invitation has already been used')
     }
 
     invite.accepted = true
