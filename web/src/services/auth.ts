@@ -158,4 +158,28 @@ export default class AuthService {
       }
     }
   }
+
+  static async passwordResetVerify (token: string) {
+    try {
+      const res = await api.get(`password/reset/verify/${token}`)
+
+      if (!res.data) {
+        throw new Error('Invalid response from server')
+      }
+
+      if (res.data.status === 'error') {
+        throw new Error(res.data.msg)
+      }
+
+      return res
+    } catch (err) {
+      const { response } = err
+
+      if (response) {
+        throw new Error(response.data.error.message)
+      } else {
+        throw err
+      }
+    }
+  }
 }
