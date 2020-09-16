@@ -102,9 +102,10 @@
     <div class="divider"></div>
 
     <v-field
-      label="Old Password"
+      label="Current Password"
       name="oldpassword"
       has-icon-right
+      v-if="this.user.authProvider !== 'google'"
     >
       <input
         class="input w-full leading-tight mx-0"
@@ -232,16 +233,16 @@ import { Component, Vue } from 'vue-property-decorator'
     password: {
       password: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       newPassword: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       newPassword_confirmation: {
         required,
-        minLength: minLength(6),
+        minLength: minLength(8),
         sameAsPassword: sameAs('newPassword')
       }
     }

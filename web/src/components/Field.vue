@@ -21,7 +21,8 @@
         'has-icon-left': hasIconLeft,
         'has-icon-right': hasIconRight,
         'justify-start': align === 'left',
-        'justify-end': align === 'right'
+        'justify-end': align === 'right',
+        'justify-center': align === 'center'
       }"
     >
       <slot />

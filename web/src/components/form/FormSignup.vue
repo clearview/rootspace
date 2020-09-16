@@ -182,11 +182,11 @@ import { Component, Vue } from 'vue-property-decorator'
       email: { required, email },
       password: {
         required,
-        minLength: minLength(6)
+        minLength: minLength(8)
       },
       password_confirmation: { // eslint-disable-line
         required,
-        minLength: minLength(6),
+        minLength: minLength(8),
         sameAsPassword: sameAs('password')
       }
     }

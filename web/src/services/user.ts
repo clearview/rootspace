@@ -6,12 +6,16 @@ async function confirmEmail (payload: object) {
     const res = await api.patch('users/confirm/email', payload)
 
     return res
-  } catch (error) {
-    if (error.response) {
-      throw new Error(error.response.body.msg)
-    }
+  } catch (err) {
+    const { response } = err
 
-    throw error
+    if (response) {
+      const { message, fields } = response.data.error
+
+      throw new ValidationError(message, fields)
+    } else {
+      throw err
+    }
   }
 }
 

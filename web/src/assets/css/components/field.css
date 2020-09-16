@@ -2,7 +2,7 @@
   @apply flex flex-col;
 
   & + & {
-    @apply mt-3;
+    @apply mt-4;
   }
 
   &.is-inline {

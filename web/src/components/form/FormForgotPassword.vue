@@ -35,83 +35,44 @@
       </template>
     </v-field>
 
-    <v-field
-      label="Password"
-      name="password"
-      has-icon-right
-    >
-      <input
-        class="input"
-        type="password"
-        placeholder="Enter your password"
-        v-model.trim="$v.payload.password.$model"
-      />
-      <v-icon
-        class="icon is-right"
-        name="lock"
-      />
-
-      <template #feedback>
-        <p
-          v-if="$v.payload.password.$error && !$v.payload.password.required"
-          class="feedback is-danger"
-        >
-          Password is required.
-        </p>
-        <p
-          v-if="$v.payload.password.$error && !$v.payload.password.minLength"
-          class="feedback is-danger"
-        >
-          Password must have at least {{ $v.payload.password.$params.minLength.min }} letters.
-        </p>
-      </template>
-    </v-field>
-
-    <v-field align="right">
-      <router-link
-        :to="{ name: 'ForgotPassword', query: redirectTo }"
-        class="text-primary font-bold"
-      >Forgot Password?
-      </router-link>
-    </v-field>
-
     <button
       class="btn btn-primary w-full mx-0 mt-8"
       type="submit"
       :disabled="$v.payload.$invalid"
     >
-      Sign In
+      Send
     </button>
+
+    <v-field align="center"  class="mt-6">
+      <router-link
+        :to="{ name: 'SignIn', query: redirectTo }"
+        class="text-primary font-bold"
+      >Back to Login
+      </router-link>
+    </v-field>
   </form>
 </template>
 
 <script lang="ts">
-import { email, minLength, required } from 'vuelidate/lib/validators'
-
-import { SigninResource } from '@/types/resource'
+import { email, required } from 'vuelidate/lib/validators'
 
 import VField from '@/components/Field.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'FormSignin',
+  name: 'FormForgotPassword',
   components: {
     VField
   },
   validations: {
     payload: {
-      email: { required, email },
-      password: {
-        required,
-        minLength: minLength(8)
-      }
+      email: { required, email }
     }
   }
 })
-export default class FormSignin extends Vue {
-  private payload: SigninResource = {
-    email: '',
-    password: ''
+export default class FormForgotPassword extends Vue {
+  private payload = {
+    email: ''
   }
 
   private redirectTo: any = null

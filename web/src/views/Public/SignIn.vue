@@ -1,8 +1,8 @@
 <template>
   <layout-public>
-    <div class="max-w-xs mx-auto p-4 mt-10">
+    <div class="max-w-xs mx-auto p-4 mt-20">
       <h2 class="text-center">Sign In</h2>
-      <p class="text-center mb-2 text-gray-400">Enter your information below to continue</p>
+      <p class="text-center mb-2">Enter your information below to continue</p>
 
       <v-alert v-model="alert"/>
 
@@ -43,12 +43,6 @@ import FormSignin from '@/components/form/FormSignin.vue'
 import ButtonAuthGoogle from '@/components/ButtonAuthGoogle.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  type ComponentData = {
-    isLoading: boolean;
-    alert: object | null;
-    redirectTo: object | null;
-  };
-
 @Component({
   name: 'Signin',
   components: {
@@ -69,6 +63,18 @@ export default class SignIn extends Vue {
       this.$store.commit('option/setRedirect', this.redirectTo)
     }
 
+    created () {
+      const query = this.$route.query
+
+      if (query.from === 'passwordreset') {
+        this.alert = {
+          type: 'success',
+          message: 'Password has been changed successfully',
+          noicon: true
+        }
+      }
+    }
+
     async userSignin (data: SigninResource) {
       this.isLoading = true
 
@@ -85,9 +91,11 @@ export default class SignIn extends Vue {
           this.$router.push({ name: 'Main' })
         }
       } catch (err) {
+        const message = err.message === 'Unauthorized' ? 'Incorrect email or password entered.' : err.message
+
         this.alert = {
           type: 'danger',
-          message: err.message
+          message: message
         }
       } finally {
         this.isLoading = false

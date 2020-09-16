@@ -149,6 +149,12 @@ export interface PasswordResource {
   newPassword_confirmation: string; // eslint-disable-line
 }
 
+export interface PasswordResetResource {
+  token: string;
+  password: string;
+  password_confirmation: string; // eslint-disable-line
+}
+
 export interface SpaceResource {
   id: number;
   title: string;
