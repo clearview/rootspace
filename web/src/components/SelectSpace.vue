@@ -160,6 +160,9 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
   @Prop(Boolean)
   private readonly hideLabel!: boolean
 
+  @Prop(Boolean)
+  private readonly collapseState!: boolean
+
   private optionsVisible = false
 
   private modal = {
@@ -187,6 +190,13 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
     }
 
     await this.$store.dispatch('space/fetch')
+  }
+
+  @Watch('collapseState')
+  async watchCollapseState (value: boolean) {
+    if (value) {
+      this.optionsVisible = !value
+    }
   }
 
   toggleOptionsVisibility () {

@@ -58,10 +58,6 @@
     @apply p-2;
   }
 
-  .sidebar-header {
-    padding-right: 8px;
-  }
-
   .sidebar-logo {
     @apply bg-transparent;
   }
@@ -76,8 +72,7 @@
     @apply hidden;
   }
 
-  .SelectSpace-header,
-  .sidebar-header .sidebar-icon {
+  .SelectSpace-header {
     padding-left: 0;
   }
 
@@ -91,12 +86,15 @@
     }
   }
 
-  .sidebar-header .header {
-    padding: 9px;
+  .sidebar-header {
+    .activities-header,
+    .settings-header {
+      padding: 9px;
 
-    &.space-header {
-      padding: 0;
-      margin-bottom: 8px;
+      /* &.space-header {
+        padding: 0;
+        margin-bottom: 8px;
+      } */
     }
   }
 

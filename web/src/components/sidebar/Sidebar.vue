@@ -9,7 +9,7 @@
   >
     <div class="sidebar-header">
       <div class="header space-header">
-        <select-space :hide-label="!pageReady" class="select-space"/>
+        <select-space :hide-label="!pageReady" :collapse-state="collapse" class="select-space"/>
 
         <div class="sidebar-collapse collapse-hidden">
           <button-icon
@@ -31,7 +31,7 @@
             class="flex flex-none text-gray-400"
           />
         </span>
-        <span class="title">
+        <span class="title collapse-hidden">
           Activities
         </span>
       </div>
@@ -64,10 +64,10 @@
               class="flex flex-none text-gray-400"
             />
           </span>
-          <span class="title flex-grow">
+          <span class="title flex-grow collapse-hidden">
             Settings
           </span>
-          <span class="more-menu" :class="{'btn-link-primary': visible}">
+          <span class="more-menu collapse-hidden" :class="{'btn-link-primary': visible}">
             <v-icon
               name="down2"
               size="20px"
