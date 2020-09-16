@@ -47,8 +47,8 @@
             <div class="SelectSpace-option-logo">
               <img
                 class="space-logo"
-                v-if="activeSpace.avatar"
-                :src="activeSpace.avatar.versions.default.path"
+                v-if="item.avatar && item.avatar.versions"
+                :src="item.avatar.versions.default.path"
                 alt="Space"
               >
               <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>

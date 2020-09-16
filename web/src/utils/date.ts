@@ -21,6 +21,20 @@ function formatAmPm (hour: number, minute: number) {
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+export function formatDueDate (from: Date, to: Date) {
+  const days = msToDay(to.getTime() - from.getTime())
+  if (days === -1) {
+    return 'Tomorrow'
+  }
+  if (days === 0) {
+    return 'Today'
+  }
+  if (days === 1) {
+    return 'Yesterday'
+  }
+  return `${monthNames[from.getMonth()]} ${from.getDate()}, ${from.getFullYear()}`
+}
+
 export function formatRelativeTo (from: Date, to: Date) {
   const justNow = msToSecond(to.getTime() - from.getTime()) < 60
   if (justNow) {
@@ -46,4 +60,31 @@ export function formatRelativeTo (from: Date, to: Date) {
   }
 
   return `${dayNames[from.getDay()]}, ${monthNames[from.getMonth()]} ${from.getDate()} at ${formatAmPm(from.getHours(), from.getMinutes())}`
+}
+
+export function formatRelativeToLower (from: Date, to: Date) {
+  const justNow = msToSecond(to.getTime() - from.getTime()) < 60
+  if (justNow) {
+    return 'just now'
+  }
+  const mins = msToMinute(to.getTime() - from.getTime())
+  if (mins < 3) {
+    return 'few mins ago'
+  }
+  if (mins < 60) {
+    return `${mins} mins ago`
+  }
+  const hours = msToHour(to.getTime() - from.getTime())
+  if (hours < 2) {
+    return 'an hour ago'
+  }
+  if (hours < 24) {
+    return `${hours}h ago`
+  }
+  const days = msToDay(to.getTime() - from.getTime())
+  if (days < 2) {
+    return 'yesterday'
+  }
+
+  return `on ${monthNames[from.getMonth()]} ${from.getDate()} at ${formatAmPm(from.getHours(), from.getMinutes())}`
 }

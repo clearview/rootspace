@@ -224,6 +224,7 @@ import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
+import { formatDueDate } from '@/utils/date'
 
 @Component({
   name: 'TaskModal',
@@ -245,7 +246,7 @@ import TaskActivities from '@/views/Task/TaskActivities.vue'
   filters: {
     formatDate (date: Date | string) {
       const dueDate = date instanceof Date ? date : new Date(date)
-      return formatRelative(dueDate, new Date())
+      return formatDueDate(dueDate, new Date())
     }
   }
 })
@@ -904,6 +905,7 @@ export default class TaskModal extends Vue {
     background: rgba(theme("colors.gray.100"), 0.3);
     color: theme("colors.gray.900");
     font-weight: 600;
+    font-size: 13px;
   }
 
   .input-description {

@@ -72,7 +72,7 @@ import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
 
 import Popover from '@/components/Popover.vue'
-import { formatRelativeTo } from '@/utils/date'
+import { formatRelativeToLower } from '@/utils/date'
 
   @Component({
     name: 'TaskAttachmentView',
@@ -86,7 +86,7 @@ import { formatRelativeTo } from '@/utils/date'
       },
       formatDate (date: Date | string) {
         const dueDate = date instanceof Date ? date : new Date(date)
-        return formatRelativeTo(dueDate, new Date())
+        return formatRelativeToLower(dueDate, new Date())
       }
     }
   })
