@@ -91,8 +91,8 @@ export class DocService extends NodeContentService {
      */
     const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data.attributes)) {
-      if(key === 'title' && data.attributes[key] !== existingDoc[key]) {
+    for (const key of Object.keys(data.attributes)) {
+      if (key === 'title' && data.attributes[key] !== existingDoc[key]) {
         fields.old[key] = existingDoc[key]
         fields.new[key] = doc[key]
       }
@@ -165,8 +165,6 @@ export class DocService extends NodeContentService {
     // this.verifyRemove(doc)
 
     doc = await this._remove(doc)
-
-    await this.registerActivityForDoc(DocActivities.Deleted, doc, { title: doc.title })
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return doc
@@ -176,10 +174,14 @@ export class DocService extends NodeContentService {
     const doc = await this.getDocRepository().getById(contentId, {
       withDeleted: true,
     })
-    await this._remove(doc)
+
+    if (doc) {
+      await this._remove(doc)
+    }
   }
 
   private async _remove(doc: Doc) {
+    await this.registerActivityForDoc(DocActivities.Deleted, doc, { title: doc.title })
     return this.getDocRepository().remove(doc)
   }
 

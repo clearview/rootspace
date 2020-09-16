@@ -355,10 +355,9 @@ export class NodeService {
 
   async remove(id: number) {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-    node = await this._remove(node)
 
+    node = await this._remove(node)
     await this.nodeContentMediator.nodeRemoved(node)
-    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     return node
   }
@@ -375,6 +374,8 @@ export class NodeService {
 
   private async _remove(node: Node): Promise<Node> {
     this.verifyRemove(node)
+
+    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)
