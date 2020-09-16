@@ -22,6 +22,8 @@ import VLoading from '@/components/Loading.vue'
 import FormSetpassword from '@/components/form/FormSetPassword.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
+import AuthService from '@/services/auth'
+
 import { PasswordResetResource } from '@/types/resource'
 
 @Component({
@@ -39,9 +41,11 @@ export default class Forgotpassword extends Vue {
     private alert: any = null
     private redirectTo: any = null
 
-    mounted () {
+    async mounted () {
       this.redirectTo = this.$route.query ? this.$route.query : {}
       this.$store.commit('option/setRedirect', this.redirectTo)
+
+      await this.passwordResetVerify()
     }
 
     async userPasswordReset (data: PasswordResetResource) {
@@ -51,6 +55,27 @@ export default class Forgotpassword extends Vue {
         await this.$store.dispatch('auth/passwordReset', { data })
         this.$router.push({ name: 'SignIn', query: { from: 'passwordreset' } })
       } catch (err) {
+        this.alert = {
+          type: 'danger',
+          message: err.message,
+          fields: err.fields
+        }
+      } finally {
+        this.isLoading = false
+      }
+    }
+
+    async passwordResetVerify () {
+      this.isLoading = true
+
+      try {
+        const { data } = await AuthService.passwordResetVerify(this.$route.params.token)
+
+        if (!data.result) {
+          this.$router.push({ name: 'SignIn', query: { from: 'passwordreset', text: 'tokenexpired' } })
+        }
+      } catch (err) {
+        console.log('err.message', err.message)
         this.alert = {
           type: 'danger',
           message: err.message,

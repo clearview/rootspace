@@ -21,13 +21,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
-import { find } from 'lodash'
+import { Component, Mixins } from 'vue-property-decorator'
 
-import { PasswordResource, UserResource, SpaceResource } from '@/types/resource'
-
-import UserService from '@/services/user'
-import SpaceService from '@/services/space'
+import { UserResource } from '@/types/resource'
 
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
