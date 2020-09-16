@@ -70,7 +70,7 @@ export class DocsCtrl extends BaseCtrl {
     const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc)
 
-    const result = this.docService.remove(doc.id)
+    const result = await this.docService.remove(doc.id)
     res.send(this.responseData(result))
   }
 
