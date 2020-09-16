@@ -1,3 +1,5 @@
+FROM hashicorp/envconsul:latest as envconsul
+
 FROM node:12 as base
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
@@ -13,6 +15,8 @@ COPY ./docker/web/nginx/conf.d/* /etc/nginx/conf.d/
 
 FROM nginx as web
 COPY ./docker/web/entrypoint.sh /entrypoint.sh
+
+COPY --from=envconsul /bin/envconsul /bin/envconsul
 
 RUN ["chmod", "+x", "/entrypoint.sh"]
 
