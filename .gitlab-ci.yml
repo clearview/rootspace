@@ -14,6 +14,7 @@ variables:
 
 stages:
   - build_api
+  - build_web
 
 build_api:
   image: docker:latest
@@ -32,6 +33,19 @@ build_api:
         --file ./docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
 
+build_web:
+  stage: build_web
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - >
+        docker build .
+        --cache-from="WEB_REPOSITORY_URL:latest"
+        -t $WEB_REPOSITORY_URL:latest
+        --file ./docker/Dockerfile.web
+    - docker push $WEB_REPOSITORY_URL:latest
+
+  tags:
+    - docker
   only:
       - master
       - dockerize
