@@ -18,7 +18,7 @@
             {{ date | formatDateDisplay }}
           </div>
         </div>
-        <div class="field">
+        <div class="field hidden">
           <label class="field-label">
             Time
           </label>
@@ -173,7 +173,7 @@ export default class DueDatePopover extends Vue {
   }
 
   .bottom-field {
-    @apply flex items-start mb-2;
+    @apply flex items-start mb-2 px-2;
     .field {
       @apply mt-2 mb-0;
       flex: 1 1 50%;
