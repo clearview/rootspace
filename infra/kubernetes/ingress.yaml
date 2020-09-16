@@ -22,6 +22,27 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
+  name: web
+  namespace: root
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  # tls:
+  # - hosts:
+  #   - web.root.k8s.clearviewdev.io
+  #   secretName: web-root-k8s-clearviewdev-io-tls
+  rules:
+  - host: web.root.k8s.clearviewdev.io
+    http:
+      paths:
+      - backend:
+          serviceName: web
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
   name: consul-ui
   namespace: root
   annotations:

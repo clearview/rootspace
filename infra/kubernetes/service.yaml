@@ -5,7 +5,7 @@ metadata:
   name: api
   namespace: root
   labels:
-    app: branch
+    app: api
 spec:
   selector:
    app: api
@@ -13,6 +13,22 @@ spec:
   ports:
    - protocol: TCP
      targetPort: 3001
+     port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: root
+  labels:
+    app: web
+spec:
+  selector:
+   app: web
+  type: ClusterIP
+  ports:
+   - protocol: TCP
+     targetPort: 80
      port: 80
 ---
 apiVersion: v1
