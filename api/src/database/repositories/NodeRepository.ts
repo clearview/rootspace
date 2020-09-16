@@ -97,7 +97,7 @@ export class NodeRepository extends Repository<Node> {
   }
 
   async getDescendantsTree(parentId: number): Promise<Node[]> {
-    const parent = await this.getById(parentId)
+    const parent = await this.getById(parentId, null, { withDeleted: true })
     let nodes = await this.getBySpaceId(parent.spaceId)
 
     nodes = this.buildTree(nodes, parent.id)
