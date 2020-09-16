@@ -64,15 +64,17 @@ export class UploadService {
         .forEntity(entity)
         .inSpace(entity.spaceId)
         .withContext({
-          versions: upload.versions
+          versions: upload.versions,
         })
     )
   }
 
   private static getActivityAction(fileActivity: FileActivities, upload: Upload): string | undefined {
     switch (upload.type) {
-      case 'taskAttachment':
-        return fileActivity === FileActivities.Uploaded ? TaskActivities.Attachment_Added : TaskActivities.Attachment_Removed
+      case UploadType.TaskAttachment:
+        return fileActivity === FileActivities.Uploaded
+          ? TaskActivities.Attachment_Added
+          : TaskActivities.Attachment_Removed
     }
 
     return null
@@ -127,7 +129,10 @@ export class UploadService {
 
     upload = await this.getUploadRepository().save(upload)
 
-    await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+    // TO DO: implement other upload types activities
+    if (upload.type === UploadType.TaskAttachment) {
+      await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+    }
 
     return upload
   }
@@ -228,7 +233,10 @@ export class UploadService {
 
     const removed = await this.getUploadRepository().remove(upload)
 
-    await this.registerActivityForUpload(FileActivities.Deleted, upload)
+    // TO DO: implement other upload types activities
+    if (upload.type === UploadType.TaskAttachment) {
+      await this.registerActivityForUpload(FileActivities.Deleted, upload)
+    }
 
     return removed
   }
