@@ -94,8 +94,8 @@ export class LinkService extends NodeContentService {
 
     const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data.attributes)) {
-      if(data.attributes[key] !== existingLink[key]) {
+    for (const key of Object.keys(data.attributes)) {
+      if (data.attributes[key] !== existingLink[key]) {
         fields.old[key] = existingLink[key]
         fields.new[key] = link[key]
       }
@@ -171,9 +171,7 @@ export class LinkService extends NodeContentService {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
     // this.verifyRemove(link)
 
-    await this.registerActivityForLink(LinkActivities.Deleted, link, { title: link.title })
-
-    link = await this.getLinkRepository().remove(link)
+    link = await this._remove(link)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return link
@@ -181,7 +179,15 @@ export class LinkService extends NodeContentService {
 
   async nodeRemoved(contentId: number): Promise<void> {
     const link = await this.getLinkById(contentId, null, { withDeleted: true })
-    await this.getLinkRepository().remove(link)
+
+    if (link) {
+      await this._remove(link)
+    }
+  }
+
+  private async _remove(link: Link): Promise<Link> {
+    await this.registerActivityForLink(LinkActivities.Deleted, link, { title: link.title })
+    return this.getLinkRepository().remove(link)
   }
 
   private verifyArchive(link: Link): void {
