@@ -106,11 +106,17 @@ export class DocService extends NodeContentService {
     return doc
   }
 
-  async update(data: DocUpdateValue, id: number): Promise<Doc> {
-    const existingDoc = await this.getById(id)
+  async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
     let doc = await this.getById(id)
 
     const setup = new DocUpdateSetup(data, doc, userId)
+
+    const fields = { old: {}, new: {} }
+
+    for (const key of setup.updatedAttributes) {
+      fields.old[key] = doc[key]
+      fields.new[key] = data.attributes[key]
+    }
 
     if (setup.contentUpdated === true) {
       doc.contentUpdatedAt = new Date(Date.now())
@@ -126,20 +132,7 @@ export class DocService extends NodeContentService {
 
     doc = await this.getDocRepository().save(doc)
 
-    /**
-     * Todo: register context within session
-     * since content updates are too frequent
-     */
-    const fields = { old: {}, new: {} }
-
-    for (const key of Object.keys(data.attributes)) {
-      if (key === 'title' && data.attributes[key] !== existingDoc[key]) {
-        fields.old[key] = existingDoc[key]
-        fields.new[key] = doc[key]
-      }
-    }
-
-    if (Object.keys(fields.new).length) {
+    if (setup.registerActivity) {
       await this.registerActivityForDocId(DocActivities.Updated, doc.id, fields)
     }
 

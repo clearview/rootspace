@@ -10,7 +10,7 @@ export class DocUpdateSetup {
   private _userId: number
   private _time: number
 
-  private _updatedAttributes = []
+  private _updatedAttributes: string[] = []
 
   private _contentUpdated: boolean = false
   private _createRevision: boolean = false
@@ -30,6 +30,10 @@ export class DocUpdateSetup {
 
   get contentUpdated(): boolean {
     return this._contentUpdated
+  }
+
+  get updatedAttributes(): string[] {
+    return this._updatedAttributes
   }
 
   get createRevision(): boolean {
@@ -56,7 +60,7 @@ export class DocUpdateSetup {
   }
 
   private _getUpdatedAttributes(): string[] {
-    const attributes = ['title', 'slug', 'content', 'access', 'isLocked']
+    const attributes = ['title', 'content']
     const updated = []
 
     for (const attr of attributes) {

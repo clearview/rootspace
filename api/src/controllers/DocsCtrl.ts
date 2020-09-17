@@ -52,7 +52,7 @@ export class DocsCtrl extends BaseCtrl {
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, doc)
 
     const value = DocUpdateValue.fromObject(data)
-    const result = await this.docService.update(value, doc.id)
+    const result = await this.docService.update(value, doc.id, Number(req.user.id))
 
     res.send(this.responseData(result))
   }
