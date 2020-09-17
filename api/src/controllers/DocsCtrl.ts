@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
@@ -25,6 +25,13 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(doc))
   }
 
+  async history(req: Request, res: Response) {
+    const doc = await this.docService.getDocRevisons(Number(req.params.id))
+    const resData = this.responseData(doc)
+
+    res.send(resData)
+  }
+
   async create(req: Request, res: Response) {
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Create, Subjects.Doc)
 
@@ -45,8 +52,13 @@ export class DocsCtrl extends BaseCtrl {
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, doc)
 
     const value = DocUpdateValue.fromObject(data)
-    const result = await this.docService.update(value, doc.id)
+    const result = await this.docService.update(value, doc.id, Number(req.user.id))
 
+    res.send(this.responseData(result))
+  }
+
+  async restoreRevision(req: Request, res: Response) {
+    const result = await this.docService.restoreRevision(Number(req.params.revisionId), Number(req.user.id))
     res.send(this.responseData(result))
   }
 
@@ -74,7 +86,7 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async follow(req: Request, res: Response, next: NextFunction) {
+  async follow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
@@ -82,7 +94,7 @@ export class DocsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async unfollow(req: Request, res: Response, next: NextFunction) {
+  async unfollow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 

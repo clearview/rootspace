@@ -7,10 +7,13 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  OneToMany,
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
+import { IDocContent } from '../../types/doc'
+import { DocRevision } from './DocRevision'
 
 @Entity('docs')
 export class Doc {
@@ -20,7 +23,7 @@ export class Doc {
   @Column('integer')
   userId: number
 
-  @ManyToOne((type) => User, {eager: true})
+  @ManyToOne((type) => User, { eager: true })
   @JoinColumn({ name: 'userId' })
   @Index()
   user!: User
@@ -40,7 +43,7 @@ export class Doc {
   slug: string
 
   @Column('json')
-  content: object
+  content: IDocContent
 
   @Column('integer')
   access: number
@@ -51,12 +54,25 @@ export class Doc {
   @Column('integer', { default: 0 })
   revision: number
 
-  @CreateDateColumn({ type: 'timestamptz'})
+  @Column({ type: 'timestamptz' })
+  contentUpdatedAt: Date
+
+  @Column('integer', { nullable: true })
+  updatedBy: number
+
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
 
-  @DeleteDateColumn({ type: 'timestamptz'})
-  public deletedAt: Date
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date
+
+  @OneToMany(
+    (type) => DocRevision,
+    (revisions) => revisions.doc,
+    { eager: false, onDelete: 'CASCADE', onUpdate: 'CASCADE' }
+  )
+  revisions: DocRevision[]
 }
