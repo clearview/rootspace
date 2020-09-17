@@ -92,6 +92,7 @@ export class DocUpdateSetup {
     if (this.contentUpdated === false) {
       return false
     }
+
     // seconds
     const timeSpan = (this._time - this._doc.contentUpdatedAt.valueOf()) / 1000
 

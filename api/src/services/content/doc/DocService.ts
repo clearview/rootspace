@@ -86,6 +86,8 @@ export class DocService extends NodeContentService {
     let doc = this.getDocRepository().create()
 
     Object.assign(doc, data.attributes)
+    doc.revision = 1
+
     doc = await this.getDocRepository().save(doc)
 
     await this.nodeService.create(
@@ -160,19 +162,24 @@ export class DocService extends NodeContentService {
 
   async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(docRevisionId)
-    const doc = await this.requireById(docRevision.docId)
+    let doc = await this.requireById(docRevision.docId)
 
     const data = DocUpdateValue.fromObject({ content: docRevision.content })
     const setup = new DocUpdateSetup(data, doc, userId)
 
-    if (setup.contentUpdated) {
-      this.createRevision(doc)
-      doc.revision = doc.revision + 1
+    if (setup.contentUpdated === false) {
+      return doc
     }
 
+    this.createRevision(doc)
+
+    doc.revision = doc.revision + 1
     doc.content = docRevision.content
 
-    return this.getDocRepository().save(doc)
+    doc = await this.getDocRepository().save(doc)
+    await this.registerActivityForDocId(DocActivities.Updated, doc.id)
+
+    return doc
   }
 
   async archive(id: number): Promise<Doc> {
