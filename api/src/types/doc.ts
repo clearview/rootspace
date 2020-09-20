@@ -4,7 +4,7 @@ export enum DocAccess {
 }
 
 export interface IDocContent {
-  time: number
-  blocks: []
-  verstion: string
+  time?: number
+  blocks?: any[]
+  vertsion?: string
 }
