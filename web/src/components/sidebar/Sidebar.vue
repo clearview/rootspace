@@ -189,6 +189,7 @@ export default class Sidebar extends Mixins(PageMixin) {
 
       .btn {
         height: 24px;
+        color: #A9B1C4;
       }
     }
   }
