@@ -80,7 +80,7 @@
     </div>
 
     <div class="sidebar-items">
-      <sidebar-tree v-if="pageReady" :locked="locked" />
+      <sidebar-tree v-if="pageReady" :locked="locked" @addNew="addNewNode" />
     </div>
 
     <div class="sidebar-footer">
@@ -92,7 +92,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Ref } from 'vue-property-decorator'
 
 import ButtonIcon from '@/components/ButtonIcon.vue'
 import ButtonNodeAdd from '@/components/ButtonNodeAdd.vue'
@@ -119,6 +119,9 @@ export default class Sidebar extends Mixins(PageMixin) {
   @Prop(Boolean)
   private readonly noanimate!: boolean
 
+  @Ref('buttonAdd')
+  private readonly buttonAddRef!: ButtonNodeAdd;
+
   private locked = true
 
   get collapse () {
@@ -127,6 +130,10 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
+  }
+
+  addNewNode () {
+    this.buttonAddRef.setModalVisible(true)
   }
 
   toggleCollapse () {

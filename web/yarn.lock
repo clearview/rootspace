@@ -2,6 +2,26 @@
 # yarn lockfile v1
 
 
+"@adityapurwa/draggable-helper@^5.0.4":
+  version "5.0.4"
+  resolved "https://npm.pkg.github.com/download/@adityapurwa/draggable-helper/5.0.4/9b6045c8621c44bf49c6e581691bbc3660240c615e33aacb0aa47b596acfbe0a#6d7cce78c6e71b172a576903a9bc54f983bdf75b"
+  integrity sha512-n7SepAhAWE6YhenL48ybaOAN481hZCJ/CmiV8/Ex/pJSvRGdHKzEYAa8gDvf9a8qUmKj1fDJIVMuKDq/M4urDw==
+  dependencies:
+    "@babel/runtime" "^7.7.7"
+    drag-event-service "^1.1.7"
+    helper-js "^2.0.0"
+
+"@adityapurwa/he-tree-vue@^2.0.9":
+  version "2.0.9"
+  resolved "https://npm.pkg.github.com/download/@adityapurwa/he-tree-vue/2.0.9/08976a246e324eaf7419e9017aaceb79debf5670a574dbd99c857cbd7e6f69fa#5a0be34e84e75ba591b630c12b041cc76d8594ea"
+  integrity sha512-SnJETMjpQfv6ioigDmUKGjoMejFt5lO2KRMTJ+6hhCJealseIKVeh0K794sFdUZzORpuB+1jH8HkrZKyvTFWNw==
+  dependencies:
+    "@adityapurwa/draggable-helper" "^5.0.4"
+    "@babel/runtime" "^7.7.7"
+    helper-js "^2.0.1"
+    vue-functions "^2.0.6"
+    vue-runtime-helpers "^1.1.2"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.8.3.tgz#33e25903d7481181534e12ec0a25f16b6fcf419e"
@@ -755,10 +775,17 @@
     "@babel/types" "^7.4.4"
     esutils "^2.0.2"
 
-"@babel/runtime@^7.3.1", "@babel/runtime@^7.7.7":
+"@babel/runtime@^7.3.1":
   version "7.9.6"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.6.tgz#a9102eb5cadedf3f31d08a9ecf294af7827ea29f"
   integrity sha512-64AF1xY3OAkFHqOb9s4jpgk1Mm5vDZ4L3acHvAml+53nO1XbXLuDodsVpO4OIUsmemlUHMxNdYMNJmsvOwLrvQ==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.7.7":
+  version "7.11.2"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.11.2.tgz#f549c13c754cc40b87644b9fa9f09a6a95fe0736"
+  integrity sha512-TeWkU52so0mPtDcaCTxNBI/IHiz0pZgr8VEFqXFtZWpYD08ZB6FaSwVAS8MKRQAP3bYKiVjwysOJgMFY28o6Tw==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -4046,15 +4073,6 @@ drag-event-service@^1.1.7:
     "@babel/runtime" "^7.7.7"
     helper-js "^2.0.0"
 
-draggable-helper@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/draggable-helper/-/draggable-helper-5.0.3.tgz#686985340ebfcf98b5384bfab0eaeba36d7e8b93"
-  integrity sha512-XBEG94PKHesNiu8L/F498yz+pn7DR3a6zXPmGgINULHfStPBYJTD7esJ0yMWDTrsY0rQJtUPalMx5JJLMOIOIA==
-  dependencies:
-    "@babel/runtime" "^7.7.7"
-    drag-event-service "^1.1.7"
-    helper-js "^2.0.0"
-
 duplexer@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
@@ -5406,17 +5424,6 @@ hash.js@^1.0.0, hash.js@^1.0.3:
   dependencies:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
-
-he-tree-vue@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/he-tree-vue/-/he-tree-vue-2.0.3.tgz#4fddc3226fdee581463092013e8456aeee84c86e"
-  integrity sha512-2n7oUnfcEwmKVMfQ0eRfXWR/24wVWukTJJW9nPI6Y12b1O0DgPe2Kb8yBIboQ4r/TmVP1k4B2uzpQ+Dgv92nGQ==
-  dependencies:
-    "@babel/runtime" "^7.7.7"
-    draggable-helper "^5.0.3"
-    helper-js "^2.0.1"
-    vue-functions "^2.0.6"
-    vue-runtime-helpers "^1.1.2"
 
 he@1.2.x, he@^1.1.0:
   version "1.2.0"
@@ -9218,9 +9225,9 @@ regenerator-runtime@^0.11.0:
   integrity sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==
 
 regenerator-runtime@^0.13.4:
-  version "0.13.5"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.5.tgz#d878a1d094b4306d10b9096484b33ebd55e26697"
-  integrity sha512-ZS5w8CpKFinUzOwW3c83oPeVXoNsrLsaCoLtJvAClH135j/R77RuymhiSErhm2lKcwSCIpmvIWSbDkIfAqKQlA==
+  version "0.13.7"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.7.tgz#cac2dacc8a1ea675feaabaeb8ae833898ae46f55"
+  integrity sha512-a54FxoJDIr27pgf7IgeQGxmqUNYrcV338lf/6gH456HZ/PhX+5BcwHXG9ajESmwe6WRO0tAzRUrRmNONWgkrew==
 
 regenerator-transform@^0.14.2:
   version "0.14.4"

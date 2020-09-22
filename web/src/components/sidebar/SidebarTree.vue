@@ -24,7 +24,6 @@
       edge-scroll
       ref="tree"
       v-model="treeData"
-      trigger-class="tree-node-handle"
       :class="{
         'tree': true,
         'tree--dragging': dragging
@@ -32,6 +31,7 @@
       :indent="16"
       :ondragstart="startDragging"
       :ondragend="endDragging"
+      :allowOutOfBounds="true"
       @change="change"
       #default="{ node, path }"
     >
@@ -43,6 +43,7 @@
         @node:update="updateNode"
         @node:remove="removeNode"
         @node:fold:toggle="toggleNodeFold"
+        @node:addNew="addNewNode"
       />
     </tree>
 
@@ -115,7 +116,6 @@
     </modal>
   </div>
 </template>
-
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
@@ -128,7 +128,7 @@ import {
   Store as TreeStore,
   walkTreeData,
   getPureTreeData
-} from 'he-tree-vue'
+} from '@adityapurwa/he-tree-vue'
 
 import {
   LinkResource,
@@ -172,7 +172,7 @@ enum ModalType {
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
-  $refs!: {
+  $rlefs!: {
     tree: Tree & Fold & Draggable;
   }
 
@@ -209,6 +209,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   // Methods
+
+  addNewNode (path: string, payload: any) {
+    this.$emit('addNew', path, payload)
+  }
 
   startDragging () {
     this.dragging = true

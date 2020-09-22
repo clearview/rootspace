@@ -29,5 +29,6 @@ module.exports = {
     forkTsCheckerOptions.memoryLimit = process.env.VUE_MEMORY_LIMIT || 2048
 
     config.plugins.push(new ForkTsCheckerWebpackPlugin(forkTsCheckerOptions))
-  }
+  },
+  chainWebpack: config => config.resolve.symlinks(false)
 }

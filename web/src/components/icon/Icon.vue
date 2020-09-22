@@ -70,12 +70,25 @@ import IconRight2 from '@/components/icon/IconRight2.vue'
 import IconMessage from '@/components/icon/IconMessage.vue'
 import IconEdit2 from '@/components/icon/IconEdit2.vue'
 import IconGrid from '@/components/icon/IconGrid.vue'
+import IconLink2 from '@/components/icon/IconLink2.vue'
+import IconLayout from '@/components/icon/IconLayout.vue'
+import IconFolderOpen from '@/components/icon/IconFolderOpen.vue'
+import IconFolderClosed from '@/components/icon/IconFolderClosed.vue'
+import IconFileEmpty from '@/components/icon/IconFileEmpty.vue'
+import IconCode from '@/components/icon/IconCode.vue'
+import IconVerticalEllipsis from '@/components/icon/IconVerticalEllipsis.vue'
 import IconLogout from '@/components/icon/IconLogout.vue'
 
 @Component({
   name: 'Icon',
   components: {
     IconAdd,
+    IconCode,
+    IconFileEmpty,
+    IconFolderClosed,
+    IconFolderOpen,
+    IconLayout,
+    IconLink2,
     IconArchive,
     IconAttachment,
     IconCheckmark,
@@ -121,6 +134,7 @@ import IconLogout from '@/components/icon/IconLogout.vue'
     IconUp,
     IconUser,
     IconUser2,
+    IconVerticalEllipsis,
     IconWarning,
     IconGoogle,
     IconSpace,

@@ -40,7 +40,8 @@
 }
 
 .sidebar-items {
-  @apply flex flex-1 w-full overflow-auto px-1;
+  @apply flex flex-1 w-full overflow-auto;
+  padding: 16px 0;
 }
 
 .sidebar.sidebar--noanimate {
@@ -49,13 +50,16 @@
 
 .sidebar.sidebar--collapse {
   @apply cursor-pointer;
-
   background: white;
   width: 50px !important;
   min-width: 50px;
 
   .sidebar-footer {
     @apply p-2;
+  }
+
+  .sidebar-header {
+    padding-right: 8px;
   }
 
   .sidebar-logo {

@@ -364,7 +364,6 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
   max-width: calc(100% - 60px);
 }
-
 .space-logo {
   width: 24px;
   height: 24px;

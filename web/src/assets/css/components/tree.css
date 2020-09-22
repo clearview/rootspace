@@ -8,21 +8,51 @@
 }
 
 .tree-placeholder-node{
-  @apply bg-gray-100 opacity-25;
+  @apply relative cursor-pointer;
 
   border-radius: 4px;
-  height: 28px;
+  height: 8px;
+  padding-left: 56px;
+  padding-right: 16px;
+  /*Red Line*/
+  &::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #D83750;
+  }
+  /*Red Ricle*/
+  &::before {
+     content: '';
+     display: block;
+     width: 10px;
+     height: 10px;
+     border:solid 2px #D83750;
+     border-radius: 100%;
+     position: absolute;
+     top: -4px;
+     left: 48px;
+   }
 }
+
+
 
 .tree-node-content {
   @apply flex flex-row flex-1;
 
-  padding: 6px;
+  padding: 12px 0 12px 8px;
   border-radius: 4px;
+  font-size: 16px;
+  margin: 0 16px;
+  align-items: center;
 
   &:hover,
   &.is-active {
-    @apply bg-gray-100;
+    background: #EFF1F6;
+    .tree-node-icon {
+      color: #2C2B35;
+    }
   }
 }
 
@@ -31,9 +61,10 @@
 .tree-node-icon,
 .tree-node-actions {
   @apply flex flex-initial items-center;
-  @apply text-gray-400;
+  color: #AAB1C5;
+  fill: transparent;
 
-  margin-right: 6px;
+  margin-right: 8px;
 }
 
 .tree-node-handle {
@@ -71,7 +102,7 @@
 }
 
 .tree-node-actions {
-  @apply hidden ml-1;
+  @apply invisible ml-1;
 
   height: 1em;
 }
@@ -87,6 +118,11 @@
     @apply block;
   }
 }
+.tree-node-content:hover {
+  .tree-node-actions {
+    visibility: visible;
+  }
+}
 
 .tree.tree--dragging {
   .tree-node-content {
@@ -95,6 +131,11 @@
       @apply bg-transparent;
     }
   }
+
+  /*.tree-branch:hover:not(.tree-placeholder) > .tree-node-back > .tree-node:hover:first-child > .tree-node-content:first-child {*/
+  /*  background: #F9DFE3;*/
+  /*  border: 1px solid #D83750;*/
+  /*}*/
 
   .dragging > .tree-node-back > .tree-node > .tree-node-content {
     @apply bg-gray-100;

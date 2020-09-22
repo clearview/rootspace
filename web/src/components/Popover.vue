@@ -1,6 +1,6 @@
 <template>
   <div class="popover-container">
-    <div class="popover-cloak" v-if="visible" @click.self="hide"></div>
+    <div class="popover-cloak" v-if="visible" @click.self.prevent.stop="hide"></div>
     <div class="popover" v-if="visible" ref="popover">
       <header class="popover-header" v-if="title || withClose">
         <div v-if="backButton" @click="back">
@@ -10,14 +10,14 @@
           {{title}}
         </div>
         <div class="popover-close" v-if="withClose">
-          <button class="btn btn-icon" @click="hide">
+          <button class="btn btn-icon" @click.stop="hide">
             <v-icon name="close2" size="1rem" viewbox="20" title="Close"/>
           </button>
         </div>
       </header>
       <slot v-bind="{ hide, visible }"></slot>
     </div>
-    <div @click="toggleVisibility" ref="trigger" class="popover-trigger" :class="{ 'show': visible }">
+    <div @click.prevent.stop="toggleVisibility" ref="trigger" class="popover-trigger" :class="{ 'show': visible }">
       <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>
   </div>
