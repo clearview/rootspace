@@ -216,7 +216,6 @@ import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
-import formatRelative from 'date-fns/formatRelative'
 
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'

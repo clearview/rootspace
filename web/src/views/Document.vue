@@ -152,8 +152,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.initialize = true
       try {
         this.isFromLoad = true
-        const { data } = await DocumentService.view(id)
-
+        const res = await DocumentService.view(id)
+        console.log('data', res)
+        const data = res.data
         this.title = data.title
         this.value = data.content
         this.readOnly = data.isLocked
@@ -165,7 +166,12 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.pageTitle = this.title
         this.pageReady = true
       } catch (e) {
-        this.$router.replace({ name: 'Document' })
+        console.log('e', e)
+        if (e.code === 403) {
+          this.$router.push({ name: 'Main', query: { from: 'document', message: e.data.message } })
+        } else {
+          this.$router.replace({ name: 'Document' })
+        }
       }
       this.initialize = false
     }
