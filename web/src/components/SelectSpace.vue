@@ -205,7 +205,9 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
 <style lang="postcss" scoped>
 .SelectSpace {
-  @apply flex flex-1 mr-2;
+  @apply flex mr-2;
+  flex: 1 1 0;
+  width: 0;
 }
 
 .SelectSpace-options {
@@ -307,5 +309,6 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
   width: 32px;
   height: 32px;
   border-radius: 4px;
+  max-width: none;
 }
 </style>
