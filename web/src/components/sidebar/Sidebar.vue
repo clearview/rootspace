@@ -39,18 +39,19 @@
       <Popover top="38px"
         :with-close="false"
         position="bottom-end"
-        class="settings-contextmenu header settings-header">
-        <template #default>
-          <router-link :to="{name: 'SettingsAccount'}" class="action-line">
+        class="settings-contextmenu header settings-header"
+        @trigger="handleMenuTrigger">
+        <template #default="{ hide }">
+          <router-link :to="{name: 'SettingsAccount'}" class="action-line" @click.native="hide()">
             <v-icon class="action-icon" name="user" viewbox="32" size="16px"></v-icon>
-            <div class="action-line-text" @click="open(images[index].path)">
+            <div class="action-line-text" >
               My Account
             </div>
           </router-link>
           <div class="action-separator"></div>
-          <router-link :to="{name: 'SettingsSpace'}" class="action-line">
+          <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
             <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
-            <div class="action-line-text" @click="open(images[index].path)">
+            <div class="action-line-text">
               Space Settings
             </div>
           </router-link>
@@ -144,6 +145,10 @@ export default class Sidebar extends Mixins(PageMixin) {
     try {
       await this.$router.push({ name: 'Settings' })
     } catch { }
+  }
+
+  handleMenuTrigger (visible: boolean) {
+    console.log('visible', visible)
   }
 }
 </script>
