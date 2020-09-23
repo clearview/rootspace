@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services'
-import { validateInviteAccept, validateInviteCancel, validateInviteCreate } from '../validation/invite'
+import { validateInviteAccept, validateInviteCreate } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 
