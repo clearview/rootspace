@@ -38,7 +38,6 @@
       <tree-node
         :value="node"
         :path="path"
-        :editable="!locked"
         @content:update="updateContent"
         @node:update="updateNode"
         @node:remove="removeNode"
@@ -117,7 +116,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
 
 import {
@@ -175,11 +174,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
-
-  // Props
-
-  @Prop(Boolean)
-  readonly locked!: boolean
 
   // State
 

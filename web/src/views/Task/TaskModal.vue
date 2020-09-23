@@ -638,6 +638,14 @@ export default class TaskModal extends Vue {
     }
   }
 
+  .popover-trigger {
+    &.show {
+      button {
+        background: rgba(216, 55, 80, 0.16);
+      }
+    }
+  }
+
   .actions .popover-container {
     flex: 0 1 auto;
 

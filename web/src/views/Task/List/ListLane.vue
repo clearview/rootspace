@@ -89,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MoveEvent } from 'vuedraggable'
+import Draggable from 'vuedraggable'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'

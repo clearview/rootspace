@@ -39,8 +39,7 @@
       <Popover top="38px"
         :with-close="false"
         position="bottom-end"
-        class="settings-contextmenu header settings-header"
-        @trigger="handleMenuTrigger">
+        class="settings-contextmenu header settings-header">
         <template #default="{ hide }">
           <router-link :to="{name: 'SettingsAccount'}" class="action-line" @click.native="hide()">
             <v-icon class="action-icon" name="user" viewbox="32" size="16px"></v-icon>
@@ -81,7 +80,7 @@
     </div>
 
     <div class="sidebar-items">
-      <sidebar-tree v-if="pageReady" :locked="locked" @addNew="addNewNode" />
+      <sidebar-tree v-if="pageReady" />
     </div>
 
     <div class="sidebar-footer">
@@ -123,18 +122,12 @@ export default class Sidebar extends Mixins(PageMixin) {
   @Ref('buttonAdd')
   private readonly buttonAddRef!: ButtonNodeAdd;
 
-  private locked = true
-
   get collapse () {
     return this.$store.state.sidebar.collapse
   }
 
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
-  }
-
-  addNewNode () {
-    this.buttonAddRef.setModalVisible(true)
   }
 
   toggleCollapse () {
@@ -145,10 +138,6 @@ export default class Sidebar extends Mixins(PageMixin) {
     try {
       await this.$router.push({ name: 'Settings' })
     } catch { }
-  }
-
-  handleMenuTrigger (visible: boolean) {
-    console.log('visible', visible)
   }
 }
 </script>

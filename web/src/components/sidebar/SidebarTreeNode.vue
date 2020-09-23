@@ -6,7 +6,6 @@
     active-class="is-active"
     :class="{
       'tree-node-content': true,
-      'is-editable': editable,
       'is-renaming': isRenaming
     }"
   >
@@ -28,14 +27,13 @@
       <label-editable
         class="tree-node-text truncate"
         v-model="title"
-        :disabled="!editable"
         v-if="!isRenaming"
       />
       <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" v-model="title"
         @blur="saveTitle" @keydown.enter="saveTitle" @keydown.esc="isRenaming = false">
     </div>
 
-    <div class="tree-node-actions">
+    <div class="tree-node-actions" v-if="!isRenaming">
       <Popover top="38px" :with-close="false">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
@@ -182,12 +180,6 @@ export default class SidebarTreeNode extends Vue {
   }
 
   get wrapper (): WrapperConfig {
-    if (this.editable) {
-      return {
-        tag: 'span'
-      }
-    }
-
     switch (this.type) {
       case NodeType.Folder:
         return {
@@ -276,9 +268,6 @@ export default class SidebarTreeNode extends Vue {
   padding: 8px;
   height: auto;
   transition: none;
-  .stroke-current {
-    stroke: transparent;
-  }
 }
 .tree-node-content.is-renaming {
   padding-top: 6px;
@@ -344,5 +333,17 @@ export default class SidebarTreeNode extends Vue {
     box-shadow: 0 0 0 2px #F9DFE3;
   }
 }
+.btn-link {
+  background-color: unset !important;
+  padding: 0;
+  height: 20px;
 
+  &:hover {
+    background-color: unset;
+
+    .stroke-current {
+      color: theme("colors.primary.default");
+    }
+  }
+}
 </style>

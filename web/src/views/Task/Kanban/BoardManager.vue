@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MoveEvent } from 'vuedraggable'
+import Draggable from 'vuedraggable'
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { TaskBoardResource, TaskListResource } from '@/types/resource'

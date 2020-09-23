@@ -291,6 +291,20 @@ export default class TaskComment extends Vue {
     height:1px;
     background: theme("colors.gray.100");
   }
+
+  .btn-link {
+    background-color: unset !important;
+    padding: 0;
+    height: 20px;
+
+    &:hover {
+      background-color: unset;
+
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
+  }
 </style>
 
 <style lang="postcss">
