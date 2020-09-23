@@ -172,7 +172,7 @@ enum ModalType {
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
-  $rlefs!: {
+  $refs!: {
     tree: Tree & Fold & Draggable;
   }
 
@@ -200,7 +200,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       node.$folded = state.folded[key] === true
     })
-
     return list
   }
 

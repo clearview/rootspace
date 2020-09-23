@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MovedEvent } from 'vuedraggable'
+import Draggable, { MoveEvent } from 'vuedraggable'
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { TaskBoardResource, TaskListResource } from '@/types/resource'
@@ -95,7 +95,7 @@ export default class ListManager extends Vue {
       }
     }
 
-    async reorder (data: MovedEvent<TaskListResource>) {
+    async reorder (data: any) {
       if (data.moved) {
         const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
         const prev = this.orderedLanes[prevIndex]

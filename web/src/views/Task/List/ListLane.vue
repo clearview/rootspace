@@ -89,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MovedEvent } from 'vuedraggable'
+import Draggable, { MoveEvent } from 'vuedraggable'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
@@ -225,7 +225,7 @@ export default class TaskLane extends Vue {
     })
   }
 
-  private async reorder (data: MovedEvent<TaskItemResource>) {
+  private async reorder (data: any) {
     if (data.added) {
       const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
       const prev = this.orderedCards[prevIndex]
