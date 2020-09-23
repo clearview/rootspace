@@ -4,7 +4,6 @@ import { MailhogClient } from './MailhogClient'
 import { MailClientInterface } from './types'
 
 export class MailService {
-
   private constructor() {}
 
   private static instance: MailClientInterface<any>

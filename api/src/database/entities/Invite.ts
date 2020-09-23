@@ -2,7 +2,6 @@ import { Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateCol
 
 @Entity('invites')
 export class Invite {
-
   @PrimaryGeneratedColumn()
   id: number
 
@@ -13,6 +12,9 @@ export class Invite {
   @Column('integer')
   @Index()
   spaceId: number
+
+  @Column('integer')
+  senderId: number
 
   @Column('varchar', { length: 100 })
   @Index()
@@ -29,9 +31,9 @@ export class Invite {
   @Column('timestamp', { nullable: true })
   acceptedDate: Date
 
-  @CreateDateColumn({ type: 'timestamptz'})
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
 }

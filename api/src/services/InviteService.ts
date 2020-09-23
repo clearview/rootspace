@@ -24,8 +24,8 @@ export class InviteService {
     return this.getInviteRepository().findOne(id)
   }
 
-  getInvite(email: string, spaceId: number): Promise<Invite> {
-    return this.getInviteRepository().getByEmailAndSpaceId(email, spaceId)
+  getInvite(email: string, spaceId: number, senderId: number): Promise<Invite> {
+    return this.getInviteRepository().getInvite(email, spaceId, senderId)
   }
 
   getInviteByToken(token: string, params: any = {}): Promise<Invite | undefined> {
@@ -36,7 +36,7 @@ export class InviteService {
     const invite = await this.getInviteByToken(token, params)
 
     if (!invite) {
-      throw clientError('The invitation token is invalid', HttpErrName.InvalidToken)
+      throw clientError('The invitation token is not valid', HttpErrName.InvalidToken)
     }
 
     return invite
@@ -47,26 +47,43 @@ export class InviteService {
   }
 
   async accept(invite: Invite): Promise<Invite> {
-    if (invite.accepted) {
-      throw clientError('This invitation has already been used')
-    }
-
     invite.accepted = true
     invite.acceptedDate = new Date(Date.now())
 
     return await this.getInviteRepository().save(invite)
   }
 
+  async acceptByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {
+    const invites = await this.getInviteRepository().getByEmailAndSpaceId(email, spaceId)
+
+    for (const invite of invites) {
+      await this.accept(invite)
+    }
+
+    return invites
+  }
+
   async cancel(invite: Invite) {
     return this.getInviteRepository().remove(invite)
   }
 
-  async createWithEmail(email: string, space: Space): Promise<Invite> {
-    let invite = await this.getInvite(email, space.id)
+  async cancelByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {
+    const invites = await this.getInviteRepository().getByEmailAndSpaceId(email, spaceId, { accepted: false })
+
+    for (const invite of invites) {
+      await this.cancel(invite)
+    }
+
+    return invites
+  }
+
+  async createWithEmail(email: string, space: Space, senderId: number): Promise<Invite> {
+    let invite = await this.getInvite(email, space.id, senderId)
 
     if (!invite) {
       invite = new Invite()
       invite.spaceId = space.id
+      invite.senderId = senderId
       invite.email = email
       invite = await this.getInviteRepository().save(invite)
     }
@@ -74,13 +91,14 @@ export class InviteService {
     return invite
   }
 
-  async createWithUser(user: User, space: Space): Promise<Invite> {
-    let invite = await this.getInvite(user.email, space.id)
+  async createWithUser(user: User, space: Space, senderId: number): Promise<Invite> {
+    let invite = await this.getInvite(user.email, space.id, senderId)
 
     if (!invite) {
       invite = new Invite()
       invite.spaceId = space.id
       invite.userId = user.id
+      invite.senderId = senderId
       invite.email = user.email
       invite = await this.getInviteRepository().save(invite)
     }
