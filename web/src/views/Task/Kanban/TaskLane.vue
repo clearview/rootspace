@@ -242,13 +242,14 @@ export default class TaskLane extends Vue {
 
     get dragOptions () {
       return {
-        animation: 50,
+
         delay: 14,
         group: 'cards',
         disabled: false,
         ghostClass: 'ghost',
         forceFallback: true,
         fallbackClass: 'ghost-floating',
+        fallbackOnBody: true,
         emptyInsertThreshold: 64
       }
     }

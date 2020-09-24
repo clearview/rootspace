@@ -260,6 +260,7 @@ export default class TaskLane extends Vue {
       ghostClass: 'ghost',
       forceFallback: true,
       fallbackClass: 'ghost-floating',
+      fallbackOnBody: true,
       emptyInsertThreshold: 64
     }
   }

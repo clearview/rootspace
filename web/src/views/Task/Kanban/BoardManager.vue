@@ -52,13 +52,13 @@ export default class BoardManager extends Vue {
     get dragOptions () {
       const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1
       return {
-        animation: 50,
         delay: 14,
         group: 'lists',
         disabled: false,
         ghostClass: 'ghost',
         forceFallback: !isFirefox,
-        fallbackClass: 'lane-floating'
+        fallbackClass: 'lane-floating',
+        fallbackOnBody: true
       }
     }
 
