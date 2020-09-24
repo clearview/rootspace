@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full overflow-auto">
+  <div class="w-full overflow-auto relative">
     <div class="flex justify-center" v-if="treeData.length === 0">
       <div class="empty-content">
         <div class="space-logo">
@@ -19,6 +19,7 @@
         </button>
       </div>
     </div>
+
     <tree
       v-if="treeData.length > 0"
       edge-scroll
@@ -45,6 +46,62 @@
         @node:addNew="addNewNode"
       />
     </tree>
+
+    <transition name="menu">
+      <div id="addnew-menu" v-if="menuOpen">
+        <div class="menu-wrapper">
+          <div class="list-menu" v-if="isMenuActive('index')">
+            <h3>Add New</h3>
+            <p>Please select one option you want to add</p>
+            <select-node-type @select="select"/>
+          </div>
+
+          <div class="list-menu" v-if="isMenuActive('folder')">
+            <h3>Folder</h3>
+            <p>Please enter name to create a folder</p>
+
+            <form-folder
+              @submit="addFolder"
+              :space="activeSpace.id"
+              ref="formFolder"
+            />
+          </div>
+
+          <div class="list-menu" v-if="isMenuActive('link')">
+            <h3>Link</h3>
+            <p>Please enter name and put link to create a link</p>
+
+            <form-link
+              @submit="addLink"
+              :space="activeSpace.id"
+              ref="formLink"
+            />
+          </div>
+
+          <div class="list-menu" v-if="isMenuActive('embed')">
+            <h3>Embed</h3>
+            <p>Please select 1 of 4 categories you want to add</p>
+
+            <form-embed
+              @submit="addEmbed"
+              :space="activeSpace.id"
+              ref="formEmbed"
+            />
+          </div>
+
+          <div class="list-menu" v-if="isMenuActive('task')">
+            <h3>Task Board</h3>
+            <p>Please select view type</p>
+
+            <form-task
+              @submit="addTask"
+              :space="activeSpace.id"
+              ref="formTask"
+            />
+          </div>
+        </div>
+      </div>
+    </transition>
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -115,9 +172,11 @@
     </modal>
   </div>
 </template>
+
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
+import SelectNodeType from '@/components/SelectNodeType.vue'
 
 import {
   Tree,
@@ -132,7 +191,8 @@ import {
 import {
   LinkResource,
   TaskBoardResource,
-  SpaceResource
+  SpaceResource,
+  NodeResource
 } from '@/types/resource'
 
 import ModalMixin, { Modal } from '@/mixins/ModalMixin'
@@ -140,6 +200,7 @@ import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
+import FormFolder from '@/components/form/FormFolder.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
@@ -150,6 +211,15 @@ enum NodeType {
   Task = 'taskBoard',
   Embed = 'embed',
   Folder = 'folder'
+}
+
+enum MenuType {
+  INDEX = 'index',
+  FOLDER = 'folder',
+  LINK = 'link',
+  TASK = 'task',
+  DOCUMENT = 'document',
+  EMBED = 'embed'
 }
 
 enum ModalType {
@@ -167,10 +237,15 @@ enum ModalType {
     Modal,
     FormLink,
     FormTask,
-    FormEmbed
+    FormEmbed,
+    FormFolder,
+    SelectNodeType
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
+  @Prop(Boolean)
+  private readonly menuOpen!: boolean
+
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
@@ -178,6 +253,13 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // State
 
   dragging = false
+
+  private activeMenu = {
+    visible: false,
+    type: MenuType.INDEX,
+    loading: false,
+    alert: null
+  }
 
   // Computed
 
@@ -202,6 +284,100 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   // Methods
+
+  async select (type: MenuType) {
+    if (type === MenuType.DOCUMENT) {
+      this.$emit('menu-selected', false)
+
+      try {
+        await this.$router.push({ name: 'Document' })
+      } catch { }
+
+      return true
+    }
+
+    this.setActiveMenu(true, type)
+  }
+
+  setActiveMenu (visible: boolean, type = MenuType.INDEX) {
+    this.activeMenu = {
+      ...this.activeMenu,
+
+      type,
+      visible
+    }
+  }
+
+  isMenuActive (type: MenuType): boolean {
+    return this.activeMenu.type === type && this.activeMenu.visible
+  }
+
+  async fetchTree () {
+    return this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+  }
+
+  async addFolder (data: NodeResource) {
+    this.activeMenu.loading = true
+
+    try {
+      await this.$store.dispatch('tree/createFolder', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addLink (data: LinkResource) {
+    this.activeMenu.loading = true
+
+    try {
+      await this.$store.dispatch('link/create', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addTask (data: TaskBoardResource) {
+    this.activeMenu.loading = true
+
+    try {
+      const res = await this.$store.dispatch('task/board/create', data) as { data: TaskBoardResource }
+      await this.fetchTree()
+      if (res.data.id) {
+        await this.$router.push({
+          name: 'TaskPage',
+          params: {
+            id: res.data.id.toString()
+          }
+        })
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addEmbed (data: object) {
+    this.activeMenu.loading = true
+    try {
+      await this.$store.dispatch('embed/create', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
 
   addNewNode (path: string, payload: any) {
     this.$emit('addNew', path, payload)
@@ -384,6 +560,15 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       await this.fetch()
     }
   }
+
+  @Watch('menuOpen')
+  watchMenuOpen () {
+    console.log('he')
+    if (this.menuOpen) {
+      console.log('ok')
+      this.setActiveMenu(true)
+    }
+  }
 }
 </script>
 
@@ -439,6 +624,42 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       width: 32px;
       height: 32px;
       border-radius: 32px;
+    }
+  }
+}
+
+#addnew-menu {
+  @apply absolute;
+
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: #F8F9FD;
+  padding: 1rem;
+
+  .menu-wrapper {
+    @apply relative h-full;
+
+    .list-menu {
+      @apply absolute;
+
+      bottom: 0;
+      right: 0;
+      left: 0;
+
+      h3 {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 19px;
+      }
+
+      p {
+        @apply mb-4;
+
+        font-size: 14px;
+        line-height: 17px;
+      }
     }
   }
 }
