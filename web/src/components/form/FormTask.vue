@@ -3,17 +3,7 @@
     class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
-    <v-field label="Board Name">
-      <input
-        ref="initialInput"
-        type="text"
-        class="input"
-        placeholder="E.g. Weekly Groceries"
-        v-model="payload.title"
-      >
-    </v-field>
-
-    <v-field label="Select Board Type" v-if="false">
+    <v-field label="Select Board Type">
       <div class="type-list mt-2">
         <a
           class="type-item mr-4"
@@ -46,6 +36,16 @@
           </div>
         </a>
       </div>
+    </v-field>
+
+    <v-field label="Task Board Name">
+      <input
+        ref="initialInput"
+        type="text"
+        class="input"
+        placeholder="E.g. Weekly Groceries"
+        v-model="payload.title"
+      >
     </v-field>
 
     <v-field

@@ -41,7 +41,6 @@
 
 .sidebar-items {
   @apply flex flex-1 w-full overflow-auto;
-  padding: 16px 0;
 }
 
 .sidebar.sidebar--noanimate {

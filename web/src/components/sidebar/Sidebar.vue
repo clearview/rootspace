@@ -80,12 +80,39 @@
     </div>
 
     <div class="sidebar-items">
-      <sidebar-tree v-if="pageReady" />
+      <sidebar-tree v-if="pageReady" class="py-4" :menu-open="isMenuOpen" @menu-selected="menuSelected"/>
     </div>
 
     <div class="sidebar-footer">
       <div class="sidebar-actions">
-        <button-node-add />
+        <div class="flex flex-1">
+          <button
+            v-if="!isMenuOpen"
+            class="btn add-button flex-grow"
+            @click="toggleMenu()"
+          >
+              <v-icon
+                name="plus2"
+                size="16px"
+                viewbox="16"
+                class="mr-1"
+              />
+              Add New
+          </button>
+          <button
+            v-if="isMenuOpen"
+            class="btn add-button flex-grow"
+            @click="toggleMenu()"
+          >
+              <v-icon
+                name="close2"
+                size="16px"
+                viewbox="20"
+                class="mr-1"
+              />
+              Close
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -116,6 +143,8 @@ import PageMixin from '@/mixins/PageMixin'
   }
 })
 export default class Sidebar extends Mixins(PageMixin) {
+  private isMenuOpen = false
+
   @Prop(Boolean)
   private readonly noanimate!: boolean
 
@@ -138,6 +167,14 @@ export default class Sidebar extends Mixins(PageMixin) {
     try {
       await this.$router.push({ name: 'Settings' })
     } catch { }
+  }
+
+  toggleMenu () {
+    this.isMenuOpen = !this.isMenuOpen
+  }
+
+  menuSelected (state: boolean) {
+    this.isMenuOpen = state
   }
 }
 </script>
@@ -233,6 +270,21 @@ export default class Sidebar extends Mixins(PageMixin) {
   @apply my-1;
   height:1px;
   background: theme("colors.gray.100");
+}
+.add-button {
+  @apply flex pl-4 w-full justify-start;
+
+  cursor: pointer;
+  border: 0;
+
+  span {
+     @apply mr-2;
+  }
+
+  &:hover {
+    color: theme("colors.primary.default");
+    background: transparent;
+  }
 }
 </style>
 

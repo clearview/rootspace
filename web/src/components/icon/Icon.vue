@@ -78,6 +78,11 @@ import IconFileEmpty from '@/components/icon/IconFileEmpty.vue'
 import IconCode from '@/components/icon/IconCode.vue'
 import IconVerticalEllipsis from '@/components/icon/IconVerticalEllipsis.vue'
 import IconLogout from '@/components/icon/IconLogout.vue'
+import IconMenuDocument from '@/components/icon/IconMenuDocument.vue'
+import IconMenuEmbed from '@/components/icon/IconMenuEmbed.vue'
+import IconMenuFolder from '@/components/icon/IconMenuFolder.vue'
+import IconMenuLink from '@/components/icon/IconMenuLink.vue'
+import IconMenuTask from '@/components/icon/IconMenuTask.vue'
 
 @Component({
   name: 'Icon',
@@ -144,7 +149,12 @@ import IconLogout from '@/components/icon/IconLogout.vue'
     IconHistory,
     IconShareGlobe,
     IconGrid,
-    IconLogout
+    IconLogout,
+    IconMenuDocument,
+    IconMenuEmbed,
+    IconMenuFolder,
+    IconMenuLink,
+    IconMenuTask
   }
 })
 export default class Icon extends Vue {

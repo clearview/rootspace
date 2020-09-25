@@ -3,12 +3,12 @@
     class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
-    <v-field label="Title">
+    <v-field label="Folder Name">
       <input
         ref="initialInput"
         type="text"
         class="input"
-        placeholder="Enter title"
+        placeholder="Enter folder name"
         v-model="payload.title"
       >
     </v-field>
@@ -78,3 +78,10 @@ export default class FormLink extends Vue {
   }
 }
 </script>
+
+<style lang="postcss" scoped>
+.input:focus {
+  box-shadow: 0 0 0 3px rgb(216 55 80 / 0.3);
+  border: 1px solid theme("colors.primary.default");
+}
+</style>
