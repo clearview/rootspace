@@ -57,15 +57,16 @@
     @apply p-2;
   }
 
-  .sidebar-header {
+  /* .sidebar-header {
     padding-right: 8px;
-  }
+  } */
 
   .sidebar-logo {
     @apply bg-transparent;
   }
 
-  .sidebar-items {
+  .sidebar-items,
+  .addnew-menu {
     visibility: hidden;
   }
 

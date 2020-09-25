@@ -1,24 +1,6 @@
 <template>
   <div class="w-full overflow-auto relative">
-    <div class="flex justify-center" v-if="treeData.length === 0">
-      <div class="empty-content">
-        <div class="space-logo">
-          <img
-            v-if="activeSpace.avatar"
-            :src="activeSpace.avatar.versions.default.path"
-            alt="Space"
-          >
-          <img src="@/assets/images/default-space.png" alt="Space Logo" v-else>
-        </div>
-        <h3>Welcome to your Space</h3>
-        <p>Here you can create different types of content,
-          start by creating your first content on Root</p>
-
-        <button class="btn add-button flex-grow">
-          Add New
-        </button>
-      </div>
-    </div>
+    <sidebar-empty-tree v-if="treeData.length === 0" />
 
     <tree
       v-if="treeData.length > 0"
@@ -50,55 +32,14 @@
     <transition name="menu">
       <div id="addnew-menu" v-if="menuOpen">
         <div class="menu-wrapper">
-          <div class="list-menu" v-if="isMenuActive('index')">
-            <h3>Add New</h3>
-            <p>Please select one option you want to add</p>
-            <select-node-type @select="select"/>
-          </div>
-
-          <div class="list-menu" v-if="isMenuActive('folder')">
-            <h3>Folder</h3>
-            <p>Please enter name to create a folder</p>
-
-            <form-folder
-              @submit="addFolder"
-              :space="activeSpace.id"
-              ref="formFolder"
-            />
-          </div>
-
-          <div class="list-menu" v-if="isMenuActive('link')">
-            <h3>Link</h3>
-            <p>Please enter name and put link to create a link</p>
-
-            <form-link
-              @submit="addLink"
-              :space="activeSpace.id"
-              ref="formLink"
-            />
-          </div>
-
-          <div class="list-menu" v-if="isMenuActive('embed')">
-            <h3>Embed</h3>
-            <p>Please select 1 of 4 categories you want to add</p>
-
-            <form-embed
-              @submit="addEmbed"
-              :space="activeSpace.id"
-              ref="formEmbed"
-            />
-          </div>
-
-          <div class="list-menu" v-if="isMenuActive('task')">
-            <h3>Task Board</h3>
-            <p>Please select view type</p>
-
-            <form-task
-              @submit="addTask"
-              :space="activeSpace.id"
-              ref="formTask"
-            />
-          </div>
+          <component
+            :is="menuActive(activeMenu.type)"
+            @submit-folder="addFolder"
+            @submit-link="addLink"
+            @submit-embed="addEmbed"
+            @submit-task="addTask"
+            @select="select">
+          </component>
         </div>
       </div>
     </transition>
@@ -176,7 +117,6 @@
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
-import SelectNodeType from '@/components/SelectNodeType.vue'
 
 import {
   Tree,
@@ -197,10 +137,13 @@ import {
 
 import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 
-import FormLink from '@/components/form/FormLink.vue'
-import FormTask from '@/components/form/FormTask.vue'
-import FormEmbed from '@/components/form/FormEmbed.vue'
-import FormFolder from '@/components/form/FormFolder.vue'
+import ListMenu from '@/components/sidebar/menu/ListMenu.vue'
+import FolderMenu from '@/components/sidebar/menu/FolderMenu.vue'
+import LinkMenu from '@/components/sidebar/menu/LinkMenu.vue'
+import EmbedMenu from '@/components/sidebar/menu/EmbedMenu.vue'
+import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
+
+import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
@@ -235,11 +178,12 @@ enum ModalType {
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
-    FormLink,
-    FormTask,
-    FormEmbed,
-    FormFolder,
-    SelectNodeType
+    SidebarEmptyTree,
+    FolderMenu,
+    ListMenu,
+    LinkMenu,
+    EmbedMenu,
+    TaskMenu
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
@@ -298,9 +242,30 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   // Methods
 
+  menuActive (type: string) {
+    switch (type) {
+      case MenuType.FOLDER:
+        return 'folder-menu'
+
+      case MenuType.LINK:
+        return 'link-menu'
+
+      case MenuType.TASK:
+        return 'task-menu'
+
+      case MenuType.EMBED:
+        return 'embed-menu'
+
+      default:
+        return 'list-menu'
+    }
+  }
+
   async select (type: MenuType) {
+    console.log('select')
     if (type === MenuType.DOCUMENT) {
       this.$emit('menu-selected', false)
+      console.log('menu-select')
 
       try {
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
@@ -314,6 +279,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   setActiveMenu (visible: boolean, type = MenuType.INDEX) {
+    console.log('type', type, 'visible', visible)
+
     this.activeMenu = {
       ...this.activeMenu,
 
@@ -606,61 +573,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 </script>
 
 <style lang="postcss" scoped>
-.empty-content {
-  @apply flex flex-col relative;
-
-  padding: 36px 24px 16px 24px;
-  margin-left: 12px;
-  margin-right: 12px;
-  margin-top: 44px;
-  background-color: #EFF1F6;
-  width: 272px;
-
-  h3 {
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 21px;
-    text-align: center;
-    margin-bottom: 8px;
-  }
-
-  p {
-    font-size: 14px;
-    line-height: 17px;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-
-  button {
-    @apply w-full;
-
-    background-color: #EFF1F6;
-    font-size: 14px;
-    line-height: 17px;
-
-    &:hover {
-      background-color: #F8F9FD;
-    }
-  }
-
-  .space-logo {
-    @apply absolute;
-
-    background-color: #EFF1F6;
-    padding: 12px;
-    top: -38px;
-    border-radius: 56px;
-    border: 5px solid #FFF;
-    right: 108px;
-
-    img {
-      width: 32px;
-      height: 32px;
-      border-radius: 32px;
-    }
-  }
-}
-
 #addnew-menu {
   @apply absolute;
 
@@ -670,30 +582,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   bottom: 0;
   background: #F8F9FD;
   padding: 1rem;
+  min-width: 304px;
 
   .menu-wrapper {
     @apply relative h-full;
-
-    .list-menu {
-      @apply absolute;
-
-      bottom: 0;
-      right: 0;
-      left: 0;
-
-      h3 {
-        font-weight: 500;
-        font-size: 16px;
-        line-height: 19px;
-      }
-
-      p {
-        @apply mb-4;
-
-        font-size: 14px;
-        line-height: 17px;
-      }
-    }
   }
 }
 </style>
