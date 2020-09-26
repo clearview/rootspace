@@ -246,7 +246,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     }
   }
 
-  deepFindNode (parent: NodeResource[], compare: (node: NodeResource) => boolean) {
+  deepFindNode (parent: NodeResource[], compare: (node: NodeResource) => boolean): NodeResource | null {
     for (const node of parent) {
       if (compare(node)) {
         return node

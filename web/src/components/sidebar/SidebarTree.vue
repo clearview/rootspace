@@ -368,7 +368,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      const res = await this.$store.dispatch('task/board/create', data) as TaskBoardResource
+      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
       if (this.deferredParent && this.deferredPath) {
         await this.updateNodePosition(this.deferredPath.concat(0), res)
       }
