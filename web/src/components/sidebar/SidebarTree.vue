@@ -9,7 +9,8 @@
       v-model="treeData"
       :class="{
         'tree': true,
-        'tree--dragging': dragging
+        'tree--dragging': dragging,
+        'h-full overflow-hidden': menuOpen
       }"
       :indent="16"
       :ondragstart="startDragging"
@@ -29,7 +30,7 @@
       />
     </tree>
 
-    <transition name="menu">
+    <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
       <div id="addnew-menu" v-if="menuOpen">
         <div class="menu-wrapper">
           <component
@@ -42,7 +43,7 @@
           </component>
         </div>
       </div>
-    </transition>
+    <!-- </transition> -->
 
     <modal
       v-if="modal.type === 'UpdateLink'"

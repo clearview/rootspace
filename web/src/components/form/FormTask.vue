@@ -48,16 +48,6 @@
       >
     </v-field>
 
-    <v-field
-      inline
-      border
-      label="Make Board Private"
-      align="right"
-      class="mb-0"
-    >
-      <button-switch v-model="payload.isPublic" />
-    </v-field>
-
     <button
       type="submit"
       class="hidden"
