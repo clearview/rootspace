@@ -16,6 +16,7 @@ import { ActivityEvent } from '../../events/ActivityEvent'
 import { ActivityService } from '../../ActivityService'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { DocUpdateSetup } from './DocUpdateSetup'
+import { Node } from '../../../database/entities/Node'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -82,7 +83,7 @@ export class DocService extends NodeContentService {
     return this.getDocRevisionRepository().getByDocId(doc.id)
   }
 
-  async create(data: DocCreateValue): Promise<Doc> {
+  async create(data: DocCreateValue): Promise<Doc & Node> {
     let doc = this.getDocRepository().create()
 
     Object.assign(doc, data.attributes)
@@ -90,7 +91,7 @@ export class DocService extends NodeContentService {
 
     doc = await this.getDocRepository().save(doc)
 
-    await this.nodeService.create(
+    const node = await this.nodeService.create(
       NodeCreateValue.fromObject({
         userId: doc.userId,
         spaceId: doc.spaceId,
@@ -103,7 +104,7 @@ export class DocService extends NodeContentService {
     doc = await this.getDocRepository().reload(doc)
     await this.registerActivityForDoc(DocActivities.Created, doc, { title: doc.title })
 
-    return doc
+    return { ...doc, ...node }
   }
 
   async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {

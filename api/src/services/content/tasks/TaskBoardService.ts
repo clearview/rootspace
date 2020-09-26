@@ -17,6 +17,7 @@ import { ActivityEvent } from '../../events/ActivityEvent'
 import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
 import { TaskListService } from './TaskListService'
 import { HttpErrName, HttpStatusCode, clientError } from '../../../errors'
+import { Node } from '../../../database/entities/Node'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
@@ -108,11 +109,11 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().create(data)
   }
 
-  async save(data: any): Promise<TaskBoard> {
+  async save(data: any): Promise<TaskBoard & Node> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     let taskBoard = await this.getTaskBoardRepository().save(data)
 
-    await this.nodeService.create(
+    const node = await this.nodeService.create(
       NodeCreateValue.fromObject({
         userId: taskBoard.userId,
         spaceId: taskBoard.spaceId,
@@ -125,7 +126,7 @@ export class TaskBoardService extends NodeContentService {
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
     await this.registerActivityForTaskBoard(TaskBoardActivities.Created, taskBoard, { title: taskBoard.title })
 
-    return taskBoard
+    return { ...taskBoard, ...node }
   }
 
   async update(id: number, data: any): Promise<TaskBoard> {

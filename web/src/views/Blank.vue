@@ -51,7 +51,6 @@ export default class Blank extends Mixins(PageMixin, SpaceMixin) {
         noicon: true
       }
     }
-    console.log(query.message)
     if (query.from === 'document' && query.message) {
       this.secondAlert = {
         type: 'danger',

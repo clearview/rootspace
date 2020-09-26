@@ -246,6 +246,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   @Prop(Boolean)
   private readonly menuOpen!: boolean
 
+  @Watch('menuOpen', { immediate: false })
+  private resetDeferredParent (val: boolean) {
+    this.$nextTick(() => {
+      if (!val) {
+        this.deferredParent = null
+        this.deferredPath = null
+      }
+    })
+  }
+
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
@@ -260,6 +270,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     loading: false,
     alert: null
   }
+
+  private deferredParent: NodeResource | null = null;
+  private deferredPath: number[] | null = null;
 
   // Computed
 
@@ -290,6 +303,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.$emit('menu-selected', false)
 
       try {
+        this.$store.commit('document/setDeferredParent', { ...this.deferredParent })
         await this.$router.push({ name: 'Document' })
       } catch { }
 
@@ -320,7 +334,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      await this.$store.dispatch('tree/createFolder', data)
+      const newNode = await this.$store.dispatch('tree/createFolder', data)
+      if (this.deferredParent && this.deferredPath) {
+        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+      }
       await this.fetchTree()
     } catch { }
 
@@ -334,7 +351,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      await this.$store.dispatch('link/create', data)
+      const newNode = await this.$store.dispatch('link/create', data)
+      if (this.deferredParent && this.deferredPath) {
+        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+      }
       await this.fetchTree()
     } catch { }
 
@@ -348,13 +368,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      const res = await this.$store.dispatch('task/board/create', data) as { data: TaskBoardResource }
+      const res = await this.$store.dispatch('task/board/create', data) as TaskBoardResource
+      if (this.deferredParent && this.deferredPath) {
+        await this.updateNodePosition(this.deferredPath.concat(0), res)
+      }
       await this.fetchTree()
-      if (res.data.id) {
+      if (res.contentId) {
         await this.$router.push({
           name: 'TaskPage',
           params: {
-            id: res.data.id.toString()
+            id: res.contentId.toString()
           }
         })
       }
@@ -369,7 +392,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async addEmbed (data: object) {
     this.activeMenu.loading = true
     try {
-      await this.$store.dispatch('embed/create', data)
+      const newNode = await this.$store.dispatch('embed/create', data)
+      if (this.deferredParent && this.deferredPath) {
+        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+      }
       await this.fetchTree()
     } catch { }
 
@@ -379,8 +405,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$emit('menu-selected', false)
   }
 
-  addNewNode (path: string, payload: any) {
+  addNewNode (path: number[], payload: NodeResource) {
     this.$emit('addNew', path, payload)
+    this.deferredParent = payload
+    this.deferredPath = path
   }
 
   startDragging () {
@@ -461,10 +489,14 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
     try {
       // Mutate node
-      const nextNode = Object.assign(
-        this.$refs.tree.getNodeByPath(path),
-        node
-      )
+      let nextNode = node
+
+      if (!this.deferredParent && !this.deferredPath) {
+        nextNode = Object.assign(
+          this.$refs.tree.getNodeByPath(path),
+          node
+        )
+      }
 
       // Update store
       this.treeData = this.$refs.tree.cloneTreeData()
@@ -473,7 +505,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       if (!localOnly) {
         await this.$store.dispatch('tree/update', nextNode)
       }
-    } catch { }
+    } catch (ex) {
+      console.error(ex)
+    }
   }
 
   async updateNodePosition (path: number[], node: Node) {
@@ -488,6 +522,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           position: index + 1
         },
         ['children', 'created', 'updated']
+
       )
 
       await this.updateNode(path, nextNode)
@@ -563,9 +598,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   @Watch('menuOpen')
   watchMenuOpen () {
-    console.log('he')
     if (this.menuOpen) {
-      console.log('ok')
       this.setActiveMenu(true)
     }
   }

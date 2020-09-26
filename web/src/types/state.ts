@@ -87,6 +87,7 @@ export interface OptionState {
 
 export interface DocumentState {
   payload: DocumentResource[];
+  deferredParent: NodeResource | null;
 }
 
 export interface SpaceState {

@@ -14,6 +14,7 @@ import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { LinkActivities } from '../../database/entities/activities/LinkActivities'
 import { ActivityService } from '../ActivityService'
+import { Node } from '../../database/entities/Node'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService
@@ -57,10 +58,10 @@ export class LinkService extends NodeContentService {
     return link
   }
 
-  async create(data: LinkCreateValue): Promise<Link> {
+  async create(data: LinkCreateValue): Promise<Node & Link> {
     let link = await this.getLinkRepository().save(data.attributes)
 
-    await this.nodeService.create(
+    const node = await this.nodeService.create(
       NodeCreateValue.fromObject({
         userId: link.userId,
         spaceId: link.spaceId,
@@ -73,7 +74,7 @@ export class LinkService extends NodeContentService {
     link = await this.getLinkRepository().reload(link)
     await this.registerActivityForLink(LinkActivities.Created, link, { title: link.title })
 
-    return link
+    return { ...link, ...node }
   }
 
   async update(data: LinkUpdateValue, id: number): Promise<Link> {

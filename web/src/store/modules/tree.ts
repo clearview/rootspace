@@ -50,7 +50,7 @@ const TreeModule: Module<TreeState, RootState> = {
     },
 
     async createFolder (_, data: NodeResource) {
-      await TreeService.createFolder(data)
+      return await TreeService.createFolder(data)
     }
   }
 }

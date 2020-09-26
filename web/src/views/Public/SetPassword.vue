@@ -75,7 +75,6 @@ export default class Forgotpassword extends Vue {
           this.$router.push({ name: 'SignIn', query: { from: 'passwordreset', text: 'tokenexpired' } })
         }
       } catch (err) {
-        console.log('err.message', err.message)
         this.alert = {
           type: 'danger',
           message: err.message,

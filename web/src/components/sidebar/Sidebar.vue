@@ -80,7 +80,8 @@
     </div>
 
     <div class="sidebar-items">
-      <sidebar-tree v-if="pageReady" class="py-4" :menu-open="isMenuOpen" @menu-selected="menuSelected"/>
+      <sidebar-tree v-if="pageReady" class="py-4" :menu-open="isMenuOpen" @menu-selected="menuSelected"
+      @addNew="addNew"/>
     </div>
 
     <div class="sidebar-footer">
@@ -128,7 +129,7 @@ import SelectSpace from '@/components/SelectSpace.vue'
 import SidebarTree from '@/components/sidebar/SidebarTree.vue'
 import Popover from '@/components/Popover.vue'
 
-import { SpaceResource } from '@/types/resource'
+import { NodeResource, SpaceResource } from '@/types/resource'
 import PageMixin from '@/mixins/PageMixin'
 
 @Component({
@@ -175,6 +176,11 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   menuSelected (state: boolean) {
     this.isMenuOpen = state
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  addNew (path: [], payload: NodeResource) {
+    this.isMenuOpen = true
   }
 }
 </script>

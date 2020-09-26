@@ -34,6 +34,8 @@ const EmbedModule: Module<EmbedState, RootState> = {
       const res = await EmbedService.create(data)
 
       commit('setItem', res.data)
+
+      return res
     },
 
     async update ({ commit }, data: EmbedResource) {
