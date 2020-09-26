@@ -43,11 +43,11 @@ export default class SidebarHeader extends Vue {
   @apply flex flex-col relative;
 
   padding: 36px 24px 16px 24px;
-  margin-left: 12px;
-  margin-right: 12px;
+  margin-left: 16px;
+  margin-right: 16px;
   margin-top: 44px;
   background-color: #EFF1F6;
-  width: 272px;
+  min-width: 272px;
 
   h3 {
     font-weight: bold;

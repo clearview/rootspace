@@ -119,6 +119,7 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   cursor: pointer;
   border: 0;
+  min-width: 232px;
 
   span {
      @apply mr-2;
