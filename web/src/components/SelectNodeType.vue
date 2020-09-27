@@ -1,71 +1,19 @@
 <template>
   <div class="SelectNodeType">
-    <a
+     <a
       class="SelectNodeType-option"
-      @click="$emit('select', 'folder')"
+      @click="$emit('select', 'document')"
     >
       <v-icon
-        name="menu-folder"
+        name="menu-document"
         size="24px"
         viewbox="24"
         class="SelectNodeType-icon"
       />
 
       <div class="SelectNodeType-desc">
-        <h5>Folder</h5>
-        <p>GROUPS AND ORGANIZE YOUR FILES.</p>
-      </div>
-
-      <span class="arrow">
-        <v-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
-      </span>
-    </a>
-
-    <a
-      class="SelectNodeType-option"
-      @click="$emit('select', 'link')"
-    >
-      <v-icon
-        name="menu-link"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
-
-      <div class="SelectNodeType-desc">
-        <h5>Link</h5>
-        <p>ADD A LINK TO ANYTHING YOU’D LIKE.</p>
-      </div>
-
-      <span class="arrow">
-        <v-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
-      </span>
-    </a>
-
-    <a
-      class="SelectNodeType-option"
-      @click="$emit('select', 'embed')"
-    >
-      <v-icon
-        name="menu-embed"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
-
-      <div class="SelectNodeType-desc">
-        <h5>Embed</h5>
-        <p>EMBED ANY THIRD-PART APP...</p>
+        <h5>Document</h5>
+        <p>WRITE NOTES, THOUGHTS OR IDEAS.</p>
       </div>
 
       <span class="arrow">
@@ -106,18 +54,70 @@
 
     <a
       class="SelectNodeType-option"
-      @click="$emit('select', 'document')"
+      @click="$emit('select', 'folder')"
     >
       <v-icon
-        name="menu-document"
+        name="menu-folder"
         size="24px"
         viewbox="24"
         class="SelectNodeType-icon"
       />
 
       <div class="SelectNodeType-desc">
-        <h5>Document</h5>
-        <p>WRITE NOTES, THOUGHTS OR IDEAS.</p>
+        <h5>Folder</h5>
+        <p>GROUPS AND ORGANIZE YOUR FILES.</p>
+      </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'embed')"
+    >
+      <v-icon
+        name="menu-embed"
+        size="24px"
+        viewbox="24"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Embed</h5>
+        <p>EMBED ANY THIRD-PART APP...</p>
+      </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'link')"
+    >
+      <v-icon
+        name="menu-link"
+        size="24px"
+        viewbox="24"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Link</h5>
+        <p>ADD A LINK TO ANYTHING YOU’D LIKE.</p>
       </div>
 
       <span class="arrow">
