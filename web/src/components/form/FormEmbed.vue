@@ -30,7 +30,7 @@
       />
     </field>
 
-    <field class="mb-6">
+    <field class="mb-2">
       <textarea
         v-model="payload.content"
         class="textarea w-full"
@@ -154,10 +154,19 @@ export default class FormEmbed extends Vue {
   @apply border border-gray-400 rounded;
   @apply cursor-pointer;
 
+  width: 47%;
   transition: 0.3s;
 
   &:nth-child(n + 3) {
     @apply mt-4;
+  }
+
+  &:nth-child(odd) {
+    @apply mr-2;
+  }
+
+  &:nth-child(even) {
+    @apply ml-2;
   }
 
   &.is-active {
@@ -172,6 +181,6 @@ export default class FormEmbed extends Vue {
 }
 
 .help {
-  @apply text-primary font-bold underline leading-none;
+  @apply text-primary leading-none;
 }
 </style>

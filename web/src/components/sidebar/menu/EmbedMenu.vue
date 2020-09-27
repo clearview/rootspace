@@ -3,6 +3,7 @@
     class="form-menu"
     title="Embed"
     @add="$refs.formEmbed.submit()"
+    @back="$emit('select', 'index')"
     description="Please select 1 of 4 categories you want to add">
     <template>
       <form-embed

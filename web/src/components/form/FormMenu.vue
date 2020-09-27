@@ -40,7 +40,7 @@ export default class FormMenu extends Vue {
   private readonly noButton!: boolean;
 
   back () {
-    console.log('back')
+    this.$emit('back')
   }
 
   add () {

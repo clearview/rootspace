@@ -3,6 +3,7 @@
     class="form-menu"
     title="Folder"
     @add="$refs.formFolder.submit()"
+    @back="$emit('select', 'index')"
     description="Please enter name to create a folder">
     <template>
       <form-folder

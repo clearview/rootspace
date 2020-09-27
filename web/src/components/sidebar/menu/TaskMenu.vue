@@ -3,6 +3,7 @@
     class="form-menu"
     title="Task Board"
     @add="$refs.formTask.submit()"
+    @back="$emit('select', 'index')"
     description="Please select view type">
     <template>
       <form-task

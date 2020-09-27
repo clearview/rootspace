@@ -3,6 +3,7 @@
     class="form-menu"
     title="Link"
     @add="$refs.formLink.submit()"
+    @back="$emit('select', 'index')"
     description="Please enter name and put link to create a link">
     <template>
       <form-link
