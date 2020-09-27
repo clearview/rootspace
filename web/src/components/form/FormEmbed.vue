@@ -93,6 +93,7 @@ const embedTypeData: EmbedTypeData[] = [
 ]
 
 @Component({
+  name: 'FormEmbed',
   components: {
     Field
   },

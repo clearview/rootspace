@@ -34,7 +34,7 @@ import VField from '@/components/Field.vue'
 import { Component, Prop, Ref } from 'vue-property-decorator'
 
 @Component({
-  name: 'FormLink',
+  name: 'FormFolder',
   components: {
     ButtonSwitch,
     VField
@@ -45,7 +45,7 @@ import { Component, Prop, Ref } from 'vue-property-decorator'
     }
   }
 })
-export default class FormLink extends Vue {
+export default class FormFolder extends Vue {
   @Prop({ type: Object, default: () => ({}) })
   private readonly value!: any;
 
@@ -78,10 +78,3 @@ export default class FormLink extends Vue {
   }
 }
 </script>
-
-<style lang="postcss" scoped>
-.input:focus {
-  box-shadow: 0 0 0 3px rgb(216 55 80 / 0.3);
-  border: 1px solid theme("colors.primary.default");
-}
-</style>
