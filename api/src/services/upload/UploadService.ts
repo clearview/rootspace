@@ -107,6 +107,13 @@ export class UploadService {
   }
 
   async upload(data: UploadValue) {
+    let upload = await this.obtainUploadEntity(data)
+    Object.assign(upload, data.attributes)
+
+    if (!(await this.getEntityFromUpload(upload))) {
+      throw clientError('Entity for uplaod not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
     const sFFile = await this.S3Upload({
@@ -117,13 +124,10 @@ export class UploadService {
 
     const versions = isImage(data.file.originalname) ? await this.createImageVersions(data) : null
 
-    let upload = await this.obtainUploadEntity(data)
-    Object.assign(upload, data.attributes)
-
-    upload.path = sFFile.Location
     upload.key = sFFile.Key
+    upload.bucket = sFFile.Bucket
+    upload.filename = data.file.originalname
     upload.versions = versions
-
     upload.mimetype = data.file.mimetype
     upload.size = data.file.size
 
@@ -163,7 +167,13 @@ export class UploadService {
       spaceId = 0
     }
 
-    return path.join(String(spaceId), String(entityId), nanoid(23), fileName.replace(/\s+/g, '-').toLowerCase())
+    return path.join(
+      String(spaceId),
+      String(entityId),
+      nanoid(23),
+      nanoid(35),
+      fileName.replace(/\s+/g, '-').toLowerCase()
+    )
   }
 
   async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
@@ -177,8 +187,8 @@ export class UploadService {
 
     for (const size of cnfg.sizes) {
       const versionfileName = this.createVersionFileName(data.file.originalname, size.name)
-
       const key = this.createFilePath(versionfileName, data.attributes.spaceId, data.attributes.entityId)
+
       const image = await this.generateImage(data.file.path, size)
 
       const S3Result = await this.S3Upload({
@@ -188,8 +198,9 @@ export class UploadService {
       })
 
       versions[size.name] = {
-        path: S3Result.Location,
+        bucket: S3Result.Bucket,
         key: S3Result.Key,
+        filename: versionfileName,
       }
     }
 
@@ -283,7 +294,7 @@ export class UploadService {
     }
 
     return new Promise((resolve, reject) => {
-      this.s3.deleteObject(_params, (err: AWSError, output: DeleteObjectOutput) => {
+      this.s3.getObject(_params, (err: AWSError, output: DeleteObjectOutput) => {
         if (err) {
           reject(err)
           return

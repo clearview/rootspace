@@ -24,8 +24,9 @@ export interface IUploadImageConfig {
 }
 
 export interface IUploadVersion {
-  path: string
+  bucket: string
   key: string
+  filename: string
 }
 
 export interface IUploadVersions {
