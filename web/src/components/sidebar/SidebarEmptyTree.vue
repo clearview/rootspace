@@ -13,7 +13,7 @@
       <p>Here you can create different types of content,
         start by creating your first content on Root</p>
 
-      <button class="btn add-button flex-grow">
+      <button class="btn add-button flex-grow" @click="addNew()">
         Add New
       </button>
     </div>
@@ -34,6 +34,10 @@ import {
 export default class SidebarHeader extends Vue {
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
+  }
+
+  addNew () {
+    this.$emit('addNew')
   }
 }
 </script>

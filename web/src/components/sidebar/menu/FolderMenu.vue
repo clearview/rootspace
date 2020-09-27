@@ -1,6 +1,8 @@
 <template>
   <form-menu
+    class="form-menu"
     title="Folder"
+    @add="$refs.formFolder.submit()"
     description="Please enter name to create a folder">
     <template>
       <form-folder

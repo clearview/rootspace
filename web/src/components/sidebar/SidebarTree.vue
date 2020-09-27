@@ -1,6 +1,6 @@
 <template>
   <div class="w-full overflow-auto relative">
-    <sidebar-empty-tree v-if="treeData.length === 0" />
+    <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
     <tree
       v-if="treeData.length > 0"
@@ -377,6 +377,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$emit('addNew', path, payload)
     this.deferredParent = payload
     this.deferredPath = path
+  }
+
+  addNewEmpty () {
+    this.$emit('addNew')
   }
 
   startDragging () {

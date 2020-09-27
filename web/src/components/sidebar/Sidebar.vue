@@ -104,11 +104,15 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   menuSelected (state: boolean) {
     this.isMenuOpen = state
+    this.iconAddMenu = this.isMenuOpen ? 'close2' : 'plus2'
+    this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addNew (path: [], payload: NodeResource) {
     this.isMenuOpen = true
+    this.iconAddMenu = this.isMenuOpen ? 'close2' : 'plus2'
+    this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
   }
 }
 </script>
@@ -125,9 +129,11 @@ export default class Sidebar extends Mixins(PageMixin) {
      @apply mr-2;
   }
 
-  &:hover {
+  &:hover,
+  &:focus {
     color: theme("colors.primary.default");
     background: transparent;
+    box-shadow: none;
   }
 }
 </style>

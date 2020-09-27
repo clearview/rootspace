@@ -1,6 +1,8 @@
 <template>
   <form-menu
+    class="form-menu"
     title="Task Board"
+    @add="$refs.formTask.submit()"
     description="Please select view type">
     <template>
       <form-task

@@ -78,10 +78,3 @@ export default class FormFolder extends Vue {
   }
 }
 </script>
-
-<style lang="postcss" scoped>
-.input:focus {
-  box-shadow: 0 0 0 3px rgb(216 55 80 / 0.3);
-  border: 1px solid theme("colors.primary.default");
-}
-</style>

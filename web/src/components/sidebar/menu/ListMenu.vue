@@ -1,5 +1,6 @@
 <template>
   <form-menu
+    no-button
     title="Add New"
     description="Please select one option you want to add">
     <template>
