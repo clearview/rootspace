@@ -36,16 +36,15 @@
    }
 }
 
-
-
 .tree-node-content {
   @apply flex flex-row flex-1;
 
-  padding: 12px 0 12px 8px;
+  padding: 9px 0 9px 8px;
   border-radius: 4px;
   font-size: 16px;
   margin: 0 16px;
   align-items: center;
+  cursor: pointer;
 
   &:hover,
   &.is-active {
@@ -53,6 +52,9 @@
     .tree-node-icon {
       color: #2C2B35;
     }
+  }
+  &.is-context-open {
+    background: #F8F9FD;
   }
 }
 
@@ -93,6 +95,8 @@
 .tree-node-text {
   @apply block;
   @apply overflow-hidden leading-tight;
+  font-weight: 500;
+  font-size: 16px;
 
   input {
     @apply outline-none;

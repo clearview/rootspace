@@ -61,14 +61,18 @@ export class EmbedService extends NodeContentService {
   async create(data: EmbedCreateValue): Promise<Embed & Node> {
     let embed = await this.getEmbedRepository().save(data.attributes)
 
+    let value = NodeCreateValue.fromObject({
+      userId: embed.userId,
+      spaceId: embed.spaceId,
+      contentId: embed.id,
+      title: embed.title,
+      type: NodeType.Embed,
+    })
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
     const node = await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: embed.userId,
-        spaceId: embed.spaceId,
-        contentId: embed.id,
-        title: embed.title,
-        type: NodeType.Embed,
-      })
+      value
     )
 
     embed = await this.getEmbedRepository().reload(embed)

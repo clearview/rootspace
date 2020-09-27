@@ -7,6 +7,7 @@ export const EmbedCreateAttributes: IEmbedCreateAttributes = {
   title: null,
   type: null,
   content: null,
+  parentId: null
 }
 
 @attributes(EmbedCreateAttributes)

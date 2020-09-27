@@ -303,7 +303,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.$emit('menu-selected', false)
 
       try {
-        this.$store.commit('document/setDeferredParent', { ...this.deferredParent })
+        this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
         await this.$router.push({ name: 'Document' })
       } catch { }
 
@@ -334,10 +334,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      const newNode = await this.$store.dispatch('tree/createFolder', data)
       if (this.deferredParent && this.deferredPath) {
-        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+        data.parentId = this.deferredParent.id
       }
+      await this.$store.dispatch('tree/createFolder', data)
       await this.fetchTree()
     } catch { }
 
@@ -351,10 +351,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      const newNode = await this.$store.dispatch('link/create', data)
       if (this.deferredParent && this.deferredPath) {
-        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+        data.parentId = this.deferredParent.id
       }
+      await this.$store.dispatch('link/create', data)
       await this.fetchTree()
     } catch { }
 
@@ -368,10 +368,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.activeMenu.loading = true
 
     try {
-      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
       if (this.deferredParent && this.deferredPath) {
-        await this.updateNodePosition(this.deferredPath.concat(0), res)
+        (data as any).parentId = this.deferredParent.id
       }
+      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
       await this.fetchTree()
       if (res.contentId) {
         await this.$router.push({
@@ -389,13 +389,13 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$emit('menu-selected', false)
   }
 
-  async addEmbed (data: object) {
+  async addEmbed (data: any) {
     this.activeMenu.loading = true
     try {
-      const newNode = await this.$store.dispatch('embed/create', data)
       if (this.deferredParent && this.deferredPath) {
-        await this.updateNodePosition(this.deferredPath.concat(0), newNode.data)
+        data.parentId = this.deferredParent.id
       }
+      await this.$store.dispatch('embed/create', data)
       await this.fetchTree()
     } catch { }
 

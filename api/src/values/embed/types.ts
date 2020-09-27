@@ -4,6 +4,7 @@ export interface IEmbedCreateAttributes {
   readonly title: string
   readonly type: string
   readonly content: string
+  readonly parentId?: number
 }
 
 export type IEmbedUpdateAttributes = Omit<

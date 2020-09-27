@@ -109,18 +109,22 @@ export class TaskBoardService extends NodeContentService {
     return this.getTaskBoardRepository().create(data)
   }
 
-  async save(data: any): Promise<TaskBoard & Node> {
+  async save(data: any, parentId?: number): Promise<TaskBoard & Node> {
     data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
     let taskBoard = await this.getTaskBoardRepository().save(data)
 
+    let value = NodeCreateValue.fromObject({
+      userId: taskBoard.userId,
+      spaceId: taskBoard.spaceId,
+      contentId: taskBoard.id,
+      title: taskBoard.title,
+      type: this.getNodeType()
+    })
+    if (parentId) {
+      value = value.withParent(parentId).withPosition(0)
+    }
     const node = await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: taskBoard.userId,
-        spaceId: taskBoard.spaceId,
-        contentId: taskBoard.id,
-        title: taskBoard.title,
-        type: this.getNodeType(),
-      })
+      value
     )
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)

@@ -6,7 +6,8 @@
     active-class="is-active"
     :class="{
       'tree-node-content': true,
-      'is-renaming': isRenaming
+      'is-renaming': isRenaming,
+      'is-context-open': isContextOpen
     }"
   >
     <div
@@ -34,7 +35,7 @@
     </div>
 
     <div class="tree-node-actions" v-if="!isRenaming">
-      <Popover top="38px" :with-close="false">
+      <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
             <v-icon class="action-icon" name="plus2" viewbox="16" size="16px"></v-icon>
@@ -142,6 +143,8 @@ export default class SidebarTreeNode extends Vue {
 
   private payload: Partial<NodeData> = {}
   private isRenaming = false
+
+  private isContextOpen = false
 
   // Computed
 

@@ -18,13 +18,16 @@ export class FolderCtrl extends BaseCtrl {
     const data = req.body.data
     await validateFolderCreate(data)
 
-    const value = NodeCreateValue.fromObject({
+    let value = NodeCreateValue.fromObject({
       spaceId: data.spaceId,
       userId: req.user.id,
       title: data.title,
       contentId: 0,
       type: NodeType.Folder,
     })
+    if (data.parentId) {
+      value = value.withParent(data.parentId).withPosition(0)
+    }
 
     const node = await this.nodeService.create(value)
     const resData = this.responseData(node)

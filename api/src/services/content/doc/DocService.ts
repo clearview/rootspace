@@ -91,14 +91,18 @@ export class DocService extends NodeContentService {
 
     doc = await this.getDocRepository().save(doc)
 
+    let value =  NodeCreateValue.fromObject({
+      userId: doc.userId,
+      spaceId: doc.spaceId,
+      contentId: doc.id,
+      title: doc.title,
+      type: NodeType.Document,
+    })
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
     const node = await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: doc.userId,
-        spaceId: doc.spaceId,
-        contentId: doc.id,
-        title: doc.title,
-        type: NodeType.Document,
-      })
+      value
     )
 
     doc = await this.getDocRepository().reload(doc)

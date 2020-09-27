@@ -1,7 +1,7 @@
 <template>
   <div class="popover-container">
     <div class="popover-cloak" v-if="visible" @click.self.prevent.stop="hide"></div>
-    <div class="popover" v-if="visible" ref="popover">
+    <div class="popover" :class="{borderless}" v-if="visible" ref="popover">
       <header class="popover-header" v-if="title || withClose">
         <div v-if="backButton" @click="back">
             <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
@@ -52,6 +52,9 @@ export default class Popover extends Vue {
 
   @Prop({ type: Boolean, default: false })
   private readonly backButton!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly borderless!: boolean;
 
   @Ref('trigger')
   private readonly triggerRef?: HTMLDivElement;
@@ -146,6 +149,11 @@ export default class Popover extends Vue {
     background: theme('colors.white.default');
     top: 24px;
     /* right: 0; */
+    &.borderless {
+      box-shadow: 0 1px 12px rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+      border: none;
+    }
   }
 
   #back-button {
