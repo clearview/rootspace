@@ -3,7 +3,7 @@ import { NotificationRepository } from '../database/repositories/NotificationRep
 import { Notification } from '../database/entities/Notification'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { ActivityEvent } from './events/ActivityEvent'
-import { ActivityService } from './ActivityService'
+import { ActivityService } from './'
 import { UpdateResult } from 'typeorm/index'
 import { User } from '../database/entities/User'
 import { Task } from '../database/entities/tasks/Task'
@@ -83,7 +83,11 @@ export class NotificationService {
   }
 
   async readUsersNotificationsForEntity(userId: number, entityName: string, entityId: number): Promise<UpdateResult> {
-    const unreadNotifications = await this.getNotificationRepository().getUnreadUserNotificationsForEntity(userId, entityName, entityId)
+    const unreadNotifications = await this.getNotificationRepository().getUnreadUserNotificationsForEntity(
+      userId,
+      entityName,
+      entityId
+    )
 
     if (unreadNotifications.length > 0) {
       const ids = unreadNotifications.map((notification) => notification.id)
@@ -103,7 +107,11 @@ export class NotificationService {
   }
 
   async removeUserNotificationsForItem(userId: number, entityId: number, tableName: string): Promise<void> {
-    const notifications = await this.getNotificationRepository().getUserNotificationsForEntity(userId, entityId, tableName)
+    const notifications = await this.getNotificationRepository().getUserNotificationsForEntity(
+      userId,
+      entityId,
+      tableName
+    )
     if (notifications.length > 0) {
       await this.getNotificationRepository().remove(notifications)
     }

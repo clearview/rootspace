@@ -1,12 +1,14 @@
 import 'dotenv/config'
 import Bull from 'bull'
-import { ActivityEvent } from './events/ActivityEvent'
+import { ActivityEvent } from '../events/ActivityEvent'
 import { getCustomRepository } from 'typeorm'
-import { ActivityRepository } from '../database/repositories/ActivityRepository'
-import { Activity } from '../database/entities/Activity'
-import { Queue } from '../libs/Queue'
-import { WsEventEmitter } from './events/websockets/WsEventEmitter'
-import { WsEvent } from './events/websockets/WsEvent'
+import { ActivityRepository } from '../../database/repositories/ActivityRepository'
+import { Activity } from '../../database/entities/Activity'
+import { Queue } from '../../libs/Queue'
+import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
+import { WsEvent } from '../events/websockets/WsEvent'
+import { AggregatedActivity } from './types'
+import { AggregateProcessor } from './AggregateProcessor'
 
 export class ActivityService {
   private static instance: ActivityService
@@ -53,5 +55,10 @@ export class ActivityService {
 
   async getByEntityTypeAndEntityId(spaceId: number, type: string, id: number, action?: string): Promise<Activity[]> {
     return this.getActivityRepository().getByTypeAndEntityIdId(spaceId, type, id, action)
+  }
+
+  async getAggregatedForEntity(spaceId: number, entity: string, entityId: number): Promise<AggregatedActivity[]> {
+    const activities = await this.getByEntityTypeAndEntityId(spaceId, entity, entityId)
+    return new AggregateProcessor(activities, entity).aggregate()
   }
 }
