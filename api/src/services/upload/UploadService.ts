@@ -6,6 +6,7 @@ import fs from 'fs'
 import Bull from 'bull'
 import sharp from 'sharp'
 import isImage from 'is-image'
+import AmazonS3URI from 'amazon-s3-uri'
 import S3, { DeleteObjectOutput, ManagedUpload } from 'aws-sdk/clients/s3'
 import { AWSError } from 'aws-sdk/lib/error'
 import { getCustomRepository } from 'typeorm'
@@ -237,7 +238,6 @@ export class UploadService {
 
   async remove(id: number): Promise<Upload> {
     const upload = await this.requireUploadById(id)
-
     await this.removeUploadFiles(upload)
 
     const removed = await this.getUploadRepository().remove(upload)
@@ -251,18 +251,21 @@ export class UploadService {
   }
 
   async removeUploadFiles(upload: Upload): Promise<void> {
-    if (upload.key) {
-      await this.S3DeleteObject({ Key: upload.key })
-    }
+    this.removeUploadFile(upload.location)
 
     if (upload.versions) {
       for (const name in upload.versions) {
         if (upload.versions.hasOwnProperty(name)) {
           const version = upload.versions[name]
-          await this.S3DeleteObject({ Key: version.key })
+          await this.removeUploadFile(version.location)
         }
       }
     }
+  }
+
+  async removeUploadFile(location: string) {
+    const { region, bucket, key } = AmazonS3URI(location)
+    await this.S3DeleteObject({ Key: key })
   }
 
   S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
@@ -292,7 +295,7 @@ export class UploadService {
     }
 
     return new Promise((resolve, reject) => {
-      this.s3.getObject(_params, (err: AWSError, output: DeleteObjectOutput) => {
+      this.s3.deleteObject(_params, (err: AWSError, output: DeleteObjectOutput) => {
         if (err) {
           reject(err)
           return
