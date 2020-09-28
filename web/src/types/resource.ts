@@ -203,6 +203,7 @@ export interface ActivityResource {
   id: number;
   spaceId: number;
   tableName: string;
+  context?: any;
 }
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;

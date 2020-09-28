@@ -24,11 +24,22 @@ export class ActivityCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async getActivitiesByEntity(req: Request, res: Response) {
+  async getForEntity(req: Request, res: Response) {
     const spaceId = Number(req.params?.spaceId)
     this.checkSpaceAccess(req, spaceId)
 
-    const type = req.params?.entityType
+    const id = Number(req.params.entityId)
+    const type = req.params.entity
+
+    const result = await this.activityService.getAggregatedForEntity(spaceId, type, id)
+    res.send(this.responseData(result))
+  }
+
+  async getRawForEntity(req: Request, res: Response) {
+    const spaceId = Number(req.params?.spaceId)
+    this.checkSpaceAccess(req, spaceId)
+
+    const type = req.params?.entity
     const id = Number(req.params?.entityId)
     const action = req.query?.action ? String(req.query?.action) : null
 
@@ -37,6 +48,8 @@ export class ActivityCtrl extends BaseCtrl {
 
     res.send(resData)
   }
+
+  
 
   checkSpaceAccess(req: Request, spaceId) {
     const user = req.user as any
