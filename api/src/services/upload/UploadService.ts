@@ -116,7 +116,7 @@ export class UploadService {
 
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
-    const sFFile = await this.S3Upload({
+    const s3Upload = await this.S3Upload({
       Key: key,
       ContentType: data.file.mimetype,
       Body: fs.createReadStream(data.file.path),
@@ -124,8 +124,7 @@ export class UploadService {
 
     const versions = isImage(data.file.originalname) ? await this.createImageVersions(data) : null
 
-    upload.key = sFFile.Key
-    upload.bucket = sFFile.Bucket
+    upload.location = s3Upload.Location
     upload.filename = data.file.originalname
     upload.versions = versions
     upload.mimetype = data.file.mimetype
@@ -171,7 +170,7 @@ export class UploadService {
       String(spaceId),
       String(entityId),
       nanoid(23),
-      nanoid(35),
+      nanoid(36),
       fileName.replace(/\s+/g, '-').toLowerCase()
     )
   }
@@ -191,15 +190,14 @@ export class UploadService {
 
       const image = await this.generateImage(data.file.path, size)
 
-      const S3Result = await this.S3Upload({
+      const s3Upload = await this.S3Upload({
         Key: key,
         ContentType: data.file.mimetype,
         Body: image,
       })
 
       versions[size.name] = {
-        bucket: S3Result.Bucket,
-        key: S3Result.Key,
+        location: s3Upload.Location,
         filename: versionfileName,
       }
     }

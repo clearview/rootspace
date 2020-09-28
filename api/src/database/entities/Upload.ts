@@ -23,11 +23,8 @@ export class Upload {
   @Column('varchar', { nullable: true })
   type: string
 
-  @Column('varchar', { nullable: true })
-  key: string
-
-  @Column('varchar', { nullable: true })
-  bucket: string
+  @Column('varchar')
+  location: string
 
   @Column('varchar', { nullable: true })
   filename: string
