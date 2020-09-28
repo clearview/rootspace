@@ -34,10 +34,10 @@
 
               <div class="image-box">
                 <img
-                  :key="images[index].versions.preview.path || images[index] || ''"
-                  :src="images[index].versions.preview.path || images[index] || ''"
+                  :key="images[index].versions.preview.location || images[index] || ''"
+                  :src="images[index].versions.preview.location || images[index] || ''"
                   v-if="images[index] &&
-                    images[index].versions.preview.path &&
+                    images[index].versions.preview.location &&
                     isAttachmentImage(images[index].mimetype)"
                   @click.stop="next"
                 >
@@ -72,14 +72,14 @@
           </div>
 
           <div class="title">
-            <p v-if="images[index] && images[index].path !== undefined">
-              {{ images[index].path | formatAttachmentName }}
+            <p v-if="images[index] && images[index].location !== undefined">
+              {{ images[index].location | formatAttachmentName }}
             </p>
             <Popover :offset="10" :with-close="false" position="right-start" class="modal-action">
               <template #default="{ hide: topHide }">
                 <div class="action-line">
                   <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
-                  <div class="action-line-text" @click="open(images[index].path)">
+                  <div class="action-line-text" @click="open(images[index].location)">
                     Download
                   </div>
                 </div>
@@ -141,8 +141,8 @@ import Popover from '@/components/Popover.vue'
     Popover
   },
   filters: {
-    formatAttachmentName (path: string) {
-      const splits = path.split('/')
+    formatAttachmentName (location: string) {
+      const splits = location.split('/')
       return splits[splits.length - 1]
     }
   }

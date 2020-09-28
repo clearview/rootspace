@@ -2,7 +2,7 @@
   <li class="comment">
     <div class="comment-left">
       <div class="comment-avatar">
-        <avatar :src="comment.user.avatar && comment.user.avatar.versions ? comment.user.avatar.versions.default.path : ''" :username="`${comment.user.firstName} ${comment.user.lastName}`"
+        <avatar :src="comment.user.avatar && comment.user.avatar.versions ? comment.user.avatar.versions.default.location : ''" :username="`${comment.user.firstName} ${comment.user.lastName}`"
                 :size="32"
                 :alt="`${comment.user.firstName} ${comment.user.lastName}`"></avatar>
       </div>
