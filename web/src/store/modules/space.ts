@@ -13,7 +13,9 @@ const SpaceModule: Module<SpaceState, RootState> = {
     return {
       activeIndex: 0,
       list: [],
-      settings: []
+      settings: [],
+      freezeSettings: false,
+      afterFrozen: false
     }
   },
 
@@ -52,6 +54,17 @@ const SpaceModule: Module<SpaceState, RootState> = {
   },
 
   mutations: {
+
+    freezeSettings (state) {
+      state.freezeSettings = true
+    },
+    unfreezeSettings (state) {
+      state.freezeSettings = false
+      state.afterFrozen = true
+    },
+    clearFrozen (state) {
+      state.afterFrozen = false
+    },
     setActiveIndex (state, payload: number) {
       state.activeIndex = payload
     },
@@ -141,10 +154,10 @@ const SpaceModule: Module<SpaceState, RootState> = {
       return data
     },
 
-    async updateSetting ({ commit, getters }, payload: { id: number; data: Partial<SpaceSettingResource>}) {
+    async updateSetting ({ commit, getters, state }, payload: { id: number; data: Partial<SpaceSettingResource>}) {
       const index = getters.getIndex(payload.id)
 
-      if (isEmpty(payload.data)) return
+      if (isEmpty(payload.data) || state.freezeSettings) return
 
       commit('updateSettingsItem', { index, data: payload.data })
 

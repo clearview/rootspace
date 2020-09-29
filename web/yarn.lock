@@ -2,21 +2,21 @@
 # yarn lockfile v1
 
 
-"@adityapurwa/draggable-helper@^5.0.4":
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/@adityapurwa/draggable-helper/-/draggable-helper-5.0.6.tgz#8235a722d64d4c695beb07e217cecdf9a5d718eb"
-  integrity sha512-CZSXmgVBPVKFMxfc6w6YUX3ouzDEp5eB5N/mGijP6NndHlRbmhnsvohxs00+hitJLWodtjI96cQ4yW4wRfSlqw==
+"@adityapurwa/draggable-helper@^5.0.7":
+  version "5.0.7"
+  resolved "https://registry.yarnpkg.com/@adityapurwa/draggable-helper/-/draggable-helper-5.0.7.tgz#64715dc1569621ed8d1715b22044432c175a606c"
+  integrity sha512-aOKH6H/Qn784uxqJYnKylGnqFRnEJ+Nay33HBf/1nDbvh30PY1WcZfcqdWCnqW9ii+KHJ9fe1N1q3ka6D5TXkw==
   dependencies:
     "@babel/runtime" "^7.7.7"
     drag-event-service "^1.1.7"
     helper-js "^2.0.0"
 
-"@adityapurwa/he-tree-vue@^2.0.12":
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/@adityapurwa/he-tree-vue/-/he-tree-vue-2.0.12.tgz#7a1fe27756c6a77c83d251c4d35bf326a35fc25a"
-  integrity sha512-ZaoM41X/KoKh5DInnicsUzRnjF0EeqBtpoJnTmvRtgL7SBoXkUTdzosafz48k4GNgbmabNtqSznrzmj4zktTig==
+"@adityapurwa/he-tree-vue@2.0.13":
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/@adityapurwa/he-tree-vue/-/he-tree-vue-2.0.13.tgz#fd042ab96be0f2e153a8fd8bc9b627c2a7b24d70"
+  integrity sha512-zAIk2dARR2QennJSPEh90WfhLMvVZExMxXRTZbwrMPcM2zpIE1u2cZgljmabG0Kx2x//UfqKNdqQNF27cGp/qg==
   dependencies:
-    "@adityapurwa/draggable-helper" "^5.0.4"
+    "@adityapurwa/draggable-helper" "^5.0.7"
     "@babel/runtime" "^7.7.7"
     helper-js "^2.0.1"
     vue-functions "^2.0.6"

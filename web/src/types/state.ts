@@ -94,6 +94,8 @@ export interface SpaceState {
   activeIndex: number;
   list: SpaceResource[];
   settings: SpaceSettingResource[];
+  freezeSettings: boolean;
+  afterFrozen: boolean;
 }
 
 export interface PageState {

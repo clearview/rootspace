@@ -15,6 +15,10 @@
       :indent="16"
       :ondragstart="startDragging"
       :ondragend="endDragging"
+      :minDisplacement="18"
+      edgeScrollTriggerMode="mouse"
+      :edgeScrollTriggerMargin="18"
+      edgeScroll
       :allowOutOfBounds="true"
       @change="change"
       #default="{ node, path }"
@@ -238,6 +242,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   set treeData (data: Node[]) {
+    this.updateFoldWith(data)
     this.$store.commit('tree/setList', getPureTreeData(data))
   }
 
@@ -263,10 +268,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   async select (type: MenuType) {
-    console.log('select')
     if (type === MenuType.DOCUMENT) {
       this.$emit('menu-selected', false)
-      console.log('menu-select')
 
       try {
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
@@ -280,8 +283,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   setActiveMenu (visible: boolean, type = MenuType.INDEX) {
-    console.log('type', type, 'visible', visible)
-
     this.activeMenu = {
       ...this.activeMenu,
 
@@ -384,10 +385,12 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   startDragging () {
+    this.$store.commit('space/freezeSettings')
     this.dragging = true
   }
 
   endDragging () {
+    this.$store.commit('space/unfreezeSettings')
     this.dragging = false
   }
 
@@ -549,6 +552,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     }
 
     this.$store.commit('tree/setFolded', pickBy(folded, x => x))
+  }
+
+  updateFoldWith (data: Node[]) {
+    const foldeds = this.$store.state.tree.folded
+
+    walkTreeData(data, (node, index, parent, path) => {
+      foldeds[path.join('.')] = node.$folded
+    })
+
+    this.$store.commit('tree/setFolded', foldeds)
   }
 
   // Hooks
