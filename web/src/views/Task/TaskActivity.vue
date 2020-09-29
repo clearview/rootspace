@@ -1,7 +1,7 @@
 <template>
   <div class="task-activity">
     <div class="avatar">
-      <avatar :src="activity.actor.avatar && activity.actor.avatar.versions ? activity.actor.avatar.versions.default.path : ''" :username="`${activity.actor.firstName} ${activity.actor.lastName}`" :size="32"></avatar>
+      <avatar :src="activity.actor.avatar && activity.actor.avatar.versions ? activity.actor.avatar.versions.default.location : ''" :username="`${activity.actor.firstName} ${activity.actor.lastName}`" :size="32"></avatar>
     </div>
     <div class="content">
       <div class="title" v-if="activity.action === ACTIVITY_TYPE.AttachmentAdded">

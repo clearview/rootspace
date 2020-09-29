@@ -47,7 +47,7 @@
           </div>
           <ul class="assignees" v-if="item.assignees && item.assignees.length > 0" :class="{ 'assignees-margin' : isTagMoreThanOneLine }">
             <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee">
-              <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.path : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+              <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
             <li class="assignee more-assignee" v-if="hasMoreAssignee">
               <avatar :content="`${countMoreAssignee} More`" :username="`+ ${countMoreAssignee}`" v-tippy></avatar>

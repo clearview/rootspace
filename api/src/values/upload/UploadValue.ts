@@ -1,7 +1,7 @@
 import { EntityValue, attributes } from '../entity'
 import { IUploadAttributes } from './types'
 
-export const UploadAttributes = {
+export const UploadAttributes: IUploadAttributes = {
   userId: null,
   spaceId: null,
   entityId: null,
@@ -20,6 +20,7 @@ export class UploadValue extends EntityValue<IUploadAttributes> {
   withFile(file: any): UploadValue {
     const copy = this.copy()
     copy._file = file
+
     return copy
   }
 
@@ -35,7 +36,6 @@ export class UploadValue extends EntityValue<IUploadAttributes> {
   }
 
   static fromObjectAndUserId(object: IUploadAttributes, userId: number): UploadValue {
-    Object.assign(object, { userId })
-    return UploadValue.fromObject(Object.assign(object, { userId }))
+    return UploadValue.fromObject(Object.assign({ ...object }, { userId }))
   }
 }

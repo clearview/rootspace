@@ -6,6 +6,7 @@ import fs from 'fs'
 import Bull from 'bull'
 import sharp from 'sharp'
 import isImage from 'is-image'
+import AmazonS3URI from 'amazon-s3-uri'
 import S3, { DeleteObjectOutput, ManagedUpload } from 'aws-sdk/clients/s3'
 import { AWSError } from 'aws-sdk/lib/error'
 import { getCustomRepository } from 'typeorm'
@@ -107,9 +108,16 @@ export class UploadService {
   }
 
   async upload(data: UploadValue) {
+    let upload = await this.obtainUploadEntity(data)
+    Object.assign(upload, data.attributes)
+
+    if (!(await this.getEntityFromUpload(upload))) {
+      throw clientError('Entity for uplaod not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
-    const sFFile = await this.S3Upload({
+    const s3Upload = await this.S3Upload({
       Key: key,
       ContentType: data.file.mimetype,
       Body: fs.createReadStream(data.file.path),
@@ -117,13 +125,9 @@ export class UploadService {
 
     const versions = isImage(data.file.originalname) ? await this.createImageVersions(data) : null
 
-    let upload = await this.obtainUploadEntity(data)
-    Object.assign(upload, data.attributes)
-
-    upload.path = sFFile.Location
-    upload.key = sFFile.Key
+    upload.location = s3Upload.Location
+    upload.filename = data.file.originalname
     upload.versions = versions
-
     upload.mimetype = data.file.mimetype
     upload.size = data.file.size
 
@@ -163,7 +167,13 @@ export class UploadService {
       spaceId = 0
     }
 
-    return path.join(String(spaceId), String(entityId), nanoid(23), fileName.replace(/\s+/g, '-').toLowerCase())
+    return path.join(
+      String(spaceId),
+      String(entityId),
+      nanoid(23),
+      nanoid(36),
+      fileName.replace(/\s+/g, '-').toLowerCase()
+    )
   }
 
   async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
@@ -177,19 +187,19 @@ export class UploadService {
 
     for (const size of cnfg.sizes) {
       const versionfileName = this.createVersionFileName(data.file.originalname, size.name)
-
       const key = this.createFilePath(versionfileName, data.attributes.spaceId, data.attributes.entityId)
+
       const image = await this.generateImage(data.file.path, size)
 
-      const S3Result = await this.S3Upload({
+      const s3Upload = await this.S3Upload({
         Key: key,
         ContentType: data.file.mimetype,
         Body: image,
       })
 
       versions[size.name] = {
-        path: S3Result.Location,
-        key: S3Result.Key,
+        location: s3Upload.Location,
+        filename: versionfileName,
       }
     }
 
@@ -228,7 +238,6 @@ export class UploadService {
 
   async remove(id: number): Promise<Upload> {
     const upload = await this.requireUploadById(id)
-
     await this.removeUploadFiles(upload)
 
     const removed = await this.getUploadRepository().remove(upload)
@@ -242,18 +251,21 @@ export class UploadService {
   }
 
   async removeUploadFiles(upload: Upload): Promise<void> {
-    if (upload.key) {
-      await this.S3DeleteObject({ Key: upload.key })
-    }
+    this.removeUploadFile(upload.location)
 
     if (upload.versions) {
       for (const name in upload.versions) {
         if (upload.versions.hasOwnProperty(name)) {
           const version = upload.versions[name]
-          await this.S3DeleteObject({ Key: version.key })
+          await this.removeUploadFile(version.location)
         }
       }
     }
+  }
+
+  async removeUploadFile(location: string) {
+    const { region, bucket, key } = AmazonS3URI(location)
+    await this.S3DeleteObject({ Key: key })
   }
 
   S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
