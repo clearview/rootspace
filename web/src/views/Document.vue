@@ -198,7 +198,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       if (id) {
         await DocumentService.update(id, data)
       } else {
-        console.log(this.$store.state.document.deferredParent)
         const document = await DocumentService.create({ ...data, parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined })
         const getDocument = document.data
         this.$store.commit('document/setDeferredParent', null)
@@ -208,7 +207,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.loading = false
     } catch (err) {
       this.loading = false
-      console.log(err)
     }
   }
 
@@ -285,7 +283,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         })
       }
     } else {
-      console.log('Sithanos!')
       tree.push({
         title: 'Untitled',
         type: 'doc',
