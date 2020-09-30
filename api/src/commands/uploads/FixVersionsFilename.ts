@@ -3,12 +3,12 @@ import db from '../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 
-export class RemoveVersionsKey {
+export class FixVersionsFilename {
   static async run() {
     await db()
 
     try {
-      await RemoveVersionsKey.migrate()
+      await FixVersionsFilename.execute()
     } catch (e) {
       // tslint:disable-next-line:no-console
       console.log(chalk.red('Operation operation failed!'))
@@ -19,9 +19,9 @@ export class RemoveVersionsKey {
     }
   }
 
-  private static async migrate() {
+  private static async execute() {
     // tslint:disable-next-line:no-console
-    console.log(chalk.bold.yellow('RemoveVersionsKey...'))
+    console.log(chalk.bold.yellow('Fix versions filename...'))
 
     const uploads = await getCustomRepository(UploadRepository)
       .createQueryBuilder('upload')
@@ -30,7 +30,7 @@ export class RemoveVersionsKey {
 
     for (const upload of uploads) {
       // tslint:disable-next-line:no-console
-      console.log(chalk.cyan('Processing uplaod id ' + upload.id))
+      console.log(chalk.cyanBright.bold('Processing uplaod id ' + upload.id))
 
       // tslint:disable-next-line:no-console
       console.log(chalk.green('Upload versions:'))
@@ -40,7 +40,7 @@ export class RemoveVersionsKey {
       for (const name in upload.versions) {
         if (upload.versions.hasOwnProperty(name)) {
           const version: any = upload.versions[name]
-          delete version.key
+          version.filename = version.location.split('/').pop()
         }
       }
 
