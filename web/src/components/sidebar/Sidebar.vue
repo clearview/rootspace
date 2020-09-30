@@ -33,10 +33,11 @@
                 :name="iconAddMenu"
                 size="16px"
                 viewbox="16"
-                class="mr-2"
-                :style="[isMenuOpen ? { 'margin-top': '-2px' } : '']"
+                class="mr-2 add-icon"
               />
+            <div>
               {{ textAddMenu }}
+            </div>
           </button>
         </div>
       </div>
@@ -65,7 +66,7 @@ import PageMixin from '@/mixins/PageMixin'
 })
 export default class Sidebar extends Mixins(PageMixin) {
   private isMenuOpen = false
-  private iconAddMenu = 'plus2'
+  private iconAddMenu = 'plus3'
   private textAddMenu = 'Add New'
 
   @Prop(Boolean)
@@ -98,20 +99,20 @@ export default class Sidebar extends Mixins(PageMixin) {
 
   toggleMenu () {
     this.isMenuOpen = !this.isMenuOpen
-    this.iconAddMenu = this.isMenuOpen ? 'close2' : 'plus2'
+    this.iconAddMenu = this.isMenuOpen ? 'close3' : 'plus3'
     this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
   }
 
   menuSelected (state: boolean) {
     this.isMenuOpen = state
-    this.iconAddMenu = this.isMenuOpen ? 'close2' : 'plus2'
+    this.iconAddMenu = this.isMenuOpen ? 'close3' : 'plus3'
     this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addNew (path: [], payload: NodeResource) {
     this.isMenuOpen = true
-    this.iconAddMenu = this.isMenuOpen ? 'close2' : 'plus2'
+    this.iconAddMenu = this.isMenuOpen ? 'close3' : 'plus3'
     this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
   }
 }
@@ -124,16 +125,32 @@ export default class Sidebar extends Mixins(PageMixin) {
   cursor: pointer;
   border: 0;
   min-width: 232px;
+  color: #2C2B35;
+  height: auto;
 
   span {
      @apply mr-2;
   }
+  .add-icon {
+    color: #AAB1C5;
+    transition: all 0.3s ease;
+  }
+  div {
+    line-height: 19px;
+    font-weight: 500;
+    font-size: 16px;
+  }
 
-  &:hover,
   &:focus {
+    background: transparent;
+  }
+  &:hover {
     color: theme("colors.primary.default");
     background: transparent;
     box-shadow: none;
+    .add-icon {
+      color: theme("colors.primary.default");
+    }
   }
 }
 </style>

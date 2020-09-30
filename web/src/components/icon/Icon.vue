@@ -83,6 +83,8 @@ import IconMenuEmbed from '@/components/icon/IconMenuEmbed.vue'
 import IconMenuFolder from '@/components/icon/IconMenuFolder.vue'
 import IconMenuLink from '@/components/icon/IconMenuLink.vue'
 import IconMenuTask from '@/components/icon/IconMenuTask.vue'
+import IconClose3 from '@/components/icon/IconClose3.vue'
+import IconPlus3 from '@/components/icon/IconPlus3.vue'
 
 @Component({
   name: 'Icon',
@@ -100,6 +102,7 @@ import IconMenuTask from '@/components/icon/IconMenuTask.vue'
     IconComment,
     IconClose,
     IconClose2,
+    IconClose3,
     IconColor,
     IconDots,
     IconDown,
@@ -126,6 +129,7 @@ import IconMenuTask from '@/components/icon/IconMenuTask.vue'
     IconMessage,
     IconPlus,
     IconPlus2,
+    IconPlus3,
     IconRandom,
     IconReply,
     IconRight,

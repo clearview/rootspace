@@ -1,22 +1,24 @@
 <template>
   <div class="popover-container">
-    <div class="popover-cloak" v-if="visible" @click.self.prevent.stop="hide"></div>
-    <div class="popover" :class="{borderless}" v-if="visible" ref="popover">
-      <header class="popover-header" v-if="title || withClose">
-        <div v-if="backButton" @click="back">
-            <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
-        </div>
-        <div class="popover-title" :class="{ pointer: backButton }" @click="back">
-          {{title}}
-        </div>
-        <div class="popover-close" v-if="withClose">
-          <button class="btn btn-icon" @click.stop="hide">
-            <v-icon name="close2" size="1rem" viewbox="20" title="Close"/>
-          </button>
-        </div>
-      </header>
-      <slot v-bind="{ hide, visible }"></slot>
-    </div>
+    <portal to="tertiary" v-if="visible">
+      <div class="popover-cloak" @click.self.prevent.stop="hide"></div>
+      <div class="popover" :class="{borderless}" v-if="visible" ref="popover">
+        <header class="popover-header" v-if="title || withClose">
+          <div v-if="backButton" @click="back">
+              <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
+          </div>
+          <div class="popover-title" :class="{ pointer: backButton }" @click="back">
+            {{title}}
+          </div>
+          <div class="popover-close" v-if="withClose">
+            <button class="btn btn-icon" @click.stop="hide">
+              <v-icon name="close2" size="1rem" viewbox="20" title="Close"/>
+            </button>
+          </div>
+        </header>
+        <slot v-bind="{ hide, visible }"></slot>
+      </div>
+    </portal>
     <div @click.prevent.stop="toggleVisibility" ref="trigger" class="popover-trigger" :class="{ 'show': visible }">
       <slot name="trigger" v-bind="{ hide, visible }"></slot>
     </div>

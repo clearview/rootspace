@@ -1,8 +1,10 @@
 <template>
   <Popover top="38px"
     :with-close="false"
-    position="bottom-end"
-    class="settings-contextmenu header settings-header">
+    :offset="-24"
+    position="right-start"
+    class="settings-contextmenu header settings-header"
+    borderless>
     <template #default="{ hide }">
       <router-link :to="{name: 'SettingsAccount'}" class="action-line" @click.native="hide()">
         <v-icon class="action-icon" name="user" viewbox="32" size="16px"></v-icon>
@@ -10,7 +12,6 @@
           My Account
         </div>
       </router-link>
-      <div class="action-separator"></div>
       <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
         <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
         <div class="action-line-text">
@@ -109,10 +110,11 @@ export default class SidebarHeaderSettings extends Vue {
 
 .action-line {
   @apply flex items-center py-2 px-4 my-1 relative;
-  font-size: 13px;
+  font-weight: 500;
+  font-size: 14px;
   line-height: 16px;
   width: 168px;
-  color: theme("colors.gray.900");
+  color: #2C2B35;
   stroke-width: 3px;
   cursor: pointer;
 
@@ -124,8 +126,12 @@ export default class SidebarHeaderSettings extends Vue {
   }
 }
 
+.action-icon {
+  color: theme("colors.gray.400");
+}
+
 .action-line-text {
-  @apply ml-2;
+  margin-left: 8px;
   flex: 1 1 auto;
 }
 .action-separator{

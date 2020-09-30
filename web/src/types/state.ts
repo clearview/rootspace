@@ -48,6 +48,7 @@ export interface TreeState {
   folded: {
     [key: string]: boolean;
   };
+  touched: Record<string, boolean>;
 }
 
 export interface LinkState {

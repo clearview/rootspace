@@ -19,6 +19,7 @@
       edgeScrollTriggerMode="mouse"
       :edgeScrollTriggerMargin="18"
       edgeScroll
+      :opacity="0.5"
       :allowOutOfBounds="true"
       @change="change"
       #default="{ node, path }"
@@ -489,7 +490,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     try {
       const parent = this.$refs.tree.getNodeParentByPath(path)
       const index = last(path) || 0
-
       const nextNode = omit(
         {
           ...node,
@@ -497,7 +497,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           position: index + 1
         },
         ['children', 'created', 'updated']
-
       )
 
       await this.updateNode(path, nextNode)
@@ -521,6 +520,13 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     if (store.pathChanged) {
       const path = store.targetPath || []
       const node = store.dragNode || {}
+
+      if (store.targetPath) {
+        const movedNode = this.$refs.tree.getNodeByPath(store.targetPath)
+        this.$store.commit('tree/setTouched', {
+          [path.join('.')]: true
+        })
+      }
 
       await this.updateNodePosition(path, node)
     }

@@ -7,7 +7,8 @@
     :class="{
       'tree-node-content': true,
       'is-renaming': isRenaming,
-      'is-context-open': isContextOpen
+      'is-context-open': isContextOpen,
+      'is-touched': touched
     }"
   >
     <div
@@ -38,7 +39,7 @@
       <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
-            <v-icon class="action-icon" name="plus2" viewbox="16" size="16px"></v-icon>
+            <v-icon class="action-icon" name="plus3" viewbox="16" size="16px"></v-icon>
             <div class="action-line-text">
               Add new
             </div>
@@ -152,14 +153,16 @@ export default class SidebarTreeNode extends Vue {
     return this.payload.type as NodeType
   }
 
+  get touched (): boolean {
+    return this.$store.state.tree.touched[this.path.join('.')]
+  }
+
   get title (): string {
     return this.payload.title || ''
   }
 
   set title (title: string) {
     this.payload.title = title
-
-    this.update()
   }
 
   get iconName (): string {
@@ -273,8 +276,8 @@ export default class SidebarTreeNode extends Vue {
   transition: none;
 }
 .tree-node-content.is-renaming {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 .action-icon.no-fill {
     fill: transparent;
@@ -286,7 +289,6 @@ export default class SidebarTreeNode extends Vue {
   line-height: 17px;
   width: 168px;
   color: #2C2B35;
-  stroke-width: 3px;
   cursor: pointer;
   .action-icon {
     color: #AAB1C5;
@@ -296,7 +298,6 @@ export default class SidebarTreeNode extends Vue {
     background: #F0F2F5;
     .action-icon {
       color: #2C2B35;
-
     }
   }
   &.danger {
@@ -320,14 +321,17 @@ export default class SidebarTreeNode extends Vue {
 
 .node-input {
   outline: none;
-  padding: 6px 4px;
+  padding: 5px 4px 6px 4px;
+  margin: 4px 4px 4px -4px;
   font-size: 16px;
+  font-weight: 500;
   line-height: 0;
   color: #2C2B35;
   width: 100%;
   box-sizing: border-box;
   border-radius: 4px;
   border: 1px solid #D83750;
+  height: 32px;
   &:hover{
     border: 1px solid #D83750;
   }
@@ -347,6 +351,17 @@ export default class SidebarTreeNode extends Vue {
     .stroke-current {
       color: theme("colors.primary.default");
     }
+  }
+}
+.is-touched {
+  animation: touch-anim 0.5s ease;
+}
+@keyframes touch-anim{
+  from{
+    background: #D8375033;
+  }
+  to{
+    background: #D8375000;
   }
 }
 </style>

@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@adityapurwa/he-tree-vue": "2.0.13",
+    "@adityapurwa/he-tree-vue": "2.0.14",
     "@editorjs/checklist": "^1.1.0",
     "@editorjs/code": "^2.4.1",
     "@editorjs/delimiter": "^1.1.0",
