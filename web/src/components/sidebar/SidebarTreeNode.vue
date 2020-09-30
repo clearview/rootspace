@@ -354,7 +354,7 @@ export default class SidebarTreeNode extends Vue {
   }
 }
 .is-touched {
-  animation: touch-anim 0.5s ease;
+  animation: touch-anim 1.3s ease;
 }
 @keyframes touch-anim{
   from{
