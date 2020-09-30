@@ -28,7 +28,7 @@ const routers = [
   embedRouter,
   folderRouter,
   notificationRouter,
-  activityRouter
+  activityRouter,
 ]
 
 export default routers

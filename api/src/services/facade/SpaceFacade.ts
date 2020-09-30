@@ -9,6 +9,7 @@ import { UserActivities } from '../../database/entities/activities/UserActivitie
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { User } from '../../database/entities/User'
+import { Node } from '../../database/entities/Node'
 
 export class SpaceFacade {
   private spaceService: SpaceService
@@ -25,12 +26,16 @@ export class SpaceFacade {
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
-  getNodesTree(spaceId: number) {
+  getTree(spaceId: number): Promise<Node[]> {
     return this.nodeService.getTreeBySpaceId(spaceId)
   }
 
-  getArchive(spaceId: number) {
-    return this.nodeService.getArchiveBySpaceId(spaceId)
+  getArchiveTree(spaceId: number): Promise<Node[]> {
+    return this.nodeService.getArchiveTreeBySpaceId(spaceId)
+  }
+
+  deleteArchive(spaceId: number): Promise<Node[]> {
+    return this.nodeService.deleteArchivedBySpaceId(spaceId)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {
@@ -70,8 +75,7 @@ export class SpaceFacade {
   async registerActivityForUserSpace(userActivity: UserActivities, user: User, space: Space): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
-    const activity = ActivityEvent
-      .withAction(userActivity)
+    const activity = ActivityEvent.withAction(userActivity)
       .fromActor(actor.id)
       .forEntity(user)
       .inSpace(space.id)
