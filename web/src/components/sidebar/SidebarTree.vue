@@ -386,6 +386,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   startDragging () {
+    this.$store.commit('tree/setTouched', {})
     this.$store.commit('space/freezeSettings')
     this.dragging = true
   }
@@ -522,7 +523,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       const node = store.dragNode || {}
 
       if (store.targetPath) {
-        const movedNode = this.$refs.tree.getNodeByPath(store.targetPath)
         this.$store.commit('tree/setTouched', {
           [path.join('.')]: true
         })
