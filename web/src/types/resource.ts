@@ -21,6 +21,7 @@ export interface LinkResource {
   value: string;
   children?: LinkResource[];
   newTab: boolean;
+  parentId?: number;
 }
 
 /**

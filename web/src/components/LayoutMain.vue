@@ -114,9 +114,10 @@ export default class LayoutMain extends Vue {
   cursor: col-resize;
 
   &:after {
-    @apply block h-full bg-gray-100;
+    @apply block h-full;
 
     content: "";
+    background: #EAEAEA;
     width: 1px;
   }
 

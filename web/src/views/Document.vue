@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import config from '@/utils/config'
-import { Component, Ref, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 
 import { DocumentResource, NodeResource } from '@/types/resource'
 
@@ -114,8 +114,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     if (!id) {
       this.title = ''
       this.value = {}
-
-      this.addNodePlaceholder()
+      if (!this.hasNodePlaceholder()) {
+        this.addNodePlaceholder()
+      }
     } else {
       await this.loadDocument()
     }
@@ -198,9 +199,10 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       if (id) {
         await DocumentService.update(id, data)
       } else {
-        const document = await DocumentService.create(data)
+        const document = await DocumentService.create({ ...data, parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined })
         const getDocument = document.data
-        this.$router.replace({ name: 'Document', params: { id: getDocument.data.id } })
+        this.$store.commit('document/setDeferredParent', null)
+        this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
       }
 
       this.loading = false
@@ -245,31 +247,64 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     }
   }
 
+  deepFindNode (parent: NodeResource[], compare: (node: NodeResource) => boolean): NodeResource | null {
+    for (const node of parent) {
+      if (compare(node)) {
+        return node
+      }
+      const deepNode = this.deepFindNode(node.children, compare)
+      if (deepNode) {
+        return deepNode
+      }
+    }
+    return null
+  }
+
   addNodePlaceholder () {
     const tree = this.$store.state.tree.list.filter(
       (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
     )
 
-    tree.push({
-      title: 'Untitled',
-      type: 'doc',
-      contentId: 0
-    })
+    if (this.$store.state.document.deferredParent) {
+      const parent = this.deepFindNode(tree, node => node.id === this.$store.state.document.deferredParent.id) as {
+        children: {
+          title: string;
+          type: string;
+          contentId: number;
+        }[];
+      }
+      if (parent) {
+        if (!parent.children) {
+          parent.children = []
+        }
+        parent.children.push({
+          title: 'Untitled',
+          type: 'doc',
+          contentId: 0
+        })
+      }
+    } else {
+      tree.push({
+        title: 'Untitled',
+        type: 'doc',
+        contentId: 0
+      })
+    }
 
     this.$store.commit('tree/setList', tree)
   }
 
   hasNodePlaceholder () {
-    const index = this.$store.state.tree.list.findIndex(
+    return this.deepFindNode(this.$store.state.tree.list,
       (node: NodeResource) => (node.type === 'doc' && node.contentId === 0)
     )
-
-    return index >= 0
   }
 
   mounted () {
     if (!this.id) {
-      this.addNodePlaceholder()
+      if (!this.hasNodePlaceholder()) {
+        this.addNodePlaceholder()
+      }
     }
 
     this.titleFocus()
@@ -278,6 +313,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
   async beforeDestroy () {
     if (this.hasNodePlaceholder()) {
+      this.$store.commit('document/setDeferredParent', null)
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     }
   }

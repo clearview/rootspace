@@ -1,28 +1,13 @@
 <template>
   <div class="SelectNodeType">
-    <a
-      class="SelectNodeType-option"
-      @click="$emit('select', 'link')"
-    >
-      <v-icon
-        name="link"
-        size="3.5em"
-        class="SelectNodeType-icon"
-      />
-
-      <div class="SelectNodeType-desc">
-        <h5>Link</h5>
-        <p>ADD A LINK TO ANYTHING YOU’D LIKE.</p>
-      </div>
-    </a>
-
-    <a
+     <a
       class="SelectNodeType-option"
       @click="$emit('select', 'document')"
     >
       <v-icon
-        name="file"
-        size="3.5em"
+        name="menu-document"
+        size="24px"
+        viewbox="24"
         class="SelectNodeType-icon"
       />
 
@@ -30,6 +15,15 @@
         <h5>Document</h5>
         <p>WRITE NOTES, THOUGHTS OR IDEAS.</p>
       </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
     </a>
 
     <a
@@ -37,38 +31,35 @@
       @click="$emit('select', 'task')"
     >
       <v-icon
-        name="edit"
-        size="3.5em"
+        name="menu-task"
+        size="24px"
+        viewbox="24"
         class="SelectNodeType-icon"
       />
 
       <div class="SelectNodeType-desc">
-        <h5>Task</h5>
+        <h5>Task Board</h5>
         <p>CREATE BOARD, LIST OR IDEAS.</p>
       </div>
-    </a>
-    <a
-      class="SelectNodeType-option"
-      @click="$emit('select', 'embed')"
-    >
-      <v-icon
-        name="embed"
-        size="3.5em"
-        class="SelectNodeType-icon"
-      />
 
-      <div class="SelectNodeType-desc">
-        <h5>Embed</h5>
-        <p>EMBED ANY THIRD-PART APP...</p>
-      </div>
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
     </a>
+
     <a
       class="SelectNodeType-option"
       @click="$emit('select', 'folder')"
     >
       <v-icon
-        name="folder"
-        size="3.5em"
+        name="menu-folder"
+        size="24px"
+        viewbox="24"
         class="SelectNodeType-icon"
       />
 
@@ -76,6 +67,67 @@
         <h5>Folder</h5>
         <p>GROUPS AND ORGANIZE YOUR FILES.</p>
       </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'embed')"
+    >
+      <v-icon
+        name="menu-embed"
+        size="24px"
+        viewbox="24"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Embed</h5>
+        <p>EMBED ANY THIRD-PART APP...</p>
+      </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'link')"
+    >
+      <v-icon
+        name="menu-link"
+        size="24px"
+        viewbox="24"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Link</h5>
+        <p>ADD A LINK TO ANYTHING YOU’D LIKE.</p>
+      </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
     </a>
   </div>
 </template>
@@ -95,29 +147,50 @@ export default class SelectNodeype extends Vue { }
 }
 
 .SelectNodeType-option {
-  @apply flex flex-row border p-3 rounded;
+  @apply flex flex-row rounded bg-white border border-white;
 
   & + & {
     @apply mt-4;
   }
 
-  border-color: theme("colors.gray.400");
   cursor: pointer;
+  padding: 10px 16px;
 
   &:hover {
-    background-color: rgba(theme("colors.gray.100"), 0.5);
+    @apply border;
+
+    border-color: theme("colors.primary.default");
+
+    .arrow {
+      visibility: initial;
+    }
   }
 }
 
 .SelectNodeType-icon {
-  @apply rounded-full text-white p-2;
-
-  background: theme("colors.primary.default");
+  @apply self-center;
 }
 
 .SelectNodeType-desc {
-  @apply pl-2;
+  @apply flex-grow;
+  padding-left: 8px;
 
-  font-size: 12px;
+  h5 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 10px;
+  }
+}
+
+.arrow {
+  @apply self-center;
+
+  visibility: hidden;
+
+  svg {
+    transform: rotate(-90deg);
+  }
 }
 </style>

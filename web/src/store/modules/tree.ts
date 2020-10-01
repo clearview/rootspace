@@ -15,7 +15,8 @@ const TreeModule: Module<TreeState, RootState> = {
   state () {
     return {
       list: [],
-      folded: {}
+      folded: {},
+      touched: {}
     }
   },
 
@@ -25,6 +26,9 @@ const TreeModule: Module<TreeState, RootState> = {
     },
     setFolded (state, folded) {
       state.folded = folded
+    },
+    setTouched (state, touched) {
+      state.touched = touched
     },
     updateFolded (state, { index, value }) {
       state.folded = {
@@ -50,7 +54,7 @@ const TreeModule: Module<TreeState, RootState> = {
     },
 
     async createFolder (_, data: NodeResource) {
-      await TreeService.createFolder(data)
+      return await TreeService.createFolder(data)
     }
   }
 }

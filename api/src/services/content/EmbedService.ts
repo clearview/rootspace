@@ -14,6 +14,7 @@ import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { ActivityService } from '../'
 import { EmbedActivities } from '../../database/entities/activities/EmbedActivities'
+import { Node } from '../../database/entities/Node'
 
 export class EmbedService extends NodeContentService {
   private nodeService: NodeService
@@ -57,23 +58,27 @@ export class EmbedService extends NodeContentService {
     return embed
   }
 
-  async create(data: EmbedCreateValue): Promise<Embed> {
+  async create(data: EmbedCreateValue): Promise<Embed & Node> {
     let embed = await this.getEmbedRepository().save(data.attributes)
 
-    await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: embed.userId,
-        spaceId: embed.spaceId,
-        contentId: embed.id,
-        title: embed.title,
-        type: NodeType.Embed,
-      })
+    let value = NodeCreateValue.fromObject({
+      userId: embed.userId,
+      spaceId: embed.spaceId,
+      contentId: embed.id,
+      title: embed.title,
+      type: NodeType.Embed,
+    })
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
+    const node = await this.nodeService.create(
+      value
     )
 
     embed = await this.getEmbedRepository().reload(embed)
     await this.registerActivityForEmbed(EmbedActivities.Created, embed, { title: embed.title })
 
-    return embed
+    return { ...embed, ...node }
   }
 
   async update(data: EmbedUpdateValue, id: number): Promise<Embed> {

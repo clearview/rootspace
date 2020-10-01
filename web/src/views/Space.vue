@@ -76,8 +76,8 @@ export default class Space extends Mixins(SpaceMixin) {
   @Watch('setting', { deep: true })
   @Debounce(1000)
   async watchSetting (data: SpaceSettingResource, prevData: SpaceSettingResource) {
-    if (isEqual(data, prevData)) return
-
+    if (isEqual(data, prevData) && !this.$store.state.space.afterFrozen) return
+    this.$store.commit('space/clearFrozen')
     await this.updateSpaceSetting(this.activeSpace.id, data)
   }
 }

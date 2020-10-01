@@ -8,6 +8,7 @@ export const DocCreateAttributes: IDocCreateAttributes = {
   content: null,
   access: null,
   isLocked: null,
+  parentId: null
 }
 
 @attributes(DocCreateAttributes)

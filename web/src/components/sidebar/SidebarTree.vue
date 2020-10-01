@@ -1,30 +1,54 @@
 <template>
-  <div class="w-full overflow-auto">
+  <div class="w-full overflow-auto relative">
+    <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
+
     <tree
+      v-if="treeData.length > 0"
       edge-scroll
       ref="tree"
       v-model="treeData"
-      trigger-class="tree-node-handle"
       :class="{
         'tree': true,
-        'tree--dragging': dragging
+        'tree--dragging': dragging,
+        'h-full overflow-hidden': menuOpen
       }"
       :indent="16"
       :ondragstart="startDragging"
       :ondragend="endDragging"
+      :minDisplacement="18"
+      edgeScrollTriggerMode="mouse"
+      :edgeScrollTriggerMargin="18"
+      edgeScroll
+      :opacity="0.5"
+      :allowOutOfBounds="true"
       @change="change"
       #default="{ node, path }"
     >
       <tree-node
         :value="node"
         :path="path"
-        :editable="!locked"
         @content:update="updateContent"
         @node:update="updateNode"
         @node:remove="removeNode"
         @node:fold:toggle="toggleNodeFold"
+        @node:addNew="addNewNode"
       />
     </tree>
+
+    <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
+      <div id="addnew-menu" v-if="menuOpen">
+        <div class="menu-wrapper">
+          <component
+            :is="menuActive(activeMenu.type)"
+            @submit-folder="addFolder"
+            @submit-link="addLink"
+            @submit-embed="addEmbed"
+            @submit-task="addTask"
+            @select="select">
+          </component>
+        </div>
+      </div>
+    <!-- </transition> -->
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -108,19 +132,24 @@ import {
   Store as TreeStore,
   walkTreeData,
   getPureTreeData
-} from 'he-tree-vue'
+} from '@adityapurwa/he-tree-vue'
 
 import {
   LinkResource,
   TaskBoardResource,
-  SpaceResource
+  SpaceResource,
+  NodeResource
 } from '@/types/resource'
 
 import ModalMixin, { Modal } from '@/mixins/ModalMixin'
 
-import FormLink from '@/components/form/FormLink.vue'
-import FormTask from '@/components/form/FormTask.vue'
-import FormEmbed from '@/components/form/FormEmbed.vue'
+import ListMenu from '@/components/sidebar/menu/ListMenu.vue'
+import FolderMenu from '@/components/sidebar/menu/FolderMenu.vue'
+import LinkMenu from '@/components/sidebar/menu/LinkMenu.vue'
+import EmbedMenu from '@/components/sidebar/menu/EmbedMenu.vue'
+import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
+
+import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
@@ -131,6 +160,15 @@ enum NodeType {
   Task = 'taskBoard',
   Embed = 'embed',
   Folder = 'folder'
+}
+
+enum MenuType {
+  INDEX = 'index',
+  FOLDER = 'folder',
+  LINK = 'link',
+  TASK = 'task',
+  DOCUMENT = 'document',
+  EMBED = 'embed'
 }
 
 enum ModalType {
@@ -146,24 +184,45 @@ enum ModalType {
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
-    FormLink,
-    FormTask,
-    FormEmbed
+    SidebarEmptyTree,
+    FolderMenu,
+    ListMenu,
+    LinkMenu,
+    EmbedMenu,
+    TaskMenu
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
+  @Prop(Boolean)
+  private readonly menuOpen!: boolean
+
+  @Watch('menuOpen', { immediate: false })
+  private resetDeferredParent (val: boolean) {
+    this.$nextTick(() => {
+      if (!val) {
+        this.deferredParent = null
+        this.deferredPath = null
+      }
+    })
+  }
+
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
 
-  // Props
-
-  @Prop(Boolean)
-  readonly locked!: boolean
-
   // State
 
   dragging = false
+
+  private activeMenu = {
+    visible: false,
+    type: MenuType.INDEX,
+    loading: false,
+    alert: null
+  }
+
+  private deferredParent: NodeResource | null = null;
+  private deferredPath: number[] | null = null;
 
   // Computed
 
@@ -180,21 +239,160 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       node.$folded = state.folded[key] === true
     })
-
     return list
   }
 
   set treeData (data: Node[]) {
+    this.updateFoldWith(data)
     this.$store.commit('tree/setList', getPureTreeData(data))
   }
 
   // Methods
 
+  menuActive (type: string) {
+    switch (type) {
+      case MenuType.FOLDER:
+        return 'folder-menu'
+
+      case MenuType.LINK:
+        return 'link-menu'
+
+      case MenuType.TASK:
+        return 'task-menu'
+
+      case MenuType.EMBED:
+        return 'embed-menu'
+
+      default:
+        return 'list-menu'
+    }
+  }
+
+  async select (type: MenuType) {
+    if (type === MenuType.DOCUMENT) {
+      this.$emit('menu-selected', false)
+
+      try {
+        this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
+        await this.$router.push({ name: 'Document' })
+      } catch { }
+
+      return true
+    }
+
+    this.setActiveMenu(true, type)
+  }
+
+  setActiveMenu (visible: boolean, type = MenuType.INDEX) {
+    this.activeMenu = {
+      ...this.activeMenu,
+
+      type,
+      visible
+    }
+  }
+
+  isMenuActive (type: MenuType): boolean {
+    return this.activeMenu.type === type && this.activeMenu.visible
+  }
+
+  async fetchTree () {
+    return this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+  }
+
+  async addFolder (data: NodeResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('tree/createFolder', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addLink (data: LinkResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('link/create', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addTask (data: TaskBoardResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        (data as any).parentId = this.deferredParent.id
+      }
+      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
+      await this.fetchTree()
+      if (res.contentId) {
+        await this.$router.push({
+          name: 'TaskPage',
+          params: {
+            id: res.contentId.toString()
+          }
+        })
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addEmbed (data: any) {
+    this.activeMenu.loading = true
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('embed/create', data)
+      await this.fetchTree()
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  addNewNode (path: number[], payload: NodeResource) {
+    this.$emit('addNew', path, payload)
+    this.deferredParent = payload
+    this.deferredPath = path
+  }
+
+  addNewEmpty () {
+    this.$emit('addNew')
+  }
+
   startDragging () {
+    this.$store.commit('tree/setTouched', {})
+    this.$store.commit('space/freezeSettings')
     this.dragging = true
   }
 
   endDragging () {
+    this.$store.commit('space/unfreezeSettings')
     this.dragging = false
   }
 
@@ -268,10 +466,14 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
     try {
       // Mutate node
-      const nextNode = Object.assign(
-        this.$refs.tree.getNodeByPath(path),
-        node
-      )
+      let nextNode = node
+
+      if (!this.deferredParent && !this.deferredPath) {
+        nextNode = Object.assign(
+          this.$refs.tree.getNodeByPath(path),
+          node
+        )
+      }
 
       // Update store
       this.treeData = this.$refs.tree.cloneTreeData()
@@ -280,14 +482,15 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       if (!localOnly) {
         await this.$store.dispatch('tree/update', nextNode)
       }
-    } catch { }
+    } catch (ex) {
+      console.error(ex)
+    }
   }
 
   async updateNodePosition (path: number[], node: Node) {
     try {
       const parent = this.$refs.tree.getNodeParentByPath(path)
       const index = last(path) || 0
-
       const nextNode = omit(
         {
           ...node,
@@ -318,6 +521,12 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     if (store.pathChanged) {
       const path = store.targetPath || []
       const node = store.dragNode || {}
+
+      if (store.targetPath) {
+        this.$store.commit('tree/setTouched', {
+          [path.join('.')]: true
+        })
+      }
 
       await this.updateNodePosition(path, node)
     }
@@ -351,6 +560,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$store.commit('tree/setFolded', pickBy(folded, x => x))
   }
 
+  updateFoldWith (data: Node[]) {
+    const foldeds = this.$store.state.tree.folded
+
+    walkTreeData(data, (node, index, parent, path) => {
+      foldeds[path.join('.')] = node.$folded
+    })
+
+    this.$store.commit('tree/setFolded', foldeds)
+  }
+
   // Hooks
 
   async created () {
@@ -367,5 +586,30 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       await this.fetch()
     }
   }
+
+  @Watch('menuOpen')
+  watchMenuOpen () {
+    if (this.menuOpen) {
+      this.setActiveMenu(true)
+    }
+  }
 }
 </script>
+
+<style lang="postcss" scoped>
+#addnew-menu {
+  @apply absolute;
+
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: #F8F9FD;
+  padding: 1rem;
+  min-width: 304px;
+
+  .menu-wrapper {
+    @apply relative h-full;
+  }
+}
+</style>

@@ -6,6 +6,7 @@
     <router-view />
     <portal-target name="default" />
     <portal-target name="secondary" />
+    <portal-target name="tertiary" />
     <v-modal
       :title="confirmData.title"
       :visible="confirmData.visible"

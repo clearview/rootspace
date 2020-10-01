@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MovedEvent } from 'vuedraggable'
+import Draggable from 'vuedraggable'
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { TaskBoardResource, TaskListResource } from '@/types/resource'
@@ -52,13 +52,13 @@ export default class BoardManager extends Vue {
     get dragOptions () {
       const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1
       return {
-        animation: 50,
         delay: 14,
         group: 'lists',
         disabled: false,
         ghostClass: 'ghost',
         forceFallback: !isFirefox,
-        fallbackClass: 'lane-floating'
+        fallbackClass: 'lane-floating',
+        fallbackOnBody: true
       }
     }
 
@@ -84,7 +84,7 @@ export default class BoardManager extends Vue {
       }
     }
 
-    async reorder (data: MovedEvent<TaskListResource>) {
+    async reorder (data: any) {
       if (data.moved) {
         const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
         const prev = this.orderedLanes[prevIndex]

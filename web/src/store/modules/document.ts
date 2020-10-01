@@ -10,13 +10,17 @@ const DocumentModule: Module<DocumentState, RootState> = {
 
   state () {
     return {
-      payload: []
+      payload: [],
+      deferredParent: null
     }
   },
 
   mutations: {
     setPayload (state, payload) {
       state.payload = payload
+    },
+    setDeferredParent (state, payload) {
+      state.deferredParent = payload
     }
   },
 

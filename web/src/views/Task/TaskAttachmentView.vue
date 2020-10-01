@@ -202,10 +202,10 @@ export default class TaskAttachmentView extends Vue {
     }
   }
 
-  .btn-link .stroke-current {
+  /* .btn-link .stroke-current {
     stroke-width: 3px;
     color: theme("colors.gray.400");
-  }
+  } */
 
   .action-line {
     @apply flex items-center py-2 px-4 my-1 relative;

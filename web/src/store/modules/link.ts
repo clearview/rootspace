@@ -28,7 +28,7 @@ const LinkModule: Module<LinkState, RootState> = {
     },
 
     async create (_, data: LinkResource) {
-      await LinkService.create(data)
+      return await LinkService.create(data)
     },
 
     async update (_, data: LinkResource) {

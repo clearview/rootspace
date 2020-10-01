@@ -11,7 +11,6 @@
   <span
     v-else
     v-text="value"
-    @dblclick="start"
   />
 </template>
 
@@ -29,9 +28,6 @@ export default class LabelEditable extends Vue {
   @Prop(String)
   private readonly value!: string
 
-  @Prop(Boolean)
-  private readonly disabled!: boolean
-
   // State
 
   private editing = false
@@ -40,16 +36,12 @@ export default class LabelEditable extends Vue {
   // Computed
 
   get canEdit () {
-    return !this.disabled && this.editing
+    return this.editing
   }
 
   // Method
 
   start () {
-    if (this.disabled) {
-      return
-    }
-
     this.editing = true
 
     this.$nextTick(() => {
