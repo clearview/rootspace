@@ -52,6 +52,10 @@ export class ActivityService {
     return this.getActivityRepository().getBySpaceId(spaceId, type, action)
   }
 
+  getByActorId(actorId: number, filter:any = {}): Promise<Activity[]> {
+    return this.getActivityRepository().getByActorId(actorId, filter)
+  }
+
   async getByEntityTypeAndEntityId(spaceId: number, type: string, id: number, action?: string): Promise<Activity[]> {
     return this.getActivityRepository().getByTypeAndEntityIdId(spaceId, type, id, action)
   }

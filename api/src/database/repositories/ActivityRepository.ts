@@ -14,7 +14,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return getConnection()
       .getRepository(event.entity)
       .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: event.entityId})
+      .where('Entity.id = :id', { id: event.entityId })
       .getOne()
   }
 
@@ -38,10 +38,21 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .getMany()
 
     results.forEach((result) => {
-      Object.keys(result).forEach(index => (!result[index] && result[index] !== undefined) && delete result[index])
+      Object.keys(result).forEach((index) => !result[index] && result[index] !== undefined && delete result[index])
     })
 
     return results
+  }
+
+  getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity').where('activity.actorId = :actorId', { actorId })
+
+    
+    if (filter.spaceIds) {
+      queryBuilder.andWhere('activity.spaceId IN (:...spaceIds)', { spaceIds: filter.spaceIds })
+    }
+
+    return queryBuilder.getMany()
   }
 
   async getByTypeAndEntityIdId(spaceId: number, type: string, entityId: number, action?: string): Promise<Activity[]> {
@@ -49,7 +60,12 @@ export class ActivityRepository extends BaseRepository<Activity> {
 
     const qb = this.createQueryBuilder('activity')
       .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
-      .leftJoinAndMapOne('actor.avatar', Upload, 'upload', 'upload.entityId = activity.actorId and upload.entity = \'User\'')
+      .leftJoinAndMapOne(
+        'actor.avatar',
+        Upload,
+        'upload',
+        "upload.entityId = activity.actorId and upload.entity = 'User'"
+      )
       .where('activity.entity = :entity', { entity })
       .andWhere('activity.spaceId = :spaceId', { spaceId })
       .andWhere('activity.entityId = :entityId', { entityId })
@@ -58,13 +74,14 @@ export class ActivityRepository extends BaseRepository<Activity> {
       qb.andWhere('activity.action = :action', { action })
     }
 
-    return qb.limit(100)
+    return qb
+      .limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()
   }
 
   static getEntity(entity: string): string {
-    switch(entity) {
+    switch (entity) {
       case 'taskboard':
         return ActivityType.TaskBoard
 
