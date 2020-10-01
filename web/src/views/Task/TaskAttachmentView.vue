@@ -2,7 +2,7 @@
   <div class="attachment">
     <div class="flex-initial" @click="viewAttachment">
       <div class="attachment-media" v-if="isAttachmentImage">
-        <img :src="attachment.versions.thumbnail.path" :alt="attachment.id">
+        <img :src="attachment.versions.thumbnail.location" :alt="attachment.id">
       </div>
       <div v-else class="attachment-media others">
         <v-icon
@@ -13,7 +13,7 @@
       </div>
     </div>
     <div class="attachment-name">
-      <span class="title" @click="viewAttachment">{{attachment.path | formatAttachmentName}}</span>
+      <span class="title" @click="viewAttachment">{{attachment.location | formatAttachmentName}}</span>
       <span class="date">
         Added {{attachment.createdAt | formatDate}}
       </span>
@@ -23,7 +23,7 @@
         <template #default>
           <div class="action-line">
             <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
-            <div class="action-line-text" @click="open(attachment.path)">
+            <div class="action-line-text" @click="open(attachment.location)">
               Download
             </div>
           </div>
@@ -80,8 +80,8 @@ import { formatRelativeToLower } from '@/utils/date'
       Popover
     },
     filters: {
-      formatAttachmentName (path: string) {
-        const splits = path.split('/')
+      formatAttachmentName (location: string) {
+        const splits = location.split('/')
         return splits[splits.length - 1]
       },
       formatDate (date: Date | string) {

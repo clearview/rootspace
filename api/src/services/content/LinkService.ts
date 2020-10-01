@@ -13,8 +13,7 @@ import { ServiceFactory } from '../factory/ServiceFactory'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { LinkActivities } from '../../database/entities/activities/LinkActivities'
-import { ActivityService } from '../ActivityService'
-import { Node } from '../../database/entities/Node'
+import { ActivityService } from '../'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService

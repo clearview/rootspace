@@ -49,7 +49,7 @@
               <avatar :size="28" :content="moreAssignees.labels" :username="moreAssignees.count+' +'" v-tippy></avatar>
             </li>
             <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee">
-              <avatar :size="28" :src="assignee.avatar && avatar.versions ? assignee.avatar.versions.default.path : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+              <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
           </ul>
       </div>

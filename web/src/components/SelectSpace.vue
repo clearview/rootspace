@@ -12,7 +12,7 @@
           <img
             class="space-logo"
             v-if="activeSpace.avatar"
-            :src="activeSpace.avatar.versions.default.path"
+            :src="activeSpace.avatar.versions.default.location"
             alt="Space"
           >
           <img src="@/assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>

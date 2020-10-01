@@ -12,7 +12,7 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../ActivityService'
+import { ActivityService } from '../'
 import { EmbedActivities } from '../../database/entities/activities/EmbedActivities'
 import { Node } from '../../database/entities/Node'
 

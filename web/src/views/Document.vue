@@ -165,6 +165,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
         this.pageTitle = this.title
         this.pageReady = true
+        this.$router.replace({ params: { slug: data.slug } })
       } catch (e) {
         if (e.code === 403) {
           this.$router.push({ name: 'Main', query: { from: 'document', message: e.data.message } })

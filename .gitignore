@@ -1,5 +1,5 @@
 .vscode
 *.code-workspace
 .idea
-uploads
+./uploads
 .env
