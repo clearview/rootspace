@@ -37,7 +37,7 @@ const routes: Array<RouteConfig> = [
         ]
       },
       {
-        path: '/document/:id?',
+        path: '/document/:id?/:slug?',
         name: 'Document',
         component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
       },
