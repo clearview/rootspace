@@ -82,6 +82,11 @@ export class NodeService {
     const tree = await this.getArchiveTreeBySpaceId(spaceId)
 
     for (const node of tree) {
+      // Just some additional check can't hurt
+      if (node.deletedAt === null) {
+        continue
+      }
+
       await this.remove(node.id)
     }
 
@@ -246,7 +251,7 @@ export class NodeService {
 
   async archive(id: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-    
+
     node = await this._archive(node)
 
     await this.nodeContentMediator.nodeArchived(node)
