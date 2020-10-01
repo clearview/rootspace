@@ -11,7 +11,7 @@ import { NodeType } from '../../../types/node'
 import { NodeCreateValue } from '../../../values/node'
 import { Task } from '../../../database/entities/tasks/Task'
 import { INodeContentUpdate } from '../contracts'
-import { ActivityService } from '../../ActivityService'
+import { ActivityService } from '../../'
 import Bull from 'bull'
 import { ActivityEvent } from '../../events/ActivityEvent'
 import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
@@ -134,7 +134,7 @@ export class TaskBoardService extends NodeContentService {
 
     taskBoard = await this.getTaskBoardRepository().save({
       ...taskBoard,
-      ...data
+      ...data,
     })
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
@@ -143,8 +143,8 @@ export class TaskBoardService extends NodeContentService {
 
     const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data)){
-      if(data[key] !== existingTaskBoard[key]){
+    for (const key of Object.keys(data)) {
+      if (data[key] !== existingTaskBoard[key]) {
         fields.old[key] = existingTaskBoard[key]
         fields.new[key] = taskBoard[key]
       }
@@ -177,7 +177,7 @@ export class TaskBoardService extends NodeContentService {
     taskBoard = await this._archive(taskBoard)
 
     await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId, {
-      title: taskBoard.title
+      title: taskBoard.title,
     })
 
     await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
@@ -213,7 +213,7 @@ export class TaskBoardService extends NodeContentService {
 
     await this.nodeService.contentRestored(taskBoardId, this.getNodeType())
     await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoard.id, {
-      title: taskBoard.title
+      title: taskBoard.title,
     })
 
     return taskBoard
@@ -241,13 +241,11 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async remove(id: number) {
-    const taskBoard = await this.requireById(id, { withDeleted: true })
+    let taskBoard = await this.requireById(id, { withDeleted: true })
     // this.verifyRemove(taskBoard)
 
-    await this.getTaskBoardRepository().remove(taskBoard)
-
+    taskBoard = await this._remove(taskBoard)
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard, { title: taskBoard.title })
 
     return taskBoard
   }
@@ -255,10 +253,17 @@ export class TaskBoardService extends NodeContentService {
   async nodeRemoved(contentId: number): Promise<void> {
     const taskBoard = await this.getById(contentId, { withDeleted: true })
 
-    await this.getTaskBoardRepository().remove(taskBoard)
+    if (taskBoard) {
+      await this._remove(taskBoard)
+    }
+  }
+
+  private async _remove(taskBoard: TaskBoard): Promise<TaskBoard> {
     await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard, {
-      title: taskBoard.title
+      title: taskBoard.title,
     })
+
+    return this.getTaskBoardRepository().remove(taskBoard)
   }
 
   private verifyArchive(taskBoard: TaskBoard): void {
@@ -282,7 +287,8 @@ export class TaskBoardService extends NodeContentService {
   async registerActivityForTaskBoardId(
     taskBoardActivity: TaskBoardActivities,
     taskBoardId: number,
-    context?: any): Promise<Bull.Job> {
+    context?: any
+  ): Promise<Bull.Job> {
     const taskBoard = await this.getById(taskBoardId, { withDeleted: true })
     return this.registerActivityForTaskBoard(taskBoardActivity, taskBoard, context)
   }
@@ -290,7 +296,8 @@ export class TaskBoardService extends NodeContentService {
   async registerActivityForTaskBoard(
     taskBoardActivity: TaskBoardActivities,
     taskBoard: TaskBoard,
-    context?: any): Promise<Bull.Job> {
+    context?: any
+  ): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(

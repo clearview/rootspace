@@ -12,7 +12,7 @@
           <img
             class="space-logo"
             v-if="activeSpace.avatar"
-            :src="activeSpace.avatar.versions.default.path"
+            :src="activeSpace.avatar.versions.default.location"
             alt="Space"
           >
           <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
@@ -47,8 +47,8 @@
             <div class="SelectSpace-option-logo">
               <img
                 class="space-logo"
-                v-if="activeSpace.avatar"
-                :src="activeSpace.avatar.versions.default.path"
+                v-if="item.avatar && item.avatar.versions"
+                :src="item.avatar.versions.default.location"
                 alt="Space"
               >
               <img src="../assets/images/default-space.png" alt="Space Logo" class="space-logo" v-else>
@@ -205,7 +205,9 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
 <style lang="postcss" scoped>
 .SelectSpace {
-  @apply flex flex-1 mr-2;
+  @apply flex mr-2;
+  flex: 1 1 0;
+  width: 0;
 }
 
 .SelectSpace-options {
@@ -307,5 +309,6 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
   width: 32px;
   height: 32px;
   border-radius: 4px;
+  max-width: none;
 }
 </style>

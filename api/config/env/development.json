@@ -19,7 +19,7 @@
         "secretKey": "@@S3_SECRET_KEY"
     },
     "uploadDir": "../uploads",
-    "domain": "@@DOMAIN",
+    "domain": "http://localhost:3000",
     "domainSignupPath": "/signup",
     "domainEmailConfirmationPath": "/confirm-email",
     "domainPasswordResetPath": "/password-reset",

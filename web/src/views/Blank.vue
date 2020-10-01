@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-alert v-model="alert" />
+    <v-alert v-model="secondAlert" class="mx-4" />
 
     <div class="main-container">
       <h1>Get Started</h1>
@@ -38,6 +39,7 @@ type AlertData = {
 })
 export default class Blank extends Mixins(PageMixin, SpaceMixin) {
   private alert: AlertData | null = null
+  private secondAlert: AlertData | null = null
 
   async created () {
     const query = this.$route.query
@@ -46,6 +48,14 @@ export default class Blank extends Mixins(PageMixin, SpaceMixin) {
       this.alert = {
         type: 'success',
         message: `Welcome to ${this.activeSpace.title}, you are invited to this space`,
+        noicon: true
+      }
+    }
+    console.log(query.message)
+    if (query.from === 'document' && query.message) {
+      this.secondAlert = {
+        type: 'danger',
+        message: `${query.message}`,
         noicon: true
       }
     }

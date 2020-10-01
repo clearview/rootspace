@@ -19,16 +19,13 @@ export class UploadsCtrl extends BaseCtrl {
       return next()
     }
 
-    const data = {
-      userId: req.user.id,
-      entityId: req.user.id,
-      entity: UploadEntity.User,
-      type: req.body.type,
-    }
-
+    const data = req.body
     const file = req.file
 
     await validateUpload(Object.assign({ ...data }, { file }))
+
+    data.entityId = req.user.id
+    data.entity = UploadEntity.User
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value)
@@ -41,17 +38,13 @@ export class UploadsCtrl extends BaseCtrl {
       return next()
     }
 
-    const data = {
-      userId: req.user.id,
-      spaceId: req.body.spaceId,
-      entityId: req.body.spaceId,
-      entity: UploadEntity.Space,
-      type: req.body.type,
-    }
-
+    const data = req.body
     const file = req.file
 
     await validateUpload(Object.assign({ ...data }, { file }))
+
+    data.entityId = data.spaceId
+    data.entity = UploadEntity.Space
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value)

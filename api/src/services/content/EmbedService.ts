@@ -12,7 +12,7 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../ActivityService'
+import { ActivityService } from '../'
 import { EmbedActivities } from '../../database/entities/activities/EmbedActivities'
 
 export class EmbedService extends NodeContentService {
@@ -87,8 +87,8 @@ export class EmbedService extends NodeContentService {
 
     const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data.attributes)) {
-      if(data.attributes[key] !== existingEmbed[key]) {
+    for (const key of Object.keys(data.attributes)) {
+      if (data.attributes[key] !== existingEmbed[key]) {
         fields.old[key] = existingEmbed[key]
         fields.new[key] = embed[key]
       }
@@ -173,7 +173,10 @@ export class EmbedService extends NodeContentService {
 
   async nodeRemoved(contentId: number): Promise<void> {
     const embed = await this.getEmbedById(contentId, { withDeleted: true })
-    await this._remove(embed)
+
+    if (embed) {
+      await this._remove(embed)
+    }
   }
 
   private async _remove(embed: Embed) {

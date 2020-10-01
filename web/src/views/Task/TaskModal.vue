@@ -131,7 +131,7 @@
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by">
-              <avatar :size="24" :src="item.user && item.user.avatar && item.user.avatar.versions ? item.user.avatar.versions.default.path : ''" :username="memberName(item.user)"></avatar>
+              <avatar :size="24" :src="item.user && item.user.avatar && item.user.avatar.versions ? item.user.avatar.versions.default.location : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
           </div>
@@ -164,7 +164,7 @@
                     </template>
                   </MemberPopover>
                 <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
-                  <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.path : ''"  :username="memberName(assignee)"></avatar>
+                  <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>
@@ -216,7 +216,6 @@ import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
-import formatRelative from 'date-fns/formatRelative'
 
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
@@ -224,6 +223,7 @@ import 'quill/dist/quill.bubble.css'
 
 import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
+import { formatDueDate } from '@/utils/date'
 
 @Component({
   name: 'TaskModal',
@@ -245,7 +245,7 @@ import TaskActivities from '@/views/Task/TaskActivities.vue'
   filters: {
     formatDate (date: Date | string) {
       const dueDate = date instanceof Date ? date : new Date(date)
-      return formatRelative(dueDate, new Date())
+      return formatDueDate(dueDate, new Date())
     }
   }
 })
@@ -904,6 +904,7 @@ export default class TaskModal extends Vue {
     background: rgba(theme("colors.gray.100"), 0.3);
     color: theme("colors.gray.900");
     font-weight: 600;
+    font-size: 13px;
   }
 
   .input-description {

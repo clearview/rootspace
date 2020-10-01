@@ -6,7 +6,7 @@ import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { IContentNodeUpdate, INodeContentMediator } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { ActivityService } from '../ActivityService'
+import { ActivityService } from '../'
 import Bull from 'bull'
 import { ActivityEvent } from '../events/ActivityEvent'
 import { NodeActivities } from '../../database/entities/activities/NodeActivities'
@@ -355,10 +355,9 @@ export class NodeService {
 
   async remove(id: number) {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-    node = await this._remove(node)
 
+    node = await this._remove(node)
     await this.nodeContentMediator.nodeRemoved(node)
-    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     return node
   }
@@ -375,6 +374,8 @@ export class NodeService {
 
   private async _remove(node: Node): Promise<Node> {
     this.verifyRemove(node)
+
+    await this.registerActivityForNode(NodeActivities.Deleted, node)
 
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)

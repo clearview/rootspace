@@ -1,3 +1,7 @@
-p You are invited to join #{spaceTitle} space on Root.
-p Before accepting invitation you need to sign up  #{signUpUrl}
-p Accept invitation #{inviteUrl}
+extends ../layout/main
+block content
+    h3 Space Invitation
+    p #[strong #{sender.firstName}] invited you to join #[strong #{space.title}] space on Root.
+    a(href=`${inviteUrl}`, class="button") Accept invitation
+    p If the button above does not work, copy and paste the URL below into your browser:
+    a(href=`${inviteUrl}`, class="link") #{inviteUrl}

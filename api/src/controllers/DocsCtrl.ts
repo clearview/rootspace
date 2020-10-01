@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
@@ -20,72 +20,85 @@ export class DocsCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
+
+    res.send(this.responseData(doc))
+  }
+
+  async history(req: Request, res: Response) {
+    const doc = await this.docService.getDocRevisons(Number(req.params.id))
     const resData = this.responseData(doc)
 
     res.send(resData)
   }
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response) {
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Create, Subjects.Doc)
+
     const data = req.body.data
     await validateDocCreate(data)
 
     const value = DocCreateValue.fromObjectAndUserId(data, Number(req.user.id))
+    const result = await this.docService.create(value)
 
-    const doc = await this.docService.create(value)
-    const resData = this.responseData(doc)
-
-    res.send(resData)
+    res.send(this.responseData(result))
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
+  async update(req: Request, res: Response) {
     const data = req.body.data
-
     await validateDocUpdate(data)
 
+    const doc = await this.docService.requireById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, doc)
+
     const value = DocUpdateValue.fromObject(data)
-    const doc = await this.docService.update(value, id)
+    const result = await this.docService.update(value, doc.id, Number(req.user.id))
 
-    res.send(this.responseData(doc))
+    res.send(this.responseData(result))
   }
 
-  async archive(req: Request, res: Response, next: NextFunction) {
-    const docId = Number(req.params.id)
-
-    const doc = await this.docService.getById(docId)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
-
-    const result = await this.docService.archive(docId)
-    res.send(result)
+  async restoreRevision(req: Request, res: Response) {
+    const result = await this.docService.restoreRevision(Number(req.params.revisionId), Number(req.user.id))
+    res.send(this.responseData(result))
   }
 
-  async restore(req: Request, res: Response, next: NextFunction) {
-    const docId = Number(req.params.id)
-    const doc = await this.docService.requireById(docId, { withDeleted: true })
+  async archive(req: Request, res: Response) {
+    const doc = await this.docService.requireById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, doc)
 
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc ? doc : Subjects.Doc)
+    const result = await this.docService.archive(doc.id)
+    res.send(this.responseData(result))
+  }
 
-    const result = await this.docService.restore(docId)
-    res.send(result)
+  async restore(req: Request, res: Response) {
+    const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, doc)
+
+    const result = await this.docService.restore(doc.id)
+    res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {
-    const doc = await this.docService.remove(Number(req.params.id))
-    res.send(this.responseData(doc))
+    const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc)
+
+    const result = await this.docService.remove(doc.id)
+    res.send(this.responseData(result))
   }
 
-  async follow(req: Request, res: Response, next: NextFunction) {
+  async follow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
     const result = await this.followService.followFromRequest(Number(req.user.id), doc)
-    res.send(result)
+    res.send(this.responseData(result))
   }
 
-  async unfollow(req: Request, res: Response, next: NextFunction) {
+  async unfollow(req: Request, res: Response) {
     const doc = await this.docService.getById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
     const result = await this.followService.unfollowFromRequest(Number(req.user.id), doc)
-    res.send(result)
+    res.send(this.responseData(result))
   }
 }

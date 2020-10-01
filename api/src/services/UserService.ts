@@ -19,7 +19,7 @@ import { CallbackFunction } from 'ioredis'
 import Bull from 'bull'
 import { ActivityEvent } from './events/ActivityEvent'
 import { UserActivities } from '../database/entities/activities/UserActivities'
-import { ActivityService } from './ActivityService'
+import { ActivityService } from './'
 import { ServiceFactory } from './factory/ServiceFactory'
 import { UserAuthProvider } from '../types/user'
 

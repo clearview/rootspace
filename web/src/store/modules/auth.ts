@@ -59,6 +59,9 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     async passwordReset (_, payload) {
       await AuthService.passwordReset(payload)
+    },
+    async passwordResetVerify (_, payload) {
+      await AuthService.passwordResetVerify(payload)
     }
   }
 }

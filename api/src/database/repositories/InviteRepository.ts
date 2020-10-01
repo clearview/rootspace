@@ -13,18 +13,26 @@ export class InviteRepository extends Repository<Invite> {
     return queryBuilder.getOne()
   }
 
-  getByEmailAndSpaceId(email: string, spaceId: number): Promise<Invite> {
+  getInvite(email: string, spaceId: number, senderId: number): Promise<Invite> {
     return this.createQueryBuilder('invite')
-      .where('invite.email = :email AND invite.spaceId = :spaceId', {
-        email,
-        spaceId,
-      })
+      .where('invite.email = :email', { email })
+      .andWhere('invite.spaceId = :spaceId', { spaceId })
+      .andWhere('invite.senderId = :senderId', { senderId })
       .andWhere('invite.accepted = false')
       .getOne()
   }
 
+  getByEmailAndSpaceId(email: string, spaceId: number, params: any = { accepted: false }): Promise<Invite[]> {
+    return this.createQueryBuilder('invite')
+      .where('invite.email = :email', { email })
+      .andWhere('invite.spaceId = :spaceId', { spaceId })
+      .andWhere('invite.accepted = :accepted', { accepted: params.accepted })
+      .getMany()
+  }
+
   getBySpaceId(spaceId: number): Promise<Invite[]> {
     return this.createQueryBuilder('invite')
+      .distinctOn(['invite.email'])
       .where('invite.accepted = false AND invite.spaceId = :spaceId', {
         spaceId,
       })

@@ -20,13 +20,24 @@ export default class DocumentService {
   }
 
   static async view (id: string) {
-    const { data } = await api.get(`docs/${id}`)
+    try {
+      const { data } = await api.get(`docs/${id}`)
 
-    if (data.status === 'error') {
-      throw new Error(data)
+      return data
+    } catch (error) {
+      let err = error
+
+      if (error.response) {
+        console.log(error.response)
+        const body = {
+          code: error.response.status,
+          data: error.response.data
+        }
+        err = body
+      }
+
+      throw err
     }
-
-    return data
   }
 
   static async update (id: string, data: object) {

@@ -65,7 +65,7 @@ export class TaskList {
   @DeleteDateColumn({ type: 'timestamptz'})
   public deletedAt: Date
 
-  @OneToMany(type => Task, task => task.list, {eager: false, onDelete: 'CASCADE'})
+  @OneToMany(type => Task, task => task.list, {eager: true, onDelete: 'CASCADE'})
   tasks: Task[]
 
 }
