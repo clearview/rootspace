@@ -246,6 +246,7 @@ export class NodeService {
 
   async archive(id: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
+    
     node = await this._archive(node)
 
     await this.nodeContentMediator.nodeArchived(node)
