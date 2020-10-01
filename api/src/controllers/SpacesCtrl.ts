@@ -55,15 +55,6 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async deleteAll(req: Request, res: Response) {
-    const spaceId = Number(req.params.id)
-
-    const nodes = await this.spaceFacade.deleteArchive(spaceId)
-    const result = this.responseData(nodes)
-
-    res.send(this.responseData(result))
-  }
-
   async invites(req: Request, res: Response, next: NextFunction) {
     const spaceId = Number(req.params.id)
 
