@@ -88,7 +88,7 @@ export function createEditor (config: EditorConfig): EditorJS {
                 return {
                   success: 1,
                   file: {
-                    url: response.data.data.path
+                    url: response.data.data.location
                   }
                 }
               })
