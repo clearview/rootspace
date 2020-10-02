@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm'
 import { IDocContent } from '../../types/doc'
 import { Doc } from './Doc'
+import { User } from './User'
 
 @Entity('doc_revisions')
 export class DocRevision {
@@ -9,6 +10,11 @@ export class DocRevision {
 
   @Column('integer')
   userId: number
+
+  @ManyToOne((type) => User, { eager: true })
+  @JoinColumn({ name: 'userId' })
+  @Index()
+  user!: User
 
   @Column('integer')
   spaceId: number

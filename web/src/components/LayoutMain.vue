@@ -127,7 +127,7 @@ export default class LayoutMain extends Vue {
 }
 
 .content {
-  @apply flex flex-col flex-grow h-screen overflow-scroll;
+  @apply flex flex-row flex-grow h-screen;
 
   .alert {
     @apply mx-4;

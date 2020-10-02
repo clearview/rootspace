@@ -20,6 +20,7 @@ function formatAmPm (hour: number, minute: number) {
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export function formatDueDate (from: Date, to: Date) {
   const days = msToDay(to.getTime() - from.getTime())
@@ -33,6 +34,13 @@ export function formatDueDate (from: Date, to: Date) {
     return 'Yesterday'
   }
   return `${monthNames[from.getMonth()]} ${from.getDate()}, ${from.getFullYear()}`
+}
+
+export function formatAsSimpleDate (date: Date) {
+  return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+}
+export function formatAsSimpleDateTime (date: Date, abbreviateMonth = false) {
+  return `${abbreviateMonth ? monthNamesShort[date.getMonth()] : monthNames[date.getMonth()]} ${date.getDate()}, ${formatAmPm(date.getHours(), date.getMinutes())}`
 }
 
 export function formatRelativeTo (from: Date, to: Date) {
