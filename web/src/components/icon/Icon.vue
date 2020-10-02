@@ -85,6 +85,7 @@ import IconMenuLink from '@/components/icon/IconMenuLink.vue'
 import IconMenuTask from '@/components/icon/IconMenuTask.vue'
 import IconClose3 from '@/components/icon/IconClose3.vue'
 import IconPlus3 from '@/components/icon/IconPlus3.vue'
+import IconRestore from '@/components/icon/IconRestore.vue'
 
 @Component({
   name: 'Icon',
@@ -131,6 +132,7 @@ import IconPlus3 from '@/components/icon/IconPlus3.vue'
     IconPlus2,
     IconPlus3,
     IconRandom,
+    IconRestore,
     IconReply,
     IconRight,
     IconRight2,

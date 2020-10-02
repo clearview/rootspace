@@ -1,34 +1,42 @@
 <template>
   <div class="page">
-    <div class="header">
-      <textarea
-        v-model="title"
-        rows="1"
-        class="title"
+    <div class="page-editor">
+      <div class="editor-wrapper">
+      <div class="header">
+        <textarea
+          v-model="title"
+          rows="1"
+          class="title"
+          :readonly="readOnly"
+          placeholder="Your Title Here"
+          ref="title"
+        />
+        <editor-menu
+          v-if="id"
+          :loading="loading"
+          :readonly-status="readOnly"
+          @history="showHistory = true"
+          @change-readonly="changeReadonlyStatus"
+          @delete-document="deleteDocConfirm"/>
+      </div>
+
+      <editor
+        id="editor"
+        v-if="!initialize && !readOnly && !preview"
+        class="content"
+        :class="{ readonly: readOnly }"
+        :key="`editor-${id}`"
+        :content="value"
         :readonly="readOnly"
-        placeholder="Your Title Here"
-        ref="title"
+        @update-editor="onUpdateEditor"
       />
-      <editor-menu
-        v-if="id"
-        :loading="loading"
-        :readonly-status="readOnly"
-        @change-readonly="changeReadonlyStatus"
-        @delete-document="deleteDocConfirm"/>
+      <editor-readonly v-if="preview" :value="preview.content" />
+      <editor-readonly v-else-if="readOnly" :value="value" />
+      </div>
     </div>
-
-    <editor
-      id="editor"
-      v-if="!initialize && !readOnly"
-      class="content"
-      :class="{ readonly: readOnly }"
-      :key="`editor-${id}`"
-      :content="value"
-      :readonly="readOnly"
-      @update-editor="onUpdateEditor"
-    />
-
-    <editor-readonly v-if="readOnly" :value="value" />
+    <div class="page-history" v-if="showHistory">
+      <DocHistory :preview="preview" :id="id" @close="closeHistory" @preview="showPreview" @restore="restore"></DocHistory>
+    </div>
 
     <v-modal
       title="Delete Document"
@@ -49,7 +57,7 @@
 import config from '@/utils/config'
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 
-import { DocumentResource, NodeResource } from '@/types/resource'
+import { DocRevisionResource, DocumentResource, NodeResource } from '@/types/resource'
 
 import DocumentService from '@/services/document'
 
@@ -60,10 +68,12 @@ import VModal from '@/components/Modal.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
+import DocHistory from '@/views/Document/DocHistory.vue'
 
 @Component({
   name: 'Document',
   components: {
+    DocHistory,
     Editor,
     EditorMenu,
     EditorReadonly,
@@ -73,6 +83,7 @@ import PageMixin from '@/mixins/PageMixin'
 
 export default class Document extends Mixins(SpaceMixin, PageMixin) {
   private value: any = {}
+  private preview: any = null
   private title = ''
   private timer?: any = undefined
   private initialize = false
@@ -85,6 +96,8 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     id: null,
     alert: null
   }
+
+  private showHistory = false
 
   get id (): number {
     return Number(this.$route.params.id) || 0
@@ -317,14 +330,30 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     }
   }
+
+  closeHistory () {
+    this.preview = null
+    this.showHistory = false
+  }
+
+  showPreview (preview: DocRevisionResource) {
+    this.preview = preview
+  }
+
+  restore (data: DocRevisionResource) {
+    this.value = data.content
+    this.closeHistory()
+    this.saveDocument()
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
 .page {
-  @apply max-w-2xl mx-auto pt-4;
-
-  width: 43.8rem;
+  @apply pt-4;
+  display: flex;
+  width: 0;
+  flex: 1 1 auto;
 }
 
 .title {
@@ -352,6 +381,20 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
 .content {
   padding-top: 0.5rem;
+}
+.page-editor {
+  flex: 1 1 auto;
+  overflow: scroll;
+}
+.editor-wrapper {
+  @apply max-w-2xl mx-auto;
+}
+.page-history {
+  width: 256px;
+  background: rgba(221, 225, 238, 0.25);
+  flex: 0 0 auto;
+  overflow-y: scroll;
+  margin-top: -1rem;
 }
 </style>
 

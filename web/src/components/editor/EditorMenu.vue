@@ -22,18 +22,19 @@
           </h6>
         </template>
 
-        <!-- <h6 id="doc-share-button" class="link" @click="share">
-          <v-icon name="share" viewbox="20" />
-          <span id="doc-share-button-span">
-            Share
-          </span>
-        </h6>
+<!--        <h6 id="doc-share-button" class="link" @click="share">-->
+<!--          <v-icon name="share" viewbox="20" />-->
+<!--          <span id="doc-share-button-span">-->
+<!--            Share-->
+<!--          </span>-->
+<!--        </h6>-->
+
         <h6 class="link" @click="history">
           <v-icon name="history" viewbox="20" />
           <span>
-            Page History
+            History
           </span>
-        </h6> -->
+        </h6>
 
         <template v-slot:footer>
           <h6 class="link trash" @click="trash">
@@ -162,7 +163,8 @@ export default class EditorMenu extends Vue {
   }
 
   history () {
-
+    this.$emit('history')
+    this.showMenu = false
   }
 
   trash () {

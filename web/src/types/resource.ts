@@ -209,3 +209,15 @@ export interface ActivityResource {
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;
 }
+
+export interface DocRevisionResource {
+  content: object;
+  docId: number;
+  id: number;
+  number: number;
+  revisionAt: string;
+  revisionBy: number;
+  spaceId: number;
+  user: UserResource;
+  userId: number;
+}
