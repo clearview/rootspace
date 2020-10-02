@@ -31,23 +31,28 @@ export class SpacesCtrl extends BaseCtrl {
       throw clientError('Error fetching tree')
     }
 
-    const nodes = await this.spaceFacade.getNodesTree(spaceId)
+    const nodes = await this.spaceFacade.getTree(spaceId)
     const data = this.responseData(nodes)
 
     res.send(data)
   }
 
-  async getArchive(req: Request, res: Response) {
+  async getArchiveTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
 
-    if (!spaceId) {
-      throw clientError('Error fetching archive')
-    }
+    const nodes = await this.spaceFacade.getArchiveTree(spaceId)
+    const result = this.responseData(nodes)
 
-    const nodes = await this.spaceFacade.getArchive(spaceId)
-    const data = this.responseData(nodes)
+    res.send(this.responseData(result))
+  }
 
-    res.send(data)
+  async deleteArchive(req: Request, res: Response) {
+    const spaceId = Number(req.params.id)
+
+    const nodes = await this.spaceFacade.deleteArchive(spaceId)
+    const result = this.responseData(nodes)
+
+    res.send(this.responseData(result))
   }
 
   async invites(req: Request, res: Response, next: NextFunction) {

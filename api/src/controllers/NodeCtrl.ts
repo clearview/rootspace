@@ -34,6 +34,16 @@ export class NodeCtrl extends BaseCtrl {
     res.send(resData)
   }
 
+  async archive(req: Request, res: Response) {
+    const resutl = await this.nodeService.archive(Number(req.params.id))
+    res.send(this.responseData(resutl))
+  }
+
+  async restore(req: Request, res: Response) {
+    const resutl = await this.nodeService.restore(Number(req.params.id))
+    res.send(this.responseData(resutl))
+  }
+
   async delete(req: Request, res: Response) {
     const result = await this.nodeService.remove(Number(req.params.id))
     res.send(result)

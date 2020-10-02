@@ -71,7 +71,7 @@ export class NodeRepository extends Repository<Node> {
 
     const query = this.createQueryBuilder('node')
       .where('node.spaceId = :spaceId', { spaceId })
-      .andWhere('node.deleted_at IS NOT NULL')
+      .andWhere('node.deletedAt IS NOT NULL')
       .withDeleted()
 
     let nodes = await query.getMany()

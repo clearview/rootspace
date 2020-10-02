@@ -74,8 +74,23 @@ export class NodeService {
     return this.getNodeRepository().getTreeBySpaceId(spaceId)
   }
 
-  getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+  getArchiveTreeBySpaceId(spaceId: number): Promise<Node[]> {
     return this.getNodeRepository().getArchiveBySpaceId(spaceId)
+  }
+
+  async deleteArchivedBySpaceId(spaceId: number): Promise<Node[]> {
+    const tree = await this.getArchiveTreeBySpaceId(spaceId)
+
+    for (const node of tree) {
+      // Just some additional check can't hurt
+      if (node.deletedAt === null) {
+        continue
+      }
+
+      await this.remove(node.id)
+    }
+
+    return tree
   }
 
   getNodeMaxPosition(parentId: number): Promise<number> {
@@ -236,6 +251,7 @@ export class NodeService {
 
   async archive(id: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
+
     node = await this._archive(node)
 
     await this.nodeContentMediator.nodeArchived(node)
