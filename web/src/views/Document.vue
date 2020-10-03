@@ -120,6 +120,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('id', { immediate: true })
   async watchId (id: number) {
+    this.closeHistory()
     if (this.hasNodePlaceholder()) {
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     }
