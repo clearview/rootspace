@@ -47,7 +47,6 @@ export class ActivityRepository extends BaseRepository<Activity> {
   getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
     const queryBuilder = this.createQueryBuilder('activity').where('activity.actorId = :actorId', { actorId })
 
-    
     if (filter.spaceIds) {
       queryBuilder.andWhere('activity.spaceId IN (:...spaceIds)', { spaceIds: filter.spaceIds })
     }
@@ -55,8 +54,8 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return queryBuilder.getMany()
   }
 
-  async getByTypeAndEntityIdId(spaceId: number, type: string, entityId: number, action?: string): Promise<Activity[]> {
-    const entity = ActivityRepository.getEntity(type)
+  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
+    entity = ActivityRepository.getEntity(entity)
 
     const qb = this.createQueryBuilder('activity')
       .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
@@ -64,15 +63,11 @@ export class ActivityRepository extends BaseRepository<Activity> {
         'actor.avatar',
         Upload,
         'upload',
-        "upload.entityId = activity.actorId and upload.entity = 'User'"
+        'upload.entityId = activity.actorId and upload.entity = :uploadEntity',
+        { uploadEntity: 'User' }
       )
       .where('activity.entity = :entity', { entity })
-      .andWhere('activity.spaceId = :spaceId', { spaceId })
       .andWhere('activity.entityId = :entityId', { entityId })
-
-    if (action) {
-      qb.andWhere('activity.action = :action', { action })
-    }
 
     return qb
       .limit(100)

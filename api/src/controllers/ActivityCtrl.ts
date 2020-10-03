@@ -1,14 +1,16 @@
-import { Request, Response } from 'express'
+import e, { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { ActivityService } from '../services'
+import { ActivityService, EntityService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class ActivityCtrl extends BaseCtrl {
   private activityService: ActivityService
+  private entityService: EntityService
 
   constructor() {
     super()
     this.activityService = ServiceFactory.getInstance().getActivityService()
+    this.entityService = ServiceFactory.getInstance().getEntityService()
   }
 
   async getActivitiesBySpace(req: Request, res: Response) {
@@ -25,33 +27,17 @@ export class ActivityCtrl extends BaseCtrl {
   }
 
   async getForEntity(req: Request, res: Response) {
-    const spaceId = Number(req.params?.spaceId)
-    this.checkSpaceAccess(req, spaceId)
+    const entityName = req.params.entity
+    const entityId = Number(req.params.entityId)
 
-    const id = Number(req.params.entityId)
-    const type = req.params.entity
+    const entity = await this.entityService.requireEntityByNameAndId(entityName, entityId)
+    this.checkSpaceAccess(req, entity.spaceId)
 
-    const result = await this.activityService.getAggregatedForEntity(spaceId, type, id)
+    const result = await this.activityService.getByEntity(entityName, entityId)
     res.send(this.responseData(result))
   }
 
-  async getRawForEntity(req: Request, res: Response) {
-    const spaceId = Number(req.params?.spaceId)
-    this.checkSpaceAccess(req, spaceId)
-
-    const type = req.params?.entity
-    const id = Number(req.params?.entityId)
-    const action = req.query?.action ? String(req.query?.action) : null
-
-    const activities = await this.activityService.getByEntityTypeAndEntityId(spaceId, type, id, action)
-    const resData = this.responseData(activities)
-
-    res.send(resData)
-  }
-
-  
-
-  checkSpaceAccess(req: Request, spaceId) {
+  checkSpaceAccess(req: Request, spaceId: number) {
     const user = req.user as any
 
     if (!user.userSpaceIds.includes(spaceId)) {

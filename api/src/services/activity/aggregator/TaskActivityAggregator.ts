@@ -1,6 +1,6 @@
 import { Activity } from '../../../database/entities/Activity'
 import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
-import { ActivityAggregator } from './ActivityAggregator'
+import { IActivityAggregator } from '../types'
 
 const aggregateActions = [
   TaskActivities.Tag_Added,
@@ -11,10 +11,10 @@ const aggregateActions = [
   TaskActivities.Attachment_Removed,
 ]
 
-export class TaskActivityAggregator extends ActivityAggregator {
-  constructor() {
-    super()
+export class TaskActivityAggregator implements IActivityAggregator {
+  protected aggregateActions = []
 
+  constructor() {
     this.aggregateActions = aggregateActions
   }
 
@@ -51,5 +51,9 @@ export class TaskActivityAggregator extends ActivityAggregator {
     }
 
     return entries
+  }
+
+  protected createEntry(activity: Activity): Activity {
+    return { ...activity, context: [activity.context] }
   }
 }

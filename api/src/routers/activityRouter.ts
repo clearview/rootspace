@@ -7,6 +7,6 @@ const router = PromiseRouter()
 router.use(authenticate)
 
 router.get('/activities/space/:spaceId', mapRoute(ActivityCtrl, 'getActivitiesBySpace'))
-router.get('/activities/space/:spaceId/:entity/:entityId', mapRoute(ActivityCtrl, 'getForEntity'))
+router.get('/activities/entity/:entity/:entityId', mapRoute(ActivityCtrl, 'getForEntity'))
 
 export { router as activityRouter }

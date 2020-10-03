@@ -115,7 +115,7 @@ export class UsersCtrl extends BaseCtrl {
     res.send({ user, spaces })
   }
 
-  async view(req: Request, res: Response) {
+  async profile(req: Request, res: Response) {
     const user = await this.userService.requireUserById(Number(req.params.id))
     const spaces = await this.spaceService.getSpacesJointByUsers(req.user.id, user.id)
 

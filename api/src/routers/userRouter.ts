@@ -27,7 +27,7 @@ router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 
 router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
-router.get('/users/:id', authenticate, mapRoute(UsersCtrl, 'view'))
+router.get('/users/:id/profile', authenticate, mapRoute(UsersCtrl, 'profile'))
 router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
 
 router.patch('/users/password', authenticate, [
