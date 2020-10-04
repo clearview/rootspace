@@ -4,6 +4,10 @@ import { IActivityAggregator } from '../types'
 
 export class ActivityAggregator implements IActivityAggregator {
   public aggregate(activities: Activity[]): Activity[] {
+    if (activities.length === 0) {
+      return activities
+    }
+
     const entries: Activity[] = []
     let joint: Activity[] = []
 
@@ -26,7 +30,9 @@ export class ActivityAggregator implements IActivityAggregator {
       joint.push(activity)
     }
 
-    entries.push(...this.processJoint(joint))
+    if (joint.length > 0) {
+      entries.push(...this.processJoint(joint))
+    }
 
     return entries
   }

@@ -120,7 +120,7 @@ export class UsersCtrl extends BaseCtrl {
     const spaces = await this.spaceService.getSpacesJointByUsers(req.user.id, user.id)
 
     if (spaces.length === 0) {
-      clientError('Not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+      throw clientError('Not found', HttpErrName.InvalidRequest, HttpStatusCode.NotFound)
     }
 
     const spaceIds = spaces.map((space) => space.id)
