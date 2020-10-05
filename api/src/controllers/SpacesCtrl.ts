@@ -55,6 +55,14 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
+  async favorites(req: Request, res: Response) {
+    const userId = req.user.id
+    const spaceId = Number(req.params.id)
+
+    const result = await this.spaceFacade.getUserFavorites(userId, spaceId)
+    res.send(this.responseData(result))
+  }
+
   async invites(req: Request, res: Response, next: NextFunction) {
     const spaceId = Number(req.params.id)
 

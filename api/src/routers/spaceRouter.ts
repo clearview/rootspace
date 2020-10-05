@@ -13,6 +13,7 @@ router.patch('/spaces/:id', mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', mapRoute(SpacesCtrl, 'delete'))
 
 router.get('/spaces/:id/tree', mapRoute(SpacesCtrl, 'getTree'))
+router.get('/spaces/:id/favorites', mapRoute(SpacesCtrl, 'favorites'))
 router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
 router.get('/spaces/:id/activities', mapRoute(SpacesCtrl, 'activities'))
 
