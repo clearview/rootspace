@@ -86,8 +86,8 @@ export class TaskListService {
 
     const fields = { old: {}, new: {} }
 
-    for(const key of Object.keys(data)){
-      if(data[key] !== existingTaskList[key]){
+    for (const key of Object.keys(data)) {
+      if (data[key] !== existingTaskList[key]) {
         fields.old[key] = existingTaskList[key]
         fields.new[key] = taskList[key]
       }
@@ -103,11 +103,15 @@ export class TaskListService {
 
     if (taskList && taskList.tasks) {
       for (const task of taskList.tasks) {
+        if (task.deletedAt) {
+          continue
+        }
+
         await this.taskService.archive(task.id)
       }
 
       await this.registerActivityForTaskListId(TaskListActivities.Archived, taskListId, {
-        title: taskList.title
+        title: taskList.title,
       })
 
       return this.getTaskListRepository().softRemove(taskList)
@@ -135,7 +139,7 @@ export class TaskListService {
   async remove(id: number) {
     const taskList = await this.getById(id)
     await this.registerActivityForTaskList(TaskListActivities.Deleted, taskList, {
-      title: taskList.title
+      title: taskList.title,
     })
 
     return this.getTaskListRepository().remove(taskList)
@@ -144,7 +148,8 @@ export class TaskListService {
   async registerActivityForTaskListId(
     taskListActivity: TaskListActivities,
     taskListId: number,
-    context?: any): Promise<Bull.Job> {
+    context?: any
+  ): Promise<Bull.Job> {
     const taskList = await this.getById(taskListId)
     return this.registerActivityForTaskList(taskListActivity, taskList, context)
   }
@@ -152,12 +157,12 @@ export class TaskListService {
   async registerActivityForTaskList(
     taskListActivity: TaskListActivities,
     taskList: TaskList,
-    context?: any): Promise<Bull.Job> {
+    context?: any
+  ): Promise<Bull.Job> {
     const actor = httpRequestContext.get('user')
 
     return this.activityService.add(
-      ActivityEvent
-        .withAction(taskListActivity)
+      ActivityEvent.withAction(taskListActivity)
         .fromActor(actor.id)
         .forEntity(taskList)
         .inSpace(taskList.spaceId)
