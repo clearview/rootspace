@@ -27,11 +27,7 @@ export class SpaceService {
     const space = await this.getSpaceById(id)
 
     if (!space) {
-      throw clientError(
-        'Can not find space id ' + id,
-        HttpErrName.EntityNotFound,
-        HttpStatusCode.NotFound
-      )
+      throw clientError('Can not find space id ' + id, HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     return space
@@ -39,6 +35,10 @@ export class SpaceService {
 
   getSpacesByUserId(userId: number): Promise<Space[]> {
     return this.getSpaceRepository().getByUserId(userId)
+  }
+
+  async getSpacesJointByUsers(userId1: number, userId2: number): Promise<Space[]> {
+    return this.getSpaceRepository().getJointByUsers(userId1, userId2)
   }
 
   async create(data: SpaceCreateValue): Promise<Space> {

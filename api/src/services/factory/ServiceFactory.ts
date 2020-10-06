@@ -16,6 +16,7 @@ import {
   UserSpaceService,
   UploadService,
   FavoriteService,
+  EntityService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -124,6 +125,10 @@ export class ServiceFactory {
 
   getFavoriteService() {
     return FavoriteService.getInstance()
+  }
+
+  getEntityService() {
+    return EntityService.getInstance()
   }
 
   private initNodeContentServices() {

@@ -17,6 +17,18 @@ export class SpaceRepository extends Repository<Space> {
     return queryBuilder.getMany()
   }
 
+  async getJointByUsers(userId1: number, userId2: number): Promise<Space[]> {
+    return this.createQueryBuilder('space')
+      .where(UserToSpace)
+      .innerJoin(UserToSpace, 'userSpace1', 'space.id = userSpace1.spaceId AND userSpace1.userId = :userId1', {
+        userId1,
+      })
+      .innerJoin(UserToSpace, 'userSpace2', 'space.id = userSpace2.spaceId AND userSpace2.userId = :userId2', {
+        userId2,
+      })
+      .getMany()
+  }
+
   updateCountMembers(spaceId: number, count: number): Promise<UpdateResult> {
     return this.update(spaceId, { countMembers: count })
   }

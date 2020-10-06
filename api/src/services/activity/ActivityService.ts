@@ -7,7 +7,7 @@ import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
 import { WsEvent } from '../events/websockets/WsEvent'
-import { AggregateProcessor } from './AggregateProcessor'
+import { ActivityAggregator } from './aggregator/ActivityAggregator'
 
 export class ActivityService {
   private static instance: ActivityService
@@ -52,12 +52,13 @@ export class ActivityService {
     return this.getActivityRepository().getBySpaceId(spaceId, type, action)
   }
 
-  async getByEntityTypeAndEntityId(spaceId: number, type: string, id: number, action?: string): Promise<Activity[]> {
-    return this.getActivityRepository().getByTypeAndEntityIdId(spaceId, type, id, action)
+  async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getByActorId(actorId, filter)
+    return new ActivityAggregator().aggregate(activities)
   }
 
-  async getAggregatedForEntity(spaceId: number, entity: string, entityId: number): Promise<Activity[]> {
-    const activities = await this.getByEntityTypeAndEntityId(spaceId, entity, entityId)
-    return new AggregateProcessor(activities, entity).aggregate()
+  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getByEntity(entity, entityId)
+    return new ActivityAggregator().aggregate(activities)
   }
 }
