@@ -1,6 +1,7 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm'
 import { Node } from '../entities/Node'
 import { NodeType } from '../../types/node'
+import { Favorite } from '../entities/Favorite'
 
 @EntityRepository(Node)
 export class NodeRepository extends Repository<Node> {
@@ -64,6 +65,14 @@ export class NodeRepository extends Repository<Node> {
     nodes = this.sortTree(nodes)
 
     return nodes
+  }
+
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
+    return this.createQueryBuilder('node')
+      .innerJoin(Favorite, 'favorite', 'node.id = favorite.nodeId')
+      .where('favorite.userId = :userId', { userId })
+      .andWhere('favorite.spaceId = :spaceId', { spaceId })
+      .getMany()
   }
 
   async getArchiveBySpaceId(spaceId: number): Promise<Node[]> {

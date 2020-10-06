@@ -93,6 +93,10 @@ export class NodeService {
     return tree
   }
 
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
+    return this.getNodeRepository().getUserFavorites(userId, spaceId)
+  }
+
   getNodeMaxPosition(parentId: number): Promise<number> {
     return this.getNodeRepository().getNodeMaxPosition(parentId)
   }

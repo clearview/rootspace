@@ -42,6 +42,10 @@ export class SpaceFacade {
     return this.spaceService.getSpacesByUserId(userId)
   }
 
+  getUserFavorites(userId: number, spaceId: number, ): Promise<Node[]> {
+    return this.nodeService.getUserFavorites(userId, spaceId)
+  }
+
   async createSpace(data: SpaceCreateValue): Promise<Space> {
     const space = await this.spaceService.create(data)
 
