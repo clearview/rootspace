@@ -219,6 +219,9 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   get prefferedView (): TaskBoardType {
+    if (!this.$store.state.task.settings.viewAs[this.boardId]) {
+      return this.board?.type || TaskBoardType.Kanban
+    }
     return this.$store.state.task.settings.viewAs[this.boardId] ?? TaskBoardType.Kanban
   }
 
@@ -345,11 +348,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 <style lang="postcss" scoped>
 .task-board {
   @apply flex flex-col h-full;
-  flex: 1 0 auto;
+  flex: 1 1 0;
+  width: 0;
 }
 
 .board {
-  flex: 1 0 auto;
+  flex: 1 1 0;
+  overflow-x: scroll;
   height: 0;
 }
 

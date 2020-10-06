@@ -12,15 +12,28 @@
     </header>
     <main class="content">
       <div class="group">
-<!--        <div class="group-title">-->
-<!--          Last Week-->
-<!--        </div>-->
-        <div class="history-entry" v-for="(entry, index) in history" :key="entry.id" :class="{current: !preview ? index === 0 : preview.id === entry.id}"
+        <div class="history-entry current" :key="'current'"
+             @click="$emit('preview', null)">
+          <div class="entry-left">
+            <div class="entry-metadata">
+              <time class="datetime" :title="doc.contentUpdatedAt">{{doc.contentUpdatedAt | formatSimpleDateTime}}</time>
+              <div class="current">Current Version</div>
+            </div>
+            <div class="entry-author">
+              <div class="author-avatar">
+                <avatar :size="24" :src="currentUser.avatar && currentUser.avatar.versions ? currentUser.avatar.versions.default.location : ''"  :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
+              </div>
+              <div class="author-name">
+                {{currentUser.firstName}} {{currentUser.lastName}}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="history-entry" v-for="(entry) in history" :key="entry.id"
         @click="$emit('preview', entry)">
           <div class="entry-left">
             <div class="entry-metadata">
               <time class="datetime" :title="entry.revisionAt">{{entry.revisionAt | formatSimpleDateTime}}</time>
-              <div class="current" v-if="index === 0">Current Version</div>
             </div>
             <div class="entry-author">
               <div class="author-avatar">
@@ -31,7 +44,7 @@
               </div>
             </div>
           </div>
-          <div class="entry-right" v-if="index !== 0">
+          <div class="entry-right">
             <div class="restore">
               <button class="btn btn-icon" @click="$emit('restore', entry)" v-tippy="{ placement : 'top',  arrow: true }" content="Restore">
                 <v-icon name="restore" size="16px" viewbox="16" title="Restore"/>
@@ -48,7 +61,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 import DocumentService from '@/services/document'
-import { DocRevisionResource } from '@/types/resource'
+import { DocRevisionResource, DocumentResource, UserResource } from '@/types/resource'
 import { formatAsSimpleDateTime } from '@/utils/date'
 
 @Component({
@@ -65,12 +78,23 @@ export default class DocHistory extends Vue {
   @Prop({ type: Number, required: true })
   private readonly id!: number;
 
+  @Prop({ type: Object, required: true })
+  private readonly doc!: DocumentResource;
+
   @Prop(Object)
   private readonly preview?: DocRevisionResource;
+
+  get currentUser (): UserResource {
+    return this.$store.state.auth.user
+  }
 
   private history: DocRevisionResource[] = [];
 
   async mounted () {
+    await this.loadHistory()
+  }
+
+  public async refresh () {
     await this.loadHistory()
   }
 
