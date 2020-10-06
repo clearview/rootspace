@@ -2,7 +2,7 @@ import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
 
 // seconds
-const revisonIdleTime = 5
+const revisonIdleTime = 180
 
 export class DocUpdateSetup {
   private _data: DocUpdateValue
