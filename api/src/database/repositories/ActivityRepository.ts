@@ -45,7 +45,10 @@ export class ActivityRepository extends BaseRepository<Activity> {
   }
 
   getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
-    const queryBuilder = this.createQueryBuilder('activity').where('activity.actorId = :actorId', { actorId })
+    const queryBuilder = this.createQueryBuilder('activity')
+      .where('activity.actorId = :actorId', { actorId })
+      .orderBy('activity.createdAt', 'DESC')
+      .limit(30)
 
     if (filter.spaceIds) {
       queryBuilder.andWhere('activity.spaceId IN (:...spaceIds)', { spaceIds: filter.spaceIds })
