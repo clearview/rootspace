@@ -11,7 +11,6 @@
     />
     <div
       class="pane-right content"
-      :style="contentStyle"
     >
       <v-alert class="alert" v-model="alert" />
       <slot />
@@ -44,12 +43,6 @@ export default class LayoutMain extends Vue {
   get sidebarStyle (): object {
     return {
       width: `${this.size}px`
-    }
-  }
-
-  get contentStyle (): object {
-    return {
-      width: `calc(100% - ${this.size}px)`
     }
   }
 
@@ -105,6 +98,8 @@ export default class LayoutMain extends Vue {
 
 .pane-right {
   margin-left: -0.25rem;
+  width: 0;
+  flex: 1 1 0;
 }
 
 .pane-resizer {
@@ -128,6 +123,7 @@ export default class LayoutMain extends Vue {
 
 .content {
   @apply flex flex-row flex-grow h-screen;
+  overflow-y: scroll;
 
   .alert {
     @apply mx-4;

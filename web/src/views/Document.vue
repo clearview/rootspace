@@ -34,8 +34,8 @@
       <editor-readonly v-else-if="readOnly" :value="value" />
       </div>
     </div>
-    <div class="page-history" v-if="showHistory">
-      <DocHistory :preview="preview" :id="id" @close="closeHistory" @preview="showPreview" @restore="restore"></DocHistory>
+    <div class="page-history" v-show="showHistory">
+      <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview" @restore="restore"></DocHistory>
     </div>
 
     <v-modal
@@ -90,6 +90,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
   private loading = false
   private isFromLoad = false
   private readOnly = false
+  private doc: DocumentResource | null = null
   private deleteDoc: any = {
     visible: false,
     loading: false,
@@ -105,6 +106,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
   @Ref('title')
   private readonly titleRef!: HTMLInputElement
+
+  @Ref('docHistory')
+  private readonly docHistoryRef!: DocHistory
 
   @Watch('title')
   watchTitle () {
@@ -169,6 +173,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.isFromLoad = true
         const res = await DocumentService.view(id)
         const data = res.data
+        this.doc = data
         this.title = data.title
         this.value = data.content
         this.readOnly = data.isLocked
@@ -191,7 +196,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     }
   }
 
-  saveDocument () {
+  async saveDocument () {
     if (this.title) {
       const payload = {
         spaceId: this.activeSpace.id,
@@ -201,7 +206,8 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         isLocked: this.readOnly
       }
 
-      this.createUpdateDocument(payload)
+      await this.createUpdateDocument(payload)
+      await this.docHistoryRef.refresh()
     }
   }
 

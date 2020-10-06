@@ -192,6 +192,7 @@ export interface DocumentResource {
   title: string;
   content: object;
   access: number;
+  contentUpdatedAt?: string;
 }
 
 export interface ActivityResource {

@@ -309,6 +309,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       }
       await this.$store.dispatch('tree/createFolder', data)
       await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
     } catch { }
 
     this.activeMenu.loading = false
@@ -326,6 +329,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       }
       await this.$store.dispatch('link/create', data)
       await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
     } catch { }
 
     this.activeMenu.loading = false
@@ -343,6 +349,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       }
       const res = await this.$store.dispatch('task/board/create', data) as NodeResource
       await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
       if (res.contentId) {
         await this.$router.push({
           name: 'TaskPage',
@@ -367,6 +376,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       }
       await this.$store.dispatch('embed/create', data)
       await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
     } catch { }
 
     this.activeMenu.loading = false
@@ -509,6 +521,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       return
     }
 
+    this.$store.commit('tree/setTouched', {})
     const node = this.$refs.tree.getNodeByPath(path)
 
     this.$store.commit('tree/updateFolded', {
@@ -517,11 +530,24 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     })
   }
 
+  openNodeFold (path: number[]) {
+    if (this.dragging) {
+      return
+    }
+
+    this.$store.commit('tree/setTouched', {})
+    this.$refs.tree.getNodeByPath(path)
+
+    this.$store.commit('tree/updateFolded', {
+      index: path.join('.'),
+      value: false
+    })
+  }
+
   async change (store: TreeStore) {
     if (store.pathChanged) {
       const path = store.targetPath || []
       const node = store.dragNode || {}
-
       if (store.targetPath) {
         this.$store.commit('tree/setTouched', {
           [path.join('.')]: true
