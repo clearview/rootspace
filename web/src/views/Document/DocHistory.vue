@@ -12,8 +12,9 @@
     </header>
     <main class="content">
       <div class="group">
-        <div class="history-entry current" :key="'current'"
-             @click="$emit('preview', null)">
+        <div class="history-entry" :key="'current'"
+             :class="{current: !preview}"
+             @click="$emit('preview', null)" v-if="doc">
           <div class="entry-left">
             <div class="entry-metadata">
               <time class="datetime" :title="doc.contentUpdatedAt">{{doc.contentUpdatedAt | formatSimpleDateTime}}</time>
@@ -30,6 +31,7 @@
           </div>
         </div>
         <div class="history-entry" v-for="(entry) in history" :key="entry.id"
+             :class="{current: preview && preview.id === entry.id}"
         @click="$emit('preview', entry)">
           <div class="entry-left">
             <div class="entry-metadata">
@@ -78,7 +80,7 @@ export default class DocHistory extends Vue {
   @Prop({ type: Number, required: true })
   private readonly id!: number;
 
-  @Prop({ type: Object, required: true })
+  @Prop({ type: Object, required: false })
   private readonly doc!: DocumentResource;
 
   @Prop(Object)

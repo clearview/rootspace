@@ -184,7 +184,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
         this.pageTitle = this.title
         this.pageReady = true
-        this.$router.replace({ params: { slug: data.slug } })
+        this.$router.replace({ params: { slug: data.slug } }).catch(() => {
+          // Silent duplicate error
+        })
       } catch (e) {
         if (e.code === 403) {
           this.$router.push({ name: 'Main', query: { from: 'document', message: e.data.message } })
@@ -223,6 +225,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         const getDocument = document.data
         this.$store.commit('document/setDeferredParent', null)
         this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
+          .catch(() => {
+            // Silent duplicate error
+          })
       }
 
       this.loading = false
