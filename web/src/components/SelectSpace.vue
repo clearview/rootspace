@@ -116,7 +116,7 @@
     <modal
       title="Add Space"
       :visible="modal.visible"
-      :loading="modal.loading"
+      :is-loading="modal.loading"
       :content-style="{ width: '456px' }"
       confirmText="Add"
       @cancel="modal.visible = false"
@@ -239,6 +239,8 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
   .SelectSpace-options-lists {
     @apply px-2 pb-2;
+    overflow-y: scroll;
+    max-height: 70vh;
   }
 }
 

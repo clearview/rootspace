@@ -36,6 +36,7 @@
             <button
               class="btn btn-small btn-primary"
               @click="confirm"
+              :disabled="isLoading || !canSave"
               v-if="!nosubmit"
             >
               {{ confirmText }}
@@ -84,6 +85,12 @@ export default class Modal extends Vue {
 
     @Prop({ type: Object })
     private readonly modalStyle!: object;
+
+    @Prop({ type: Boolean, default: false })
+    private readonly isLoading!: boolean;
+
+    @Prop({ type: Boolean, default: true })
+    private readonly canSave!: boolean;
 
     @Emit('cancel')
     cancel () {
