@@ -51,7 +51,7 @@
               Rename
             </div>
           </div>
-          <div class="action-line" @click.prevent.stop="hide();remove()">
+          <div class="action-line" @click.prevent.stop="hide();archive()">
             <v-icon class="action-icon" name="archive" viewbox="16" size="16px"></v-icon>
             <div class="action-line-text">
               Archive
@@ -246,8 +246,8 @@ export default class SidebarTreeNode extends Vue {
     })
   }
 
-  remove () {
-    this.$emit('node:remove', this.path, this.payload)
+  archive () {
+    this.$emit('node:archive', this.path, this.payload)
   }
 
   updateContent () {

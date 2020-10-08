@@ -34,6 +34,24 @@ export default class TreeService {
     return res.data
   }
 
+  static async clearArchive (spaceId: number) {
+    const res = await api.delete(`spaces/${spaceId}/archive`)
+
+    return res.data
+  }
+
+  static async archive (id: number) {
+    const res = await api.post(`nodes/${id}/archive`)
+
+    return res.data
+  }
+
+  static async restore (id: number) {
+    const res = await api.post(`nodes/${id}/restore`)
+
+    return res.data
+  }
+
   static async createFolder (data: NodeResource) {
     const res = await api.post('folders', { data })
 

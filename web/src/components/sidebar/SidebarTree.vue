@@ -29,11 +29,13 @@
         :path="path"
         @content:update="updateContent"
         @node:update="updateNode"
-        @node:remove="removeNode"
+        @node:archive="archiveNode"
         @node:fold:toggle="toggleNodeFold"
         @node:addNew="addNewNode"
       />
     </tree>
+
+    <ArchiveNode @restore="refresh"></ArchiveNode>
 
     <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
       <div id="addnew-menu" v-if="menuOpen">
@@ -117,6 +119,20 @@
         Are you sure you want to delete this item?
       </div>
     </modal>
+
+    <modal
+      v-if="modal.type === 'Archive'"
+      title="Archive Item"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      confirmText="Yes"
+      @cancel="modalClose"
+      @confirm="modalConfirm"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to archive this item?
+      </div>
+    </modal>
   </div>
 </template>
 
@@ -153,6 +169,7 @@ import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
+import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
 enum NodeType {
   Link = 'link',
@@ -175,12 +192,14 @@ enum ModalType {
   UpdateLink = 'UpdateLink',
   UpdateTask = 'UpdateTask',
   UpdateEmbed = 'UpdateEmbed',
-  Destroy = 'Destroy'
+  Destroy = 'Destroy',
+  Archive = 'Archive'
 }
 
 @Component({
   name: 'SidebarTree',
   components: {
+    ArchiveNode,
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
@@ -248,6 +267,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   // Methods
+
+  refresh () {
+    this.fetch()
+  }
 
   menuActive (type: string) {
     switch (type) {
@@ -462,16 +485,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
-  async removeNode (path: number[], node: Node) {
+  async archiveNode (path: number[], node: Node) {
     try {
-      await this.modalOpen(ModalType.Destroy)
+      await this.modalOpen(ModalType.Archive)
 
       this.$refs.tree.removeNodeByPath(path)
       this.treeData = this.$refs.tree.cloneTreeData()
 
-      await this.$store.dispatch('tree/destroy', node)
+      await this.$store.dispatch('tree/archive', node)
 
-      this.$router.push({ name: 'Main' })
+      this.$router.push({ name: 'Main' }).catch(() => null)
     } catch { }
   }
 
