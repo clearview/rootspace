@@ -29,7 +29,7 @@
           </div>
           <div class="action-separator"></div>
 
-          <Popover :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
+          <Popover sub :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
             <template #default="{ hide }">
               <div class="delete-confirmation">
                 <h3>Delete File</h3>

@@ -6,6 +6,9 @@
   @apply relative w-full;
   margin: 6px auto;
 }
+.readonly .tree-node-back {
+  margin: 0;
+}
 
 .tree-placeholder-node{
   @apply relative cursor-pointer;

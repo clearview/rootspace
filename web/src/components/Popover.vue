@@ -1,6 +1,6 @@
 <template>
   <div class="popover-container">
-    <portal to="tertiary" v-if="visible">
+    <portal :to="sub ? 'sub-popover' : 'tertiary'" v-if="visible">
       <div class="popover-cloak" @click.self.prevent.stop="hide"></div>
       <div class="popover" :class="{borderless}" v-if="visible" ref="popover">
         <header class="popover-header" v-if="title || withClose">
@@ -57,6 +57,9 @@ export default class Popover extends Vue {
 
   @Prop({ type: Boolean, default: false })
   private readonly borderless!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly sub!: boolean;
 
   @Ref('trigger')
   private readonly triggerRef?: HTMLDivElement;

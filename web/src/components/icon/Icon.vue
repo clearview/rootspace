@@ -86,6 +86,7 @@ import IconMenuTask from '@/components/icon/IconMenuTask.vue'
 import IconClose3 from '@/components/icon/IconClose3.vue'
 import IconPlus3 from '@/components/icon/IconPlus3.vue'
 import IconRestore from '@/components/icon/IconRestore.vue'
+import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
 
 @Component({
   name: 'Icon',
@@ -141,6 +142,7 @@ import IconRestore from '@/components/icon/IconRestore.vue'
     IconTag,
     IconTime,
     IconTrash,
+    IconTrashArchive,
     IconUnlock,
     IconUp,
     IconUser,

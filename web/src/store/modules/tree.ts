@@ -53,6 +53,18 @@ const TreeModule: Module<TreeState, RootState> = {
       await TreeService.destroy(data.id)
     },
 
+    async clearArchive (_, spaceId: number) {
+      await TreeService.clearArchive(spaceId)
+    },
+
+    async archive (_, data: NodeResource) {
+      await TreeService.archive(data.id)
+    },
+
+    async restore (_, data: NodeResource) {
+      await TreeService.restore(data.id)
+    },
+
     async createFolder (_, data: NodeResource) {
       return await TreeService.createFolder(data)
     }
