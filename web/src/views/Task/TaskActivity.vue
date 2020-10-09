@@ -129,6 +129,9 @@ export default class TaskActivity extends Vue {
 
   get contextWithoutLast () {
     if (this.activity.context) {
+      if (!this.activity.context.length) {
+        return [this.activity.context]
+      }
       if (this.activity.context.length === 1) {
         return this.activity.context
       } else {

@@ -80,7 +80,6 @@ import store from '@/store'
 import { NodeResource } from '@/types/resource'
 import { Draggable, Fold, Tree } from '@adityapurwa/he-tree-vue'
 import TreeNodeReadonly from '@/components/sidebar/SidebarTreeNodeReadonly.vue'
-import SpaceService from '@/services/space'
 
 @Component({
   components: {

@@ -1,5 +1,5 @@
 <template>
-  <Popover title="Add Member" :offset="5" position="bottom-start">
+  <Popover :z-index="1001" title="Add Member" :offset="5" position="bottom-start">
     <template>
       <div class="add-member">
         <v-input @input="search" placeholder="Search members" :value="memberInput" class="member-input"/>

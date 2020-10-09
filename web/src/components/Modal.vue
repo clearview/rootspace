@@ -3,7 +3,7 @@
     :to="portal"
     v-if="visible"
   >
-    <div class="modal" @mousedown.self="cancel" :style="modalStyle">
+    <div class="modal" @mousedown.self="cancel" :style="modalStyle ? {...modalStyle, zIndex} : {zIndex}">
       <div class="modal-inner" :style="contentStyle">
         <slot
           name="header"
@@ -58,6 +58,9 @@ import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
 export default class Modal extends Vue {
     @Prop({ type: String, default: 'default' })
     private readonly portal!: string;
+
+    @Prop({ type: Number, default: 1000 })
+    private readonly zIndex!: number;
 
     @Prop({ type: Boolean })
     private readonly visible!: boolean;

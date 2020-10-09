@@ -7,6 +7,7 @@
     nofooter
     cancel-text="Okay"
     portal="secondary"
+    :z-index="2000"
     @cancel="close"
     :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
     :contentStyle="{ 'background-color': 'unset', height: '60%' }"
@@ -75,7 +76,7 @@
             <p v-if="images[index] && images[index].location !== undefined">
               {{ images[index].location | formatAttachmentName }}
             </p>
-            <Popover :offset="10" :with-close="false" position="right-start" class="modal-action">
+            <Popover :z-index="2001" :offset="10" :with-close="false" position="right-start" class="modal-action">
               <template #default="{ hide: topHide }">
                 <div class="action-line">
                   <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
@@ -85,7 +86,7 @@
                 </div>
                 <div class="action-separator"></div>
 
-                <Popover :offset="10" :with-close="false" position="right-end" class="delete-attachment left">
+                <Popover sub :z-index="2010" :offset="10" :with-close="false" position="right-end" class="delete-attachment left">
                   <template #default="{ hide }">
                     <div class="delete-confirmation">
                       <h3>Delete File</h3>
@@ -110,7 +111,6 @@
                     </div>
                   </template>
                 </Popover>
-
               </template>
               <template #trigger="{ visible }">
                 <button class="btn btn-link" :class="{'btn-link-primary': visible}">

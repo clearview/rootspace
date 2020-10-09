@@ -1,8 +1,8 @@
 <template>
   <div class="popover-container">
     <portal :to="sub ? 'sub-popover' : 'tertiary'" v-if="visible">
-      <div class="popover-cloak" @click.self.prevent.stop="hide"></div>
-      <div class="popover" :class="{borderless}" v-if="visible" ref="popover">
+      <div class="popover-cloak" @click.self.prevent.stop="hide" :style="{zIndex}"></div>
+      <div class="popover" :class="{borderless}" v-if="visible" ref="popover" :style="{zIndex: zIndex+1}">
         <header class="popover-header" v-if="title || withClose">
           <div v-if="backButton" @click="back">
               <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
@@ -36,6 +36,9 @@ export default class Popover extends Vue {
   // DEPRECATED: In favor of offset
   @Prop({ type: String, default: '24px' })
   private readonly top!: number;
+
+  @Prop({ type: Number, default: 49 })
+  private readonly zIndex!: number;
 
   @Prop({ type: Number, default: 0 })
   private readonly offset!: number;
@@ -123,7 +126,6 @@ export default class Popover extends Vue {
   .popover-cloak {
     @apply fixed top-0 left-0 w-full;
     height: 100vh;
-    z-index: 49;
   }
   .popover-header {
     @apply flex items-center p-4;
