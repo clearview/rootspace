@@ -3,7 +3,7 @@
   @apply fixed top-0 left-0;
   @apply w-full;
   @apply overflow-y-scroll;
-  z-index: 100000;
+  z-index: 1000;
   /* Flex is broken when used for centering overflowing modal*/
   height: 100vh;
   display: grid;

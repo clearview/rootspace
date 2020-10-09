@@ -100,8 +100,8 @@
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
-            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1].id" class="attachments-item">
-              <TaskAttachmentView :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
+              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">

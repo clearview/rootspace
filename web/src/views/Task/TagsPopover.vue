@@ -1,5 +1,6 @@
 <template>
   <Popover
+    :z-index="1001"
     :offset="5" position="bottom-start"
     :title="tagsTitle"
     :backButton="backButtonState"

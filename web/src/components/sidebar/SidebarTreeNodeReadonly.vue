@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Node } from '@adityapurwa/he-tree-vue'
 import LabelEditable from '@/components/LabelEditable.vue'
 
