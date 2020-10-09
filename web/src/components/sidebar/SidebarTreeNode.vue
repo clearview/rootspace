@@ -36,7 +36,7 @@
     </div>
 
     <div class="tree-node-actions" v-if="!isRenaming">
-      <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event">
+      <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event" v-if="value.contentId !== 0">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
             <v-icon class="action-icon" name="plus3" viewbox="16" size="16px"></v-icon>
