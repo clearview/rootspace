@@ -88,11 +88,17 @@ export class ServiceFactory {
   }
 
   getTaskListService() {
-    return TaskListService.getInstance()
+    const service = TaskListService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getTaskService() {
-    return TaskService.getInstance()
+    const service = TaskService.getInstance()
+
+    service.attachActivityObserver(this.getActivityService())
+    return service
   }
 
   getUserService() {
@@ -136,7 +142,9 @@ export class ServiceFactory {
     this.linkService = LinkService.getInstance()
     this.docService = DocService.getInstance()
     this.embedService = EmbedService.getInstance()
+
     this.taskBoardService = TaskBoardService.getInstance()
+    this.taskBoardService.attachActivityObserver(this.getActivityService())
 
     const mediator = new NodeContentMediator(this.nodeService)
 

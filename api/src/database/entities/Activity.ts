@@ -49,6 +49,9 @@ export class Activity {
   @Column('varchar')
   action: string
 
+  @Column('varchar')
+  type: string
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 

@@ -7,8 +7,8 @@ import { NotificationService } from './NotificationService'
 import { UserService } from './UserService'
 import { TaskBoardService, TaskListService } from './content/tasks'
 import { ActivityEvent } from './events/ActivityEvent'
-import { Notification } from '../database/entities/Notification'
 import { ServiceFactory } from './factory/ServiceFactory'
+import { Activity } from '../database/entities/Activity'
 
 export class FollowService {
   private static instance: FollowService
@@ -40,16 +40,18 @@ export class FollowService {
     return this.getFollowRepository().findOneOrFail(id)
   }
 
-  async getFollows(activity: ActivityEvent): Promise<Follow[]> {
+  async getFollows(activity: ActivityEvent | Activity): Promise<Follow[]> {
     const follows = await this.getFollowRepository().find({
       entityId: activity.entityId,
-      tableName: activity.tableName
+      tableName: activity.tableName,
     })
 
-    return follows.filter((follow) => { return follow.userId !== activity.actorId})
+    return follows.filter((follow) => {
+      return follow.userId !== activity.actorId
+    })
   }
 
-  async getFollowerIds(event: ActivityEvent): Promise<number[]> {
+  async getFollowerIds(event: ActivityEvent | Activity): Promise<number[]> {
     const follows = await this.getFollows(event)
 
     return follows.map((follow) => follow.userId)
@@ -62,6 +64,7 @@ export class FollowService {
 
   async followFromActivity(activity: ActivityEvent): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(activity.actorId)
+
     const entity = await this.getFollowRepository().getEntityFromActivity(activity)
     return this.follow(user, entity)
   }
@@ -75,7 +78,7 @@ export class FollowService {
   async follow(user: User, item: any): Promise<Follow> {
     const existingFollow = await this.getFollowRepository().findOne({
       userId: user.id,
-      entityId: item.id
+      entityId: item.id,
     })
 
     if (existingFollow) {
@@ -96,7 +99,7 @@ export class FollowService {
     const existingFollow = await this.getFollowRepository().findOne({
       userId: user.id,
       entityId: entity.id,
-      tableName: getConnection().getMetadata(entity.constructor.name).tableName
+      tableName: getConnection().getMetadata(entity.constructor.name).tableName,
     })
 
     if (existingFollow) {
@@ -116,30 +119,31 @@ export class FollowService {
   async removeAllNotificationsFromEntity(entity: any): Promise<DeleteResult> {
     return this.notificationService.delete({
       entityId: entity.id,
-      tableName: getConnection().getMetadata(entity.constructor.name).tableName
+      tableName: getConnection().getMetadata(entity.constructor.name).tableName,
     })
   }
 
-  async shouldReceiveNotification(userId: number, activity: ActivityEvent): Promise<boolean> {
+  async shouldReceiveNotification(userId: number, activity: ActivityEvent | Activity): Promise<boolean> {
     const unreadNotification = await this.notificationService.getUnreadNotification(userId, activity)
-
     return !unreadNotification
   }
 
-  async removeFollowsFromActivity(activity: ActivityEvent): Promise<DeleteResult | void> {
+  async removeFollowsFromActivity(activity: ActivityEvent | Activity): Promise<DeleteResult | void> {
     const existingFollows = await this.getFollowRepository().find({
       entityId: activity.entityId,
-      tableName: activity.tableName
+      tableName: activity.tableName,
     })
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds || followIds.length < 1) { return null }
+    if (!followIds || followIds.length < 1) {
+      return null
+    }
 
     return this.getFollowRepository().delete(followIds)
   }
 
-  async removeFollowsForTaskBoard(activity: ActivityEvent): Promise<DeleteResult | void> {
+  async removeFollowsForTaskBoard(activity: Activity): Promise<DeleteResult | void> {
     const tasks = await this.taskBoardService.getAllTasks(activity.entityId)
     const taskIds = tasks.map((task) => task.id)
 
@@ -154,13 +158,11 @@ export class FollowService {
     const tasks = await this.taskListService.getAllTasks(activity.entityId)
     const taskIds = tasks.map((task) => task.id)
 
-    if (!taskIds || taskIds.length < 1) { return null }
+    if (!taskIds || taskIds.length < 1) {
+      return null
+    }
 
     return this.removeFollowsForTasks(taskIds)
-  }
-
-  async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
-    return this.notificationService.removeNotificationsForTasks(taskIds)
   }
 
   async removeFollowsForTasks(taskIds: number[]): Promise<DeleteResult | void> {
@@ -168,8 +170,14 @@ export class FollowService {
 
     const followIds = existingFollows.map((follow) => follow.id)
 
-    if (!followIds || followIds.length < 1) { return null }
+    if (!followIds || followIds.length < 1) {
+      return null
+    }
 
     return this.getFollowRepository().delete(followIds)
+  }
+
+  async removeNotificationsForTasks(taskIds: number[]): Promise<void> {
+    return this.notificationService.removeNotificationsForTasks(taskIds)
   }
 }

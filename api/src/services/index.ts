@@ -1,3 +1,4 @@
+export * from './Service'
 export * from './SpaceService'
 export * from './InviteService'
 export * from './NotificationService'

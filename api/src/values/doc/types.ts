@@ -7,7 +7,7 @@ export interface IDocCreateAttributes {
   content: IDocContent
   access: number
   isLocked: boolean
-  parentId?: number;
+  parentId?: number
 }
 
 export type IDocUpdateAttributes = Omit<Partial<IDocCreateAttributes>, 'userId' | 'spaceId'>

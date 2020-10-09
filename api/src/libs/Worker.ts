@@ -11,7 +11,8 @@ import { TaskWorker } from './workers/TaskWorker'
 import { UserWorker } from './workers/UserWorker'
 import { InviteWorker } from './workers/InviteWorker'
 import { Queue } from './Queue'
-import { Cron } from './Cron'
+import * as ContentActivitiHandlers from '../services/activity/activities/content/handlers'
+import { IContentActivityHandler } from '../services/activity/activities/content'
 
 export class Worker {
   static async process() {
@@ -23,7 +24,16 @@ export class Worker {
   }
 
   private static async dispatch(job: Job<any>) {
-    const event: ActivityEvent = job.data
+    const data: any = job.data
+
+    if (data.handler) {
+      const handler: IContentActivityHandler = new ContentActivitiHandlers[data.handler](data)
+      await handler.process()
+
+      return
+    }
+
+    const event: ActivityEvent = data
 
     switch (event.entity) {
       case ActivityType.User:

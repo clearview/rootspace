@@ -15,11 +15,11 @@ export class EntityService {
     return EntityService.instance
   }
 
-  getEntityByNameAndId(name: string, id: number): Promise<any | undefined> {
+  getEntityByNameAndId<T>(name: string, id: number): Promise<T | undefined> {
     name = this.convertEntityName(name)
 
     return getConnection()
-      .getRepository(name)
+      .getRepository<T>(name)
       .createQueryBuilder('entity')
       .where('entity.id = :id', { id })
       .getOne()

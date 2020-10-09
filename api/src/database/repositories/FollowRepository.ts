@@ -2,10 +2,11 @@ import { EntityRepository, getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Follow } from '../entities/Follow'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
+import { IContentActivityData } from '../../services/activity/activities/content'
 
 @EntityRepository(Follow)
 export class FollowRepository extends BaseRepository<Follow> {
-  async getEntityFromActivity(activity: ActivityEvent): Promise<any> {
+  async getEntityFromActivity(activity: ActivityEvent | IContentActivityData): Promise<any> {
     return getConnection()
       .getRepository(activity.entity)
       .createQueryBuilder('Entity')

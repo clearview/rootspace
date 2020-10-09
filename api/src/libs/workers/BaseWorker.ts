@@ -44,7 +44,7 @@ export abstract class BaseWorker {
 
       event.userId = userId
 
-      const notification = await this.notificationService.create(event)
+      const notification = await this.notificationService.create(event, userId)
       await this.notificationService.save(notification)
     }
   }
