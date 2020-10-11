@@ -1,31 +1,23 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../../database/repositories/DocRepository'
 import { DocRevisionRepository } from '../../../database/repositories/DocRevisionRepository'
+import { Node } from '../../../database/entities/Node'
 import { Doc } from '../../../database/entities/Doc'
 import { DocRevision } from '../../../database/entities/DocRevision'
 import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
 import { NodeCreateValue } from '../../../values/node'
 import { NodeType } from '../../../types/node'
-import { NodeService } from '../NodeService'
-import { NodeContentService } from '../NodeContentService'
-import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
-import { DocActivities } from '../../../database/entities/activities/DocActivities'
-import Bull from 'bull'
-import { ActivityEvent } from '../../events/ActivityEvent'
-import { ActivityService } from '../../'
+import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
 import { DocUpdateSetup } from './DocUpdateSetup'
-import { Node } from '../../../database/entities/Node'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
-  private activityService: ActivityService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: DocService
@@ -91,7 +83,7 @@ export class DocService extends NodeContentService {
 
     doc = await this.getDocRepository().save(doc)
 
-    let value =  NodeCreateValue.fromObject({
+    let value = NodeCreateValue.fromObject({
       userId: doc.userId,
       spaceId: doc.spaceId,
       contentId: doc.id,
@@ -101,13 +93,9 @@ export class DocService extends NodeContentService {
     if (data.attributes.parentId) {
       value = value.withParent(data.attributes.parentId).withPosition(0)
     }
-    const node = await this.nodeService.create(
-      value
-    )
+    const node = await this.nodeService.create(value)
 
     doc = await this.getDocRepository().reload(doc)
-    await this.registerActivityForDoc(DocActivities.Created, doc, { title: doc.title })
-
     return { ...doc, ...node }
   }
 
@@ -136,10 +124,6 @@ export class DocService extends NodeContentService {
     doc.updatedBy = userId
 
     doc = await this.getDocRepository().save(doc)
-
-    if (setup.registerActivity) {
-      await this.registerActivityForDocId(DocActivities.Updated, doc.id, fields)
-    }
 
     return this.getDocRepository().reload(doc)
   }
@@ -175,7 +159,6 @@ export class DocService extends NodeContentService {
     doc.content = docRevision.content
 
     doc = await this.getDocRepository().save(doc)
-    await this.registerActivityForDocId(DocActivities.Updated, doc.id)
 
     return doc
   }
@@ -203,7 +186,6 @@ export class DocService extends NodeContentService {
 
   private async _archive(_doc: Doc): Promise<Doc> {
     const doc = await this.getDocRepository().softRemove(_doc)
-    await this.registerActivityForDoc(DocActivities.Archived, doc, { title: doc.title })
 
     return doc
   }
@@ -215,7 +197,6 @@ export class DocService extends NodeContentService {
     doc = await this._restore(doc)
 
     await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
-    await this.registerActivityForDoc(DocActivities.Restored, doc, { title: doc.title })
 
     return doc
   }
@@ -256,7 +237,6 @@ export class DocService extends NodeContentService {
   }
 
   private async _remove(doc: Doc) {
-    await this.registerActivityForDoc(DocActivities.Deleted, doc, { title: doc.title })
     return this.getDocRepository().remove(doc)
   }
 
@@ -276,22 +256,5 @@ export class DocService extends NodeContentService {
     if (doc.deletedAt === null) {
       throw clientError('Can not delete link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForDocId(docActivity: DocActivities, docId: number, context?: any): Promise<Bull.Job> {
-    const doc = await this.getById(docId)
-    return this.registerActivityForDoc(docActivity, doc, context)
-  }
-
-  async registerActivityForDoc(docActivity: DocActivities, doc: Doc, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(docActivity)
-        .fromActor(actor.id)
-        .forEntity(doc)
-        .inSpace(doc.spaceId)
-        .withContext(context)
-    )
   }
 }

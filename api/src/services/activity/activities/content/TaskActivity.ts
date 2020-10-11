@@ -1,6 +1,7 @@
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
 import { Task } from '../../../../database/entities/tasks/Task'
 import { Tag } from '../../../../database/entities/tasks/Tag'
+import { TaskComment } from '../../../../database/entities/tasks/TaskComment'
 import { User } from '../../../../database/entities/User'
 import { ContentActivity, IContentActivity } from '.'
 import { ContentActions, TaskActions } from './actions'
@@ -23,28 +24,28 @@ export class TaskActivity extends ContentActivity<Task> {
     return 'tasks'
   }
 
-  static created(task: Task, actorId?: number): IContentActivity {
-    return new TaskActivity(ContentActions.Created, task, actorId).created()
+  static created(entity: Task, actorId?: number): IContentActivity {
+    return new TaskActivity(ContentActions.Created, entity, actorId).created()
   }
 
-  static updated(task: Task, updatedTask: Task, actorId?: number) {
-    return new TaskActivity(ContentActions.Updated, task, actorId).updated(updatedTask)
+  static updated(entity: Task, updatedEntity: Task, actorId?: number) {
+    return new TaskActivity(ContentActions.Updated, entity, actorId).updated(updatedEntity)
   }
 
-  static archived(task: Task, actorId?: number): IContentActivity {
-    return new TaskActivity(ContentActions.Archived, task, actorId).archived()
+  static archived(entity: Task, actorId?: number): IContentActivity {
+    return new TaskActivity(ContentActions.Archived, entity, actorId).archived()
   }
 
-  static restored(task: Task, actorId?: number): IContentActivity {
-    return new TaskActivity(ContentActions.Restored, task, actorId).restored()
+  static restored(entity: Task, actorId?: number): IContentActivity {
+    return new TaskActivity(ContentActions.Restored, entity, actorId).restored()
   }
 
-  static deleted(task: Task, actorId?: number): IContentActivity {
-    return new TaskActivity(ContentActions.Deleted, task, actorId).deleted()
+  static deleted(entity: Task, actorId?: number): IContentActivity {
+    return new TaskActivity(ContentActions.Deleted, entity, actorId).deleted()
   }
 
-  static listMoved(task: Task, fromList: TaskList, toList: TaskList, actorId?: number) {
-    const activity = new TaskActivity(TaskActions.List_Moved, task, actorId)
+  static listMoved(entity: Task, fromList: TaskList, toList: TaskList, actorId?: number) {
+    const activity = new TaskActivity(TaskActions.List_Moved, entity, actorId)
 
     activity._context = {
       entity: activity.filterEntityAttributes(activity._entity),
@@ -59,20 +60,33 @@ export class TaskActivity extends ContentActivity<Task> {
     return activity
   }
 
-  static AssigneeAdded(task: Task, assignee: User, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Assignee_Added, task, actorId).createAssigneeContext(assignee)
+  static AssigneeAdded(entity: Task, assignee: User, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Assignee_Added, entity, actorId).createAssigneeContext(assignee)
   }
 
-  static AssigneeRemoved(task: Task, assignee: User, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Assignee_Removed, task, actorId).createAssigneeContext(assignee)
+  static AssigneeRemoved(entity: Task, assignee: User, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Assignee_Removed, entity, actorId).createAssigneeContext(assignee)
   }
 
-  static TagAdded(task: Task, tag: Tag, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Tag_Added, task, actorId).createTagContext(tag)
+  static TagAdded(entity: Task, tag: Tag, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Tag_Added, entity, actorId).createTagContext(tag)
   }
 
-  static TagRemoved(task: Task, tag: Tag, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Tag_Removed, task, actorId).createTagContext(tag)
+  static TagRemoved(entity: Task, tag: Tag, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Tag_Removed, entity, actorId).createTagContext(tag)
+  }
+
+  static CommentCreated(entity: Task, comment: TaskComment, actorId?: number): IContentActivity {
+    const activity = new TaskActivity(TaskActions.Comment_Created, entity, actorId)
+
+    activity._context = {
+      entity: activity.filterEntityAttributes(activity._entity),
+      comment: {
+        id: comment.id,
+      },
+    }
+    
+    return activity
   }
 
   private createAssigneeContext(assignee: User): IContentActivity {

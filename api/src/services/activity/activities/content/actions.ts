@@ -8,11 +8,9 @@ export const ContentActions = {
 
 export const TaskActions = {
   List_Moved: 'List_Moved',
+  Comment_Created: 'Comment_Created',
   Assignee_Added: 'Assignee_Added',
   Assignee_Removed: 'Assignee_Removed',
-  Comment_Created: 'Comment_Created',
-  Comment_Updated: 'Comment_Updated',
-  Comment_Deleted: 'Comment_Deleted',
   Tag_Added: 'Tag_Added',
   Tag_Removed: 'Tag_Removed',
   Attachment_Added: 'Attachment_Added',

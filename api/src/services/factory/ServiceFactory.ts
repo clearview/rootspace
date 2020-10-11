@@ -19,6 +19,8 @@ import {
   EntityService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
+import { TaskComment } from '../../database/entities/tasks/TaskComment'
+import { TaskCommentService } from '../content/tasks'
 
 export class ServiceFactory {
   private nodeService: NodeService
@@ -79,14 +81,6 @@ export class ServiceFactory {
     return this.taskBoardService
   }
 
-  getFollowService() {
-    return FollowService.getInstance()
-  }
-
-  getTaskBoardTagService() {
-    return TaskBoardTagService.getInstance()
-  }
-
   getTaskListService() {
     const service = TaskListService.getInstance()
     service.attachActivityObserver(this.getActivityService())
@@ -96,9 +90,24 @@ export class ServiceFactory {
 
   getTaskService() {
     const service = TaskService.getInstance()
-
     service.attachActivityObserver(this.getActivityService())
+
     return service
+  }
+
+  getTaskCommentService() {
+    const service = TaskCommentService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getTaskBoardTagService() {
+    return TaskBoardTagService.getInstance()
+  }
+
+  getFollowService() {
+    return FollowService.getInstance()
   }
 
   getUserService() {

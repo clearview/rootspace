@@ -1,7 +1,5 @@
 import 'dotenv/config'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { Follow } from '../../database/entities/Follow'
-import { DeleteResult } from 'typeorm'
 import { FollowService, NotificationService } from '../../services'
 import { ServiceFactory } from '../../services/factory/ServiceFactory'
 
@@ -26,26 +24,4 @@ export abstract class BaseWorker {
    *
    */
   abstract async process(event: ActivityEvent): Promise<void>
-
-  async followActivity(event: ActivityEvent): Promise<Follow> {
-    return this.followService.followFromActivity(event)
-  }
-
-  async unfollowActivity(event: ActivityEvent): Promise<void | DeleteResult> {
-    return this.followService.removeFollowsFromActivity(event)
-  }
-
-  async notifyFollowers(event: ActivityEvent): Promise<void> {
-    const followerUserIds = await this.followService.getFollowerIds(event)
-
-    for (const userId of followerUserIds) {
-      const shouldReceiveNotification  = await this.followService.shouldReceiveNotification(userId, event)
-      if (!shouldReceiveNotification) { break }
-
-      event.userId = userId
-
-      const notification = await this.notificationService.create(event, userId)
-      await this.notificationService.save(notification)
-    }
-  }
 }

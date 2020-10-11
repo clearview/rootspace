@@ -10,7 +10,6 @@ import { WsEvent } from '../events/websockets/WsEvent'
 import { ActivityAggregator } from './aggregator/ActivityAggregator'
 import { IAppActivity } from './activities/types'
 import { IActivityObserver } from '../contracts'
-import { IContentActivity, ContentActivity } from './activities/content'
 
 export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
@@ -37,6 +36,8 @@ export class ActivityService implements IActivityObserver {
   async activityNotification(appActivity: IAppActivity): Promise<void> {
     const data = appActivity.toObject()
     const activity = await this.getActivityRepository().save(data as any)
+
+    console.log(activity)
 
     data.activityId = activity.id
 

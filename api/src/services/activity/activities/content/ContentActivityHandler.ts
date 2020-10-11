@@ -48,21 +48,20 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
   }
 
   protected async unfollowActivity(): Promise<void> {
-    this.followService.removeFollowsFromActivity(this.activity)
+    this.followService.removeFollowsForActivity(this.activity)
   }
 
   protected async notifyFollowers(): Promise<void> {
-    const followerUserIds = await this.followService.getFollowerIds(this.activity)
+    const follows = await this.followService.getFollowsForActivity(this.activity)
 
-    for (const userId of followerUserIds) {
-      const shouldReceiveNotification = await this.followService.shouldReceiveNotification(userId, this.activity)
+    for (const follow of follows) {
+      const shouldReceiveNotification = await this.followService.shouldReceiveNotification(follow.userId, this.activity)
 
       if (!shouldReceiveNotification) {
         //continue
       }
 
-      const n = await this.notificationService.create(this.activity, userId)
-      console.log(n)
+      await this.notificationService.create(this.activity, follow.userId)
     }
   }
 }

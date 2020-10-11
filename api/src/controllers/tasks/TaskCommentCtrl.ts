@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from '../BaseCtrl'
 import { TaskCommentService } from '../../services/content/tasks'
+import { ServiceFactory } from '../../services/factory/ServiceFactory'
 
 export class TaskCommentCtrl extends BaseCtrl {
   private taskCommentService: TaskCommentService
 
   constructor() {
     super()
-    this.taskCommentService = TaskCommentService.getInstance()
+    this.taskCommentService = ServiceFactory.getInstance().getTaskCommentService()
   }
 
   async view(req: Request, res: Response, next: NextFunction) {

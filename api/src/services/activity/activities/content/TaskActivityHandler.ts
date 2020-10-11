@@ -55,19 +55,19 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
   }
 
   async emailFollowers(): Promise<void> {
-    const followerUserIds = await this.followService.getFollowerIds(this.activity)
+    const follows = await this.followService.getFollowsForActivity(this.activity)
 
-    for (const userId of followerUserIds) {
-      const shouldReceiveNotification = await this.followService.shouldReceiveNotification(userId, this.activity)
+    for (const follow of follows) {
+      const shouldReceiveNotification = await this.followService.shouldReceiveNotification(follow.userId, this.activity)
 
       if (!shouldReceiveNotification) {
         //continue
       }
 
-      const userSetting = await UserSettingService.getInstance().getSettings(userId, this.activity.spaceId)
+      const userSetting = await UserSettingService.getInstance().getSettings(follow.userId, this.activity.spaceId)
 
       if ((userSetting && userSetting.preferences.notifications?.email === true) || 1) {
-        const user = await this.userService.getUserById(userId)
+        const user = await this.userService.getUserById(follow.userId)
         await this.sendNotificationEmail(user, this.activity)
       }
     }
@@ -118,12 +118,6 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
         break
       case TaskActions.Comment_Created:
         action = 'commented on task'
-        break
-      case TaskActions.Comment_Updated:
-        action = 'updated a comment on task'
-        break
-      case TaskActions.Comment_Deleted:
-        action = 'deleted a comment from task'
         break
       case TaskActions.Tag_Added:
         action = 'added new tag to task'
