@@ -25,8 +25,8 @@ export class EntityService {
       .getOne()
   }
 
-  async requireEntityByNameAndId(name: string, id: number): Promise<any> {
-    const entity = await this.getEntityByNameAndId(name, id)
+  async requireEntityByNameAndId<T>(name: string, id: number): Promise<T> {
+    const entity = await this.getEntityByNameAndId<T>(name, id)
 
     if (!entity) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)

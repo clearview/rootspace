@@ -4,7 +4,6 @@ import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './types'
 import { ContentActions } from './actions'
 
-
 export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {
   private constructor(data: IContentActivityData) {
     super(data)
@@ -15,12 +14,12 @@ export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {
 
     switch (this.activity.action) {
       case ContentActions.Deleted:
-        await this.unfollowTasks()
+        await this.contentDeleted()
         break
     }
   }
 
-  async unfollowTasks(): Promise<void> {
-    return this.followService.removeFollowsForTaskBoardList(this.activity)
+  protected async contentDeleted(): Promise<void> {
+    return this.followService.removeFollowsForTaskBoardList(this.activity.entityId)
   }
 }

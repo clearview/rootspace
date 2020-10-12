@@ -33,25 +33,32 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
 
     switch (this.activity.action) {
       case ContentActions.Created:
-        await this.followActivity()
+        await this.contentCreated()
         break
       case ContentActions.Deleted:
-        await this.unfollowActivity()
+        await this.contentDeleted()
         break
       case TaskActions.Assignee_Added:
-        await this.processAssigneeAdded()
+        await this.assigneeAdded()
         break
       case TaskActions.Assignee_Removed:
-        await this.unfollowActivity()
+        await this.assigneeRemoved()
         break
     }
   }
 
-  protected async processAssigneeAdded() {
+  protected async assigneeAdded() {
     const context: any = this.activity.context
     const assigneeId = context.assignee.id
 
-    this.followActivity(assigneeId)
+    await this.followService.followEntity(assigneeId, this.activity.entity, this.activity.entityId)
+  }
+
+  protected async assigneeRemoved() {
+    const context: any = this.activity.context
+    const assigneeId = context.assignee.id
+
+    await this.followService.unfollowEntity(assigneeId, this.activity.entity, this.activity.entityId)
   }
 
   async emailFollowers(): Promise<void> {
@@ -74,10 +81,10 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
   }
 
   private async sendNotificationEmail(user: User, event: Activity): Promise<boolean> {
-    const task = await this.taskService.getById(event.entityId)
-    const taskUrl = `${config.domain}/taskboard/${task.boardId}/item/${task.id}/${task.slug}`
+    const task = await this.taskService.getById(this.activity.entityId)
 
-    const subject = await this.emailSubject(event, task)
+    const taskUrl = `${config.domain}/taskboard/${task.boardId}/item/${task.id}/${task.slug}`
+    const subject = await this.emailSubject(task)
     const content = pug.renderFile(this.mailTemplatesDir + 'modified.pug', { subject, taskUrl })
 
     await this.mailService.sendMail(user.email, subject, content)
@@ -85,13 +92,13 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     return true
   }
 
-  private async emailSubject(event: Activity, task: Task): Promise<string> {
-    const actorId = event.actorId
+  private async emailSubject(task: Task): Promise<string> {
+    const actorId = this.activity.actorId
     const actor = await this.userService.getUserById(actorId)
 
     let action = ''
 
-    switch (event.action) {
+    switch (this.activity.action) {
       case ContentActions.Created:
         action = 'created new task'
         break

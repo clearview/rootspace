@@ -37,8 +37,6 @@ export class ActivityService implements IActivityObserver {
     const data = appActivity.toObject()
     const activity = await this.getActivityRepository().save(data as any)
 
-    console.log(activity)
-
     data.activityId = activity.id
 
     await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)

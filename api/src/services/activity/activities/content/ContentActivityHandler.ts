@@ -1,4 +1,3 @@
-import { Follow } from '../../../../database/entities/Follow'
 import { Activity } from '../../../../database/entities/Activity'
 import { ServiceFactory } from '../../../factory/ServiceFactory'
 import { FollowService, NotificationService, EntityService } from '../../../'
@@ -13,7 +12,6 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   protected data: IContentActivityData
   protected activity: Activity
-  protected entity: T
 
   protected constructor(data: IContentActivityData) {
     this.followService = ServiceFactory.getInstance().getFollowService()
@@ -26,7 +24,6 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   protected async init() {
     this.activity = await this.activityService.getById(this.data.activityId)
-    this.entity = await this.entityService.getEntityByNameAndId<T>(this.data.entity, this.data.entityId)
   }
 
   abstract async process(): Promise<void>
@@ -43,12 +40,12 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
    *
    */
 
-  protected async followActivity(userId?: number): Promise<Follow> {
-    return this.followService.followFromRequest(userId ?? this.activity.actorId, this.entity)
+  protected async contentCreated(): Promise<void> {
+    await this.followService.followEntity(this.activity.actorId, this.activity.entity, this.activity.entityId)
   }
 
-  protected async unfollowActivity(): Promise<void> {
-    this.followService.removeFollowsForActivity(this.activity)
+  protected async contentDeleted(): Promise<void> {
+    await this.followService.removeFollowsForEntity(this.activity.entity, this.activity.entityId)
   }
 
   protected async notifyFollowers(): Promise<void> {

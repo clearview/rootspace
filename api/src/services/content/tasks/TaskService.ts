@@ -112,11 +112,9 @@ export class TaskService extends Service {
   }
 
   async remove(taskId: number) {
-    const actor = httpRequestContext.get('user')
-    const task = await this.getTaskRepository().findOneOrFail(taskId)
+    const task = await this.getTaskRepository().findOneOrFail(taskId, { withDeleted: true })
 
-    await this.notifyActivity(TaskActivity.deleted(task, actor.id))
-
+    await this.notifyActivity(TaskActivity.deleted(task))
     return this.getTaskRepository().remove(task)
   }
 

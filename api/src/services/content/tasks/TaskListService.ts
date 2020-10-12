@@ -124,7 +124,6 @@ export class TaskListService extends Service {
     const taskList = await this.getById(id)
 
     await this.notifyActivity(TaskListActivity.deleted(taskList))
-
     return this.getTaskListRepository().remove(taskList)
   }
 }

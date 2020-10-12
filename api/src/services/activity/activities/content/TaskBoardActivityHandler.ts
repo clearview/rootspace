@@ -14,12 +14,12 @@ export class TaskBoardActivityHandler extends ContentActivityHandler<TaskBoard> 
 
     switch (this.activity.action) {
       case ContentActions.Deleted:
-        await this.unfollowTasks()
+        await this.contentDeleted()
         break
     }
   }
 
-  async unfollowTasks(): Promise<void> {
-    await this.followService.removeFollowsForTaskBoard(this.activity)
+  protected async contentDeleted(): Promise<void> {
+    await this.followService.removeFollowsForTaskBoard(this.activity.entityId)
   }
 }

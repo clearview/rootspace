@@ -4,19 +4,22 @@ import { FollowRepository } from '../database/repositories/FollowRepository'
 import { Follow } from '../database/entities/Follow'
 import { User } from '../database/entities/User'
 import { Activity } from '../database/entities/Activity'
-import { NotificationService, UserService, TaskBoardService, TaskListService } from './index'
+import { NotificationService, UserService, EntityService, TaskBoardService, TaskListService } from './index'
 import { ServiceFactory } from './factory/ServiceFactory'
+import { TaskBoard } from '../database/entities/tasks/TaskBoard'
 
 export class FollowService {
   private static instance: FollowService
   private notificationService: NotificationService
   private userService: UserService
+  private entityService: EntityService
   private taskBoardService: TaskBoardService
   private taskListService: TaskListService
 
   private constructor() {
     this.notificationService = NotificationService.getInstance()
     this.userService = ServiceFactory.getInstance().getUserService()
+    this.entityService = ServiceFactory.getInstance().getEntityService()
     this.taskBoardService = ServiceFactory.getInstance().getTaskBoardService()
     this.taskListService = ServiceFactory.getInstance().getTaskListService()
   }
@@ -58,16 +61,30 @@ export class FollowService {
     return this.follow(user, entity)
   }
 
-  async unfollowFromRequest(userId: number, entity: any): Promise<DeleteResult> {
+  async unfollowFromRequest(userId: number, entity: any): Promise<Follow | void> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     return this.unfollow(user, entity)
   }
 
-  // requires item of typeorm Entity type
-  async follow(user: User, item: any): Promise<Follow> {
+  async followEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow | void> {
+    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
+
+    this.follow(user, entity)
+  }
+
+  async unfollowEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow | void> {
+    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
+
+    this.unfollow(user, entity)
+  }
+
+  async follow(user: User, entity: any): Promise<Follow> {
     const follow = await this.getFollowRepository().findOne({
       userId: user.id,
-      entityId: item.id,
+      entityId: entity.id,
+      entity: entity.constructor.name,
     })
 
     if (follow) {
@@ -75,49 +92,47 @@ export class FollowService {
     }
 
     const newFollow = new Follow()
+
     newFollow.user = user
-    newFollow.entityId = item.id
-    newFollow.tableName = getConnection().getMetadata(item.constructor.name).tableName
+    newFollow.entityId = entity.id
+    newFollow.entity = entity.constructor.name
+    newFollow.tableName = getConnection().getMetadata(entity.constructor.name).tableName
 
     await this.getFollowRepository().save(newFollow)
     return this.getFollowRepository().reload(newFollow)
   }
 
-  async unfollow(user: User, entity: any): Promise<DeleteResult> {
+  async unfollow(user: User, entity: any): Promise<Follow | void> {
     const follow = await this.getFollowRepository().findOne({
       userId: user.id,
       entityId: entity.id,
-      tableName: getConnection().getMetadata(entity.constructor.name).tableName,
+      entity: entity.constructor.name,
     })
 
-    if (follow) {
-      await this.notificationService.removeUserNotificationsForItem(
-        user.id,
-        entity.id,
-        getConnection().getMetadata(entity.constructor.name).tableName
-      )
-
-      return this.getFollowRepository().delete(follow.id)
+    if (!follow) {
+      return
     }
+
+    return this.getFollowRepository().remove(follow)
   }
 
-  async removeFollowsForActivity(activity: Activity): Promise<DeleteResult | void> {
-    const existingFollows = await this.getFollowRepository().find({
-      entityId: activity.entityId,
-      tableName: activity.tableName,
+  async removeFollowsForEntity(entity: string, entityId: number): Promise<DeleteResult | void> {
+    const follows = await this.getFollowRepository().find({
+      entityId,
+      entity,
     })
 
-    const followIds = existingFollows.map((follow) => follow.id)
+    const ids = follows.map((follow) => follow.id)
 
-    if (!followIds || followIds.length < 1) {
+    if (ids.length === 0) {
       return null
     }
 
-    return this.getFollowRepository().delete(followIds)
+    return this.getFollowRepository().delete(ids)
   }
 
-  async removeFollowsForTaskBoard(activity: Activity): Promise<DeleteResult | void> {
-    const tasks = await this.taskBoardService.getAllTasks(activity.entityId)
+  async removeFollowsForTaskBoard(taskBoardId: number): Promise<DeleteResult | void> {
+    const tasks = await this.taskBoardService.getAllTasks(taskBoardId)
     const taskIds = tasks.map((task) => task.id)
 
     if (!taskIds || taskIds.length < 1) {
@@ -127,8 +142,8 @@ export class FollowService {
     return this.removeFollowsForTasks(taskIds)
   }
 
-  async removeFollowsForTaskBoardList(activity: Activity): Promise<void> {
-    const tasks = await this.taskListService.getAllTasks(activity.entityId)
+  async removeFollowsForTaskBoardList(taskListId: number): Promise<void> {
+    const tasks = await this.taskListService.getAllTasks(taskListId)
     const taskIds = tasks.map((task) => task.id)
 
     if (!taskIds || taskIds.length < 1) {
@@ -139,9 +154,9 @@ export class FollowService {
   }
 
   async removeFollowsForTasks(taskIds: number[]): Promise<DeleteResult | void> {
-    const existingFollows = await this.getFollowRepository().getFollowsForTasks(taskIds)
+    const follows = await this.getFollowRepository().getFollowsForTasks(taskIds)
 
-    const followIds = existingFollows.map((follow) => follow.id)
+    const followIds = follows.map((follow) => follow.id)
 
     if (!followIds || followIds.length < 1) {
       return null

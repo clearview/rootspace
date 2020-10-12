@@ -63,7 +63,6 @@ export class TaskBoardService extends NodeContentService {
 
   async getAllTasks(id: number): Promise<Task[]> {
     const taskBoard = await this.getCompleteTaskBoard(id)
-
     const tasks: Task[] = []
 
     if (!taskBoard || taskBoard.taskLists.length < 1) {
