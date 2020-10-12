@@ -1,4 +1,4 @@
-import { getConnection, getCustomRepository, In } from 'typeorm'
+import { getConnection, getCustomRepository } from 'typeorm'
 import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
 import { FollowRepository } from '../database/repositories/FollowRepository'
 import { Follow } from '../database/entities/Follow'
@@ -6,7 +6,6 @@ import { User } from '../database/entities/User'
 import { Activity } from '../database/entities/Activity'
 import { NotificationService, UserService, EntityService, TaskBoardService, TaskListService } from './index'
 import { ServiceFactory } from './factory/ServiceFactory'
-import { TaskBoard } from '../database/entities/tasks/TaskBoard'
 
 export class FollowService {
   private static instance: FollowService
@@ -61,23 +60,23 @@ export class FollowService {
     return this.follow(user, entity)
   }
 
-  async unfollowFromRequest(userId: number, entity: any): Promise<Follow | void> {
+  async unfollowFromRequest(userId: number, entity: any): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     return this.unfollow(user, entity)
   }
 
-  async followEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow | void> {
+  async followEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
 
-    this.follow(user, entity)
+    return this.follow(user, entity)
   }
 
-  async unfollowEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow | void> {
+  async unfollowEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
 
-    this.unfollow(user, entity)
+    return this.unfollow(user, entity)
   }
 
   async follow(user: User, entity: any): Promise<Follow> {
@@ -102,7 +101,7 @@ export class FollowService {
     return this.getFollowRepository().reload(newFollow)
   }
 
-  async unfollow(user: User, entity: any): Promise<Follow | void> {
+  async unfollow(user: User, entity: any): Promise<Follow> {
     const follow = await this.getFollowRepository().findOne({
       userId: user.id,
       entityId: entity.id,

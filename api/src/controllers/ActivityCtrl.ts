@@ -30,7 +30,7 @@ export class ActivityCtrl extends BaseCtrl {
     const entityName = req.params.entity
     const entityId = Number(req.params.entityId)
 
-    const entity = await this.entityService.requireEntityByNameAndId(entityName, entityId)
+    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
     this.checkSpaceAccess(req, entity.spaceId)
 
     const result = await this.activityService.getByEntity(entityName, entityId)
