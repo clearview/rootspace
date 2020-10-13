@@ -336,6 +336,15 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       if (!this.hasNodePlaceholder()) {
         this.addNodePlaceholder()
       }
+
+      const unsubscribe = this.$store.subscribe(async (mutation, state) => {
+        if (mutation.type === 'tree/setList') {
+          if (!this.hasNodePlaceholder()) {
+            this.addNodePlaceholder()
+            unsubscribe()
+          }
+        }
+      })
     }
 
     this.titleFocus()
