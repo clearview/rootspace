@@ -67,26 +67,27 @@ export class TaskService extends Service {
   }
 
   async update(id: number, data: any): Promise<Task> {
-    const existingTask = await this.getById(id)
-    let task = await this.getById(id)
+    const task = await this.getById(id)
+    let updatedTask = await this.getById(id)
 
-    task = await this.getTaskRepository().save({
-      ...task,
+    updatedTask = await this.getTaskRepository().save({
+      ...updatedTask,
       ...data,
     })
 
-    await this.notifyActivity(TaskActivity.updated(existingTask, task))
+    updatedTask = await this.getTaskRepository().reload(updatedTask)
+    await this.notifyActivity(TaskActivity.updated(task, updatedTask))
 
-    if (existingTask.listId !== task.listId) {
-      const oldList = await this.getTaskListRepository().findOne(existingTask.listId)
-      const newList = await this.getTaskListRepository().findOne(task.listId)
+    if (task.listId !== updatedTask.listId) {
+      const oldList = await this.getTaskListRepository().findOne(task.listId)
+      const newList = await this.getTaskListRepository().findOne(updatedTask.listId)
 
-      this.notifyActivity(TaskActivity.listMoved(task, oldList, newList))
+      this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList))
     }
 
-    await this.assigneesUpdate(task, data)
+    await this.assigneesUpdate(updatedTask, data)
 
-    return this.getTaskRepository().getById(task.id)
+    return this.getTaskRepository().getById(updatedTask.id)
   }
 
   async archive(taskId: number): Promise<Task | undefined> {

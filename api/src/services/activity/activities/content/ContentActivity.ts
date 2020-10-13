@@ -103,10 +103,23 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
         continue
       }
 
-      if (entity1.hasOwnProperty(key) && entity2.hasOwnProperty(key)) {
-        if (entity1[key] !== entity2[key]) {
+      if (!entity1.hasOwnProperty(key) || !entity2.hasOwnProperty(key)) {
+        continue
+      }
+
+      if (entity1[key].constructor.name === 'Date') {
+        const date1: Date = entity1[key] as any
+        const date2: Date = entity2[key] as any
+
+        if (date1.getTime() !== date2.getTime()) {
           attributes.push(key)
         }
+
+        continue
+      }
+
+      if (entity1[key] !== entity2[key]) {
+        attributes.push(key)
       }
     }
 
