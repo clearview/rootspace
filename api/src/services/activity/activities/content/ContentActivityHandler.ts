@@ -12,8 +12,9 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   protected data: IContentActivityData
   protected activity: Activity
+  protected entity: T
 
-  protected constructor(data: IContentActivityData) {
+  constructor(data: IContentActivityData) {
     this.followService = ServiceFactory.getInstance().getFollowService()
     this.notificationService = NotificationService.getInstance()
     this.entityService = ServiceFactory.getInstance().getEntityService()
@@ -24,13 +25,14 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   protected async init() {
     this.activity = await this.activityService.getById(this.data.activityId)
+    this.entity = await this.entityService.getEntityByNameAndId<T>(this.activity.entity, this.activity.entityId)
   }
 
   abstract async process(): Promise<void>
 
   /**
    * Note: All processes dependant on `followService.shouldReceiveNotification` for 'back-off' mechanism
-   * should be called before creation actual notification using `this.notifyFollowers()` method
+   * should be called before creation actual notification using `this.createNotifications()` method
    *
    * Example:
    *   async process(event: ActivityEvent): Promise<void> {
@@ -41,14 +43,10 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
    */
 
   protected async contentCreated(): Promise<void> {
-    await this.followService.followEntity(this.activity.actorId, this.activity.entity, this.activity.entityId)
+    await this.followService.followEntity(this.activity.actorId, this.entity)
   }
 
-  protected async contentDeleted(): Promise<void> {
-    await this.followService.removeFollowsForEntity(this.activity.entity, this.activity.entityId)
-  }
-
-  protected async notifyFollowers(): Promise<void> {
+  protected async createNotifications(): Promise<void> {
     const follows = await this.followService.getFollowsForActivity(this.activity)
 
     for (const follow of follows) {

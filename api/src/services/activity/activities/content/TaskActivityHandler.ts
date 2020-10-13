@@ -3,40 +3,34 @@ import 'dotenv/config'
 import { config } from 'node-config-ts'
 import { User } from '../../../../database/entities/User'
 import { Task } from '../../../../database/entities/tasks/Task'
-import { Activity } from '../../../../database/entities/Activity'
 import { ServiceFactory } from '../../../../services/factory/ServiceFactory'
-import { MailService, TaskService, UserService, UserSettingService } from '../../../'
+import { MailService, UserService, UserSettingService } from '../../../'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './types'
 import { ContentActions, TaskActions } from './actions'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {
-  private mailTemplatesDir = `${process.cwd()}/src/templates/mail/content/`
+  private mailTemplatesDir = `${process.cwd()}/src/templates/mail/notification/`
 
   private mailService: MailService
   private userService: UserService
-  private taskService: TaskService
 
   private constructor(data: IContentActivityData) {
     super(data)
 
     this.mailService = ServiceFactory.getInstance().getMailService()
     this.userService = ServiceFactory.getInstance().getUserService()
-    this.taskService = TaskService.getInstance()
   }
 
   async process(): Promise<void> {
     await this.init()
 
-    await this.emailFollowers()
-    await this.notifyFollowers()
+    await this.sendEmailNotifications()
+    await this.createNotifications()
 
     switch (this.activity.action) {
       case ContentActions.Created:
         await this.contentCreated()
-        break
-      case ContentActions.Deleted:
-        await this.contentDeleted()
         break
       case TaskActions.Assignee_Added:
         await this.assigneeAdded()
@@ -47,21 +41,21 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     }
   }
 
-  protected async assigneeAdded() {
+  private async assigneeAdded() {
     const context: any = this.activity.context
     const assigneeId = context.assignee.id
 
-    await this.followService.followEntity(assigneeId, this.activity.entity, this.activity.entityId)
+    await this.followService.followEntity(assigneeId, this.entity)
   }
 
-  protected async assigneeRemoved() {
+  private async assigneeRemoved() {
     const context: any = this.activity.context
     const assigneeId = context.assignee.id
 
-    await this.followService.unfollowEntity(assigneeId, this.activity.entity, this.activity.entityId)
+    await this.followService.unfollowEntity(assigneeId, this.entity)
   }
 
-  async emailFollowers(): Promise<void> {
+  async sendEmailNotifications(): Promise<void> {
     const follows = await this.followService.getFollowsForActivity(this.activity)
 
     for (const follow of follows) {
@@ -75,65 +69,46 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
 
       if ((userSetting && userSetting.preferences.notifications?.email === true) || 1) {
         const user = await this.userService.getUserById(follow.userId)
-        await this.sendNotificationEmail(user, this.activity)
+        const message = this.getNotificationMessage()
+
+        await this.sendNotificationEmail(user, message)
       }
     }
   }
 
-  private async sendNotificationEmail(user: User, event: Activity): Promise<boolean> {
-    const task = await this.taskService.getById(this.activity.entityId)
+  private async sendNotificationEmail(user: User, message: string): Promise<void> {
+    const taskUrl = `${config.domain}/taskboard/${this.entity.boardId}/item/${this.entity.id}/${this.entity.slug}`
+    const content = pug.renderFile(this.mailTemplatesDir + 'task.pug', { message, taskUrl })
 
-    const taskUrl = `${config.domain}/taskboard/${task.boardId}/item/${task.id}/${task.slug}`
-    const subject = await this.emailSubject(task)
-    const content = pug.renderFile(this.mailTemplatesDir + 'modified.pug', { subject, taskUrl })
-
-    await this.mailService.sendMail(user.email, subject, content)
-
-    return true
+    await this.mailService.sendMail(user.email, message, content)
   }
 
-  private async emailSubject(task: Task): Promise<string> {
-    const actorId = this.activity.actorId
-    const actor = await this.userService.getUserById(actorId)
+  private getNotificationMessage(): string {
+    const actor = this.activity.actor
+    const context = this.activity.context as any
+    const title = context.entity.title
 
-    let action = ''
-
-    switch (this.activity.action) {
-      case ContentActions.Created:
-        action = 'created new task'
-        break
-      case ContentActions.Updated:
-        action = 'updated task'
-        break
-      case ContentActions.Archived:
-        action = 'archived task'
-        break
-      case ContentActions.Restored:
-        action = 'restored task'
-        break
-      case ContentActions.Deleted:
-        action = 'deleted task'
-        break
-      case TaskActions.List_Moved:
-        action = 'moved taks'
-        break
-      case TaskActions.Assignee_Added:
-        action = 'added assignee to task'
-        break
-      case TaskActions.Assignee_Removed:
-        action = 'removed assignee from task'
-        break
-      case TaskActions.Comment_Created:
-        action = 'commented on task'
-        break
-      case TaskActions.Tag_Added:
-        action = 'added new tag to task'
-        break
-      case TaskActions.Tag_Removed:
-        action = 'removed tag from task'
-        break
+    const messages = {
+      [ContentActions.Created]: `${actor.fullName()} created task ${title}}`,
+      [ContentActions.Updated]: `${actor.fullName()} updated task ${title}`,
+      [ContentActions.Archived]: `${actor.fullName()} archived task ${title}`,
+      [ContentActions.Restored]: `${actor.fullName()} restored task ${title}`,
+      [ContentActions.Deleted]: `${actor.fullName()} deleted task ${title}`,
+      [TaskActions.List_Moved]: `${actor.fullName()} moved task ${title} from '${context.fromList?.title}' to '${
+        context.toList?.title
+      }'`,
+      [TaskActions.Comment_Created]: `${actor.fullName()} commented task ${title}`,
+      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullNam ?? ''} to task ${title}`,
+      [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
+        ''} from task ${title}`,
+      [TaskActions.Tag_Added]: `${actor.fullName()} added tag ${context.tag?.label} to task ${title}`,
+      [TaskActions.Tag_Removed]: `${actor.fullName()} removed tag ${context.tag?.label} from task ${title}`,
     }
 
-    return `Root, ${actor.fullName()} ${action} ${task.title}`
+    if (messages.hasOwnProperty(this.activity.action)) {
+      return messages[this.activity.action]
+    }
+
+    return `${actor.fullName()} updated task ${title}`
   }
 }

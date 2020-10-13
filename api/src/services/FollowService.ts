@@ -65,17 +65,13 @@ export class FollowService {
     return this.unfollow(user, entity)
   }
 
-  async followEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow> {
+  async followEntity(userId: number, entity: any): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
-    const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
-
     return this.follow(user, entity)
   }
 
-  async unfollowEntity<T>(userId: number, entityName: string, entityId: number): Promise<Follow> {
+  async unfollowEntity(userId: number, entity: any): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
-    const entity = await this.entityService.requireEntityByNameAndId<T>(entityName, entityId)
-
     return this.unfollow(user, entity)
   }
 
@@ -113,54 +109,5 @@ export class FollowService {
     }
 
     return this.getFollowRepository().remove(follow)
-  }
-
-  async removeFollowsForEntity(entity: string, entityId: number): Promise<DeleteResult | void> {
-    const follows = await this.getFollowRepository().find({
-      entityId,
-      entity,
-    })
-
-    const ids = follows.map((follow) => follow.id)
-
-    if (ids.length === 0) {
-      return null
-    }
-
-    return this.getFollowRepository().delete(ids)
-  }
-
-  async removeFollowsForTaskBoard(taskBoardId: number): Promise<DeleteResult | void> {
-    const tasks = await this.taskBoardService.getAllTasks(taskBoardId)
-    const taskIds = tasks.map((task) => task.id)
-
-    if (!taskIds || taskIds.length < 1) {
-      return null
-    }
-
-    return this.removeFollowsForTasks(taskIds)
-  }
-
-  async removeFollowsForTaskBoardList(taskListId: number): Promise<void> {
-    const tasks = await this.taskListService.getAllTasks(taskListId)
-    const taskIds = tasks.map((task) => task.id)
-
-    if (!taskIds || taskIds.length < 1) {
-      return null
-    }
-
-    await this.removeFollowsForTasks(taskIds)
-  }
-
-  async removeFollowsForTasks(taskIds: number[]): Promise<DeleteResult | void> {
-    const follows = await this.getFollowRepository().getFollowsForTasks(taskIds)
-
-    const followIds = follows.map((follow) => follow.id)
-
-    if (!followIds || followIds.length < 1) {
-      return null
-    }
-
-    return this.getFollowRepository().delete(followIds)
   }
 }

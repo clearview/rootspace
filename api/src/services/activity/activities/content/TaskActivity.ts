@@ -106,6 +106,7 @@ export class TaskActivity extends ContentActivity<Task> {
         email: assignee.email,
         firstName: assignee.firstName,
         lastName: assignee.lastName,
+        fullName: assignee.firstName + ' ' + assignee.lastName,
       },
     }
 
