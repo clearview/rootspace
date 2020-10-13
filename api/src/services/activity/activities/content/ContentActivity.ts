@@ -10,6 +10,7 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
 
   protected _filterEntityAttributes = []
   protected _notifyUpdatedAttributes = []
+  protected _
 
   protected _handler: any
 
@@ -98,31 +99,62 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
   protected notifyUpdatedAttributes(entity1: T, entity2: T): string[] {
     const attributes = []
 
-    for (const key in entity1) {
-      if (!this._notifyUpdatedAttributes.includes(key)) {
+    for (const attribute in entity1) {
+      if (!this._notifyUpdatedAttributes.includes(attribute)) {
         continue
       }
 
-      if (!entity1.hasOwnProperty(key) || !entity2.hasOwnProperty(key)) {
+      if (!entity1.hasOwnProperty(attribute) || !entity2.hasOwnProperty(attribute)) {
         continue
       }
 
-      if (entity1[key].constructor.name === 'Date') {
-        const date1: Date = entity1[key] as any
-        const date2: Date = entity2[key] as any
+      const value1 = entity1[attribute]
+      const value2 = entity2[attribute]
 
-        if (date1.getTime() !== date2.getTime()) {
-          attributes.push(key)
+      if (this.isDateValue(value1) || this.isDateValue(value2)) {
+        if (this.compareDates(value1, value2) === false) {
+          attributes.push(attribute)
         }
 
         continue
       }
 
-      if (entity1[key] !== entity2[key]) {
-        attributes.push(key)
+      if (value1 !== value2) {
+        attributes.push(attribute)
       }
     }
 
     return attributes
+  }
+
+  protected isDateValue(value: any): boolean {
+    if (value === null) {
+      return false
+    }
+
+    if (value.constructor.name !== 'Date') {
+      return false
+    }
+
+    return true
+  }
+
+  protected compareDates(value1: any, value2: any): boolean {
+    if (value1 === null && value2 === null) {
+      return true
+    }
+
+    if (value1 === null || value2 === null) {
+      return false
+    }
+
+    const date1: Date = value1 as any
+    const date2: Date = value2 as any
+
+    if (date1.getTime() !== date2.getTime()) {
+      return false
+    }
+
+    return true
   }
 }

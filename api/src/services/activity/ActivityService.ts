@@ -63,8 +63,8 @@ export class ActivityService implements IActivityObserver {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
-  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
-    return this.getActivityRepository().getBySpaceId(spaceId, type, action)
+  async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
+    return this.getActivityRepository().getBySpaceId(spaceId, filter)
   }
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
