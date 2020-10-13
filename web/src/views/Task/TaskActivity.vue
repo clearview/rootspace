@@ -4,83 +4,87 @@
       <avatar :src="activity.actor.avatar && activity.actor.avatar.versions ? activity.actor.avatar.versions.default.location : ''" :username="`${activity.actor.firstName} ${activity.actor.lastName}`" :size="32"></avatar>
     </div>
     <div class="content">
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.Created">
+      <div class="title">
         <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> created this task</span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.Updated">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action" v-if="activity.context.updatedAttributes.length === 0">Updated this task</span>
-        <span class="action" v-for="(attribute) in activity.context.updatedAttributes" :key="attribute">
-          <span v-if="attribute === 'title'">updated the task title to <strong>{{activity.context.updatedEntity.title || ""}}</strong></span>&nbsp;
-          <span v-if="attribute === 'description'">updated description</span>&nbsp;
-          <span v-else-if="attribute === 'dueDate'">
-            <span v-if="activity.context.updatedEntity.dueDate !== null">updated the task due date to <strong>{{activity.context.updatedEntity.dueDate | formatDueDate}}</strong></span>&nbsp;
-            <span v-else>removed the task due date </span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.Created"> created this task</span>
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.Archived"> archived this task</span>
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.Restored"> restored this task</span>
+
+        <template v-if="activity.action === ACTIVITY_TYPE.Updated">
+          <span class="action" v-if="activity.context.updatedAttributes.length === 0"> updated this task</span>
+          <template v-if="activity.context.updatedAttributes.length === 1" >
+            <span class="action" v-for="(attribute) in activity.context.updatedAttributes" :key="attribute">
+              <span v-if="attribute === 'title'">updated the task title to <strong>{{activity.context.updatedEntity.title}}</strong></span>
+              <span v-else-if="attribute === 'description'">updated description</span>
+              <span v-else-if="attribute === 'dueDate'">
+                <span v-if="activity.context.updatedEntity.dueDate !== null">updated the task due date to <strong>{{activity.context.updatedEntity.dueDate | formatDueDate}}</strong></span>
+                <span v-else>removed the task due date </span>
+              </span>
+            </span>
+          </template>
+          <template v-if="activity.context.updatedAttributes.length > 1" >
+            <ul class="action" v-for="(attribute) in activity.context.updatedAttributes" :key="attribute">
+              <li v-if="attribute === 'title'">Updated the task title to <strong>{{activity.context.updatedEntity.title}}</strong></li>
+              <li v-else-if="attribute === 'description'">Updated description</li>
+              <li v-else-if="attribute === 'dueDate'">
+                <span v-if="activity.context.updatedEntity.dueDate !== null">Updated the task due date to <strong>{{activity.context.updatedEntity.dueDate | formatDueDate}}</strong></span>
+                <span v-else>removed the task due date </span>
+              </li>
+            </ul>
+          </template>
+        </template>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.ListMoved"> moved this task from <strong>{{activity.context.fromList.title}}</strong> to <strong>{{activity.context.toList.title}}</strong></span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.CommentCreated"> commented on this task</span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.AssigneeAdded">
+          <span>assigned</span>&nbsp;
+          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
+            <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
           </span>
+          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
+          <span class="subject"> to this task</span>
+        </span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.AssigneeRemoved">
+          <span>removed</span>&nbsp;
+          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
+            <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
+          </span>
+          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
+          <span class="subject"> from this task</span>
+        </span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.TagAdded">
+          <span>tagged this task with</span>&nbsp;
+          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
+            <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
+          </span>
+          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
+        </span>
+
+        <span class="action"  v-if="activity.action === ACTIVITY_TYPE.TagRemoved">
+          <span>removed tag</span>&nbsp;
+          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
+            <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
+          </span>
+          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
+          <span class="subject"> from this task</span>
+        </span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.AttachmentAdded">
+          <span v-if="activity.context && activity.context.length === 1">added an attachment to this task</span>
+          <span v-else>added {{activity.context.length}} attachments to this task</span>
+        </span>
+
+        <span class="action" v-if="activity.action === ACTIVITY_TYPE.AttachmentRemoved">
+          <span v-if="activity.context && activity.context.length === 1">removed an attachment from this task</span>
+          <span v-else>removed {{activity.context.length}} attachments from this task</span>
         </span>
       </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.Archived">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> archived this task</span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.Restored">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> restored this task</span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.ListMoved">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> moved this task from <strong>{{activity.context.fromList.title}}</strong> to <strong>{{activity.context.toList.title}}</strong></span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.CommentCreated">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> commented on this task</span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.AssigneeAdded">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action">assigned </span>&nbsp;
-        <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
-          <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-        </span>
-        <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
-        <span class="subject"> to this task</span>
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.AssigneeRemoved">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action">removed </span>&nbsp;
-        <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
-          <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-        </span>
-        <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
-        <span class="subject"> from this task</span>
-      </div>
-       <div class="title" v-if="activity.action === ACTIVITY_TYPE.TagAdded">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action">tagged this task with </span>&nbsp;
-        <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
-          <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-        </span>
-        <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.TagRemoved">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action"> removed tag </span>&nbsp;
-        <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
-          <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-        </span>
-        <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
-        <span class="subject"> from this task</span>
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.AttachmentAdded">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action" v-if="activity.context && activity.context.length === 1">added an attachment to this task</span>&nbsp;
-        <span class="action" v-else>added {{activity.context.length}} attachments to this task</span>&nbsp;
-      </div>
-      <div class="title" v-if="activity.action === ACTIVITY_TYPE.AttachmentRemoved">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
-        <span class="action" v-if="activity.context && activity.context.length === 1">removed an attachment from this task</span>&nbsp;
-        <span class="action" v-else>removed {{activity.context.length}} attachments from this task</span>&nbsp;
-      </div>
+
       <div class="time">
         <time :datetime="activity.createdAt" :title="activity.createdAt">
           {{activity.createdAt | formatDate}}
