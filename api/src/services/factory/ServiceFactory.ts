@@ -19,7 +19,6 @@ import {
   EntityService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
-import { TaskComment } from '../../database/entities/tasks/TaskComment'
 import { TaskCommentService } from '../content/tasks'
 
 export class ServiceFactory {
@@ -135,7 +134,10 @@ export class ServiceFactory {
   }
 
   getUploadService() {
-    return UploadService.getInstance()
+    const service = UploadService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getFavoriteService() {

@@ -1,9 +1,7 @@
-import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import { nanoid } from 'nanoid'
 import path from 'path'
 import fs from 'fs'
-import Bull from 'bull'
 import sharp from 'sharp'
 import isImage from 'is-image'
 import AmazonS3URI from 'amazon-s3-uri'
@@ -12,22 +10,23 @@ import { AWSError } from 'aws-sdk/lib/error'
 import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../'
+import { Task } from '../../database/entities/tasks/Task'
+import { EntityService } from '../index'
 import { ServiceFactory } from '../factory/ServiceFactory'
+import { Service } from '../Service'
 import { UploadValue } from '../../values/upload'
 import { IUploadImageConfig, IUploadImageSize, IUploadVersions, UploadType } from '../../types/upload'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { TaskActivities } from '../../database/entities/activities/TaskActivities'
-import { FileActivities } from '../../database/entities/activities/FileActivities'
+import { TaskActivity } from '../activity/activities/content'
 
-export class UploadService {
+export class UploadService extends Service {
+  private entityService: EntityService
   private s3: S3
-  private activityService: ActivityService
 
   private constructor() {
-    this.activityService = ServiceFactory.getInstance().getActivityService()
+    super()
+    this.entityService = ServiceFactory.getInstance().getEntityService()
 
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
@@ -43,42 +42,6 @@ export class UploadService {
     }
 
     return UploadService.instance
-  }
-
-  async registerActivityForUpload(fileActivity: FileActivities, upload: Upload, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-    const activity = UploadService.getActivityAction(fileActivity, upload)
-
-    if (!activity) {
-      return Promise.reject('Unknown activity')
-    }
-
-    const entity = await this.getEntityFromUpload(upload)
-
-    if (!entity) {
-      return Promise.reject('Unknown entity')
-    }
-
-    return this.activityService.add(
-      ActivityEvent.withAction(activity)
-        .fromActor(actor.id)
-        .forEntity(entity)
-        .inSpace(entity.spaceId)
-        .withContext({
-          versions: upload.versions,
-        })
-    )
-  }
-
-  private static getActivityAction(fileActivity: FileActivities, upload: Upload): string | undefined {
-    switch (upload.type) {
-      case UploadType.TaskAttachment:
-        return fileActivity === FileActivities.Uploaded
-          ? TaskActivities.Attachment_Added
-          : TaskActivities.Attachment_Removed
-    }
-
-    return null
   }
 
   getUploadRepository(): UploadRepository {
@@ -109,6 +72,7 @@ export class UploadService {
 
   async upload(data: UploadValue) {
     let upload = await this.obtainUploadEntity(data)
+
     Object.assign(upload, data.attributes)
 
     if (!(await this.getEntityFromUpload(upload))) {
@@ -135,7 +99,8 @@ export class UploadService {
 
     // TO DO: implement other upload types activities
     if (upload.type === UploadType.TaskAttachment) {
-      await this.registerActivityForUpload(FileActivities.Uploaded, upload)
+      const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
+      await this.notifyActivity(TaskActivity.attachmentAdded(task, upload))
     }
 
     return upload
@@ -240,14 +205,15 @@ export class UploadService {
     const upload = await this.requireUploadById(id)
     await this.removeUploadFiles(upload)
 
-    const removed = await this.getUploadRepository().remove(upload)
-
     // TO DO: implement other upload types activities
     if (upload.type === UploadType.TaskAttachment) {
-      await this.registerActivityForUpload(FileActivities.Deleted, upload)
+      if (upload.type === UploadType.TaskAttachment) {
+        const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
+        await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload))
+      }
     }
 
-    return removed
+    return this.getUploadRepository().remove(upload)
   }
 
   async removeUploadFiles(upload: Upload): Promise<void> {

@@ -2,6 +2,7 @@ import { TaskList } from '../../../../database/entities/tasks/TaskList'
 import { Task } from '../../../../database/entities/tasks/Task'
 import { Tag } from '../../../../database/entities/tasks/Tag'
 import { TaskComment } from '../../../../database/entities/tasks/TaskComment'
+import { Upload } from '../../../../database/entities/Upload'
 import { User } from '../../../../database/entities/User'
 import { ContentActivity, IContentActivity } from '.'
 import { ContentActions, TaskActions } from './actions'
@@ -60,6 +61,19 @@ export class TaskActivity extends ContentActivity<Task> {
     return activity
   }
 
+  static CommentCreated(entity: Task, comment: TaskComment, actorId?: number): IContentActivity {
+    const activity = new TaskActivity(TaskActions.Comment_Created, entity, actorId)
+
+    activity._context = {
+      entity: activity.filterEntityAttributes(activity._entity),
+      comment: {
+        id: comment.id,
+      },
+    }
+
+    return activity
+  }
+
   static AssigneeAdded(entity: Task, assignee: User, actorId?: number): IContentActivity {
     return new TaskActivity(TaskActions.Assignee_Added, entity, actorId).createAssigneeContext(assignee)
   }
@@ -76,17 +90,12 @@ export class TaskActivity extends ContentActivity<Task> {
     return new TaskActivity(TaskActions.Tag_Removed, entity, actorId).createTagContext(tag)
   }
 
-  static CommentCreated(entity: Task, comment: TaskComment, actorId?: number): IContentActivity {
-    const activity = new TaskActivity(TaskActions.Comment_Created, entity, actorId)
+  static attachmentAdded(entity: Task, upload: Upload, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Attachment_Added, entity, actorId)
+  }
 
-    activity._context = {
-      entity: activity.filterEntityAttributes(activity._entity),
-      comment: {
-        id: comment.id,
-      },
-    }
-    
-    return activity
+  static attachmentRemoved(entity: Task, upload: Upload, actorId?: number): IContentActivity {
+    return new TaskActivity(TaskActions.Attachment_Removed, entity, actorId)
   }
 
   private createAssigneeContext(assignee: User): IContentActivity {
