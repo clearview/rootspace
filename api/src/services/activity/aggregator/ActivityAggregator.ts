@@ -40,7 +40,7 @@ export class ActivityAggregator implements IActivityAggregator {
   private processJoint(joint: Activity[]): Activity[] {
     const jointAggregator = this.getAggregator(joint[0])
 
-    if (joint.length === 1 || jointAggregator === null) {
+    if (jointAggregator === null) {
       return joint
     }
 

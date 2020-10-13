@@ -10,7 +10,6 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
 
   protected _filterEntityAttributes = []
   protected _notifyUpdatedAttributes = []
-  protected _
 
   protected _handler: any
 
