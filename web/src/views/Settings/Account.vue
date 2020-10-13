@@ -63,7 +63,7 @@ export default class Account extends Vue {
       const userUpdate = await UserService.update(setting)
 
       const { authProvider } = this.$store.state.auth.user
-      let message = 'Your settings '
+      let message = 'Your account settings '
 
       if (
         (password.password !== '' && password.newPassword !== '') ||

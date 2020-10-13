@@ -106,8 +106,13 @@ export default class Space extends Vue {
         title: data.title,
         invites: data.invites
       })
+
+      this.space.alert = {
+        type: 'success',
+        message: 'Your space settings have been saved'
+      }
     } catch (err) {
-      this.account.alert = {
+      this.space.alert = {
         type: 'danger',
         message: err.message,
         fields: err.fields

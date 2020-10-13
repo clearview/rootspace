@@ -18,6 +18,12 @@
         >
           Field is required.
         </div>
+        <div
+          v-if="!$v.payload.title.maxlength"
+          class="feedback is-danger"
+        >
+          Space name is too long (maximum is 100 characters)
+        </div>
       </template>
     </v-field>
 
@@ -58,6 +64,13 @@
           v-text="duplicateMessage"
           class="feedback is-success"
         />
+
+        <div
+          v-if="!$v.invitation.email.maxlength"
+          class="feedback is-danger"
+        >
+          Email is too long (maximum is 100 characters)
+        </div>
       </template>
     </v-field>
 
@@ -111,7 +124,7 @@
 
 <script lang="ts">
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
-import { email, required } from 'vuelidate/lib/validators'
+import { email, required, maxLength } from 'vuelidate/lib/validators'
 
 import { find } from 'lodash'
 
@@ -129,12 +142,14 @@ import Avatar from 'vue-avatar'
   validations: {
     payload: {
       title: {
-        required
+        required,
+        maxLength: maxLength(100)
       }
     },
     invitation: {
       required,
-      email
+      email,
+      maxLength: maxLength(100)
     }
   }
 })

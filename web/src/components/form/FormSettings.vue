@@ -28,6 +28,12 @@
         >
           First Name is required.
         </p>
+        <p
+          v-if="!$v.payload.firstName.maxlength"
+          class="feedback is-danger"
+        >
+          First name is too long (maximum is 100 characters)
+        </p>
       </template>
     </v-field>
 
@@ -58,6 +64,13 @@
           class="feedback is-danger"
         >
           Last Name is required.
+        </p>
+
+        <p
+          v-if="!$v.payload.lastName.maxlength"
+          class="feedback is-danger"
+        >
+          Last name is too long (maximum is 100 characters)
         </p>
       </template>
     </v-field>
@@ -95,6 +108,12 @@
           v-if="$v.payload.email.$error && !$v.payload.email.email"
         >
           Email format is not valid.
+        </div>
+        <div
+          v-if="!$v.payload.email.maxlength"
+          class="feedback is-danger"
+        >
+          Email is too long (maximum is 100 characters)
         </div>
       </template>
     </v-field>
@@ -212,7 +231,7 @@
 </template>
 
 <script lang="ts">
-import { email, minLength, required, sameAs } from 'vuelidate/lib/validators'
+import { email, minLength, required, sameAs, maxLength } from 'vuelidate/lib/validators'
 
 import { PasswordResource } from '@/types/resource'
 
@@ -226,23 +245,26 @@ import { Component, Vue } from 'vue-property-decorator'
   },
   validations: {
     payload: {
-      firstName: { required },
-      lastName: { required },
-      email: { required, email }
+      firstName: { required, maxLength: maxLength(100) },
+      lastName: { required, maxLength: maxLength(100) },
+      email: { required, email, maxLength: maxLength(100) }
     },
     password: {
       password: {
         required,
-        minLength: minLength(8)
+        minLength: minLength(8),
+        maxLength: maxLength(100)
       },
       newPassword: {
         required,
-        minLength: minLength(8)
+        minLength: minLength(8),
+        maxLength: maxLength(100)
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       newPassword_confirmation: {
         required,
         minLength: minLength(8),
+        maxLength: maxLength(100),
         sameAsPassword: sameAs('newPassword')
       }
     }
