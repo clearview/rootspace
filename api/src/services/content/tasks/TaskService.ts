@@ -95,7 +95,7 @@ export class TaskService extends Service {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.notifyActivity(TaskActivity.deleted(task, actor.id))
+      await this.notifyActivity(TaskActivity.archived(task, actor.id))
       return this.getTaskRepository().softRemove(task)
     }
 

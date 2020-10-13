@@ -1,8 +1,8 @@
-import { TaskBoard } from '../../../../database/entities/tasks/TaskBoard'
+import { Doc } from '../../../../database/entities/Doc'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './types'
 
-export class TaskBoardActivityHandler extends ContentActivityHandler<TaskBoard> {
+export class DocActivityHandler extends ContentActivityHandler<Doc> {
   constructor(data: IContentActivityData) {
     super(data)
   }

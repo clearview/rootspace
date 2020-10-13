@@ -25,7 +25,7 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   protected async init() {
     this.activity = await this.activityService.getById(this.data.activityId)
-    this.entity = await this.entityService.getEntityByNameAndId<T>(this.activity.entity, this.activity.entityId)
+    this.entity = await this.entityService.getEntityByNameAndId<T>(this.activity.entity, this.activity.entityId, {withDeleted: true})
   }
 
   abstract async process(): Promise<void>

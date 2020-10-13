@@ -11,6 +11,7 @@ import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
 import { DocUpdateSetup } from './DocUpdateSetup'
+import { DocActivity } from '../../activity/activities/content/index'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -90,42 +91,45 @@ export class DocService extends NodeContentService {
       title: doc.title,
       type: NodeType.Document,
     })
+
     if (data.attributes.parentId) {
       value = value.withParent(data.attributes.parentId).withPosition(0)
     }
+
     const node = await this.nodeService.create(value)
 
     doc = await this.getDocRepository().reload(doc)
+    await this.notifyActivity(DocActivity.created(doc))
+
     return { ...doc, ...node }
   }
 
   async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
-    let doc = await this.getById(id)
+    const doc = await this.getById(id)
+    let updatedDoc = await this.getById(id)
 
-    const setup = new DocUpdateSetup(data, doc, userId)
-
-    const fields = { old: {}, new: {} }
-
-    for (const key of setup.updatedAttributes) {
-      fields.old[key] = doc[key]
-      fields.new[key] = data.attributes[key]
-    }
+    const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.contentUpdated === true) {
-      doc.contentUpdatedAt = new Date(Date.now())
+      updatedDoc.contentUpdatedAt = new Date(Date.now())
     }
 
     if (setup.createRevision === true) {
-      await this.createRevision(doc)
-      doc.revision = doc.revision + 1
+      await this.createRevision(updatedDoc)
+      updatedDoc.revision = updatedDoc.revision + 1
     }
 
-    Object.assign(doc, data.attributes)
-    doc.updatedBy = userId
+    Object.assign(updatedDoc, data.attributes)
+    updatedDoc.updatedBy = userId
 
-    doc = await this.getDocRepository().save(doc)
+    updatedDoc = await this.getDocRepository().save(updatedDoc)
+    updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
-    return this.getDocRepository().reload(doc)
+    if (setup.registerActivity) {
+      await this.notifyActivity(DocActivity.updated(doc, updatedDoc))
+    }
+
+    return updatedDoc
   }
 
   private async createRevision(doc: Doc): Promise<void> {
@@ -144,23 +148,27 @@ export class DocService extends NodeContentService {
 
   async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(docRevisionId)
-    let doc = await this.requireById(docRevision.docId)
+    const doc = await this.requireById(docRevision.docId)
+
+    let updatedDoc = await this.requireById(docRevision.docId)
 
     const data = DocUpdateValue.fromObject({ content: docRevision.content })
-    const setup = new DocUpdateSetup(data, doc, userId)
+    const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.contentUpdated === false) {
-      return doc
+      return updatedDoc
     }
 
-    this.createRevision(doc)
+    this.createRevision(updatedDoc)
 
-    doc.revision = doc.revision + 1
-    doc.content = docRevision.content
+    updatedDoc.revision = updatedDoc.revision + 1
+    updatedDoc.content = docRevision.content
 
-    doc = await this.getDocRepository().save(doc)
+    updatedDoc = await this.getDocRepository().save(updatedDoc)
 
-    return doc
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc))
+
+    return updatedDoc
   }
 
   async archive(id: number): Promise<Doc> {
@@ -186,6 +194,7 @@ export class DocService extends NodeContentService {
 
   private async _archive(_doc: Doc): Promise<Doc> {
     const doc = await this.getDocRepository().softRemove(_doc)
+    await this.notifyActivity(DocActivity.archived(doc))
 
     return doc
   }
@@ -213,6 +222,8 @@ export class DocService extends NodeContentService {
 
   private async _restore(doc: Doc): Promise<Doc> {
     doc = await this.getDocRepository().recover(doc)
+    await this.notifyActivity(DocActivity.restored(doc))
+
     return doc
   }
 
@@ -237,6 +248,7 @@ export class DocService extends NodeContentService {
   }
 
   private async _remove(doc: Doc) {
+    await this.notifyActivity(DocActivity.deleted(doc))
     return this.getDocRepository().remove(doc)
   }
 

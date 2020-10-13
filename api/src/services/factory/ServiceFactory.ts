@@ -151,8 +151,10 @@ export class ServiceFactory {
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
     this.linkService = LinkService.getInstance()
-    this.docService = DocService.getInstance()
     this.embedService = EmbedService.getInstance()
+
+    this.docService = DocService.getInstance()
+    this.docService.attachActivityObserver(this.getActivityService())
 
     this.taskBoardService = TaskBoardService.getInstance()
     this.taskBoardService.attachActivityObserver(this.getActivityService())

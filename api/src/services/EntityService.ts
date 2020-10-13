@@ -15,14 +15,19 @@ export class EntityService {
     return EntityService.instance
   }
 
-  getEntityByNameAndId<T>(name: string, id: number): Promise<T | undefined> {
+  getEntityByNameAndId<T>(name: string, id: number, options: any = {}): Promise<T | undefined> {
     name = this.convertEntityName(name)
 
-    return getConnection()
+    const queryBuilder = getConnection()
       .getRepository<T>(name)
       .createQueryBuilder('entity')
       .where('entity.id = :id', { id })
-      .getOne()
+
+    if (options.withDeleted === true) {
+      queryBuilder.withDeleted()
+    }
+
+    return queryBuilder.getOne()
   }
 
   async requireEntityByNameAndId<T>(name: string, id: number): Promise<T> {

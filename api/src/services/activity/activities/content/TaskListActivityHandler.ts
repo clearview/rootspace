@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './types'

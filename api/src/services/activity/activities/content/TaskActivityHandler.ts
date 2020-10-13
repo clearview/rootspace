@@ -98,7 +98,7 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
         context.toList?.title
       }'`,
       [TaskActions.Comment_Created]: `${actor.fullName()} commented task ${title}`,
-      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullNam ?? ''} to task ${title}`,
+      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullName ?? ''} to task ${title}`,
       [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
         ''} from task ${title}`,
       [TaskActions.Tag_Added]: `${actor.fullName()} added tag ${context.tag?.label} to task ${title}`,
