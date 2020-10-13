@@ -1,15 +1,14 @@
 import { Activity } from '../../../database/entities/Activity'
-import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
 import { IActivityAggregator } from '../types'
-import { ContentActions } from '../activities/content/actions'
+import { ContentActions, TaskActions } from '../activities/content/actions'
 
 const aggregateActions = [
-  TaskActivities.Tag_Added,
-  TaskActivities.Tag_Removed,
-  TaskActivities.Assignee_Added,
-  TaskActivities.Assignee_Removed,
-  TaskActivities.Attachment_Added,
-  TaskActivities.Attachment_Removed,
+  TaskActions.Tag_Added,
+  TaskActions.Tag_Removed,
+  TaskActions.Assignee_Added,
+  TaskActions.Assignee_Removed,
+  TaskActions.Attachment_Added,
+  TaskActions.Attachment_Removed,
 ]
 
 export class TaskActivityAggregator implements IActivityAggregator {
