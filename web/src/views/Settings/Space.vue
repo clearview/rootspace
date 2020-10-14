@@ -76,7 +76,11 @@ export default class Space extends Vue {
 
   private emailNotifications = true;
 
-  private space = {
+  private space: {
+    alert: any;
+    error: boolean;
+    errorMessage: string;
+  } = {
     alert: null,
     error: false,
     errorMessage: ''

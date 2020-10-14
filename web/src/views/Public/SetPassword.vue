@@ -10,7 +10,7 @@
     </div>
 
     <v-loading :loading="isLoading">
-      <p>Send an email...</p>
+      <p>Setting new password…</p>
     </v-loading>
   </layout-public>
 </template>
@@ -71,7 +71,7 @@ export default class Forgotpassword extends Vue {
       try {
         const { data } = await AuthService.passwordResetVerify(this.$route.params.token)
 
-        if (!data.result) {
+        if (!data.data.result) {
           this.$router.push({ name: 'SignIn', query: { from: 'passwordreset', text: 'tokenexpired' } })
         }
       } catch (err) {

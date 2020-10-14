@@ -3,7 +3,8 @@
            :with-close="false"
            :offset="-48"
            position="right-end"
-           borderless>
+           borderless
+           v-if="archives.length > 0">
     <template #default="{ }">
       <div class="archive-menu">
         <div class="menu-header">
@@ -73,7 +74,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Vue } from 'vue-property-decorator'
+import { Component, Mixins, Ref, Vue, Watch } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import api from '@/utils/api'
 import store from '@/store'
@@ -84,22 +85,23 @@ import TreeNodeReadonly from '@/components/sidebar/SidebarTreeNodeReadonly.vue'
 @Component({
   components: {
     Popover,
-    Tree: Mixins(Tree, Fold),
+    Tree: Mixins(Tree as any, Fold),
     TreeNodeReadonly
   }
 })
 export default class ArchiveNode extends Vue {
   private archives: NodeResource[] = [];
 
-  $refs!: {
-    tree: Tree & Fold & Draggable;
-  }
+  @Ref('tree')
+  private readonly treeRef!: Tree & Fold & Draggable;
+
+  private storeSub: null | (() => void) = null;
 
   get currentSpaceId () {
     return store.getters['space/activeSpace'].id
   }
 
-  async loadArchive () {
+  public async loadArchive () {
     const res = await api.get(`spaces/${this.currentSpaceId}/archive`)
     this.archives = res.data.data.data
   }
@@ -117,9 +119,26 @@ export default class ArchiveNode extends Vue {
     })
   }
 
+  mounted () {
+    this.loadArchive()
+  }
+
+  destroyed () {
+    if (this.storeSub) {
+      this.storeSub()
+    }
+  }
+
   async removeAll () {
     await this.$store.dispatch('tree/clearArchive', this.currentSpaceId)
     await this.loadArchive()
+  }
+
+  @Watch('archives')
+  private notifyWhenArchiveIsEmpty () {
+    if (this.archives.length === 0) {
+      this.$emit('emptied')
+    }
   }
 }
 </script>
