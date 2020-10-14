@@ -10,6 +10,8 @@
           :readonly="readOnly"
           placeholder="Your Title Here"
           ref="title"
+          @input="checkTitleMaxLength"
+          @blur="checkTitleEmpty"
         />
         <editor-menu
           v-if="id"
@@ -194,10 +196,8 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
           // Silent duplicate error
         })
       } catch (e) {
-        if (e.code === 403) {
-          this.$router.push({ name: 'Main', query: { from: 'document', message: e.data.message } })
-        } else {
-          this.$router.replace({ name: 'Document' })
+        if (e.code && e.code !== 403 && e.code !== 404) {
+          await this.$router.replace({ name: 'Document' })
         }
       }
       this.initialize = false
@@ -371,6 +371,18 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     this.value = data.content
     this.closeHistory()
     this.saveDocument()
+  }
+
+  checkTitleMaxLength () {
+    if (this.titleRef.value.length >= 250) {
+      this.title = this.title.substr(0, 250)
+    }
+  }
+
+  checkTitleEmpty () {
+    if (this.title.trim().length === 0) {
+      this.title = 'Untitled'
+    }
   }
 
   get currentSpaceId () {

@@ -101,9 +101,13 @@ export default class DocHistory extends Vue {
   }
 
   private async loadHistory () {
-    if (this.id) {
-      const res = await DocumentService.history(this.id)
-      this.history = res.data
+    try {
+      if (this.id) {
+        const res = await DocumentService.history(this.id)
+        this.history = res.data
+      }
+    } catch (e) {
+      // Error loading history
     }
   }
 }

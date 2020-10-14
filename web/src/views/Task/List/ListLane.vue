@@ -272,7 +272,7 @@ export default class TaskLane extends Vue {
       return
     }
     if (this.listCopy.id === null) {
-      await this.$store.dispatch('task/list/create', this.listCopy)
+      await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
     } else {
       await this.$store.dispatch('task/list/update', {
         id: this.list.id,

@@ -231,8 +231,13 @@ export default class SidebarTreeNode extends Vue {
   }
 
   saveTitle () {
-    this.update()
-    this.isRenaming = false
+    if (this.title.trim().length === 0) {
+      this.title = this.value.title
+      this.isRenaming = false
+    } else {
+      this.update()
+      this.isRenaming = false
+    }
   }
 
   addNew () {

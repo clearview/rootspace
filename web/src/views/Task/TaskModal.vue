@@ -334,6 +334,10 @@ export default class TaskModal extends Vue {
         task: this.item,
         upload: attachment
       })
+      this.itemCopy.attachments = this.item.attachments
+      if (this.item.attachments?.length === 0) {
+        this.attachmentIndex = null
+      }
     }
 
     handleFileClick (index: number|null) {
@@ -367,11 +371,10 @@ export default class TaskModal extends Vue {
       }
       try {
         this.isCommenting = true
-        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
+        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
           id: null,
           content: this.commentInput,
-          taskId: this.item.id,
-          task: this.item
+          taskId: this.item.id
         }
         await this.$store.dispatch('task/comment/create', commentResource)
         this.commentInput = ''

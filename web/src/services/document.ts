@@ -28,7 +28,6 @@ export default class DocumentService {
       let err = error
 
       if (error.response) {
-        console.log(error.response)
         const body = {
           code: error.response.status,
           data: error.response.data
