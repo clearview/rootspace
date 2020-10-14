@@ -126,7 +126,7 @@ export class DocService extends NodeContentService {
     updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
     if (setup.registerActivity) {
-      await this.notifyActivity(DocActivity.updated(doc, updatedDoc))
+      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
     }
 
     return updatedDoc
@@ -166,7 +166,7 @@ export class DocService extends NodeContentService {
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
 
-    await this.notifyActivity(DocActivity.updated(doc, updatedDoc))
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
 
     return updatedDoc
   }
