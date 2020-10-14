@@ -139,6 +139,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         await this.activateSpace(this.currentSpaceId)
       }
       this.pageReady = true
+      this.readOnly = false
 
       if (!this.hasNodePlaceholder()) {
         this.addNodePlaceholder()
