@@ -182,7 +182,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.isFromLoad = true
         const res = await DocumentService.view(id)
         const data = res.data
-        console.log('data ---- ', data)
         this.doc = data
         this.title = data.title
         this.value = data.content
@@ -298,8 +297,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
     )
 
-    console.log('tree -- ', tree)
-    console.log('store state', this.$store.state)
 
     if (this.$store.state.document.deferredParent) {
       const parent = this.deepFindNode(tree, node => node.id === this.$store.state.document.deferredParent.id) as {
@@ -337,7 +334,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
   }
 
   mounted () {
-    console.log('mounted')
     if (!this.id) {
       if (!this.hasNodePlaceholder()) {
         this.addNodePlaceholder()

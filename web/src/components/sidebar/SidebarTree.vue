@@ -297,7 +297,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async select (type: MenuType) {
     if (type === MenuType.DOCUMENT) {
       this.$emit('menu-selected', false)
-      console.log('Select document')
 
       try {
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
@@ -414,11 +413,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$emit('menu-selected', false)
   }
 
-  async addNewNode (path: number[], payload: NodeResource) {
-    // console.log('await')
-    // await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+  addNewNode (path: number[], payload: NodeResource) {
     this.$emit('addNew', path, payload)
-    console.log('deferredParent - deferredPath', payload, path)
     this.deferredParent = payload
     this.deferredPath = path
   }
