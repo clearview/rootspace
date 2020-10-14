@@ -334,6 +334,10 @@ export default class TaskModal extends Vue {
         task: this.item,
         upload: attachment
       })
+      this.itemCopy.attachments = this.item.attachments
+      if (this.item.attachments?.length === 0) {
+        this.attachmentIndex = null
+      }
     }
 
     handleFileClick (index: number|null) {

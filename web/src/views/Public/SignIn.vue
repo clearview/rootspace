@@ -72,12 +72,14 @@ export default class SignIn extends Vue {
           message: 'Reset password token has expired, please request a new one',
           noicon: true
         }
+        // this.$router.replace({ query: undefined })
       } else if (query.from === 'passwordreset') {
         this.alert = {
           type: 'success',
           message: 'Password has been changed successfully',
           noicon: true
         }
+        this.$router.replace({ query: undefined })
       }
     }
 

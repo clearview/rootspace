@@ -35,7 +35,7 @@
       />
     </tree>
 
-    <ArchiveNode @restore="refresh"></ArchiveNode>
+    <ArchiveNode ref="archiveNode" @restore="refresh"></ArchiveNode>
 
     <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
       <div id="addnew-menu" v-if="menuOpen">
@@ -137,7 +137,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Watch, Mixins, Ref } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
 
 import {
@@ -224,6 +224,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       }
     })
   }
+
+  @Ref('archiveNode')
+  private readonly archiveNodeRef!: ArchiveNode;
 
   $refs!: {
     tree: Tree & Fold & Draggable;
@@ -493,6 +496,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.treeData = this.$refs.tree.cloneTreeData()
 
       await this.$store.dispatch('tree/archive', node)
+      this.archiveNodeRef.loadArchive()
 
       this.$router.push({ name: 'Main' }).catch(() => null)
     } catch { }
