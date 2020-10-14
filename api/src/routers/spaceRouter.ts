@@ -1,7 +1,7 @@
 import { authenticate } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import { SpacesCtrl } from '../controllers/SpacesCtrl'
-import { SpacesUsersCtrl } from '../controllers/SpacesUsersCtrl'
+import { SpaceUsersCtrl } from '../controllers/SpaceUsersCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()
@@ -20,7 +20,7 @@ router.get('/spaces/:id/activities', mapRoute(SpacesCtrl, 'activities'))
 router.get('/spaces/:id/archive', mapRoute(SpacesCtrl, 'getArchiveTree'))
 router.delete('/spaces/:id/archive', mapRoute(SpacesCtrl, 'deleteArchive'))
 
-router.get('/spaces/:spaceId/users', mapRoute(SpacesUsersCtrl, 'listAll'))
-router.delete('/spaces/:spaceId/users/:userId', mapRoute(SpacesUsersCtrl, 'remove'))
+router.get('/spaces/:spaceId/users', mapRoute(SpaceUsersCtrl, 'listAll'))
+router.delete('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'remove'))
 
 export { router as spaceRouter }

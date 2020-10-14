@@ -22,6 +22,10 @@ export class InviteFacade {
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
+  requireInviteById(id: number): Promise<Invite> {
+    return this.inviteService.requireInviteById(id)
+  }
+
   getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
     return this.inviteService.getInvitesBySpaceId(spaceId)
   }
@@ -77,9 +81,7 @@ export class InviteFacade {
     return accepted
   }
 
-  async cancel(inviteId: number): Promise<Invite[]> {
-    const invite = await this.inviteService.getInviteById(inviteId)
-
+  async cancel(invite: Invite): Promise<Invite[]> {
     if (invite.accepted) {
       throw clientError('Can not cancel this invite', HttpErrName.NotAllowed, HttpStatusCode.BadRequest)
     }

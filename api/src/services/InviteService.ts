@@ -3,7 +3,7 @@ import { InviteRepository } from '../database/repositories/InviteRepository'
 import { Invite } from '../database/entities/Invite'
 import { Space } from '../database/entities/Space'
 import { User } from '../database/entities/User'
-import { clientError, HttpErrName } from '../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../errors'
 
 export class InviteService {
   private static instance: InviteService
@@ -22,6 +22,16 @@ export class InviteService {
 
   getInviteById(id: number): Promise<Invite | undefined> {
     return this.getInviteRepository().findOne(id)
+  }
+
+  async requireInviteById(id: number): Promise<Invite> {
+    const invite = await this.getInviteById(id)
+
+    if (!invite) {
+      throw clientError('Invite not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return invite
   }
 
   getInvite(email: string, spaceId: number, senderId: number): Promise<Invite> {
