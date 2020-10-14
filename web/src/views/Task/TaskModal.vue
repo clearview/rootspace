@@ -367,11 +367,10 @@ export default class TaskModal extends Vue {
       }
       try {
         this.isCommenting = true
-        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
+        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
           id: null,
           content: this.commentInput,
-          taskId: this.item.id,
-          task: this.item
+          taskId: this.item.id
         }
         await this.$store.dispatch('task/comment/create', commentResource)
         this.commentInput = ''

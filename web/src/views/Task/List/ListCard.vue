@@ -195,7 +195,7 @@ export default class ListCard extends Vue {
       }
       if (this.itemCopy.id === null) {
         this.titleEditableRef.blur()
-        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim() })
+        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
       } else {
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
