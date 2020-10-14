@@ -297,7 +297,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       (node: NodeResource) => !(node.type === 'doc' && node.contentId === 0)
     )
 
-
     if (this.$store.state.document.deferredParent) {
       const parent = this.deepFindNode(tree, node => node.id === this.$store.state.document.deferredParent.id) as {
         children: {
