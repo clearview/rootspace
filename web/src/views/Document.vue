@@ -68,6 +68,7 @@ import VModal from '@/components/Modal.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
+import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
 
 @Component({
@@ -132,6 +133,11 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     if (!id) {
       this.title = ''
       this.value = {}
+      if (!this.pageReady) {
+        await this.activateSpace(this.currentSpaceId)
+      }
+      this.pageReady = true
+
       if (!this.hasNodePlaceholder()) {
         this.addNodePlaceholder()
       }
@@ -330,6 +336,15 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       if (!this.hasNodePlaceholder()) {
         this.addNodePlaceholder()
       }
+
+      const unsubscribe = this.$store.subscribe(async (mutation) => {
+        if (mutation.type === 'tree/setList') {
+          if (!this.hasNodePlaceholder()) {
+            this.addNodePlaceholder()
+            unsubscribe()
+          }
+        }
+      })
     }
 
     this.titleFocus()
@@ -356,6 +371,10 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     this.value = data.content
     this.closeHistory()
     this.saveDocument()
+  }
+
+  get currentSpaceId () {
+    return store.getters['space/activeSpace'].id
   }
 }
 </script>
