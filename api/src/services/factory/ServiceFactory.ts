@@ -19,6 +19,7 @@ import {
   EntityService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
+import { TaskCommentService } from '../content/tasks'
 
 export class ServiceFactory {
   private nodeService: NodeService
@@ -79,20 +80,33 @@ export class ServiceFactory {
     return this.taskBoardService
   }
 
-  getFollowService() {
-    return FollowService.getInstance()
+  getTaskListService() {
+    const service = TaskListService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getTaskService() {
+    const service = TaskService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getTaskCommentService() {
+    const service = TaskCommentService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getTaskBoardTagService() {
     return TaskBoardTagService.getInstance()
   }
 
-  getTaskListService() {
-    return TaskListService.getInstance()
-  }
-
-  getTaskService() {
-    return TaskService.getInstance()
+  getFollowService() {
+    return FollowService.getInstance()
   }
 
   getUserService() {
@@ -120,7 +134,10 @@ export class ServiceFactory {
   }
 
   getUploadService() {
-    return UploadService.getInstance()
+    const service = UploadService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getFavoriteService() {
@@ -134,9 +151,13 @@ export class ServiceFactory {
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
     this.linkService = LinkService.getInstance()
-    this.docService = DocService.getInstance()
     this.embedService = EmbedService.getInstance()
+
+    this.docService = DocService.getInstance()
+    this.docService.attachActivityObserver(this.getActivityService())
+
     this.taskBoardService = TaskBoardService.getInstance()
+    this.taskBoardService.attachActivityObserver(this.getActivityService())
 
     const mediator = new NodeContentMediator(this.nodeService)
 

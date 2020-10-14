@@ -5,27 +5,18 @@ import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBo
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskRepository } from '../../../database/repositories/tasks/TaskRepository'
 import { Task } from '../../../database/entities/tasks/Task'
-import { UserService } from '../../UserService'
-import { TaskBoardTagService } from './TaskBoardTagService'
-import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
-import { ActivityService } from '../../'
-import { ActivityEvent } from '../../events/ActivityEvent'
-import Bull from 'bull'
 import { ServiceFactory } from '../../factory/ServiceFactory'
-import { NotificationService } from '../../NotificationService'
+import { Service, UserService, TaskBoardTagService } from '../../'
+import { TaskActivity } from '../../activity/activities/content'
 
-export class TaskService {
+export class TaskService extends Service {
   private userService: UserService
   private tagService: TaskBoardTagService
-  private activityService: ActivityService
-  private notificationService: NotificationService
 
   private constructor() {
-    this.userService = UserService.getInstance()
-    this.tagService = TaskBoardTagService.getInstance()
-    this.activityService = ActivityService.getInstance()
-    this.notificationService = NotificationService.getInstance()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
+    super()
+    this.userService = ServiceFactory.getInstance().getUserService()
+    this.tagService = ServiceFactory.getInstance().getTaskBoardTagService()
   }
 
   private static instance: TaskService
@@ -68,8 +59,7 @@ export class TaskService {
     data.space = await this.getSpaceRepository().findOneOrFail(data.board.spaceId)
 
     const task = await this.getTaskRepository().save(data)
-
-    await this.registerActivityForTaskId(TaskActivities.Created, task.id, { title: task.title })
+    await this.notifyActivity(TaskActivity.created(task))
 
     await this.assigneesUpdate(task, data)
 
@@ -77,44 +67,35 @@ export class TaskService {
   }
 
   async update(id: number, data: any): Promise<Task> {
-    const existingTask = await this.getById(id)
-    let task = await this.getById(id)
-    task = await this.getTaskRepository().save({
-      ...task,
-      ...data
+    const task = await this.getById(id)
+    let updatedTask = await this.getById(id)
+
+    updatedTask = await this.getTaskRepository().save({
+      ...updatedTask,
+      ...data,
     })
 
-    await this.assigneesUpdate(task, data)
+    updatedTask = await this.getTaskRepository().reload(updatedTask)
+    await this.notifyActivity(TaskActivity.updated(task, updatedTask))
 
-    const fields = { old: {}, new: {} }
+    if (task.listId !== updatedTask.listId) {
+      const oldList = await this.getTaskListRepository().findOne(task.listId)
+      const newList = await this.getTaskListRepository().findOne(updatedTask.listId)
 
-    for(const key of Object.keys(data)) {
-      if(data[key] !== existingTask[key]) {
-        fields.old[key] = existingTask[key]
-        fields.new[key] = task[key]
-
-        if (key === 'listId') {
-          const oldList = await this.getTaskListRepository().findOne(existingTask.listId)
-          const newList = await this.getTaskListRepository().findOne(task.listId)
-
-          const listKey = 'list'
-          fields.old[listKey] = { title: oldList.title }
-          fields.new[listKey] = { title: newList.title }
-        }
-      }
+      this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList))
     }
 
-    await this.registerActivityForTaskId(TaskActivities.Updated, task.id, fields)
+    await this.assigneesUpdate(updatedTask, data)
 
-    return this.getTaskRepository().getById(task.id)
+    return this.getTaskRepository().getById(updatedTask.id)
   }
 
   async archive(taskId: number): Promise<Task | undefined> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.registerActivityForTaskId(TaskActivities.Archived, taskId, { title: task.title })
-
+      await this.notifyActivity(TaskActivity.archived(task, actor.id))
       return this.getTaskRepository().softRemove(task)
     }
 
@@ -122,18 +103,19 @@ export class TaskService {
   }
 
   async restore(taskId: number): Promise<Task> {
+    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     const recoveredTask = await this.getTaskRepository().recover(task)
-    await this.registerActivityForTaskId(TaskActivities.Restored, taskId, { title: task.title })
+    await this.notifyActivity(TaskActivity.restored(task, actor.id))
 
     return recoveredTask
   }
 
   async remove(taskId: number) {
-    const task = await this.getTaskRepository().findOneOrFail(taskId)
-    await this.registerActivityForTask(TaskActivities.Deleted, task, { title: task.title })
+    const task = await this.getTaskRepository().findOneOrFail(taskId, { withDeleted: true })
 
+    await this.notifyActivity(TaskActivity.deleted(task))
     return this.getTaskRepository().remove(task)
   }
 
@@ -164,11 +146,7 @@ export class TaskService {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.registerActivityForTask(TaskActivities.Assignee_Added, task, {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName
-      })
+      this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user))
 
       return savedTask
     }
@@ -185,11 +163,7 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Assignee_Removed, task, {
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName
-    })
+    this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user))
 
     return savedTask
   }
@@ -204,9 +178,7 @@ export class TaskService {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.registerActivityForTask(TaskActivities.Tag_Added, task, {
-        label: boardTag.label
-      })
+      this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag))
 
       return savedTask
     }
@@ -223,27 +195,8 @@ export class TaskService {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.registerActivityForTask(TaskActivities.Tag_Removed, task, {
-      label: boardTag.label
-    })
+    this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag))
 
     return savedTask
-  }
-
-  async registerActivityForTaskId(taskActivity: TaskActivities, taskId: number, context?: any): Promise<Bull.Job> {
-    const task = await this.getById(taskId)
-    return this.registerActivityForTask(taskActivity, task, context)
-  }
-
-  async registerActivityForTask(taskActivity: TaskActivities, task: Task, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(taskActivity)
-        .fromActor(actor.id)
-        .forEntity(task)
-        .inSpace(task.spaceId)
-      .withContext(context)
-    )
   }
 }

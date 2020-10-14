@@ -1,10 +1,12 @@
+import { Service } from '../Service'
 import { NodeType } from '../../types/node'
 import { INodeContentMediator, INodeContentUpdate } from './contracts'
 
-export abstract class NodeContentService {
+export abstract class NodeContentService extends Service {
   protected nodeContentMediator: INodeContentMediator
 
   protected constructor(mediator: INodeContentMediator = null) {
+    super()
     this.nodeContentMediator = mediator
   }
 
@@ -14,10 +16,7 @@ export abstract class NodeContentService {
 
   abstract getNodeType(): NodeType
 
-  async nodeUpdated(
-    contentId: number,
-    data: INodeContentUpdate
-  ): Promise<void> {
+  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
     return
   }
 

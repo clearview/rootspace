@@ -13,14 +13,21 @@ export class ActivityCtrl extends BaseCtrl {
     this.entityService = ServiceFactory.getInstance().getEntityService()
   }
 
-  async getActivitiesBySpace(req: Request, res: Response) {
+  async getForSpace(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
     this.checkSpaceAccess(req, spaceId)
 
-    const type = req.query?.type ? String(req.query?.type) : null
-    const action = req.query?.action ? String(req.query?.action) : null
+    const filter: any = {}
 
-    const activities = await this.activityService.getBySpaceId(spaceId, type, action)
+    if (req.query.action) {
+      filter.action = req.query.action
+    }
+
+    if (req.query.type) {
+      filter.type = req.query.type
+    }
+
+    const activities = await this.activityService.getBySpaceId(spaceId, filter)
     const resData = this.responseData(activities)
 
     res.send(resData)
@@ -30,7 +37,7 @@ export class ActivityCtrl extends BaseCtrl {
     const entityName = req.params.entity
     const entityId = Number(req.params.entityId)
 
-    const entity = await this.entityService.requireEntityByNameAndId(entityName, entityId)
+    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
     this.checkSpaceAccess(req, entity.spaceId)
 
     const result = await this.activityService.getByEntity(entityName, entityId)

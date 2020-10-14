@@ -15,18 +15,23 @@ export class EntityService {
     return EntityService.instance
   }
 
-  getEntityByNameAndId(name: string, id: number): Promise<any | undefined> {
+  getEntityByNameAndId<T>(name: string, id: number, options: any = {}): Promise<T | undefined> {
     name = this.convertEntityName(name)
 
-    return getConnection()
-      .getRepository(name)
+    const queryBuilder = getConnection()
+      .getRepository<T>(name)
       .createQueryBuilder('entity')
       .where('entity.id = :id', { id })
-      .getOne()
+
+    if (options.withDeleted === true) {
+      queryBuilder.withDeleted()
+    }
+
+    return queryBuilder.getOne()
   }
 
-  async requireEntityByNameAndId(name: string, id: number): Promise<any> {
-    const entity = await this.getEntityByNameAndId(name, id)
+  async requireEntityByNameAndId<T>(name: string, id: number): Promise<T> {
+    const entity = await this.getEntityByNameAndId<T>(name, id)
 
     if (!entity) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)

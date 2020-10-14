@@ -8,8 +8,10 @@ import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
 import { WsEvent } from '../events/websockets/WsEvent'
 import { ActivityAggregator } from './aggregator/ActivityAggregator'
+import { IAppActivity } from './activities/types'
+import { IActivityObserver } from '../contracts'
 
-export class ActivityService {
+export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
   readonly queue: Bull.Queue
   readonly wsEventEmitter: WsEventEmitter
@@ -31,6 +33,15 @@ export class ActivityService {
     return getCustomRepository(ActivityRepository)
   }
 
+  async activityNotification(appActivity: IAppActivity): Promise<void> {
+    const data = appActivity.toObject()
+    const activity = await this.getActivityRepository().save(data as any)
+
+    data.activityId = activity.id
+
+    await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+  }
+
   async add(event: ActivityEvent): Promise<Bull.Job> {
     const activityObject = event.toObject()
 
@@ -38,6 +49,10 @@ export class ActivityService {
     this.wsEventEmitter.emit(WsEvent.NAME, event)
 
     return this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
+  }
+
+  getById(id: number): Promise<Activity | undefined> {
+    return this.getActivityRepository().findOne(id)
   }
 
   getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
@@ -48,8 +63,8 @@ export class ActivityService {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
-  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
-    return this.getActivityRepository().getBySpaceId(spaceId, type, action)
+  async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
+    return this.getActivityRepository().getBySpaceId(spaceId, filter)
   }
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {

@@ -18,21 +18,20 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .getOne()
   }
 
-  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
-    const qb = this.createQueryBuilder('activity')
+  async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
 
-    if (action) {
-      qb.andWhere('activity.action = :action', { action })
+    if (filter.action) {
+      queryBuilder.andWhere('activity.action = :action', { action: filter.action })
     }
 
-    if (type) {
-      const entityType = ActivityRepository.getEntity(type)
-      qb.andWhere('activity.entity = :entityType', { entityType })
+    if (filter.type) {
+      queryBuilder.andWhere('activity.type = :type', { type: filter.type })
     }
 
-    const results = await qb
+    const results = await queryBuilder
       .limit(100)
       .orderBy('activity.createdAt', 'DESC')
       .getMany()

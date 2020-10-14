@@ -2,32 +2,26 @@ import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
-import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
+import { TaskBoard } from '../../../database/entities/tasks/TaskBoard'
+import { Task } from '../../../database/entities/tasks/Task'
+import { Node } from '../../../database/entities/Node'
+import { NodeType } from '../../../types/node'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { NodeContentService } from '../NodeContentService'
-import { NodeService } from '../NodeService'
-import { NodeType } from '../../../types/node'
+import { NodeService, TaskListService } from '../../'
 import { NodeCreateValue } from '../../../values/node'
-import { Task } from '../../../database/entities/tasks/Task'
 import { INodeContentUpdate } from '../contracts'
-import { ActivityService } from '../../'
-import Bull from 'bull'
-import { ActivityEvent } from '../../events/ActivityEvent'
-import { TaskBoardActivities } from '../../../database/entities/activities/TaskBoardActivities'
-import { TaskListService } from './TaskListService'
 import { HttpErrName, HttpStatusCode, clientError } from '../../../errors'
-import { Node } from '../../../database/entities/Node'
+import { TaskBoardActivity } from '../../activity/activities/content/TaskBoardActivity'
 
 export class TaskBoardService extends NodeContentService {
   private nodeService: NodeService
-  private activityService: ActivityService
   private taskListService: TaskListService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
     this.taskListService = ServiceFactory.getInstance().getTaskListService()
   }
 
@@ -69,7 +63,6 @@ export class TaskBoardService extends NodeContentService {
 
   async getAllTasks(id: number): Promise<Task[]> {
     const taskBoard = await this.getCompleteTaskBoard(id)
-
     const tasks: Task[] = []
 
     if (!taskBoard || taskBoard.taskLists.length < 1) {
@@ -118,17 +111,16 @@ export class TaskBoardService extends NodeContentService {
       spaceId: taskBoard.spaceId,
       contentId: taskBoard.id,
       title: taskBoard.title,
-      type: this.getNodeType()
+      type: this.getNodeType(),
     })
     if (parentId) {
       value = value.withParent(parentId).withPosition(0)
     }
-    const node = await this.nodeService.create(
-      value
-    )
+
+    const node = await this.nodeService.create(value)
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Created, taskBoard, { title: taskBoard.title })
+    await this.notifyActivity(TaskBoardActivity.created(taskBoard))
 
     return { ...taskBoard, ...node }
   }
@@ -145,17 +137,7 @@ export class TaskBoardService extends NodeContentService {
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
 
     await this.nodeContentMediator.contentUpdated(taskBoard.id, this.getNodeType(), { title: taskBoard.title })
-
-    const fields = { old: {}, new: {} }
-
-    for (const key of Object.keys(data)) {
-      if (data[key] !== existingTaskBoard[key]) {
-        fields.old[key] = existingTaskBoard[key]
-        fields.new[key] = taskBoard[key]
-      }
-    }
-
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Updated, taskBoard, fields)
+    await this.notifyActivity(TaskBoardActivity.updated(existingTaskBoard, taskBoard))
 
     return taskBoard
   }
@@ -171,8 +153,11 @@ export class TaskBoardService extends NodeContentService {
       return
     }
 
-    taskBoard.title = data.title
-    await this.getTaskBoardRepository().save(taskBoard)
+    const updatedTaskBoard = await this.getById(contentId)
+    updatedTaskBoard.title = data.title
+
+    await this.getTaskBoardRepository().save(updatedTaskBoard)
+    await this.notifyActivity(TaskBoardActivity.updated(taskBoard, updatedTaskBoard))
   }
 
   async archive(taskBoardId: number): Promise<TaskBoard> {
@@ -180,10 +165,6 @@ export class TaskBoardService extends NodeContentService {
     this.verifyArchive(taskBoard)
 
     taskBoard = await this._archive(taskBoard)
-
-    await this.registerActivityForTaskBoardId(TaskBoardActivities.Archived, taskBoardId, {
-      title: taskBoard.title,
-    })
 
     await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
 
@@ -207,6 +188,8 @@ export class TaskBoardService extends NodeContentService {
       }
     }
 
+    await this.notifyActivity(TaskBoardActivity.archived(taskBoard))
+
     return this.getTaskBoardRepository().softRemove(taskBoard)
   }
 
@@ -217,10 +200,6 @@ export class TaskBoardService extends NodeContentService {
     taskBoard = await this._restore(taskBoard)
 
     await this.nodeService.contentRestored(taskBoardId, this.getNodeType())
-    await this.registerActivityForTaskBoardId(TaskBoardActivities.Restored, taskBoard.id, {
-      title: taskBoard.title,
-    })
-
     return taskBoard
   }
 
@@ -241,6 +220,8 @@ export class TaskBoardService extends NodeContentService {
       }
     }
 
+    await this.notifyActivity(TaskBoardActivity.restored(taskBoard))
+
     const recoveredTaskBoard = await this.getTaskBoardRepository().recover(taskBoard)
     return this.getCompleteTaskBoard(recoveredTaskBoard.id)
   }
@@ -250,6 +231,7 @@ export class TaskBoardService extends NodeContentService {
     // this.verifyRemove(taskBoard)
 
     taskBoard = await this._remove(taskBoard)
+
     await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
 
     return taskBoard
@@ -264,10 +246,7 @@ export class TaskBoardService extends NodeContentService {
   }
 
   private async _remove(taskBoard: TaskBoard): Promise<TaskBoard> {
-    await this.registerActivityForTaskBoard(TaskBoardActivities.Deleted, taskBoard, {
-      title: taskBoard.title,
-    })
-
+    await this.notifyActivity(TaskBoardActivity.deleted(taskBoard))
     return this.getTaskBoardRepository().remove(taskBoard)
   }
 
@@ -287,30 +266,5 @@ export class TaskBoardService extends NodeContentService {
     if (taskBoard.deletedAt === null) {
       throw clientError('Can not delete task board', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForTaskBoardId(
-    taskBoardActivity: TaskBoardActivities,
-    taskBoardId: number,
-    context?: any
-  ): Promise<Bull.Job> {
-    const taskBoard = await this.getById(taskBoardId, { withDeleted: true })
-    return this.registerActivityForTaskBoard(taskBoardActivity, taskBoard, context)
-  }
-
-  async registerActivityForTaskBoard(
-    taskBoardActivity: TaskBoardActivities,
-    taskBoard: TaskBoard,
-    context?: any
-  ): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(taskBoardActivity)
-        .fromActor(actor.id)
-        .forEntity(taskBoard)
-        .inSpace(taskBoard.spaceId)
-        .withContext(context)
-    )
   }
 }

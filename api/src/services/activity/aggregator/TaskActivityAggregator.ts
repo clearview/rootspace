@@ -1,14 +1,14 @@
 import { Activity } from '../../../database/entities/Activity'
-import { TaskActivities } from '../../../database/entities/activities/TaskActivities'
 import { IActivityAggregator } from '../types'
+import { ContentActions, TaskActions } from '../activities/content/actions'
 
 const aggregateActions = [
-  TaskActivities.Tag_Added,
-  TaskActivities.Tag_Removed,
-  TaskActivities.Assignee_Added,
-  TaskActivities.Assignee_Removed,
-  TaskActivities.Attachment_Added,
-  TaskActivities.Attachment_Removed,
+  TaskActions.Tag_Added,
+  TaskActions.Tag_Removed,
+  TaskActions.Assignee_Added,
+  TaskActions.Assignee_Removed,
+  TaskActions.Attachment_Added,
+  TaskActions.Attachment_Removed,
 ]
 
 export class TaskActivityAggregator implements IActivityAggregator {
@@ -19,9 +19,10 @@ export class TaskActivityAggregator implements IActivityAggregator {
   }
 
   public aggregate(activities: Activity[]): Activity[] {
+    const filtered = this.filter(activities)
     const entries: Activity[] = []
 
-    for (const activity of activities) {
+    for (const activity of filtered) {
       if (!this.aggregateActions.includes(activity.action)) {
         entries.push(activity)
         continue
@@ -51,6 +52,22 @@ export class TaskActivityAggregator implements IActivityAggregator {
     }
 
     return entries
+  }
+
+  private filter(activities: Activity[]): Activity[] {
+    const filtered = []
+
+    for (const activity of activities) {
+      const context = activity.context as any
+
+      if (activity.action === ContentActions.Updated && context.updatedAttributes.length === 0) {
+        continue
+      }
+
+      filtered.push(activity)
+    }
+
+    return filtered
   }
 
   protected createEntry(activity: Activity): Activity {

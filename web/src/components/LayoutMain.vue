@@ -12,7 +12,7 @@
     <div
       class="pane-right content"
     >
-      <v-alert class="alert" v-model="alert" />
+      <v-alert class="alert floating" v-model="alert" />
       <slot />
     </div>
   </div>
@@ -127,6 +127,13 @@ export default class LayoutMain extends Vue {
 
   .alert {
     @apply mx-4;
+    &.floating{
+      position: absolute;
+      margin: auto;
+      border-radius: 4px;
+      bottom: 24px;
+      right: 24px;
+    }
   }
 }
 </style>

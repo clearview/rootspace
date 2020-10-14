@@ -23,6 +23,9 @@ export class Follow {
   entityId: number
 
   @Column('varchar')
+  entity: string
+
+  @Column('varchar')
   tableName: string
 
   @CreateDateColumn({ type: 'timestamptz'})
