@@ -35,16 +35,15 @@
         v-model.trim="$v.invitation.$model"
         @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model)"
       />
-
       <template #addon>
         <button
           type="button"
           class="btn"
           :class="{
-            'btn-white': $v.invitation.$invalid,
-            'btn-success': !$v.invitation.$invalid
+            'btn-white': !$v.invitation.required || !$v.invitation.maxLength,
+            'btn-success': $v.invitation.required && $v.invitation.maxLength,
           }"
-          :disabled="$v.invitation.$invalid"
+          :disabled="!$v.invitation.required || !$v.invitation.maxLength"
           @click="addInvitationList($v.invitation.$model)"
         >
           Add
@@ -53,7 +52,7 @@
 
       <template #feedback v-if="$v.invitation.$error || duplicateMessage">
         <p
-          v-if="$v.invitation.$error && !$v.invitation.email"
+          v-if="isEmailError && !$v.invitation.email"
           class="feedback is-danger"
         >
           Email format is not valid.
@@ -178,6 +177,7 @@ export default class FormSpace extends Vue {
     private invitation = '';
     private duplicateMessage = '';
     private invitationList = [];
+    private isEmailError = false
 
     @Ref('initialInput')
     private readonly initialInputRef!: HTMLInputElement;
@@ -204,10 +204,15 @@ export default class FormSpace extends Vue {
     }
 
     addInvitationList (email: string, bypassValidation = false): void {
-      if (this.$v.invitation.$invalid && !bypassValidation) {
+      if (!this.$v.invitation.email &&
+          this.$v.invitation.required &&
+          this.$v.invitation.maxLength &&
+          !bypassValidation) {
+        if (!this.$v.invitation.email) this.isEmailError = true
         return
       }
       this.invitation = ''
+      this.isEmailError = false
       let getUser = find(this.payload.invites, (o) => {
         return o === email
       })
