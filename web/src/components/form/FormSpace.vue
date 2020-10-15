@@ -19,7 +19,7 @@
           Field is required.
         </div>
         <div
-          v-if="!$v.payload.title.maxlength"
+          v-if="$v.payload.title.$model && !$v.payload.title.maxlength"
           class="feedback is-danger"
         >
           Space name is too long (maximum is 100 characters)
@@ -66,7 +66,7 @@
         />
 
         <div
-          v-if="!$v.invitation.email.maxlength"
+          v-if="$v.invitation.$model.length > 100 && !$v.invitation.email.maxlength"
           class="feedback is-danger"
         >
           Email is too long (maximum is 100 characters)

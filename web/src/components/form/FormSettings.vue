@@ -29,7 +29,7 @@
           First Name is required.
         </p>
         <p
-          v-if="!$v.payload.firstName.maxlength"
+          v-if="$v.payload.firstName.$model.length > 100 && !$v.payload.firstName.maxlength"
           class="feedback is-danger"
         >
           First name is too long (maximum is 100 characters)
@@ -67,7 +67,7 @@
         </p>
 
         <p
-          v-if="!$v.payload.lastName.maxlength"
+          v-if="$v.payload.lastName.$model && !$v.payload.lastName.maxlength"
           class="feedback is-danger"
         >
           Last name is too long (maximum is 100 characters)
@@ -110,7 +110,7 @@
           Email format is not valid.
         </div>
         <div
-          v-if="!$v.payload.email.maxlength"
+          v-if="$v.payload.email.$model && !$v.payload.email.maxlength"
           class="feedback is-danger"
         >
           Email is too long (maximum is 100 characters)
