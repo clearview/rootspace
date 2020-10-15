@@ -42,7 +42,7 @@ export class SpaceFacade {
     return this.spaceService.getSpacesByUserId(userId)
   }
 
-  getUserFavorites(userId: number, spaceId: number, ): Promise<Node[]> {
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
     return this.nodeService.getUserFavorites(userId, spaceId)
   }
 
@@ -64,6 +64,10 @@ export class SpaceFacade {
   async removeUserFromSpace(userId: number, spaceId: number): Promise<UserToSpace> {
     const user = await this.userService.requireUserById(userId)
     const space = await this.spaceService.requireSpaceById(spaceId)
+
+    if ((await this.userSpaceService.isUserInSpace(userId, spaceId)) === false) {
+      throw clientError('User not found in space', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
 
     if (user.id === space.userId) {
       throw clientError('Can not remove space owner from space', HttpErrName.InvalidRequest, HttpStatusCode.NotAllowed)

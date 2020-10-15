@@ -2,8 +2,9 @@ import e, { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { ActivityService, EntityService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { HttpErrName, HttpStatusCode, clientError } from '../errors'
 
-export class ActivityCtrl extends BaseCtrl {
+export class ActivitiesCtrl extends BaseCtrl {
   private activityService: ActivityService
   private entityService: EntityService
 
@@ -38,17 +39,12 @@ export class ActivityCtrl extends BaseCtrl {
     const entityId = Number(req.params.entityId)
 
     const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
-    this.checkSpaceAccess(req, entity.spaceId)
+
+    if (this.checkSpaceAccess(req, entity.spaceId, false) === false) {
+      throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
 
     const result = await this.activityService.getByEntity(entityName, entityId)
     res.send(this.responseData(result))
-  }
-
-  checkSpaceAccess(req: Request, spaceId: number) {
-    const user = req.user as any
-
-    if (!user.userSpaceIds.includes(spaceId)) {
-      throw new Error('Access to space is not allowed')
-    }
   }
 }

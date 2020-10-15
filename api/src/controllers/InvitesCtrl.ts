@@ -4,8 +4,10 @@ import { InviteService } from '../services'
 import { validateInviteAccept, validateInviteCreate } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { ForbiddenError } from '@casl/ability'
+import { Actions } from '../middleware/AuthMiddleware'
 
-export class InviteCtrl extends BaseCtrl {
+export class InvitesCtrl extends BaseCtrl {
   protected inviteService: InviteService
   private inviteFacade: InviteFacade
 
@@ -19,17 +21,19 @@ export class InviteCtrl extends BaseCtrl {
     const data = req.body.data
     await validateInviteCreate(data)
 
-    const invites = await this.inviteFacade.sendToEmails(data.emails, data.spaceId, req.user.id)
+    const spaceId = Number(data.spaceId)
+    this.checkSpaceAccess(req, spaceId)
 
-    const resData = this.responseData(invites)
-    res.send(resData)
+    const invites = await this.inviteFacade.sendToEmails(data.emails, data.spaceId, req.user.id)
+    res.send(this.responseData(invites))
   }
 
   async cancel(req: Request, res: Response) {
-    const invites = await this.inviteFacade.cancel(Number(req.params.inviteId))
+    const invite = await this.inviteFacade.requireInviteById(Number(req.params.inviteId))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, invite)
 
-    const resData = this.responseData(invites)
-    res.send(resData)
+    const result = await this.inviteFacade.cancel(invite)
+    res.send(this.responseData(result))
   }
 
   async accept(req: Request, res: Response) {

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
@@ -19,17 +19,14 @@ export class SpacesCtrl extends BaseCtrl {
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
-  async listAll(req: Request, res: Response, next: NextFunction) {
+  async listAll(req: Request, res: Response) {
     const spaces = await this.spaceFacade.getUserSpaces(req.user.id)
     res.send(spaces)
   }
 
   async getTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-
-    if (!spaceId) {
-      throw clientError('Error fetching tree')
-    }
+    this.checkSpaceAccess(req, spaceId)
 
     const nodes = await this.spaceFacade.getTree(spaceId)
     const data = this.responseData(nodes)
@@ -39,6 +36,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async getArchiveTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
+    this.checkSpaceAccess(req, spaceId)
 
     const nodes = await this.spaceFacade.getArchiveTree(spaceId)
     const result = this.responseData(nodes)
@@ -48,6 +46,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async deleteArchive(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
+    this.checkSpaceAccess(req, spaceId)
 
     const nodes = await this.spaceFacade.deleteArchive(spaceId)
     const result = this.responseData(nodes)
@@ -56,19 +55,18 @@ export class SpacesCtrl extends BaseCtrl {
   }
 
   async favorites(req: Request, res: Response) {
-    const userId = req.user.id
     const spaceId = Number(req.params.id)
+    this.checkSpaceAccess(req, spaceId)
+
+    const userId = req.user.id
 
     const result = await this.spaceFacade.getUserFavorites(userId, spaceId)
     res.send(this.responseData(result))
   }
 
-  async invites(req: Request, res: Response, next: NextFunction) {
+  async invites(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-
-    if (!spaceId) {
-      throw clientError('Invalid request')
-    }
+    this.checkSpaceAccess(req, spaceId)
 
     const invites = await this.inviteFacade.getInvitesBySpaceId(spaceId)
     const resData = this.responseData(invites)
@@ -76,12 +74,9 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async activities(req: Request, res: Response, next: NextFunction) {
+  async activities(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-
-    if (!spaceId) {
-      throw clientError('Invalid request')
-    }
+    this.checkSpaceAccess(req, spaceId)
 
     const activities = await this.activityService.getActivitiesBySpaceId(spaceId)
     const resData = this.responseData(activities)
@@ -89,7 +84,7 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(resData)
   }
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response) {
     await validateSpaceCreate(req.body)
 
     const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
@@ -102,12 +97,14 @@ export class SpacesCtrl extends BaseCtrl {
     res.send(space)
   }
 
-  async update(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
+  async update(req: Request, res: Response) {
+    const spaceId = Number(req.params.id)
+    this.checkSpaceAccess(req, spaceId)
+
     const data = SpaceUpdateValue.fromObject(req.body)
 
     await validateSpaceUpdate(data)
-    const space = await this.spaceFacade.updateSpace(data, id)
+    const space = await this.spaceFacade.updateSpace(data, spaceId)
 
     res.send(space)
   }
