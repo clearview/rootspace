@@ -59,28 +59,32 @@ export default class Account extends Vue {
 
     try {
       const [setting, password] = args
+      let message = ''
       this.loadingMessage = 'Update Account Settings...'
-      const userUpdate = await UserService.update(setting)
+
+      if (setting.firstName !== '') {
+        const userUpdate = await UserService.update(setting)
+        message += 'Your account settings have been saved'
+
+        const getUserData = userUpdate.data
+        this.$store.commit('auth/setUser', getUserData)
+      }
 
       const { authProvider } = this.$store.state.auth.user
-      let message = 'Your account settings '
-
       if (
         (password.password !== '' && password.newPassword !== '') ||
         (authProvider === 'google' && password.newPassword !== '')
       ) {
         await UserService.passwordChange(password)
-        message += 'and password '
+        message += 'Your password have been saved'
       }
 
-      message += 'have been saved'
+      console.log('message', message)
+
       this.account.alert = {
         type: 'success',
         message: message
       }
-
-      const getUserData = userUpdate.data
-      this.$store.commit('auth/setUser', getUserData)
     } catch (err) {
       const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
 
