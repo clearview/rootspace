@@ -1,26 +1,17 @@
-import { getConnection, getCustomRepository } from 'typeorm'
-import { DeleteResult } from 'typeorm/query-builder/result/DeleteResult'
+import { getConnection, getCustomRepository, DeleteResult } from 'typeorm'
 import { FollowRepository } from '../database/repositories/FollowRepository'
 import { Follow } from '../database/entities/Follow'
 import { User } from '../database/entities/User'
 import { Activity } from '../database/entities/Activity'
-import { NotificationService, UserService, EntityService, TaskBoardService, TaskListService } from './index'
+import { UserService } from './index'
 import { ServiceFactory } from './factory/ServiceFactory'
 
 export class FollowService {
   private static instance: FollowService
-  private notificationService: NotificationService
   private userService: UserService
-  private entityService: EntityService
-  private taskBoardService: TaskBoardService
-  private taskListService: TaskListService
 
   private constructor() {
-    this.notificationService = NotificationService.getInstance()
     this.userService = ServiceFactory.getInstance().getUserService()
-    this.entityService = ServiceFactory.getInstance().getEntityService()
-    this.taskBoardService = ServiceFactory.getInstance().getTaskBoardService()
-    this.taskListService = ServiceFactory.getInstance().getTaskListService()
   }
 
   static getInstance() {
@@ -48,11 +39,6 @@ export class FollowService {
     return follows.filter((follow) => {
       return follow.userId !== activity.actorId
     })
-  }
-
-  async shouldReceiveNotification(userId: number, activity: Activity): Promise<boolean> {
-    const unreadNotification = await this.notificationService.getUnreadNotification(userId, activity)
-    return !unreadNotification
   }
 
   async followFromRequest(userId: number, entity: any): Promise<Follow> {
@@ -109,5 +95,9 @@ export class FollowService {
     }
 
     return this.getFollowRepository().remove(follow)
+  }
+
+  async deleteByEntityAndEntityId(entity: string, entityId: number): Promise<DeleteResult> {
+    return this.getFollowRepository().deleteByEntityAndEntityId(entity, entityId)
   }
 }

@@ -39,10 +39,10 @@
             </div>
             <div class="entry-author">
               <div class="author-avatar">
-                <avatar :size="24" :src="entry.user.avatar && entry.user.avatar.versions ? entry.user.avatar.versions.default.location : ''"  :username="`${entry.user.firstName} ${entry.user.lastName}`"></avatar>
+                <avatar :size="24" :src="entry.revisionUser.avatar && entry.revisionUser.avatar.versions ? entry.revisionUser.avatar.versions.default.location : ''"  :username="`${entry.revisionUser.firstName} ${entry.revisionUser.lastName}`"></avatar>
               </div>
               <div class="author-name">
-                {{entry.user.firstName}} {{entry.user.lastName}}
+                {{entry.revisionUser.firstName}} {{entry.revisionUser.lastName}}
               </div>
             </div>
           </div>

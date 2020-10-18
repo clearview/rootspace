@@ -2,7 +2,6 @@ import { getCustomRepository, DeleteResult, UpdateResult } from 'typeorm'
 import { NotificationRepository } from '../database/repositories/NotificationRepository'
 import { Notification } from '../database/entities/Notification'
 import { Activity } from '../database/entities/Activity'
-import { ActivityEvent } from './events/ActivityEvent'
 
 export class NotificationService {
   private static instance: NotificationService

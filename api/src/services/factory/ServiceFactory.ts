@@ -17,9 +17,10 @@ import {
   UploadService,
   FavoriteService,
   EntityService,
+  UserSettingService,
+  TaskCommentService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
-import { TaskCommentService } from '../content/tasks'
 
 export class ServiceFactory {
   private nodeService: NodeService
@@ -111,6 +112,10 @@ export class ServiceFactory {
 
   getUserService() {
     return UserService.getInstance()
+  }
+
+  getUserSettingService() {
+    return UserSettingService.getInstance()
   }
 
   getSpaceService() {

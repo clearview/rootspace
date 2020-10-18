@@ -58,7 +58,7 @@ export class Doc {
   contentUpdatedAt: Date
 
   @Column('integer', { nullable: true })
-  updatedBy: number
+  contentUpdatedBy: number
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
