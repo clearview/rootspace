@@ -23,8 +23,8 @@ export class NotificationService {
     return this.getNotificationRepository().getById(id, filter)
   }
 
-  requireById(id: number, filter = {}): Promise<Notification> {
-    const notification = this.getById(id, filter)
+  async requireById(id: number, filter = {}): Promise<Notification> {
+    const notification = await this.getById(id, filter)
 
     if (!notification) {
       throw clientError('Notification not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
