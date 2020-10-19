@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
-import { ucFirst } from '../utils'
 import { BaseCtrl } from './BaseCtrl'
 import { NotificationService, ActivityService, EntityService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { ForbiddenError } from '@casl/ability'
 import { Actions } from '../middleware/AuthMiddleware'
-import { Notification } from '../database/entities/Notification'
 
 export class NotificationsCtrl extends BaseCtrl {
   private notificationService: NotificationService
@@ -23,7 +21,13 @@ export class NotificationsCtrl extends BaseCtrl {
     const spaceId = Number(req.params.spaceId)
     this.checkSpaceAccess(req, spaceId)
 
-    const result = await this.activityService.getUserNotifyActivities(Number(req.user.id), spaceId)
+    const filter: any = {}
+
+    if (req.query.type) {
+      filter.type = req.query.type
+    }
+
+    const result = await this.activityService.getUserNotify(Number(req.user.id), spaceId, filter)
     res.send(this.responseData(result))
   }
 

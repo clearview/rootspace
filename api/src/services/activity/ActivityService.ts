@@ -68,8 +68,8 @@ export class ActivityService implements IActivityObserver {
     return new ActivityAggregator().aggregate(activities)
   }
 
-  async getUserNotifyActivities(userId: number, spaceId: number): Promise<Activity[]> {
-    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId)
+  async getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter)
     return new ActivityAggregator().aggregate(activities)
   }
 

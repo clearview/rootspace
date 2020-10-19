@@ -1,12 +1,11 @@
 import { EntityRepository, SelectQueryBuilder } from 'typeorm'
 import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
-import { Activity } from '../entities/Activity'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { ActivityType } from '../../types/activity'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
-import { ucFirst } from '../../utils'
+import { Activity } from '../entities/Activity'
+import { ActivityEvent } from '../../services/events/ActivityEvent'
+
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -56,7 +55,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return queryBuilder.getMany()
   }
 
-  getUserNotify(userId: number, spaceId: number): Promise<Activity[]> {
+  getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
     const queryBuilder = this.createQueryBuilder('activity')
 
     this.mapActivityActorAvatar(queryBuilder)
@@ -66,6 +65,12 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .orderBy('notification.createdAt', 'DESC')
       .where('activity.type = :type', { type: 'content' })
       .andWhere('activity.spaceId = :spaceId', { spaceId })
+
+    if (filter.type) {
+      queryBuilder.andWhere('activity.type = :type', { type: filter.type })
+    }
+
+    queryBuilder
       .andWhere('notification.userId = :userId', { userId })
       .andWhere('notification.isRead = false')
       .limit(30)
@@ -74,8 +79,6 @@ export class ActivityRepository extends BaseRepository<Activity> {
   }
 
   async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
-    entity = ActivityRepository.getEntity(entity)
-
     const queryBuilder = this.createQueryBuilder('activity')
 
     this.mapActivityActorAvatar(queryBuilder)
@@ -98,18 +101,5 @@ export class ActivityRepository extends BaseRepository<Activity> {
         'upload.entityId = activity.actorId and upload.entity = :uploadEntity',
         { uploadEntity: 'User' }
       )
-  }
-
-  static getEntity(entity: string): string {
-    switch (entity) {
-      case 'taskboard':
-        return ActivityType.TaskBoard
-
-      case 'tasklist':
-        return ActivityType.TaskList
-
-      default:
-        return ucFirst(entity)
-    }
   }
 }
