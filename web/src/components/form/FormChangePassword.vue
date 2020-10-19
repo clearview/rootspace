@@ -1,7 +1,5 @@
 <template>
   <form class="form" @submit.prevent="submit">
-
-    {{ this.$v.payload }}
     <v-field
       label="Current Password"
       name="oldpassword"
@@ -161,9 +159,9 @@ export default class FormSetPassword extends Vue {
     if (!this.$v.payload.$invalid) {
       this.$emit('submit', this.payload)
 
-      console.log('masuk submit passwords')
-
       this.$v.payload.$reset()
+
+      this.user.authProvider = 'local'
 
       this.payload = {
         password: '',

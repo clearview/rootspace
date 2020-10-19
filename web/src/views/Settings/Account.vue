@@ -15,7 +15,10 @@
     </div>
     <div class="col-right">
       <Alert v-model="account.alert"/>
-      <form-settings @submit="updateAccount" ref="account"/>
+      <form-settings
+        @submit-account="updateAccount"
+        @submit-password="updatePassword"
+        ref="account"/>
     </div>
 
     <Loading :loading="isLoading">
@@ -54,32 +57,47 @@ export default class Account extends Vue {
     await store.dispatch('auth/whoami', { updateSpace: true })
   }
 
-  async updateAccount (...args: [UserResource, PasswordResource]) {
+  async updateAccount (setting: UserResource) {
     this.isLoading = true
 
     try {
-      const [setting, password] = args
       let message = ''
       this.loadingMessage = 'Update Account Settings...'
 
-      if (setting.firstName !== '') {
-        const userUpdate = await UserService.update(setting)
-        message += 'Your account settings have been saved'
+      const userUpdate = await UserService.update(setting)
+      message += 'Your account settings have been saved'
 
-        const getUserData = userUpdate.data
-        this.$store.commit('auth/setUser', getUserData)
+      const getUserData = userUpdate.data
+      this.$store.commit('auth/setUser', getUserData)
+
+      this.account.alert = {
+        type: 'success',
+        message: message
       }
+    } catch (err) {
+      const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
 
-      const { authProvider } = this.$store.state.auth.user
-      if (
-        (password.password !== '' && password.newPassword !== '') ||
-        (authProvider === 'google' && password.newPassword !== '')
-      ) {
-        await UserService.passwordChange(password)
-        message += 'Your password have been saved'
+      this.account.alert = {
+        type: 'danger',
+        message: message,
+        fields: err.fields
       }
+    } finally {
+      this.isLoading = false
+    }
+  }
 
-      console.log('message', message)
+  async updatePassword (password: PasswordResource) {
+    this.isLoading = true
+
+    try {
+      let message = ''
+      this.loadingMessage = 'Update Password...'
+
+      await UserService.passwordChange(password)
+      message += 'Your password have been saved'
+
+      // await this.$store.dispatch('auth/whoami')
 
       this.account.alert = {
         type: 'success',

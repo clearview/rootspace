@@ -26,6 +26,12 @@
   @apply flex flex-row items-center justify-between;
   @apply pt-8;
   @apply text-base;
+
+  .btn-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 0.25rem;
+  }
 }
 
 .modal-body {

@@ -204,13 +204,10 @@ export default class FormSettings extends Vue {
   }
 
   submit (): void {
-    console.log('submit -----', this.payload)
     this.$v.payload.$touch()
 
-    console.log('submit', this.payload)
-
     if (!this.$v.payload.$invalid) {
-      this.$emit('submit', this.payload)
+      this.$emit('submit-account', this.payload)
     }
   }
 
@@ -225,16 +222,13 @@ export default class FormSettings extends Vue {
       type,
       visible
     }
-
-    console.log('password')
   }
 
   async changePassword (data: PasswordResource) {
     this.modal.loading = true
 
     try {
-      console.log('datadatadata', data)
-      this.$emit('submit', {}, data)
+      this.$emit('submit-password', data)
       // await this.$store.dispatch('tree/createFolder', data)
     } catch { }
 
