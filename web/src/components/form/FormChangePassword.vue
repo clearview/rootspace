@@ -118,7 +118,7 @@ import { Component, Vue } from 'vue-property-decorator'
   validations: {
     payload: {
       password: {
-        required: requiredIf(function (): boolean {
+        required: requiredIf(function (this: any): boolean {
           return this.user.authProvider !== 'google'
         }),
         minLength: minLength(8),
@@ -154,7 +154,6 @@ export default class FormSetPassword extends Vue {
 
   submit (): void {
     this.$v.payload.$touch()
-    console.log('submit passwords', this.$v.payload)
 
     if (!this.$v.payload.$invalid) {
       this.$emit('submit', this.payload)
