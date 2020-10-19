@@ -55,10 +55,6 @@ export class UserService {
     return this.getUserRepository().getById(id, additionalFields)
   }
 
-  getUserByIdWithNotifications(id: number, read: string): Promise<User | undefined> {
-    return this.getUserRepository().getByIdWithNotifications(id, read)
-  }
-
   async requireUserById(id: number, additionalFields?: string[]): Promise<User> {
     const user = await this.getUserById(id, additionalFields)
 

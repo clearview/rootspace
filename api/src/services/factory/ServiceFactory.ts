@@ -13,6 +13,7 @@ import {
   SpaceService,
   InviteService,
   ActivityService,
+  NotificationService,
   UserSpaceService,
   UploadService,
   FavoriteService,
@@ -132,6 +133,10 @@ export class ServiceFactory {
 
   getActivityService() {
     return ActivityService.getInstance()
+  }
+
+  getNotificationService() {
+    return NotificationService.getInstance()
   }
 
   getUserSpaceService() {

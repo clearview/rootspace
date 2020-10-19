@@ -1,4 +1,4 @@
-import { EntityRepository } from 'typeorm'
+import { EntityRepository, SelectQueryBuilder } from 'typeorm'
 import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Activity } from '../entities/Activity'
@@ -56,10 +56,40 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return queryBuilder.getMany()
   }
 
+  getUserNotify(userId: number, spaceId: number): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
+
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder
+      .innerJoin('notifications', 'notification', 'activity.id = notification.activity')
+      .orderBy('notification.createdAt', 'DESC')
+      .where('activity.type = :type', { type: 'content' })
+      .andWhere('activity.spaceId = :spaceId', { spaceId })
+      .andWhere('notification.userId = :userId', { userId })
+      .andWhere('notification.isRead = false')
+      .limit(30)
+
+    return queryBuilder.getMany()
+  }
+
   async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
     entity = ActivityRepository.getEntity(entity)
 
-    const qb = this.createQueryBuilder('activity')
+    const queryBuilder = this.createQueryBuilder('activity')
+
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder.where('activity.entity = :entity', { entity }).andWhere('activity.entityId = :entityId', { entityId })
+
+    return queryBuilder
+      .limit(100)
+      .orderBy('activity.createdAt', 'DESC')
+      .getMany()
+  }
+
+  private mapActivityActorAvatar(queryBuilder: SelectQueryBuilder<Activity>): void {
+    queryBuilder
       .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
       .leftJoinAndMapOne(
         'actor.avatar',
@@ -68,13 +98,6 @@ export class ActivityRepository extends BaseRepository<Activity> {
         'upload.entityId = activity.actorId and upload.entity = :uploadEntity',
         { uploadEntity: 'User' }
       )
-      .where('activity.entity = :entity', { entity })
-      .andWhere('activity.entityId = :entityId', { entityId })
-
-    return qb
-      .limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
   }
 
   static getEntity(entity: string): string {

@@ -1,7 +1,8 @@
-import { getCustomRepository, DeleteResult, UpdateResult } from 'typeorm'
-import { NotificationRepository } from '../database/repositories/NotificationRepository'
+import { getCustomRepository, UpdateResult } from 'typeorm'
 import { Notification } from '../database/entities/Notification'
 import { Activity } from '../database/entities/Activity'
+import { NotificationRepository } from '../database/repositories/NotificationRepository'
+import { HttpErrName, HttpStatusCode, clientError } from '../errors'
 
 export class NotificationService {
   private static instance: NotificationService
@@ -18,16 +19,23 @@ export class NotificationService {
     return getCustomRepository(NotificationRepository)
   }
 
-  getById(id: number): Promise<Notification> {
-    return this.getNotificationRepository().findOne(id)
+  getById(id: number, filter = {}): Promise<Notification> {
+    return this.getNotificationRepository().getById(id, filter)
   }
 
-  getNotificationsByUserId(userId: number): Promise<Notification[]> {
-    return this.getNotificationRepository().find({ id: userId })
+  requireById(id: number, filter = {}): Promise<Notification> {
+    const notification = this.getById(id, filter)
+
+    if (!notification) {
+      throw clientError('Notification not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return this.getNotificationRepository().findOne(id)
   }
 
   async create(activity: Activity, userId: number): Promise<Notification> {
     const notification = new Notification()
+
     notification.userId = userId
     notification.spaceId = activity.spaceId
     notification.activityId = activity.id
@@ -35,63 +43,18 @@ export class NotificationService {
     return this.getNotificationRepository().save(notification)
   }
 
-  save(notification: Notification): Promise<Notification> {
-    return this.getNotificationRepository().save(notification)
-  }
+  async seen(id: number, userId: number): Promise<Notification> {
+    const notification = await this.requireById(id)
 
-  async getUnreadNotification(userId: number, activity: Activity): Promise<Notification> {
-    return this.getNotificationRepository().getUnreadUserNotificationForEntity(
-      userId,
-      activity.entityId,
-      activity.entity
-    )
-  }
-
-  getUserNotifications(id: number, spaceId?: number, read?: string): Promise<Notification[]> {
-    return this.getNotificationRepository().getUserNotifications(id, spaceId, read)
-  }
-
-  async readUserNotification(id: number, userId: number): Promise<Notification> {
-    const notification = await this.getNotificationRepository().findOne({ id, userId, isRead: false })
-
-    if (!notification) {
-      throw new Error('Notification does not exist')
+    if (notification.userId !== userId) {
+      throw clientError('Notification not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     notification.isRead = true
-
     return this.getNotificationRepository().save(notification)
   }
 
-  async readUsersNotificationsForEntity(userId: number, entityName: string, entityId: number): Promise<UpdateResult> {
-    const unreadNotifications = await this.getNotificationRepository().getUnreadUserNotificationsForEntity(
-      userId,
-      entityName,
-      entityId
-    )
-
-    if (unreadNotifications.length > 0) {
-      const ids = unreadNotifications.map((notification) => notification.id)
-      return this.readUsersNotificationsForEntityIds(ids, userId)
-    }
-  }
-
-  async readUsersNotificationsForEntityIds(ids: number[], userId: number): Promise<UpdateResult> {
-    return this.getNotificationRepository().read(ids, userId)
-  }
-
-  async removeUserNotificationsForItem(userId: number, entityId: number, tableName: string): Promise<void> {
-    const notifications = await this.getNotificationRepository().getUserNotificationsForEntity(
-      userId,
-      entityId,
-      tableName
-    )
-    if (notifications.length > 0) {
-      await this.getNotificationRepository().remove(notifications)
-    }
-  }
-
-  async delete(criteria: any): Promise<DeleteResult> {
-    return this.getNotificationRepository().delete(criteria)
+  async seenForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult> {
+    return this.getNotificationRepository().setSeenByUserForEntity(userId, entity, entityId)
   }
 }

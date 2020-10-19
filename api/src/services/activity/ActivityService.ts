@@ -55,10 +55,6 @@ export class ActivityService implements IActivityObserver {
     return this.getActivityRepository().findOne(id)
   }
 
-  getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
-    return this.getActivityRepository().find({ spaceId })
-  }
-
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
@@ -69,6 +65,11 @@ export class ActivityService implements IActivityObserver {
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getByActorId(actorId, filter)
+    return new ActivityAggregator().aggregate(activities)
+  }
+
+  async getUserNotifyActivities(userId: number, spaceId: number): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId)
     return new ActivityAggregator().aggregate(activities)
   }
 

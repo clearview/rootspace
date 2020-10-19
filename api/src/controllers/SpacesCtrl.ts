@@ -4,19 +4,15 @@ import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { clientError, HttpErrName } from '../errors'
 import { SpaceFacade, InviteFacade } from '../services/facade'
-import { ActivityService } from '../services'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class SpacesCtrl extends BaseCtrl {
   private inviteFacade: InviteFacade
   private spaceFacade: SpaceFacade
-  private activityService: ActivityService
 
   constructor() {
     super()
     this.inviteFacade = new InviteFacade()
     this.spaceFacade = new SpaceFacade()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   async listAll(req: Request, res: Response) {
@@ -70,16 +66,6 @@ export class SpacesCtrl extends BaseCtrl {
 
     const invites = await this.inviteFacade.getInvitesBySpaceId(spaceId)
     const resData = this.responseData(invites)
-
-    res.send(resData)
-  }
-
-  async activities(req: Request, res: Response) {
-    const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
-
-    const activities = await this.activityService.getActivitiesBySpaceId(spaceId)
-    const resData = this.responseData(activities)
 
     res.send(resData)
   }
