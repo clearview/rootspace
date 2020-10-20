@@ -60,7 +60,8 @@ export class ActivityService implements IActivityObserver {
   }
 
   async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
-    return this.getActivityRepository().getBySpaceId(spaceId, filter)
+    const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter)
+    return new ActivityAggregator().aggregate(activities)
   }
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
