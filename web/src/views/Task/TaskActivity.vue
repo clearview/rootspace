@@ -118,7 +118,7 @@ export default class TaskActivity extends Vue {
     return this.getContextListOutput('tag', 'label', 'strong')
   }
 
-  getContextListOutput (listName, property, tag) {
+  getContextListOutput (listName: string, property: string, tag: string) {
     if (!this.activity.context || !this.activity.context[listName]) {
       return ''
     }
