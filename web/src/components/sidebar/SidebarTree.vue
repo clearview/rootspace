@@ -171,6 +171,8 @@ import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
+import DocumentService from '@/services/document'
+
 enum NodeType {
   Link = 'link',
   Doc = 'doc',
@@ -299,8 +301,27 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.$emit('menu-selected', false)
 
       try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: 'Untitled',
+          content: {},
+          access: 2,
+          isLocked: false
+        }
+
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
-        await this.$router.push({ name: 'Document' })
+
+        const document = await DocumentService.create({
+          ...payload,
+          parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined
+        })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        await this.fetchTree()
+        this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
+          .catch(() => {
+            // Silent duplicate error
+          })
       } catch { }
 
       return true
