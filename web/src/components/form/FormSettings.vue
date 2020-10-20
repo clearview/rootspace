@@ -234,6 +234,7 @@ export default class FormSettings extends Vue {
       type,
       visible
     }
+    this.password.alert = null
   }
 
   async changePassword (data: PasswordResource) {
