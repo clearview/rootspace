@@ -62,22 +62,20 @@ export class UploadService extends Service {
     return upload
   }
 
-  getUploadByEntityId(entityId: number, entity: string): Promise<Upload | undefined> {
-    return this.getUploadRepository().getByEntityId(entityId, entity)
-  }
-
-  getEntityFromUpload(upload: Upload): Promise<any | undefined> {
-    return this.getUploadRepository().getEntityFromUpload(upload)
+  getUploadByEntity(entityId: number, entity: string): Promise<Upload | undefined> {
+    return this.getUploadRepository().getByEntity(entity, entityId)
   }
 
   async upload(data: UploadValue) {
+    const entity = await this.entityService.getEntityByNameAndId(data.attributes.entity, data.attributes.entityId)
+
+    if (!entity) {
+      throw clientError('Entity for uplaod not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
     let upload = await this.obtainUploadEntity(data)
 
     Object.assign(upload, data.attributes)
-
-    if (!(await this.getEntityFromUpload(upload))) {
-      throw clientError('Entity for uplaod not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
-    }
 
     const key = this.createFilePath(data.file.originalname, data.attributes.spaceId, data.attributes.entityId)
 
@@ -108,7 +106,7 @@ export class UploadService extends Service {
 
   async obtainUploadEntity(data: UploadValue): Promise<Upload> {
     if (this.isUploadUniqueType(data.attributes.type)) {
-      const upload = await this.getUploadByEntityId(data.attributes.entityId, data.attributes.entity)
+      const upload = await this.getUploadByEntity(data.attributes.entityId, data.attributes.entity)
 
       if (upload) {
         await this.removeUploadFiles(upload)

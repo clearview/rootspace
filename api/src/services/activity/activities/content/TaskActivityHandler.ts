@@ -1,36 +1,37 @@
-import pug from 'pug'
 import 'dotenv/config'
 import { config } from 'node-config-ts'
 import { User } from '../../../../database/entities/User'
 import { Task } from '../../../../database/entities/tasks/Task'
-import { ServiceFactory } from '../../../../services/factory/ServiceFactory'
-import { MailService, UserService, UserSettingService } from '../../../'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './types'
 import { ContentActions, TaskActions } from './actions'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {
-  private mailTemplatesDir = `${process.cwd()}/src/templates/mail/notification/`
-
-  private mailService: MailService
-  private userService: UserService
-
   private constructor(data: IContentActivityData) {
     super(data)
-
-    this.mailService = ServiceFactory.getInstance().getMailService()
-    this.userService = ServiceFactory.getInstance().getUserService()
   }
 
   async process(): Promise<void> {
     await this.init()
 
-    await this.sendEmailNotifications()
-    await this.createNotifications()
+    if (this.activity.action === TaskActions.Assignee_Removed) {
+      await this.processNotifications()
+      await this.processAction()
 
+      return
+    }
+
+    await this.processAction()
+    await this.processNotifications()
+  }
+
+  private async processAction() {
     switch (this.activity.action) {
       case ContentActions.Created:
         await this.contentCreated()
+        break
+      case ContentActions.Deleted:
+        this.contentDeleted()
         break
       case TaskActions.Assignee_Added:
         await this.assigneeAdded()
@@ -39,6 +40,15 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
         await this.assigneeRemoved()
         break
     }
+  }
+
+  private async processNotifications(): Promise<void> {
+    if (this.activity.action === ContentActions.Deleted) {
+      return
+    }
+
+    await this.createNotificationEntries()
+    await this.sendEmailNotifications()
   }
 
   private async assigneeAdded() {
@@ -55,38 +65,32 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     await this.followService.unfollowEntity(assigneeId, this.entity)
   }
 
-  async sendEmailNotifications(): Promise<void> {
+  private async sendEmailNotifications(): Promise<void> {
+    const entityUrl = `${config.domain}/taskboard/${this.entity.boardId}/item/${this.entity.id}/${this.entity.slug}`
     const follows = await this.followService.getFollowsForActivity(this.activity)
 
     for (const follow of follows) {
-      const shouldReceiveNotification = await this.followService.shouldReceiveNotification(follow.userId, this.activity)
-
-      if (!shouldReceiveNotification) {
-        //continue
-      }
-
-      const userSetting = await UserSettingService.getInstance().getSettings(follow.userId, this.activity.spaceId)
-
-      if ((userSetting && userSetting.preferences.notifications?.email === true) || 1) {
+      if ((await this.userEmailNotifications(follow.userId)) === true) {
         const user = await this.userService.getUserById(follow.userId)
-        const message = this.getNotificationMessage()
+        const message = this.getNotificationMessage(user)
 
-        await this.sendNotificationEmail(user, message)
+        await this.sendNotificationEmail(user, message, entityUrl)
       }
     }
   }
 
-  private async sendNotificationEmail(user: User, message: string): Promise<void> {
-    const taskUrl = `${config.domain}/taskboard/${this.entity.boardId}/item/${this.entity.id}/${this.entity.slug}`
-    const content = pug.renderFile(this.mailTemplatesDir + 'task.pug', { message, taskUrl })
-
-    await this.mailService.sendMail(user.email, message, content)
-  }
-
-  private getNotificationMessage(): string {
+  private getNotificationMessage(user: User): string {
     const actor = this.activity.actor
     const context = this.activity.context as any
     const title = context.entity.title
+
+    if (this.activity.action === TaskActions.Assignee_Added && user.id === context.assignee.id) {
+      return `${actor.fullName()} assigneed you to task ${title}`
+    }
+
+    if (this.activity.action === TaskActions.Assignee_Removed && user.id === context.assignee.id) {
+      return `${actor.fullName()} removed you from task ${title}`
+    }
 
     const messages = {
       [ContentActions.Created]: `${actor.fullName()} created task ${title}}`,
@@ -98,7 +102,8 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
         context.toList?.title
       }'`,
       [TaskActions.Comment_Created]: `${actor.fullName()} commented task ${title}`,
-      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullName ?? ''} to task ${title}`,
+      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullName ??
+        ''} to task ${title}`,
       [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
         ''} from task ${title}`,
       [TaskActions.Tag_Added]: `${actor.fullName()} added tag ${context.tag?.label} to task ${title}`,

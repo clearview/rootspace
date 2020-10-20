@@ -2,7 +2,7 @@ import { Activity } from '../../../database/entities/Activity'
 import { IActivityAggregator } from '../types'
 import { ContentActions, TaskActions } from '../activities/content/actions'
 
-const aggregateActions = [
+const aggregateActions: string[] = [
   TaskActions.Tag_Added,
   TaskActions.Tag_Removed,
   TaskActions.Assignee_Added,
@@ -12,7 +12,7 @@ const aggregateActions = [
 ]
 
 export class TaskActivityAggregator implements IActivityAggregator {
-  protected aggregateActions = []
+  private aggregateActions = []
 
   constructor() {
     this.aggregateActions = aggregateActions
@@ -22,6 +22,8 @@ export class TaskActivityAggregator implements IActivityAggregator {
     const filtered = this.filter(activities)
     const entries: Activity[] = []
 
+    let joint: Activity[] = []
+
     for (const activity of filtered) {
       if (!this.aggregateActions.includes(activity.action)) {
         entries.push(activity)
@@ -29,29 +31,38 @@ export class TaskActivityAggregator implements IActivityAggregator {
       }
 
       if (entries.length === 0) {
-        const entry = this.createEntry(activity)
-        entries.push(entry)
-
+        joint.push(activity)
         continue
       }
 
-      const lastEntry = entries[entries.length - 1]
-
-      if (activity.action !== lastEntry.action) {
-        const entry = this.createEntry(activity)
-
-        entries.push(entry)
-
+      if (this.compareActivities(activity, joint[joint.length - 1]) === true) {
+        joint.push(activity)
         continue
       }
 
-      const context = lastEntry.context as object[]
-      context.push(activity.context)
+      entries.push(this.processJoint(joint))
 
-      lastEntry.context = context
+      joint = []
+      joint.push(activity)
+    }
+
+    if (joint.length > 0) {
+      entries.push(this.processJoint(joint))
     }
 
     return entries
+  }
+
+  private compareActivities(activit1: Activity, activity2: Activity): boolean {
+    if (activit1.actorId !== activity2.actorId) {
+      return false
+    }
+
+    if (activit1.action !== activity2.action) {
+      return false
+    }
+
+    return true
   }
 
   private filter(activities: Activity[]): Activity[] {
@@ -70,7 +81,36 @@ export class TaskActivityAggregator implements IActivityAggregator {
     return filtered
   }
 
-  protected createEntry(activity: Activity): Activity {
-    return { ...activity, context: [activity.context] }
+  private processJoint(joint: Activity[]): Activity {
+    const activity = joint[0]
+
+    if (activity.action === TaskActions.Tag_Added || activity.action === TaskActions.Tag_Removed) {
+      return this.processGatherContextProperty(joint, 'tag')
+    }
+
+    if (activity.action === TaskActions.Attachment_Added || activity.action === TaskActions.Attachment_Removed) {
+      return this.processGatherContextProperty(joint, 'attachment')
+    }
+
+    if (activity.action === TaskActions.Assignee_Added || activity.action === TaskActions.Assignee_Removed) {
+      return this.processGatherContextProperty(joint, 'assignee')
+    }
+
+    const context = joint.map((j) => j.context)
+
+    activity.context = context
+    return activity
+  }
+
+  private processGatherContextProperty(joint: Activity[], property: string): Activity {
+    const activity = joint[0]
+    const context = activity.context as any
+
+    const values = joint.map((j) => (j.context as any)[property])
+
+    context[property] = values
+    activity.context = context
+
+    return activity
   }
 }

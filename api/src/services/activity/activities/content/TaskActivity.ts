@@ -91,11 +91,11 @@ export class TaskActivity extends ContentActivity<Task> {
   }
 
   static attachmentAdded(entity: Task, upload: Upload, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Attachment_Added, entity, actorId)
+    return new TaskActivity(TaskActions.Attachment_Added, entity, actorId).createAttachmentContext(upload)
   }
 
   static attachmentRemoved(entity: Task, upload: Upload, actorId?: number): IContentActivity {
-    return new TaskActivity(TaskActions.Attachment_Removed, entity, actorId)
+    return new TaskActivity(TaskActions.Attachment_Removed, entity, actorId).createAttachmentContext(upload)
   }
 
   private createAssigneeContext(assignee: User): IContentActivity {
@@ -118,6 +118,18 @@ export class TaskActivity extends ContentActivity<Task> {
       entity: this.filterEntityAttributes(this._entity),
       tag: {
         label: tag.label,
+      },
+    }
+
+    return this
+  }
+
+  private createAttachmentContext(upload: Upload): IContentActivity {
+    this._context = {
+      entity: this.filterEntityAttributes(this._entity),
+      attachment: {
+        id: upload.id,
+        filename: upload.filename,
       },
     }
 

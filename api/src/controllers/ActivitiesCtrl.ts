@@ -1,4 +1,4 @@
-import e, { Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { ActivityService, EntityService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
@@ -35,7 +35,7 @@ export class ActivitiesCtrl extends BaseCtrl {
   }
 
   async getForEntity(req: Request, res: Response) {
-    const entityName = req.params.entity
+    const entityName = this.entityService.convertEntityName(req.params.entity)
     const entityId = Number(req.params.entityId)
 
     const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)

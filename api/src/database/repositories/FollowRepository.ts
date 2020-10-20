@@ -1,23 +1,14 @@
-import { EntityRepository, getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
+import { EntityRepository, DeleteResult } from 'typeorm'
 import { Follow } from '../entities/Follow'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { IContentActivityData } from '../../services/activity/activities/content'
 
 @EntityRepository(Follow)
 export class FollowRepository extends BaseRepository<Follow> {
-  async getEntityFromActivity(activity: ActivityEvent | IContentActivityData): Promise<any> {
-    return getConnection()
-      .getRepository(activity.entity)
-      .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: activity.entityId})
-      .getOne()
-  }
-
-  async getFollowsForTasks(taskIds: number[]): Promise<Follow[]> {
+  deleteByEntityAndEntityId(entity: string, entityId: number): Promise<DeleteResult> {
     return this.createQueryBuilder('follow')
-      .where('follow.entityId IN (:...entityIds)', {entityIds: taskIds})
-      .andWhere('follow.tableName = :tableName', {tableName: 'tasks'})
-      .getMany()
+      .delete()
+      .where('entity = :entity', { entity })
+      .andWhere('entityId = :entityId', { entityId })
+      .execute()
   }
 }

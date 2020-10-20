@@ -55,20 +55,22 @@ export class ActivityService implements IActivityObserver {
     return this.getActivityRepository().findOne(id)
   }
 
-  getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
-    return this.getActivityRepository().find({ spaceId })
-  }
-
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
   async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
-    return this.getActivityRepository().getBySpaceId(spaceId, filter)
+    const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter)
+    return new ActivityAggregator().aggregate(activities)
   }
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getByActorId(actorId, filter)
+    return new ActivityAggregator().aggregate(activities)
+  }
+
+  async getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter)
     return new ActivityAggregator().aggregate(activities)
   }
 

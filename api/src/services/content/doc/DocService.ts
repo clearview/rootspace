@@ -110,8 +110,13 @@ export class DocService extends NodeContentService {
 
     const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
+    if (setup.updatedAttributes.length === 0) {
+      return doc
+    }
+
     if (setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
+      updatedDoc.contentUpdatedBy = userId
     }
 
     if (setup.createRevision === true) {
@@ -120,7 +125,6 @@ export class DocService extends NodeContentService {
     }
 
     Object.assign(updatedDoc, data.attributes)
-    updatedDoc.updatedBy = userId
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
     updatedDoc = await this.getDocRepository().reload(updatedDoc)
@@ -140,8 +144,8 @@ export class DocService extends NodeContentService {
     docRevision.docId = doc.id
     docRevision.content = doc.content
     docRevision.number = doc.revision
-    docRevision.revisionBy = doc.updatedBy ?? doc.userId
-    docRevision.revisionAt = doc.updatedAt ?? doc.createdAt
+    docRevision.revisionBy = doc.contentUpdatedBy ?? doc.userId
+    docRevision.revisionAt = doc.contentUpdatedAt ?? doc.createdAt
 
     await this.getDocRevisionRepository().save(docRevision)
   }

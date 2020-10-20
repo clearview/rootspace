@@ -1,12 +1,11 @@
-import { EntityRepository } from 'typeorm'
+import { EntityRepository, SelectQueryBuilder } from 'typeorm'
 import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
-import { Activity } from '../entities/Activity'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { ActivityType } from '../../types/activity'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
-import { ucFirst } from '../../utils'
+import { Activity } from '../entities/Activity'
+import { ActivityEvent } from '../../services/events/ActivityEvent'
+
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -56,10 +55,44 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return queryBuilder.getMany()
   }
 
-  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
-    entity = ActivityRepository.getEntity(entity)
+  getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
 
-    const qb = this.createQueryBuilder('activity')
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder
+      .innerJoin('notifications', 'notification', 'activity.id = notification.activity')
+      .orderBy('notification.createdAt', 'DESC')
+      .where('activity.type = :type', { type: 'content' })
+      .andWhere('activity.spaceId = :spaceId', { spaceId })
+
+    if (filter.type) {
+      queryBuilder.andWhere('activity.type = :type', { type: filter.type })
+    }
+
+    queryBuilder
+      .andWhere('notification.userId = :userId', { userId })
+      .andWhere('notification.isRead = false')
+      .limit(30)
+
+    return queryBuilder.getMany()
+  }
+
+  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
+
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder.where('activity.entity = :entity', { entity }).andWhere('activity.entityId = :entityId', { entityId })
+
+    return queryBuilder
+      .limit(100)
+      .orderBy('activity.createdAt', 'DESC')
+      .getMany()
+  }
+
+  private mapActivityActorAvatar(queryBuilder: SelectQueryBuilder<Activity>): void {
+    queryBuilder
       .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
       .leftJoinAndMapOne(
         'actor.avatar',
@@ -68,25 +101,5 @@ export class ActivityRepository extends BaseRepository<Activity> {
         'upload.entityId = activity.actorId and upload.entity = :uploadEntity',
         { uploadEntity: 'User' }
       )
-      .where('activity.entity = :entity', { entity })
-      .andWhere('activity.entityId = :entityId', { entityId })
-
-    return qb
-      .limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
-  }
-
-  static getEntity(entity: string): string {
-    switch (entity) {
-      case 'taskboard':
-        return ActivityType.TaskBoard
-
-      case 'tasklist':
-        return ActivityType.TaskList
-
-      default:
-        return ucFirst(entity)
-    }
   }
 }

@@ -34,21 +34,6 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
-  getByIdWithNotifications(id: number, read: string): Promise<User> {
-    const queryBuilder = this.createQueryBuilder('User')
-      .leftJoinAndSelect('User.notifications', 'notification')
-      .where('User.id = :id', { id })
-
-    switch (read) {
-      case 'read':
-      case 'unread':
-        queryBuilder.andWhere(`notification.isRead = :read`, { read: read === 'read' })
-        break
-    }
-
-    return queryBuilder.getOne()
-  }
-
   getByEmail(email: string, selectPassword = false): Promise<User> {
     const queryBuilder = this.createQueryBuilder()
 
@@ -62,10 +47,10 @@ export class UserRepository extends Repository<User> {
       .getOne()
   }
 
-  private mapAvatar(queryBuilder: SelectQueryBuilder<User>): SelectQueryBuilder<User> {
+  private mapAvatar(queryBuilder: SelectQueryBuilder<User>): void {
     const alias = queryBuilder.alias
 
-    return queryBuilder.leftJoinAndMapOne(
+    queryBuilder.leftJoinAndMapOne(
       alias + '.avatar',
       Upload,
       'upload',
