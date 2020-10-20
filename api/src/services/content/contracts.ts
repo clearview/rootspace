@@ -14,8 +14,10 @@ export interface INodeContentMediator {
 
 export interface INodeContentUpdate {
   title?: string
+  userId?: string
 }
 
 export interface IContentNodeUpdate {
   title?: string
+  userId?: string
 }

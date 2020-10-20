@@ -31,8 +31,6 @@ export class DocActivityHandler extends ContentActivityHandler<Doc> {
   }
 
   private async contentUpdated(): Promise<void> {
-    console.log('contentUpdated')
-    console.log(this.activity.actorId)
     await this.followService.followEntity(this.activity.actorId, this.entity)
   }
 
