@@ -41,47 +41,35 @@
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.AssigneeAdded">
           <span>assigned</span>&nbsp;
-          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
-            <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-          </span>
-          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
+          <span v-html="assignees"></span>
           <span class="subject"> to this task</span>
         </span>
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.AssigneeRemoved">
           <span>removed</span>&nbsp;
-          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.assignee.id">
-            <strong>{{context.assignee.firstName}} {{context.assignee.lastName}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-          </span>
-          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].assignee.firstName}} {{activity.context[activity.context.length-1].assignee.lastName}}</strong></span>
+          <span v-html="assignees"></span>
           <span class="subject"> from this task</span>
         </span>
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.TagAdded">
           <span>tagged this task with</span>&nbsp;
-          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
-            <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-          </span>
-          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
+          <span v-html="tags"></span>
         </span>
 
         <span class="action"  v-if="activity.action === ACTIVITY_TYPE.TagRemoved">
           <span>removed tag</span>&nbsp;
-          <span class="subject" v-for="(context, index) in contextWithoutLast" :key="context.tag.label">
-            <strong>{{context.tag.label}}</strong><span v-if="index < contextWithoutLast.length - 1">, </span>
-          </span>
-          <span class="subject" v-if="activity.context && activity.context.length > 1"> and <strong>{{activity.context[activity.context.length-1].tag.label}}</strong></span>
+          <span v-html="tags"></span>
           <span class="subject"> from this task</span>
         </span>
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.AttachmentAdded">
-          <span v-if="activity.context && activity.context.length === 1">added an attachment to this task</span>
-          <span v-else>added {{activity.context.length}} attachments to this task</span>
+          <span v-if="activity.context && activity.context.attachment.length === 1">added an attachment to this task</span>
+          <span v-else>added {{activity.context.attachment.length}} attachments to this task</span>
         </span>
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.AttachmentRemoved">
-          <span v-if="activity.context && activity.context.length === 1">removed an attachment from this task</span>
-          <span v-else>removed {{activity.context.length}} attachments from this task</span>
+          <span v-if="activity.context && activity.context.attachment.length === 1">removed an attachment from this task</span>
+          <span v-else>removed {{activity.context.attachment.length}} attachments from this task</span>
         </span>
       </div>
 
@@ -122,17 +110,38 @@ export default class TaskActivity extends Vue {
   @Prop({ type: Object, required: true })
   private readonly activity!: TaskActivityResource;
 
-  get contextWithoutLast () {
-    if (this.activity.context) {
-      if (!this.activity.context.length) {
-        return [this.activity.context]
-      }
-      if (this.activity.context.length === 1) {
-        return this.activity.context
-      } else {
-        return [...this.activity.context].slice(0, this.activity.context.length - 1)
-      }
+  get assignees () {
+    return this.getContextListOutput('assignee', 'fullName', 'strong')
+  }
+
+  get tags () {
+    return this.getContextListOutput('tag', 'label', 'strong')
+  }
+
+  getContextListOutput (listName, property, tag) {
+    if (!this.activity.context || !this.activity.context[listName]) {
+      return ''
     }
+
+    const list = this.activity.context[listName]
+
+    if (list.length === 0) {
+      return ''
+    }
+
+    const last = `<${tag}>` + list.pop()[property] + `</${tag}>`
+
+    if (list.length === 0) {
+      return last
+    }
+
+    const entries = []
+
+    for (const item of list) {
+      entries.push(`<${tag}>` + item[property] + `</${tag}>`)
+    }
+
+    return entries.join(', ') + ' and ' + last
   }
 
   get ACTIVITY_TYPE () {
