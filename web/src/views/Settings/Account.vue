@@ -17,7 +17,6 @@
       <Alert v-model="account.alert"/>
       <form-settings
         @submit-account="updateAccount"
-        @submit-password="updatePassword"
         ref="account"/>
     </div>
 
@@ -34,7 +33,7 @@ import UploadableImage from '@/components/UploadableImage.vue'
 import Alert from '@/components/Alert.vue'
 import FormSettings from '@/components/form/FormSettings.vue'
 import store from '@/store'
-import { PasswordResource, UserResource } from '@/types/resource'
+import { UserResource } from '@/types/resource'
 import UserService from '@/services/user'
 import Loading from '@/components/Loading.vue'
 import Avatar from 'vue-avatar'
@@ -43,7 +42,7 @@ import Modal from '@/components/Modal.vue'
   components: { Modal, Loading, FormSettings, Alert, UploadableImage, Avatar }
 })
 export default class Account extends Vue {
-  private loadingMessage = 'Update Settings...';
+  private loadingMessage = 'Update Settings...'
   private isLoading = false;
   private account: any = {
     alert: null
@@ -69,35 +68,6 @@ export default class Account extends Vue {
 
       const getUserData = userUpdate.data
       this.$store.commit('auth/setUser', getUserData)
-
-      this.account.alert = {
-        type: 'success',
-        message: message
-      }
-    } catch (err) {
-      const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
-
-      this.account.alert = {
-        type: 'danger',
-        message: message,
-        fields: err.fields
-      }
-    } finally {
-      this.isLoading = false
-    }
-  }
-
-  async updatePassword (password: PasswordResource) {
-    this.isLoading = true
-
-    try {
-      let message = ''
-      this.loadingMessage = 'Update Password...'
-
-      await UserService.passwordChange(password)
-      message += 'Your password have been saved'
-
-      // await this.$store.dispatch('auth/whoami')
 
       this.account.alert = {
         type: 'success',

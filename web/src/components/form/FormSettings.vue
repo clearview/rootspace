@@ -136,11 +136,13 @@
     <modal
       title="Change Password"
       :visible="isModalVisible('changePassword')"
+      :is-loading="modal.loading"
       :contentStyle="{ width: '456px' }"
       @cancel="changePasswordModal(false, 'changePassword')"
       @confirm="() => $refs.changePasswordForm.submit()"
     >
       <div class="modal-body">
+        <Alert v-model="password.alert"/>
         <form-change-password
           ref="changePasswordForm"
           @submit="changePassword"
@@ -158,6 +160,8 @@ import { PasswordResource } from '@/types/resource'
 import VField from '@/components/Field.vue'
 import Modal from '@/components/Modal.vue'
 import FormChangePassword from '@/components/form/FormChangePassword.vue'
+import UserService from '@/services/user'
+import Alert from '@/components/Alert.vue'
 
 import { Vue, Component } from 'vue-property-decorator'
 
@@ -166,7 +170,8 @@ import { Vue, Component } from 'vue-property-decorator'
   components: {
     VField,
     Modal,
-    FormChangePassword
+    FormChangePassword,
+    Alert
   },
   validations: {
     payload: {
@@ -178,6 +183,9 @@ import { Vue, Component } from 'vue-property-decorator'
 })
 
 export default class FormSettings extends Vue {
+  private loadingMessage = 'Update Password...'
+  private isLoading = false;
+
   private payload = {
     firstName: '',
     lastName: '',
@@ -190,6 +198,10 @@ export default class FormSettings extends Vue {
     loading: false,
     alert: null
   }
+
+  private password: any = {
+    alert: null
+  };
 
   get user () {
     return this.$store.state.auth.user
@@ -225,16 +237,38 @@ export default class FormSettings extends Vue {
   }
 
   async changePassword (data: PasswordResource) {
-    this.modal.loading = true
-
     try {
-      this.$emit('submit-password', data)
-      // await this.$store.dispatch('tree/createFolder', data)
-    } catch { }
+      await this.updatePassword(data)
+    } catch {
+      this.modal.loading = false
+    }
+  }
 
-    this.modal.loading = false
+  async updatePassword (password: PasswordResource) {
+    try {
+      this.modal.loading = true
+      let message = ''
 
-    this.changePasswordModal(false)
+      await UserService.passwordChange(password)
+      message += 'Your password have been saved'
+
+      // await this.$store.dispatch('auth/whoami')
+
+      this.password.alert = {
+        type: 'success',
+        message: message
+      }
+    } catch (err) {
+      const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
+
+      this.password.alert = {
+        type: 'danger',
+        message: message,
+        fields: err.fields
+      }
+    } finally {
+      this.modal.loading = false
+    }
   }
 }
 </script>
