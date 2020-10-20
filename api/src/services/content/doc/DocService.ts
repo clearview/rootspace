@@ -1,3 +1,4 @@
+import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../../database/repositories/DocRepository'
 import { DocRevisionRepository } from '../../../database/repositories/DocRevisionRepository'
@@ -12,6 +13,7 @@ import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
 import { DocUpdateSetup } from './DocUpdateSetup'
 import { DocActivity } from '../../activity/activities/content/index'
+import { INodeContentUpdate } from '../contracts'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -105,8 +107,42 @@ export class DocService extends NodeContentService {
   }
 
   async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
-    const doc = await this.getById(id)
-    let updatedDoc = await this.getById(id)
+    const doc = await this.requireById(id)
+    const updatedDoc = await this._update(data, doc, userId)
+
+    if (doc.title !== updatedDoc.title) {
+      await this.nodeContentMediator.contentUpdated(updatedDoc.id, this.getNodeType(), {
+        title: updatedDoc.title,
+      })
+    }
+
+    return updatedDoc
+  }
+
+  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
+    if (!data.title) {
+      return
+    }
+
+    const doc = await this.getById(contentId)
+
+    if (!doc) {
+      return
+    }
+
+    const value = DocUpdateValue.fromObject({
+      title: data.title,
+    })
+
+    this._update(value, doc)
+  }
+
+  private async _update(data: DocUpdateValue, doc: Doc, userId?: number): Promise<Doc> {
+    if (!userId) {
+      userId = httpRequestContext.get('user').id
+    }
+
+    let updatedDoc = await this.getById(doc.id)
 
     const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
