@@ -14,7 +14,6 @@ export interface IContentActivityData extends IAppActivityData {
   type: string
   tableName: string
   context: object
-  handler: string
 }
 
 export interface IContentActivity extends IAppActivity {
