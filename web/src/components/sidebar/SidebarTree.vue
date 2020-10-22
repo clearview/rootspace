@@ -317,7 +317,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         })
         const getDocument = document.data
         this.$store.commit('document/setDeferredParent', null)
-        await this.fetchTree()
         this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
           .catch(() => {
             // Silent duplicate error
