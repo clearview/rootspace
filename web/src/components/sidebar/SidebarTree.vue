@@ -172,6 +172,7 @@ import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
 import DocumentService from '@/services/document'
+import EventBus from '@/utils/eventBus'
 
 enum NodeType {
   Link = 'link',
@@ -317,6 +318,18 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         })
         const getDocument = document.data
         this.$store.commit('document/setDeferredParent', null)
+        await this.fetchTree()
+        // console.log('Sidebar Tree', getDocument)
+        // this.$store.commit('tree/updateNode', {
+        //   compareFn (node: NodeResource) {
+        //     console.log('getDocument.data.contentId', getDocument.data.contentId)
+        //     return node.contentId.toString() === getDocument.data.contentId
+        //   },
+        //   fn (node: NodeResource) {
+        //     console.log('node +++++', node)
+        //     return { ...node, title: 'Untitled' }
+        //   }
+        // })
         this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
           .catch(() => {
             // Silent duplicate error
@@ -539,7 +552,11 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       // Sync node update with api
       if (!localOnly) {
+        console.log('loss', node)
         await this.$store.dispatch('tree/update', nextNode)
+        // await DocumentService.update(node.contentId, node.title)
+        EventBus.$emit('BUS_DOC_UPDATE', node)
+        console.log('BUS DOC', node)
       }
     } catch (ex) {
       console.error(ex)

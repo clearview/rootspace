@@ -72,6 +72,7 @@ import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
 import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
+import EventBus from '@/utils/eventBus'
 
 @Component({
   name: 'Document',
@@ -228,14 +229,24 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
       if (id) {
         await DocumentService.update(id, data)
+        console.log('ID', id)
         this.$store.commit('tree/updateNode', {
           compareFn (node: NodeResource) {
-            return node.contentId.toString() === id
+            return node.contentId.toString() === id.toString()
           },
           fn (node: NodeResource) {
             return { ...node, title: data.title }
           }
         })
+      } else {
+        console.log('no ID')
+        const document = await DocumentService.create({ ...data, parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
+          .catch(() => {
+            // Silent duplicate error
+          })
       }
       this.loading = false
     } catch (err) {
@@ -248,11 +259,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       return
     }
 
-    if (this.id) {
-      this.titleRef.blur()
-    } else {
-      this.titleRef.focus()
-    }
+    this.titleRef.focus()
   }
 
   deleteDocConfirm () {
@@ -347,6 +354,17 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         }
       })
     }
+
+    EventBus.$on('BUS_DOC_UPDATE', async function (payLoad) {
+      this.pageTitle = payLoad.title
+      console.log('BUS ON', payLoad)
+
+      const data = {
+        title: payLoad.title
+      }
+      await DocumentService.update(payLoad.contentId, data)
+      // await this.docHistoryRef.refresh()
+    })
 
     this.titleFocus()
     this.textareaResize()

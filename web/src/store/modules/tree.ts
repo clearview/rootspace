@@ -33,12 +33,14 @@ const TreeModule: Module<TreeState, RootState> = {
         let idx = 0
         for (const node of nodes) {
           if (payload.compareFn(node)) {
+            console.log('nodes --- ', nodes, idx)
             Vue.set(nodes, idx, payload.fn(node))
           }
           idx++
           looper(node.children)
         }
       }
+      console.log('state.list ', state, state.list)
       looper(state.list)
     },
     setTouched (state, touched) {
