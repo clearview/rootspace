@@ -30,6 +30,10 @@ export class ActivityRepository extends BaseRepository<Activity> {
       queryBuilder.andWhere('activity.type = :type', { type: filter.type })
     }
 
+    if (filter.entity) {
+      queryBuilder.andWhere('activity.entity IN (:...entity)', { entity: filter.entity })
+    }
+
     const results = await queryBuilder
       .limit(100)
       .orderBy('activity.createdAt', 'DESC')

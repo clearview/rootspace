@@ -28,6 +28,15 @@ export class ActivitiesCtrl extends BaseCtrl {
       filter.type = req.query.type
     }
 
+    if (req.query.entity) {
+      filter.entity = req.query.entity
+        .toString()
+        .split(',')
+        .map((entity) => {
+          return this.entityService.convertEntityName(entity)
+        })
+    }
+
     const activities = await this.activityService.getBySpaceId(spaceId, filter)
     const resData = this.responseData(activities)
 
