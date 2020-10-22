@@ -10,7 +10,7 @@ import { NodeContentService } from './NodeContentService'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { LinkActivity } from '../activity/activities/content/LinkActivity'
+import { LinkActivity } from '../activity/activities/content'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService
@@ -76,7 +76,15 @@ export class LinkService extends NodeContentService {
 
   async update(data: LinkUpdateValue, id: number): Promise<Link> {
     const link = await this.requireLinkById(id)
-    return this._update(data, link)
+    const updatedLink = await this._update(data, link)
+
+    if (link.title !== updatedLink.title) {
+      await this.nodeContentMediator.contentUpdated(updatedLink.id, this.getNodeType(), {
+        title: updatedLink.title,
+      })
+    }
+
+    return updatedLink
   }
 
   async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
@@ -95,17 +103,10 @@ export class LinkService extends NodeContentService {
   }
 
   private async _update(data: LinkUpdateValue, link: Link): Promise<Link> {
-    console.log('link title ' + link.title)
     let updatedLink = await this.requireLinkById(link.id)
 
     Object.assign(updatedLink, data.attributes)
     updatedLink = await this.getLinkRepository().save(updatedLink)
-
-    console.log('udpated link title ' + updatedLink.title)
-
-    await this.nodeContentMediator.contentUpdated(updatedLink.id, this.getNodeType(), {
-      title: updatedLink.title,
-    })
 
     await this.notifyActivity(LinkActivity.updated(link, updatedLink))
 

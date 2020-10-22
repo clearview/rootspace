@@ -165,6 +165,7 @@ export class ServiceFactory {
     this.linkService.attachActivityObserver(this.getActivityService())
 
     this.embedService = EmbedService.getInstance()
+    this.embedService.attachActivityObserver(this.getActivityService())
 
     this.docService = DocService.getInstance()
     this.docService.attachActivityObserver(this.getActivityService())
