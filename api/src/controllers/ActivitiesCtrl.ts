@@ -20,6 +20,10 @@ export class ActivitiesCtrl extends BaseCtrl {
 
     const filter: any = {}
 
+    if (req.query.userId) {
+      filter.userId = req.query.userId
+    }
+
     if (req.query.action) {
       filter.action = req.query.action
     }

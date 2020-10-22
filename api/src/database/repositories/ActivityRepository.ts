@@ -6,7 +6,6 @@ import { User } from '../entities/User'
 import { Activity } from '../entities/Activity'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
 
-
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
@@ -21,6 +20,10 @@ export class ActivityRepository extends BaseRepository<Activity> {
     const queryBuilder = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
+
+    if (filter.userId) {
+      queryBuilder.andWhere('activity.actorId = :userId', { userId: filter.userId })
+    }
 
     if (filter.action) {
       queryBuilder.andWhere('activity.action = :action', { action: filter.action })
