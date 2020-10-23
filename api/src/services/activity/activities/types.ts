@@ -1,5 +1,6 @@
 export interface IAppActivityData {
   activityId?: number
+  handler?: string
 }
 
 export interface IAppActivity {
