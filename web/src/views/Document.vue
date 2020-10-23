@@ -229,7 +229,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
 
       if (id) {
         await DocumentService.update(id, data)
-        console.log('ID', id)
         this.$store.commit('tree/updateNode', {
           compareFn (node: NodeResource) {
             return node.contentId.toString() === id.toString()
@@ -238,15 +237,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
             return { ...node, title: data.title }
           }
         })
-      } else {
-        console.log('no ID')
-        const document = await DocumentService.create({ ...data, parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined })
-        const getDocument = document.data
-        this.$store.commit('document/setDeferredParent', null)
-        this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
-          .catch(() => {
-            // Silent duplicate error
-          })
       }
       this.loading = false
     } catch (err) {
@@ -355,15 +345,9 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       })
     }
 
-    EventBus.$on('BUS_DOC_UPDATE', async function (payLoad) {
+    EventBus.$on('BUS_DOC_UPDATE', (payLoad) => {
       this.pageTitle = payLoad.title
-      console.log('BUS ON', payLoad)
-
-      const data = {
-        title: payLoad.title
-      }
-      await DocumentService.update(payLoad.contentId, data)
-      // await this.docHistoryRef.refresh()
+      this.title = payLoad.title
     })
 
     this.titleFocus()
