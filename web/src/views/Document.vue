@@ -74,6 +74,8 @@ import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
 import EventBus from '@/utils/eventBus'
 
+import EventBus from '@/utils/eventBus'
+
 @Component({
   name: 'Document',
   components: {
