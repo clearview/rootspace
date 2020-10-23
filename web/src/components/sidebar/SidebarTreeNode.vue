@@ -51,6 +51,12 @@
               Rename
             </div>
           </div>
+          <div class="action-line" v-if="canEdit" @click.prevent.stop="hide();updateContent();">
+            <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+            <div class="action-line-text">
+              Edit
+            </div>
+          </div>
           <div class="action-line" @click.prevent.stop="hide();archive()">
             <v-icon class="action-icon" name="archive" viewbox="16" size="16px"></v-icon>
             <div class="action-line-text">
