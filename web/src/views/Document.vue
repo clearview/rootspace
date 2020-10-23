@@ -73,6 +73,8 @@ import PageMixin from '@/mixins/PageMixin'
 import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
 
+import EventBus from '@/utils/eventBus'
+
 @Component({
   name: 'Document',
   components: {
@@ -347,6 +349,11 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         }
       })
     }
+
+    EventBus.$on('BUS_DOC_UPDATE', (payLoad) => {
+      this.pageTitle = payLoad.title
+      this.title = payLoad.title
+    })
 
     this.titleFocus()
     this.textareaResize()

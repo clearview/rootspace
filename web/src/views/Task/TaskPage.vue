@@ -163,6 +163,8 @@ import { TaskSettings } from '@/store/modules/task/settings'
 import Tip from '@/components/Tip.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
 
+import EventBus from '@/utils/eventBus'
+
 @Component({
   name: 'TaskPage',
   components: {
@@ -330,6 +332,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   async mounted () {
     await this.getSpaceMember()
     await this.fetchTask()
+
+    EventBus.$on('BUS_TASKBOARD_UPDATE', (payLoad) => {
+      this.pageTitle = payLoad.title
+
+      this.board.title = payLoad.title
+      this.boardCache.title = payLoad.title
+    })
   }
 
   get colors () {

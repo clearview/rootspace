@@ -175,6 +175,8 @@ import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
 
+import EventBus from '@/utils/eventBus'
+
 enum NodeType {
   Link = 'link',
   Doc = 'doc',
@@ -298,6 +300,18 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       default:
         return 'list-menu'
+    }
+  }
+
+  eventBusTree (type: string, node: Node) {
+    switch (type) {
+      case NodeType.Task:
+        EventBus.$emit('BUS_TASKBOARD_UPDATE', node)
+        break
+
+      case NodeType.Doc:
+        EventBus.$emit('BUS_DOC_UPDATE', node)
+        break
     }
   }
 
@@ -481,6 +495,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       await this.updateNode(path, pick(data, ['title']), { localOnly: true })
       await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
+
+      EventBus.$emit('BUS_TASKBOARD_UPDATE', data)
     } catch { }
   }
 
@@ -527,6 +543,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       // Sync node update with api
       if (!localOnly) {
         await this.$store.dispatch('tree/update', nextNode)
+        this.eventBusTree(node.type, node)
       }
     } catch (ex) {
       console.error(ex)
