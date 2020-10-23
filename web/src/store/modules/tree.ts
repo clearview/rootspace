@@ -4,6 +4,7 @@ import { RootState, TreeState } from '@/types/state'
 import { NodeResource } from '@/types/resource'
 
 import TreeService from '@/services/tree'
+import Vue from 'vue'
 
 interface FetchParams {
   spaceId: number;
@@ -29,6 +30,19 @@ const TreeModule: Module<TreeState, RootState> = {
     },
     setTouched (state, touched) {
       state.touched = touched
+    },
+    updateNode (state, payload: {compareFn: (node: NodeResource) => boolean; fn: (node: NodeResource) => NodeResource}) {
+      const looper = (nodes: NodeResource[]) => {
+        let idx = 0
+        for (const node of nodes) {
+          if (payload.compareFn(node)) {
+            Vue.set(nodes, idx, payload.fn(node))
+          }
+          idx++
+          looper(node.children)
+        }
+      }
+      looper(state.list)
     },
     updateFolded (state, { index, value }) {
       state.folded = {
