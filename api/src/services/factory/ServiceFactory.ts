@@ -1,5 +1,6 @@
 import {
   NodeService,
+  FolderService,
   LinkService,
   DocService,
   EmbedService,
@@ -25,6 +26,7 @@ import { NodeContentMediator } from '../content/NodeContentMediator'
 
 export class ServiceFactory {
   private nodeService: NodeService
+  private folderService: FolderService
   private linkService: LinkService
   private docService: DocService
   private embedService: EmbedService
@@ -48,6 +50,14 @@ export class ServiceFactory {
     }
 
     return this.nodeService
+  }
+
+  getFolderService() {
+    if (!this.folderService) {
+      this.initNodeContentServices()
+    }
+
+    return this.folderService
   }
 
   getLinkservice() {
@@ -161,6 +171,9 @@ export class ServiceFactory {
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
 
+    this.folderService = FolderService.getInstance()
+    this.folderService.attachActivityObserver(this.getActivityService())
+
     this.linkService = LinkService.getInstance()
     this.linkService.attachActivityObserver(this.getActivityService())
 
@@ -175,6 +188,7 @@ export class ServiceFactory {
 
     const mediator = new NodeContentMediator(this.nodeService)
 
+    mediator.addContentService(this.folderService)
     mediator.addContentService(this.linkService)
     mediator.addContentService(this.docService)
     mediator.addContentService(this.embedService)
