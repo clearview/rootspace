@@ -32,7 +32,7 @@
         v-if="!isRenaming"
       />
       <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" v-model="title"
-        @blur="saveTitle" @keydown.enter="saveTitle" @keydown.esc="isRenaming = false">
+        @blur="saveTitle" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
     </div>
 
     <div class="tree-node-actions" v-if="!isRenaming">
