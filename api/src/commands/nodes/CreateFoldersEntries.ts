@@ -47,8 +47,8 @@ export class CreateFoldersEntries {
       }
 
       folder = new Folder()
-      folder.userId = node.id
-      folder.spaceId = node.id
+      folder.userId = node.userId
+      folder.spaceId = node.spaceId
       folder.title = node.title
 
       folder = await getCustomRepository(FolderRepository).save(folder)
