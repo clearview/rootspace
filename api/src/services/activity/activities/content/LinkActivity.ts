@@ -7,7 +7,7 @@ export class LinkActivity extends ContentActivity<Link> {
     super(action, entity, actorId)
 
     this._filterEntityAttributes = ['id', 'title', 'value']
-    this._notifyUpdatedAttributes = ['id', 'title', 'value']
+    this._notifyUpdatedAttributes = ['title', 'value']
   }
 
   getEntityName(): string {

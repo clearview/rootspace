@@ -12,7 +12,7 @@ export class TaskActivity extends ContentActivity<Task> {
     super(action, task, actorId)
 
     this._filterEntityAttributes = ['id', 'boardId', 'title', 'dueDate']
-    this._notifyUpdatedAttributes = ['id', 'title', 'description', 'dueDate']
+    this._notifyUpdatedAttributes = ['title', 'description', 'dueDate']
 
     this._handler = 'TaskActivityHandler'
   }
