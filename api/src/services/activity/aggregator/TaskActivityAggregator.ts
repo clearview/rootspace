@@ -85,15 +85,15 @@ export class TaskActivityAggregator implements IActivityAggregator {
     const activity = joint[0]
 
     if (activity.action === TaskActions.Tag_Added || activity.action === TaskActions.Tag_Removed) {
-      return this.processGatherContextProperty(joint, 'tag')
+      return this.assembleContextProperty(joint, 'tag')
     }
 
     if (activity.action === TaskActions.Attachment_Added || activity.action === TaskActions.Attachment_Removed) {
-      return this.processGatherContextProperty(joint, 'attachment')
+      return this.assembleContextProperty(joint, 'attachment')
     }
 
     if (activity.action === TaskActions.Assignee_Added || activity.action === TaskActions.Assignee_Removed) {
-      return this.processGatherContextProperty(joint, 'assignee')
+      return this.assembleContextProperty(joint, 'assignee')
     }
 
     const context = joint.map((j) => j.context)
@@ -102,7 +102,7 @@ export class TaskActivityAggregator implements IActivityAggregator {
     return activity
   }
 
-  private processGatherContextProperty(joint: Activity[], property: string): Activity {
+  private assembleContextProperty(joint: Activity[], property: string): Activity {
     const activity = joint[0]
     const context = activity.context as any
 

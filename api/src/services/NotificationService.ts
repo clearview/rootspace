@@ -54,7 +54,11 @@ export class NotificationService {
     return this.getNotificationRepository().save(notification)
   }
 
-  async seenForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult> {
+  seenForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult> {
     return this.getNotificationRepository().setSeenByUserForEntity(userId, entity, entityId)
+  }
+
+  seenForSpace(userId: number, spaceId: number) {
+    return this.getNotificationRepository().setSeenByUserForSpace(userId, spaceId)
   }
 }
