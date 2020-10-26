@@ -146,7 +146,7 @@ export class TaskService extends Service {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user))
+      await this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user))
 
       return savedTask
     }
@@ -163,7 +163,7 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user))
+    await this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user))
 
     return savedTask
   }
@@ -178,7 +178,7 @@ export class TaskService extends Service {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
-      this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag))
+      await this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag))
 
       return savedTask
     }
@@ -195,7 +195,7 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag))
+    await this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag))
 
     return savedTask
   }
