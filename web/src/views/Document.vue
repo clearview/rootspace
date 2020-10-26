@@ -74,8 +74,6 @@ import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
 import EventBus from '@/utils/eventBus'
 
-import EventBus from '@/utils/eventBus'
-
 @Component({
   name: 'Document',
   components: {
@@ -183,20 +181,25 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.initialize = true
       try {
         this.isFromLoad = true
+        this.title = ''
         const res = await DocumentService.view(id)
         const data = res.data
         this.doc = data
-        this.title = data.title
         this.value = data.content
         this.readOnly = data.isLocked
+
+        const { query } = this.$route
+        if (query.isnew !== '1' || data.title !== 'Untitled') {
+          this.title = data.title
+        }
 
         if (!this.pageReady) {
           await this.activateSpace(data.spaceId)
         }
 
-        this.pageTitle = this.title
+        this.pageTitle = data.title
         this.pageReady = true
-        this.$router.replace({ params: { slug: data.slug } }).catch(() => {
+        this.$router.replace({ params: { slug: data.slug }, query: query }).catch(() => {
           // Silent duplicate error
         })
       } catch (e) {
@@ -230,7 +233,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.loading = true
 
       if (id) {
-        await DocumentService.update(id, data)
         this.$store.commit('tree/updateNode', {
           compareFn (node: NodeResource) {
             return node.contentId.toString() === id.toString()
@@ -238,6 +240,10 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
           fn (node: NodeResource) {
             return { ...node, title: data.title }
           }
+        })
+        const docUpdate = await DocumentService.update(id, data)
+        this.$router.replace({ params: { slug: docUpdate.data.data.slug } }).catch(() => {
+          // Silent duplicate error
         })
       }
       this.loading = false
@@ -331,6 +337,13 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     )
   }
 
+  syncDocAttr (payload: any) {
+    if (this.$route.params.id.toString() !== payload.contentId.toString()) return
+
+    this.pageTitle = payload.title
+    this.title = payload.title
+  }
+
   mounted () {
     if (!this.id) {
       if (!this.hasNodePlaceholder()) {
@@ -347,10 +360,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       })
     }
 
-    EventBus.$on('BUS_DOC_UPDATE', (payLoad) => {
-      this.pageTitle = payLoad.title
-      this.title = payLoad.title
-    })
+    EventBus.$on('BUS_DOC_UPDATE', this.syncDocAttr)
 
     this.titleFocus()
     this.textareaResize()
@@ -361,6 +371,8 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.$store.commit('document/setDeferredParent', null)
       await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
     }
+
+    EventBus.$off('BUS_DOC_UPDATE', this.syncDocAttr)
   }
 
   closeHistory () {

@@ -174,8 +174,6 @@ import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 import DocumentService from '@/services/document'
 import EventBus from '@/utils/eventBus'
 
-import EventBus from '@/utils/eventBus'
-
 enum NodeType {
   Link = 'link',
   Doc = 'doc',
@@ -321,7 +319,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           title: 'Untitled',
           content: {},
           access: 2,
-          isLocked: false
+          isLocked: false,
+          config: {
+
+          }
         }
 
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
@@ -333,7 +334,11 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         const getDocument = document.data
         this.$store.commit('document/setDeferredParent', null)
         await this.fetchTree()
-        this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
+        this.$router.replace({
+          name: 'Document',
+          params: { id: getDocument.data.contentId },
+          query: { isnew: '1' }
+        })
           .catch(() => {
             // Silent duplicate error
           })
@@ -557,9 +562,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       // Sync node update with api
       if (!localOnly) {
-        EventBus.$emit('BUS_DOC_UPDATE', node)
-        await this.$store.dispatch('tree/update', nextNode)
         this.eventBusTree(node.type, node)
+        await this.$store.dispatch('tree/update', nextNode)
       }
     } catch (ex) {
       console.error(ex)

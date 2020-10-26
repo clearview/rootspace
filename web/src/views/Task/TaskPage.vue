@@ -329,20 +329,31 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return rx.test(option.firstName) || rx.test(option.lastName)
   }
 
+  syncTaskAttr (payload: any) {
+    this.pageTitle = payload.title
+
+    if (this.board) {
+      this.board.title = payload.title
+    }
+
+    if (this.boardCache) {
+      this.boardCache.title = payload.title
+    }
+  }
+
   async mounted () {
     await this.getSpaceMember()
     await this.fetchTask()
 
-    EventBus.$on('BUS_TASKBOARD_UPDATE', (payLoad) => {
-      this.pageTitle = payLoad.title
-
-      this.board.title = payLoad.title
-      this.boardCache.title = payLoad.title
-    })
+    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+  }
+
+  beforeDestroy () {
+    EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
   textColor (bgColor: string) {
