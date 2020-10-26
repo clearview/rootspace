@@ -175,6 +175,7 @@ import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
 
+import DocumentService from '@/services/document'
 import EventBus from '@/utils/eventBus'
 
 enum NodeType {
@@ -320,8 +321,34 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.$emit('menu-selected', false)
 
       try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: 'Untitled',
+          content: {},
+          access: 2,
+          isLocked: false,
+          config: {
+
+          }
+        }
+
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
-        await this.$router.push({ name: 'Document' })
+
+        const document = await DocumentService.create({
+          ...payload,
+          parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined
+        })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        await this.fetchTree()
+        this.$router.replace({
+          name: 'Document',
+          params: { id: getDocument.data.contentId },
+          query: { isnew: '1' }
+        })
+          .catch(() => {
+            // Silent duplicate error
+          })
       } catch { }
 
       return true
@@ -542,8 +569,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       // Sync node update with api
       if (!localOnly) {
-        await this.$store.dispatch('tree/update', nextNode)
         this.eventBusTree(node.type, node)
+        await this.$store.dispatch('tree/update', nextNode)
       }
     } catch (ex) {
       console.error(ex)
