@@ -24,7 +24,7 @@ export class NotificationRepository extends BaseRepository<Notification> {
     return this.createQueryBuilder('notification')
       .innerJoin(Activity, 'activity', 'notification.activityId = activity.id')
       .where('notification.userId = :userId', { userId })
-      .andWhere('notification.isRead', { isRead })
+      .andWhere('notification.isRead = :isRead', { isRead })
       .andWhere('activity.entity = :entity', { entity })
       .andWhere('activity.entityId = :entityId', { entityId })
       .getMany()
