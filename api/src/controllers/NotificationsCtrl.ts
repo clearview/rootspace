@@ -22,12 +22,21 @@ export class NotificationsCtrl extends BaseCtrl {
     this.checkSpaceAccess(req, spaceId)
 
     const filter: any = {}
+    const options: any = {}
 
     if (req.query.type) {
       filter.type = req.query.type
     }
 
-    const result = await this.activityService.getUserNotify(Number(req.user.id), spaceId, filter)
+    if (req.query.offset) {
+      options.offset = req.query.offset
+    }
+
+    if (req.query.limit) {
+      options.limit = req.query.limit
+    }
+
+    const result = await this.activityService.getUserNotify(Number(req.user.id), spaceId, filter, options)
     res.send(this.responseData(result))
   }
 
@@ -51,7 +60,7 @@ export class NotificationsCtrl extends BaseCtrl {
     res.send(this.responseData(result))
   }
 
-  async seenForSpace(req: Request, res: Response){
+  async seenForSpace(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
     this.checkSpaceAccess(req, spaceId)
 

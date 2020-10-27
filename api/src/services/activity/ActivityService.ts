@@ -61,8 +61,13 @@ export class ActivityService implements IActivityObserver {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
-  async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
-    const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter)
+  async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter, options)
+    return new ActivityAggregator().aggregate(activities)
+  }
+
+  async getByEntity(entity: string, entityId: number, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getByEntity(entity, entityId, options)
     return new ActivityAggregator().aggregate(activities)
   }
 
@@ -71,13 +76,8 @@ export class ActivityService implements IActivityObserver {
     return new ActivityAggregator().aggregate(activities)
   }
 
-  async getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
-    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter)
-    return new ActivityAggregator().aggregate(activities)
-  }
-
-  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
-    const activities = await this.getActivityRepository().getByEntity(entity, entityId)
+  async getUserNotify(userId: number, spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter, options)
     return new ActivityAggregator().aggregate(activities)
   }
 }

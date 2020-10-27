@@ -19,6 +19,7 @@ export class ActivitiesCtrl extends BaseCtrl {
     this.checkSpaceAccess(req, spaceId)
 
     const filter: any = {}
+    const options = this.getQueryOptions(req)
 
     if (req.query.userId) {
       filter.userId = req.query.userId
@@ -41,7 +42,7 @@ export class ActivitiesCtrl extends BaseCtrl {
         })
     }
 
-    const activities = await this.activityService.getBySpaceId(spaceId, filter)
+    const activities = await this.activityService.getBySpaceId(spaceId, filter, options)
     const resData = this.responseData(activities)
 
     res.send(resData)
@@ -57,7 +58,23 @@ export class ActivitiesCtrl extends BaseCtrl {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
-    const result = await this.activityService.getByEntity(entityName, entityId)
+    const options = this.getQueryOptions(req)
+
+    const result = await this.activityService.getByEntity(entityName, entityId, options)
     res.send(this.responseData(result))
+  }
+
+  private getQueryOptions(req: Request) {
+    const options: any = {}
+
+    if (req.query.offset) {
+      options.offset = req.query.offset
+    }
+
+    if (req.query.limit) {
+      options.limit = req.query.limit
+    }
+
+    return options
   }
 }

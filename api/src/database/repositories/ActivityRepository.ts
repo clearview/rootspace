@@ -16,10 +16,12 @@ export class ActivityRepository extends BaseRepository<Activity> {
       .getOne()
   }
 
-  async getBySpaceId(spaceId: number, filter: any = {}): Promise<Activity[]> {
+  async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
     const queryBuilder = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
+
+    this.mapActivityActorAvatar(queryBuilder)
 
     if (filter.userId) {
       queryBuilder.andWhere('activity.actorId = :userId', { userId: filter.userId })
@@ -37,16 +39,31 @@ export class ActivityRepository extends BaseRepository<Activity> {
       queryBuilder.andWhere('activity.entity IN (:...entity)', { entity: filter.entity })
     }
 
-    const results = await queryBuilder
-      .limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
 
-    results.forEach((result) => {
-      Object.keys(result).forEach((index) => !result[index] && result[index] !== undefined && delete result[index])
-    })
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
 
-    return results
+    return queryBuilder.orderBy('activity.createdAt', 'DESC').getMany()
+  }
+
+  async getByEntity(entity: string, entityId: number, options: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
+
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder.where('activity.entity = :entity', { entity }).andWhere('activity.entityId = :entityId', { entityId })
+
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
+
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
+
+    return queryBuilder.orderBy('activity.createdAt', 'DESC').getMany()
   }
 
   getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
@@ -62,7 +79,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return queryBuilder.getMany()
   }
 
-  getUserNotify(userId: number, spaceId: number, filter: any = {}): Promise<Activity[]> {
+  getUserNotify(userId: number, spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
     const queryBuilder = this.createQueryBuilder('activity')
 
     this.mapActivityActorAvatar(queryBuilder)
@@ -77,25 +94,19 @@ export class ActivityRepository extends BaseRepository<Activity> {
       queryBuilder.andWhere('activity.type = :type', { type: filter.type })
     }
 
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
+
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
+
     queryBuilder
       .andWhere('notification.userId = :userId', { userId })
       .andWhere('notification.isRead = false')
-      .limit(30)
+      .limit(limit)
 
     return queryBuilder.getMany()
-  }
-
-  async getByEntity(entity: string, entityId: number): Promise<Activity[]> {
-    const queryBuilder = this.createQueryBuilder('activity')
-
-    this.mapActivityActorAvatar(queryBuilder)
-
-    queryBuilder.where('activity.entity = :entity', { entity }).andWhere('activity.entityId = :entityId', { entityId })
-
-    return queryBuilder
-      .limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
   }
 
   private mapActivityActorAvatar(queryBuilder: SelectQueryBuilder<Activity>): void {
