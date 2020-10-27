@@ -171,6 +171,9 @@ import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
+import DocumentService from '@/services/document'
+import EventBus from '@/utils/eventBus'
+
 enum NodeType {
   Link = 'link',
   Doc = 'doc',
@@ -294,13 +297,51 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     }
   }
 
+  eventBusTree (type: string, node: Node) {
+    switch (type) {
+      case NodeType.Task:
+        EventBus.$emit('BUS_TASKBOARD_UPDATE', node)
+        break
+
+      case NodeType.Doc:
+        EventBus.$emit('BUS_DOC_UPDATE', node)
+        break
+    }
+  }
+
   async select (type: MenuType) {
     if (type === MenuType.DOCUMENT) {
       this.$emit('menu-selected', false)
 
       try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: 'Untitled',
+          content: {},
+          access: 2,
+          isLocked: false,
+          config: {
+
+          }
+        }
+
         this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
-        await this.$router.push({ name: 'Document' })
+
+        const document = await DocumentService.create({
+          ...payload,
+          parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined
+        })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        await this.fetchTree()
+        this.$router.replace({
+          name: 'Document',
+          params: { id: getDocument.data.contentId },
+          query: { isnew: '1' }
+        })
+          .catch(() => {
+            // Silent duplicate error
+          })
       } catch { }
 
       return true
@@ -474,6 +515,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       await this.updateNode(path, pick(data, ['title']), { localOnly: true })
       await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
+
+      EventBus.$emit('BUS_TASKBOARD_UPDATE', data)
     } catch { }
   }
 
@@ -519,6 +562,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       // Sync node update with api
       if (!localOnly) {
+        this.eventBusTree(node.type, node)
         await this.$store.dispatch('tree/update', nextNode)
       }
     } catch (ex) {
