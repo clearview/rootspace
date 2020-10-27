@@ -5,6 +5,7 @@ import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
 import { Activity } from '../entities/Activity'
 import { ActivityEvent } from '../../services/events/ActivityEvent'
+import { Notification } from '../entities/Notification'
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -85,7 +86,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
     this.mapActivityActorAvatar(queryBuilder)
 
     queryBuilder
-      .innerJoin('notifications', 'notification', 'activity.id = notification.activity')
+      .innerJoinAndMapOne('activity.notification', Notification, 'notification', 'activity.id = notification.activity')
       .orderBy('notification.createdAt', 'DESC')
       .where('activity.type = :type', { type: 'content' })
       .andWhere('activity.spaceId = :spaceId', { spaceId })

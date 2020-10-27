@@ -7,7 +7,7 @@ import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
 import { WsEvent } from '../events/websockets/WsEvent'
-import { ActivityAggregator } from './aggregator/ActivityAggregator'
+import { processActivities } from './processor/'
 import { IAppActivity } from './activities/types'
 import { IActivityObserver } from '../contracts'
 
@@ -63,21 +63,21 @@ export class ActivityService implements IActivityObserver {
 
   async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter, options)
-    return new ActivityAggregator().aggregate(activities)
+    return processActivities(activities)
   }
 
   async getByEntity(entity: string, entityId: number, options: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getByEntity(entity, entityId, options)
-    return new ActivityAggregator().aggregate(activities)
+    return processActivities(activities)
   }
 
   async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getByActorId(actorId, filter)
-    return new ActivityAggregator().aggregate(activities)
+    return processActivities(activities)
   }
 
   async getUserNotify(userId: number, spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
     const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter, options)
-    return new ActivityAggregator().aggregate(activities)
+    return processActivities(activities)
   }
 }

@@ -1,5 +1,6 @@
 import { Activity } from '../../../database/entities/Activity'
-import { IActivityAggregator } from '../types'
+import { Notification } from '../../../database/entities/Notification'
+import { IActivityProcessor } from './types'
 import { ContentActions, TaskActions } from '../activities/content/actions'
 
 const aggregateActions: string[] = [
@@ -11,20 +12,24 @@ const aggregateActions: string[] = [
   TaskActions.Attachment_Removed,
 ]
 
-export class TaskActivityAggregator implements IActivityAggregator {
+const notificationProperty = 'notification'
+
+export class TaskActivityProcessor implements IActivityProcessor {
   private aggregateActions = []
 
   constructor() {
     this.aggregateActions = aggregateActions
   }
 
-  public aggregate(activities: Activity[]): Activity[] {
-    const filtered = this.filter(activities)
+  public process(activities: Activity[]): Activity[] {
+    activities = this.filter(activities)
+    activities = this.processNotifications(activities)
+
     const entries: Activity[] = []
 
     let joint: Activity[] = []
 
-    for (const activity of filtered) {
+    for (const activity of activities) {
       if (!this.aggregateActions.includes(activity.action)) {
         entries.push(activity)
         continue
@@ -81,8 +86,30 @@ export class TaskActivityAggregator implements IActivityAggregator {
     return filtered
   }
 
+  private processNotifications(activities: Activity[]): Activity[] {
+    const result = []
+
+    for (const activity of activities) {
+      if (!activity[notificationProperty]) {
+        result.push(activity)
+        continue
+      }
+
+      const notification = activity[notificationProperty].id
+      Object.assign(activity, { notification: [notification] })
+
+      result.push(activity)
+    }
+
+    return result
+  }
+
   private processJoint(joint: Activity[]): Activity {
     const activity = joint[0]
+
+    if (activity[notificationProperty]) {
+      activity[notificationProperty] = joint.map((entry) => entry[notificationProperty][0])
+    }
 
     if (activity.action === TaskActions.Tag_Added || activity.action === TaskActions.Tag_Removed) {
       return this.assembleContextProperty(joint, 'tag')
