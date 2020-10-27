@@ -71,7 +71,7 @@ export class ActivityRepository extends BaseRepository<Activity> {
     const queryBuilder = this.createQueryBuilder('activity')
       .where('activity.actorId = :actorId', { actorId })
       .orderBy('activity.createdAt', 'DESC')
-      .limit(30)
+      .limit(50)
 
     if (filter.spaceIds) {
       queryBuilder.andWhere('activity.spaceId IN (:...spaceIds)', { spaceIds: filter.spaceIds })

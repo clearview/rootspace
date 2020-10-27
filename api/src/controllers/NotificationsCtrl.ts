@@ -41,10 +41,16 @@ export class NotificationsCtrl extends BaseCtrl {
   }
 
   async seen(req: Request, res: Response) {
-    const id = Number(req.params.id)
     const userId = Number(req.user.id)
 
-    const result = await this.notificationService.seen(id, userId)
+    const ids = req.params.id
+      .toString()
+      .split(',')
+      .map((id) => {
+        return Number(id)
+      })
+
+    const result = await this.notificationService.seenForIds(userId, ids)
     res.send(this.responseData(result))
   }
 

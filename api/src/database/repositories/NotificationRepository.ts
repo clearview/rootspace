@@ -30,6 +30,16 @@ export class NotificationRepository extends BaseRepository<Notification> {
       .getMany()
   }
 
+  setSeenByUserForIds(userId: number, ids: number[]): Promise<UpdateResult> {
+    return this.createQueryBuilder()
+      .update(Notification)
+      .set({ isRead: true })
+      .whereInIds(ids)
+      .andWhere('userId = :userId', { userId })
+      .andWhere('isRead = false')
+      .execute()
+  }
+
   async setSeenByUserForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult | null> {
     const notifications = await this.getByUserForEntity(userId, entity, entityId)
     const ids = notifications.map((notification) => notification.id)

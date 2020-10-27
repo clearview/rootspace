@@ -43,15 +43,8 @@ export class NotificationService {
     return this.getNotificationRepository().save(notification)
   }
 
-  async seen(id: number, userId: number): Promise<Notification> {
-    const notification = await this.requireById(id)
-
-    if (notification.userId !== userId) {
-      throw clientError('Notification not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
-    }
-
-    notification.isRead = true
-    return this.getNotificationRepository().save(notification)
+  seenForIds(userId: number, ids: number[]): Promise<UpdateResult> {
+    return this.getNotificationRepository().setSeenByUserForIds(userId, ids)
   }
 
   seenForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult> {
