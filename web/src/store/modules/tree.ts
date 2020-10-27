@@ -28,9 +28,6 @@ const TreeModule: Module<TreeState, RootState> = {
     setFolded (state, folded) {
       state.folded = folded
     },
-    setTouched (state, touched) {
-      state.touched = touched
-    },
     updateNode (state, payload: {compareFn: (node: NodeResource) => boolean; fn: (node: NodeResource) => NodeResource}) {
       const looper = (nodes: NodeResource[]) => {
         let idx = 0
@@ -43,6 +40,9 @@ const TreeModule: Module<TreeState, RootState> = {
         }
       }
       looper(state.list)
+    },
+    setTouched (state, touched) {
+      state.touched = touched
     },
     updateFolded (state, { index, value }) {
       state.folded = {

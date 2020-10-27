@@ -7,7 +7,7 @@ export const LinkCreateAttributes: ILinkCreateAttributes = {
   title: null,
   value: null,
   newTab: null,
-  parentId: null
+  parentId: null,
 }
 
 @attributes(LinkCreateAttributes)
@@ -16,10 +16,7 @@ export class LinkCreateValue extends EntityValue<ILinkCreateAttributes> {
     return new LinkCreateValue(object)
   }
 
-  static fromObjectAndUserId(
-    object: Omit<ILinkCreateAttributes, 'userId'>,
-    userId: number
-  ): LinkCreateValue {
+  static fromObjectAndUserId(object: Omit<ILinkCreateAttributes, 'userId'>, userId: number): LinkCreateValue {
     return LinkCreateValue.fromObject(Object.assign(object, { userId }))
   }
 }

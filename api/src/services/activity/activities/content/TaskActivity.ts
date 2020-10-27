@@ -11,8 +11,8 @@ export class TaskActivity extends ContentActivity<Task> {
   constructor(action: string, task: Task, actorId?: number) {
     super(action, task, actorId)
 
-    this._filterEntityAttributes = ['id', 'title', 'dueDate']
-    this._notifyUpdatedAttributes = ['id', 'title', 'description', 'dueDate']
+    this._filterEntityAttributes = ['id', 'boardId', 'title', 'dueDate']
+    this._notifyUpdatedAttributes = ['title', 'description', 'dueDate']
 
     this._handler = 'TaskActivityHandler'
   }

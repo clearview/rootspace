@@ -18,7 +18,7 @@ api.interceptors.response.use(value => {
       router.replace('/not-found').catch(() => null)
     })
   }
-  return error
+  throw error
 })
 
 export function setAPIToken (token: string | null) {

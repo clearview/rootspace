@@ -39,7 +39,9 @@ export class ActivityService implements IActivityObserver {
 
     data.activityId = activity.id
 
-    await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+    if (data.handler) {
+      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+    }
   }
 
   async add(event: ActivityEvent): Promise<Bull.Job> {

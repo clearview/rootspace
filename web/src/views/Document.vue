@@ -236,7 +236,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       if (id) {
         this.$store.commit('tree/updateNode', {
           compareFn (node: NodeResource) {
-            return node.contentId.toString() === id
+            return node.contentId.toString() === id.toString()
           },
           fn (node: NodeResource) {
             return { ...node, title: data.title }
@@ -247,7 +247,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
           // Silent duplicate error
         })
       }
-
       this.loading = false
     } catch (err) {
       this.loading = false
@@ -259,11 +258,7 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       return
     }
 
-    if (this.id) {
-      this.titleRef.blur()
-    } else {
-      this.titleRef.focus()
-    }
+    this.titleRef.focus()
   }
 
   deleteDocConfirm () {

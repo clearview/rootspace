@@ -42,12 +42,20 @@ export class NotificationsCtrl extends BaseCtrl {
   async seenForEntity(req: Request, res: Response) {
     const userId = Number(req.user.id)
     const entityId = Number(req.params.entityId)
-    const entityName = this.entityService.convertEntityName(req.params.entity)
+    const entityName = this.entityService.convertEntityName(req.params.entityName)
 
     const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, entity)
 
     const result = await this.notificationService.seenForEntity(userId, entityName, entityId)
+    res.send(this.responseData(result))
+  }
+
+  async seenForSpace(req: Request, res: Response){
+    const spaceId = Number(req.params.spaceId)
+    this.checkSpaceAccess(req, spaceId)
+
+    const result = await this.notificationService.seenForSpace(Number(req.user.id), spaceId)
     res.send(this.responseData(result))
   }
 }

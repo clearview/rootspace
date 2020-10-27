@@ -7,7 +7,7 @@ export class TaskListActivity extends ContentActivity<TaskList> {
     super(action, entity, actorId)
 
     this._filterEntityAttributes = ['id', 'title']
-    this._notifyUpdatedAttributes = ['id', 'title']
+    this._notifyUpdatedAttributes = ['title']
 
     this._handler = 'TaskListActivityHandler'
   }

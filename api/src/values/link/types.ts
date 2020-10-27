@@ -7,7 +7,4 @@ export interface ILinkCreateAttributes {
   readonly parentId?: number
 }
 
-export type ILinkUpdateAttributes = Omit<
-  Partial<ILinkCreateAttributes>,
-  'userId' | 'spaceId'
->
+export type ILinkUpdateAttributes = Omit<Partial<ILinkCreateAttributes>, 'userId' | 'spaceId'>
