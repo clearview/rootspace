@@ -1,6 +1,8 @@
 import { Activity } from '../../../database/entities/Activity'
-import { TaskActivityProcessor } from './TaskActivityProcessor'
 import { IActivityProcessor } from './types'
+import { ActivityProcessor } from './ActivityProcessor'
+import { ContentActivityProcessor } from './content/ContentActivityProcessor'
+import { TaskActivityProcessor } from './content/TaskActivityProcessor'
 
 export function processActivities(activities: Activity[]): Activity[] {
   if (activities.length === 0) {
@@ -58,10 +60,14 @@ function compareActivities(activity1: Activity, activity2: Activity): boolean {
   return true
 }
 
-function getProcessor(activity: Activity): IActivityProcessor | null {
-  if (activity.entity && activity.entity === 'Task') {
-    return new TaskActivityProcessor()
+function getProcessor(activity: Activity): IActivityProcessor {
+  if (activity.type === 'content') {
+    if (activity.entity === 'Task') {
+      return new TaskActivityProcessor()
+    }
+
+    return new ContentActivityProcessor()
   }
 
-  return null
+  return new ActivityProcessor()
 }
