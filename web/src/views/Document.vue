@@ -72,6 +72,7 @@ import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
 import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
+
 import EventBus from '@/utils/eventBus'
 
 @Component({
@@ -115,13 +116,23 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
   private readonly docHistoryRef!: DocHistory
 
   @Watch('title')
-  watchTitle () {
+  watchTitle (newTitle: string) {
     clearTimeout(this.timer)
     if (this.isFromLoad) {
       this.isFromLoad = false
       return
     }
-
+    const id = this.$route.params.id
+    if (id) {
+      this.$store.commit('tree/updateNode', {
+        compareFn (node: NodeResource) {
+          return node.contentId.toString() === id.toString()
+        },
+        fn (node: NodeResource) {
+          return { ...node, title: newTitle }
+        }
+      })
+    }
     this.timer = setTimeout(this.saveDocument, config.saveTitle * 1000)
     this.textareaResize()
   }
@@ -233,14 +244,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
       this.loading = true
 
       if (id) {
-        this.$store.commit('tree/updateNode', {
-          compareFn (node: NodeResource) {
-            return node.contentId.toString() === id.toString()
-          },
-          fn (node: NodeResource) {
-            return { ...node, title: data.title }
-          }
-        })
         const docUpdate = await DocumentService.update(id, data)
         this.$router.replace({ params: { slug: docUpdate.data.data.slug } }).catch(() => {
           // Silent duplicate error

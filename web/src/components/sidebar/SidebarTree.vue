@@ -171,6 +171,10 @@ import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
 import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
+import FormLink from '@/components/form/FormLink.vue'
+import FormTask from '@/components/form/FormTask.vue'
+import FormEmbed from '@/components/form/FormEmbed.vue'
+
 import DocumentService from '@/services/document'
 import EventBus from '@/utils/eventBus'
 
@@ -211,7 +215,10 @@ enum ModalType {
     ListMenu,
     LinkMenu,
     EmbedMenu,
-    TaskMenu
+    TaskMenu,
+    FormLink,
+    FormTask,
+    FormEmbed
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
