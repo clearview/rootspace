@@ -107,6 +107,15 @@ export class TaskListService extends Service {
     return taskList
   }
 
+  async boardArchived(taskBoardId: number): Promise<void> {
+    const lists = await this.getTaskListRepository().getByTaskBoardId(taskBoardId)
+
+    for (const list of lists) {
+      await this.getTaskListRepository().softRemove(list)
+      await this.taskService.listArchived(list.id)
+    }
+  }
+
   async restore(taskListId: number): Promise<TaskList> {
     const taskList = await this.getArchivedById(taskListId)
 
@@ -116,6 +125,15 @@ export class TaskListService extends Service {
     await this.notifyActivity(TaskListActivity.restored(taskList))
 
     return taskList
+  }
+
+  async boardRestored(taskBoardId: number): Promise<void> {
+    const lists = await this.getTaskListRepository().getByTaskBoardId(taskBoardId, { withDeleted: true })
+
+    for (const list of lists) {
+      await this.getTaskListRepository().recover(list)
+      await this.taskService.listRestored(list.id)
+    }
   }
 
   async remove(id: number) {

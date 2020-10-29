@@ -28,10 +28,10 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
   private async processAction() {
     switch (this.activity.action) {
       case ContentActions.Created:
-        await this.contentCreated()
+        await this.createFollows()
         break
       case ContentActions.Deleted:
-        this.contentDeleted()
+        this.removeFollows()
         break
       case TaskActions.Assignee_Added:
         await this.assigneeAdded()

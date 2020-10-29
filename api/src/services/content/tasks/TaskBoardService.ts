@@ -182,15 +182,12 @@ export class TaskBoardService extends NodeContentService {
   }
 
   private async _archive(taskBoard: TaskBoard): Promise<TaskBoard> {
-    if (taskBoard.taskLists) {
-      for (const taskList of taskBoard.taskLists) {
-        await this.taskListService.archive(taskList.id)
-      }
-    }
+    await this.getTaskBoardRepository().softRemove(taskBoard)
+    await this.taskListService.boardArchived(taskBoard.id)
 
     await this.notifyActivity(TaskBoardActivity.archived(taskBoard))
 
-    return this.getTaskBoardRepository().softRemove(taskBoard)
+    return taskBoard
   }
 
   async restore(taskBoardId: number): Promise<TaskBoard> {
@@ -214,16 +211,12 @@ export class TaskBoardService extends NodeContentService {
   }
 
   private async _restore(taskBoard: TaskBoard): Promise<TaskBoard> {
-    if (taskBoard.taskLists) {
-      for (const taskList of taskBoard.taskLists) {
-        await this.taskListService.restore(taskList.id)
-      }
-    }
+    await this.getTaskBoardRepository().recover(taskBoard)
+    await this.taskListService.boardRestored(taskBoard.id)
 
     await this.notifyActivity(TaskBoardActivity.restored(taskBoard))
 
-    const recoveredTaskBoard = await this.getTaskBoardRepository().recover(taskBoard)
-    return this.getCompleteTaskBoard(recoveredTaskBoard.id)
+    return this.getCompleteTaskBoard(taskBoard.id)
   }
 
   async remove(id: number) {

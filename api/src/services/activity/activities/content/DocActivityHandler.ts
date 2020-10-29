@@ -19,19 +19,15 @@ export class DocActivityHandler extends ContentActivityHandler<Doc> {
   private async processAction() {
     switch (this.activity.action) {
       case ContentActions.Created:
-        await this.contentCreated()
+        await this.createFollows()
         break
       case ContentActions.Updated:
-        await this.contentUpdated()
+        await this.createFollows()
         break
       case ContentActions.Deleted:
-        await this.contentDeleted()
+        await this.removeFollows()
         break
     }
-  }
-
-  private async contentUpdated(): Promise<void> {
-    await this.followService.followEntity(this.activity.actorId, this.entity)
   }
 
   private async processNotifications(): Promise<void> {

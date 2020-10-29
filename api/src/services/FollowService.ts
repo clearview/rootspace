@@ -45,6 +45,10 @@ export class FollowService {
     return this.getFollowRepository().getTaskListFollows(taskListId)
   }
 
+  async getFollowsForTaskBoard(taskBoardId: number): Promise<Follow[]> {
+    return this.getFollowRepository().getTaskBoardFollows(taskBoardId)
+  }
+
   async followFromRequest(userId: number, entity: any): Promise<Follow> {
     const user = await this.userService.getUserRepository().findOneOrFail(userId)
     return this.follow(user, entity)

@@ -9,7 +9,7 @@ export class TaskBoardActivity extends ContentActivity<TaskBoard> {
     this._filterEntityAttributes = ['id', 'title']
     this._notifyUpdatedAttributes = ['id', 'title']
 
-    this._handler = 'TaskListActivityHandler'
+    this._handler = 'TaskBoardActivityHandler'
   }
 
   getEntityName(): string {

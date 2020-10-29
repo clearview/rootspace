@@ -16,15 +16,8 @@ export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {
     await this.processNotifications()
   }
 
-  private async processAction() {
-    switch (this.activity.action) {
-      case ContentActions.Created:
-        await this.contentCreated()
-        break
-      case ContentActions.Deleted:
-        this.contentDeleted()
-        break
-    }
+  private async processAction(): Promise<void> {
+    return
   }
 
   protected async getFollows() {

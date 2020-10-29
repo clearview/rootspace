@@ -43,16 +43,16 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
 
   abstract async process(): Promise<void>
 
-  protected async contentCreated(): Promise<void> {
+  protected getFollows() {
+    return this.followService.getFollowsForActivity(this.activity)
+  }
+
+  protected async createFollows(): Promise<void> {
     await this.followService.followEntity(this.activity.actorId, this.entity)
   }
 
-  protected async contentDeleted(): Promise<void> {
+  protected async removeFollows(): Promise<void> {
     await this.followService.deleteByEntityAndEntityId(this.activity.entity, this.activity.entityId)
-  }
-
-  protected getFollows() {
-    return this.followService.getFollowsForActivity(this.activity)
   }
 
   protected async createNotificationEntries(): Promise<void> {
