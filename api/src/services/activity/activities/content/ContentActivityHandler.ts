@@ -51,8 +51,12 @@ export abstract class ContentActivityHandler<T> implements IContentActivityHandl
     await this.followService.deleteByEntityAndEntityId(this.activity.entity, this.activity.entityId)
   }
 
+  protected getFollows() {
+    return this.followService.getFollowsForActivity(this.activity)
+  }
+
   protected async createNotificationEntries(): Promise<void> {
-    const follows = await this.followService.getFollowsForActivity(this.activity)
+    const follows = await this.getFollows()
 
     for (const follow of follows) {
       await this.notificationService.create(this.activity, follow.userId)

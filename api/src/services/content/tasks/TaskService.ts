@@ -102,6 +102,14 @@ export class TaskService extends Service {
     return null
   }
 
+  async listArchived(taskListId: number): Promise<void> {
+    const tasks = await this.getTaskRepository().getByListId(taskListId)
+
+    for (const task of tasks) {
+      await this.getTaskRepository().softRemove(task)
+    }
+  }
+
   async restore(taskId: number): Promise<Task> {
     const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneArchived(taskId)
@@ -110,6 +118,14 @@ export class TaskService extends Service {
     await this.notifyActivity(TaskActivity.restored(task, actor.id))
 
     return recoveredTask
+  }
+
+  async listRestored(taskListId: number): Promise<void> {
+    const tasks = await this.getTaskRepository().getByListId(taskListId, { withDeleted: true })
+
+    for (const task of tasks) {
+      await this.getTaskRepository().recover(task)
+    }
   }
 
   async remove(taskId: number) {

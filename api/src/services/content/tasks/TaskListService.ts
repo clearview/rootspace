@@ -4,9 +4,10 @@ import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBo
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../database/entities/tasks/TaskList'
 import { Task } from '../../../database/entities/tasks/Task'
-import { Service, ActivityService, TaskService } from '../../'
+import { Service, TaskService } from '../../'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { TaskListActivity } from '../../activity/activities/content'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
 
 export class TaskListService extends Service {
   private taskService: TaskService
@@ -38,8 +39,18 @@ export class TaskListService extends Service {
     return getCustomRepository(TaskListRepository)
   }
 
-  async getById(id: number): Promise<TaskList> {
-    return this.getTaskListRepository().findOneOrFail(id)
+  async getById(id: number): Promise<TaskList | undefined> {
+    return this.getTaskListRepository().findOne(id)
+  }
+
+  async requireById(id: number): Promise<TaskList> {
+    const taskList = await this.getById(id)
+
+    if (!taskList) {
+      clientError('Task List not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return taskList
   }
 
   async getArchivedById(id: number): Promise<TaskList> {
@@ -86,38 +97,25 @@ export class TaskListService extends Service {
   }
 
   async archive(taskListId: number): Promise<TaskList | undefined> {
-    const taskList = await this.getFullTaskList(taskListId)
+    const taskList = await this.requireById(taskListId)
 
-    if (taskList && taskList.tasks) {
-      for (const task of taskList.tasks) {
-        if (task.deletedAt) {
-          continue
-        }
+    await this.taskService.listArchived(taskList.id)
 
-        await this.taskService.archive(task.id)
-      }
+    await this.getTaskListRepository().softRemove(taskList)
+    await this.notifyActivity(TaskListActivity.archived(taskList))
 
-      await this.notifyActivity(TaskListActivity.archived(taskList))
-
-      return this.getTaskListRepository().softRemove(taskList)
-    }
-
-    return null
+    return taskList
   }
 
   async restore(taskListId: number): Promise<TaskList> {
     const taskList = await this.getArchivedById(taskListId)
 
-    if (taskList && taskList.tasks) {
-      for (const task of taskList.tasks) {
-        await this.taskService.restore(task.id)
-      }
-    }
+    await this.taskService.listRestored(taskList.id)
 
-    const recoveredTaskList = await this.getTaskListRepository().recover(taskList)
+    await this.getTaskListRepository().recover(taskList)
     await this.notifyActivity(TaskListActivity.restored(taskList))
 
-    return recoveredTaskList
+    return taskList
   }
 
   async remove(id: number) {
