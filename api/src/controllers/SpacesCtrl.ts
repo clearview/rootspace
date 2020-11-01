@@ -77,7 +77,7 @@ export class SpacesCtrl extends BaseCtrl {
     const space = await this.spaceFacade.createSpace(data)
 
     if (req.body.invites) {
-      this.inviteFacade.sendToEmails(req.body.invites, space.id, req.user.id)
+      await this.inviteFacade.sendToEmails(req.body.invites, space.id, req.user.id)
     }
 
     res.send(space)
