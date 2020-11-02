@@ -33,7 +33,7 @@ export class FollowService {
   async getFollowsForActivity(activity: Activity): Promise<Follow[]> {
     const follows = await this.getFollowRepository().find({
       entityId: activity.entityId,
-      tableName: activity.tableName,
+      entity: activity.entity,
     })
 
     return follows.filter((follow) => {

@@ -1,5 +1,4 @@
 import httpRequestContext from 'http-request-context'
-
 import { User } from '../../../../database/entities/User'
 import { IAppActivity, IAppActivityData, ActivityType } from '../types'
 import { UserActions } from './actions'

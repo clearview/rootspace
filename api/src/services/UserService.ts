@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { validate as uuidValidate } from 'uuid'
+import { CallbackFunction } from 'ioredis'
 import { getCustomRepository } from 'typeorm'
 import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserRepository } from '../database/repositories/UserRepository'
@@ -15,25 +16,14 @@ import {
   PasswordResetValue,
 } from '../values/user'
 import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../errors'
-import { CallbackFunction } from 'ioredis'
-import Bull from 'bull'
-import { ActivityEvent } from './events/ActivityEvent'
-import { UserActivities } from '../database/entities/activities/UserActivities'
-import { ActivityService } from './'
-import { ServiceFactory } from './factory/ServiceFactory'
 import { UserAuthProvider } from '../types/user'
 import { IQueryOptions } from '../types/query'
 import { Service } from './Service'
-import { UserActivitiy } from './activity/activities/user/UserActivity'
+import { UserActivitiy } from './activity/activities/user/'
+import { PasswordResetActivity } from './activity/activities/app'
 
 export class UserService extends Service {
-  private activityService: ActivityService
   private static instance: UserService
-
-  private constructor() {
-    super()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
-  }
 
   static getInstance() {
     if (!UserService.instance) {
@@ -196,7 +186,8 @@ export class UserService extends Service {
     passwordReset.expiration = new Date(Date.now() + 3600000)
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
-    await this.activityService.add(ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(passwordReset))
+
+    await this.notifyActivity(PasswordResetActivity.create(passwordReset))
 
     return true
   }
@@ -240,18 +231,5 @@ export class UserService extends Service {
     }
 
     return false
-  }
-
-  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
-    const user = await this.getUserById(userId)
-    return this.registerActivityForUser(userActivity, user)
-  }
-
-  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
-    return this.activityService.add(
-      ActivityEvent.withAction(userActivity)
-        .fromActor(user.id)
-        .forEntity(user)
-    )
   }
 }

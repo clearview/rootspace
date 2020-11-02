@@ -1,7 +1,8 @@
 import { Doc } from '../../../../database/entities/Doc'
-import { ContentActivity, IContentActivity } from '.'
-import { ContentActions } from './actions'
 import { DocUpdateSetup } from '../../../content/doc/DocUpdateSetup'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
+import { ContentActions } from './actions'
 
 export class DocActivity extends ContentActivity<Doc> {
   protected docUpdateSetup: DocUpdateSetup

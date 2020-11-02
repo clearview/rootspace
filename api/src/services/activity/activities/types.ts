@@ -20,7 +20,8 @@ export interface IActivityHandler {
 }
 
 export const ActivityType = {
-  Content: 'content',
-  Space: 'space',
+  App: 'app',
   User: 'user',
+  Space: 'space',
+  Content: 'content',
 }

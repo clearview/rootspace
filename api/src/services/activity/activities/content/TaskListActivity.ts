@@ -1,5 +1,6 @@
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
-import { ContentActivity, IContentActivity } from '.'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class TaskListActivity extends ContentActivity<TaskList> {

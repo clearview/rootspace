@@ -1,5 +1,6 @@
 import { TaskBoard } from '../../../../database/entities/tasks/TaskBoard'
-import { ContentActivity, IContentActivity } from '.'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class TaskBoardActivity extends ContentActivity<TaskBoard> {

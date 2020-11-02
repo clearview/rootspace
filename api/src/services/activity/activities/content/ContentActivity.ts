@@ -1,5 +1,5 @@
 import httpRequestContext from 'http-request-context'
-import { IContentEntity, IContentActivity } from '.'
+import { IContentEntity, IContentActivity } from './types'
 import { IContentActivityData } from './types'
 import { ActivityType } from '../types'
 

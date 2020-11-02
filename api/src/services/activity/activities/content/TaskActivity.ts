@@ -4,7 +4,8 @@ import { Tag } from '../../../../database/entities/tasks/Tag'
 import { TaskComment } from '../../../../database/entities/tasks/TaskComment'
 import { Upload } from '../../../../database/entities/Upload'
 import { User } from '../../../../database/entities/User'
-import { ContentActivity, IContentActivity } from '.'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions, TaskActions } from './actions'
 
 export class TaskActivity extends ContentActivity<Task> {

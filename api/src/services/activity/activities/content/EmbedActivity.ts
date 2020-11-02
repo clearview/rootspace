@@ -1,5 +1,6 @@
 import { Embed } from '../../../../database/entities/Embed'
-import { ContentActivity, IContentActivity } from '.'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class EmbedActivity extends ContentActivity<Embed> {

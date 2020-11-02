@@ -1,5 +1,6 @@
 import { Link } from '../../../../database/entities/Link'
-import { ContentActivity, IContentActivity } from '.'
+import { IContentActivity } from './types'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class LinkActivity extends ContentActivity<Link> {
