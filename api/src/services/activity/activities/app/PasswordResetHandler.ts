@@ -29,7 +29,7 @@ export class PasswordResetHandler implements IActivityHandler {
     const subject = 'Root, Password reset'
 
     let confirmUrl = config.domain + config.domainPasswordResetPath
-    confirmUrl += `${confirmUrl}/${passwordReset.token}`
+    confirmUrl = `${confirmUrl}/${passwordReset.token}`
 
     const content = pug.renderFile(mailTemplatesDir + 'passwordReset.pug', {
       passwordReset,
