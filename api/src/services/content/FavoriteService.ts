@@ -34,6 +34,10 @@ export class FavoriteService {
     return favorite
   }
 
+  getByNodeIdAndUserId(nodeId: number, userId: number): Promise<Favorite | undefined> {
+    return this.getFavoriteRepository().getByNodeIdAndUserId(nodeId, userId)
+  }
+
   async requireByNodeIdAndUserId(nodeId: number, userId: number): Promise<Favorite> {
     const favorite = await this.getByNodeIdAndUserId(nodeId, userId)
 
@@ -44,11 +48,7 @@ export class FavoriteService {
     return favorite
   }
 
-  getByNodeIdAndUserId(nodeId: number, userId: number): Promise<Favorite | undefined> {
-    return this.getFavoriteRepository().getByNodeIdAndUserId(nodeId, userId)
-  }
-
-  async createByNode(node: Node, userId: number): Promise<Favorite> {
+  async addNode(node: Node, userId: number): Promise<Favorite> {
     this.validateNode(node)
 
     let favorite = await this.getByNodeIdAndUserId(node.id, userId)
@@ -65,7 +65,8 @@ export class FavoriteService {
     return this.getFavoriteRepository().save(favorite)
   }
 
-  removeEntity(favorite: Favorite): Promise<Favorite> {
+  async removeNode(node: Node, userId: number): Promise<Favorite> {
+    const favorite = await this.requireByNodeIdAndUserId(node.id, userId)
     return this.getFavoriteRepository().remove(favorite)
   }
 

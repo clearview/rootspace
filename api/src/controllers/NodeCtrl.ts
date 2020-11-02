@@ -1,10 +1,10 @@
+import { ForbiddenError } from '@casl/ability'
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { NodeUpdateValue } from '../values/node'
 import { validateNodeUpdate } from '../validation/node'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { NodeService, FavoriteService } from '../services'
-import { ForbiddenError } from '@casl/ability'
 import { Actions } from '../middleware/AuthMiddleware'
 
 export class NodeCtrl extends BaseCtrl {
@@ -18,10 +18,12 @@ export class NodeCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const data = req.body.data
+    const node = await this.nodeService.requireNodeById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, node)
 
+    const data = req.body.data
     await validateNodeUpdate(data)
+
     let value = NodeUpdateValue.fromObject(data)
 
     if (data.parent !== undefined) {
@@ -32,42 +34,47 @@ export class NodeCtrl extends BaseCtrl {
       value = value.withPosition(data.position)
     }
 
-    const node = await this.nodeService.update(value, id)
-    const resData = this.responseData(node)
-
-    res.send(resData)
+    const result = await this.nodeService.update(value, node.id)
+    res.send(this.responseData(result))
   }
 
   async archive(req: Request, res: Response) {
-    const resutl = await this.nodeService.archive(Number(req.params.id))
+    const node = await this.nodeService.requireNodeById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
+
+    const resutl = await this.nodeService.archive(node.id)
     res.send(this.responseData(resutl))
   }
 
   async restore(req: Request, res: Response) {
-    const resutl = await this.nodeService.restore(Number(req.params.id))
-    res.send(this.responseData(resutl))
+    const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
+
+    const result = await this.nodeService.restore(node.id)
+    res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {
-    const result = await this.nodeService.remove(Number(req.params.id))
-    res.send(result)
+    const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, node)
+
+    const result = await this.nodeService.remove(node.id)
+    res.send(this.responseData(result))
   }
 
   async addToFavorites(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
 
-    const result = await this.favoriteService.createByNode(node, req.user.id)
+    const result = await this.favoriteService.addNode(node, req.user.id)
     res.send(this.responseData(result))
   }
 
   async removeFromFavorites(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const userId = req.user.id
+    const node = await this.nodeService.requireNodeById(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
 
-    const favorite = await this.favoriteService.requireByNodeIdAndUserId(id, userId)
-    const result = await this.favoriteService.removeEntity(favorite)
-
+    const result = await this.favoriteService.removeNode(node, req.user.id)
     res.send(this.responseData(result))
   }
 }
