@@ -1,13 +1,11 @@
-import { config } from 'node-config-ts'
 import pug from 'pug'
-
-import { MailService, UserService } from '../../../../services'
-import { ServiceFactory } from '../../../../services/factory/ServiceFactory'
+import { MailService, UserService } from '../../..'
+import { ServiceFactory } from '../../../factory/ServiceFactory'
 import { IActivityHandler, IAppActivityData } from '../types'
 
 const mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
 
-export class UserSignupHandler implements IActivityHandler {
+export class UserEmailConfirmedHandler implements IActivityHandler {
   private mailService: MailService
   private userService: UserService
 
@@ -21,19 +19,17 @@ export class UserSignupHandler implements IActivityHandler {
   }
 
   async process(): Promise<void> {
-    await this.sendConfirmationEmail()
+    await this.sendWelcomeEmail()
   }
 
-  private async sendConfirmationEmail(): Promise<void> {
+  private async sendWelcomeEmail(): Promise<boolean> {
     const user = await this.userService.getUserById(this.data.actorId, { addSelect: ['token'] })
 
-    const subject = 'Root, email confirmation'
-
-    let confirmUrl = config.domain + config.domainEmailConfirmationPath
-    confirmUrl = `${confirmUrl}/${user.token}/${user.id}`
-
-    const content = pug.renderFile(mailTemplatesDir + 'confirmEmail.pug', { user, confirmUrl })
+    const subject = 'Welcome to Root!'
+    const content = pug.renderFile(mailTemplatesDir + 'welcome.pug')
 
     await this.mailService.sendMail(user.email, subject, content)
+
+    return true
   }
 }

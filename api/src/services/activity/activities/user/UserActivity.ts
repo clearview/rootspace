@@ -6,6 +6,7 @@ import { UserActions } from './actions'
 
 const handlers = {
   [UserActions.Signup]: 'UserSignupHandler',
+  [UserActions.Email_Confirmed]: 'UserEmailConfirmedHandler',
 }
 
 export class UserActivitiy implements IAppActivity {
@@ -26,6 +27,10 @@ export class UserActivitiy implements IAppActivity {
 
   static signup(user: User): UserActivitiy {
     return new UserActivitiy(UserActions.Signup, 'User', user.id, user.id)
+  }
+
+  static emailConfirmed(user: User): UserActivitiy{
+    return new UserActivitiy(UserActions.Email_Confirmed, 'User', user.id, user.id)
   }
 
   getType() {

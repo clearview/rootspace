@@ -111,7 +111,7 @@ export class UserService extends Service {
     user.emailConfirmed = true
     user.active = true
 
-    await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
+    await this.notifyActivity(UserActivitiy.emailConfirmed(user))
 
     return await this.getUserRepository().save(user)
   }
@@ -132,7 +132,7 @@ export class UserService extends Service {
     if (sendEmailConfirmation) {
       await this.notifyActivity(UserActivitiy.signup(user))
     } else {
-      await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
+      await this.notifyActivity(UserActivitiy.emailConfirmed(user))
     }
 
     return user

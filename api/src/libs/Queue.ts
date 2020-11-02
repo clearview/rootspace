@@ -3,7 +3,6 @@ dotenv.config()
 import { config } from 'node-config-ts'
 import Redis from 'ioredis'
 import Bull from 'bull'
-import { Activity } from '../database/entities/Activity'
 
 const redisHost = config.redis.host
 const redisPort = config.redis.port
@@ -12,8 +11,8 @@ const client: Redis.Redis = new Redis(redisPort, redisHost)
 const subscriber: Redis.Redis = new Redis(redisPort, redisHost)
 
 const redisOpts = {
-  createClient (type: string) {
-    switch(type) {
+  createClient(type: string) {
+    switch (type) {
       case 'client':
         return client
       case 'subscriber':
@@ -21,7 +20,7 @@ const redisOpts = {
       default:
         return new Redis(redisPort, redisHost)
     }
-  }
+  },
 }
 
 export class Queue {
@@ -33,11 +32,11 @@ export class Queue {
     ...redisOpts,
     limiter: {
       max: 16,
-      duration: 1000
+      duration: 1000,
     },
     defaultJobOptions: {
-      removeOnComplete: false
-    }
+      removeOnComplete: false,
+    },
   }
 
   static getActivityInstance(): Bull.Queue {
