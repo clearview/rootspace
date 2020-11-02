@@ -22,12 +22,16 @@ import { UserActivities } from '../database/entities/activities/UserActivities'
 import { ActivityService } from './'
 import { ServiceFactory } from './factory/ServiceFactory'
 import { UserAuthProvider } from '../types/user'
+import { IQueryOptions } from '../types/query'
+import { Service } from './Service'
+import { UserActivitiy } from './activity/activities/user/UserActivity'
 
-export class UserService {
+export class UserService extends Service {
   private activityService: ActivityService
   private static instance: UserService
 
   private constructor() {
+    super()
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
@@ -51,12 +55,12 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
-    return this.getUserRepository().getById(id, additionalFields)
+  getUserById(id: number, options: IQueryOptions = {}): Promise<User | undefined> {
+    return this.getUserRepository().getById(id, options)
   }
 
-  async requireUserById(id: number, additionalFields?: string[]): Promise<User> {
-    const user = await this.getUserById(id, additionalFields)
+  async requireUserById(id: number, options: IQueryOptions = {}): Promise<User> {
+    const user = await this.getUserById(id, options)
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
@@ -65,12 +69,12 @@ export class UserService {
     return user
   }
 
-  getUserByEmail(email: string, selectPassword = false): Promise<User | undefined> {
-    return this.getUserRepository().getByEmail(email, selectPassword)
+  getUserByEmail(email: string, options: IQueryOptions = {}): Promise<User | undefined> {
+    return this.getUserRepository().getByEmail(email, options)
   }
 
-  async requireUserByEmail(email: string, selectPassword = false): Promise<User> {
-    const user = await this.getUserByEmail(email, selectPassword)
+  async requireUserByEmail(email: string, options: IQueryOptions = {}): Promise<User> {
+    const user = await this.getUserByEmail(email, options)
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
@@ -126,7 +130,7 @@ export class UserService {
     delete user.password
 
     if (sendEmailConfirmation) {
-      await this.registerActivityForUser(UserActivities.Signup, user)
+      await this.notifyActivity(UserActivitiy.signup(user))
     } else {
       await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
     }
@@ -135,7 +139,7 @@ export class UserService {
   }
 
   async update(data: UserUpdateValue, userId: number): Promise<User> {
-    const user = await this.getUserById(userId, ['authProvider'])
+    const user = await this.getUserById(userId, { addSelect: ['authProvider'] })
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
@@ -146,7 +150,7 @@ export class UserService {
   }
 
   async changePassword(data: PasswordChangeValue, userId: number, done: CallbackFunction) {
-    let user = await this.requireUserById(userId, ['password', 'authProvider'])
+    let user = await this.requireUserById(userId, { addSelect: ['password', 'authProvider'] })
 
     bcrypt.compare(data.attributes.password, user.password, async (err, res) => {
       if (err) {
@@ -168,7 +172,7 @@ export class UserService {
   }
 
   async setPassword(data: PasswordSetValue, userId: number): Promise<User> {
-    let user = await this.requireUserById(userId, ['password', 'authProvider'])
+    let user = await this.requireUserById(userId, { addSelect: ['password', 'authProvider'] })
 
     user.password = String(await hashPassword(data.attributes.newPassword))
     user.authProvider = UserAuthProvider.LOCAL

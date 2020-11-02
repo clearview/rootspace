@@ -19,10 +19,6 @@ export class DocActivity extends ContentActivity<Doc> {
     return 'Doc'
   }
 
-  getTablename(): string {
-    return 'docs'
-  }
-
   static created(entity: Doc, actorId?: number): IContentActivity {
     return new DocActivity(ContentActions.Created, entity, actorId).created()
   }

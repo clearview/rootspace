@@ -40,9 +40,6 @@ export class Activity {
   @Column('varchar')
   entity: string
 
-  @Column('varchar')
-  tableName: string
-
   @Column({ name: 'data', type: 'jsonb', default: '{}' })
   context: object | object[]
 

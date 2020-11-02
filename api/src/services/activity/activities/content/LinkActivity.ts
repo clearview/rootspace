@@ -14,10 +14,6 @@ export class LinkActivity extends ContentActivity<Link> {
     return 'Link'
   }
 
-  getTablename(): string {
-    return 'links'
-  }
-
   static created(entity: Link, actorId?: number): IContentActivity {
     return new LinkActivity(ContentActions.Created, entity, actorId).created()
   }

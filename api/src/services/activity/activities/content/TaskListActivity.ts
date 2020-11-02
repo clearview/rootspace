@@ -16,10 +16,6 @@ export class TaskListActivity extends ContentActivity<TaskList> {
     return 'TaskList'
   }
 
-  getTablename(): string {
-    return 'task_lists'
-  }
-
   static created(entity: TaskList, actorId?: number): IContentActivity {
     return new TaskListActivity(ContentActions.Created, entity, actorId).created()
   }

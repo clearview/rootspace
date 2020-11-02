@@ -14,10 +14,6 @@ export class FolderActivity extends ContentActivity<Folder> {
     return 'Folder'
   }
 
-  getTablename(): string {
-    return 'folders'
-  }
-
   static created(entity: Folder, actorId?: number): IContentActivity {
     return new FolderActivity(ContentActions.Created, entity, actorId).created()
   }

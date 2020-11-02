@@ -70,9 +70,9 @@ passport.use(
     async (email: string, password: string, done) => {
       try {
         const userService = ServiceFactory.getInstance().getUserService()
-        const user = await userService.getUserByEmail(email, true)
-
         const activityService = ServiceFactory.getInstance().getActivityService()
+
+        const user = await userService.getUserByEmail(email, { addSelect: ['password', 'active'] })
 
         if (!user) {
           return done(unauthorized())
@@ -126,7 +126,7 @@ passport.use(
 const jwtRefreshOptions: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: config.jwt.refreshToken.secretKey,
-  passReqToCallback: true
+  passReqToCallback: true,
 }
 
 passport.use(
@@ -204,7 +204,7 @@ function verifyJWTPayload(payload: any, done: VerifiedCallback) {
 
   const expirationDate = new Date(tokenExpiryTimestamp * 1000)
 
-  if(expirationDate < new Date()) {
+  if (expirationDate < new Date()) {
     return done(null, false, { message: 'Token expired' })
   }
 }

@@ -8,18 +8,9 @@ export interface IContentEntity {
 export interface IContentActivityData extends IAppActivityData {
   actorId: number
   spaceId: number
-  entityId: number
-  entity: string
-  action: string
-  type: string
-  tableName: string
   context: object
 }
 
 export interface IContentActivity extends IAppActivity {
   getEntityName(): string
-}
-
-export interface IContentActivityHandler {
-  process(): Promise<void>
 }

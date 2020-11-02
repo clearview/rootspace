@@ -21,10 +21,6 @@ export class TaskActivity extends ContentActivity<Task> {
     return 'Task'
   }
 
-  getTablename(): string {
-    return 'tasks'
-  }
-
   static created(entity: Task, actorId?: number): IContentActivity {
     return new TaskActivity(ContentActions.Created, entity, actorId).created()
   }

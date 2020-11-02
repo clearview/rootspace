@@ -1,53 +1,55 @@
-import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm'
+import { EntityRepository, Repository, SelectQueryBuilder, getConnection } from 'typeorm'
 import { User } from '../entities/User'
 import { UserToSpace } from '../entities/UserToSpace'
 import { Upload } from '../entities/Upload'
+import { IQueryOptions } from '../../types/query'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   getBySpaceId(spaceId: number): Promise<User[]> {
     const queryBuilder = this.createQueryBuilder('user')
+      .select(['user', 'upload.id'])
       .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.userId = user.id')
       .where('userToSpace.spaceId = :spaceId AND userToSpace.active = true', {
         spaceId,
       })
 
-    this.mapAvatar(queryBuilder)
+    //this.mapAvatar(queryBuilder)
 
     return queryBuilder.getMany()
   }
 
-  getById(id: number, additionalFields?: string[]): Promise<User> {
-    const queryBuilder = this.createQueryBuilder()
+  async getById(id: number, options: IQueryOptions = {}): Promise<User> {
+    const queryBuilder = this.createQueryBuilder('user')
 
-    if (additionalFields) {
-      for (const field of additionalFields) {
-        queryBuilder.addSelect(`User.${field}`, `User_${field}`)
+    if (options.addSelect) {
+      for (const addSelect of options.addSelect) {
+        queryBuilder.addSelect(`user.${addSelect}`, `user_${addSelect}`)
       }
     }
 
-    this.mapAvatar(queryBuilder)
+    await this.mapAvatar(queryBuilder)
 
-    return queryBuilder
-      .where('User.id = :id')
-      .setParameter('id', id)
-      .getOne()
+    queryBuilder.where('user.id = :id', { id })
+
+    return queryBuilder.getOne()
   }
 
-  getByEmail(email: string, selectPassword = false): Promise<User> {
-    const queryBuilder = this.createQueryBuilder()
+  getByEmail(email: string, options: IQueryOptions = {}): Promise<User> {
+    const queryBuilder = this.createQueryBuilder('user').where('LOWER(user.email) = :email', {
+      email: email.toLowerCase(),
+    })
 
-    if (selectPassword === true) {
-      queryBuilder.addSelect('User.password', 'User_password')
+    if (options.addSelect) {
+      for (const addSelect of options.addSelect) {
+        queryBuilder.addSelect(`user.${addSelect}`, `user_${addSelect}`)
+      }
     }
 
-    return queryBuilder
-      .where('LOWER(User.email) = :email')
-      .setParameter('email', email.toLowerCase())
-      .getOne()
+    return queryBuilder.getOne()
   }
 
-  private mapAvatar(queryBuilder: SelectQueryBuilder<User>): void {
+  private async mapAvatar(queryBuilder: SelectQueryBuilder<User>): Promise<void> {
     const alias = queryBuilder.alias
 
     queryBuilder.leftJoinAndMapOne(

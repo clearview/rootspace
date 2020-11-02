@@ -16,10 +16,6 @@ export class TaskBoardActivity extends ContentActivity<TaskBoard> {
     return 'TaskBoard'
   }
 
-  getTablename(): string {
-    return 'task_boards'
-  }
-
   static created(entity: TaskBoard, actorId?: number): IContentActivity {
     return new TaskBoardActivity(ContentActions.Created, entity, actorId).created()
   }

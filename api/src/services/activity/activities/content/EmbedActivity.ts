@@ -14,10 +14,6 @@ export class EmbedActivity extends ContentActivity<Embed> {
     return 'Embed'
   }
 
-  getTablename(): string {
-    return 'embeds'
-  }
-
   static created(entity: Embed, actorId?: number): IContentActivity {
     return new EmbedActivity(ContentActions.Created, entity, actorId).created()
   }

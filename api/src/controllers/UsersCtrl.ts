@@ -109,8 +109,11 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async whoami(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).getById(req.user.id, ['emailConfirmed', 'authProvider'])
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
+    const user = await this.userService.requireUserById(req.user.id, {
+      addSelect: ['emailConfirmed', 'authProvider'],
+    })
+
+    const spaces = await this.spaceService.getSpacesByUserId(user.id)
 
     res.send({ user, spaces })
   }
@@ -146,7 +149,7 @@ export class UsersCtrl extends BaseCtrl {
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
     const userId = req.user.id
-    const user = await this.userService.requireUserById(userId, ['authProvider'])
+    const user = await this.userService.requireUserById(userId, { addSelect: ['authProvider'] })
 
     if (user.authProvider !== UserAuthProvider.LOCAL) {
       return next()

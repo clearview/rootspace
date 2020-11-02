@@ -1,6 +1,7 @@
 import httpRequestContext from 'http-request-context'
 import { IContentEntity, IContentActivity } from '.'
 import { IContentActivityData } from './types'
+import { ActivityType } from '../types'
 
 export abstract class ContentActivity<T extends IContentEntity> implements IContentActivity {
   protected _action: string
@@ -21,10 +22,9 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
   }
 
   abstract getEntityName(): string
-  abstract getTablename(): string
 
   getType(): string {
-    return 'content'
+    return ActivityType.Content
   }
 
   toObject(): IContentActivityData {
@@ -35,7 +35,6 @@ export abstract class ContentActivity<T extends IContentEntity> implements ICont
       entity: this.getEntityName(),
       action: this._action,
       type: this.getType(),
-      tableName: this.getTablename(),
       context: this._context,
       handler: this._handler,
     }

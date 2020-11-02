@@ -122,7 +122,10 @@ export class ServiceFactory {
   }
 
   getUserService() {
-    return UserService.getInstance()
+    const service = UserService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getUserSettingService() {

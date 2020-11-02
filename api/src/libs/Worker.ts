@@ -7,8 +7,8 @@ import { ActivityEvent } from '../services/events/ActivityEvent'
 import { UserWorker } from './workers/UserWorker'
 import { InviteWorker } from './workers/InviteWorker'
 import { Queue } from './Queue'
-import * as ContentActivitiHandlers from '../services/activity/activities/content/handlers'
-import { IContentActivityHandler } from '../services/activity/activities/content'
+import * as ActivityHandlers from '../services/activity/activities/handlers'
+import { IActivityHandler } from '../services/activity/activities/types'
 
 export class Worker {
   static async process() {
@@ -23,7 +23,7 @@ export class Worker {
     const data: any = job.data
 
     if (data.handler) {
-      const handler: IContentActivityHandler = new ContentActivitiHandlers[data.handler](data)
+      const handler: IActivityHandler = new ActivityHandlers[data.handler](data)
       await handler.process()
 
       return

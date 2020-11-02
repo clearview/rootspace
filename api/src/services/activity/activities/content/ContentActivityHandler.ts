@@ -3,10 +3,11 @@ import { Activity } from '../../../../database/entities/Activity'
 import { User } from '../../../../database/entities/User'
 import { ServiceFactory } from '../../../factory/ServiceFactory'
 import { FollowService, NotificationService, EntityService } from '../../../'
-import { IContentActivityHandler, IContentActivityData } from './types'
-import { ActivityService, UserService, MailService, UserSettingService } from '../../../index'
+import { IContentActivityData } from './types'
+import { IActivityHandler } from '../types'
+import { ActivityService, UserService, MailService, UserSettingService } from '../../../'
 
-export abstract class ContentActivityHandler<T> implements IContentActivityHandler {
+export abstract class ContentActivityHandler<T> implements IActivityHandler {
   protected mailTemplate = `${process.cwd()}/src/templates/mail/notification/content.pug`
 
   protected activityService: ActivityService

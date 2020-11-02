@@ -42,16 +42,13 @@ export class UserWorker {
 
   private async sendConfirmationEmail(event: ActivityEvent): Promise<boolean> {
     const userId = event.actorId
-    const user = await this.userService.getUserById(userId, ['token'])
+    const user = await this.userService.getUserById(userId, { addSelect: ['token'] })
 
     const subject = 'Root, email confirmation'
     const confirmationURL = config.domain + config.domainEmailConfirmationPath
     const confirmUrl = `${confirmationURL}/${user.token}/${user.id}`
 
-    const content = pug.renderFile(
-      UserWorker.mailTemplatesDir + 'confirmEmail.pug',
-      { user, confirmUrl }
-    )
+    const content = pug.renderFile(UserWorker.mailTemplatesDir + 'confirmEmail.pug', { user, confirmUrl })
 
     await this.mailService.sendMail(user.email, subject, content)
 
@@ -60,7 +57,7 @@ export class UserWorker {
 
   private async sendWelcomeEmail(event: ActivityEvent): Promise<boolean> {
     const userId = event.actorId
-    const user = await this.userService.getUserById(userId, ['token'])
+    const user = await this.userService.getUserById(userId, { addSelect: ['token'] })
 
     const subject = 'Welcome to Root!'
     const content = pug.renderFile(UserWorker.mailTemplatesDir + 'welcome.pug')
@@ -71,21 +68,16 @@ export class UserWorker {
   }
 
   private async sendPasswordResetMail(event: ActivityEvent): Promise<boolean> {
-    const passwordReset = await this.userService.getPasswordResetById(
-      event.entityId
-    )
+    const passwordReset = await this.userService.getPasswordResetById(event.entityId)
 
     const subject = 'Root, Password reset'
     const confirmationURL = config.domain + config.domainPasswordResetPath
     const confirmUrl = `${confirmationURL}/${passwordReset.token}`
 
-    const content = pug.renderFile(
-      UserWorker.mailTemplatesDir + 'passwordReset.pug',
-      {
-        passwordReset,
-        confirmUrl,
-      }
-    )
+    const content = pug.renderFile(UserWorker.mailTemplatesDir + 'passwordReset.pug', {
+      passwordReset,
+      confirmUrl,
+    })
     await this.mailService.sendMail(passwordReset.email, subject, content)
     return true
   }
