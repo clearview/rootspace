@@ -3,9 +3,11 @@ import { InviteRepository } from '../database/repositories/InviteRepository'
 import { Invite } from '../database/entities/Invite'
 import { Space } from '../database/entities/Space'
 import { User } from '../database/entities/User'
+import { Service } from './Service'
 import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { UserActivitiy } from './activity/activities/user'
 
-export class InviteService {
+export class InviteService extends Service {
   private static instance: InviteService
 
   static getInstance() {
@@ -98,6 +100,8 @@ export class InviteService {
       invite = await this.getInviteRepository().save(invite)
     }
 
+    this.notifyActivity(UserActivitiy.invite(invite))
+
     return invite
   }
 
@@ -112,6 +116,8 @@ export class InviteService {
       invite.email = user.email
       invite = await this.getInviteRepository().save(invite)
     }
+
+    this.notifyActivity(UserActivitiy.invite(invite))
 
     return invite
   }

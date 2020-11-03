@@ -22,14 +22,12 @@ export class UserEmailConfirmedHandler implements IActivityHandler {
     await this.sendWelcomeEmail()
   }
 
-  private async sendWelcomeEmail(): Promise<boolean> {
+  private async sendWelcomeEmail(): Promise<void> {
     const user = await this.userService.getUserById(this.data.actorId, { addSelect: ['token'] })
 
     const subject = 'Welcome to Root!'
     const content = pug.renderFile(mailTemplatesDir + 'welcome.pug')
 
     await this.mailService.sendMail(user.email, subject, content)
-
-    return true
   }
 }

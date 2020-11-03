@@ -1,14 +1,9 @@
-import httpRequestContext from 'http-request-context'
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { SpaceService, UserSpaceService, NodeService, UserService, ActivityService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { UserActivities } from '../../database/entities/activities/UserActivities'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { User } from '../../database/entities/User'
 import { Node } from '../../database/entities/Node'
 
 export class SpaceFacade {
@@ -75,19 +70,6 @@ export class SpaceFacade {
 
     const userSpace = this.userSpaceService.remove(userId, spaceId)
 
-    await this.registerActivityForUserSpace(UserActivities.Removed_From_Space, user, space)
-
     return userSpace
-  }
-
-  async registerActivityForUserSpace(userActivity: UserActivities, user: User, space: Space): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    const activity = ActivityEvent.withAction(userActivity)
-      .fromActor(actor.id)
-      .forEntity(user)
-      .inSpace(space.id)
-
-    return this.activityService.add(activity)
   }
 }

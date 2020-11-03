@@ -137,7 +137,10 @@ export class ServiceFactory {
   }
 
   getInviteService() {
-    return InviteService.getInstance()
+    const service = InviteService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getMailService() {

@@ -23,7 +23,7 @@ export class PasswordResetHandler implements IActivityHandler {
     await this.sendPasswordResetMail()
   }
 
-  private async sendPasswordResetMail(): Promise<boolean> {
+  private async sendPasswordResetMail(): Promise<void> {
     const passwordReset = await this.userService.getPasswordResetById(this.data.entityId)
 
     const subject = 'Root, Password reset'
@@ -35,7 +35,7 @@ export class PasswordResetHandler implements IActivityHandler {
       passwordReset,
       confirmUrl,
     })
+
     await this.mailService.sendMail(passwordReset.email, subject, content)
-    return true
   }
 }

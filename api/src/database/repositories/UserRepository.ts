@@ -8,13 +8,12 @@ import { IQueryOptions } from '../../types/query'
 export class UserRepository extends Repository<User> {
   getBySpaceId(spaceId: number): Promise<User[]> {
     const queryBuilder = this.createQueryBuilder('user')
-      .select(['user', 'upload.id'])
       .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.userId = user.id')
       .where('userToSpace.spaceId = :spaceId AND userToSpace.active = true', {
         spaceId,
       })
 
-    //this.mapAvatar(queryBuilder)
+    this.mapAvatar(queryBuilder)
 
     return queryBuilder.getMany()
   }

@@ -2,10 +2,12 @@ import httpRequestContext from 'http-request-context'
 import { User } from '../../../../database/entities/User'
 import { IAppActivity, IAppActivityData, ActivityType } from '../types'
 import { UserActions } from './actions'
+import { Invite } from '../../../../database/entities/Invite'
 
 const handlers = {
   [UserActions.Signup]: 'UserSignupHandler',
-  [UserActions.Email_Confirmed]: 'UserEmailConfirmedHandler',
+  [UserActions.EmailConfirmed]: 'UserEmailConfirmedHandler',
+  [UserActions.Invite]: 'UserInviteHandler',
 }
 
 export class UserActivitiy implements IAppActivity {
@@ -28,8 +30,19 @@ export class UserActivitiy implements IAppActivity {
     return new UserActivitiy(UserActions.Signup, 'User', user.id, user.id)
   }
 
-  static emailConfirmed(user: User): UserActivitiy{
-    return new UserActivitiy(UserActions.Email_Confirmed, 'User', user.id, user.id)
+  static emailConfirmed(user: User): UserActivitiy {
+    return new UserActivitiy(UserActions.EmailConfirmed, 'User', user.id, user.id)
+  }
+
+  static login(user: User): UserActivitiy {
+    return new UserActivitiy(UserActions.Login, 'User', user.id, user.id)
+  }
+
+  static invite(invite: Invite, actorId?: number): UserActivitiy {
+    const activitiy = new UserActivitiy(UserActions.Invite, 'Invite', invite.id, actorId)
+    activitiy._spaceId = invite.spaceId
+
+    return activitiy
   }
 
   getType() {
