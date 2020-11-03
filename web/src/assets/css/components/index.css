@@ -13,4 +13,5 @@
 @import './textarea';
 @import './tree';
 @import './tooltip';
-@import './calendar'
+@import './calendar';
+@import './checkbox';

@@ -2,7 +2,7 @@
   <div class="popover-container">
     <portal :to="sub ? 'sub-popover' : 'tertiary'" v-if="visible">
       <div class="popover-cloak" @click.self.prevent.stop="hide" :style="{zIndex}"></div>
-      <div class="popover" :class="{borderless}" v-if="visible" ref="popover" :style="{zIndex: zIndex+1}">
+      <div class="popover" :class="{borderless, 'set-top': withTop }" v-if="visible" ref="popover" :style="{zIndex: zIndex+1}">
         <header class="popover-header" v-if="title || withClose">
           <div v-if="backButton" @click="back">
               <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
@@ -45,6 +45,9 @@ export default class Popover extends Vue {
 
   @Prop({ type: Number, default: 0 })
   private readonly skid!: number;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly withTop!: boolean;
 
   @Prop({ type: String })
   private readonly title?: string;
@@ -182,6 +185,10 @@ export default class Popover extends Vue {
         }
       }
     }
+  }
+
+  .set-top {
+    top: 16px !important;
   }
 
 </style>

@@ -146,6 +146,10 @@ export default class SidebarHeaderSettings extends Vue {
   .popover-trigger {
     @apply flex items-center;
     @apply w-full;
+
+    height: 40px;
+    padding: 8px;
+    min-width: 232px;
   }
 }
 </style>

@@ -18,6 +18,7 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import IconAdd from './IconAdd.vue'
 import IconClose from './IconClose.vue'
 import IconCheckmark from './IconCheckmark.vue'
+import IconCheckmark2 from './IconCheckmark2.vue'
 import IconDots from './IconDots.vue'
 import IconDown from './IconDown.vue'
 import IconDown2 from './IconDown2.vue'
@@ -30,6 +31,7 @@ import IconFile from './IconFile.vue'
 import IconFileDocument from './IconFileDocument.vue'
 import IconUpload from './IconUpload.vue'
 import IconFilter from './IconFilter.vue'
+import IconFilter2 from './IconFilter2.vue'
 import IconFolder from './IconFolder.vue'
 import IconLeft from './IconLeft.vue'
 import IconLink from './IconLink.vue'
@@ -101,6 +103,7 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconArchive,
     IconAttachment,
     IconCheckmark,
+    IconCheckmark2,
     IconComment,
     IconClose,
     IconClose2,
@@ -121,6 +124,7 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconFile,
     IconFileDocument,
     IconFilter,
+    IconFilter2,
     IconKanban,
     IconFolder,
     IconLeft,
