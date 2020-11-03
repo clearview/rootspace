@@ -274,6 +274,17 @@ export default class TaskCard extends Vue {
       })
     }
 
+    @Watch('$route')
+    watchRoute () {
+      if (this.$route.name === 'TaskPageWithItem') {
+        const itemId = parseInt(this.$route.params.item)
+        if (itemId === this.item.id) {
+          this.$store.commit('task/item/setCurrent', this.item)
+          this.showModal = true
+        }
+      }
+    }
+
     created () {
       Vue.nextTick(() => {
         if (this.isInputtingNewCard) {

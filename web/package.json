@@ -37,6 +37,7 @@
     "lodash": "^4.17.15",
     "portal-vue": "^2.1.7",
     "postcss-import": "^12.0.1",
+    "sanitize-html": "^2.1.0",
     "tailwindcss": "^1.2.0",
     "url-parse": "^1.4.7",
     "v-calendar": "^1.0.8",

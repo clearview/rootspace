@@ -206,6 +206,7 @@ export interface ActivityResource {
   spaceId: number;
   tableName: string;
   context?: any;
+  notification?: number[];
 }
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;

@@ -17,21 +17,8 @@
       </div>
     </div>
 
-    <div class="header activities-header">
-      <span class="sidebar-icon">
-        <v-icon
-          name="grid"
-          size="16px"
-          viewbox="16"
-          class="flex flex-none text-gray-400"
-        />
-      </span>
-      <span class="title collapse-hidden">
-        Activities
-      </span>
-    </div>
-
-    <sidebar-header-settings :collapse-state="collapseState" />
+    <sidebar-notification-activity :collapse-state="collapseState" />
+    <sidebar-settings :collapse-state="collapseState" />
   </div>
 </template>
 
@@ -39,7 +26,8 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 import SelectSpace from '@/components/SelectSpace.vue'
-import SidebarHeaderSettings from '@/components/sidebar/SidebarHeaderSettings.vue'
+import SidebarSettings from '@/components/sidebar/header/Settings.vue'
+import SidebarNotificationActivity from '@/components/sidebar/header/NotificationActivity.vue'
 import ButtonIcon from '@/components/ButtonIcon.vue'
 
 @Component({
@@ -47,7 +35,8 @@ import ButtonIcon from '@/components/ButtonIcon.vue'
   components: {
     SelectSpace,
     ButtonIcon,
-    SidebarHeaderSettings
+    SidebarSettings,
+    SidebarNotificationActivity
   }
 })
 
@@ -106,7 +95,7 @@ export default class SidebarHeader extends Vue {
   }
 
   .activities-header {
-    padding: 8px;
+    padding: 0;
     cursor: pointer;
     border-radius: 3px;
     height: 40px;
@@ -118,7 +107,7 @@ export default class SidebarHeader extends Vue {
   }
 
   .settings-header {
-    padding: 8px;
+    padding: 0;
   }
 
   .sidebar-icon {
