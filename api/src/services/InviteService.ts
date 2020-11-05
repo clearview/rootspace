@@ -76,7 +76,7 @@ export class InviteService extends Service {
   }
 
   async cancel(invite: Invite) {
-    return this.getInviteRepository().remove(invite)
+    return this.getInviteRepository().softRemove(invite)
   }
 
   async cancelByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {

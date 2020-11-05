@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, Generated, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  Generated,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm'
 
 @Entity('invites')
 export class Invite {
@@ -36,4 +45,7 @@ export class Invite {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date
 }
