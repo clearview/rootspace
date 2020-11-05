@@ -224,6 +224,7 @@ import 'quill/dist/quill.bubble.css'
 import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
+import api from '@/utils/api'
 
 @Component({
   name: 'TaskModal',
@@ -310,6 +311,18 @@ export default class TaskModal extends Vue {
 
     pickFile () {
       this.attachmentFileRef.click()
+    }
+
+    mounted () {
+      this.readNotification()
+    }
+
+    async readNotification () {
+      try {
+        await api.patch('/notifications/seen/entity/task/' + this.item.id)
+      } catch (e) {
+        // Eat any error so user can still continue viewing
+      }
     }
 
     async handleAttachFile () {
