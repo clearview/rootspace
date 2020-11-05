@@ -17,7 +17,7 @@ import { Service } from '../Service'
 import { UploadValue } from '../../values/upload'
 import { IUploadImageConfig, IUploadImageSize, IUploadVersions, UploadType } from '../../types/upload'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { TaskActivity } from '../activity/activities/content'
 
 export class UploadService extends Service {

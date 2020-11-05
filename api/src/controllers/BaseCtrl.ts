@@ -1,6 +1,6 @@
 import { Request } from 'express'
-import { ResponseData } from '../response/ResponseData'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { ResponseData } from '../response/data/ResponseData'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class BaseCtrl {
   protected checkSpaceAccess(req: Request, spaceId: number, throwError: boolean = true): boolean {
@@ -17,7 +17,7 @@ export class BaseCtrl {
     return false
   }
 
-  protected responseData(data: object | object[] | string) {
-    return new ResponseData(data)
+  protected responseData(input: object | object[] | string) {
+    return new ResponseData(input).data
   }
 }

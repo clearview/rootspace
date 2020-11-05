@@ -15,7 +15,7 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
 } from '../values/user'
-import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../errors'
+import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../response/errors'
 import { UserAuthProvider } from '../types/user'
 import { IQueryOptions } from '../types/query'
 import { Service } from './Service'

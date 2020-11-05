@@ -12,7 +12,7 @@ import { NodeContentService } from '../NodeContentService'
 import { NodeService, TaskListService } from '../../'
 import { NodeCreateValue } from '../../../values/node'
 import { INodeContentUpdate } from '../contracts'
-import { HttpErrName, HttpStatusCode, clientError } from '../../../errors'
+import { HttpErrName, HttpStatusCode, clientError } from '../../../response/errors'
 import { TaskBoardActivity } from '../../activity/activities/content/TaskBoardActivity'
 
 export class TaskBoardService extends NodeContentService {

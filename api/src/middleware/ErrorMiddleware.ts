@@ -1,8 +1,8 @@
 import { config } from 'node-config-ts'
 import { Request, Response, NextFunction } from 'express'
 import { ForbiddenError } from '@casl/ability'
-import { HttpErrName, HttpErrNames } from '../errors'
-import { HttpError } from '../errors/HttpError'
+import { HttpErrName, HttpErrNames } from '../response/errors'
+import { HttpError } from '../response/errors/HttpError'
 
 export function errorHandler(
   err: any,

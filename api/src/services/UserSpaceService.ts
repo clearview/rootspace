@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm'
 import { UserToSpaceRepository } from '../database/repositories/UserToSpaceRepository'
 import { UserToSpace } from '../database/entities/UserToSpace'
-import { clientError, HttpErrName } from '../errors'
+import { clientError, HttpErrName } from '../response/errors'
 
 export class UserSpaceService {
   private constructor() {}

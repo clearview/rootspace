@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { ActivityService, EntityService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { HttpErrName, HttpStatusCode, clientError } from '../errors'
+import { HttpErrName, HttpStatusCode, clientError } from '../response/errors'
 
 export class ActivitiesCtrl extends BaseCtrl {
   private activityService: ActivityService

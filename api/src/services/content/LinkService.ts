@@ -9,7 +9,7 @@ import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { INodeContentUpdate } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { LinkActivity } from '../activity/activities/content'
 
 export class LinkService extends NodeContentService {

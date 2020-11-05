@@ -2,7 +2,7 @@ import { getCustomRepository, UpdateResult } from 'typeorm'
 import { Notification } from '../database/entities/Notification'
 import { Activity } from '../database/entities/Activity'
 import { NotificationRepository } from '../database/repositories/NotificationRepository'
-import { HttpErrName, HttpStatusCode, clientError } from '../errors'
+import { HttpErrName, HttpStatusCode, clientError } from '../response/errors'
 
 export class NotificationService {
   private static instance: NotificationService

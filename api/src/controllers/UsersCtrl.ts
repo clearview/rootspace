@@ -24,7 +24,7 @@ import {
   PasswordSetValue,
 } from '../values/user'
 import { UserAuthProvider } from '../types/user'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class UsersCtrl extends BaseCtrl {
   private userService: UserService

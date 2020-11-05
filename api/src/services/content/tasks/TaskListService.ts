@@ -7,7 +7,7 @@ import { Task } from '../../../database/entities/tasks/Task'
 import { Service, TaskService } from '../../'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { TaskListActivity } from '../../activity/activities/content'
-import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 
 export class TaskListService extends Service {
   private taskService: TaskService

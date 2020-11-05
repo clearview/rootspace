@@ -1,6 +1,6 @@
 import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class InviteFacade {

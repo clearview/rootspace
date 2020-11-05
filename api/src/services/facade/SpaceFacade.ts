@@ -3,7 +3,7 @@ import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { SpaceService, UserSpaceService, NodeService, UserService, ActivityService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Node } from '../../database/entities/Node'
 
 export class SpaceFacade {

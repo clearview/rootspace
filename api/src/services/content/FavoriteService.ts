@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm'
 import { FavoriteRepository } from '../../database/repositories/FavoriteRepository'
 import { Favorite } from '../../database/entities/Favorite'
 import { Node } from '../../database/entities/Node'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { NodeType } from '../../types/node'
 
 export class FavoriteService {

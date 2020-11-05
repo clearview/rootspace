@@ -1,6 +1,6 @@
 import { getConnection } from 'typeorm'
 import { ucFirst } from '../utils'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class EntityService {
   private static instance: EntityService

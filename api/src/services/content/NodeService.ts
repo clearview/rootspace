@@ -4,7 +4,7 @@ import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { IContentNodeUpdate, INodeContentMediator } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Service } from '../Service'
 
 export class NodeService extends Service {
