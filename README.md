@@ -7,6 +7,13 @@
 - TypeScript v.3.8.x
 - PostgreSQL 12.x
 
+### Deploy
+In order to deploy your public key must be added to server.
+
+Deploy steps:
+- `cd deploy`
+- `yarn run deploy`
+
 #### API
 - `cd ./api`
 - `yarn`
