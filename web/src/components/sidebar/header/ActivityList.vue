@@ -119,6 +119,9 @@ export default class TaskActivity extends Vue {
   display: flex;
   align-items: center;
   margin-bottom: 24px;
+  &:hover{
+    background: #F8F9FD;
+  }
 }
 .avatar{
 

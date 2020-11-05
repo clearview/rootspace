@@ -74,6 +74,7 @@ import store from '@/store'
 import DocHistory from '@/views/Document/DocHistory.vue'
 
 import EventBus from '@/utils/eventBus'
+import api from '@/utils/api'
 
 @Component({
   name: 'Document',
@@ -185,8 +186,19 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
     this.saveDocument()
   }
 
+  async readNotification (id: number | string) {
+    try {
+      await api.patch('/notifications/seen/entity/doc/' + id)
+    } catch (e) {
+      // Eat any error so user can still continue viewing
+    }
+  }
+
   async loadDocument () {
     const id = this.$route.params.id
+
+    // Not awaited so it doesn't interfere with actual content loading
+    this.readNotification(id)
 
     if (id) {
       this.initialize = true
