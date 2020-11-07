@@ -6,7 +6,7 @@ export class InviteRepository extends Repository<Invite> {
   getByToken(token: string, params: any = {}): Promise<Invite> {
     const queryBuilder = this.createQueryBuilder('invite').where('invite.token = :token', { token })
 
-    if (params.accepted) {
+    if (params.accepted !== undefined) {
       queryBuilder.andWhere('invite.accepted = :accepted', { accepted: params.accepted })
     }
 

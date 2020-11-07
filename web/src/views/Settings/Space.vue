@@ -16,8 +16,10 @@
         @submit="updateSpace"
         @addUser="addSpaceUser"
         @deleteUser="deleteSpaceUser"
+        @invitesAlertDisplay="invitesAlertDisplay"
         :value="spaceData"
         :is-edit="true"
+        :alert="invitesAlert"
         button="Save"
         ref="space">
         <div class="form-border">
@@ -94,6 +96,8 @@ export default class Space extends Vue {
     title?: string;
     invites?: any[];
   } = {}
+
+  private invitesAlert: any = null
 
   private loadingMessage = 'Update Settings...';
   private isLoading = false;
@@ -203,6 +207,10 @@ export default class Space extends Vue {
     await this.viewSpace(space.id)
   }
 
+  invitesAlertDisplay (value: object) {
+    this.invitesAlert = value
+  }
+
   async addSpaceUser (email: string) {
     try {
       this.isLoading = true
@@ -212,11 +220,35 @@ export default class Space extends Vue {
         spaceId: this.activeSpace.id,
         emails: [email]
       }
+
       const res = await UserService.addInvitation(payload)
-      if (this.spaceData.invites) {
-        if (!this.spaceData.invites.find(invite => invite.email === res.data.data[0].email)) {
-          this.spaceData.invites.push(res.data.data[0])
+
+      for (const inviteResult of res.data) {
+        if (inviteResult.status === 'alredayInSpace') {
+          this.invitesAlert = {
+            type: 'danger',
+            noicon: true,
+            message: inviteResult.email + ' alredy exists in this space'
+          }
+          continue
         }
+
+        if (inviteResult.status === 'emailResend') {
+          this.invitesAlert = {
+            type: 'success',
+            noicon: true,
+            message: 'New invitation email is sent to ' + inviteResult.email
+          }
+          continue
+        }
+
+        this.invitesAlert = {
+          type: 'success',
+          noicon: true,
+          message: 'Invite sent to ' + inviteResult.email
+        }
+
+        this.spaceData.invites.push(inviteResult.invite)
       }
     } catch (err) {
       if (err.code === 405) {

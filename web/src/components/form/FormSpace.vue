@@ -50,20 +50,13 @@
         </button>
       </template>
 
-      <template #feedback v-if="$v.invitation.$error || duplicateMessage">
+      <template #feedback v-if="$v.invitation.$error">
         <p
           v-if="isEmailError && !$v.invitation.email"
           class="feedback is-danger"
         >
           Email format is not valid.
         </p>
-
-        <p
-          v-if="duplicateMessage"
-          v-text="duplicateMessage"
-          class="feedback is-success"
-        />
-
         <div
           v-if="$v.invitation.$model.length > 100 && !$v.invitation.email.maxlength"
           class="feedback is-danger"
@@ -72,6 +65,8 @@
         </div>
       </template>
     </v-field>
+
+    <Alert v-model="showAlert"/>
 
     <div class="list-invitation" v-if="payload.invites.length > 0 || invitationList.length > 0">
       <div
@@ -124,11 +119,9 @@
 <script lang="ts">
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
-
 import { find } from 'lodash'
-
 import { SpaceResource, UserResource } from '@/types/resource'
-
+import Alert from '@/components/Alert.vue'
 import VField from '@/components/Field.vue'
 import Avatar from 'vue-avatar'
 
@@ -136,7 +129,8 @@ import Avatar from 'vue-avatar'
   name: 'FormSpace',
   components: {
     VField,
-    Avatar
+    Avatar,
+    Alert
   },
   validations: {
     payload: {
@@ -149,6 +143,16 @@ import Avatar from 'vue-avatar'
       required,
       email,
       maxLength: maxLength(100)
+    }
+  },
+  computed: {
+    showAlert: {
+      get: function () {
+        return this.alert
+      },
+      set: function (value) {
+        this.$emit('invitesAlertDisplay', value)
+      }
     }
   }
 })
@@ -165,6 +169,9 @@ export default class FormSpace extends Vue {
     @Prop({ type: Boolean })
     private readonly isEdit!: boolean;
 
+    @Prop({ type: Object })
+    private readonly alert!: any;
+
     private payload: Omit<SpaceResource, 'id'> = {
       title: '',
       invites: []
@@ -175,7 +182,6 @@ export default class FormSpace extends Vue {
     }
 
     private invitation = '';
-    private duplicateMessage = '';
     private invitationList = [];
     private isEmailError = false
 
@@ -196,13 +202,6 @@ export default class FormSpace extends Vue {
       this.invitationList = newVal.invites
     }
 
-    @Watch('invitation')
-    watchInvitation (newVal: string) {
-      if (newVal) {
-        this.duplicateMessage = ''
-      }
-    }
-
     addInvitationList (email: string, bypassValidation = false): void {
       if (!this.$v.invitation.email &&
           this.$v.invitation.required &&
@@ -211,19 +210,9 @@ export default class FormSpace extends Vue {
         if (!this.$v.invitation.email) this.isEmailError = true
         return
       }
+
       this.invitation = ''
       this.isEmailError = false
-      let getUser = find(this.payload.invites, (o) => {
-        return o === email
-      })
-
-      getUser = find(this.invitationList, (o: any) => {
-        return o.email === email
-      })
-
-      if (getUser) {
-        this.duplicateMessage = `A new invitation is sent to ${email}...`
-      }
 
       if (this.isEdit) {
         this.$emit('addUser', email)

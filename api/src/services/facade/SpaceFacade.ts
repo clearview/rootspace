@@ -1,7 +1,7 @@
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
-import { SpaceService, UserSpaceService, NodeService, UserService, ActivityService } from '../'
+import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Node } from '../../database/entities/Node'
@@ -11,14 +11,12 @@ export class SpaceFacade {
   private userService: UserService
   private userSpaceService: UserSpaceService
   private nodeService: NodeService
-  private activityService: ActivityService
 
   constructor() {
     this.spaceService = ServiceFactory.getInstance().getSpaceService()
     this.userService = ServiceFactory.getInstance().getUserService()
     this.userSpaceService = ServiceFactory.getInstance().getUserSpaceService()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   getTree(spaceId: number): Promise<Node[]> {
