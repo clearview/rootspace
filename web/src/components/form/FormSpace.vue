@@ -119,7 +119,6 @@
 <script lang="ts">
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
-import { find } from 'lodash'
 import { SpaceResource, UserResource } from '@/types/resource'
 import Alert from '@/components/Alert.vue'
 import VField from '@/components/Field.vue'
@@ -144,16 +143,6 @@ import Avatar from 'vue-avatar'
       email,
       maxLength: maxLength(100)
     }
-  },
-  computed: {
-    showAlert: {
-      get: function () {
-        return this.alert
-      },
-      set: function (value) {
-        this.$emit('invitesAlertDisplay', value)
-      }
-    }
   }
 })
 export default class FormSpace extends Vue {
@@ -171,6 +160,14 @@ export default class FormSpace extends Vue {
 
     @Prop({ type: Object })
     private readonly alert!: any;
+
+    get showAlert () {
+      return this.alert
+    }
+
+    set showAlert (value: any) {
+      this.$emit('invitesAlertDisplay', value)
+    }
 
     private payload: Omit<SpaceResource, 'id'> = {
       title: '',

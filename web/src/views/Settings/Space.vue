@@ -248,8 +248,10 @@ export default class Space extends Vue {
           message: 'Invite sent to ' + inviteResult.email
         }
 
-        if (!this.spaceData.invites.find(invite => invite.email === inviteResult.email)) {
-          this.spaceData.invites.push(inviteResult.invite)
+        if (this.spaceData && this.spaceData.invites) {
+          if (!this.spaceData.invites.find(invite => invite.email === inviteResult.email)) {
+            this.spaceData.invites.push(inviteResult.invite)
+          }
         }
       }
     } catch (err) {
