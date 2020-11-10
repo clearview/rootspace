@@ -1,5 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm'
 import { Invite } from '../entities/Invite'
+import { IQueryOptions } from '../../types/query'
 
 @EntityRepository(Invite)
 export class InviteRepository extends Repository<Invite> {
@@ -20,6 +21,29 @@ export class InviteRepository extends Repository<Invite> {
       .andWhere('invite.senderId = :senderId', { senderId })
       .andWhere('invite.accepted = false')
       .getOne()
+  }
+
+  getInvites(
+    email: string,
+    spaceId: number,
+    senderId: number,
+    filter: any = {},
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    const queryBuilder = this.createQueryBuilder('invite')
+      .where('invite.email = :email', { email })
+      .andWhere('invite.spaceId = :spaceId', { spaceId })
+      .andWhere('invite.senderId = :senderId', { senderId })
+
+    if (filter.fromTime) {
+      queryBuilder.andWhere('invite.createdAt > :fromTime', { fromTime: filter.fromTime })
+    }
+
+    if (options.withDeleted) {
+      queryBuilder.withDeleted()
+    }
+
+    return queryBuilder.getMany()
   }
 
   getByEmailAndSpaceId(email: string, spaceId: number, params: any = { accepted: false }): Promise<Invite[]> {

@@ -1,5 +1,5 @@
 export const InviteSendStatus = {
   Invited: 'invited',
-  EmailResend: 'emailResend',
-  AlredayInSpace: 'alredayInSpace',
+  Suspended: 'suspended',
+  Member: 'member',
 }

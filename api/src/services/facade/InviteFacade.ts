@@ -27,7 +27,6 @@ export class InviteFacade {
 
   async sendToEmails(emails: string[], spaceId: number, senderId: number): Promise<object[]> {
     const result: object[] = []
-
     const space = await this.spaceService.requireSpaceById(spaceId)
 
     emails = Array.from(new Set(emails))
@@ -36,17 +35,16 @@ export class InviteFacade {
       const inSpace = await this.userSpaceService.isEmailInSpace(email, space.id)
 
       if (inSpace === true) {
-        result.push({ email, status: InviteSendStatus.AlredayInSpace })
+        result.push({ email, status: InviteSendStatus.Member })
         continue
       }
 
-      let invite = await this.inviteService.getInvite(email, spaceId, senderId)
+      const suspend = await this.inviteService.suspendInvitation(email, space.id, senderId)
 
-      if (invite) {
+      if (suspend) {
         result.push({
-          email: invite.email,
-          status: InviteSendStatus.EmailResend,
-          invite,
+          email,
+          status: InviteSendStatus.Suspended,
         })
 
         continue
@@ -54,7 +52,7 @@ export class InviteFacade {
 
       const user = await this.userService.getUserByEmail(email)
 
-      invite = user
+      const invite = user
         ? await this.inviteService.createWithUser(user, space, senderId)
         : await this.inviteService.createWithEmail(email, space, senderId)
 

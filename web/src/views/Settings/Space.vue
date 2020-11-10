@@ -224,7 +224,7 @@ export default class Space extends Vue {
       const res = await UserService.addInvitation(payload)
 
       for (const inviteResult of res.data) {
-        if (inviteResult.status === 'alredayInSpace') {
+        if (inviteResult.status === 'member') {
           this.invitesAlert = {
             type: 'danger',
             noicon: true,
@@ -233,11 +233,11 @@ export default class Space extends Vue {
           continue
         }
 
-        if (inviteResult.status === 'emailResend') {
+        if (inviteResult.status === 'suspended') {
           this.invitesAlert = {
-            type: 'success',
+            type: 'danger',
             noicon: true,
-            message: 'New invitation email is sent to ' + inviteResult.email
+            message: 'You already invited ' + inviteResult.email + ', let\'s wait a bit'
           }
           continue
         }
@@ -248,7 +248,9 @@ export default class Space extends Vue {
           message: 'Invite sent to ' + inviteResult.email
         }
 
-        this.spaceData.invites.push(inviteResult.invite)
+        if (!this.spaceData.invites.find(invite => invite.email === inviteResult.email)) {
+          this.spaceData.invites.push(inviteResult.invite)
+        }
       }
     } catch (err) {
       if (err.code === 405) {
