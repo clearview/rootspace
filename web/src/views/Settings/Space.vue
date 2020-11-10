@@ -248,7 +248,9 @@ export default class Space extends Vue {
           message: 'Invite sent to ' + inviteResult.email
         }
 
-        this.spaceData.invites.push(inviteResult.invite)
+        if (this.spaceData && this.spaceData.invites) {
+          this.spaceData.invites.push(inviteResult.invite)
+        }
       }
     } catch (err) {
       if (err.code === 405) {
