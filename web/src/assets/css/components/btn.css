@@ -18,6 +18,11 @@
     @apply bg-primary text-primary-invert border-primary;
   }
 
+  &.btn-secondary {
+    background-color: #EFF1F6;
+    border-color: #EFF1F6;
+  }
+
   &.btn-success {
     @apply bg-success text-success-invert border-success;
   }
@@ -37,9 +42,13 @@
     @apply bg-white text-gray-400 border-gray-400;
   }
 
-  &.btn-link {
+  &.btn-ghost {
    @apply bg-transparent text-gray-900 border-transparent;
   }
+
+  &.btn-link {
+    @apply bg-transparent text-gray-900 border-transparent;
+   }
 
   &.btn-link-primary {
    @apply bg-transparent text-primary border-transparent;
@@ -56,14 +65,102 @@
   }
 }
 
-.btn:hover,
+.btn:hover {
+  background-color: rgba(theme('colors.gray.400'), 0.5);
+  border-color: transparent;
+
+  &.btn-primary {
+    background-color: #BD283F;
+  }
+
+  &.btn-success {
+    background-color: rgba(theme('colors.success.default'), 0.5);
+  }
+
+  &.btn-secondary {
+    background-color: theme('colors.secondary.default');
+  }
+
+  &.btn-danger {
+    background-color: rgba(theme('colors.danger.default'), 0.5);
+  }
+
+  &.btn-mute {
+    background-color: rgba(theme('colors.gray.100'), 0.5);
+  }
+
+  &.btn-white {
+    @apply bg-white border-gray-400;
+
+    color: rgba(theme('colors.gray.400'), 0.5);
+  }
+
+  &.btn-link {
+   background-color: rgba(theme('colors.gray.100'), 0.5);
+ }
+
+ &.btn-ghost {
+  @apply text-gray-900 border-transparent;
+
+  background: #EFF1F6;
+ }
+}
+
+.btn:focus {
+  background-color: rgba(theme('colors.gray.400'), 0.5);
+  border-color: transparent;
+  -webkit-box-shadow: 0px 0px 0px 2px #F9DFE3;
+  -moz-box-shadow: 0px 0px 0px 2px #F9DFE3;
+  box-shadow: 0px 0px 0px 2px #F9DFE3;
+
+  &.btn-primary {
+    border: 1px solid #FFF;
+    background-color: #BD283F;
+  }
+
+  &.btn-success {
+    background-color: rgba(theme('colors.success.default'), 0.5);
+  }
+
+  &.btn-secondary {
+    background-color: #F8F9FD;
+  }
+
+  &.btn-danger {
+    background-color: rgba(theme('colors.danger.default'), 0.5);
+  }
+
+  &.btn-mute {
+    background-color: rgba(theme('colors.gray.100'), 0.5);
+  }
+
+  &.btn-white {
+    @apply bg-white border-gray-400;
+
+    color: rgba(theme('colors.gray.400'), 0.5);
+  }
+
+  &.btn-link {
+   background-color: rgba(theme('colors.gray.100'), 0.5);
+  }
+
+  &.btn-ghost {
+    @apply bg-transparent;
+  }
+}
+
 .btn:disabled,
 .btn[disabled] {
   background-color: rgba(theme('colors.gray.400'), 0.5);
   border-color: transparent;
 
   &.btn-primary {
-    background-color: rgba(theme('colors.primary.default'), 0.5);
+    background-color: #F9DFE3;
+  }
+
+  &.btn-secondary {
+    background-color: #F8F9FD;
+    color: theme('colors.gray.400');
   }
 
   &.btn-success {
@@ -86,7 +183,13 @@
 
   &.btn-link {
    background-color: rgba(theme('colors.gray.100'), 0.5);
- }
+  }
+
+  &.btn-ghost {
+    @apply bg-transparent;
+
+    color: theme('colors.gray.400');
+  }
 }
 
 

@@ -100,8 +100,8 @@
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
-            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1].id" class="attachments-item">
-              <TaskAttachmentView :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
+              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">
@@ -224,6 +224,7 @@ import 'quill/dist/quill.bubble.css'
 import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
+import api from '@/utils/api'
 
 @Component({
   name: 'TaskModal',
@@ -312,6 +313,18 @@ export default class TaskModal extends Vue {
       this.attachmentFileRef.click()
     }
 
+    mounted () {
+      this.readNotification()
+    }
+
+    async readNotification () {
+      try {
+        await api.patch('/notifications/seen/entity/task/' + this.item.id)
+      } catch (e) {
+        // Eat any error so user can still continue viewing
+      }
+    }
+
     async handleAttachFile () {
       const files = this.attachmentFileRef.files
       if (files) {
@@ -334,6 +347,10 @@ export default class TaskModal extends Vue {
         task: this.item,
         upload: attachment
       })
+      this.itemCopy.attachments = this.item.attachments
+      if (this.item.attachments?.length === 0) {
+        this.attachmentIndex = null
+      }
     }
 
     handleFileClick (index: number|null) {
@@ -367,11 +384,10 @@ export default class TaskModal extends Vue {
       }
       try {
         this.isCommenting = true
-        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt'> = {
+        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
           id: null,
           content: this.commentInput,
-          taskId: this.item.id,
-          task: this.item
+          taskId: this.item.id
         }
         await this.$store.dispatch('task/comment/create', commentResource)
         this.commentInput = ''
@@ -635,6 +651,14 @@ export default class TaskModal extends Vue {
 
     button {
       border-color: #EFF1F6
+    }
+  }
+
+  .popover-trigger {
+    &.show {
+      button {
+        background: rgba(216, 55, 80, 0.16);
+      }
     }
   }
 

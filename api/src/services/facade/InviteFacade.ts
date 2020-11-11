@@ -1,10 +1,6 @@
-import httpRequestContext from 'http-request-context'
-import { ActivityService, InviteService, SpaceService, UserService, UserSpaceService } from '../'
+import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { UserActivities } from '../../database/entities/activities/UserActivities'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class InviteFacade {
@@ -12,14 +8,16 @@ export class InviteFacade {
   private spaceService: SpaceService
   private userService: UserService
   private userSpaceService: UserSpaceService
-  private activityService: ActivityService
 
   constructor() {
     this.inviteService = ServiceFactory.getInstance().getInviteService()
     this.spaceService = ServiceFactory.getInstance().getSpaceService()
     this.userService = ServiceFactory.getInstance().getUserService()
     this.userSpaceService = ServiceFactory.getInstance().getUserSpaceService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
+  }
+
+  requireInviteById(id: number): Promise<Invite> {
+    return this.inviteService.requireInviteById(id)
   }
 
   getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
@@ -38,8 +36,6 @@ export class InviteFacade {
       const invite = user
         ? await this.inviteService.createWithUser(user, space, senderId)
         : await this.inviteService.createWithEmail(email, space, senderId)
-
-      await this.registerActivityForInvite(UserActivities.Invite_Sent, invite)
 
       invites.push(invite)
     }
@@ -72,14 +68,10 @@ export class InviteFacade {
     const otherAccepted = await this.inviteService.acceptByEmailToSpace(invite.email, space.id)
     accepted.push(...otherAccepted)
 
-    await this.registerActivityForInvite(UserActivities.Invite_Accepted, invite)
-
     return accepted
   }
 
-  async cancel(inviteId: number): Promise<Invite[]> {
-    const invite = await this.inviteService.getInviteById(inviteId)
-
+  async cancel(invite: Invite): Promise<Invite[]> {
     if (invite.accepted) {
       throw clientError('Can not cancel this invite', HttpErrName.NotAllowed, HttpStatusCode.BadRequest)
     }
@@ -93,16 +85,5 @@ export class InviteFacade {
     canceled.push(...otherCanceled)
 
     return canceled
-  }
-
-  async registerActivityForInvite(userActivity: UserActivities, invite: Invite): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    const activity = ActivityEvent.withAction(userActivity)
-      .fromActor(actor.id)
-      .forEntity(invite)
-      .inSpace(invite.spaceId)
-
-    return this.activityService.add(activity)
   }
 }

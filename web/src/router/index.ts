@@ -37,7 +37,7 @@ const routes: Array<RouteConfig> = [
         ]
       },
       {
-        path: '/document/:id?',
+        path: '/document/:id?/:slug?',
         name: 'Document',
         component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
       },
@@ -78,7 +78,8 @@ const routes: Array<RouteConfig> = [
     name: 'SignIn',
     component: () => import(/* webpackChunkName: "signin" */ '../views/Public/SignIn.vue'),
     meta: {
-      noAuth: true
+      noAuth: true,
+      skipAuth: true
     }
   },
   {
@@ -86,7 +87,8 @@ const routes: Array<RouteConfig> = [
     name: 'SignUp',
     component: () => import(/* webpackChunkName: "signup" */ '../views/Public/SignUp.vue'),
     meta: {
-      noAuth: true
+      noAuth: true,
+      skipAuth: true
     }
   },
   {
@@ -130,6 +132,15 @@ const routes: Array<RouteConfig> = [
     path: '/create-space',
     name: 'SpaceInit',
     component: () => import(/* webpackChunkName: "space-init" */ '../views/SpaceInit.vue')
+  },
+  {
+    path: '/forbidden',
+    name: 'Forbidden',
+    component: () => import(/* webpackChunkName: "forbidden" */ '../views/Forbidden.vue')
+  },
+  {
+    path: '*',
+    component: () => import(/* webpackChunkName: "not-found" */ '../views/NotFound.vue')
   }
 ]
 
@@ -140,13 +151,16 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
   const noAuth = to.meta.noAuth
+  const skipAuth = to.meta.skipAuth
   const hasToken = store.state.auth.token !== null
   const hasUser = store.state.auth.user !== null
 
   if (hasToken && !hasUser) {
     await store.dispatch('auth/whoami', { updateSpace: true })
   }
-
+  if (hasToken && skipAuth) {
+    next('/')
+  }
   if (hasToken || noAuth) {
     return next()
   }

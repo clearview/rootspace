@@ -163,6 +163,8 @@ import { TaskSettings } from '@/store/modules/task/settings'
 import Tip from '@/components/Tip.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
 
+import EventBus from '@/utils/eventBus'
+
 @Component({
   name: 'TaskPage',
   components: {
@@ -219,6 +221,9 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   get prefferedView (): TaskBoardType {
+    if (!this.$store.state.task.settings.viewAs[this.boardId]) {
+      return this.board?.type || TaskBoardType.Kanban
+    }
     return this.$store.state.task.settings.viewAs[this.boardId] ?? TaskBoardType.Kanban
   }
 
@@ -324,13 +329,31 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return rx.test(option.firstName) || rx.test(option.lastName)
   }
 
+  syncTaskAttr (payload: any) {
+    this.pageTitle = payload.title
+
+    if (this.board) {
+      this.board.title = payload.title
+    }
+
+    if (this.boardCache) {
+      this.boardCache.title = payload.title
+    }
+  }
+
   async mounted () {
     await this.getSpaceMember()
     await this.fetchTask()
+
+    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
+  }
+
+  beforeDestroy () {
+    EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
   textColor (bgColor: string) {
@@ -345,11 +368,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 <style lang="postcss" scoped>
 .task-board {
   @apply flex flex-col h-full;
-  flex: 1 0 auto;
+  flex: 1 1 0;
+  width: 0;
 }
 
 .board {
-  flex: 1 0 auto;
+  flex: 1 1 0;
+  overflow-x: scroll;
   height: 0;
 }
 

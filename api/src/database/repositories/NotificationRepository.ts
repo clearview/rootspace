@@ -1,73 +1,67 @@
-import
-{ EntityRepository } from 'typeorm'
+import { EntityRepository, UpdateResult } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Notification } from '../entities/Notification'
-import { UpdateResult } from 'typeorm/index'
+import { Activity } from '../entities/Activity'
 
 @EntityRepository(Notification)
 export class NotificationRepository extends BaseRepository<Notification> {
-  async getNotificationsForEntities(entityIds: number[], entity: string): Promise<Notification[]> {
-    return this.createQueryBuilder('notification')
-      .leftJoinAndSelect('notification.activity', 'activity')
-      .where('activity.entityId IN (:...entityIds)', { entityIds })
-      .andWhere('activity.entity = :entity', { entity })
-      .getMany()
-  }
+  getById(id: number, filter: any = {}): Promise<Notification | undefined> {
+    const queryBuilder = this.createQueryBuilder('notification').where('notification.id = :id', { id })
 
-  async getUnreadUserNotificationForEntity(userId: number, entityId: number, entity: string): Promise<Notification> {
-    return this.createQueryBuilder('notification')
-      .leftJoinAndSelect('notification.activity', 'activity')
-      .where('notification.userId = :userId', { userId })
-      .andWhere('notification.isRead = :isRead', { isRead: false })
-      .andWhere('activity.entityId = :entityId', { entityId })
-      .andWhere('activity.entity = :entity', { entity })
-      .getOne()
-  }
-
-  async getUnreadUserNotificationsForEntity(userId: number, entity: string, entityId: number): Promise<Notification[]> {
-    return this.createQueryBuilder('notification')
-      .leftJoinAndSelect('notification.activity', 'activity')
-      .where('notification.userId = :userId', { userId })
-      .andWhere('notification.isRead = :isRead', { isRead: false })
-      .andWhere('activity.entityId = :entityId', { entityId })
-      .andWhere('activity.entity = :entity', { entity })
-      .getMany()
-  }
-
-  getUserNotifications(id: number, spaceId?: number, read?: string): Promise<Notification[]> {
-    const queryBuilder = this.createQueryBuilder('notification')
-      .where('notification.userId = :id', { id })
-
-    if (spaceId) {
-      queryBuilder.andWhere(`notification.spaceId = :spaceId`, { spaceId })
+    if (filter.isRead) {
+      queryBuilder.andWhere('notification.isRead = :isRead', { isRead: filter.isRead })
     }
 
-    switch (read) {
-      case 'read':
-      case 'unread':
-        queryBuilder.andWhere(`notification.isRead = :read`, { read: read === 'read' })
-        break
-    }
-
-    return queryBuilder.getMany()
+    return queryBuilder.getOne()
   }
 
-  async getUserNotificationsForEntity(userId: number, entityId: number, tableName: string): Promise<Notification[]> {
+  async getByUserForEntity(
+    userId: number,
+    entity: string,
+    entityId: number,
+    isRead: boolean = false
+  ): Promise<Notification[]> {
     return this.createQueryBuilder('notification')
-      .leftJoinAndSelect('notification.activity', 'activity')
+      .innerJoin(Activity, 'activity', 'notification.activityId = activity.id')
       .where('notification.userId = :userId', { userId })
+      .andWhere('notification.isRead = :isRead', { isRead })
+      .andWhere('activity.entity = :entity', { entity })
       .andWhere('activity.entityId = :entityId', { entityId })
-      .andWhere('activity.tableName = :tableName', { tableName })
       .getMany()
   }
 
-  async read(ids: number[], userId: number): Promise<UpdateResult> {
+  setSeenByUserForIds(userId: number, ids: number[]): Promise<UpdateResult> {
     return this.createQueryBuilder()
       .update(Notification)
       .set({ isRead: true })
       .whereInIds(ids)
       .andWhere('userId = :userId', { userId })
-      .andWhere('isRead = :isRead', { isRead: false })
+      .andWhere('isRead = false')
+      .execute()
+  }
+
+  async setSeenByUserForEntity(userId: number, entity: string, entityId: number): Promise<UpdateResult | null> {
+    const notifications = await this.getByUserForEntity(userId, entity, entityId)
+    const ids = notifications.map((notification) => notification.id)
+
+    if (ids.length === 0) {
+      return null
+    }
+    return this.createQueryBuilder()
+      .update(Notification)
+      .set({ isRead: true })
+      .whereInIds(ids)
+      .andWhere('userId = :userId', { userId })
+      .execute()
+  }
+
+  setSeenByUserForSpace(userId: number, spaceId: number): Promise<UpdateResult> {
+    return this.createQueryBuilder()
+      .update(Notification)
+      .set({ isRead: true })
+      .where('isRead = false')
+      .andWhere('userId = :userId', { userId })
+      .andWhere('spaceId = :spaceId', { spaceId })
       .execute()
   }
 }

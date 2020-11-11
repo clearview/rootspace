@@ -21,9 +21,18 @@ export class TaskListRepository extends BaseRepository<TaskList> {
     return queryBuilder.getOne()
   }
 
+  getByTaskBoardId(taskBoardId: number, options: any = {}): Promise<TaskList[]> {
+    const queryBuilder = this.createQueryBuilder('taskList').where('taskList.boardId = :taskBoardId', { taskBoardId })
+
+    if (options.withDeleted) {
+      queryBuilder.withDeleted()
+    }
+
+    return queryBuilder.getMany()
+  }
+
   async findOneArchived(id: number): Promise<TaskList> {
-    return this
-      .createQueryBuilder('taskList')
+    return this.createQueryBuilder('taskList')
       .leftJoinAndSelect('taskList.tasks', 'task')
       .where('taskList.id = :id', { id })
       .withDeleted()

@@ -4,7 +4,7 @@ import { LinkCreateValue, LinkUpdateValue } from '../values/link'
 import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
 import { LinkService } from '../services/content/LinkService'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { clientError, HttpErrName, HttpStatusCode } from '../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 import { Actions } from '../middleware/AuthMiddleware'
 import { ForbiddenError } from '@casl/ability'
 

@@ -6,8 +6,8 @@ import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
 import { UserRepository } from '../database/repositories/UserRepository'
 import { SpaceRepository } from '../database/repositories/SpaceRepository'
-import { UserService } from '../services'
-import { UserSettingService } from '../services/UserSettingService'
+import { UserService, ActivityService, UserSettingService, SpaceService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 import {
   validateUserSignup,
   validateUserUpdate,
@@ -24,15 +24,20 @@ import {
   PasswordSetValue,
 } from '../values/user'
 import { UserAuthProvider } from '../types/user'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class UsersCtrl extends BaseCtrl {
-  protected userService: UserService
-  protected userSettingsService: UserSettingService
+  private userService: UserService
+  private userSettingsService: UserSettingService
+  private spaceService: SpaceService
+  private activityService: ActivityService
 
   constructor() {
     super()
     this.userService = UserService.getInstance()
     this.userSettingsService = UserSettingService.getInstance()
+    this.spaceService = ServiceFactory.getInstance().getSpaceService()
+    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   async signup(req: Request, res: Response, next: NextFunction) {
@@ -104,10 +109,29 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async whoami(req: Request, res: Response) {
-    const user = await getCustomRepository(UserRepository).getById(req.user.id, ['emailConfirmed', 'authProvider'])
-    const spaces = await getCustomRepository(SpaceRepository).getByUserId(user.id)
+    const user = await this.userService.requireUserById(req.user.id, {
+      addSelect: ['emailConfirmed', 'authProvider'],
+    })
+
+    const spaces = await this.spaceService.getSpacesByUserId(user.id)
 
     res.send({ user, spaces })
+  }
+
+  async profile(req: Request, res: Response) {
+    const user = await this.userService.requireUserById(Number(req.params.id))
+    const spaces = await this.spaceService.getSpacesJointByUsers(req.user.id, user.id)
+
+    if (spaces.length === 0) {
+      throw clientError('Not found', HttpErrName.InvalidRequest, HttpStatusCode.NotFound)
+    }
+
+    const spaceIds = spaces.map((space) => space.id)
+    const activities = await this.activityService.getByActorId(user.id, { spaceIds })
+
+    Object.assign(user, { activities })
+
+    res.send(this.responseData(user))
   }
 
   async update(req: Request, res: Response) {
@@ -125,7 +149,7 @@ export class UsersCtrl extends BaseCtrl {
 
   async changePassword(req: Request, res: Response, next: NextFunction) {
     const userId = req.user.id
-    const user = await this.userService.requireUserById(userId, ['authProvider'])
+    const user = await this.userService.requireUserById(userId, { addSelect: ['authProvider'] })
 
     if (user.authProvider !== UserAuthProvider.LOCAL) {
       return next()

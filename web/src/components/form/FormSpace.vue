@@ -18,6 +18,12 @@
         >
           Field is required.
         </div>
+        <div
+          v-if="$v.payload.title.$model && !$v.payload.title.maxlength"
+          class="feedback is-danger"
+        >
+          Space name is too long (maximum is 100 characters)
+        </div>
       </template>
     </v-field>
 
@@ -29,16 +35,15 @@
         v-model.trim="$v.invitation.$model"
         @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model)"
       />
-
       <template #addon>
         <button
           type="button"
           class="btn"
           :class="{
-            'btn-white': $v.invitation.$invalid,
-            'btn-success': !$v.invitation.$invalid
+            'btn-white': !$v.invitation.required || !$v.invitation.maxLength,
+            'btn-success': $v.invitation.required && $v.invitation.maxLength,
           }"
-          :disabled="$v.invitation.$invalid"
+          :disabled="!$v.invitation.required || !$v.invitation.maxLength"
           @click="addInvitationList($v.invitation.$model)"
         >
           Add
@@ -47,7 +52,7 @@
 
       <template #feedback v-if="$v.invitation.$error || duplicateMessage">
         <p
-          v-if="$v.invitation.$error && !$v.invitation.email"
+          v-if="isEmailError && !$v.invitation.email"
           class="feedback is-danger"
         >
           Email format is not valid.
@@ -58,6 +63,13 @@
           v-text="duplicateMessage"
           class="feedback is-success"
         />
+
+        <div
+          v-if="$v.invitation.$model.length > 100 && !$v.invitation.email.maxlength"
+          class="feedback is-danger"
+        >
+          Email is too long (maximum is 100 characters)
+        </div>
       </template>
     </v-field>
 
@@ -77,7 +89,7 @@
           </div>
         </div>
         <span class="close-icon" v-if="currentUser.email !== list.email" @click="deleteInvitation(indexList, list.email)">
-          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Remove"/>
         </span>
       </div>
 
@@ -91,7 +103,7 @@
           <span class="text-gray-900 pl-2 self-center flex-grow">{{ invitation }}</span>
         </div>
         <span class="close-icon" @click="deleteInvitation(index, invitation)">
-          <v-icon name="close" size=".9em" viewbox="32" title="Close"/>
+          <v-icon name="close" size=".9em" viewbox="32" title="Remove"/>
         </span>
       </div>
     </div>
@@ -111,7 +123,7 @@
 
 <script lang="ts">
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
-import { email, required } from 'vuelidate/lib/validators'
+import { email, required, maxLength } from 'vuelidate/lib/validators'
 
 import { find } from 'lodash'
 
@@ -129,12 +141,14 @@ import Avatar from 'vue-avatar'
   validations: {
     payload: {
       title: {
-        required
+        required,
+        maxLength: maxLength(100)
       }
     },
     invitation: {
       required,
-      email
+      email,
+      maxLength: maxLength(100)
     }
   }
 })
@@ -163,6 +177,7 @@ export default class FormSpace extends Vue {
     private invitation = '';
     private duplicateMessage = '';
     private invitationList = [];
+    private isEmailError = false
 
     @Ref('initialInput')
     private readonly initialInputRef!: HTMLInputElement;
@@ -189,10 +204,15 @@ export default class FormSpace extends Vue {
     }
 
     addInvitationList (email: string, bypassValidation = false): void {
-      if (this.$v.invitation.$invalid && !bypassValidation) {
+      if (!this.$v.invitation.email &&
+          this.$v.invitation.required &&
+          this.$v.invitation.maxLength &&
+          !bypassValidation) {
+        if (!this.$v.invitation.email) this.isEmailError = true
         return
       }
       this.invitation = ''
+      this.isEmailError = false
       let getUser = find(this.payload.invites, (o) => {
         return o === email
       })

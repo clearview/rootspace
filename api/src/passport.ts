@@ -6,14 +6,13 @@ import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
 import { SpaceService, UserService } from './services'
-import { unauthorized } from './errors'
+import { unauthorized } from './response/errors'
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions, VerifiedCallback } from 'passport-jwt'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
-import { UserActivities } from './database/entities/activities/UserActivities'
-import { ActivityEvent } from './services/events/ActivityEvent'
 import { ServiceFactory } from './services/factory/ServiceFactory'
 import { UserAuthProvider } from './types/user'
+import { UserActivitiy } from './services/activity/activities/user'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
@@ -28,11 +27,12 @@ passport.use(
     },
     async (accessToken: any, refreshToken: any, profile: any, done: any) => {
       const activityService = ServiceFactory.getInstance().getActivityService()
-      const existingUser = await ServiceFactory.getInstance()
+
+      const user = await ServiceFactory.getInstance()
         .getUserService()
         .getUserByEmail(profile.emails[0].value)
 
-      if (!existingUser) {
+      if (!user) {
         const newUser = await ServiceFactory.getInstance()
           .getUserService()
           .signup(
@@ -50,13 +50,9 @@ passport.use(
         return done(null, newUser.id)
       }
 
-      await activityService.add(
-        ActivityEvent.withAction(UserActivities.Login)
-          .fromActor(existingUser.id)
-          .forEntity(existingUser)
-      )
+      await activityService.activityNotification(UserActivitiy.login(user))
 
-      return done(null, existingUser.id)
+      return done(null, user.id)
     }
   )
 )
@@ -70,9 +66,9 @@ passport.use(
     async (email: string, password: string, done) => {
       try {
         const userService = ServiceFactory.getInstance().getUserService()
-        const user = await userService.getUserByEmail(email, true)
-
         const activityService = ServiceFactory.getInstance().getActivityService()
+
+        const user = await userService.getUserByEmail(email, { addSelect: ['password', 'active'] })
 
         if (!user) {
           return done(unauthorized())
@@ -84,11 +80,6 @@ passport.use(
           }
 
           if (res !== true) {
-            await activityService.add(
-              ActivityEvent.withAction(UserActivities.Login_Failed)
-                .fromActor(user.id)
-                .forEntity(user)
-            )
             return done(unauthorized())
           }
 
@@ -99,21 +90,11 @@ passport.use(
           } */
 
           if (user.active !== true) {
-            await activityService.add(
-              ActivityEvent.withAction(UserActivities.Login_Failed)
-                .fromActor(user.id)
-                .forEntity(user)
-            )
             return done(unauthorized())
           }
 
-          httpRequestContext.set('user', user)
+          await activityService.activityNotification(UserActivitiy.login(user))
 
-          await activityService.add(
-            ActivityEvent.withAction(UserActivities.Login)
-              .fromActor(user.id)
-              .forEntity(user)
-          )
           return done(null, user)
         })
       } catch (err) {
@@ -126,7 +107,7 @@ passport.use(
 const jwtRefreshOptions: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: config.jwt.refreshToken.secretKey,
-  passReqToCallback: true
+  passReqToCallback: true,
 }
 
 passport.use(
@@ -204,7 +185,7 @@ function verifyJWTPayload(payload: any, done: VerifiedCallback) {
 
   const expirationDate = new Date(tokenExpiryTimestamp * 1000)
 
-  if(expirationDate < new Date()) {
+  if (expirationDate < new Date()) {
     return done(null, false, { message: 'Token expired' })
   }
 }

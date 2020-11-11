@@ -1,23 +1,19 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
 import { TaskListRepository } from '../../../database/repositories/tasks/TaskListRepository'
 import { TaskList } from '../../../database/entities/tasks/TaskList'
 import { Task } from '../../../database/entities/tasks/Task'
-import Bull from 'bull'
-import { ActivityEvent } from '../../events/ActivityEvent'
-import { ActivityService } from '../../'
-import { TaskListActivities } from '../../../database/entities/activities/TaskListActivities'
-import { TaskService } from './TaskService'
+import { Service, TaskService } from '../../'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { TaskListActivity } from '../../activity/activities/content'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 
-export class TaskListService {
-  private activityService: ActivityService
+export class TaskListService extends Service {
   private taskService: TaskService
 
   private constructor() {
-    this.activityService = ServiceFactory.getInstance().getActivityService()
+    super()
     this.taskService = ServiceFactory.getInstance().getTaskService()
   }
 
@@ -43,8 +39,18 @@ export class TaskListService {
     return getCustomRepository(TaskListRepository)
   }
 
-  async getById(id: number): Promise<TaskList> {
-    return this.getTaskListRepository().findOneOrFail(id)
+  async getById(id: number): Promise<TaskList | undefined> {
+    return this.getTaskListRepository().findOne(id)
+  }
+
+  async requireById(id: number): Promise<TaskList> {
+    const taskList = await this.getById(id)
+
+    if (!taskList) {
+      clientError('Task List not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return taskList
   }
 
   async getArchivedById(id: number): Promise<TaskList> {
@@ -69,7 +75,7 @@ export class TaskListService {
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
 
     const taskList = await this.getTaskListRepository().save(data)
-    await this.registerActivityForTaskListId(TaskListActivities.Created, taskList.id, { title: taskList.title })
+    await this.notifyActivity(TaskListActivity.created(taskList))
 
     return this.getTaskListRepository().reload(taskList)
   }
@@ -77,6 +83,7 @@ export class TaskListService {
   async update(id: number, data: any): Promise<TaskList> {
     const existingTaskList = await this.getById(id)
     let taskList = await this.getById(id)
+
     taskList = await this.getTaskListRepository().save({
       ...taskList,
       ...data,
@@ -84,84 +91,55 @@ export class TaskListService {
 
     taskList = await this.getTaskListRepository().reload(taskList)
 
-    const fields = { old: {}, new: {} }
-
-    for(const key of Object.keys(data)){
-      if(data[key] !== existingTaskList[key]){
-        fields.old[key] = existingTaskList[key]
-        fields.new[key] = taskList[key]
-      }
-    }
-
-    await this.registerActivityForTaskList(TaskListActivities.Updated, taskList, fields)
+    await this.notifyActivity(TaskListActivity.updated(existingTaskList, taskList))
 
     return taskList
   }
 
   async archive(taskListId: number): Promise<TaskList | undefined> {
-    const taskList = await this.getFullTaskList(taskListId)
+    const taskList = await this.requireById(taskListId)
 
-    if (taskList && taskList.tasks) {
-      for (const task of taskList.tasks) {
-        await this.taskService.archive(task.id)
-      }
+    await this.taskService.listArchived(taskList.id)
 
-      await this.registerActivityForTaskListId(TaskListActivities.Archived, taskListId, {
-        title: taskList.title
-      })
+    await this.getTaskListRepository().softRemove(taskList)
+    await this.notifyActivity(TaskListActivity.archived(taskList))
 
-      return this.getTaskListRepository().softRemove(taskList)
+    return taskList
+  }
+
+  async boardArchived(taskBoardId: number): Promise<void> {
+    const lists = await this.getTaskListRepository().getByTaskBoardId(taskBoardId)
+
+    for (const list of lists) {
+      await this.getTaskListRepository().softRemove(list)
+      await this.taskService.listArchived(list.id)
     }
-
-    return null
   }
 
   async restore(taskListId: number): Promise<TaskList> {
     const taskList = await this.getArchivedById(taskListId)
 
-    if (taskList && taskList.tasks) {
-      for (const task of taskList.tasks) {
-        await this.taskService.restore(task.id)
-      }
+    await this.taskService.listRestored(taskList.id)
+
+    await this.getTaskListRepository().recover(taskList)
+    await this.notifyActivity(TaskListActivity.restored(taskList))
+
+    return taskList
+  }
+
+  async boardRestored(taskBoardId: number): Promise<void> {
+    const lists = await this.getTaskListRepository().getByTaskBoardId(taskBoardId, { withDeleted: true })
+
+    for (const list of lists) {
+      await this.getTaskListRepository().recover(list)
+      await this.taskService.listRestored(list.id)
     }
-
-    const recoveredTaskList = await this.getTaskListRepository().recover(taskList)
-
-    await this.registerActivityForTaskListId(TaskListActivities.Restored, taskListId, { title: taskList.title })
-
-    return recoveredTaskList
   }
 
   async remove(id: number) {
     const taskList = await this.getById(id)
-    await this.registerActivityForTaskList(TaskListActivities.Deleted, taskList, {
-      title: taskList.title
-    })
 
+    await this.notifyActivity(TaskListActivity.deleted(taskList))
     return this.getTaskListRepository().remove(taskList)
-  }
-
-  async registerActivityForTaskListId(
-    taskListActivity: TaskListActivities,
-    taskListId: number,
-    context?: any): Promise<Bull.Job> {
-    const taskList = await this.getById(taskListId)
-    return this.registerActivityForTaskList(taskListActivity, taskList, context)
-  }
-
-  async registerActivityForTaskList(
-    taskListActivity: TaskListActivities,
-    taskList: TaskList,
-    context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent
-        .withAction(taskListActivity)
-        .fromActor(actor.id)
-        .forEntity(taskList)
-        .inSpace(taskList.spaceId)
-        .withContext(context)
-    )
   }
 }

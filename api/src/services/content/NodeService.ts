@@ -1,26 +1,16 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { IContentNodeUpdate, INodeContentMediator } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { ActivityService } from '../'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { NodeActivities } from '../../database/entities/activities/NodeActivities'
-import { ServiceFactory } from '../factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
+import { Service } from '../Service'
 
-export class NodeService {
+export class NodeService extends Service {
   private nodeContentMediator: INodeContentMediator
-  private activityService: ActivityService
 
   private static instance: NodeService
-
-  private constructor() {
-    this.activityService = ServiceFactory.getInstance().getActivityService()
-  }
 
   static getInstance() {
     if (!NodeService.instance) {
@@ -74,8 +64,27 @@ export class NodeService {
     return this.getNodeRepository().getTreeBySpaceId(spaceId)
   }
 
-  getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
+  getArchiveTreeBySpaceId(spaceId: number): Promise<Node[]> {
     return this.getNodeRepository().getArchiveBySpaceId(spaceId)
+  }
+
+  async deleteArchivedBySpaceId(spaceId: number): Promise<Node[]> {
+    const tree = await this.getArchiveTreeBySpaceId(spaceId)
+
+    for (const node of tree) {
+      // Just some additional check can't hurt
+      if (node.deletedAt === null) {
+        continue
+      }
+
+      await this.remove(node.id)
+    }
+
+    return tree
+  }
+
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
+    return this.getNodeRepository().getUserFavorites(userId, spaceId)
   }
 
   getNodeMaxPosition(parentId: number): Promise<number> {
@@ -129,8 +138,6 @@ export class NodeService {
     node.parent = parent
 
     const savedNode = await this.getNodeRepository().save(node)
-    await this.registerActivityForNodeId(NodeActivities.Created, savedNode.id)
-
     return savedNode
   }
 
@@ -154,9 +161,6 @@ export class NodeService {
     }
 
     this.nodeContentMediator.nodeUpdated(node)
-
-    await this.registerActivityForNodeId(NodeActivities.Updated, node.id)
-
     return node
   }
 
@@ -236,10 +240,9 @@ export class NodeService {
 
   async archive(id: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-    node = await this._archive(node)
 
+    node = await this._archive(node)
     await this.nodeContentMediator.nodeArchived(node)
-    await this.registerActivityForNode(NodeActivities.Archived, node)
 
     return node
   }
@@ -375,8 +378,6 @@ export class NodeService {
   private async _remove(node: Node): Promise<Node> {
     this.verifyRemove(node)
 
-    await this.registerActivityForNode(NodeActivities.Deleted, node)
-
     await this._removeChildren(node)
     node = await this.getNodeRepository().remove(node)
 
@@ -418,21 +419,5 @@ export class NodeService {
     if (node.type === NodeType.Root || node.type === NodeType.Archive) {
       throw clientError('Can not delete node', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForNodeId(nodeActivity: NodeActivities, nodeId: number): Promise<Bull.Job> {
-    const node = await this.getNodeById(nodeId)
-    return this.registerActivityForNode(nodeActivity, node)
-  }
-
-  async registerActivityForNode(nodeActivity: NodeActivities, node: Node): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(nodeActivity)
-        .fromActor(actor.id)
-        .forEntity(node)
-        .inSpace(node.spaceId)
-    )
   }
 }

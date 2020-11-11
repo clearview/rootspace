@@ -40,14 +40,14 @@ export class Activity {
   @Column('varchar')
   entity: string
 
-  @Column('varchar')
-  tableName: string
-
   @Column({ name: 'data', type: 'jsonb', default: '{}' })
   context: object | object[]
 
   @Column('varchar')
   action: string
+
+  @Column('varchar')
+  type: string
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date

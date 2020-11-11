@@ -1,11 +1,13 @@
 <template>
   <div class="flex flex-1">
     <button
-      class="btn btn-primary flex-grow"
+      class="btn add-button flex-grow"
       @click="setModalVisible(true)"
     >
       <v-icon
-        name="plus"
+        name="plus2"
+        size="16px"
+        viewbox="16"
         class="mr-1"
       />
       Add New
@@ -244,3 +246,21 @@ export default class ButtonNodeAdd extends Vue {
   }
 }
 </script>
+
+<style lang="postcss" scoped>
+.add-button {
+  @apply flex pl-4 w-full justify-start;
+
+  cursor: pointer;
+  border: 0;
+
+  span {
+     @apply mr-2;
+  }
+
+  &:hover {
+    color: theme("colors.primary.default");
+    background: transparent;
+  }
+}
+</style>

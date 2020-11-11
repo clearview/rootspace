@@ -1,12 +1,11 @@
-import { EntityRepository } from 'typeorm'
+import { EntityRepository, SelectQueryBuilder } from 'typeorm'
 import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
-import { Activity } from '../entities/Activity'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
-import { ActivityType } from '../../types/activity'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
-import { ucFirst } from '../../utils'
+import { Activity } from '../entities/Activity'
+import { ActivityEvent } from '../../services/events/ActivityEvent'
+import { Notification } from '../entities/Notification'
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
@@ -14,65 +13,112 @@ export class ActivityRepository extends BaseRepository<Activity> {
     return getConnection()
       .getRepository(event.entity)
       .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: event.entityId})
+      .where('Entity.id = :id', { id: event.entityId })
       .getOne()
   }
 
-  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
-    const qb = this.createQueryBuilder('activity')
+  async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')
       .where('activity.spaceId = :spaceId', { spaceId })
 
-    if (action) {
-      qb.andWhere('activity.action = :action', { action })
+    this.mapActivityActorAvatar(queryBuilder)
+
+    if (filter.userId) {
+      queryBuilder.andWhere('activity.actorId = :userId', { userId: filter.userId })
     }
 
-    if (type) {
-      const entityType = ActivityRepository.getEntity(type)
-      qb.andWhere('activity.entity = :entityType', { entityType })
+    if (filter.action) {
+      queryBuilder.andWhere('activity.action = :action', { action: filter.action })
     }
 
-    const results = await qb
-      .limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
+    if (filter.type) {
+      queryBuilder.andWhere('activity.type = :type', { type: filter.type })
+    }
 
-    results.forEach((result) => {
-      Object.keys(result).forEach(index => (!result[index] && result[index] !== undefined) && delete result[index])
-    })
+    if (filter.entity) {
+      queryBuilder.andWhere('activity.entity IN (:...entity)', { entity: filter.entity })
+    }
 
-    return results
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
+
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
+
+    return queryBuilder.orderBy('activity.createdAt', 'DESC').getMany()
   }
 
-  async getByTypeAndEntityIdId(spaceId: number, type: string, entityId: number, action?: string): Promise<Activity[]> {
-    const entity = ActivityRepository.getEntity(type)
+  async getByEntity(entity: string, entityId: number, options: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
 
-    const qb = this.createQueryBuilder('activity')
-      .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
-      .leftJoinAndMapOne('actor.avatar', Upload, 'upload', 'upload.entityId = activity.actorId and upload.entity = \'User\'')
-      .where('activity.entity = :entity', { entity })
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder.where('activity.entity = :entity', { entity }).andWhere('activity.entityId = :entityId', { entityId })
+
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
+
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
+
+    return queryBuilder.orderBy('activity.createdAt', 'DESC').getMany()
+  }
+
+  getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
+      .where('activity.actorId = :actorId', { actorId })
+      .orderBy('activity.createdAt', 'DESC')
+      .limit(50)
+
+    if (filter.spaceIds) {
+      queryBuilder.andWhere('activity.spaceId IN (:...spaceIds)', { spaceIds: filter.spaceIds })
+    }
+
+    return queryBuilder.getMany()
+  }
+
+  getUserNotify(userId: number, spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const queryBuilder = this.createQueryBuilder('activity')
+
+    this.mapActivityActorAvatar(queryBuilder)
+
+    queryBuilder
+      .innerJoinAndMapOne('activity.notification', Notification, 'notification', 'activity.id = notification.activity')
+      .orderBy('notification.createdAt', 'DESC')
+      .where('activity.type = :type', { type: 'content' })
       .andWhere('activity.spaceId = :spaceId', { spaceId })
-      .andWhere('activity.entityId = :entityId', { entityId })
 
-    if (action) {
-      qb.andWhere('activity.action = :action', { action })
+    if (filter.type) {
+      queryBuilder.andWhere('activity.type = :type', { type: filter.type })
     }
 
-    return qb.limit(100)
-      .orderBy('activity.createdAt', 'DESC')
-      .getMany()
+    if (options.offset) {
+      queryBuilder.offset(options.offset)
+    }
+
+    const limit = options.limit ?? 50
+    queryBuilder.limit(limit)
+
+    queryBuilder
+      .andWhere('notification.userId = :userId', { userId })
+      .andWhere('notification.isRead = false')
+      .limit(limit)
+
+    return queryBuilder.getMany()
   }
 
-  static getEntity(entity: string): string {
-    switch(entity) {
-      case 'taskboard':
-        return ActivityType.TaskBoard
-
-      case 'tasklist':
-        return ActivityType.TaskList
-
-      default:
-        return ucFirst(entity)
-    }
+  private mapActivityActorAvatar(queryBuilder: SelectQueryBuilder<Activity>): void {
+    queryBuilder
+      .leftJoinAndMapOne('activity.actor', User, 'actor', 'actor.id = activity.actorId')
+      .leftJoinAndMapOne(
+        'actor.avatar',
+        Upload,
+        'upload',
+        'upload.entityId = activity.actorId and upload.entity = :uploadEntity',
+        { uploadEntity: 'User' }
+      )
   }
 }

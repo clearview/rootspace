@@ -1,5 +1,6 @@
 import {
   NodeService,
+  FolderService,
   LinkService,
   DocService,
   EmbedService,
@@ -13,13 +14,19 @@ import {
   SpaceService,
   InviteService,
   ActivityService,
+  NotificationService,
   UserSpaceService,
   UploadService,
+  FavoriteService,
+  EntityService,
+  UserSettingService,
+  TaskCommentService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
 export class ServiceFactory {
   private nodeService: NodeService
+  private folderService: FolderService
   private linkService: LinkService
   private docService: DocService
   private embedService: EmbedService
@@ -43,6 +50,14 @@ export class ServiceFactory {
     }
 
     return this.nodeService
+  }
+
+  getFolderService() {
+    if (!this.folderService) {
+      this.initNodeContentServices()
+    }
+
+    return this.folderService
   }
 
   getLinkservice() {
@@ -77,24 +92,44 @@ export class ServiceFactory {
     return this.taskBoardService
   }
 
-  getFollowService() {
-    return FollowService.getInstance()
+  getTaskListService() {
+    const service = TaskListService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getTaskService() {
+    const service = TaskService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getTaskCommentService() {
+    const service = TaskCommentService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getTaskBoardTagService() {
     return TaskBoardTagService.getInstance()
   }
 
-  getTaskListService() {
-    return TaskListService.getInstance()
-  }
-
-  getTaskService() {
-    return TaskService.getInstance()
+  getFollowService() {
+    return FollowService.getInstance()
   }
 
   getUserService() {
-    return UserService.getInstance()
+    const service = UserService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getUserSettingService() {
+    return UserSettingService.getInstance()
   }
 
   getSpaceService() {
@@ -102,7 +137,10 @@ export class ServiceFactory {
   }
 
   getInviteService() {
-    return InviteService.getInstance()
+    const service = InviteService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
   }
 
   getMailService() {
@@ -113,23 +151,50 @@ export class ServiceFactory {
     return ActivityService.getInstance()
   }
 
+  getNotificationService() {
+    return NotificationService.getInstance()
+  }
+
   getUserSpaceService() {
     return UserSpaceService.getInstance()
   }
 
   getUploadService() {
-    return UploadService.getInstance()
+    const service = UploadService.getInstance()
+    service.attachActivityObserver(this.getActivityService())
+
+    return service
+  }
+
+  getFavoriteService() {
+    return FavoriteService.getInstance()
+  }
+
+  getEntityService() {
+    return EntityService.getInstance()
   }
 
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
+
+    this.folderService = FolderService.getInstance()
+    this.folderService.attachActivityObserver(this.getActivityService())
+
     this.linkService = LinkService.getInstance()
-    this.docService = DocService.getInstance()
+    this.linkService.attachActivityObserver(this.getActivityService())
+
     this.embedService = EmbedService.getInstance()
+    this.embedService.attachActivityObserver(this.getActivityService())
+
+    this.docService = DocService.getInstance()
+    this.docService.attachActivityObserver(this.getActivityService())
+
     this.taskBoardService = TaskBoardService.getInstance()
+    this.taskBoardService.attachActivityObserver(this.getActivityService())
 
     const mediator = new NodeContentMediator(this.nodeService)
 
+    mediator.addContentService(this.folderService)
     mediator.addContentService(this.linkService)
     mediator.addContentService(this.docService)
     mediator.addContentService(this.embedService)

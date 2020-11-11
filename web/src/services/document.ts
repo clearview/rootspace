@@ -19,6 +19,26 @@ export default class DocumentService {
     }
   }
 
+  static async history (id: string | number) {
+    try {
+      const { data } = await api.get(`docs/${id}/history`)
+
+      return data
+    } catch (error) {
+      let err = error
+
+      if (error.response) {
+        const body = {
+          code: error.response.status,
+          data: error.response.data
+        }
+        err = body
+      }
+
+      throw err
+    }
+  }
+
   static async view (id: string) {
     try {
       const { data } = await api.get(`docs/${id}`)
@@ -28,7 +48,6 @@ export default class DocumentService {
       let err = error
 
       if (error.response) {
-        console.log(error.response)
         const body = {
           code: error.response.status,
           data: error.response.data

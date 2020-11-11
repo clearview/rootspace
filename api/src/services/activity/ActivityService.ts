@@ -7,9 +7,11 @@ import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
 import { WsEvent } from '../events/websockets/WsEvent'
-import { AggregateProcessor } from './AggregateProcessor'
+import { processActivities } from './processor/'
+import { IAppActivity } from './activities/types'
+import { IActivityObserver } from '../contracts'
 
-export class ActivityService {
+export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
   readonly queue: Bull.Queue
   readonly wsEventEmitter: WsEventEmitter
@@ -31,6 +33,17 @@ export class ActivityService {
     return getCustomRepository(ActivityRepository)
   }
 
+  async activityNotification(appActivity: IAppActivity): Promise<void> {
+    const data = appActivity.toObject()
+    const activity = await this.getActivityRepository().save(data as any)
+
+    data.activityId = activity.id
+
+    if (data.handler) {
+      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+    }
+  }
+
   async add(event: ActivityEvent): Promise<Bull.Job> {
     const activityObject = event.toObject()
 
@@ -40,24 +53,31 @@ export class ActivityService {
     return this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
   }
 
-  getActivitiesBySpaceId(spaceId: number): Promise<Activity[]> {
-    return this.getActivityRepository().find({ spaceId })
+  getById(id: number): Promise<Activity | undefined> {
+    return this.getActivityRepository().findOne(id)
   }
 
   async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
     return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
-  async getBySpaceId(spaceId: number, type?: string, action?: string): Promise<Activity[]> {
-    return this.getActivityRepository().getBySpaceId(spaceId, type, action)
+  async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getBySpaceId(spaceId, filter, options)
+    return processActivities(activities)
   }
 
-  async getByEntityTypeAndEntityId(spaceId: number, type: string, id: number, action?: string): Promise<Activity[]> {
-    return this.getActivityRepository().getByTypeAndEntityIdId(spaceId, type, id, action)
+  async getByEntity(entity: string, entityId: number, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getByEntity(entity, entityId, options)
+    return processActivities(activities)
   }
 
-  async getAggregatedForEntity(spaceId: number, entity: string, entityId: number): Promise<Activity[]> {
-    const activities = await this.getByEntityTypeAndEntityId(spaceId, entity, entityId)
-    return new AggregateProcessor(activities, entity).aggregate()
+  async getByActorId(actorId: number, filter: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getByActorId(actorId, filter)
+    return processActivities(activities)
+  }
+
+  async getUserNotify(userId: number, spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
+    const activities = await this.getActivityRepository().getUserNotify(userId, spaceId, filter, options)
+    return processActivities(activities)
   }
 }

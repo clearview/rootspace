@@ -6,6 +6,8 @@
     <router-view />
     <portal-target name="default" />
     <portal-target name="secondary" />
+    <portal-target name="tertiary" />
+    <portal-target name="sub-popover" />
     <v-modal
       :title="confirmData.title"
       :visible="confirmData.visible"

@@ -49,7 +49,7 @@
               <avatar :size="28" :content="moreAssignees.labels" :username="moreAssignees.count+' +'" v-tippy></avatar>
             </li>
             <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee">
-              <avatar :size="28" :src="assignee.avatar && avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
+              <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
           </ul>
       </div>
@@ -195,7 +195,7 @@ export default class ListCard extends Vue {
       }
       if (this.itemCopy.id === null) {
         this.titleEditableRef.blur()
-        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim() })
+        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
       } else {
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,

@@ -1,6 +1,7 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm'
 import { Node } from '../entities/Node'
 import { NodeType } from '../../types/node'
+import { Favorite } from '../entities/Favorite'
 
 @EntityRepository(Node)
 export class NodeRepository extends Repository<Node> {
@@ -18,7 +19,7 @@ export class NodeRepository extends Repository<Node> {
     return query.getOne()
   }
 
-  getByContentIdAndType(contentId: number, type: NodeType, options: any) {
+  getByContentIdAndType(contentId: number, type: NodeType, options: any = {}) {
     const query = this.createQueryBuilder('node').where('node.contentId = :contentId AND type = :type', {
       contentId,
       type,
@@ -66,12 +67,20 @@ export class NodeRepository extends Repository<Node> {
     return nodes
   }
 
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
+    return this.createQueryBuilder('node')
+      .innerJoin(Favorite, 'favorite', 'node.id = favorite.nodeId')
+      .where('favorite.userId = :userId', { userId })
+      .andWhere('favorite.spaceId = :spaceId', { spaceId })
+      .getMany()
+  }
+
   async getArchiveBySpaceId(spaceId: number): Promise<Node[]> {
     const archiveNode = await this.getArchiveNodeBySpaceId(spaceId)
 
     const query = this.createQueryBuilder('node')
       .where('node.spaceId = :spaceId', { spaceId })
-      .andWhere('node.deleted_at IS NOT NULL')
+      .andWhere('node.deletedAt IS NOT NULL')
       .withDeleted()
 
     let nodes = await query.getMany()

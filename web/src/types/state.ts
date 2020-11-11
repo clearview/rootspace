@@ -48,6 +48,7 @@ export interface TreeState {
   folded: {
     [key: string]: boolean;
   };
+  touched: Record<string, boolean>;
 }
 
 export interface LinkState {
@@ -87,12 +88,15 @@ export interface OptionState {
 
 export interface DocumentState {
   payload: DocumentResource[];
+  deferredParent: NodeResource | null;
 }
 
 export interface SpaceState {
   activeIndex: number;
   list: SpaceResource[];
   settings: SpaceSettingResource[];
+  freezeSettings: boolean;
+  afterFrozen: boolean;
 }
 
 export interface PageState {

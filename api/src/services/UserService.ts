@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { hashPassword } from '../utils'
 import { validate as uuidValidate } from 'uuid'
+import { CallbackFunction } from 'ioredis'
 import { getCustomRepository } from 'typeorm'
 import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserRepository } from '../database/repositories/UserRepository'
@@ -14,22 +15,15 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
 } from '../values/user'
-import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../errors'
-import { CallbackFunction } from 'ioredis'
-import Bull from 'bull'
-import { ActivityEvent } from './events/ActivityEvent'
-import { UserActivities } from '../database/entities/activities/UserActivities'
-import { ActivityService } from './'
-import { ServiceFactory } from './factory/ServiceFactory'
+import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../response/errors'
 import { UserAuthProvider } from '../types/user'
+import { IQueryOptions } from '../types/query'
+import { Service } from './Service'
+import { UserActivitiy } from './activity/activities/user/'
+import { PasswordResetActivity } from './activity/activities/app'
 
-export class UserService {
-  private activityService: ActivityService
+export class UserService extends Service {
   private static instance: UserService
-
-  private constructor() {
-    this.activityService = ServiceFactory.getInstance().getActivityService()
-  }
 
   static getInstance() {
     if (!UserService.instance) {
@@ -51,16 +45,12 @@ export class UserService {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, additionalFields?: string[]): Promise<User | undefined> {
-    return this.getUserRepository().getById(id, additionalFields)
+  getUserById(id: number, options: IQueryOptions = {}): Promise<User | undefined> {
+    return this.getUserRepository().getById(id, options)
   }
 
-  getUserByIdWithNotifications(id: number, read: string): Promise<User | undefined> {
-    return this.getUserRepository().getByIdWithNotifications(id, read)
-  }
-
-  async requireUserById(id: number, additionalFields?: string[]): Promise<User> {
-    const user = await this.getUserById(id, additionalFields)
+  async requireUserById(id: number, options: IQueryOptions = {}): Promise<User> {
+    const user = await this.getUserById(id, options)
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
@@ -69,12 +59,12 @@ export class UserService {
     return user
   }
 
-  getUserByEmail(email: string, selectPassword = false): Promise<User | undefined> {
-    return this.getUserRepository().getByEmail(email, selectPassword)
+  getUserByEmail(email: string, options: IQueryOptions = {}): Promise<User | undefined> {
+    return this.getUserRepository().getByEmail(email, options)
   }
 
-  async requireUserByEmail(email: string, selectPassword = false): Promise<User> {
-    const user = await this.getUserByEmail(email, selectPassword)
+  async requireUserByEmail(email: string, options: IQueryOptions = {}): Promise<User> {
+    const user = await this.getUserByEmail(email, options)
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.BadRequest)
@@ -111,7 +101,7 @@ export class UserService {
     user.emailConfirmed = true
     user.active = true
 
-    await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
+    await this.notifyActivity(UserActivitiy.emailConfirmed(user))
 
     return await this.getUserRepository().save(user)
   }
@@ -130,16 +120,16 @@ export class UserService {
     delete user.password
 
     if (sendEmailConfirmation) {
-      await this.registerActivityForUser(UserActivities.Signup, user)
+      await this.notifyActivity(UserActivitiy.signup(user))
     } else {
-      await this.registerActivityForUser(UserActivities.Email_Confirmed, user)
+      await this.notifyActivity(UserActivitiy.emailConfirmed(user))
     }
 
     return user
   }
 
   async update(data: UserUpdateValue, userId: number): Promise<User> {
-    const user = await this.getUserById(userId, ['authProvider'])
+    const user = await this.getUserById(userId, { addSelect: ['authProvider'] })
 
     if (!user) {
       throw clientError('User not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
@@ -150,7 +140,7 @@ export class UserService {
   }
 
   async changePassword(data: PasswordChangeValue, userId: number, done: CallbackFunction) {
-    let user = await this.requireUserById(userId, ['password', 'authProvider'])
+    let user = await this.requireUserById(userId, { addSelect: ['password', 'authProvider'] })
 
     bcrypt.compare(data.attributes.password, user.password, async (err, res) => {
       if (err) {
@@ -172,7 +162,7 @@ export class UserService {
   }
 
   async setPassword(data: PasswordSetValue, userId: number): Promise<User> {
-    let user = await this.requireUserById(userId, ['password', 'authProvider'])
+    let user = await this.requireUserById(userId, { addSelect: ['password', 'authProvider'] })
 
     user.password = String(await hashPassword(data.attributes.newPassword))
     user.authProvider = UserAuthProvider.LOCAL
@@ -196,7 +186,8 @@ export class UserService {
     passwordReset.expiration = new Date(Date.now() + 3600000)
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
-    await this.activityService.add(ActivityEvent.withAction(UserActivities.Password_Reset).forEntity(passwordReset))
+
+    await this.notifyActivity(PasswordResetActivity.create(passwordReset))
 
     return true
   }
@@ -240,18 +231,5 @@ export class UserService {
     }
 
     return false
-  }
-
-  async registerActivityForUserId(userActivity: UserActivities, userId: number): Promise<Bull.Job> {
-    const user = await this.getUserById(userId)
-    return this.registerActivityForUser(userActivity, user)
-  }
-
-  async registerActivityForUser(userActivity: UserActivities, user: User): Promise<Bull.Job> {
-    return this.activityService.add(
-      ActivityEvent.withAction(userActivity)
-        .fromActor(user.id)
-        .forEntity(user)
-    )
   }
 }

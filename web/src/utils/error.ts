@@ -28,6 +28,7 @@ export class ValidationError extends Error {
   static parser: ValidationParser = {
     dbUnique: label => `${label} already exist within the app.`,
     required: label => `${label} is required.`,
+    accepted: label => `${label} is required.`,
     min: label => `Please use a ${label} that is at least 8 characters long.`,
     confirmed: label => `${label} doesn't match.`,
     compromisedPassword: label => `This is a commonly used ${label}, please enter something harder to gues.`

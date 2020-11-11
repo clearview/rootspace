@@ -1,28 +1,23 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { LinkRepository } from '../../database/repositories/LinkRepository'
 import { Link } from '../../database/entities/Link'
+import { Node } from '../../database/entities/Node'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
 import { NodeType } from '../../types/node'
 import { NodeCreateValue } from '../../values/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { INodeContentUpdate } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { LinkActivities } from '../../database/entities/activities/LinkActivities'
-import { ActivityService } from '../'
+import { INodeContentUpdate } from './contracts'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
+import { LinkActivity } from '../activity/activities/content'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService
-  private activityService: ActivityService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: LinkService
@@ -57,53 +52,39 @@ export class LinkService extends NodeContentService {
     return link
   }
 
-  async create(data: LinkCreateValue): Promise<Link> {
+  async create(data: LinkCreateValue): Promise<Node & Link> {
     let link = await this.getLinkRepository().save(data.attributes)
 
-    await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: link.userId,
-        spaceId: link.spaceId,
-        contentId: link.id,
-        title: link.title,
-        type: NodeType.Link,
-      })
-    )
+    let value = NodeCreateValue.fromObject({
+      userId: link.userId,
+      spaceId: link.spaceId,
+      contentId: link.id,
+      title: link.title,
+      type: NodeType.Link,
+    })
+
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
+    const node = await this.nodeService.create(value)
 
     link = await this.getLinkRepository().reload(link)
-    await this.registerActivityForLink(LinkActivities.Created, link, { title: link.title })
+    await this.notifyActivity(LinkActivity.created(link))
 
-    return link
+    return { ...link, ...node }
   }
 
   async update(data: LinkUpdateValue, id: number): Promise<Link> {
-    let link = await this.getLinkById(id)
+    const link = await this.requireLinkById(id)
+    const updatedLink = await this._update(data, link)
 
-    if (!link) {
-      throw clientError('Error updating link')
+    if (link.title !== updatedLink.title) {
+      await this.nodeContentMediator.contentUpdated(updatedLink.id, this.getNodeType(), {
+        title: updatedLink.title,
+      })
     }
 
-    const existingLink = await this.getLinkById(id)
-
-    Object.assign(link, data.attributes)
-    link = await this.getLinkRepository().save(link)
-
-    await this.nodeContentMediator.contentUpdated(link.id, this.getNodeType(), {
-      title: link.title,
-    })
-
-    const fields = { old: {}, new: {} }
-
-    for (const key of Object.keys(data.attributes)) {
-      if (data.attributes[key] !== existingLink[key]) {
-        fields.old[key] = existingLink[key]
-        fields.new[key] = link[key]
-      }
-    }
-
-    await this.registerActivityForLink(LinkActivities.Updated, link, fields)
-
-    return link
+    return updatedLink
   }
 
   async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
@@ -113,8 +94,23 @@ export class LinkService extends NodeContentService {
       return
     }
 
-    link.title = data.title
-    await this.getLinkRepository().save(link)
+    await this._update(
+      LinkUpdateValue.fromObject({
+        title: data.title,
+      }),
+      link
+    )
+  }
+
+  private async _update(data: LinkUpdateValue, link: Link): Promise<Link> {
+    let updatedLink = await this.requireLinkById(link.id)
+
+    Object.assign(updatedLink, data.attributes)
+    updatedLink = await this.getLinkRepository().save(updatedLink)
+
+    await this.notifyActivity(LinkActivity.updated(link, updatedLink))
+
+    return updatedLink
   }
 
   async archive(id: number): Promise<Link> {
@@ -138,8 +134,10 @@ export class LinkService extends NodeContentService {
   }
 
   private async _archive(link: Link): Promise<Link> {
-    await this.registerActivityForLink(LinkActivities.Archived, link, { title: link.title })
-    return this.getLinkRepository().softRemove(link)
+    link = await this.getLinkRepository().softRemove(link)
+    await this.notifyActivity(LinkActivity.archived(link))
+
+    return link
   }
 
   async restore(id: number): Promise<Link> {
@@ -163,8 +161,9 @@ export class LinkService extends NodeContentService {
   }
 
   private async _restore(link: Link): Promise<Link> {
-    await this.registerActivityForLink(LinkActivities.Restored, link, { title: link.title })
-    return this.getLinkRepository().recover(link)
+    link = await this.getLinkRepository().recover(link)
+    await this.notifyActivity(LinkActivity.restored(link))
+    return link
   }
 
   async remove(id: number): Promise<Link> {
@@ -186,7 +185,7 @@ export class LinkService extends NodeContentService {
   }
 
   private async _remove(link: Link): Promise<Link> {
-    await this.registerActivityForLink(LinkActivities.Deleted, link, { title: link.title })
+    await this.notifyActivity(LinkActivity.deleted(link))
     return this.getLinkRepository().remove(link)
   }
 
@@ -206,22 +205,5 @@ export class LinkService extends NodeContentService {
     if (link.deletedAt === null) {
       throw clientError('Can not delete link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForLinkId(linkActivity: LinkActivities, linkId: number, context?: any): Promise<Bull.Job> {
-    const link = await this.getLinkById(linkId)
-    return this.registerActivityForLink(linkActivity, link, context)
-  }
-
-  async registerActivityForLink(linkActivity: LinkActivities, link: Link, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(linkActivity)
-        .fromActor(actor.id)
-        .forEntity(link)
-        .inSpace(link.spaceId)
-        .withContext(context)
-    )
   }
 }

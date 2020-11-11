@@ -2,8 +2,8 @@
 .modal {
   @apply fixed top-0 left-0;
   @apply w-full;
-  @apply z-10;
   @apply overflow-y-scroll;
+  z-index: 1000;
   /* Flex is broken when used for centering overflowing modal*/
   height: 100vh;
   display: grid;
@@ -26,6 +26,12 @@
   @apply flex flex-row items-center justify-between;
   @apply pt-8;
   @apply text-base;
+
+  .btn-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 0.25rem;
+  }
 }
 
 .modal-body {

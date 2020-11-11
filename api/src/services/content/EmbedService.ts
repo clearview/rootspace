@@ -1,4 +1,3 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { EmbedRepository } from '../../database/repositories/EmbedRepository'
 import { Embed } from '../../database/entities/Embed'
@@ -8,21 +7,17 @@ import { NodeType } from '../../types/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentUpdate } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { ActivityService } from '../'
-import { EmbedActivities } from '../../database/entities/activities/EmbedActivities'
+import { Node } from '../../database/entities/Node'
+import { EmbedActivity } from '../activity/activities/content'
 
 export class EmbedService extends NodeContentService {
   private nodeService: NodeService
-  private activityService: ActivityService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: EmbedService
@@ -57,44 +52,37 @@ export class EmbedService extends NodeContentService {
     return embed
   }
 
-  async create(data: EmbedCreateValue): Promise<Embed> {
+  async create(data: EmbedCreateValue): Promise<Embed & Node> {
     let embed = await this.getEmbedRepository().save(data.attributes)
 
-    await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: embed.userId,
-        spaceId: embed.spaceId,
-        contentId: embed.id,
-        title: embed.title,
-        type: NodeType.Embed,
-      })
-    )
+    let value = NodeCreateValue.fromObject({
+      userId: embed.userId,
+      spaceId: embed.spaceId,
+      contentId: embed.id,
+      title: embed.title,
+      type: NodeType.Embed,
+    })
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
+
+    const node = await this.nodeService.create(value)
 
     embed = await this.getEmbedRepository().reload(embed)
-    await this.registerActivityForEmbed(EmbedActivities.Created, embed, { title: embed.title })
+    await this.notifyActivity(EmbedActivity.created(embed))
 
-    return embed
+    return { ...embed, ...node }
   }
 
   async update(data: EmbedUpdateValue, id: number): Promise<Embed> {
-    const existingEmbed = await this.requireEmbedById(id)
-    let embed = await this.requireEmbedById(id)
+    const embed = await this.requireEmbedById(id)
+    const updatedEmbed = await this._update(data, embed)
 
-    Object.assign(embed, data.attributes)
-    embed = await this.getEmbedRepository().save(embed)
-
-    await this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), { title: embed.title })
-
-    const fields = { old: {}, new: {} }
-
-    for (const key of Object.keys(data.attributes)) {
-      if (data.attributes[key] !== existingEmbed[key]) {
-        fields.old[key] = existingEmbed[key]
-        fields.new[key] = embed[key]
-      }
+    if (embed.title !== updatedEmbed.title) {
+      this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), {
+        title: updatedEmbed.title,
+      })
     }
-
-    await this.registerActivityForEmbed(EmbedActivities.Updated, embed, fields)
 
     return embed
   }
@@ -106,8 +94,23 @@ export class EmbedService extends NodeContentService {
       return
     }
 
-    embed.title = data.title
-    await this.getEmbedRepository().save(embed)
+    await this._update(
+      EmbedUpdateValue.fromObject({
+        title: data.title,
+      }),
+      embed
+    )
+  }
+
+  private async _update(data: EmbedUpdateValue, embed: Embed): Promise<Embed> {
+    const updatedEmbed = await this.requireEmbedById(embed.id)
+
+    Object.assign(updatedEmbed, data.attributes)
+
+    await this.getEmbedRepository().save(updatedEmbed)
+    await this.notifyActivity(EmbedActivity.updated(embed, updatedEmbed))
+
+    return updatedEmbed
   }
 
   async archive(id: number): Promise<Embed> {
@@ -131,8 +134,10 @@ export class EmbedService extends NodeContentService {
   }
 
   private async _archive(_embed: Embed): Promise<Embed> {
-    await this.registerActivityForEmbed(EmbedActivities.Archived, _embed, { title: _embed.title })
-    return this.getEmbedRepository().softRemove(_embed)
+    const embed = await this.getEmbedRepository().softRemove(_embed)
+    await this.notifyActivity(EmbedActivity.archived(embed))
+
+    return embed
   }
 
   async restore(id: number): Promise<Embed> {
@@ -157,7 +162,8 @@ export class EmbedService extends NodeContentService {
 
   private async _restore(_embed: Embed): Promise<Embed> {
     const embed = await this.getEmbedRepository().recover(_embed)
-    await this.registerActivityForEmbed(EmbedActivities.Restored, embed, { title: embed.title })
+    await this.notifyActivity(EmbedActivity.restored(embed))
+
     return embed
   }
 
@@ -180,7 +186,7 @@ export class EmbedService extends NodeContentService {
   }
 
   private async _remove(embed: Embed) {
-    await this.registerActivityForEmbed(EmbedActivities.Deleted, embed, { title: embed.title })
+    await this.notifyActivity(EmbedActivity.deleted(embed))
     return this.getEmbedRepository().remove(embed)
   }
 
@@ -200,22 +206,5 @@ export class EmbedService extends NodeContentService {
     if (embed.deletedAt === null) {
       throw clientError('Can not delete embed', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForEmbedId(embedActivity: EmbedActivities, embedId: number, context?: any): Promise<Bull.Job> {
-    const embed = await this.getEmbedById(embedId)
-    return this.registerActivityForEmbed(embedActivity, embed, context)
-  }
-
-  async registerActivityForEmbed(embedActivity: EmbedActivities, embed: Embed, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(embedActivity)
-        .fromActor(actor.id)
-        .forEntity(embed)
-        .inSpace(embed.spaceId)
-        .withContext(context)
-    )
   }
 }

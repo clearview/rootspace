@@ -1,14 +1,10 @@
-import httpRequestContext from 'http-request-context'
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
 import { SpaceService, UserSpaceService, NodeService, UserService, ActivityService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { clientError, HttpErrName, HttpStatusCode } from '../../errors'
-import { UserActivities } from '../../database/entities/activities/UserActivities'
-import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
-import { User } from '../../database/entities/User'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
+import { Node } from '../../database/entities/Node'
 
 export class SpaceFacade {
   private spaceService: SpaceService
@@ -25,16 +21,24 @@ export class SpaceFacade {
     this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
-  getNodesTree(spaceId: number) {
+  getTree(spaceId: number): Promise<Node[]> {
     return this.nodeService.getTreeBySpaceId(spaceId)
   }
 
-  getArchive(spaceId: number) {
-    return this.nodeService.getArchiveBySpaceId(spaceId)
+  getArchiveTree(spaceId: number): Promise<Node[]> {
+    return this.nodeService.getArchiveTreeBySpaceId(spaceId)
+  }
+
+  deleteArchive(spaceId: number): Promise<Node[]> {
+    return this.nodeService.deleteArchivedBySpaceId(spaceId)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {
     return this.spaceService.getSpacesByUserId(userId)
+  }
+
+  getUserFavorites(userId: number, spaceId: number): Promise<Node[]> {
+    return this.nodeService.getUserFavorites(userId, spaceId)
   }
 
   async createSpace(data: SpaceCreateValue): Promise<Space> {
@@ -56,26 +60,16 @@ export class SpaceFacade {
     const user = await this.userService.requireUserById(userId)
     const space = await this.spaceService.requireSpaceById(spaceId)
 
+    if ((await this.userSpaceService.isUserInSpace(userId, spaceId)) === false) {
+      throw clientError('User not found in space', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
     if (user.id === space.userId) {
       throw clientError('Can not remove space owner from space', HttpErrName.InvalidRequest, HttpStatusCode.NotAllowed)
     }
 
     const userSpace = this.userSpaceService.remove(userId, spaceId)
 
-    await this.registerActivityForUserSpace(UserActivities.Removed_From_Space, user, space)
-
     return userSpace
-  }
-
-  async registerActivityForUserSpace(userActivity: UserActivities, user: User, space: Space): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    const activity = ActivityEvent
-      .withAction(userActivity)
-      .fromActor(actor.id)
-      .forEntity(user)
-      .inSpace(space.id)
-
-    return this.activityService.add(activity)
   }
 }

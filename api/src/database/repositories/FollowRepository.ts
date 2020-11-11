@@ -1,22 +1,35 @@
-import { EntityRepository, getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
+import { EntityRepository, DeleteResult, Brackets } from 'typeorm'
 import { Follow } from '../entities/Follow'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
 
 @EntityRepository(Follow)
 export class FollowRepository extends BaseRepository<Follow> {
-  async getEntityFromActivity(activity: ActivityEvent): Promise<any> {
-    return getConnection()
-      .getRepository(activity.entity)
-      .createQueryBuilder('Entity')
-      .where('Entity.id = :id', {id: activity.entityId})
-      .getOne()
+  getTaskListFollows(taskListId: number): Promise<Follow[]> {
+    return this.createQueryBuilder('follow')
+      .distinctOn(['follow.userId'])
+      .leftJoin('tasks', 'task', 'follow.entityId = task.id')
+      .leftJoin('task_lists', 'taskList', 'task.listId = taskList.id')
+      .where('follow.entity = :entity', { entity: 'Task' })
+      .andWhere(' taskList.id = :taskListId', { taskListId })
+      .getMany()
   }
 
-  async getFollowsForTasks(taskIds: number[]): Promise<Follow[]> {
+  getTaskBoardFollows(taskBoardId: number): Promise<Follow[]> {
     return this.createQueryBuilder('follow')
-      .where('follow.entityId IN (:...entityIds)', {entityIds: taskIds})
-      .andWhere('follow.tableName = :tableName', {tableName: 'tasks'})
+      .distinctOn(['follow.userId'])
+      .leftJoin('tasks', 'task', 'follow.entityId = task.id')
+      .leftJoin('task_lists', 'taskList', 'taskList.id = task.listId')
+      .leftJoin('task_boards', 'taskBoard', 'taskBoard.id = taskList.boardId')
+      .where('follow.entity = :entity', { entity: 'Task' })
+      .andWhere('taskBoard.id = :taskBoardId', { taskBoardId })
       .getMany()
+  }
+
+  deleteByEntityAndEntityId(entity: string, entityId: number): Promise<DeleteResult> {
+    return this.createQueryBuilder('follow')
+      .delete()
+      .where('entity = :entity', { entity })
+      .andWhere('entityId = :entityId', { entityId })
+      .execute()
   }
 }

@@ -6,6 +6,22 @@ export abstract class EntityValue<T> {
   }
 
   get attributes(): T {
-    return this._attributes
+    const attrs = { ...this._attributes } as T
+
+    for (const key in attrs) {
+      if (!attrs.hasOwnProperty(key)) {
+        continue
+      }
+
+      let value = attrs[key] as unknown
+
+      if (typeof value === 'string') {
+        value = value.trim()
+      }
+
+      attrs[key] = value as T[typeof key]
+    }
+
+    return attrs
   }
 }

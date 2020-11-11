@@ -18,8 +18,10 @@ import { Vue, Component, Prop } from 'vue-property-decorator'
 import IconAdd from './IconAdd.vue'
 import IconClose from './IconClose.vue'
 import IconCheckmark from './IconCheckmark.vue'
+import IconCheckmark2 from './IconCheckmark2.vue'
 import IconDots from './IconDots.vue'
 import IconDown from './IconDown.vue'
+import IconDown2 from './IconDown2.vue'
 import IconDownload from './IconDownload.vue'
 import IconEdit from './IconEdit.vue'
 import IconEmail from './IconEmail.vue'
@@ -29,6 +31,7 @@ import IconFile from './IconFile.vue'
 import IconFileDocument from './IconFileDocument.vue'
 import IconUpload from './IconUpload.vue'
 import IconFilter from './IconFilter.vue'
+import IconFilter2 from './IconFilter2.vue'
 import IconFolder from './IconFolder.vue'
 import IconLeft from './IconLeft.vue'
 import IconLink from './IconLink.vue'
@@ -68,20 +71,47 @@ import IconArchive from '@/components/icon/IconArchive.vue'
 import IconRight2 from '@/components/icon/IconRight2.vue'
 import IconMessage from '@/components/icon/IconMessage.vue'
 import IconEdit2 from '@/components/icon/IconEdit2.vue'
+import IconGrid from '@/components/icon/IconGrid.vue'
+import IconLink2 from '@/components/icon/IconLink2.vue'
+import IconLayout from '@/components/icon/IconLayout.vue'
+import IconFolderOpen from '@/components/icon/IconFolderOpen.vue'
+import IconFolderClosed from '@/components/icon/IconFolderClosed.vue'
+import IconFileEmpty from '@/components/icon/IconFileEmpty.vue'
+import IconCode from '@/components/icon/IconCode.vue'
+import IconVerticalEllipsis from '@/components/icon/IconVerticalEllipsis.vue'
+import IconLogout from '@/components/icon/IconLogout.vue'
+import IconMenuDocument from '@/components/icon/IconMenuDocument.vue'
+import IconMenuEmbed from '@/components/icon/IconMenuEmbed.vue'
+import IconMenuFolder from '@/components/icon/IconMenuFolder.vue'
+import IconMenuLink from '@/components/icon/IconMenuLink.vue'
+import IconMenuTask from '@/components/icon/IconMenuTask.vue'
+import IconClose3 from '@/components/icon/IconClose3.vue'
+import IconPlus3 from '@/components/icon/IconPlus3.vue'
+import IconRestore from '@/components/icon/IconRestore.vue'
+import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
 
 @Component({
   name: 'Icon',
   components: {
     IconAdd,
+    IconCode,
+    IconFileEmpty,
+    IconFolderClosed,
+    IconFolderOpen,
+    IconLayout,
+    IconLink2,
     IconArchive,
     IconAttachment,
     IconCheckmark,
+    IconCheckmark2,
     IconComment,
     IconClose,
     IconClose2,
+    IconClose3,
     IconColor,
     IconDots,
     IconDown,
+    IconDown2,
     IconDownload,
     IconUpload,
     IconDrag,
@@ -94,6 +124,7 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconFile,
     IconFileDocument,
     IconFilter,
+    IconFilter2,
     IconKanban,
     IconFolder,
     IconLeft,
@@ -104,7 +135,9 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconMessage,
     IconPlus,
     IconPlus2,
+    IconPlus3,
     IconRandom,
+    IconRestore,
     IconReply,
     IconRight,
     IconRight2,
@@ -113,10 +146,12 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconTag,
     IconTime,
     IconTrash,
+    IconTrashArchive,
     IconUnlock,
     IconUp,
     IconUser,
     IconUser2,
+    IconVerticalEllipsis,
     IconWarning,
     IconGoogle,
     IconSpace,
@@ -124,7 +159,14 @@ import IconEdit2 from '@/components/icon/IconEdit2.vue'
     IconContextMenu,
     IconShare,
     IconHistory,
-    IconShareGlobe
+    IconShareGlobe,
+    IconGrid,
+    IconLogout,
+    IconMenuDocument,
+    IconMenuEmbed,
+    IconMenuFolder,
+    IconMenuLink,
+    IconMenuTask
   }
 })
 export default class Icon extends Vue {

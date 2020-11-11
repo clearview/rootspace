@@ -47,7 +47,7 @@ export default class TaskActivities extends Vue {
   }
 
   async fetchActivities () {
-    const res = await api.get(`activities/space/${this.item.spaceId}/task/${this.item.id}`)
+    const res = await api.get(`activities/entity/task/${this.item.id}`)
     this.activities = res.data.data
   }
 };

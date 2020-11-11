@@ -3,9 +3,11 @@ import { InviteRepository } from '../database/repositories/InviteRepository'
 import { Invite } from '../database/entities/Invite'
 import { Space } from '../database/entities/Space'
 import { User } from '../database/entities/User'
-import { clientError, HttpErrName } from '../errors'
+import { Service } from './Service'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
+import { UserActivitiy } from './activity/activities/user'
 
-export class InviteService {
+export class InviteService extends Service {
   private static instance: InviteService
 
   static getInstance() {
@@ -22,6 +24,16 @@ export class InviteService {
 
   getInviteById(id: number): Promise<Invite | undefined> {
     return this.getInviteRepository().findOne(id)
+  }
+
+  async requireInviteById(id: number): Promise<Invite> {
+    const invite = await this.getInviteById(id)
+
+    if (!invite) {
+      throw clientError('Invite not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    return invite
   }
 
   getInvite(email: string, spaceId: number, senderId: number): Promise<Invite> {
@@ -64,7 +76,7 @@ export class InviteService {
   }
 
   async cancel(invite: Invite) {
-    return this.getInviteRepository().remove(invite)
+    return this.getInviteRepository().softRemove(invite)
   }
 
   async cancelByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {
@@ -88,6 +100,8 @@ export class InviteService {
       invite = await this.getInviteRepository().save(invite)
     }
 
+    this.notifyActivity(UserActivitiy.invite(invite))
+
     return invite
   }
 
@@ -102,6 +116,8 @@ export class InviteService {
       invite.email = user.email
       invite = await this.getInviteRepository().save(invite)
     }
+
+    this.notifyActivity(UserActivitiy.invite(invite))
 
     return invite
   }

@@ -14,11 +14,6 @@
         placeholder="Enter title"
         v-model="payload.title"
       >
-      <v-icon
-        name="folder"
-        size="2em"
-        class="flex-none ml-2 text-gray-400"
-      />
     </v-field>
 
     <v-field label="Link">

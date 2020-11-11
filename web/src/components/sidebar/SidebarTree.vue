@@ -1,30 +1,56 @@
 <template>
-  <div class="w-full overflow-auto">
+  <div class="w-full overflow-auto relative">
+    <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
+
     <tree
+      v-if="treeData.length > 0"
       edge-scroll
       ref="tree"
       v-model="treeData"
-      trigger-class="tree-node-handle"
       :class="{
         'tree': true,
-        'tree--dragging': dragging
+        'tree--dragging': dragging,
+        'h-full overflow-hidden': menuOpen
       }"
       :indent="16"
       :ondragstart="startDragging"
       :ondragend="endDragging"
+      :minDisplacement="18"
+      edgeScrollTriggerMode="mouse"
+      :edgeScrollTriggerMargin="18"
+      edgeScroll
+      :opacity="0.5"
+      :allowOutOfBounds="true"
       @change="change"
       #default="{ node, path }"
     >
       <tree-node
         :value="node"
         :path="path"
-        :editable="!locked"
         @content:update="updateContent"
         @node:update="updateNode"
-        @node:remove="removeNode"
+        @node:archive="archiveNode"
         @node:fold:toggle="toggleNodeFold"
+        @node:addNew="addNewNode"
       />
     </tree>
+
+    <ArchiveNode ref="archiveNode" @restore="refresh"></ArchiveNode>
+
+    <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
+      <div id="addnew-menu" v-if="menuOpen">
+        <div class="menu-wrapper">
+          <component
+            :is="menuActive(activeMenu.type)"
+            @submit-folder="addFolder"
+            @submit-link="addLink"
+            @submit-embed="addEmbed"
+            @submit-task="addTask"
+            @select="select">
+          </component>
+        </div>
+      </div>
+    <!-- </transition> -->
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -93,11 +119,25 @@
         Are you sure you want to delete this item?
       </div>
     </modal>
+
+    <modal
+      v-if="modal.type === 'Archive'"
+      title="Archive Item"
+      :visible="modal.visible"
+      :loading="modal.loading"
+      confirmText="Yes"
+      @cancel="modalClose"
+      @confirm="modalConfirm"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to archive this item?
+      </div>
+    </modal>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Watch, Mixins, Ref } from 'vue-property-decorator'
 import { omit, last, pick, findKey, pickBy } from 'lodash'
 
 import {
@@ -108,22 +148,35 @@ import {
   Store as TreeStore,
   walkTreeData,
   getPureTreeData
-} from 'he-tree-vue'
+} from '@adityapurwa/he-tree-vue'
 
 import {
   LinkResource,
   TaskBoardResource,
-  SpaceResource
+  SpaceResource,
+  NodeResource
 } from '@/types/resource'
 
 import ModalMixin, { Modal } from '@/mixins/ModalMixin'
+
+import ListMenu from '@/components/sidebar/menu/ListMenu.vue'
+import FolderMenu from '@/components/sidebar/menu/FolderMenu.vue'
+import LinkMenu from '@/components/sidebar/menu/LinkMenu.vue'
+import EmbedMenu from '@/components/sidebar/menu/EmbedMenu.vue'
+import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
+
+import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
+
+import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
+import { EmbedResource } from '@/services/embed'
+import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
 
-import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
-import { EmbedResource } from '@/services/embed'
+import DocumentService from '@/services/document'
+import EventBus from '@/utils/eventBus'
 
 enum NodeType {
   Link = 'link',
@@ -133,37 +186,75 @@ enum NodeType {
   Folder = 'folder'
 }
 
+enum MenuType {
+  INDEX = 'index',
+  FOLDER = 'folder',
+  LINK = 'link',
+  TASK = 'task',
+  DOCUMENT = 'document',
+  EMBED = 'embed'
+}
+
 enum ModalType {
   UpdateLink = 'UpdateLink',
   UpdateTask = 'UpdateTask',
   UpdateEmbed = 'UpdateEmbed',
-  Destroy = 'Destroy'
+  Destroy = 'Destroy',
+  Archive = 'Archive'
 }
 
 @Component({
   name: 'SidebarTree',
   components: {
+    ArchiveNode,
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
+    SidebarEmptyTree,
+    FolderMenu,
+    ListMenu,
+    LinkMenu,
+    EmbedMenu,
+    TaskMenu,
     FormLink,
     FormTask,
     FormEmbed
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
+  @Prop(Boolean)
+  private readonly menuOpen!: boolean
+
+  @Watch('menuOpen', { immediate: false })
+  private resetDeferredParent (val: boolean) {
+    this.$nextTick(() => {
+      if (!val) {
+        this.deferredParent = null
+        this.deferredPath = null
+      }
+    })
+  }
+
+  @Ref('archiveNode')
+  private readonly archiveNodeRef!: ArchiveNode;
+
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
 
-  // Props
-
-  @Prop(Boolean)
-  readonly locked!: boolean
-
   // State
 
   dragging = false
+
+  private activeMenu = {
+    visible: false,
+    type: MenuType.INDEX,
+    loading: false,
+    alert: null
+  }
+
+  private deferredParent: NodeResource | null = null;
+  private deferredPath: number[] | null = null;
 
   // Computed
 
@@ -180,21 +271,214 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       node.$folded = state.folded[key] === true
     })
-
     return list
   }
 
   set treeData (data: Node[]) {
+    this.updateFoldWith(data)
     this.$store.commit('tree/setList', getPureTreeData(data))
   }
 
   // Methods
 
+  refresh () {
+    this.fetch()
+  }
+
+  menuActive (type: string) {
+    switch (type) {
+      case MenuType.FOLDER:
+        return 'folder-menu'
+
+      case MenuType.LINK:
+        return 'link-menu'
+
+      case MenuType.TASK:
+        return 'task-menu'
+
+      case MenuType.EMBED:
+        return 'embed-menu'
+
+      default:
+        return 'list-menu'
+    }
+  }
+
+  eventBusTree (type: string, node: Node) {
+    switch (type) {
+      case NodeType.Task:
+        EventBus.$emit('BUS_TASKBOARD_UPDATE', node)
+        break
+
+      case NodeType.Doc:
+        EventBus.$emit('BUS_DOC_UPDATE', node)
+        break
+    }
+  }
+
+  async select (type: MenuType) {
+    if (type === MenuType.DOCUMENT) {
+      this.$emit('menu-selected', false)
+
+      try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: 'Untitled',
+          content: {},
+          access: 2,
+          isLocked: false,
+          config: {
+
+          }
+        }
+
+        this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
+
+        const document = await DocumentService.create({
+          ...payload,
+          parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined
+        })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        await this.fetchTree()
+        this.$router.replace({
+          name: 'Document',
+          params: { id: getDocument.data.contentId },
+          query: { isnew: '1' }
+        })
+          .catch(() => {
+            // Silent duplicate error
+          })
+      } catch { }
+
+      return true
+    }
+
+    this.setActiveMenu(true, type)
+  }
+
+  setActiveMenu (visible: boolean, type = MenuType.INDEX) {
+    this.activeMenu = {
+      ...this.activeMenu,
+
+      type,
+      visible
+    }
+  }
+
+  isMenuActive (type: MenuType): boolean {
+    return this.activeMenu.type === type && this.activeMenu.visible
+  }
+
+  async fetchTree () {
+    return this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+  }
+
+  async addFolder (data: NodeResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('tree/createFolder', data)
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addLink (data: LinkResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('link/create', data)
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addTask (data: TaskBoardResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        (data as any).parentId = this.deferredParent.id
+      }
+      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+      if (res.contentId) {
+        await this.$router.push({
+          name: 'TaskPage',
+          params: {
+            id: res.contentId.toString()
+          }
+        })
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addEmbed (data: any) {
+    this.activeMenu.loading = true
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        data.parentId = this.deferredParent.id
+      }
+      await this.$store.dispatch('embed/create', data)
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  addNewNode (path: number[], payload: NodeResource) {
+    this.$emit('addNew', path, payload)
+    this.deferredParent = payload
+    this.deferredPath = path
+  }
+
+  addNewEmpty () {
+    this.$emit('addNew')
+  }
+
   startDragging () {
+    this.$store.commit('tree/setTouched', {})
+    this.$store.commit('space/freezeSettings')
     this.dragging = true
   }
 
   endDragging () {
+    this.$store.commit('space/unfreezeSettings')
     this.dragging = false
   }
 
@@ -238,6 +522,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       await this.updateNode(path, pick(data, ['title']), { localOnly: true })
       await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
+
+      EventBus.$emit('BUS_TASKBOARD_UPDATE', data)
     } catch { }
   }
 
@@ -252,42 +538,49 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
-  async removeNode (path: number[], node: Node) {
+  async archiveNode (path: number[], node: Node) {
     try {
-      await this.modalOpen(ModalType.Destroy)
+      await this.modalOpen(ModalType.Archive)
 
       this.$refs.tree.removeNodeByPath(path)
       this.treeData = this.$refs.tree.cloneTreeData()
 
-      await this.$store.dispatch('tree/destroy', node)
+      await this.$store.dispatch('tree/archive', node)
+      this.archiveNodeRef.loadArchive()
 
-      this.$router.push({ name: 'Main' })
+      this.$router.push({ name: 'Main' }).catch(() => null)
     } catch { }
   }
 
   async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
     try {
       // Mutate node
-      const nextNode = Object.assign(
-        this.$refs.tree.getNodeByPath(path),
-        node
-      )
+      let nextNode = node
+
+      if (!this.deferredParent && !this.deferredPath) {
+        nextNode = Object.assign(
+          this.$refs.tree.getNodeByPath(path),
+          node
+        )
+      }
 
       // Update store
       this.treeData = this.$refs.tree.cloneTreeData()
 
       // Sync node update with api
       if (!localOnly) {
+        this.eventBusTree(node.type, node)
         await this.$store.dispatch('tree/update', nextNode)
       }
-    } catch { }
+    } catch (ex) {
+      console.error(ex)
+    }
   }
 
   async updateNodePosition (path: number[], node: Node) {
     try {
       const parent = this.$refs.tree.getNodeParentByPath(path)
       const index = last(path) || 0
-
       const nextNode = omit(
         {
           ...node,
@@ -306,6 +599,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       return
     }
 
+    this.$store.commit('tree/setTouched', {})
     const node = this.$refs.tree.getNodeByPath(path)
 
     this.$store.commit('tree/updateFolded', {
@@ -314,10 +608,29 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     })
   }
 
+  openNodeFold (path: number[]) {
+    if (this.dragging) {
+      return
+    }
+
+    this.$store.commit('tree/setTouched', {})
+    this.$refs.tree.getNodeByPath(path)
+
+    this.$store.commit('tree/updateFolded', {
+      index: path.join('.'),
+      value: false
+    })
+  }
+
   async change (store: TreeStore) {
     if (store.pathChanged) {
       const path = store.targetPath || []
       const node = store.dragNode || {}
+      if (store.targetPath) {
+        this.$store.commit('tree/setTouched', {
+          [path.join('.')]: true
+        })
+      }
 
       await this.updateNodePosition(path, node)
     }
@@ -351,6 +664,16 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$store.commit('tree/setFolded', pickBy(folded, x => x))
   }
 
+  updateFoldWith (data: Node[]) {
+    const foldeds = this.$store.state.tree.folded
+
+    walkTreeData(data, (node, index, parent, path) => {
+      foldeds[path.join('.')] = node.$folded
+    })
+
+    this.$store.commit('tree/setFolded', foldeds)
+  }
+
   // Hooks
 
   async created () {
@@ -367,5 +690,30 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       await this.fetch()
     }
   }
+
+  @Watch('menuOpen')
+  watchMenuOpen () {
+    if (this.menuOpen) {
+      this.setActiveMenu(true)
+    }
+  }
 }
 </script>
+
+<style lang="postcss" scoped>
+#addnew-menu {
+  @apply absolute;
+
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: #F8F9FD;
+  padding: 1rem;
+  min-width: 304px;
+
+  .menu-wrapper {
+    @apply relative h-full;
+  }
+}
+</style>

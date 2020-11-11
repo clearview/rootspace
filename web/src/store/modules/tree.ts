@@ -4,6 +4,7 @@ import { RootState, TreeState } from '@/types/state'
 import { NodeResource } from '@/types/resource'
 
 import TreeService from '@/services/tree'
+import Vue from 'vue'
 
 interface FetchParams {
   spaceId: number;
@@ -15,7 +16,8 @@ const TreeModule: Module<TreeState, RootState> = {
   state () {
     return {
       list: [],
-      folded: {}
+      folded: {},
+      touched: {}
     }
   },
 
@@ -25,6 +27,22 @@ const TreeModule: Module<TreeState, RootState> = {
     },
     setFolded (state, folded) {
       state.folded = folded
+    },
+    updateNode (state, payload: {compareFn: (node: NodeResource) => boolean; fn: (node: NodeResource) => NodeResource}) {
+      const looper = (nodes: NodeResource[]) => {
+        let idx = 0
+        for (const node of nodes) {
+          if (payload.compareFn(node)) {
+            Vue.set(nodes, idx, payload.fn(node))
+          }
+          idx++
+          looper(node.children)
+        }
+      }
+      looper(state.list)
+    },
+    setTouched (state, touched) {
+      state.touched = touched
     },
     updateFolded (state, { index, value }) {
       state.folded = {
@@ -49,8 +67,20 @@ const TreeModule: Module<TreeState, RootState> = {
       await TreeService.destroy(data.id)
     },
 
+    async clearArchive (_, spaceId: number) {
+      await TreeService.clearArchive(spaceId)
+    },
+
+    async archive (_, data: NodeResource) {
+      await TreeService.archive(data.id)
+    },
+
+    async restore (_, data: NodeResource) {
+      await TreeService.restore(data.id)
+    },
+
     async createFolder (_, data: NodeResource) {
-      await TreeService.createFolder(data)
+      return await TreeService.createFolder(data)
     }
   }
 }

@@ -3,26 +3,34 @@
     class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
-    <v-field label="Board Name">
-      <input
-        ref="initialInput"
-        type="text"
-        class="input"
-        placeholder="E.g. Weekly Groceries"
-        v-model="payload.title"
-      >
-    </v-field>
-
-    <v-field label="Select Board Type" v-if="false">
+    <v-field label="Select Board Type">
       <div class="type-list mt-2">
         <a
           class="type-item mr-4"
+          :class="{'active': isKanban}"
+          @click="payload.type = boardTypeKanban"
+        >
+          <v-icon
+            name="kanban"
+            size="20px"
+            viewbox="32"
+            class="icon-list kanban"
+          />
+
+          <div class="desc-list">
+            <h5>Board</h5>
+          </div>
+        </a>
+
+        <a
+          class="type-item"
           :class="{'active': !isKanban}"
           @click="payload.type = boardTypeList"
         >
           <v-icon
             name="list"
-            size="3.5em"
+            size="20px"
+            viewbox="32"
             class="icon-list"
           />
 
@@ -30,32 +38,17 @@
             <h5>List</h5>
           </div>
         </a>
-        <a
-          class="type-item"
-          :class="{'active': isKanban}"
-          @click="payload.type = boardTypeKanban"
-        >
-          <v-icon
-            name="kanban"
-            size="3.5em"
-            class="icon-list"
-          />
-
-          <div class="desc-list">
-            <h5>Kanban</h5>
-          </div>
-        </a>
       </div>
     </v-field>
 
-    <v-field
-      inline
-      border
-      label="Make Board Private"
-      align="right"
-      class="mb-0"
-    >
-      <button-switch v-model="payload.isPublic" />
+    <v-field label="Task Board Name">
+      <input
+        ref="initialInput"
+        type="text"
+        class="input"
+        placeholder="E.g. Weekly Groceries"
+        v-model="payload.title"
+      >
     </v-field>
 
     <button
@@ -67,10 +60,10 @@
 
 <style lang="postcss" scoped>
 .type-list {
-  @apply flex flex-row;
+  @apply flex flex-row w-full;
 }
 .type-item {
-  @apply flex flex-row border p-3 rounded items-center;
+  @apply flex flex-row border p-2 rounded items-center flex-grow justify-center;
   flex: 1 1 auto;
 
   border-color: theme("colors.gray.400");
@@ -86,15 +79,15 @@
   }
 
   .icon-list {
-    @apply rounded-full p-2;
-    color: transparent;
-
-    background: theme("colors.primary.default");
+    &.kanban {
+      color: transparent;
+      stroke: #444754;
+    }
   }
   .desc-list {
-    @apply pl-2;
-
-    font-size: 12px;
+    h5 {
+      font-size: 14px;
+    }
   }
 }
 </style>

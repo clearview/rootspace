@@ -2,29 +2,25 @@ import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DocRepository } from '../../../database/repositories/DocRepository'
 import { DocRevisionRepository } from '../../../database/repositories/DocRevisionRepository'
+import { Node } from '../../../database/entities/Node'
 import { Doc } from '../../../database/entities/Doc'
 import { DocRevision } from '../../../database/entities/DocRevision'
 import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
 import { NodeCreateValue } from '../../../values/node'
 import { NodeType } from '../../../types/node'
-import { NodeService } from '../NodeService'
-import { NodeContentService } from '../NodeContentService'
-import { clientError, HttpErrName, HttpStatusCode } from '../../../errors'
-import { DocActivities } from '../../../database/entities/activities/DocActivities'
-import Bull from 'bull'
-import { ActivityEvent } from '../../events/ActivityEvent'
-import { ActivityService } from '../../'
+import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { DocUpdateSetup } from './DocUpdateSetup'
+import { DocActivity } from '../../activity/activities/content/index'
+import { INodeContentUpdate } from '../contracts'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
-  private activityService: ActivityService
 
   private constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
-    this.activityService = ServiceFactory.getInstance().getActivityService()
   }
 
   private static instance: DocService
@@ -82,7 +78,7 @@ export class DocService extends NodeContentService {
     return this.getDocRevisionRepository().getByDocId(doc.id)
   }
 
-  async create(data: DocCreateValue): Promise<Doc> {
+  async create(data: DocCreateValue): Promise<Doc & Node> {
     let doc = this.getDocRepository().create()
 
     Object.assign(doc, data.attributes)
@@ -90,53 +86,86 @@ export class DocService extends NodeContentService {
 
     doc = await this.getDocRepository().save(doc)
 
-    await this.nodeService.create(
-      NodeCreateValue.fromObject({
-        userId: doc.userId,
-        spaceId: doc.spaceId,
-        contentId: doc.id,
-        title: doc.title,
-        type: NodeType.Document,
-      })
-    )
+    let value = NodeCreateValue.fromObject({
+      userId: doc.userId,
+      spaceId: doc.spaceId,
+      contentId: doc.id,
+      title: doc.title,
+      type: NodeType.Document,
+    })
+
+    if (data.attributes.parentId) {
+      value = value.withParent(data.attributes.parentId).withPosition(0)
+    }
+
+    const node = await this.nodeService.create(value)
 
     doc = await this.getDocRepository().reload(doc)
-    await this.registerActivityForDoc(DocActivities.Created, doc, { title: doc.title })
+    await this.notifyActivity(DocActivity.created(doc))
 
-    return doc
+    return { ...doc, ...node }
   }
 
   async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
-    let doc = await this.getById(id)
+    const doc = await this.requireById(id)
+    const updatedDoc = await this._update(data, doc, userId)
 
-    const setup = new DocUpdateSetup(data, doc, userId)
-
-    const fields = { old: {}, new: {} }
-
-    for (const key of setup.updatedAttributes) {
-      fields.old[key] = doc[key]
-      fields.new[key] = data.attributes[key]
+    if (doc.title !== updatedDoc.title) {
+      await this.nodeContentMediator.contentUpdated(updatedDoc.id, this.getNodeType(), {
+        title: updatedDoc.title,
+      })
     }
 
-    if (setup.contentUpdated === true) {
-      doc.contentUpdatedAt = new Date(Date.now())
+    return updatedDoc
+  }
+
+  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
+    if (!data.title) {
+      return
     }
+
+    const doc = await this.getById(contentId)
+
+    if (!doc) {
+      return
+    }
+
+    const value = DocUpdateValue.fromObject({
+      title: data.title,
+    })
+
+    this._update(value, doc)
+  }
+
+  private async _update(data: DocUpdateValue, doc: Doc, userId?: number): Promise<Doc> {
+    if (!userId) {
+      userId = httpRequestContext.get('user').id
+    }
+
+    let updatedDoc = await this.getById(doc.id)
+
+    const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.createRevision === true) {
       await this.createRevision(doc)
-      doc.revision = doc.revision + 1
+      updatedDoc.revision = updatedDoc.revision + 1
     }
 
-    Object.assign(doc, data.attributes)
-    doc.updatedBy = userId
+    if (setup.contentUpdated === true) {
+      updatedDoc.contentUpdatedAt = new Date(Date.now())
+      updatedDoc.contentUpdatedBy = userId
+    }
 
-    doc = await this.getDocRepository().save(doc)
+    Object.assign(updatedDoc, data.attributes)
+
+    updatedDoc = await this.getDocRepository().save(updatedDoc)
+    updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
     if (setup.registerActivity) {
-      await this.registerActivityForDocId(DocActivities.Updated, doc.id, fields)
+      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
     }
 
-    return this.getDocRepository().reload(doc)
+    return updatedDoc
   }
 
   private async createRevision(doc: Doc): Promise<void> {
@@ -147,32 +176,35 @@ export class DocService extends NodeContentService {
     docRevision.docId = doc.id
     docRevision.content = doc.content
     docRevision.number = doc.revision
-    docRevision.revisionBy = doc.updatedBy ?? doc.userId
-    docRevision.revisionAt = doc.updatedAt ?? doc.createdAt
+    docRevision.revisionBy = doc.contentUpdatedBy ?? doc.userId
+    docRevision.revisionAt = doc.contentUpdatedAt ?? doc.createdAt
 
     await this.getDocRevisionRepository().save(docRevision)
   }
 
   async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(docRevisionId)
-    let doc = await this.requireById(docRevision.docId)
+    const doc = await this.requireById(docRevision.docId)
+
+    let updatedDoc = await this.requireById(docRevision.docId)
 
     const data = DocUpdateValue.fromObject({ content: docRevision.content })
-    const setup = new DocUpdateSetup(data, doc, userId)
+    const setup = new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.contentUpdated === false) {
-      return doc
+      return updatedDoc
     }
 
-    this.createRevision(doc)
+    this.createRevision(updatedDoc)
 
-    doc.revision = doc.revision + 1
-    doc.content = docRevision.content
+    updatedDoc.revision = updatedDoc.revision + 1
+    updatedDoc.content = docRevision.content
 
-    doc = await this.getDocRepository().save(doc)
-    await this.registerActivityForDocId(DocActivities.Updated, doc.id)
+    updatedDoc = await this.getDocRepository().save(updatedDoc)
 
-    return doc
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
+
+    return updatedDoc
   }
 
   async archive(id: number): Promise<Doc> {
@@ -198,7 +230,7 @@ export class DocService extends NodeContentService {
 
   private async _archive(_doc: Doc): Promise<Doc> {
     const doc = await this.getDocRepository().softRemove(_doc)
-    await this.registerActivityForDoc(DocActivities.Archived, doc, { title: doc.title })
+    await this.notifyActivity(DocActivity.archived(doc))
 
     return doc
   }
@@ -210,7 +242,6 @@ export class DocService extends NodeContentService {
     doc = await this._restore(doc)
 
     await this.nodeContentMediator.contentRestored(docId, this.getNodeType())
-    await this.registerActivityForDoc(DocActivities.Restored, doc, { title: doc.title })
 
     return doc
   }
@@ -227,6 +258,8 @@ export class DocService extends NodeContentService {
 
   private async _restore(doc: Doc): Promise<Doc> {
     doc = await this.getDocRepository().recover(doc)
+    await this.notifyActivity(DocActivity.restored(doc))
+
     return doc
   }
 
@@ -251,7 +284,7 @@ export class DocService extends NodeContentService {
   }
 
   private async _remove(doc: Doc) {
-    await this.registerActivityForDoc(DocActivities.Deleted, doc, { title: doc.title })
+    await this.notifyActivity(DocActivity.deleted(doc))
     return this.getDocRepository().remove(doc)
   }
 
@@ -271,22 +304,5 @@ export class DocService extends NodeContentService {
     if (doc.deletedAt === null) {
       throw clientError('Can not delete link', HttpErrName.NotAllowed, HttpStatusCode.NotAllowed)
     }
-  }
-
-  async registerActivityForDocId(docActivity: DocActivities, docId: number, context?: any): Promise<Bull.Job> {
-    const doc = await this.getById(docId)
-    return this.registerActivityForDoc(docActivity, doc, context)
-  }
-
-  async registerActivityForDoc(docActivity: DocActivities, doc: Doc, context?: any): Promise<Bull.Job> {
-    const actor = httpRequestContext.get('user')
-
-    return this.activityService.add(
-      ActivityEvent.withAction(docActivity)
-        .fromActor(actor.id)
-        .forEntity(doc)
-        .inSpace(doc.spaceId)
-        .withContext(context)
-    )
   }
 }

@@ -10,9 +10,19 @@ export class TaskRepository extends BaseRepository<Task> {
     return this.createQueryBuilder('task')
       .where('task.id = :id', { id })
       .leftJoinAndSelect('task.user', 'createdBy')
-      .leftJoinAndMapOne('createdBy.avatar', Upload, 'avatar', 'avatar.entityId = createdBy.id and avatar.entity = \'User\'')
+      .leftJoinAndMapOne(
+        'createdBy.avatar',
+        Upload,
+        'avatar',
+        "avatar.entityId = createdBy.id and avatar.entity = 'User'"
+      )
       .leftJoinAndSelect('task.assignees', 'assignee')
-      .leftJoinAndMapOne('assignee.avatar', Upload, 'assigneeAvatar', 'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = \'User\'')
+      .leftJoinAndMapOne(
+        'assignee.avatar',
+        Upload,
+        'assigneeAvatar',
+        "assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = 'User'"
+      )
       .leftJoinAndMapMany(
         'task.attachments',
         Upload,
@@ -25,9 +35,25 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
-      .leftJoinAndMapOne('user.avatar', Upload, 'commentAvatar', 'commentAvatar.entityId = user.id and commentAvatar.entity = \'User\'')
+      .leftJoinAndMapOne(
+        'user.avatar',
+        Upload,
+        'commentAvatar',
+        "commentAvatar.entityId = user.id and commentAvatar.entity = 'User'"
+      )
       .getOne()
   }
+
+  getByListId(listId: number, options: any = {}): Promise<Task[]> {
+    const queryBuilder = this.createQueryBuilder('task').where('task.listId = :listId', { listId })
+
+    if (options.withDeleted) {
+      queryBuilder.withDeleted()
+    }
+
+    return queryBuilder.getMany()
+  }
+
   async filterByTaskBoardId(taskBoardId: number, searchParam?: string, filterParam?: any): Promise<Task[]> {
     const searchQuery = this.createQueryBuilder('task')
       .leftJoinAndSelect('task.user', 'createdBy')
@@ -58,7 +84,12 @@ export class TaskRepository extends BaseRepository<Task> {
       .leftJoinAndSelect('task.tags', 'tag')
       .leftJoinAndSelect('task.taskComments', 'comment')
       .leftJoinAndSelect('comment.user', 'user')
-      .leftJoinAndMapOne('user.avatar', Upload, 'commentAvatar', 'commentAvatar.entityId = user.id and commentAvatar.entity = \'User\'')
+      .leftJoinAndMapOne(
+        'user.avatar',
+        Upload,
+        'commentAvatar',
+        "commentAvatar.entityId = user.id and commentAvatar.entity = 'User'"
+      )
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')
       .where('taskBoard.id = :taskBoardId', { taskBoardId })

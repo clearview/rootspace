@@ -50,7 +50,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     let taskBoard = await this.taskBoardService.create(data)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Create, taskBoard)
 
-    taskBoard = await this.taskBoardService.save(taskBoard)
+    taskBoard = await this.taskBoardService.save(taskBoard, data.parentId)
     const resData = this.responseData(taskBoard)
 
     res.send(resData)

@@ -16,7 +16,7 @@
           {{comment.createdAt | formatDate}}
         </div>
         <div class="header-actions" v-if="user.id === comment.userId && !isEditMode">
-          <Popover :with-close="false" position="bottom-start">
+          <Popover :z-index="1001" :with-close="false" position="bottom-start">
             <template #default="{ hide }">
               <div class="action-line" @click="hide();enterEditMode()">
                 <v-icon name="edit"></v-icon>
@@ -290,6 +290,20 @@ export default class TaskComment extends Vue {
     @apply my-1;
     height:1px;
     background: theme("colors.gray.100");
+  }
+
+  .btn-link {
+    background-color: unset !important;
+    padding: 0;
+    height: 20px;
+
+    &:hover {
+      background-color: unset;
+
+      .stroke-current {
+        color: theme("colors.primary.default");
+      }
+    }
   }
 </style>
 

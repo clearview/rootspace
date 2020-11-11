@@ -46,7 +46,7 @@ export class User {
   @Column('varchar', { select: false })
   authProvider: string
 
-  @Column('boolean')
+  @Column('boolean', { select: false })
   active: boolean
 
   @Column('boolean', { default: false, select: false })
@@ -63,19 +63,38 @@ export class User {
   @UpdateDateColumn({ type: 'timestamptz', select: false })
   updatedAt: Date
 
-  @OneToMany((type) => UserToSpace, (space) => space.user)
+  @OneToMany(
+    (type) => UserToSpace,
+    (space) => space.user
+  )
   public spaces!: UserToSpace[]
 
-  @OneToMany(type => Follow, follow => follow.user, {eager: false, onDelete: 'CASCADE'})
+  @OneToMany(
+    (type) => Follow,
+    (follow) => follow.user,
+    { eager: false, onDelete: 'CASCADE' }
+  )
   public follows!: Follow[]
 
-  @OneToMany(type => Notification, notification => notification.user, {eager: false, onDelete: 'CASCADE'})
+  @OneToMany(
+    (type) => Notification,
+    (notification) => notification.user,
+    { eager: false, onDelete: 'CASCADE' }
+  )
   public notifications!: Notification[]
 
-  @OneToMany(type => UserSetting, setting => setting.user, {eager: false, onDelete: 'CASCADE'})
+  @OneToMany(
+    (type) => UserSetting,
+    (setting) => setting.user,
+    { eager: false, onDelete: 'CASCADE' }
+  )
   public settings!: UserSetting[]
 
-  @OneToMany(type => Task, task => task.user, {eager: false, onDelete: 'CASCADE'})
+  @OneToMany(
+    (type) => Task,
+    (task) => task.user,
+    { eager: false, onDelete: 'CASCADE' }
+  )
   public tasks: Task[]
 
   public ability: Ability

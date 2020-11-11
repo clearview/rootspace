@@ -28,6 +28,12 @@
         >
           First Name is required.
         </p>
+        <p
+          v-if="$v.payload.firstName.$model.length > 100 && !$v.payload.firstName.maxlength"
+          class="feedback is-danger"
+        >
+          First name is too long (maximum is 100 characters)
+        </p>
       </template>
     </v-field>
 
@@ -58,6 +64,13 @@
           class="feedback is-danger"
         >
           Last Name is required.
+        </p>
+
+        <p
+          v-if="$v.payload.lastName.$model && !$v.payload.lastName.maxlength"
+          class="feedback is-danger"
+        >
+          Last name is too long (maximum is 100 characters)
         </p>
       </template>
     </v-field>
@@ -96,171 +109,99 @@
         >
           Email format is not valid.
         </div>
+        <div
+          v-if="$v.payload.email.$model && !$v.payload.email.maxlength"
+          class="feedback is-danger"
+        >
+          Email is too long (maximum is 100 characters)
+        </div>
       </template>
     </v-field>
 
-    <div class="divider"></div>
-
-    <v-field
-      label="Current Password"
-      name="oldpassword"
-      has-icon-right
-      v-if="this.user.authProvider !== 'google'"
+    <a
+      class="btn w-full mx-0 mt-5 clear-both pointer"
+      @click="changePasswordModal(true)"
     >
-      <input
-        class="input w-full leading-tight mx-0"
-        id="oldpassword"
-        type="password"
-        placeholder="Enter current password"
-        v-model.trim="$v.password.password.$model"
-      />
-      <v-icon
-        class="icon is-right"
-        name="lock"
-        size="1.5em"
-      />
-
-      <template #feedback>
-        <p
-          v-if="$v.password.password.$error && !$v.password.password.required"
-          class="feedback is-danger"
-        >
-          Password is required.
-        </p>
-        <p
-          v-if="$v.password.password.$error && !$v.password.password.minLength"
-          class="feedback is-danger"
-        >
-          Password must have at least {{ $v.password.password.$params.minLength.min }} letters.
-        </p>
-      </template>
-    </v-field>
-
-    <v-field
-      label="New Password"
-      name="password"
-      has-icon-right
-    >
-      <input
-        class="input"
-        id="password"
-        type="password"
-        placeholder="Enter new password"
-        v-model.trim="$v.password.newPassword.$model"
-      />
-      <v-icon
-        class="icon is-right"
-        name="lock"
-        size="1.5em"
-      />
-
-      <template #feedback v-if="$v.password.newPassword.$error">
-        <p
-          v-if="!$v.password.newPassword.required"
-          class="feedback is-danger"
-        >
-          Password is required.
-        </p>
-
-        <p
-          v-if="!$v.password.newPassword.minLength"
-          class="feedback is-danger"
-        >
-          Password must have at least {{ $v.password.newPassword.$params.minLength.min }} letters.
-        </p>
-      </template>
-    </v-field>
-
-    <v-field
-      label="Repeat New Password"
-      name="repeatpassword"
-      has-icon-right
-    >
-      <input
-        class="input"
-        id="repeatpassword"
-        type="password"
-        placeholder="Enter new password again"
-        v-model.trim="$v.password.newPassword_confirmation.$model"
-      />
-        <v-icon
-          class="icon is-right"
-          name="lock"
-          size="1.5em"
-        />
-
-      <template #feedback v-if="$v.password.newPassword_confirmation.$error">
-        <p
-          v-if="!$v.password.newPassword_confirmation.sameAsPassword"
-          class="feedback is-danger"
-        >
-          Passwords must be identical.
-        </p>
-      </template>
-    </v-field>
-
-    <p class="password-hint">Password must contain at least 8 characters</p>
+      Change Password
+    </a>
 
     <button
-      class="btn btn-primary w-full mx-0 mt-5"
+      class="btn btn-primary w-full mx-0 mt-5 btn-submit"
       type="submit"
       :disabled="$v.payload.$invalid"
     >
       Save
     </button>
+
+    <modal
+      title="Change Password"
+      :visible="isModalVisible('changePassword')"
+      :is-loading="modal.loading"
+      :contentStyle="{ width: '456px' }"
+      @cancel="changePasswordModal(false, 'changePassword')"
+      @confirm="() => $refs.changePasswordForm.submit()"
+    >
+      <div class="modal-body">
+        <Alert v-model="password.alert"/>
+        <form-change-password
+          ref="changePasswordForm"
+          @submit="changePassword"
+        />
+      </div>
+    </modal>
   </form>
 </template>
 
 <script lang="ts">
-import { email, minLength, required, sameAs } from 'vuelidate/lib/validators'
+import { email, required, maxLength } from 'vuelidate/lib/validators'
 
 import { PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
-import { Component, Vue } from 'vue-property-decorator'
+import Modal from '@/components/Modal.vue'
+import FormChangePassword from '@/components/form/FormChangePassword.vue'
+import UserService from '@/services/user'
+import Alert from '@/components/Alert.vue'
+
+import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
   name: 'FormSettings',
   components: {
-    VField
+    VField,
+    Modal,
+    FormChangePassword,
+    Alert
   },
   validations: {
     payload: {
-      firstName: { required },
-      lastName: { required },
-      email: { required, email }
-    },
-    password: {
-      password: {
-        required,
-        minLength: minLength(8)
-      },
-      newPassword: {
-        required,
-        minLength: minLength(8)
-      },
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      newPassword_confirmation: {
-        required,
-        minLength: minLength(8),
-        sameAsPassword: sameAs('newPassword')
-      }
+      firstName: { required, maxLength: maxLength(100) },
+      lastName: { required, maxLength: maxLength(100) },
+      email: { required, email, maxLength: maxLength(100) }
     }
   }
 })
+
 export default class FormSettings extends Vue {
+  private loadingMessage = 'Update Password...'
+  private isLoading = false;
+
   private payload = {
     firstName: '',
     lastName: '',
     email: ''
   }
 
-  private password: PasswordResource = {
-    password: '',
-    newPassword: '',
-    // eslint-disable-next-line @typescript-eslint/camelcase
-    newPassword_confirmation: ''
+  private modal = {
+    visible: false,
+    type: '',
+    loading: false,
+    alert: null
   }
+
+  private password: any = {
+    alert: null
+  };
 
   get user () {
     return this.$store.state.auth.user
@@ -278,30 +219,63 @@ export default class FormSettings extends Vue {
     this.$v.payload.$touch()
 
     if (!this.$v.payload.$invalid) {
-      this.$emit('submit', this.payload, this.password)
+      this.$emit('submit-account', this.payload)
+    }
+  }
 
-      this.$v.password.$reset()
-      this.password = {
-        password: '',
-        newPassword: '',
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        newPassword_confirmation: ''
+  isModalVisible (type: string): boolean {
+    return type === 'changePassword' && this.modal.visible
+  }
+
+  changePasswordModal (visible: boolean, type = '') {
+    this.modal = {
+      ...this.modal,
+
+      type,
+      visible
+    }
+    this.password.alert = null
+  }
+
+  async changePassword (data: PasswordResource) {
+    try {
+      await this.updatePassword(data)
+    } catch {
+      this.modal.loading = false
+    }
+  }
+
+  async updatePassword (password: PasswordResource) {
+    try {
+      this.modal.loading = true
+      let message = ''
+
+      await UserService.passwordChange(password)
+      message += 'Your password have been saved'
+
+      // await this.$store.dispatch('auth/whoami')
+
+      this.password.alert = {
+        type: 'success',
+        message: message
       }
+    } catch (err) {
+      const message = err.message === 'Unauthorized' ? 'You have entered an incorrect current password' : err.message
+
+      this.password.alert = {
+        type: 'danger',
+        message: message,
+        fields: err.fields
+      }
+    } finally {
+      this.modal.loading = false
     }
   }
 }
 </script>
 
 <style lang="postcss" scoped>
-.divider {
-  @apply my-8 border-b-2;
-
-  border-color: theme("colors.secondary.default");
-}
-
-.password-hint {
-  @apply mb-8 mt-5;
-
-  color: theme("colors.gray.400");
+.btn-submit {
+  margin-left: 0;
 }
 </style>

@@ -19,7 +19,7 @@
       </span>
     </div>
     <div>
-      <Popover top="38px" :with-close="false" position="bottom-start">>
+      <Popover :z-index="1001" top="38px" :with-close="false" position="bottom-start">>
         <template #default>
           <div class="action-line">
             <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
@@ -29,7 +29,7 @@
           </div>
           <div class="action-separator"></div>
 
-          <Popover :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
+          <Popover :z-index="1010" sub :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
             <template #default="{ hide }">
               <div class="delete-confirmation">
                 <h3>Delete File</h3>
@@ -202,10 +202,10 @@ export default class TaskAttachmentView extends Vue {
     }
   }
 
-  .btn-link .stroke-current {
+  /* .btn-link .stroke-current {
     stroke-width: 3px;
     color: theme("colors.gray.400");
-  }
+  } */
 
   .action-line {
     @apply flex items-center py-2 px-4 my-1 relative;

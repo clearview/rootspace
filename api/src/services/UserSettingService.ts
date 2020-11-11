@@ -2,7 +2,6 @@ import { getCustomRepository } from 'typeorm'
 import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserSettingRepository } from '../database/repositories/UserSettingRepository'
 import { UserSetting } from '../database/entities/UserSetting'
-import { UserActivities } from '../database/entities/activities/UserActivities'
 import { UserService } from './UserService'
 
 export class UserSettingService {

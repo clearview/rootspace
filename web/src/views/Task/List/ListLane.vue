@@ -89,7 +89,7 @@
 </template>
 
 <script lang="ts">
-import Draggable, { MovedEvent } from 'vuedraggable'
+import Draggable from 'vuedraggable'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Icon from '@/components/icon/Icon.vue'
@@ -225,7 +225,7 @@ export default class TaskLane extends Vue {
     })
   }
 
-  private async reorder (data: MovedEvent<TaskItemResource>) {
+  private async reorder (data: any) {
     if (data.added) {
       const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
       const prev = this.orderedCards[prevIndex]
@@ -260,6 +260,7 @@ export default class TaskLane extends Vue {
       ghostClass: 'ghost',
       forceFallback: true,
       fallbackClass: 'ghost-floating',
+      fallbackOnBody: true,
       emptyInsertThreshold: 64
     }
   }
@@ -271,7 +272,7 @@ export default class TaskLane extends Vue {
       return
     }
     if (this.listCopy.id === null) {
-      await this.$store.dispatch('task/list/create', this.listCopy)
+      await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
     } else {
       await this.$store.dispatch('task/list/update', {
         id: this.list.id,

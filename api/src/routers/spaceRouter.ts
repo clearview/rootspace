@@ -1,7 +1,7 @@
 import { authenticate } from '../middleware/AuthMiddleware'
 import { mapRoute } from '../utils'
 import { SpacesCtrl } from '../controllers/SpacesCtrl'
-import { SpacesUsersCtrl } from '../controllers/SpacesUsersCtrl'
+import { SpaceUsersCtrl } from '../controllers/SpaceUsersCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()
@@ -13,14 +13,14 @@ router.patch('/spaces/:id', mapRoute(SpacesCtrl, 'update'))
 router.delete('/spaces/:id', mapRoute(SpacesCtrl, 'delete'))
 
 router.get('/spaces/:id/tree', mapRoute(SpacesCtrl, 'getTree'))
-router.get('/spaces/:id/archive', mapRoute(SpacesCtrl, 'getArchive'))
-router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
-router.get('/spaces/:id/activities', mapRoute(SpacesCtrl, 'activities'))
 
-router.get('/spaces/:spaceId/users', mapRoute(SpacesUsersCtrl, 'listAll'))
-router.delete(
-  '/spaces/:spaceId/users/:userId',
-  mapRoute(SpacesUsersCtrl, 'remove')
-)
+router.get('/spaces/:id/archive', mapRoute(SpacesCtrl, 'getArchiveTree'))
+router.delete('/spaces/:id/archive', mapRoute(SpacesCtrl, 'deleteArchive'))
+
+router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
+router.get('/spaces/:id/favorites', mapRoute(SpacesCtrl, 'favorites'))
+
+router.get('/spaces/:spaceId/users', mapRoute(SpaceUsersCtrl, 'listAll'))
+router.delete('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'remove'))
 
 export { router as spaceRouter }

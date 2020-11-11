@@ -145,7 +145,7 @@ export default class TaskCard extends Vue {
       }
       if (this.itemCopy.id === null) {
         this.titleEditableRef.blur()
-        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim() })
+        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
       } else {
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
@@ -272,6 +272,17 @@ export default class TaskCard extends Vue {
           this.isTitleMoreThanOneLine = true
         }
       })
+    }
+
+    @Watch('$route')
+    watchRoute () {
+      if (this.$route.name === 'TaskPageWithItem') {
+        const itemId = parseInt(this.$route.params.item)
+        if (itemId === this.item.id) {
+          this.$store.commit('task/item/setCurrent', this.item)
+          this.showModal = true
+        }
+      }
     }
 
     created () {

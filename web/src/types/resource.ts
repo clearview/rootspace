@@ -21,6 +21,7 @@ export interface LinkResource {
   value: string;
   children?: LinkResource[];
   newTab: boolean;
+  parentId?: number;
 }
 
 /**
@@ -191,6 +192,7 @@ export interface DocumentResource {
   title: string;
   content: object;
   access: number;
+  contentUpdatedAt?: string;
 }
 
 export interface ActivityResource {
@@ -204,7 +206,20 @@ export interface ActivityResource {
   spaceId: number;
   tableName: string;
   context?: any;
+  notification?: number[];
 }
 export interface TaskActivityResource extends ActivityResource{
   Task: TaskItemResource;
+}
+
+export interface DocRevisionResource {
+  content: object;
+  docId: number;
+  id: number;
+  number: number;
+  revisionAt: string;
+  revisionBy: number;
+  spaceId: number;
+  user: UserResource;
+  userId: number;
 }
