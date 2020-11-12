@@ -2,21 +2,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: web-api
   namespace: root
 spec:
   selector:
     matchLabels:
-      app: api
+      app: web-api
   replicas: 1
   template:
     metadata:
       labels:
-        app: api
+        app: web-api
     spec:
       imagePullSecrets:
       - name: us-east-1-ecr-registry
       containers:
+      - name: web
+        image: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web:latest
+        imagePullPolicy: "Always"
+        command: ["/bin/sh"]
+        args: ["-c", "cd /srv; yarn install; yarn build; /bin/envconsul -consul-addr=consul-server:8500 -prefix root/web nginx"]
+        env:
+        - name: VERSION
+          value: "0.1.2"
+        - name: VUE_MEMORY_LIMIT
+          value: "512"
+        ports:
+        - containerPort: 80
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 80
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 5
+        #   successThreshold: 1
+        # resources:
+        #   limits:
+        #     cpu: 400m
+        #     memory: 1024Mi
+        #   requests:
+        #     cpu: 20m
+        #     memory: 512Mi
       - name: api
         image: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api:latest
         imagePullPolicy: "Always"
@@ -48,47 +74,3 @@ spec:
             cpu: 20m
             memory: 512Mi
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web
-  namespace: root
-spec:
-  selector:
-    matchLabels:
-      app: web
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: web
-    spec:
-      imagePullSecrets:
-      - name: us-east-1-ecr-registry
-      containers:
-      - name: web
-        image: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web:latest
-        imagePullPolicy: "Always"
-        command: ["/bin/sh"]
-        args: ["-c", "cd /srv; yarn install; yarn build; /bin/envconsul -consul-addr=consul-server:8500 -prefix root/web nginx"]
-        env:
-        - name: VERSION
-          value: "0.1.2"
-        - name: VUE_MEMORY_LIMIT
-          value: "512"
-        ports:
-        - containerPort: 80
-        # readinessProbe:
-        #   httpGet:
-        #     path: /
-        #     port: 80
-        #   initialDelaySeconds: 15
-        #   periodSeconds: 5
-        #   successThreshold: 1
-        # resources:
-        #   limits:
-        #     cpu: 400m
-        #     memory: 1024Mi
-        #   requests:
-        #     cpu: 20m
-        #     memory: 512Mi
