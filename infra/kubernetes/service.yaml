@@ -8,7 +8,7 @@ metadata:
     app: api
 spec:
   selector:
-   app: api
+   app: web-api
   type: ClusterIP
   ports:
    - protocol: TCP
@@ -24,7 +24,7 @@ metadata:
     app: web
 spec:
   selector:
-   app: web
+   app: web-api
   type: ClusterIP
   ports:
    - protocol: TCP
