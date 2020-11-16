@@ -8,3 +8,8 @@ export interface IDocContent {
   blocks?: any[]
   vertsion?: string
 }
+
+export interface INovaDocContent {
+  type: string
+  content: object[]
+}

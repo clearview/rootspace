@@ -42,6 +42,11 @@ const routes: Array<RouteConfig> = [
         component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
       },
       {
+        path: '/novadoc/:id?/:slug?',
+        name: 'Novadoc',
+        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
+      },
+      {
         path: '/taskboard/:id',
         name: 'TaskPage',
         component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')

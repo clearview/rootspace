@@ -6,7 +6,7 @@ export interface NodeResource {
   contentId: number;
   title: string;
   type: string;
-  config: object | null;
+  config: Record<string, any> | null;
   position: number;
   created: string;
   updated: string;

@@ -1,5 +1,32 @@
 <template>
   <div class="SelectNodeType">
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'novadoc')"
+    >
+      <v-icon
+        name="menu-document"
+        size="24px"
+        viewbox="24"
+        class="SelectNodeType-icon"
+      />
+
+      <div class="SelectNodeType-desc">
+        <h5>Novadoc <span class="beta">Beta</span></h5>
+        <p>BLOCK BASED DOCUMENT EDITOR.</p>
+      </div>
+
+      <span class="arrow">
+        <v-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
+
      <a
       class="SelectNodeType-option"
       @click="$emit('select', 'document')"
@@ -192,5 +219,16 @@ export default class SelectNodeype extends Vue { }
   svg {
     transform: rotate(-90deg);
   }
+}
+
+.beta {
+  padding: 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  background: #D83750aa;
+  color: #fff;
+  margin-left: 4px;
+  position: relative;
+  bottom: 2px;
 }
 </style>

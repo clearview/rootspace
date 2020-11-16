@@ -34,7 +34,7 @@ module.exports = {
       }
     },
     fontFamily: {
-      primary: 'SF Pro Display'
+      primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
     },
     extend: {}
   },

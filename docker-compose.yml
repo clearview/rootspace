@@ -61,6 +61,7 @@ services:
       - frontend
     ports:
       - "3001:3001"
+      - "6000:6000"
       - "9229:9229"
     logging:
       driver: "json-file"

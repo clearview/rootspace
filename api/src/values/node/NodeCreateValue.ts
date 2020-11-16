@@ -7,6 +7,7 @@ export const LinkCreateAttributes: INodeCreateAttributes = {
   contentId: null,
   title: null,
   type: null,
+  config: null
 }
 
 @attributes(LinkCreateAttributes)

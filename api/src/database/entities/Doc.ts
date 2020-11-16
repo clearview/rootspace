@@ -43,7 +43,7 @@ export class Doc {
   slug: string
 
   @Column('json')
-  content: IDocContent
+  content: object
 
   @Column('integer')
   access: number

@@ -2,6 +2,7 @@
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 module.exports = {
+  runtimeCompiler: true,
   pages: {
     index: {
       entry: 'src/main.ts',
