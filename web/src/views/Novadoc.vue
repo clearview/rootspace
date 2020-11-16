@@ -361,6 +361,11 @@
 import { debounce } from 'lodash'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
+
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+import CollaborationExtension from './Novadoc/CollaborationExtension'
+
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
 import {
   Blockquote,
@@ -547,8 +552,8 @@ export default {
           new TableHeader(),
           new TableCell(),
           new TableRow(),
-          new TableMenu()
-          // new CollaborationExtension(provider, type)
+          new TableMenu(),
+          new CollaborationExtension(provider, type)
         ],
         emptyDocument: {
           type: 'doc',

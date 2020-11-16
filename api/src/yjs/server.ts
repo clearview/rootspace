@@ -6,7 +6,7 @@ import * as http from 'http'
 import * as WebSocket from 'ws'
 
 const setupWSConnection = require('y-websocket/bin/utils.js').setupWSConnection
-const port = 3004
+const port = 3005
 
 export default class YjsServer {
   httpServer: http.Server
@@ -15,7 +15,7 @@ export default class YjsServer {
   constructor() {
     this.httpServer = http.createServer((request, response) => {
       response.writeHead(200, { 'Content-Type': 'text/plain' })
-      response.end('YjsServer')
+      response.end('Okay')
     })
 
     this.wss = new WebSocket.Server({ noServer: true })
@@ -35,6 +35,6 @@ export default class YjsServer {
 
   listen() {
     this.httpServer.listen(port)
-    console.log(`🚀 YjsServer Listening to http://localhost:${port}`) // tslint:disable-line
+    console.log(`🚀 y-websocket listening to http://localhost:${port}`) // tslint:disable-line
   }
 }
