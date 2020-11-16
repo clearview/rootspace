@@ -10,7 +10,7 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm'
-import { NodeType } from '../../types/node'
+import { NodeType, INodeConfig } from '../../types/node'
 
 @Entity('nodes')
 @Tree('nested-set')
@@ -49,7 +49,7 @@ export class Node {
   type: NodeType
 
   @Column('json', { nullable: true })
-  config: object
+  config: INodeConfig
 
   @Column('integer', { default: 0 })
   position: number

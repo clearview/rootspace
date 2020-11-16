@@ -38,7 +38,12 @@ export class DocsCtrl extends BaseCtrl {
     const data = req.body.data
     await validateDocCreate(data)
 
-    const value = DocCreateValue.fromObjectAndUserId(data, Number(req.user.id))
+    let value = DocCreateValue.fromObjectAndUserId(data, Number(req.user.id))
+
+    if (data.config) {
+      value = value.withNodeConfig(data.config)
+    }
+
     const result = await this.docService.create(value)
 
     res.send(this.responseData(result))

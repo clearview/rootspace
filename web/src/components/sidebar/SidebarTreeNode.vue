@@ -106,6 +106,7 @@ export enum NodeType {
 export const nodeRouteNames = {
   link: 'Link',
   doc: 'Document',
+  novaDoc: 'Novadoc',
   taskBoard: 'TaskPage',
   embed: 'Embed',
   folder: ''
@@ -181,7 +182,10 @@ export default class SidebarTreeNode extends Vue {
   get to (): Location {
     const { contentId } = this.payload
 
-    const name = nodeRouteNames[this.type]
+    let name = nodeRouteNames[this.type] as string
+    if (this.value.config?.novaDoc === true) {
+      name = 'Novadoc'
+    }
     const params: Dictionary<string> = {}
 
     if (contentId) {

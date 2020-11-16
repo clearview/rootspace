@@ -33,17 +33,23 @@
     "date-fns": "^2.14.0",
     "get-urls": "^9.2.1",
     "helpful-decorators": "^2.1.0",
+    "highlight.js": "^10.3.2",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.15",
     "portal-vue": "^2.1.7",
     "postcss-import": "^12.0.1",
+    "prosemirror-keymap": "^1.1.4",
     "sanitize-html": "^2.1.0",
     "tailwindcss": "^1.2.0",
+    "tiptap": "^1.30.0",
+    "tiptap-commands": "^1.15.0",
+    "tiptap-extensions": "^1.33.2",
     "url-parse": "^1.4.7",
     "v-calendar": "^1.0.8",
     "vue": "^2.6.11",
     "vue-avatar": "^2.3.0",
     "vue-click-outside": "^1.1.0",
+    "vue-feather-icons": "^5.1.0",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.1.6",
     "vue-select": "^3.10.0",
@@ -51,7 +57,10 @@
     "vuedraggable": "^2.23.2",
     "vuelidate": "^0.7.5",
     "vuex": "^3.1.3",
-    "vuex-persist": "^2.2.0"
+    "vuex-persist": "^2.2.0",
+    "y-prosemirror": "^0.3.7",
+    "y-websocket": "^1.3.5",
+    "yjs": "^13.4.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.19",
@@ -60,6 +69,7 @@
     "@types/node": "^13.11.1",
     "@types/quill": "^2.0.3",
     "@types/url-parse": "^1.4.3",
+    "@types/vue-feather-icons": "^5.0.1",
     "@types/vue-select": "^2.5.0",
     "@types/vuelidate": "^0.7.13",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
@@ -87,6 +97,9 @@
     "typescript": "~3.8.3",
     "vue-property-decorator": "^8.4.2",
     "vue-template-compiler": "^2.6.11"
+  },
+  "resolutions": {
+    "prosemirror-model": "1.9.1"
   },
   "husky": {
     "hooks": {

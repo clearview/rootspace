@@ -123,6 +123,7 @@ export default class TaskActivity extends Vue {
     background: #F8F9FD;
   }
 }
+
 .avatar{
 
 }

@@ -4,7 +4,7 @@ export interface IDocCreateAttributes {
   userId: number
   spaceId: number
   title: string
-  content: IDocContent
+  content: object
   access: number
   isLocked: boolean
   parentId?: number

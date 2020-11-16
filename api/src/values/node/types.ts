@@ -4,6 +4,7 @@ export interface INodeCreateAttributes {
   readonly contentId: number
   readonly title: string
   readonly type: string
+  readonly config?: Record<string, any>
 }
 
 export type INodeUpdateAttributes = Pick<
