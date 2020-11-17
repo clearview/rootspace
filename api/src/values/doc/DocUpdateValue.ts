@@ -4,6 +4,7 @@ import { IDocUpdateAttributes } from './types'
 export const DocUpdateAttributes = {
   title: undefined,
   content: undefined,
+  docState: undefined,
   access: undefined,
   isLocked: undefined,
 }

@@ -59,7 +59,7 @@
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
-    "pg": "^8.0.0",
+    "pg": "^8.5.1",
     "primus": "^7.3.5",
     "primus-rooms": "^3.4.1",
     "pug": "^2.0.4",

@@ -45,6 +45,9 @@ export class Doc {
   @Column('json')
   content: object
 
+  @Column('integer', { array: true })
+  docState: number[]
+
   @Column('integer')
   access: number
 
