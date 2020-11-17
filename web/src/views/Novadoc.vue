@@ -482,8 +482,10 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
-      provider: provider,
       doc: null,
+      ydoc: null,
+      provider: null,
+      editor: null,
       preview: null,
       linkMarking: {
         active: false,
@@ -496,7 +498,7 @@ export default {
       editor: new Editor({
         editable: true,
         extensions: [
-          // new Novaschema(),
+          new Novaschema(),
           new Mention('@', this.fetchUsers),
           new Reference('#', this.fetchReferences),
           // new Title(),
@@ -945,7 +947,6 @@ export default {
           await this.activateSpace(this.activeSpace.id)
         }
         this.pageReady = true
-        this.focusToEditor()
       }
     },
     title (newTitle) {
