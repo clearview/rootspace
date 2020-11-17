@@ -491,9 +491,9 @@ export default {
     this.editor.destroy()
   },
   async mounted () {
-    await this.load()
-    await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-    await this.activateSpace(this.activeSpace.id)
+    // await this.load()
+    // await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+    // await this.activateSpace(this.activeSpace.id)
     const deb = debounce((json) => {
       this.save(json)
     }, 1000)
@@ -607,8 +607,7 @@ export default {
     },
     async load () {
       const id = this.$route.params.id
-
-      if (id) {
+      if (id && !this.doc) {
         if (this.provider) {
           this.provider.awareness.setLocalStateField('user', {
             color: '#333',
