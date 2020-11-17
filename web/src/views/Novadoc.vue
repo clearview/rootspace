@@ -482,7 +482,7 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
-      provider: null,
+      provider: provider,
       doc: null,
       preview: null,
       linkMarking: {
@@ -496,7 +496,7 @@ export default {
       editor: new Editor({
         editable: true,
         extensions: [
-          new Novaschema(),
+          // new Novaschema(),
           new Mention('@', this.fetchUsers),
           new Reference('#', this.fetchReferences),
           // new Title(),
@@ -569,6 +569,7 @@ export default {
   },
   beforeDestroy () {
     this.editor.destroy()
+    this.provider.destroy()
   },
   async mounted () {
     const debouncedSave = debounce((json) => {
