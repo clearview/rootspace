@@ -159,6 +159,7 @@ export default class ReferenceList extends Vue {
 .reference-search {
   list-style: none;
   padding: 6px;
+  margin: 0;
 }
 .reference-search input{
   outline: none;
@@ -168,6 +169,7 @@ export default class ReferenceList extends Vue {
   display: block;
 }
 .help {
+  margin: 0;
   opacity: 0.75;
   padding: 6px;
   list-style: none;

@@ -108,6 +108,7 @@ export default class UserList extends Vue {
 .user-search {
   list-style: none;
   padding: 6px;
+  margin: 0;
 }
 .user-search input{
   outline: none;
@@ -121,5 +122,6 @@ export default class UserList extends Vue {
   padding: 6px;
   list-style: none;
   font-size: 12px;
+  margin: 0;
 }
 </style>
