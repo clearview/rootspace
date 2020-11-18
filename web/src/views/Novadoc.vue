@@ -607,7 +607,7 @@ export default {
     },
     async load () {
       const id = this.$route.params.id
-      if (id && !this.doc) {
+      if (id) {
         if (this.provider) {
           this.provider.awareness.setLocalStateField('user', {
             color: '#333',
