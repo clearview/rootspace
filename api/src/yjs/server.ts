@@ -1,62 +1,40 @@
-/**
- * @type {any}
- */
-
 import * as http from 'http'
 import * as WebSocket from 'ws'
-
-const wsUtils = require('y-websocket/bin/utils.js')
-const Y = require('yjs')
-
-const PGPool = require('pg').Pool
-
-const db = new PGPool({
-  connectionString: 'postgresql://user:password@postgres:5432/root'
-})
+import * as wsUtils from 'y-websocket/bin/utils.js'
+import * as Y from 'yjs'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 const port = 6001
 
 const persistence = {
-  bindState: async (identifier, ydoc) => {
-    console.log('yjs bindState for', identifier)
-    const docId = identifier.split('_').pop()
+  bindState: async (identifier: string, ydoc: Y.Doc) => {
+    console.log('yjs bindState for', identifier) // tslint:disable-line
 
-    return db
-      .query('SELECT "docState" FROM docs WHERE id = $1 LIMIT 1', [docId])
-      .then((res) => {
-        console.log('loaded state for ', docId)
-        const initialState = res.rows[0].docState
-        if (initialState) {
-          console.log('applied initial update', identifier)
-          Y.applyUpdate(ydoc, initialState)
-        }
-      })
-      .catch((e) => {
-        console.log('failed to load', identifier, e)
-      })
+    const docId = Number(identifier.split('_').pop())
+
+    const doc = await ServiceFactory.getInstance()
+      .getDocService()
+      .getById(docId)
+
+    if (doc && doc.contentState) {
+      const state = new Uint8Array(doc.contentState)
+      Y.applyUpdate(ydoc, state)
+    }
   },
 
-  writeState: (identifier, ydoc) => {
-    console.log('yjs writeState for', identifier)
-    const docId = identifier.split('_').pop()
+  writeState: async (identifier: string, ydoc: Y.Doc) => {
+    console.log('yjs writeState for', identifier) // tslint:disable-line
 
+    const docId = Number(identifier.split('_').pop())
     const state = Y.encodeStateAsUpdate(ydoc)
-    const rawText = ydoc.getText('quill').toString()
-    const delta = ydoc.getText('quill').toDelta()
-    const deltaJSON = JSON.stringify(delta, null, 2)
-    // TODO: add support for custom blots
-    // const html = rawText; //QuillConverter.convertDeltaToHtml(delta);
-    // const mdast = null;// MdastFromQuillDelta(new QuillDelta(delta));
-    // const mdastJSON = '{}';//JSON.stringify(mdast, null, 2);
 
-    return db
-      .query('UPDATE docs SET "docState" = $1  WHERE id = $2', [state, docId])
-      .then((res) => {
-        console.log('updated', identifier)
-      })
-      .catch((e) => {
-        console.log('failed to update', identifier, e)
-      })
+    const docService = ServiceFactory.getInstance().getDocService()
+    const doc = await docService.getById(docId)
+
+    if (doc) {
+      doc.contentState = Array.from(state)
+      await docService.getDocRepository().save(doc)
+    }
   },
 }
 

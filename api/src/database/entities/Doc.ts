@@ -45,10 +45,10 @@ export class Doc {
   @Column('json')
   content: object
 
-  @Column('integer', { array: true })
-  docState: number[]
+  @Column('int', { array: true })
+  contentState: number[]
 
-  @Column('integer')
+  @Column('int', { array: true })
   access: number
 
   @Column('boolean', { default: false })
