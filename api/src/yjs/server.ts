@@ -14,7 +14,7 @@ const db = new PGPool({
   connectionString: 'postgresql://user:password@postgres:5432/root'
 })
 
-const port = 3005
+const port = 6001
 
 const persistence = {
   bindState: async (identifier, ydoc) => {
