@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-group-item" @click="$emit('click')">
+  <div class="menu-group-item" :class="{disabled}" @click="handleClick">
     <div class="icon">
       <slot name="icon"></slot>
     </div>
@@ -10,11 +10,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
 @Component
 export default class MenuGroupItem extends Vue {
+  @Prop({ type: Boolean, default: false })
+  private readonly disabled!: boolean;
 
+  handleClick () {
+    if (!this.disabled) {
+      this.$emit('click')
+    }
+  }
 }
 </script>
 
@@ -40,6 +47,9 @@ export default class MenuGroupItem extends Vue {
     margin-left: 8px;
     flex: 1 0 auto;
     color: inherit;
+  }
+  &.disabled {
+    opacity: 0.5;
   }
 }
 </style>

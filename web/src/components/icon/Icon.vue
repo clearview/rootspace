@@ -89,6 +89,14 @@ import IconClose3 from '@/components/icon/IconClose3.vue'
 import IconPlus3 from '@/components/icon/IconPlus3.vue'
 import IconRestore from '@/components/icon/IconRestore.vue'
 import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
+import IconStrike from '@/components/icon/IconStrike.vue'
+import IconUndo from '@/components/icon/IconUndo.vue'
+import IconTable from '@/components/icon/IconTable.vue'
+import IconRedo from '@/components/icon/IconRedo.vue'
+import IconQuote from '@/components/icon/IconQuote.vue'
+import IconMedia from '@/components/icon/IconMedia.vue'
+import IconPen from '@/components/icon/IconPen.vue'
+import IconOrderedList from '@/components/icon/IconOrderedList.vue'
 
 @Component({
   name: 'Icon',
@@ -142,6 +150,7 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconRight,
     IconRight2,
     IconSearch,
+    IconStrike,
     IconSettings,
     IconTag,
     IconTime,
@@ -166,7 +175,14 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconMenuEmbed,
     IconMenuFolder,
     IconMenuLink,
-    IconMenuTask
+    IconMenuTask,
+    IconMedia,
+    IconOrderedList,
+    IconPen,
+    IconQuote,
+    IconRedo,
+    IconTable,
+    IconUndo
   }
 })
 export default class Icon extends Vue {

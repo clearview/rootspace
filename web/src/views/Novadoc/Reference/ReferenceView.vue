@@ -84,8 +84,11 @@ export default class ReferenceView extends Vue {
 <style lang="postcss" scoped>
 .reference-view {
   display: inline-block;
-  padding: 0 4px;
+  padding: 0;
   border-radius: 4px;
+  a {
+    text-decoration: none;
+  }
   .icon {
     display: inline-block;
     position: relative;

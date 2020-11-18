@@ -1,5 +1,5 @@
 import { Mark } from 'tiptap'
-import { toggleMark } from 'tiptap-commands'
+import { alwaysToggleMark } from '@/views/Novadoc/TextColor'
 
 export default class BgColor extends Mark {
   get name () {
@@ -33,7 +33,7 @@ export default class BgColor extends Mark {
 
   commands ({ type }) {
     return (attr) => {
-      return toggleMark(type, attr)
+      return alwaysToggleMark(type, attr)
     }
   }
 }

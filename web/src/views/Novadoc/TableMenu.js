@@ -36,7 +36,7 @@ export default class TableMenu extends Extension {
             let tablePos = null
             for (let i = sel.$from.depth; i > 0; i--) {
               const node = sel.$from.node(i)
-              if (node.type.name === 'table') {
+              if (node && node.type.name === 'table') {
                 tablePos = sel.$from.before(i) + 1
               }
             }
