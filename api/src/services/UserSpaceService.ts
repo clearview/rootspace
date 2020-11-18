@@ -21,15 +21,16 @@ export class UserSpaceService {
   }
 
   getByUserIdAndSpaceId(userId: number, spaceId: number, active?: boolean): Promise<UserToSpace> {
-    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(
-      userId,
-      spaceId,
-      active
-    )
+    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(userId, spaceId, active)
   }
 
   async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
     const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
+    return !!userSpace
+  }
+
+  async isEmailInSpace(email: string, spaceId: number): Promise<boolean> {
+    const userSpace = await this.getUserToSpaceRepository().getByUserEmailAndSpaceId(email, spaceId, { active: true })
     return !!userSpace
   }
 
