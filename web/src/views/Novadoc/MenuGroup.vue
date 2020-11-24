@@ -1,12 +1,11 @@
 <template>
   <div class="menu-group">
-    <div class="display" @click="showOptions" ref="display" :class="{ disabled, visible }">
+    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible }">
       <div class="text">
         <slot :value="value"></slot>
       </div>
-      <div class="icon">
+      <div class="icon" v-if="showArrow">
         <v-icon name="down2" viewbox="16" size="16"></v-icon>
-<!--        <ChevronDownIcon size="14"></ChevronDownIcon>-->
       </div>
     </div>
     <div class="options-cloak" v-show="visible" @click="hide"></div>
@@ -39,6 +38,9 @@ export default class MenuGroup extends Vue {
 
   @Prop({ type: Boolean, default: false })
   private readonly disabled!: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  private readonly showArrow!: boolean;
 
   private popper: Instance | null = null;
   private visible = false

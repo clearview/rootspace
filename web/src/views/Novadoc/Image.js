@@ -82,6 +82,7 @@ export default class Image extends Node {
       let filePicker = document.querySelector('input[type=file][data-novadoc-file]')
       if (!filePicker) {
         filePicker = document.createElement('input')
+        filePicker.style.display = 'none'
         filePicker.setAttribute('type', 'file')
         filePicker.setAttribute('data-novadoc-file', ' true')
         document.body.appendChild(filePicker)

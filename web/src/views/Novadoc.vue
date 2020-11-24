@@ -4,7 +4,7 @@
       <editor-menu-bar ref="menuBar" :editor="editor"
                        v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }">
         <div class="editor-toolbar">
-          <MenuGroup value="Normal Text" :disabled="!focused">
+          <MenuGroup value="Normal Text" :disabled="!canChangeTextType(isActive, focused)">
             <template #default>
               <div style="padding-right: 32px;">
                 {{ getTextDisplayType(isActive) }}
@@ -46,26 +46,31 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.bold() }" :disabled="!focused" @click="commands.bold">
+          <button class="menu" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
+                  @click="commands.bold">
             <BoldIcon size="16"></BoldIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.italic() }" :disabled="!focused" @click="commands.italic">
+          <button class="menu" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
+                  @click="commands.italic">
             <ItalicIcon size="16"></ItalicIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.underline() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.underline() }"
+                  :disabled="!canBeUnderline(isActive, focused)"
                   @click="commands.underline">
             <UnderlineIcon size="16"></UnderlineIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.strike() }" :disabled="!focused" @click="commands.strike">
+          <button class="menu" :class="{ 'active': isActive.strike() }"
+                  :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike">
             <span>
               <v-icon name="strike" viewbox="16" size="16"></v-icon>
             </span>
           </button>
-          <button class="menu" :class="{ 'active': isActive.code() }" :disabled="!focused" @click="commands.code">
+          <button class="menu" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
+                  @click="commands.code">
             <TerminalIcon size="16"></TerminalIcon>
           </button>
           <div class="menu-separator"></div>
-          <MenuGroup value="Left" :disabled="!focused">
+          <MenuGroup value="Left" :disabled="!canBeAligned(isActive, focused)">
             <template #default>
               <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
             </template>
@@ -105,7 +110,7 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" :disabled="!focused">
+          <MenuGroup value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false">
             <template #default>
               <div class="text-color" :style="{
                   color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
@@ -121,7 +126,7 @@
               </div>
             </template>
           </MenuGroup>
-          <MenuGroup value="#000" :disabled="!focused">
+          <MenuGroup value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false">
             <template #default>
               <v-icon name="pen" viewbox="16" size="14"
                       v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
@@ -138,41 +143,47 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.bullet_list() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.bullet_list() }"
+                  :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.bullet_list">
             <ListIcon size="16"></ListIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.ordered_list() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.ordered_list() }"
+                  :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.ordered_list">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.todo_list() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.todo_list() }"
+                  :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.todo_list">
             <CheckSquareIcon size="16"></CheckSquareIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.image() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.image() }" :disabled="!canInsertImage(isActive, focused)"
                   @click="commands.image({docId: id, spaceId: activeSpace.id})">
             <ImageIcon size="16"></ImageIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.link() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.link() }" :disabled="!canBeLinked(isActive, focused)"
                   @click="isActive.link() ? commands.link({href: null}) : showLinkForm(getMarkAttrs('link'))">
             <LinkIcon size="16"></LinkIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.divider() }" :disabled="!focused" @click="commands.divider">
+          <button class="menu" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
+                  @click="commands.divider">
             <MinusIcon size="16"></MinusIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.blockquote() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.blockquote() }"
+                  :disabled="!canBeConvertedToQuote(isActive, focused)"
                   @click="commands.blockquote">
             <v-icon viewbox="16" name="quote" size="16"></v-icon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.code_block() }" :disabled="!focused"
+          <button class="menu" :class="{ 'active': isActive.code_block() }"
+                  :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
                   @click="commands.code_block">
             <CodeIcon size="16"></CodeIcon>
           </button>
           <div class="menu-separator"></div>
           <button
-            class="menu" :disabled="!focused"
+            class="menu" :disabled="!canCreateTable(isActive, focused)"
             @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
           >
             <v-icon name="table" viewbox="16" size="16"></v-icon>
@@ -219,10 +230,108 @@
           </template>
         </Popover>
       </div>
-
     </header>
     <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState">
       <div class="paper">
+        <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
+          <div class="bubble" :style="{ bottom: menu.bottom+'px'}" :class="[`align-${getNodeAttrs('paragraph').align}`]">
+            <div class="bubble-wrap" v-if="menu.isActive">
+              <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
+                      @click="commands.bold">
+                <BoldIcon size="16"></BoldIcon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
+                      @click="commands.italic">
+                <ItalicIcon size="16"></ItalicIcon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
+                      @click="commands.underline">
+                <UnderlineIcon size="16"></UnderlineIcon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
+                      @click="commands.strike">
+              <span>
+                <v-icon name="strike" viewbox="16" size="16"></v-icon>
+              </span>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.code() }" v-if="canBeInlineCode(isActive, true)"
+                      @click="commands.code">
+                <TerminalIcon size="16"></TerminalIcon>
+              </button>
+              <MenuGroup value="Left" v-if="canChangeTextType(isActive, true)">
+                <template #default>
+                  <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
+                </template>
+                <template #options="{select, hide}">
+                  <MenuGroupOption @click="select('Left');hide();commands.paragraph({align: 'left'})">
+                    <template #icon>
+                      <AlignLeftIcon size="16"></AlignLeftIcon>
+                    </template>
+                    <template #label>
+                      Left
+                    </template>
+                  </MenuGroupOption>
+                  <MenuGroupOption @click="select('Center');hide();commands.paragraph({align: 'center'})">
+                    <template #icon>
+                      <AlignCenterIcon size="16"></AlignCenterIcon>
+                    </template>
+                    <template #label>
+                      Center
+                    </template>
+                  </MenuGroupOption>
+                  <MenuGroupOption @click="select('Right');hide();commands.paragraph({align: 'right'})">
+                    <template #icon>
+                      <AlignRightIcon size="16"></AlignRightIcon>
+                    </template>
+                    <template #label>
+                      Right
+                    </template>
+                  </MenuGroupOption>
+                  <MenuGroupOption @click="select('Justify');hide();commands.paragraph({align: 'justify'})">
+                    <template #icon>
+                      <AlignJustifyIcon size="16"></AlignJustifyIcon>
+                    </template>
+                    <template #label>
+                      Justify
+                    </template>
+                  </MenuGroupOption>
+                </template>
+              </MenuGroup>
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false">
+                <template #default>
+                  <div class="text-color text-color-display" :style="{
+                  color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
+                  background: getMarkAttrs('text_color') && getMarkAttrs('text_color').color === '#fff' ? '#333' : 'transparent'
+                }">Tt
+                  </div>
+                </template>
+                <template #options="{select, hide}">
+                  <div class="color-blocks text-color-blocks">
+                    <div v-for="color in textColors" :key="color" class="color-block"
+                         :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
+                         @click="select(color);hide();commands.text_color({color: color})"></div>
+                  </div>
+                </template>
+              </MenuGroup>
+              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false">
+                <template #default>
+                  <v-icon name="pen" viewbox="16" size="14"
+                          v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
+                  <div class="bg-color bg-color-display" v-else
+                       :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
+                  </div>
+                </template>
+                <template #options="{select, hide}">
+                  <div class="color-blocks">
+                    <div v-for="color in colors" :key="color" class="color-block"
+                         :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
+                         @click="select(color);hide();commands.bg_color({color: color})"></div>
+                  </div>
+                </template>
+              </MenuGroup>
+            </div>
+          </div>
+        </editor-menu-bubble>
         <textarea title="Title" ref="title" class="editor-title-input" placeholder="Untitled" v-model="title"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <EditorContent :editor="editor"></EditorContent>
@@ -428,7 +537,8 @@ export default {
           content: []
         }
       }),
-      pageScrolled: false
+      pageScrolled: false,
+      isBubbleFocused: false
     }
   },
   beforeDestroy () {
@@ -458,204 +568,291 @@ export default {
   },
   destroyed () {
   },
-  methods: {
-    async fetchUsers () {
-      return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
-    },
-    async fetchReferences () {
-      return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
-    },
-    getTextDisplayType (isActive) {
-      if (isActive.paragraph({ level: 0 })) {
+  methods:
+    {
+      test () {
+        alert('KEUWUAN')
+      },
+      focusBubble () {
+        this.isBubbleFocused = true
+      },
+      canInsertImage (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canInsertLine (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeLinked (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeBold (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeItalic (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeUnderline (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeStrikethrough (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeInlineCode (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeAligned (isActive, focused) {
+        if (isActive.paragraph() && focused) {
+          return true
+        }
+      },
+      canBeTextColored (isActive, focused) {
+        if (isActive.paragraph() && focused) {
+          return true
+        }
+      },
+      canBeBgColored (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeConvertedToList (isActive, focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused) {
+          return true
+        }
+      },
+      canBeConvertedToQuote (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      canBeConvertedToCodeBlock (isActive, focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused) {
+          return true
+        }
+      },
+      canChangeTextType (isActive, focused) {
+        if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused) {
+          return true
+        }
+      },
+      canCreateTable (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      async fetchUsers () {
+        return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
+      },
+      async fetchReferences () {
+        return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
+      },
+      getTextDisplayType (isActive) {
+        if (isActive.paragraph({ level: 0 })) {
+          return 'Text'
+        }
+        if (isActive.paragraph({ level: 1 })) {
+          return 'Heading 1'
+        }
+        if (isActive.paragraph({ level: 2 })) {
+          return 'Heading 2'
+        }
+        if (isActive.paragraph({ level: 3 })) {
+          return 'Heading 3'
+        }
         return 'Text'
-      }
-      if (isActive.paragraph({ level: 1 })) {
-        return 'Heading 1'
-      }
-      if (isActive.paragraph({ level: 2 })) {
-        return 'Heading 2'
-      }
-      if (isActive.paragraph({ level: 3 })) {
-        return 'Heading 3'
-      }
-      return 'Text'
-    },
-    getalignmentType (align) {
-      switch (align) {
-        case 'left':
-          return 'Left'
-        case 'center':
-          return 'Center'
-        case 'right':
-          return 'Right'
-        case 'justify':
-          return 'Justify'
-      }
-      return 'Left'
-    },
-    getalignmentIcon (align) {
-      switch (align) {
-        case 'left':
-          return AlignLeftIcon
-        case 'center':
-          return AlignCenterIcon
-        case 'right':
-          return AlignRightIcon
-        case 'justify':
-          return AlignJustifyIcon
-      }
-      return AlignLeftIcon
-    },
-    getListTypeIcon (isActive) {
-      if (isActive.todo_list()) {
-        return CheckSquareIcon
-      }
-      return ListIcon
-    },
-    showLinkForm (attr) {
-      this.linkMarking.active = true
-      this.linkMarking.href = attr.href
-      this.$nextTick(() => {
-        if (this.$refs.linkInput) {
-          this.$refs.linkInput.focus()
+      },
+      getalignmentType (align) {
+        switch (align) {
+          case 'left':
+            return 'Left'
+          case 'center':
+            return 'Center'
+          case 'right':
+            return 'Right'
+          case 'justify':
+            return 'Justify'
         }
-      })
-    },
-    focusToEditor () {
-      if (this.editor) {
-        if (this.editor.state.doc.content.firstChild.content.size === 0) {
-          this.editor.focus('start')
-        } else {
-          this.editor.focus()
+        return 'Left'
+      },
+      getalignmentIcon (align) {
+        switch (align) {
+          case 'left':
+            return AlignLeftIcon
+          case 'center':
+            return AlignCenterIcon
+          case 'right':
+            return AlignRightIcon
+          case 'justify':
+            return AlignJustifyIcon
         }
-      }
-    },
-    hideLinkForm () {
-      this.linkMarking.active = false
-      this.linkMarking.href = null
-    },
-    setLinkData (command, href) {
-      command({ href })
-      this.hideLinkForm()
-    },
-    visitLink (attr) {
-      window.open(attr.href, '_blank')
-    },
-    async load () {
-      const id = this.$route.params.id
-      if (id) {
-        if (this.provider) {
-          this.provider.awareness.setLocalStateField('user', {
-            color: '#333',
-            name: this.currentUser.firstName
-          })
+        return AlignLeftIcon
+      },
+      getListTypeIcon (isActive) {
+        if (isActive.todo_list()) {
+          return CheckSquareIcon
         }
-        const res = await DocumentService.view(id)
-        this.doc = res.data
-        this.pageTitle = res.data.title
-        this.title = res.data.title
-        this.editor.setContent(res.data.content)
-      }
-    },
-    autoResizeTitle () {
-      this.$refs.title.style.height = '1px'
-      const height = this.$refs.title.scrollHeight
-      this.$refs.title.style.height = height + 'px'
-    },
-    async save (data) {
-      const title = this.title
-      this.pageTitle = title
-      const payload = {
-        spaceId: this.activeSpace.id,
-        title: title,
-        content: data
-      }
-      await this.createUpdateDocument(payload)
-    },
-    async saveTitleOnly () {
-      this.pageTitle = this.title
-      const payload = {
-        title: this.title
-      }
-      await this.createUpdateDocument(payload)
-    },
-    async createUpdateDocument (data) {
-      try {
+        return ListIcon
+      },
+      showLinkForm (attr) {
+        this.linkMarking.active = true
+        this.linkMarking.href = attr.href
+        this.$nextTick(() => {
+          if (this.$refs.linkInput) {
+            this.$refs.linkInput.focus()
+          }
+        })
+      },
+      focusToEditor () {
+        if (this.editor) {
+          if (this.editor.state.doc.content.firstChild.content.size === 0) {
+            this.editor.focus('start')
+          } else {
+            this.editor.focus()
+          }
+        }
+      },
+      hideLinkForm () {
+        this.linkMarking.active = false
+        this.linkMarking.href = null
+      },
+      setLinkData (command, href) {
+        command({ href })
+        this.hideLinkForm()
+      },
+      visitLink (attr) {
+        window.open(attr.href, '_blank')
+      },
+      async load () {
         const id = this.$route.params.id
-        this.loading = true
-
         if (id) {
-          const res = await DocumentService.update(id, data)
-          this.doc = res.data.data
-          this.$store.commit('tree/updateNode', {
-            compareFn (node) {
-              return node.contentId.toString() === id
-            },
-            fn (node) {
-              return {
-                ...node,
-                title: data.title
-              }
-            }
-          })
+          if (this.provider) {
+            this.provider.awareness.setLocalStateField('user', {
+              color: '#333',
+              name: this.currentUser.firstName
+            })
+          }
+          const res = await DocumentService.view(id)
+          this.doc = res.data
+          this.pageTitle = res.data.title
+          this.title = res.data.title
+          this.editor.setContent(res.data.content)
         }
-        this.loading = false
-      } catch (err) {
-        this.loading = false
-      }
-    },
-    toggleReadOnly () {
-      this.readOnly = !this.readOnly
-      this.isHistoryVisible = false
-    },
-    showHistory () {
-      this.isHistoryVisible = true
-    },
-    deleteNovadoc () {
-      window.app.confirm('Delete document?', `Delete document ${this.doc.title} permanently?`, async () => {
+      },
+      autoResizeTitle () {
+        this.$refs.title.style.height = '1px'
+        const height = this.$refs.title.scrollHeight
+        this.$refs.title.style.height = height + 'px'
+      },
+      async save (data) {
+        const title = this.title
+        this.pageTitle = title
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: title,
+          content: data
+        }
+        await this.createUpdateDocument(payload)
+      },
+      async saveTitleOnly () {
+        this.pageTitle = this.title
+        const payload = {
+          title: this.title
+        }
+        await this.createUpdateDocument(payload)
+      },
+      async createUpdateDocument (data) {
         try {
-          await this.$store.dispatch('document/destroy', this.doc)
-          await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-          this.$router.push({ name: 'Main' })
+          const id = this.$route.params.id
+          this.loading = true
+
+          if (id) {
+            const res = await DocumentService.update(id, data)
+            this.doc = res.data.data
+            this.$store.commit('tree/updateNode', {
+              compareFn (node) {
+                return node.contentId.toString() === id
+              },
+              fn (node) {
+                return {
+                  ...node,
+                  title: data.title
+                }
+              }
+            })
+          }
+          this.loading = false
         } catch (err) {
+          this.loading = false
         }
-      })
-    },
-    restore (state) {
-      this.save(state.content)
-      this.preview = null
-      this.editor.setContent(state.content)
-    },
-    showPreview (state) {
-      this.editor.setOptions({
-        editable: false
-      })
-      if (!state) {
+      },
+      toggleReadOnly () {
+        this.readOnly = !this.readOnly
+        this.isHistoryVisible = false
+      },
+      showHistory () {
+        this.isHistoryVisible = true
+      },
+      deleteNovadoc () {
+        window.app.confirm('Delete document?', `Delete document ${this.doc.title} permanently?`, async () => {
+          try {
+            await this.$store.dispatch('document/destroy', this.doc)
+            await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+            this.$router.push({ name: 'Main' })
+          } catch (err) {
+          }
+        })
+      },
+      restore (state) {
+        this.save(state.content)
         this.preview = null
-        this.editor.setContent(this.doc.content)
-      } else {
-        this.preview = state
         this.editor.setContent(state.content)
+      },
+      showPreview (state) {
+        this.editor.setOptions({
+          editable: false
+        })
+        if (!state) {
+          this.preview = null
+          this.editor.setContent(this.doc.content)
+        } else {
+          this.preview = state
+          this.editor.setContent(state.content)
+        }
+      },
+      closeHistory () {
+        this.isHistoryVisible = false
+        this.editor.setOptions({
+          editable: !this.readOnly
+        })
+      },
+      handleTitleEnter (evt) {
+        evt.preventDefault()
+        this.editor.focus()
+      },
+      determineHeaderState (evt) {
+        if (evt.target.scrollTop > 96) {
+          this.pageScrolled = true
+        } else {
+          this.pageScrolled = false
+        }
       }
     },
-    closeHistory () {
-      this.isHistoryVisible = false
-      this.editor.setOptions({
-        editable: !this.readOnly
-      })
-    },
-    handleTitleEnter (evt) {
-      evt.preventDefault()
-      this.editor.focus()
-    },
-    determineHeaderState (evt) {
-      if (evt.target.scrollTop > 96) {
-        this.pageScrolled = true
-      } else {
-        this.pageScrolled = false
-      }
-    }
-  },
   watch: {
     id: {
       immediate: true,
@@ -859,10 +1056,13 @@ export default {
   font-size: 12px;
 }
 
-.bg-color-display {
+.bg-color-display, .text-color-display {
   width: 12px;
   height: 12px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-line {
@@ -912,6 +1112,35 @@ export default {
 .paper {
   width: 704px;
   margin: auto;
+  position: relative;
+}
+
+.bubble {
+  position: absolute;
+  z-index: 5;
+  width: 100%;
+  display: flex;
+  margin-bottom: 12px;
+  &.align-center {
+    justify-content: center;
+    align-items: center;
+  }
+  &.align-right {
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .bubble-wrap {
+    background: #FFFFFF;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+    border-radius: 4px;
+    padding: 4px;
+    max-width: 100%;
+    font-size: 12px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
 }
 </style>
 <style lang="postcss">
@@ -1037,10 +1266,11 @@ export default {
   }
 
   code {
-    padding: 4px;
-    background: #ddd;
-    border-radius: 2px;
+    padding: 2px;
+    background: #2C2B35;
+    border-radius: 4px;
     font-size: 0.8em;
+    color: #fff;
   }
 
   p:first-child, h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
