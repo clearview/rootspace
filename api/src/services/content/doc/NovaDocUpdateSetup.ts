@@ -29,4 +29,12 @@ export class NovaDocUpdateSetup extends DocUpdateSetup {
   protected isDocContentEmpty(): boolean {
     return false
   }
+
+  protected doCreateRevision(): boolean {
+    return false
+  }
+
+  protected doRegisterActivity(): boolean {
+    return false
+  }
 }
