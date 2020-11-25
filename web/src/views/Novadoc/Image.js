@@ -4,6 +4,7 @@ import { Decoration, DecorationSet } from 'prosemirror-view'
 import Vue from 'vue'
 import ImagePlaceholder from '@/views/Novadoc/ImagePlaceholder'
 import api from '@/utils/api'
+import ImageView from '@/views/Novadoc/Views/ImageView'
 
 const imagePlugin = new Plugin({
   state: {
@@ -54,14 +55,30 @@ export default class Image extends Node {
       attrs: {
         src: {
           default: ''
+        },
+        align: {
+          default: 'center'
+        },
+        size: {
+          default: 'medium'
+        },
+        alt: {
+          default: 'image'
         }
       },
       parseDOM: [{
         tag: 'img',
-        getAttrs: node => ({ src: node.getAttribute('src') })
+        getAttrs: node => (
+          {
+            src: node.getAttribute('src'),
+            alt: node.getAttribute('alt'),
+            align: node.getAttribute('data-align'),
+            size: node.getAttribute('data-size')
+          })
       }],
       toDOM: (node) => ['img', {
-        class: 'novadoc-image',
+        class: `novadoc-image align-${node.attrs.align} size-${node.attrs.size}`,
+        alt: node.attrs.alt,
         src: node.attrs.src
       }]
     }
@@ -71,6 +88,10 @@ export default class Image extends Node {
     return [
       imagePlugin
     ]
+  }
+
+  get view () {
+    return ImageView
   }
 
   commands ({ type }) {

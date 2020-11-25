@@ -97,6 +97,11 @@ import IconQuote from '@/components/icon/IconQuote.vue'
 import IconMedia from '@/components/icon/IconMedia.vue'
 import IconPen from '@/components/icon/IconPen.vue'
 import IconOrderedList from '@/components/icon/IconOrderedList.vue'
+import IconImageLeft from '@/components/icon/IconImageLeft.vue'
+import IconImageCenter from '@/components/icon/IconImageCenter.vue'
+import IconImageRight from '@/components/icon/IconImageRight.vue'
+import IconOpenLink from '@/components/icon/IconOpenLink.vue'
+import IconUnlink from '@/components/icon/IconUnlink.vue'
 
 @Component({
   name: 'Icon',
@@ -182,7 +187,12 @@ import IconOrderedList from '@/components/icon/IconOrderedList.vue'
     IconQuote,
     IconRedo,
     IconTable,
-    IconUndo
+    IconUndo,
+    IconImageLeft,
+    IconImageCenter,
+    IconImageRight,
+    IconUnlink,
+    IconOpenLink
   }
 })
 export default class Icon extends Vue {

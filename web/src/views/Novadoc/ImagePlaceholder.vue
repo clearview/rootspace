@@ -21,6 +21,7 @@ export default class ImagePlaceholder extends Vue {
   justify-content: center;
   position: relative;
   display: flex;
+  margin: 48px auto;
   img {
     filter: blur(8px) saturate(25%);
   }

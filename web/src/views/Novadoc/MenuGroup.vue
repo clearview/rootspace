@@ -10,7 +10,7 @@
     </div>
     <div class="options-cloak" v-show="visible" @click="hide"></div>
     <div class="options" ref="options" v-show="visible">
-      <slot name="options" :select="select" :hide="hide"></slot>
+      <slot name="options" :select="select" :hide="hide" v-if="visible"></slot>
     </div>
   </div>
 </template>
@@ -42,6 +42,9 @@ export default class MenuGroup extends Vue {
   @Prop({ type: Boolean, default: true })
   private readonly showArrow!: boolean;
 
+  @Prop({ type: Number, default: 6 })
+  private readonly offset!: number;
+
   private popper: Instance | null = null;
   private visible = false
 
@@ -67,7 +70,7 @@ export default class MenuGroup extends Vue {
         {
           name: 'offset',
           options: {
-            offset: [0, 6]
+            offset: [0, this.offset]
           }
         }
       ]

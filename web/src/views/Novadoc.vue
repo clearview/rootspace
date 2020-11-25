@@ -4,7 +4,8 @@
       <editor-menu-bar ref="menuBar" :editor="editor"
                        v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }">
         <div class="editor-toolbar">
-          <MenuGroup value="Normal Text" :disabled="!canChangeTextType(isActive, focused)">
+          <MenuGroup value="Normal Text" :disabled="!canChangeTextType(isActive, focused)"
+                     v-tippy="{ placement : 'top',  arrow: true }" content="Text Style">
             <template #default>
               <div style="padding-right: 32px;">
                 {{ getTextDisplayType(isActive) }}
@@ -47,30 +48,31 @@
           </MenuGroup>
           <div class="menu-separator"></div>
           <button class="menu" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
-                  @click="commands.bold">
+                  @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
             <BoldIcon size="16"></BoldIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
-                  @click="commands.italic">
+                  @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
             <ItalicIcon size="16"></ItalicIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.underline() }"
                   :disabled="!canBeUnderline(isActive, focused)"
-                  @click="commands.underline">
+                  @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
             <UnderlineIcon size="16"></UnderlineIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.strike() }"
-                  :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike">
+                  :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike"
+                  v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
             <span>
               <v-icon name="strike" viewbox="16" size="16"></v-icon>
             </span>
           </button>
           <button class="menu" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
-                  @click="commands.code">
+                  @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
             <TerminalIcon size="16"></TerminalIcon>
           </button>
           <div class="menu-separator"></div>
-          <MenuGroup value="Left" :disabled="!canBeAligned(isActive, focused)">
+          <MenuGroup value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment">
             <template #default>
               <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
             </template>
@@ -110,7 +112,7 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false">
+          <MenuGroup value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
             <template #default>
               <div class="text-color" :style="{
                   color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
@@ -126,7 +128,7 @@
               </div>
             </template>
           </MenuGroup>
-          <MenuGroup value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false">
+          <MenuGroup value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
             <template #default>
               <v-icon name="pen" viewbox="16" size="14"
                       v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
@@ -143,56 +145,62 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.bullet_list() }"
+          <button class="menu" :class="{ 'active': isActive.bullet_list() } "
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.bullet_list">
+                  @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
             <ListIcon size="16"></ListIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.ordered_list() }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.ordered_list">
+                  @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
           <button class="menu" :class="{ 'active': isActive.todo_list() }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.todo_list">
+                  @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
             <CheckSquareIcon size="16"></CheckSquareIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.image() }" :disabled="!canInsertImage(isActive, focused)"
-                  @click="commands.image({docId: id, spaceId: activeSpace.id})">
+                  @click="commands.image({docId: id, spaceId: activeSpace.id})" v-tippy="{ placement : 'top',  arrow: true }" content="Image">
             <ImageIcon size="16"></ImageIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.link() }" :disabled="!canBeLinked(isActive, focused)"
-                  @click="isActive.link() ? commands.link({href: null}) : showLinkForm(getMarkAttrs('link'))">
-            <LinkIcon size="16"></LinkIcon>
-          </button>
+          <MenuGroup :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
+                     v-tippy="{ placement : 'top',  arrow: true }" content="Link">
+            <template #default>
+              <LinkIcon size="16"></LinkIcon>
+            </template>
+            <template #options="{ hide }">
+              <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
+            </template>
+          </MenuGroup>
           <button class="menu" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
-                  @click="commands.divider">
+                  @click="commands.divider" v-tippy="{ placement : 'top',  arrow: true }" content="Horizontal line">
             <MinusIcon size="16"></MinusIcon>
           </button>
           <button class="menu" :class="{ 'active': isActive.blockquote() }"
                   :disabled="!canBeConvertedToQuote(isActive, focused)"
-                  @click="commands.blockquote">
+                  @click="commands.blockquote" v-tippy="{ placement : 'top',  arrow: true }" content="Blockquote">
             <v-icon viewbox="16" name="quote" size="16"></v-icon>
           </button>
           <button class="menu" :class="{ 'active': isActive.code_block() }"
                   :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
-                  @click="commands.code_block">
+                  @click="commands.code_block" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
             <CodeIcon size="16"></CodeIcon>
           </button>
           <div class="menu-separator"></div>
           <button
             class="menu" :disabled="!canCreateTable(isActive, focused)"
             @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
+            v-tippy="{ placement : 'top',  arrow: true }" content="Table"
           >
             <v-icon name="table" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" @click="commands.undo">
+          <button class="menu" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo">
             <v-icon name="undo" viewbox="16" size="16"></v-icon>
           </button>
-          <button class="menu" @click="commands.redo">
+          <button class="menu" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo">
             <v-icon name="redo" viewbox="16" size="16"></v-icon>
           </button>
         </div>
@@ -232,72 +240,56 @@
       </div>
     </header>
     <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState">
-      <div class="paper">
+      <div class="paper" ref="paper">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
-          <div class="bubble" :style="{ bottom: menu.bottom+'px'}" :class="[`align-${getNodeAttrs('paragraph').align}`]">
-            <div class="bubble-wrap" v-if="menu.isActive">
+          <div>
+
+            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
+                 :style="getBubblePosition(menu)">
+              <div class="bubble-wrap">
+                <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
+                  <template #default>
+                    <v-icon name="edit2" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></v-icon>
+                  </template>
+                  <template #options="{ hide }">
+                    <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
+                  </template>
+                </MenuGroup>
+                <NovadocMenuButton @click="commands.link({})" v-tippy="{ placement : 'top',  arrow: true }" content="Unlink">
+                  <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+                </NovadocMenuButton>
+                <NovadocMenuSeparator></NovadocMenuSeparator>
+                <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
+                  <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+                </NovadocMenuButton>
+              </div>
+            </div>
+
+            <div class="bubble" ref="bubble" :style="getBubblePosition(menu)">
+            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
-                      @click="commands.bold">
+                      @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
                 <BoldIcon size="16"></BoldIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
-                      @click="commands.italic">
+                      @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
                 <ItalicIcon size="16"></ItalicIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
-                      @click="commands.underline">
+                      @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
                 <UnderlineIcon size="16"></UnderlineIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
-                      @click="commands.strike">
+                      @click="commands.strike" v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
               <span>
                 <v-icon name="strike" viewbox="16" size="16"></v-icon>
               </span>
               </button>
               <button class="menu" :class="{ 'active': isActive.code() }" v-if="canBeInlineCode(isActive, true)"
-                      @click="commands.code">
+                      @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
-              <MenuGroup value="Left" v-if="canChangeTextType(isActive, true)">
-                <template #default>
-                  <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
-                </template>
-                <template #options="{select, hide}">
-                  <MenuGroupOption @click="select('Left');hide();commands.paragraph({align: 'left'})">
-                    <template #icon>
-                      <AlignLeftIcon size="16"></AlignLeftIcon>
-                    </template>
-                    <template #label>
-                      Left
-                    </template>
-                  </MenuGroupOption>
-                  <MenuGroupOption @click="select('Center');hide();commands.paragraph({align: 'center'})">
-                    <template #icon>
-                      <AlignCenterIcon size="16"></AlignCenterIcon>
-                    </template>
-                    <template #label>
-                      Center
-                    </template>
-                  </MenuGroupOption>
-                  <MenuGroupOption @click="select('Right');hide();commands.paragraph({align: 'right'})">
-                    <template #icon>
-                      <AlignRightIcon size="16"></AlignRightIcon>
-                    </template>
-                    <template #label>
-                      Right
-                    </template>
-                  </MenuGroupOption>
-                  <MenuGroupOption @click="select('Justify');hide();commands.paragraph({align: 'justify'})">
-                    <template #icon>
-                      <AlignJustifyIcon size="16"></AlignJustifyIcon>
-                    </template>
-                    <template #label>
-                      Justify
-                    </template>
-                  </MenuGroupOption>
-                </template>
-              </MenuGroup>
-              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false">
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
                 <template #default>
                   <div class="text-color text-color-display" :style="{
                   color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
@@ -313,7 +305,7 @@
                   </div>
                 </template>
               </MenuGroup>
-              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false">
+              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
                 <template #default>
                   <v-icon name="pen" viewbox="16" size="14"
                           v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
@@ -329,10 +321,30 @@
                   </div>
                 </template>
               </MenuGroup>
+              <NovadocMenuSeparator></NovadocMenuSeparator>
+              <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link">
+                <template #default>
+                  <v-icon name="edit2" viewbox="16" size="16" v-if="isActive.link()"></v-icon>
+                  <LinkIcon size="16" v-else></LinkIcon>
+                </template>
+                <template #options="{ hide }">
+                  <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
+                </template>
+              </MenuGroup>
+              <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink">
+                <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+              </NovadocMenuButton>
+              <NovadocMenuSeparator></NovadocMenuSeparator>
+              <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-if="isActive.link()" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
+                <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+              </NovadocMenuButton>
             </div>
+          </div>
           </div>
         </editor-menu-bubble>
         <textarea title="Title" ref="title" class="editor-title-input" placeholder="Untitled" v-model="title"
+                  @focus="isTitleFocused = true"
+                  @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <EditorContent :editor="editor"></EditorContent>
       </div>
@@ -416,10 +428,16 @@ import Reference from '@/views/Novadoc/Reference/Reference'
 import TextColor from '@/views/Novadoc/TextColor'
 import BgColor from '@/views/Novadoc/BgColor'
 import DocHistory from '@/views/Document/DocHistory'
+import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
+import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
+import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {
+    NovadocMenuSeparator,
+    NovadocMenuButton,
+    NovadocLinkInput,
     DocHistory,
     MenuGroupOption,
     MenuGroup,
@@ -471,7 +489,6 @@ export default {
       debouncedSaveTitleOnly: debouncedSaveTitleOnly,
       editor: new Editor({
         editable: true,
-        autoFocus: true,
         extensions: [
           new Novaschema(),
           new Mention('@', this.fetchUsers),
@@ -538,7 +555,9 @@ export default {
         }
       }),
       pageScrolled: false,
-      isBubbleFocused: false
+      isBubbleFocused: false,
+      isTitleFocused: false,
+      nodeNameChangesListener: null
     }
   },
   beforeDestroy () {
@@ -564,14 +583,45 @@ export default {
       })
       debouncedSave(api.getJSON())
     })
+    this.listenForNodeNameChanges()
     this.focusToEditor()
   },
   destroyed () {
+    if (this.nodeNameChangesListener) {
+      this.nodeNameChangesListener()
+    }
   },
   methods:
     {
-      test () {
-        alert('KEUWUAN')
+      listenForNodeNameChanges () {
+        this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
+          if (mutation.type === 'tree/setList') {
+            const referencedNode = mutation.payload.find(node => node.contentId.toString() === this.id.toString())
+            if (referencedNode) {
+              if (referencedNode.title.charCodeAt(0) === 1 && referencedNode.title.charCodeAt(1) === 2) {
+                this.title = ''
+              } else {
+                this.title = referencedNode.title
+              }
+            }
+          }
+        })
+      },
+      getBubblePosition (menu) {
+        const sel = this.editor.state.selection
+        const coords = this.editor.view.coordsAtPos(sel.$from.pos)
+        const offsetTop = 48
+        if (this.$refs.paper) {
+          const left = coords.x - this.$refs.paper.offsetParent.offsetLeft
+          return {
+            left: left + 'px',
+            top: coords.top - offsetTop + 'px'
+          }
+        }
+        return {
+          left: '0',
+          top: coords.top - offsetTop + 'px'
+        }
       },
       focusBubble () {
         this.isBubbleFocused = true
@@ -720,10 +770,12 @@ export default {
       },
       focusToEditor () {
         if (this.editor) {
-          if (this.editor.state.doc.content.firstChild.content.size === 0) {
-            this.editor.focus('start')
+          if (this.title.trim().length === 0) {
+            this.$refs.title.focus()
+          } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
+            this.editor.focus(1)
           } else {
-            this.editor.focus()
+            this.editor.focus(this.editor.state.doc.content.size - 1)
           }
         }
       },
@@ -751,7 +803,14 @@ export default {
           this.doc = res.data
           this.pageTitle = res.data.title
           this.title = res.data.title
+          // Phantom emptiness detected
+          if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
+            this.pageTitle = 'Untitled'
+            this.title = ''
+            this.$refs.title.focus()
+          }
           this.editor.setContent(res.data.content)
+          this.autoResizeTitle()
         }
       },
       autoResizeTitle () {
@@ -764,15 +823,16 @@ export default {
         this.pageTitle = title
         const payload = {
           spaceId: this.activeSpace.id,
-          title: title,
+          title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2),
           content: data
         }
         await this.createUpdateDocument(payload)
       },
       async saveTitleOnly () {
+        const title = this.title
         this.pageTitle = this.title
         const payload = {
-          title: this.title
+          title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2)
         }
         await this.createUpdateDocument(payload)
       },
@@ -851,6 +911,12 @@ export default {
         } else {
           this.pageScrolled = false
         }
+      },
+      canShowBubble (isActive, menu) {
+        return menu.isActive && !this.isTitleFocused && !isActive.image()
+      },
+      openLink (url) {
+        window.open(url, '_blank')
       }
     },
   watch: {
@@ -866,8 +932,20 @@ export default {
         this.focusToEditor()
       }
     },
-    title () {
+    title (newTitle) {
       this.autoResizeTitle()
+      const id = this.id
+      this.$store.commit('tree/updateNode', {
+        compareFn (node) {
+          return node.contentId.toString() === id.toString()
+        },
+        fn (node) {
+          return {
+            ...node,
+            title: newTitle
+          }
+        }
+      })
     },
     readOnly: {
       async handler () {
@@ -1112,23 +1190,11 @@ export default {
 .paper {
   width: 704px;
   margin: auto;
-  position: relative;
 }
 
 .bubble {
   position: absolute;
   z-index: 5;
-  width: 100%;
-  display: flex;
-  margin-bottom: 12px;
-  &.align-center {
-    justify-content: center;
-    align-items: center;
-  }
-  &.align-right {
-    justify-content: flex-end;
-    align-items: center;
-  }
   .bubble-wrap {
     background: #FFFFFF;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
@@ -1398,18 +1464,6 @@ export default {
 
     ul, ol {
       margin-top: 8px;
-    }
-  }
-
-  .novadoc-image {
-    margin: 36px auto;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-    border: solid 4px transparent;
-    padding: 4px;
-
-    &.ProseMirror-selectednode {
-    //box-shadow: 0 2px 4px rgba(0,0,0,.25), 0 16px 64px rgba(0,0,0,.5); border: solid 4px #146493;
     }
   }
 
