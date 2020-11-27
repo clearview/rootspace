@@ -244,7 +244,7 @@
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
-                 :style="getBubblePosition(menu)">
+                 :style="getBubblePosition()">
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
                   <template #default>
@@ -264,7 +264,7 @@
               </div>
             </div>
 
-            <div class="bubble" ref="bubble" :style="getBubblePosition(menu)">
+            <div class="bubble" ref="bubble" :style="getBubblePosition()">
             <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)" @mousedown.stop>
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
@@ -610,7 +610,7 @@ export default {
           }
         })
       },
-      getBubblePosition (menu) {
+      getBubblePosition () {
         const sel = this.editor.state.selection
         const coords = this.editor.view.coordsAtPos(sel.$from.pos)
         const offsetTop = 48

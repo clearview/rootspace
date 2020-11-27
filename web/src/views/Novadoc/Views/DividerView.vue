@@ -32,7 +32,6 @@ export default {
       this.view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos)))
     },
     remove () {
-      const pos = this.getPos()
       const state = this.view.state
       const tr = state.tr
       this.view.dispatch(tr.deleteSelection())

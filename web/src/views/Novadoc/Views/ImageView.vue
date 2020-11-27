@@ -36,7 +36,7 @@
 
 <script>
 
-import { NodeSelection, TextSelection } from 'tiptap'
+import { NodeSelection } from 'tiptap'
 import NovadocMenu from '../Menu/NovadocMenu'
 import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
 import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
@@ -66,7 +66,6 @@ export default {
       })
     },
     remove () {
-      const pos = this.getPos()
       const state = this.view.state
       const tr = state.tr
       this.view.dispatch(tr.deleteSelection())
