@@ -102,6 +102,11 @@ import IconImageCenter from '@/components/icon/IconImageCenter.vue'
 import IconImageRight from '@/components/icon/IconImageRight.vue'
 import IconOpenLink from '@/components/icon/IconOpenLink.vue'
 import IconUnlink from '@/components/icon/IconUnlink.vue'
+import IconColumnRemove from '@/components/icon/IconColumnRemove.vue'
+import IconMerge from '@/components/icon/IconMerge.vue'
+import IconRowAdd from '@/components/icon/IconRowAdd.vue'
+import IconColumnAdd from '@/components/icon/IconColumnAdd.vue'
+import IconRowRemove from '@/components/icon/IconRowRemove.vue'
 
 @Component({
   name: 'Icon',
@@ -192,7 +197,12 @@ import IconUnlink from '@/components/icon/IconUnlink.vue'
     IconImageCenter,
     IconImageRight,
     IconUnlink,
-    IconOpenLink
+    IconOpenLink,
+    IconRowAdd,
+    IconRowRemove,
+    IconColumnAdd,
+    IconColumnRemove,
+    IconMerge
   }
 })
 export default class Icon extends Vue {

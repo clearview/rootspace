@@ -239,11 +239,10 @@
         </Popover>
       </div>
     </header>
-    <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState">
-      <div class="paper" ref="paper">
+    <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState" ref="pageEditor">
+      <div class="paper" ref="paper" @mousedown="isMouseDown = true">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
-
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
                  :style="getBubblePosition(menu)">
               <div class="bubble-wrap">
@@ -266,7 +265,7 @@
             </div>
 
             <div class="bubble" ref="bubble" :style="getBubblePosition(menu)">
-            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
+            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)" @mousedown.stop>
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
                 <BoldIcon size="16"></BoldIcon>
@@ -321,8 +320,9 @@
                   </div>
                 </template>
               </MenuGroup>
-              <NovadocMenuSeparator></NovadocMenuSeparator>
-              <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link">
+              <NovadocMenuSeparator v-if="canBeLinked(isActive, true)"></NovadocMenuSeparator>
+              <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link"
+                v-if="canBeLinked(isActive, true)">
                 <template #default>
                   <v-icon name="edit2" viewbox="16" size="16" v-if="isActive.link()"></v-icon>
                   <LinkIcon size="16" v-else></LinkIcon>
@@ -334,7 +334,7 @@
               <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink">
                 <v-icon name="unlink" viewbox="16" size="16"></v-icon>
               </NovadocMenuButton>
-              <NovadocMenuSeparator></NovadocMenuSeparator>
+              <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
               <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-if="isActive.link()" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
                 <v-icon name="open-link" viewbox="16" size="16"></v-icon>
               </NovadocMenuButton>
@@ -557,7 +557,8 @@ export default {
       pageScrolled: false,
       isBubbleFocused: false,
       isTitleFocused: false,
-      nodeNameChangesListener: null
+      nodeNameChangesListener: null,
+      isMouseDown: false
     }
   },
   beforeDestroy () {
@@ -585,11 +586,13 @@ export default {
     })
     this.listenForNodeNameChanges()
     this.focusToEditor()
+    this.listenForDocumentMouseUp()
   },
   destroyed () {
     if (this.nodeNameChangesListener) {
       this.nodeNameChangesListener()
     }
+    document.removeEventListener('mouseup', this.releaseMouseDown)
   },
   methods:
     {
@@ -611,11 +614,11 @@ export default {
         const sel = this.editor.state.selection
         const coords = this.editor.view.coordsAtPos(sel.$from.pos)
         const offsetTop = 48
-        if (this.$refs.paper) {
-          const left = coords.x - this.$refs.paper.offsetParent.offsetLeft
+        if (this.$refs.pageEditor) {
+          const left = coords.x - this.$refs.pageEditor.offsetLeft - this.$refs.pageEditor.offsetParent.offsetLeft
           return {
             left: left + 'px',
-            top: coords.top - offsetTop + 'px'
+            top: coords.top - offsetTop - this.$refs.pageEditor.offsetTop + this.$refs.pageEditor.scrollTop + 'px'
           }
         }
         return {
@@ -913,10 +916,16 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return menu.isActive && !this.isTitleFocused && !isActive.image()
+        return menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.mention() && !isActive.table()
       },
       openLink (url) {
         window.open(url, '_blank')
+      },
+      listenForDocumentMouseUp () {
+        document.addEventListener('mouseup', this.releaseMouseDown)
+      },
+      releaseMouseDown () {
+        this.isMouseDown = false
       }
     },
   watch: {
@@ -1068,6 +1077,7 @@ export default {
   flex: 1 1 auto;
   overflow-y: scroll;
   width: 100%;
+  position: relative;
 }
 
 .menu-separator {
@@ -1344,8 +1354,8 @@ export default {
   }
 
   .novadoc-divider {
-    color: #ccc;
-    margin: 16px;
+    border: 1px dashed #AAB1C5;
+    margin: 24px 0;
   }
 
   table {
@@ -1353,10 +1363,15 @@ export default {
     max-width: 800px;
     margin: 48px 0;
     position: relative;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-radius: 4px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px #DEE2EE;
 
     tr {
       td {
-        border: solid 1px #ccc;
+        border: solid 1px #DEE2EE;
         padding: 8px;
         position: relative;
 
@@ -1364,6 +1379,11 @@ export default {
           background: #def;
         }
       }
+    }
+
+    tbody tr td {
+      border-top: none;
+      border-right: none;
     }
 
     .column-resize-handle {
@@ -1374,35 +1394,6 @@ export default {
       right: -2px;
       position: absolute;
     }
-  }
-
-  .novadoc-table-menu {
-    position: absolute;
-    top: -40px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 2px 14px rgba(0, 0, 0, .05);
-    background: #fff;
-    padding: 4px;
-    cursor: default;
-  }
-
-  .novadoc-table-menu-button {
-    background: #fff;
-    color: #333;
-    border: none;
-    padding: 4px 6px;
-    outline: none;
-    border-radius: 2px;
-    transition: all 0.15s ease;
-    margin-right: 4px;
-
-    &:hover {
-      background: #eee;
-    }
-
   }
 
   ul[data-type="todo_list"] {
