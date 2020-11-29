@@ -390,8 +390,12 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+import CollaborationExtension from './Novadoc/CollaborationExtension'
+
 import Novaschema from '@/views/Novadoc/Novaschema.js'
-// import Title from '@/views/Novadoc/Title.js'
+
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -470,14 +474,12 @@ export default {
     Popover
   },
   data () {
-    // const ydoc = new Y.Doc()
-    // const provider = new WebsocketProvider('ws://localhost:4444', 'x' + id, ydoc)
-    // const type = ydoc.getXmlFragment('prosemirror')
     const debouncedSaveTitleOnly = debounce(() => {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
       provider: null,
+      editor: null,
       doc: null,
       preview: null,
       linkMarking: {
@@ -488,73 +490,6 @@ export default {
       readOnly: false,
       isHistoryVisible: false,
       debouncedSaveTitleOnly: debouncedSaveTitleOnly,
-      editor: new Editor({
-        editable: true,
-        extensions: [
-          new Novaschema(),
-          new Mention('@', this.fetchUsers),
-          new Reference('#', this.fetchReferences),
-          // new Title(),
-          new Divider(),
-          new Paragraph(),
-          new TextColor(),
-          new BgColor(),
-          new Bold(),
-          new Blockquote(),
-          new CodeBlockHighlight({
-            languages: {
-              javascript,
-              typescript,
-              bash
-            }
-          }),
-          new HardBreak(),
-          new Italic(),
-          new Underline(),
-          new Strike(),
-          new Code(),
-          new History(),
-          new BulletList(),
-          new ListItem(),
-          new OrderedList(),
-          new Image(),
-          new TodoList(),
-          new TodoItem({
-            nested: true
-          }),
-          new Link({
-            openOnClick: false
-          }),
-          new TrailingNode({
-            node: 'paragraph',
-            notAfter: ['paragraph']
-          }),
-          new Placeholder({
-            emptyEditorClass: 'is-editor-empty',
-            emptyNodeClass: 'is-empty',
-            emptyNodeText: () => {
-              if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
-                return ''
-              }
-              return 'Write something…'
-            },
-            showOnlyWhenEditable: false,
-            showOnlyCurrent: false
-          }),
-          new Table({
-            resizable: true
-          }),
-          new TableHeader(),
-          new TableCell(),
-          new TableRow(),
-          new TableMenu()
-          // new CollaborationExtension(provider, type)
-        ],
-        emptyDocument: {
-          type: 'doc',
-          content: []
-        }
-      }),
       pageScrolled: false,
       isBubbleFocused: false,
       isTitleFocused: false,
@@ -563,30 +498,11 @@ export default {
     }
   },
   beforeDestroy () {
-    this.editor.destroy()
+    this.destroyProvider()
+    this.destroyEditor()
   },
   async mounted () {
-    const debouncedSave = debounce((json) => {
-      this.save(json)
-    }, 1000)
-    this.editor.on('update', (api) => {
-      const newTitle = this.title
-      const id = this.id
-      this.$store.commit('tree/updateNode', {
-        compareFn (node) {
-          return node.contentId.toString() === id.toString()
-        },
-        fn (node) {
-          return {
-            ...node,
-            title: newTitle
-          }
-        }
-      })
-      debouncedSave(api.getJSON())
-    })
     this.listenForNodeNameChanges()
-    this.focusToEditor()
     this.listenForDocumentMouseUp()
   },
   destroyed () {
@@ -597,10 +513,139 @@ export default {
   },
   methods:
     {
+      destroyProvider () {
+        if (this.provider) {
+          this.provider.destroy()
+        }
+      },
+      destroyEditor () {
+        if (this.editor) {
+          this.editor.destroy()
+        }
+      },
+      buildProvider () {
+        this.provider = new WebsocketProvider('ws://localhost:6001', 'doc_' + this.id, this.ydoc)
+
+        this.provider.awareness.setLocalStateField('user', {
+          color: '#333',
+          name: this.currentUser.firstName
+        })
+
+        const onConnecting = () => {
+          const providerOnMessage = this.provider.ws.onmessage
+          const providerOnOpen = this.provider.ws.onopen
+
+          this.provider.ws.onmessage = event => {
+            const { data } = event
+
+            if (typeof data === 'string') {
+              switch (data) {
+                case 'authenticated':
+                  this.provider.ws.onmessage = providerOnMessage
+                  providerOnOpen()
+                  break
+                case 'unauthenticated':
+                  this.provider.disconnect()
+                  break
+                default:
+                  break
+              }
+            }
+          }
+
+          this.provider.ws.onopen = () => {
+            this.provider.ws.send(this.$store.state.auth.token)
+          }
+        }
+
+        this.provider.on('status', ({ status }) => {
+          if (status === 'connecting') {
+            onConnecting()
+          }
+        })
+
+        onConnecting()
+      },
+      buildEditor () {
+        this.destroyProvider()
+        this.destroyEditor()
+
+        this.ydoc = this.ydoc = new Y.Doc()
+        this.buildProvider()
+
+        this.editor = new Editor({
+          editable: true,
+          extensions: [
+            new Novaschema(),
+            new Mention('@', this.fetchUsers),
+            new Reference('#', this.fetchReferences),
+            new Divider(),
+            new Paragraph(),
+            new TextColor(),
+            new BgColor(),
+            new Bold(),
+            new Blockquote(),
+            new CodeBlockHighlight({
+              languages: {
+                javascript,
+                typescript,
+                bash
+              }
+            }),
+            new HardBreak(),
+            new Italic(),
+            new Underline(),
+            new Strike(),
+            new Code(),
+            new History(),
+            new BulletList(),
+            new ListItem(),
+            new OrderedList(),
+            new Image(),
+            new TodoList(),
+            new TodoItem({
+              nested: true
+            }),
+            new Link({
+              openOnClick: false
+            }),
+            new TrailingNode({
+              node: 'paragraph',
+              notAfter: ['paragraph']
+            }),
+            new Placeholder({
+              emptyEditorClass: 'is-editor-empty',
+              emptyNodeClass: 'is-empty',
+              emptyNodeText: () => {
+                if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
+                  return ''
+                }
+                return 'Write something…'
+              },
+              showOnlyWhenEditable: false,
+              showOnlyCurrent: false
+            }),
+            new Table({
+              resizable: true
+            }),
+            new TableHeader(),
+            new TableCell(),
+            new TableRow(),
+            new TableMenu(),
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+          ],
+          emptyDocument: {
+            type: 'doc',
+            content: []
+          }
+        })
+      },
       listenForNodeNameChanges () {
         this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
           if (mutation.type === 'tree/setList') {
-            const referencedNode = mutation.payload.find(node => node.contentId.toString() === this.id.toString())
+            const referencedNode = mutation.payload.find(
+              node => node.type === 'doc' && node.contentId.toString() === this.id.toString()
+            )
             if (referencedNode) {
               if (referencedNode.title.charCodeAt(0) === 1 && referencedNode.title.charCodeAt(1) === 2) {
                 this.title = ''
@@ -813,24 +858,14 @@ export default {
             this.title = ''
             this.$refs.title.focus()
           }
-          this.editor.setContent(res.data.content)
           this.autoResizeTitle()
+          this.buildEditor()
         }
       },
       autoResizeTitle () {
         this.$refs.title.style.height = '1px'
         const height = this.$refs.title.scrollHeight
         this.$refs.title.style.height = height + 'px'
-      },
-      async save (data) {
-        const title = this.title
-        this.pageTitle = title
-        const payload = {
-          spaceId: this.activeSpace.id,
-          title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2),
-          content: data
-        }
-        await this.createUpdateDocument(payload)
       },
       async saveTitleOnly () {
         const title = this.title
@@ -947,7 +982,7 @@ export default {
       const id = this.id
       this.$store.commit('tree/updateNode', {
         compareFn (node) {
-          return node.contentId.toString() === id.toString()
+          return node.type === 'doc' && node.contentId.toString() === id.toString()
         },
         fn (node) {
           return {
