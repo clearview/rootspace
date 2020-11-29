@@ -4,6 +4,7 @@ import { Decoration, DecorationSet } from 'prosemirror-view'
 import Vue from 'vue'
 import ImagePlaceholder from '@/views/Novadoc/ImagePlaceholder'
 import api from '@/utils/api'
+import ImageView from '@/views/Novadoc/Views/ImageView'
 
 const imagePlugin = new Plugin({
   state: {
@@ -54,14 +55,30 @@ export default class Image extends Node {
       attrs: {
         src: {
           default: ''
+        },
+        align: {
+          default: 'center'
+        },
+        size: {
+          default: 'medium'
+        },
+        alt: {
+          default: 'image'
         }
       },
       parseDOM: [{
         tag: 'img',
-        getAttrs: node => ({ src: node.getAttribute('src') })
+        getAttrs: node => (
+          {
+            src: node.getAttribute('src'),
+            alt: node.getAttribute('alt'),
+            align: node.getAttribute('data-align'),
+            size: node.getAttribute('data-size')
+          })
       }],
       toDOM: (node) => ['img', {
-        class: 'novadoc-image',
+        class: `novadoc-image align-${node.attrs.align} size-${node.attrs.size}`,
+        alt: node.attrs.alt,
         src: node.attrs.src
       }]
     }
@@ -73,6 +90,10 @@ export default class Image extends Node {
     ]
   }
 
+  get view () {
+    return ImageView
+  }
+
   commands ({ type }) {
     const view = this.editor.view
     return ({ docId, spaceId, remove }) => (state, dispatch) => {
@@ -82,6 +103,7 @@ export default class Image extends Node {
       let filePicker = document.querySelector('input[type=file][data-novadoc-file]')
       if (!filePicker) {
         filePicker = document.createElement('input')
+        filePicker.style.display = 'none'
         filePicker.setAttribute('type', 'file')
         filePicker.setAttribute('data-novadoc-file', ' true')
         document.body.appendChild(filePicker)

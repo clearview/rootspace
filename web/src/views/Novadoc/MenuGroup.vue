@@ -1,16 +1,16 @@
 <template>
   <div class="menu-group">
-    <div class="display" @click="showOptions" ref="display">
+    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible }">
       <div class="text">
         <slot :value="value"></slot>
       </div>
-      <div class="icon">
-        <ChevronDownIcon size="14"></ChevronDownIcon>
+      <div class="icon" v-if="showArrow">
+        <v-icon name="down2" viewbox="16" size="16"></v-icon>
       </div>
     </div>
     <div class="options-cloak" v-show="visible" @click="hide"></div>
     <div class="options" ref="options" v-show="visible">
-      <slot name="options" :select="select" :hide="hide"></slot>
+      <slot name="options" :select="select" :hide="hide" v-if="visible"></slot>
     </div>
   </div>
 </template>
@@ -36,6 +36,15 @@ export default class MenuGroup extends Vue {
   @Ref('options')
   private readonly optionsRef!: HTMLDivElement;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly disabled!: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  private readonly showArrow!: boolean;
+
+  @Prop({ type: Number, default: 6 })
+  private readonly offset!: number;
+
   private popper: Instance | null = null;
   private visible = false
 
@@ -51,6 +60,9 @@ export default class MenuGroup extends Vue {
   }
 
   private showOptions () {
+    if (this.disabled) {
+      return
+    }
     this.visible = true
     this.popper = createPopper(this.displayRef, this.optionsRef, {
       placement: 'bottom-start',
@@ -58,7 +70,7 @@ export default class MenuGroup extends Vue {
         {
           name: 'offset',
           options: {
-            offset: [0, 0]
+            offset: [0, this.offset]
           }
         }
       ]
@@ -78,6 +90,20 @@ export default class MenuGroup extends Vue {
   font-weight: bolder;
   display: flex;
   align-items: center;
+  border:solid 2px transparent;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #F4F5F7;
+  }
+  &.disabled {
+    opacity: 0.5;
+  }
+  &.visible{
+    border:solid 2px #8CD5FF;
+  }
+
   .text {
     flex: 1 1 auto;
   }
@@ -96,9 +122,9 @@ export default class MenuGroup extends Vue {
   z-index: 11;
 }
 .options {
+  background: #FFFFFF;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0,0,0,.1), 0 16px 32px rgba(0,0,0,.1);
   z-index: 12;
   width: max-content;
 }

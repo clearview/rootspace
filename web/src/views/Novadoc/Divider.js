@@ -1,4 +1,5 @@
 import { Node } from 'tiptap'
+import DividerView from '@/views/Novadoc/Views/DividerView'
 
 export default class Divider extends Node {
   get name () {
@@ -17,5 +18,9 @@ export default class Divider extends Node {
 
   commands ({ type }) {
     return () => (state, dispatch) => dispatch(state.tr.replaceSelectionWith(type.create()))
+  }
+
+  get view () {
+    return DividerView
   }
 }
