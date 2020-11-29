@@ -346,6 +346,7 @@
                   @focus="isTitleFocused = true"
                   @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
+        <hr class="title-separator">
         <EditorContent :editor="editor"></EditorContent>
       </div>
     </div>
@@ -1218,6 +1219,11 @@ export default {
     overflow: visible;
   }
 }
+
+.title-separator {
+  border: 1px solid #EDEFF3;
+  margin: 24px 0;
+}
 </style>
 <style lang="postcss">
 .ProseMirror {
@@ -1278,7 +1284,7 @@ export default {
   }
 
   h1, h2, h3 {
-    margin: 24px 0;
+    margin: 40px 0 24px 0;
   }
 
   h1 {
@@ -1301,6 +1307,7 @@ export default {
 
   p {
     font-size: 16px;
+    line-height: 1.5;
   }
 
   ul {
@@ -1353,11 +1360,6 @@ export default {
     margin-top: inherit;
   }
 
-  .novadoc-divider {
-    border: 1px dashed #AAB1C5;
-    margin: 24px 0;
-  }
-
   table {
     width: 100%;
     max-width: 800px;
@@ -1398,24 +1400,30 @@ export default {
 
   ul[data-type="todo_list"] {
     padding-left: 0;
+    margin-left: 0;
   }
 
   li[data-type="todo_item"] {
     display: flex;
     flex-direction: row;
+    margin: 8px 0;
+
+    & {
+      margin-bottom: 0;
+    }
   }
 
   .todo-checkbox {
-    border: 2px solid #146493;
-    height: 0.9em;
-    width: 0.9em;
+    border: 1px solid #AAB1C5;
+    height: 20px;
+    width: 20px;
     box-sizing: border-box;
     margin-right: 10px;
-    margin-top: 0.3rem;
+    margin-top: 2px;
     user-select: none;
     -webkit-user-select: none;
     cursor: pointer;
-    border-radius: 0.2em;
+    border-radius: 6px;
     background-color: transparent;
     transition: 0.4s background;
   }
@@ -1428,7 +1436,7 @@ export default {
     }
 
     > ul[data-type="todo_list"] {
-      margin: .5rem 0;
+      margin: 0;
     }
   }
 
@@ -1437,11 +1445,26 @@ export default {
       > p {
         text-decoration: line-through;
         opacity: 0.85;
+        color: #777B81;
       }
     }
 
     > .todo-checkbox {
-      background-color: #146493;
+      border: 1px solid #8CD5FF;
+      background-color: #8CD5FF;
+      position: relative;
+      &::before {
+        position: absolute;
+        content: '';
+        display: block;
+        width: 12px;
+        height: 6px;
+        border-left: solid 2px  #2C2B35;
+        border-bottom: solid 2px  #2C2B35;
+        top: 5px;
+        left: 4px;
+        transform: rotate(-45deg);
+      }
     }
   }
 
@@ -1472,18 +1495,18 @@ export default {
 
   pre > code {
     display: block;
-    padding: 12px;
-    background: #333;
-    border-radius: 2px;
-    font-size: 0.8em;
-    color: #eee;
+    padding: 16px;
+    background: #F8F8FB;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #2C2B35;
     margin: 12px 0;
 
     .hljs {
       display: block;
       overflow-x: auto;
       padding: 0.5em;
-      background: #282a36;
+      background: #F8F8FB;
     }
 
     .hljs-keyword,

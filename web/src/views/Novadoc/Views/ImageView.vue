@@ -53,16 +53,22 @@ export default {
       const pos = this.getPos()
       const state = this.view.state
       const tr = state.tr
-      this.view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos)))
+      this.view.dispatch(tr.setSelection(NodeSelection.create(tr.doc, pos)).scrollIntoView())
     },
     align (alignment) {
       this.updateAttrs({
         align: alignment
       })
+      this.$nextTick(() => {
+        this.view.focus()
+      })
     },
     resize (size) {
       this.updateAttrs({
         size: size
+      })
+      this.$nextTick(() => {
+        this.view.focus()
       })
     },
     remove () {

@@ -46,12 +46,14 @@ export default {
   flex-direction: column;
   position: relative;
   align-items: center;
+  margin: 24px 0;
   .menu {
     position: absolute;
-    top: -28px;
+    top: -64px;
   }
   hr {
     align-self: stretch;
+    border: 1px dashed #AAB1C5;
   }
 
   &.selected {
