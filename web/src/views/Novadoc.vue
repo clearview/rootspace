@@ -361,11 +361,6 @@
 import { debounce } from 'lodash'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
-
-import { WebsocketProvider } from 'y-websocket'
-import * as Y from 'yjs'
-import CollaborationExtension from './Novadoc/CollaborationExtension'
-
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
 import {
   Blockquote,
@@ -482,10 +477,8 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
-      doc: null,
-      ydoc: null,
       provider: null,
-      editor: null,
+      doc: null,
       preview: null,
       linkMarking: {
         active: false,
@@ -554,8 +547,8 @@ export default {
           new TableHeader(),
           new TableCell(),
           new TableRow(),
-          new TableMenu(),
-          new CollaborationExtension(provider, type)
+          new TableMenu()
+          // new CollaborationExtension(provider, type)
         ],
         emptyDocument: {
           type: 'doc',
@@ -571,7 +564,6 @@ export default {
   },
   beforeDestroy () {
     this.editor.destroy()
-    this.provider.destroy()
   },
   async mounted () {
     const debouncedSave = debounce((json) => {
@@ -947,6 +939,7 @@ export default {
           await this.activateSpace(this.activeSpace.id)
         }
         this.pageReady = true
+        this.focusToEditor()
       }
     },
     title (newTitle) {
