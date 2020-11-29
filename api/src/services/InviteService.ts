@@ -6,6 +6,7 @@ import { User } from '../database/entities/User'
 import { Service } from './Service'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 import { UserActivitiy } from './activity/activities/user'
+import { IQueryOptions } from '../types/query'
 
 export class InviteService extends Service {
   private static instance: InviteService
@@ -38,6 +39,16 @@ export class InviteService extends Service {
 
   getInvite(email: string, spaceId: number, senderId: number): Promise<Invite> {
     return this.getInviteRepository().getInvite(email, spaceId, senderId)
+  }
+
+  getInvites(
+    email: string,
+    spaceId: number,
+    senderId: number,
+    filter: any = {},
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    return this.getInviteRepository().getInvites(email, spaceId, senderId, filter, options)
   }
 
   getInviteByToken(token: string, params: any = {}): Promise<Invite | undefined> {
@@ -90,35 +101,51 @@ export class InviteService extends Service {
   }
 
   async createWithEmail(email: string, space: Space, senderId: number): Promise<Invite> {
-    let invite = await this.getInvite(email, space.id, senderId)
+    const invite = new Invite()
 
-    if (!invite) {
-      invite = new Invite()
-      invite.spaceId = space.id
-      invite.senderId = senderId
-      invite.email = email
-      invite = await this.getInviteRepository().save(invite)
-    }
+    invite.spaceId = space.id
+    invite.senderId = senderId
+    invite.email = email
 
+    await this.getInviteRepository().save(invite)
     this.notifyActivity(UserActivitiy.invite(invite))
 
     return invite
   }
 
   async createWithUser(user: User, space: Space, senderId: number): Promise<Invite> {
-    let invite = await this.getInvite(user.email, space.id, senderId)
+    const invite = new Invite()
 
-    if (!invite) {
-      invite = new Invite()
-      invite.spaceId = space.id
-      invite.userId = user.id
-      invite.senderId = senderId
-      invite.email = user.email
-      invite = await this.getInviteRepository().save(invite)
-    }
+    invite.spaceId = space.id
+    invite.userId = user.id
+    invite.senderId = senderId
+    invite.email = user.email
 
+    await this.getInviteRepository().save(invite)
     this.notifyActivity(UserActivitiy.invite(invite))
 
     return invite
+  }
+
+  async suspendInvitation(email: string, spaceId: number, senderId: number): Promise<boolean> {
+    const now = Date.now()
+
+    // -1 hour
+    const fromTime = new Date(now - 60 * 60 * 1000)
+
+    const invites = await this.getInvites(email, spaceId, senderId, { fromTime }, { withDeleted: true })
+
+    if (invites.length >= 2) {
+      return true
+    }
+
+    for (const invite of invites) {
+      // -10 minutes
+      if (invite.createdAt.valueOf() > now - 10 * 60 * 1000) {
+        return true
+      }
+    }
+
+    return false
   }
 }

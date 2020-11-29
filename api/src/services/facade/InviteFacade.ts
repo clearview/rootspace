@@ -2,6 +2,7 @@ import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
+import { InviteSendStatus } from '../../types/invite'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -24,23 +25,45 @@ export class InviteFacade {
     return this.inviteService.getInvitesBySpaceId(spaceId)
   }
 
-  async sendToEmails(emails: string[], spaceId: number, senderId: number): Promise<Invite[]> {
+  async sendToEmails(emails: string[], spaceId: number, senderId: number): Promise<object[]> {
+    const result: object[] = []
     const space = await this.spaceService.requireSpaceById(spaceId)
-    const invites = []
 
     emails = Array.from(new Set(emails))
 
     for (const email of emails) {
+      const inSpace = await this.userSpaceService.isEmailInSpace(email, space.id)
+
+      if (inSpace === true) {
+        result.push({ email, status: InviteSendStatus.Member })
+        continue
+      }
+
+      const suspend = await this.inviteService.suspendInvitation(email, space.id, senderId)
+
+      if (suspend) {
+        result.push({
+          email,
+          status: InviteSendStatus.Suspended,
+        })
+
+        continue
+      }
+
       const user = await this.userService.getUserByEmail(email)
 
       const invite = user
         ? await this.inviteService.createWithUser(user, space, senderId)
         : await this.inviteService.createWithEmail(email, space, senderId)
 
-      invites.push(invite)
+      result.push({
+        email: invite.email,
+        status: InviteSendStatus.Invited,
+        invite,
+      })
     }
 
-    return invites
+    return result
   }
 
   async accept(token: string, authorizedUserId: number): Promise<Invite[]> {
