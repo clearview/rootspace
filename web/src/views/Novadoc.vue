@@ -524,7 +524,13 @@ export default {
         }
       },
       buildProvider () {
-        this.provider = new WebsocketProvider('ws://localhost:6001', 'doc_' + this.id, this.ydoc)
+        const wsProviderUrl = process.env.VUE_APP_YWS_URL
+
+        if (!wsProviderUrl) {
+          console.log('process.env.VUE_APP_YWS_URL is missing')
+        }
+
+        this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
 
         this.provider.awareness.setLocalStateField('user', {
           color: '#333',
