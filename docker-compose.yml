@@ -62,6 +62,7 @@ services:
     ports:
       - "3001:3001"
       - "6000:6000"
+      - "6001:6001"
       - "9229:9229"
     logging:
       driver: "json-file"
