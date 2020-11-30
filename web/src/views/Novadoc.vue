@@ -540,11 +540,12 @@ export default {
 
             if (typeof data === 'string') {
               switch (data) {
-                case 'authenticated':
+                case 'authorized':
                   this.provider.ws.onmessage = providerOnMessage
                   providerOnOpen()
                   break
                 case 'unauthenticated':
+                case 'unauthorized':
                   this.provider.disconnect()
                   break
                 default:
@@ -559,6 +560,7 @@ export default {
         }
 
         this.provider.on('status', ({ status }) => {
+          console.log('connecting')
           if (status === 'connecting') {
             onConnecting()
           }

@@ -6,11 +6,12 @@ import jwt from 'jsonwebtoken'
 import { config } from 'node-config-ts'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { UserService } from '../services'
+import { User } from '../database/entities/User'
 
 const port = 6001
 
 const persistence = {
-  bindState: async (identifier: string, ydoc: Y.Doc) => {
+  bindState: async (identifier: string, ydoc: Y.Doc): Promise<void> => {
     console.log('yjs bindState for', identifier) // tslint:disable-line
 
     const docId = Number(identifier.split('_').pop())
@@ -25,7 +26,7 @@ const persistence = {
     }
   },
 
-  writeState: async (identifier: string, ydoc: Y.Doc) => {
+  writeState: async (identifier: string, ydoc: Y.Doc): Promise<void> => {
     console.log('yjs writeState for', identifier) // tslint:disable-line
 
     const docId = Number(identifier.split('_').pop())
@@ -41,27 +42,45 @@ const persistence = {
   },
 }
 
-const authenticate = async (conn: any, token: string): Promise<boolean> => {
+const authenticate = async (token: string): Promise<User | null> => {
   try {
     const decoded: any = jwt.verify(token, config.jwt.accessToken.secretKey)
     const userId = decoded.id
 
     if (typeof userId !== 'number') {
-      return false
+      return null
     }
 
     const user = await UserService.getInstance().getUserById(userId)
 
-    if (!user) {
-      return false
+    if (user) {
+      return user
     }
 
-    conn.user = user
-
-    return true
+    return null
   } catch (err) {
+    return null
+  }
+}
+
+const authorize = async (userId: number, docId: number): Promise<boolean> => {
+  const doc = await ServiceFactory.getInstance()
+    .getDocService()
+    .getById(docId)
+
+  if (!doc) {
     return false
   }
+
+  const inSpace = await ServiceFactory.getInstance()
+    .getUserSpaceService()
+    .isUserInSpace(userId, doc.spaceId)
+
+  if (inSpace) {
+    return true
+  }
+
+  return false
 }
 
 wsUtils.setPersistence(persistence)
@@ -94,19 +113,28 @@ export default class YjsServer {
   }
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    const docName = req.url.slice(1)
-
     if (typeof message === 'string') {
-      const authenticated = await authenticate(conn, message)
+      const user = await authenticate(message)
 
-      if (authenticated === false) {
+      if (!user) {
         conn.send('unauthenticated')
         conn.close()
         return
       }
 
+      const docName = req.url.slice(1)
+      const docId = Number(docName.split('_').pop())
+
+      if (!(await authorize(user.id, docId))) {
+        conn.send('unauthorized')
+        conn.close()
+        return
+      }
+
+      ;(conn as any).user = user
+
       wsUtils.setupWSConnection(conn, req, docName)
-      conn.send('authenticated')
+      conn.send('authorized')
       return
     }
 
