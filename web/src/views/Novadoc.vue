@@ -560,7 +560,6 @@ export default {
         }
 
         this.provider.on('status', ({ status }) => {
-          console.log('connecting')
           if (status === 'connecting') {
             onConnecting()
           }

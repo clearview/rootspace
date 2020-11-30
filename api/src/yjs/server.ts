@@ -131,15 +131,13 @@ export default class YjsServer {
         return
       }
 
-      ;(conn as any).user = user
+      (conn as any).user = user
 
       wsUtils.setupWSConnection(conn, req, docName)
       conn.send('authorized')
-      return
     }
 
     if (!(conn as any).user) {
-      conn.send('unauthenticated')
       conn.close()
     }
   }
