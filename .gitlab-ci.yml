@@ -30,7 +30,7 @@ build_api:
         docker build .
         --cache-from="API_REPOSITORY_URL:latest"
         -t $API_REPOSITORY_URL:latest
-        --file ./docker/Dockerfile.api
+        --file ./infra/docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
 
   tags:
@@ -38,7 +38,7 @@ build_api:
   only:
       - master
       - dockerize
-      
+
 build_web:
   image: docker:latest
   stage: build_web
@@ -53,7 +53,7 @@ build_web:
         docker build .
         --cache-from="WEB_REPOSITORY_URL:latest"
         -t $WEB_REPOSITORY_URL:latest
-        --file ./docker/Dockerfile.web
+        --file ./infra/docker/Dockerfile.web
     - docker push $WEB_REPOSITORY_URL:latest
 
   tags:
