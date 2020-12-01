@@ -1,3 +1,5 @@
+FROM hashicorp/envconsul:latest as envconsul
+
 FROM node:12 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
@@ -20,6 +22,8 @@ RUN printenv && \
     echo "Building... $(yarn build)" && \
     echo ${PWD} && \
     cat /srv/docker/api/pm2/staging.json
+
+COPY --from=envconsul /bin/envconsul /bin/envconsul
 
 ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 

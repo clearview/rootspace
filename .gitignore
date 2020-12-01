@@ -3,3 +3,4 @@
 .idea
 ./uploads
 .env
+infra/kubernetes/secrets

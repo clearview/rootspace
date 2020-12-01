@@ -1,4 +1,0 @@
-FROM consul:1.7
-MAINTAINER nedim@clearview.team
-
-COPY ./docker/consul/config /consul/config

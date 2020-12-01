@@ -14,6 +14,7 @@ variables:
 
 stages:
   - build_api
+  - build_web
 
 build_api:
   image: docker:latest
@@ -29,9 +30,34 @@ build_api:
         docker build .
         --cache-from="API_REPOSITORY_URL:latest"
         -t $API_REPOSITORY_URL:latest
-        --file ./docker/Dockerfile.api
+        --file ./infra/docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
 
+  tags:
+    - docker
+  only:
+      - master
+      - dockerize
+
+build_web:
+  image: docker:latest
+  stage: build_web
+  before_script:
+    - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
+    - curl -O https://bootstrap.pypa.io/get-pip.py
+    - python3 get-pip.py
+    - pip install awscli
+  script:
+    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
+    - >
+        docker build .
+        --cache-from="WEB_REPOSITORY_URL:latest"
+        -t $WEB_REPOSITORY_URL:latest
+        --file ./infra/docker/Dockerfile.web
+    - docker push $WEB_REPOSITORY_URL:latest
+
+  tags:
+    - docker
   only:
       - master
       - dockerize

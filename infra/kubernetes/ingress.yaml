@@ -1,0 +1,67 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api
+  namespace: root
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  # tls:
+  # - hosts:
+  #   - api.root.k8s.clearviewdev.io
+  #   secretName: api-root-k8s-clearviewdev-io-tls
+  rules:
+  - host: api.root.k8s.clearviewdev.io
+    http:
+      paths:
+      - backend:
+          serviceName: api
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: web
+  namespace: root
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  # tls:
+  # - hosts:
+  #   - web.root.k8s.clearviewdev.io
+  #   secretName: web-root-k8s-clearviewdev-io-tls
+  rules:
+  - host: web.root.k8s.clearviewdev.io
+    http:
+      paths:
+      - backend:
+          serviceName: web
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: consul-ui
+  namespace: root
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - foo'
+    #
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # cert-manager.io/issuer: "letsencrypt-prod"
+spec:
+  # tls:
+  # - hosts:
+  #   - consul.root.k8s.clearviewdev.io
+  #   secretName: consul-root-k8s-clearviewdev-io-tls
+  rules:
+  - host: consul.root.k8s.clearviewdev.io
+    http:
+      paths:
+      - backend:
+          serviceName: consul-ui
+          servicePort: 80
+---
