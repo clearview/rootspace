@@ -8,3 +8,7 @@ export enum NodeType {
   Embed = 'embed',
   TaskBoard = 'taskBoard',
 }
+
+export interface INodeConfig {
+  novaDoc?: boolean
+}

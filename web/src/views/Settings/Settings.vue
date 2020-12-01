@@ -48,6 +48,7 @@ type ComponentData = {
     title: string;
     invites: UserResource[];
   };
+
   spaceUsersObj: object;
   spaceUsersPendingObj: object;
   account: {

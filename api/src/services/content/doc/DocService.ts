@@ -14,6 +14,7 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../../response/erro
 import { DocUpdateSetup } from './DocUpdateSetup'
 import { DocActivity } from '../../activity/activities/content/index'
 import { INodeContentUpdate } from '../contracts'
+import { NovaDocUpdateSetup } from './NovaDocUpdateSetup'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -92,6 +93,7 @@ export class DocService extends NodeContentService {
       contentId: doc.id,
       title: doc.title,
       type: NodeType.Document,
+      config: data.nodeConfig,
     })
 
     if (data.attributes.parentId) {
@@ -134,7 +136,7 @@ export class DocService extends NodeContentService {
       title: data.title,
     })
 
-    this._update(value, doc)
+    await this._update(value, doc)
   }
 
   private async _update(data: DocUpdateValue, doc: Doc, userId?: number): Promise<Doc> {
@@ -142,9 +144,14 @@ export class DocService extends NodeContentService {
       userId = httpRequestContext.get('user').id
     }
 
+    const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
+
     let updatedDoc = await this.getById(doc.id)
 
-    const setup = new DocUpdateSetup(data, updatedDoc, userId)
+    const setup =
+      node.config?.novaDoc === true
+        ? new NovaDocUpdateSetup(data, updatedDoc, userId)
+        : new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.createRevision === true) {
       await this.createRevision(doc)

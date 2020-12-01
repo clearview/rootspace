@@ -43,9 +43,12 @@ export class Doc {
   slug: string
 
   @Column('json')
-  content: IDocContent
+  content: object
 
-  @Column('integer')
+  @Column('int', { array: true })
+  contentState: number[]
+
+  @Column('int', { array: true })
   access: number
 
   @Column('boolean', { default: false })

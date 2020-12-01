@@ -3,7 +3,6 @@ import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services'
 import { validateInviteAccept, validateInviteCreate } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { ForbiddenError } from '@casl/ability'
 import { Actions } from '../middleware/AuthMiddleware'
 
@@ -13,7 +12,6 @@ export class InvitesCtrl extends BaseCtrl {
 
   constructor() {
     super()
-    this.inviteService = ServiceFactory.getInstance().getInviteService()
     this.inviteFacade = new InviteFacade()
   }
 

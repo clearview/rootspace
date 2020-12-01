@@ -243,7 +243,6 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         access: 2,
         isLocked: this.readOnly
       }
-
       this.pageTitle = this.title
       await this.createUpdateDocument(payload)
       await this.docHistoryRef.refresh()
@@ -260,6 +259,23 @@ export default class Document extends Mixins(SpaceMixin, PageMixin) {
         this.$router.replace({ params: { slug: docUpdate.data.data.slug } }).catch(() => {
           // Silent duplicate error
         })
+        //         await DocumentService.update(id, data)
+        //         this.$store.commit('tree/updateNode', {
+        //           compareFn (node: NodeResource) {
+        //             return node.contentId.toString() === id
+        //           },
+        //           fn (node: NodeResource) {
+        //             return { ...node, title: data.title }
+        //           }
+        //         })
+        //       } else {
+        //         const document = await DocumentService.create({ ...data, parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined })
+        //         const getDocument = document.data
+        //         this.$store.commit('document/setDeferredParent', null)
+        //         this.$router.replace({ name: 'Document', params: { id: getDocument.data.contentId } })
+        //           .catch(() => {
+        //             // Silent duplicate error
+        //           })
       }
       this.loading = false
     } catch (err) {

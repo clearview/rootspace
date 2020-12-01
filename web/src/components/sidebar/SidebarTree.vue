@@ -192,6 +192,7 @@ enum MenuType {
   LINK = 'link',
   TASK = 'task',
   DOCUMENT = 'document',
+  NOVADOC = 'novadoc',
   EMBED = 'embed'
 }
 
@@ -349,6 +350,39 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           .catch(() => {
             // Silent duplicate error
           })
+      } catch { }
+
+      return true
+    }
+
+    if (type === MenuType.NOVADOC) {
+      this.$emit('menu-selected', false)
+
+      try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          // API doesn't allow empty title, so we set a "phantom" emptiness
+          title: String.fromCharCode(1, 2),
+          content: { type: 'doc', content: [] },
+          access: 2,
+          isLocked: false,
+          config: {
+            novaDoc: true
+          }
+        }
+        this.$store.commit('document/setDeferredParent', this.deferredParent ? { ...this.deferredParent } : null)
+        const document = await DocumentService.create({
+          ...payload,
+          parentId: this.$store.state.document.deferredParent ? this.$store.state.document.deferredParent.id : undefined
+        })
+        const getDocument = document.data
+        this.$store.commit('document/setDeferredParent', null)
+        this.$router.replace({
+          name: 'Novadoc',
+          params: { id: getDocument.data.contentId }
+        }).catch(() => {
+          // Silent duplicate error
+        })
       } catch { }
 
       return true

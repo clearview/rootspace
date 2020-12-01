@@ -85,7 +85,6 @@ export class FollowService {
     newFollow.user = user
     newFollow.entityId = entity.id
     newFollow.entity = entity.constructor.name
-    newFollow.tableName = getConnection().getMetadata(entity.constructor.name).tableName
 
     await this.getFollowRepository().save(newFollow)
     return this.getFollowRepository().reload(newFollow)

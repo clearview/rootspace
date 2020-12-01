@@ -1,17 +1,17 @@
 import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
+import { IDocContent } from '../../../types/doc'
 
 // seconds
 const revisonIdleTime = 180
 
 export class DocUpdateSetup {
-  private _data: DocUpdateValue
-  private _doc: Doc
-  private _userId: number
-  private _time: number
+  protected _data: DocUpdateValue
+  protected _doc: Doc
+  protected _userId: number
+  protected _time: number
 
   private _updatedAttributes: string[] = []
-
   private _contentUpdated: boolean = false
   private _createRevision: boolean = false
   private _registerActivity: boolean = false
@@ -22,10 +22,10 @@ export class DocUpdateSetup {
     this._userId = userId
     this._time = Date.now()
 
-    this._contentUpdated = this._isContentUpdated()
-    this._updatedAttributes = this._getUpdatedAttributes()
-    this._createRevision = this._doCreateRevision()
-    this._registerActivity = this._doRegisterActivity()
+    this._contentUpdated = this.isContentUpdated()
+    this._updatedAttributes = this.getUpdatedAttributes()
+    this._createRevision = this.doCreateRevision()
+    this._registerActivity = this.doRegisterActivity()
   }
 
   get contentUpdated(): boolean {
@@ -44,13 +44,16 @@ export class DocUpdateSetup {
     return this._registerActivity
   }
 
-  private _isContentUpdated(): boolean {
+  protected isContentUpdated(): boolean {
     if (this._data.attributes.content === undefined) {
       return false
     }
 
-    const dataContentJson = JSON.stringify(this._data.attributes.content.blocks)
-    const docContentJson = JSON.stringify(this._doc.content.blocks)
+    const dataContent = this._data.attributes.content as IDocContent
+    const docContent = this._doc.content as IDocContent
+
+    const dataContentJson = JSON.stringify(dataContent.blocks)
+    const docContentJson = JSON.stringify(docContent.blocks)
 
     if (docContentJson === dataContentJson) {
       return false
@@ -59,7 +62,7 @@ export class DocUpdateSetup {
     return true
   }
 
-  private _getUpdatedAttributes(): string[] {
+  protected getUpdatedAttributes(): string[] {
     const attributes = ['title', 'content']
     const updated = []
 
@@ -69,7 +72,7 @@ export class DocUpdateSetup {
       }
 
       if (attr === 'content') {
-        if (this._isContentUpdated()) {
+        if (this.isContentUpdated()) {
           updated.push(attr)
         }
 
@@ -84,7 +87,7 @@ export class DocUpdateSetup {
     return updated
   }
 
-  private _doCreateRevision(): boolean {
+  protected doCreateRevision(): boolean {
     if (this.contentUpdated === false) {
       return false
     }
@@ -107,7 +110,7 @@ export class DocUpdateSetup {
     return false
   }
 
-  private _doRegisterActivity(): boolean {
+  protected doRegisterActivity(): boolean {
     if (this._updatedAttributes.length === 0) {
       return false
     }
@@ -119,19 +122,20 @@ export class DocUpdateSetup {
     return true
   }
 
-  private isDocContentEmpty(): boolean {
-    if (this._doc.content.blocks === undefined) {
+  protected isDocContentEmpty(): boolean {
+    const content = this._doc.content as IDocContent
+    if (content.blocks === undefined) {
       return true
     }
 
-    if (this._doc.content.blocks.length === 0) {
+    if (content.blocks.length === 0) {
       return true
     }
 
     return false
   }
 
-  private isNewUserUpdating(): boolean {
+  protected isNewUserUpdating(): boolean {
     if (this._doc.contentUpdatedBy === this._userId) {
       return false
     }
@@ -143,7 +147,7 @@ export class DocUpdateSetup {
     return true
   }
 
-  private isOnlyContentUpdated() {
+  protected isOnlyContentUpdated() {
     if (this._updatedAttributes.length === 1 && this._updatedAttributes[0] === 'content') {
       return true
     }

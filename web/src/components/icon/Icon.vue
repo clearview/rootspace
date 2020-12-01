@@ -89,6 +89,24 @@ import IconClose3 from '@/components/icon/IconClose3.vue'
 import IconPlus3 from '@/components/icon/IconPlus3.vue'
 import IconRestore from '@/components/icon/IconRestore.vue'
 import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
+import IconStrike from '@/components/icon/IconStrike.vue'
+import IconUndo from '@/components/icon/IconUndo.vue'
+import IconTable from '@/components/icon/IconTable.vue'
+import IconRedo from '@/components/icon/IconRedo.vue'
+import IconQuote from '@/components/icon/IconQuote.vue'
+import IconMedia from '@/components/icon/IconMedia.vue'
+import IconPen from '@/components/icon/IconPen.vue'
+import IconOrderedList from '@/components/icon/IconOrderedList.vue'
+import IconImageLeft from '@/components/icon/IconImageLeft.vue'
+import IconImageCenter from '@/components/icon/IconImageCenter.vue'
+import IconImageRight from '@/components/icon/IconImageRight.vue'
+import IconOpenLink from '@/components/icon/IconOpenLink.vue'
+import IconUnlink from '@/components/icon/IconUnlink.vue'
+import IconColumnRemove from '@/components/icon/IconColumnRemove.vue'
+import IconMerge from '@/components/icon/IconMerge.vue'
+import IconRowAdd from '@/components/icon/IconRowAdd.vue'
+import IconColumnAdd from '@/components/icon/IconColumnAdd.vue'
+import IconRowRemove from '@/components/icon/IconRowRemove.vue'
 
 @Component({
   name: 'Icon',
@@ -142,6 +160,7 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconRight,
     IconRight2,
     IconSearch,
+    IconStrike,
     IconSettings,
     IconTag,
     IconTime,
@@ -166,7 +185,24 @@ import IconTrashArchive from '@/components/icon/IconTrashArchive.vue'
     IconMenuEmbed,
     IconMenuFolder,
     IconMenuLink,
-    IconMenuTask
+    IconMenuTask,
+    IconMedia,
+    IconOrderedList,
+    IconPen,
+    IconQuote,
+    IconRedo,
+    IconTable,
+    IconUndo,
+    IconImageLeft,
+    IconImageCenter,
+    IconImageRight,
+    IconUnlink,
+    IconOpenLink,
+    IconRowAdd,
+    IconRowRemove,
+    IconColumnAdd,
+    IconColumnRemove,
+    IconMerge
   }
 })
 export default class Icon extends Vue {

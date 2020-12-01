@@ -54,7 +54,7 @@
           </ul>
       </div>
     </div>
-    <TaskModal @close="closeModal" :item="item" :visible="showModal"></TaskModal>
+    <TaskModal v-if="showModal" @close="closeModal" :item="item" :visible="showModal"></TaskModal>
     <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
       It's not possible to move tasks and lists in search results
     </div>
