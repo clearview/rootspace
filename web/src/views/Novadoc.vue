@@ -648,22 +648,6 @@ export default {
             content: []
           }
         })
-        const debouncedSave = debounce((json) => {
-          this.save(json)
-        }, 1000)
-        this.editor.on('update', (api) => {
-          debouncedSave(api.getJSON())
-        })
-      },
-      async save (data) {
-        const title = this.title
-        this.pageTitle = title
-        const payload = {
-          spaceId: this.activeSpace.id,
-          title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2),
-          content: data
-        }
-        await this.createUpdateDocument(payload)
       },
       listenForNodeNameChanges () {
         this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
