@@ -198,11 +198,11 @@
           </button>
           <div class="menu-separator"></div>
           <button class="menu" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
-          :disabled="commands.undoDepth() <= 1">
+          :disabled="!canUndo()">
             <v-icon name="undo" viewbox="16" size="16"></v-icon>
           </button>
           <button class="menu" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
-          :disabled="commands.redoDepth() <= 0">
+          :disabled="!canRedo()">
             <v-icon name="redo" viewbox="16" size="16"></v-icon>
           </button>
         </div>
@@ -241,8 +241,8 @@
         </Popover>
       </div>
     </header>
-    <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState" ref="pageEditor">
-      <div class="paper" ref="paper" @mousedown="isMouseDown = true">
+    <div class="page-editor" @scroll="determineHeaderState" ref="pageEditor">
+      <div class="paper" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
@@ -349,7 +349,7 @@
                   @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <hr class="title-separator">
-        <EditorContent :editor="editor"></EditorContent>
+        <EditorContent :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
       </div>
       <div class="page-history" v-show="isHistoryVisible">
         <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
@@ -361,6 +361,10 @@
 
 <script>
 import { debounce } from 'lodash'
+import {
+  undoDepth,
+  redoDepth
+} from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
@@ -515,6 +519,12 @@ export default {
   },
   methods:
     {
+      canUndo () {
+        return undoDepth(this.editor.state) > 1
+      },
+      canRedo () {
+        return redoDepth(this.editor.state) > 0
+      },
       destroyProvider () {
         if (this.provider) {
           this.provider.destroy()
@@ -826,9 +836,11 @@ export default {
           }
         })
       },
-      focusToEditor () {
+      focusToEditor ($evt, force = false) {
         if (this.editor) {
-          if (this.title.trim().length === 0) {
+          if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+            this.editor.focus()
+          } else if (this.title.trim().length === 0) {
             this.$refs.title.focus()
           } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
             this.editor.focus(1)
@@ -1132,12 +1144,13 @@ export default {
   width: 100%;
   position: relative;
   display: flex;
+  user-select: all;
 }
 
 .paper {
-  width: 728px;
+  max-width: 728px;
   margin: auto;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   height: 100%;
   padding: 96px 0;
 }
