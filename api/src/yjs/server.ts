@@ -10,14 +10,21 @@ import jwt from 'jsonwebtoken'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { UserService } from '../services'
 import { User } from '../database/entities/User'
+import { DocUpdateValue } from '../values/doc'
+
+const syncProtocol = require('y-protocols/dist/sync.cjs')
+const encoding = require('lib0/dist/encoding.cjs')
+const decoding = require('lib0/dist/decoding.cjs')
 
 const port = 6001
+const messageSync = 0
+const docUpdateUsersMap = new Map<string, number[]>()
 
 const persistence = {
-  bindState: async (identifier: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs bindState for', identifier) // tslint:disable-line
+  bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
+    console.log('yjs bindState for', docName) // tslint:disable-line
 
-    const docId = Number(identifier.split('_').pop())
+    const docId = Number(docName.split('_').pop())
 
     const doc = await ServiceFactory.getInstance()
       .getDocService()
@@ -29,19 +36,22 @@ const persistence = {
     }
   },
 
-  writeState: async (identifier: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs writeState for', identifier) // tslint:disable-line
+  writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
+    console.log('yjs writeState for', docName) // tslint:disable-line
 
-    const docId = Number(identifier.split('_').pop())
+    const docId = Number(docName.split('_').pop())
     const state = Y.encodeStateAsUpdate(ydoc)
 
-    const docService = ServiceFactory.getInstance().getDocService()
-    const doc = await docService.getById(docId)
+    const data = DocUpdateValue.fromObject({
+      contentState: Array.from(state),
+    })
 
-    if (doc) {
-      doc.contentState = Array.from(state)
-      await docService.getDocRepository().save(doc)
-    }
+    const userIds = docUpdateUsersMap.get(docName)
+    docUpdateUsersMap.delete(docName)
+
+    await ServiceFactory.getInstance()
+      .getDocService()
+      .updateContentState(data, docId, userIds)
   },
 }
 
@@ -56,11 +66,7 @@ const authenticate = async (token: string): Promise<User | null> => {
 
     const user = await UserService.getInstance().getUserById(userId)
 
-    if (user) {
-      return user
-    }
-
-    return null
+    return user ?? null
   } catch (err) {
     return null
   }
@@ -117,32 +123,73 @@ export default class YjsServer {
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
     if (typeof message === 'string') {
-      const user = await authenticate(message)
-
-      if (!user) {
-        conn.send('unauthenticated')
-        conn.close()
-        return
-      }
-
-      const docName = req.url.slice(1)
-      const docId = Number(docName.split('_').pop())
-
-      if (!(await authorize(user.id, docId))) {
-        conn.send('unauthorized')
-        conn.close()
-        return
-      }
-
-      (conn as any).user = user
-
-      wsUtils.setupWSConnection(conn, req, docName)
-      conn.send('authorized')
+      await this.onStringMessage(conn, req, message)
+      return
     }
 
     if (!(conn as any).user) {
       conn.close()
     }
+
+    const decoder = decoding.createDecoder(new Uint8Array(message))
+    const messageType = decoding.readVarUint(decoder)
+
+    if (messageType === 0) {
+      this.onSyncMessage(conn, req, message)
+    }
+  }
+
+  private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    const docName = req.url.slice(1)
+    const user = await authenticate(message)
+
+    if (!user) {
+      conn.send('unauthenticated')
+      conn.close()
+      return
+    }
+
+    const docId = Number(docName.split('_').pop())
+
+    if (!(await authorize(user.id, docId))) {
+      conn.send('unauthorized')
+      conn.close()
+      return
+    }
+
+    ;(conn as any).user = user
+
+    wsUtils.setupWSConnection(conn, req, docName)
+    conn.send('authorized')
+  }
+
+  private onSyncMessage = (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    console.log('onSyncMessage')
+    const docName = req.url.slice(1)
+    const ydoc = wsUtils.docs.get(docName)
+
+    const encoder = encoding.createEncoder()
+    const decoder = decoding.createDecoder(new Uint8Array(message))
+
+    decoding.readVarUint(decoder) // don't remove this line
+    encoding.writeVarUint(encoder, messageSync)
+    syncProtocol.readSyncMessage(decoder, encoder, ydoc, null)
+
+    console.log(encoding.length(encoder))
+
+    if (encoding.length(encoder) !== 0) {
+      return
+    }
+
+    const docUpdateUserIds = docUpdateUsersMap.get(docName) ?? []
+    const userId = (conn as any).user.id
+
+    if (docUpdateUserIds.includes(userId)) {
+      return
+    }
+
+    docUpdateUserIds.push(userId)
+    docUpdateUsersMap.set(docName, docUpdateUserIds)
   }
 
   listen() {

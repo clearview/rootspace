@@ -1,10 +1,10 @@
 import { EntityValue, attributes } from '../entity'
 import { IDocUpdateAttributes } from './types'
 
-export const DocUpdateAttributes = {
+export const DocUpdateAttributes: IDocUpdateAttributes = {
   title: undefined,
   content: undefined,
-  docState: undefined,
+  contentState: undefined,
   access: undefined,
   isLocked: undefined,
 }

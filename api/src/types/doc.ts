@@ -13,3 +13,10 @@ export interface INovaDocContent {
   type: string
   content: object[]
 }
+
+export interface IDocUpdateSetup {
+  contentUpdated: boolean
+  updatedAttributes: string[]
+  createRevision: boolean
+  registerActivity: boolean
+}

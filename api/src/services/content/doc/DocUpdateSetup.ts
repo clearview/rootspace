@@ -1,15 +1,16 @@
 import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
 import { IDocContent } from '../../../types/doc'
+import { IDocUpdateSetup } from '../../../types/doc'
 
 // seconds
 const revisonIdleTime = 180
 
-export class DocUpdateSetup {
-  protected _data: DocUpdateValue
-  protected _doc: Doc
-  protected _userId: number
-  protected _time: number
+export class DocUpdateSetup implements IDocUpdateSetup {
+  private _data: DocUpdateValue
+  private _doc: Doc
+  private _userId: number
+  private _time: number
 
   private _updatedAttributes: string[] = []
   private _contentUpdated: boolean = false
@@ -22,10 +23,10 @@ export class DocUpdateSetup {
     this._userId = userId
     this._time = Date.now()
 
-    this._contentUpdated = this.isContentUpdated()
-    this._updatedAttributes = this.getUpdatedAttributes()
-    this._createRevision = this.doCreateRevision()
-    this._registerActivity = this.doRegisterActivity()
+    this._contentUpdated = this._isContentUpdated()
+    this._updatedAttributes = this._getUpdatedAttributes()
+    this._createRevision = this._doCreateRevision()
+    this._registerActivity = this._doRegisterActivity()
   }
 
   get contentUpdated(): boolean {
@@ -44,7 +45,7 @@ export class DocUpdateSetup {
     return this._registerActivity
   }
 
-  protected isContentUpdated(): boolean {
+  private _isContentUpdated(): boolean {
     if (this._data.attributes.content === undefined) {
       return false
     }
@@ -62,7 +63,7 @@ export class DocUpdateSetup {
     return true
   }
 
-  protected getUpdatedAttributes(): string[] {
+  private _getUpdatedAttributes(): string[] {
     const attributes = ['title', 'content']
     const updated = []
 
@@ -72,7 +73,7 @@ export class DocUpdateSetup {
       }
 
       if (attr === 'content') {
-        if (this.isContentUpdated()) {
+        if (this._isContentUpdated()) {
           updated.push(attr)
         }
 
@@ -87,16 +88,16 @@ export class DocUpdateSetup {
     return updated
   }
 
-  protected doCreateRevision(): boolean {
+  private _doCreateRevision(): boolean {
     if (this.contentUpdated === false) {
       return false
     }
 
-    if (this.isNewUserUpdating()) {
+    if (this._isNewUserUpdating()) {
       return true
     }
 
-    if (this.isDocContentEmpty()) {
+    if (this._isDocContentEmpty()) {
       return false
     }
 
@@ -110,19 +111,19 @@ export class DocUpdateSetup {
     return false
   }
 
-  protected doRegisterActivity(): boolean {
+  private _doRegisterActivity(): boolean {
     if (this._updatedAttributes.length === 0) {
       return false
     }
 
-    if (this.isOnlyContentUpdated() && !this.createRevision) {
+    if (this._isOnlyContentUpdated() && !this.createRevision) {
       return false
     }
 
     return true
   }
 
-  protected isDocContentEmpty(): boolean {
+  private _isDocContentEmpty(): boolean {
     const content = this._doc.content as IDocContent
     if (content.blocks === undefined) {
       return true
@@ -135,7 +136,7 @@ export class DocUpdateSetup {
     return false
   }
 
-  protected isNewUserUpdating(): boolean {
+  private _isNewUserUpdating(): boolean {
     if (this._doc.contentUpdatedBy === this._userId) {
       return false
     }
@@ -147,7 +148,7 @@ export class DocUpdateSetup {
     return true
   }
 
-  protected isOnlyContentUpdated() {
+  private _isOnlyContentUpdated() {
     if (this._updatedAttributes.length === 1 && this._updatedAttributes[0] === 'content') {
       return true
     }

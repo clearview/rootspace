@@ -108,6 +108,38 @@ export class DocService extends NodeContentService {
     return { ...doc, ...node }
   }
 
+  async updateContentState(data: DocUpdateValue, id: number, userIds: number[]): Promise<Doc> {
+    const doc = await this.requireById(id)
+    const setup = new NovaDocUpdateSetup(data, doc)
+
+    let updatedDoc = await this.requireById(id)
+
+    if (setup.createRevision === true) {
+      await this.createRevision(doc)
+      updatedDoc.revision = updatedDoc.revision + 1
+    }
+
+    if (setup.contentUpdated === true) {
+      updatedDoc.contentUpdatedAt = new Date(Date.now())
+      updatedDoc.contentUpdatedBy = userIds[userIds.length - 1]
+    }
+
+    Object.assign(updatedDoc, data.attributes)
+
+    updatedDoc = await this.getDocRepository().save(updatedDoc)
+    updatedDoc = await this.getDocRepository().reload(updatedDoc)
+
+    console.log(userIds)
+    
+    if (setup.registerActivity) {
+      for (const userId of userIds) {
+        await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, userId))
+      }
+    }
+
+    return updatedDoc
+  }
+
   async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
     const doc = await this.requireById(id)
     const updatedDoc = await this._update(data, doc, userId)
@@ -150,7 +182,7 @@ export class DocService extends NodeContentService {
 
     const setup =
       node.config?.novaDoc === true
-        ? new NovaDocUpdateSetup(data, updatedDoc, userId)
+        ? new NovaDocUpdateSetup(data, updatedDoc)
         : new DocUpdateSetup(data, updatedDoc, userId)
 
     if (setup.createRevision === true) {
