@@ -62,8 +62,27 @@ services:
     ports:
       - "3001:3001"
       - "6000:6000"
-      - "6001:6001"
       - "9229:9229"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+  y_websocket:
+    image: node:12
+    container_name: root_y_websocket
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project/
+    working_dir: /opt/project
+    command: yarn y-websocket
+    networks:
+      - backend
+    ports:
+      - "6001:6001"
+      - "9232:9232"
     logging:
       driver: "json-file"
       options:
