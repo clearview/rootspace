@@ -35,6 +35,18 @@
       "env": {
         "NODE_ENV": "production"
       }
+    },
+    {
+      "name": "root_y_websocket",
+      "script": "dist/yjs/run.js",
+      "args": "",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv/root/current/api",
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   ]
 }
