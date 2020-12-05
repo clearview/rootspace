@@ -40,6 +40,7 @@
       "name": "root_y_websocket",
       "script": "dist/yjs/run.js",
       "args": "",
+      "instances"  : 1,
       "watch": false,
       "node_args": "",
       "merge_logs": true,
