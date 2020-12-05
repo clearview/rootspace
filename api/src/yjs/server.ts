@@ -1,9 +1,12 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+import { config } from 'node-config-ts'
+
 import * as Http from 'http'
 import * as WebSocket from 'ws'
 import * as wsUtils from 'y-websocket/bin/utils.js'
 import * as Y from 'yjs'
 import jwt from 'jsonwebtoken'
-import { config } from 'node-config-ts'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { UserService } from '../services'
 import { User } from '../database/entities/User'
