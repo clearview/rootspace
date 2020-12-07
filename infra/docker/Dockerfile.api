@@ -11,7 +11,7 @@ RUN apt-get -qq update < /dev/null > /dev/null && \
 
 FROM prereq as api
 WORKDIR /srv
-COPY ./docker/api/. ./docker/api/
+COPY ./infra/docker/api/. ./docker/api/
 COPY ./api/. ./api/
 
 
