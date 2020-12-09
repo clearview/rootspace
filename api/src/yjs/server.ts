@@ -4,21 +4,18 @@ import { config } from 'node-config-ts'
 
 import * as Http from 'http'
 import * as WebSocket from 'ws'
-import * as wsUtils from 'y-websocket/bin/utils.js'
 import * as Y from 'yjs'
+import * as wsUtils from 'y-websocket/bin/utils.js'
+import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import jwt from 'jsonwebtoken'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { UserService } from '../services'
 import { User } from '../database/entities/User'
 import { DocUpdateValue } from '../values/doc'
-
-const syncProtocol = require('y-protocols/dist/sync.cjs')
-const encoding = require('lib0/dist/encoding.cjs')
-const decoding = require('lib0/dist/decoding.cjs')
+import { Doc } from '../database/entities/Doc'
 
 const port = 6001
-const messageSync = 0
-const docUpdateUsersMap = new Map<string, number[]>()
+const docStateInfo = new Map<string, { stateSavedAt: Date; stateUpdatedBy: number[] }>()
 
 const persistence = {
   bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
@@ -34,26 +31,29 @@ const persistence = {
       const state = new Uint8Array(doc.contentState)
       Y.applyUpdate(ydoc, state)
     }
-  },
 
+    const stateSavedAt = doc.contentUpdatedAt ?? new Date(Date.now())
+    docStateInfo.set(docName, { stateSavedAt, stateUpdatedBy: [] })
+  },
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs writeState for', docName, '(does nothing)') // tslint:disable-line
+    console.log('yjs writeState for', docName, 'does nothing') // tslint:disable-line
   },
-}
+  saveState: async (docName: string, ydoc: Y.Doc, userId: number): Promise<Doc> => {
+    console.log('yjs saveState for', docName, userId) // tslint:disable-line
 
-const saveState = async (docName: string, ydoc: Y.Doc, userId: number) => {
-  console.log('yjs saveState for', docName, userId) // tslint:disable-line
+    const docId = Number(docName.split('_').pop())
+    const state = Y.encodeStateAsUpdate(ydoc)
+    const content = yDocToProsemirrorJSON(ydoc)
 
-  const docId = Number(docName.split('_').pop())
-  const state = Y.encodeStateAsUpdate(ydoc)
+    const data = DocUpdateValue.fromObject({
+      content,
+      contentState: Array.from(state),
+    })
 
-  const data = DocUpdateValue.fromObject({
-    contentState: Array.from(state),
-  })
-
-  await ServiceFactory.getInstance()
-    .getDocService()
-    .updateContentState(data, docId, userId)
+    return await ServiceFactory.getInstance()
+      .getDocService()
+      .update(data, docId, userId)
+  },
 }
 
 const authenticate = async (token: string): Promise<User | null> => {
@@ -123,20 +123,53 @@ export default class YjsServer {
   }
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    const docName = req.url.slice(1)
     if (typeof message === 'string') {
-      await this.onStringMessage(conn, req, message)
-      return
+      const user = await authenticate(message)
+
+      if (!user) {
+        conn.send('unauthenticated')
+        conn.close()
+        return
+      }
+
+      const docId = Number(docName.split('_').pop())
+
+      if (!(await authorize(user.id, docId))) {
+        conn.send('unauthorized')
+        conn.close()
+        return
+      }
+
+      ;(conn as any).user = user
+
+      conn.on('close', async () => {
+        await this.onClose(conn, req)
+      })
+
+      await wsUtils.setupWSConnection(conn, req, docName)
+
+      const ydoc = wsUtils.docs.get(docName)
+
+      ydoc.on('update', () => {
+        this.onDocUpdate(conn, docName)
+      })
+
+      conn.send('authorized')
     }
 
     if (!(conn as any).user) {
       conn.close()
     }
+  }
 
-    const decoder = decoding.createDecoder(new Uint8Array(message))
-    const messageType = decoding.readVarUint(decoder)
+  private onDocUpdate = (conn: WebSocket, docName: string) => {
+    const userId = (conn as any).user.id
+    const info = docStateInfo.get(docName)
 
-    if (messageType === 0) {
-      this.onSyncMessage(conn, req, message)
+    if (info && !info.stateUpdatedBy.includes(userId)) {
+      info.stateUpdatedBy.push(userId)
+      docStateInfo.set(docName, info)
     }
   }
 
@@ -144,85 +177,27 @@ export default class YjsServer {
     const docName = req.url.slice(1)
     const userId = (conn as any).user.id
 
-    if (!docUpdateUsersMap.has(docName)) {
+    if (!docStateInfo.has(docName)) {
       return
     }
 
-    if (!docUpdateUsersMap.get(docName).includes(userId)) {
+    const stateUpdatedBy = docStateInfo.get(docName).stateUpdatedBy
+
+    if (!stateUpdatedBy.includes(userId)) {
       return
     }
 
-    docUpdateUsersMap.set(
-      docName,
-      docUpdateUsersMap.get(docName).filter((value) => value !== userId)
-    )
+    docStateInfo.get(docName).stateUpdatedBy = stateUpdatedBy.filter((value) => value !== userId)
 
-    if (docUpdateUsersMap.get(docName).length === 0) {
-      docUpdateUsersMap.delete(docName)
-    }
+    const sharedDoc = wsUtils.getYDoc(docName)
+    const doc = await persistence.saveState(docName, sharedDoc, userId)
 
-    const doc = wsUtils.getYDoc(docName)
-    await saveState(docName, doc, userId)
-  }
-
-  private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    console.log('onStringMessage') // tslint:disable-line
-    const docName = req.url.slice(1)
-    const user = await authenticate(message)
-
-    if (!user) {
-      conn.send('unauthenticated')
-      conn.close()
+    if (sharedDoc.conns.size === 0) {
+      docStateInfo.delete(docName)
       return
     }
 
-    const docId = Number(docName.split('_').pop())
-
-    if (!(await authorize(user.id, docId))) {
-      conn.send('unauthorized')
-      conn.close()
-      return
-    }
-
-    (conn as any).user = user
-
-    conn.on('close', async () => {
-      await this.onClose(conn, req)
-    })
-
-    wsUtils.setupWSConnection(conn, req, docName)
-    conn.send('authorized')
-  }
-
-  private onSyncMessage = (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    console.log('onSyncMessage') // tslint:disable-line
-    const docName = req.url.slice(1)
-    const ydoc = wsUtils.docs.get(docName)
-
-    const encoder = encoding.createEncoder()
-    const decoder = decoding.createDecoder(new Uint8Array(message))
-
-    decoding.readVarUint(decoder) // don't remove this line
-    encoding.writeVarUint(encoder, messageSync)
-    syncProtocol.readSyncMessage(decoder, encoder, ydoc, null)
-
-    console.log(encoding.length(encoder)) // tslint:disable-line
-
-    if (encoding.length(encoder) !== 1) {
-      return
-    }
-
-    console.log('is update') // tslint:disable-line
-
-    const docUpdateUserIds = docUpdateUsersMap.get(docName) ?? []
-    const userId = (conn as any).user.id
-
-    if (docUpdateUserIds.includes(userId)) {
-      return
-    }
-
-    docUpdateUserIds.push(userId)
-    docUpdateUsersMap.set(docName, docUpdateUserIds)
+    docStateInfo.get(docName).stateSavedAt = doc.contentUpdatedAt
   }
 
   listen() {
