@@ -265,9 +265,8 @@
                 </NovadocMenuButton>
               </div>
             </div>
-
-            <div class="bubble" ref="bubble" :style="getBubblePosition()">
-            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)" @mousedown.stop>
+            <div class="bubble" ref="bubble" :style="getBubblePosition()" @mousedown.stop.prevent="consume">
+            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
                 <BoldIcon size="16"></BoldIcon>
@@ -519,6 +518,9 @@ export default {
   },
   methods:
     {
+      consume () {
+        // NOTE: Any event that want to be consumed without action should be put here
+      },
       canUndo () {
         return undoDepth(this.editor.state) > 1
       },
@@ -713,9 +715,15 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+          return true
+        }
       },
       canBeItalic (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -723,9 +731,15 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+          return true
+        }
       },
       canBeStrikethrough (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -741,6 +755,9 @@ export default {
       },
       canBeTextColored (isActive, focused) {
         if (isActive.paragraph() && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -1148,7 +1165,7 @@ export default {
 }
 
 .paper {
-  max-width: 728px;
+  max-width: 856px;
   margin: auto;
   flex: 1 1 auto;
   height: 100%;
@@ -1271,7 +1288,7 @@ export default {
   width: 100%;
   resize: none;
   height: auto;
-  padding: 0 12px;
+  padding: 0 64px;
 }
 
 .bubble {
@@ -1294,12 +1311,12 @@ export default {
 
 .title-separator {
   border: 1px solid #EDEFF3;
-  margin: 24px 12px;
+  margin: 24px 64px;
 }
 </style>
 <style lang="postcss">
 .ProseMirror {
-  padding: 0 12px;
+  padding: 0 64px;
   outline: none;
 }
 
@@ -1503,6 +1520,10 @@ export default {
 
   .todo-content {
     flex: 1;
+
+    &[contenteditable='true']::before {
+      content: none;
+    }
 
     > p:last-of-type {
       margin-bottom: 0;
