@@ -108,7 +108,7 @@ export class DocService extends NodeContentService {
     return { ...doc, ...node }
   }
 
-  async updateContentState(data: DocUpdateValue, id: number, userIds: number[]): Promise<Doc> {
+  async updateContentState(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
     const doc = await this.requireById(id)
     const setup = new NovaDocUpdateSetup(data, doc)
 
@@ -121,7 +121,7 @@ export class DocService extends NodeContentService {
 
     if (setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
-      updatedDoc.contentUpdatedBy = userIds[userIds.length - 1]
+      updatedDoc.contentUpdatedBy = userId
     }
 
     Object.assign(updatedDoc, data.attributes)
@@ -129,12 +129,8 @@ export class DocService extends NodeContentService {
     updatedDoc = await this.getDocRepository().save(updatedDoc)
     updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
-    console.log(userIds)
-    
     if (setup.registerActivity) {
-      for (const userId of userIds) {
-        await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, userId))
-      }
+      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, userId))
     }
 
     return updatedDoc
@@ -207,15 +203,19 @@ export class DocService extends NodeContentService {
     return updatedDoc
   }
 
-  private async createRevision(doc: Doc): Promise<void> {
+  private async createRevision(doc: Doc, revisionBy?: number): Promise<void> {
     const docRevision = this.getDocRevisionRepository().create()
+
+    if (!revisionBy) {
+      revisionBy = doc.contentUpdatedBy ?? doc.userId
+    }
 
     docRevision.userId = doc.userId
     docRevision.spaceId = doc.spaceId
     docRevision.docId = doc.id
     docRevision.content = doc.content
     docRevision.number = doc.revision
-    docRevision.revisionBy = doc.contentUpdatedBy ?? doc.userId
+    docRevision.revisionBy = revisionBy
     docRevision.revisionAt = doc.contentUpdatedAt ?? doc.createdAt
 
     await this.getDocRevisionRepository().save(docRevision)

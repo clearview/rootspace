@@ -37,22 +37,23 @@ const persistence = {
   },
 
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs writeState for', docName) // tslint:disable-line
-
-    const docId = Number(docName.split('_').pop())
-    const state = Y.encodeStateAsUpdate(ydoc)
-
-    const data = DocUpdateValue.fromObject({
-      contentState: Array.from(state),
-    })
-
-    const userIds = docUpdateUsersMap.get(docName)
-    docUpdateUsersMap.delete(docName)
-
-    await ServiceFactory.getInstance()
-      .getDocService()
-      .updateContentState(data, docId, userIds)
+    console.log('yjs writeState for', docName, '(does nothing)') // tslint:disable-line
   },
+}
+
+const saveState = async (docName: string, ydoc: Y.Doc, userId: number) => {
+  console.log('yjs saveState for', docName, userId) // tslint:disable-line
+
+  const docId = Number(docName.split('_').pop())
+  const state = Y.encodeStateAsUpdate(ydoc)
+
+  const data = DocUpdateValue.fromObject({
+    contentState: Array.from(state),
+  })
+
+  await ServiceFactory.getInstance()
+    .getDocService()
+    .updateContentState(data, docId, userId)
 }
 
 const authenticate = async (token: string): Promise<User | null> => {
@@ -139,7 +140,33 @@ export default class YjsServer {
     }
   }
 
+  private onClose = async (conn: WebSocket, req: Http.IncomingMessage) => {
+    const docName = req.url.slice(1)
+    const userId = (conn as any).user.id
+
+    if (!docUpdateUsersMap.has(docName)) {
+      return
+    }
+
+    if (!docUpdateUsersMap.get(docName).includes(userId)) {
+      return
+    }
+
+    docUpdateUsersMap.set(
+      docName,
+      docUpdateUsersMap.get(docName).filter((value) => value !== userId)
+    )
+
+    if (docUpdateUsersMap.get(docName).length === 0) {
+      docUpdateUsersMap.delete(docName)
+    }
+
+    const doc = wsUtils.getYDoc(docName)
+    await saveState(docName, doc, userId)
+  }
+
   private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    console.log('onStringMessage') // tslint:disable-line
     const docName = req.url.slice(1)
     const user = await authenticate(message)
 
@@ -157,14 +184,18 @@ export default class YjsServer {
       return
     }
 
-    ;(conn as any).user = user
+    (conn as any).user = user
+
+    conn.on('close', async () => {
+      await this.onClose(conn, req)
+    })
 
     wsUtils.setupWSConnection(conn, req, docName)
     conn.send('authorized')
   }
 
   private onSyncMessage = (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    console.log('onSyncMessage')
+    console.log('onSyncMessage') // tslint:disable-line
     const docName = req.url.slice(1)
     const ydoc = wsUtils.docs.get(docName)
 
@@ -175,11 +206,13 @@ export default class YjsServer {
     encoding.writeVarUint(encoder, messageSync)
     syncProtocol.readSyncMessage(decoder, encoder, ydoc, null)
 
-    console.log(encoding.length(encoder))
+    console.log(encoding.length(encoder)) // tslint:disable-line
 
-    if (encoding.length(encoder) !== 0) {
+    if (encoding.length(encoder) !== 1) {
       return
     }
+
+    console.log('is update') // tslint:disable-line
 
     const docUpdateUserIds = docUpdateUsersMap.get(docName) ?? []
     const userId = (conn as any).user.id
