@@ -130,7 +130,7 @@
           </MenuGroup>
           <MenuGroup value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
             <template #default>
-              <v-icon name="pen" viewbox="16" size="14"
+              <v-icon name="pen" viewbox="16" size="12"
                       v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
               <div class="bg-color bg-color-display" v-else
                    :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
@@ -197,19 +197,21 @@
             <v-icon name="table" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo">
+          <button class="menu" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
+          :disabled="!canUndo()">
             <v-icon name="undo" viewbox="16" size="16"></v-icon>
           </button>
-          <button class="menu" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo">
+          <button class="menu" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
+          :disabled="!canRedo()">
             <v-icon name="redo" viewbox="16" size="16"></v-icon>
           </button>
         </div>
       </editor-menu-bar>
       <div class="editor-context-menu">
-        <Popover :z-index="1001" :with-close="false" position="bottom-start">
+        <Popover :z-index="1001" :with-close="false" position="bottom-start" borderless>
           <template #default="{ hide }">
             <div class="action-line" @click="hide();toggleReadOnly()">
-              <v-icon name="lock"></v-icon>
+<!--              <v-icon name="lock"></v-icon>-->
               <div class="action-line-text" v-if="readOnly">
                 Make Editable
               </div>
@@ -218,14 +220,14 @@
               </div>
             </div>
             <div class="action-line" @click="hide();showHistory()">
-              <v-icon name="history" viewbox="20"></v-icon>
+<!--              <v-icon name="history" viewbox="20"></v-icon>-->
               <div class="action-line-text">
                 History
               </div>
             </div>
             <div class="action-separator"></div>
             <div class="action-line danger" @click="hide();deleteNovadoc()">
-              <v-icon name="trash"></v-icon>
+<!--              <v-icon name="trash"></v-icon>-->
               <div class="action-line-text">
                 Delete
               </div>
@@ -233,14 +235,14 @@
           </template>
           <template #trigger="{ visible }">
             <button class="menu-btn btn btn-link" :class="{'btn-link-primary': visible}">
-              <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+              <v-icon name="vertical-ellipsis" viewbox="20" size="16px"/>
             </button>
           </template>
         </Popover>
       </div>
     </header>
-    <div class="page-editor" @click.self="focusToEditor" @scroll="determineHeaderState" ref="pageEditor">
-      <div class="paper" ref="paper" @mousedown="isMouseDown = true">
+    <div class="page-editor" @scroll="determineHeaderState" ref="pageEditor">
+      <div class="paper" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
@@ -263,9 +265,8 @@
                 </NovadocMenuButton>
               </div>
             </div>
-
-            <div class="bubble" ref="bubble" :style="getBubblePosition()">
-            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)" @mousedown.stop>
+            <div class="bubble" ref="bubble" :style="getBubblePosition()" @mousedown.stop.prevent="consume">
+            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
                 <BoldIcon size="16"></BoldIcon>
@@ -306,7 +307,7 @@
               </MenuGroup>
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
                 <template #default>
-                  <v-icon name="pen" viewbox="16" size="14"
+                  <v-icon name="pen" viewbox="16" size="12"
                           v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
                   <div class="bg-color bg-color-display" v-else
                        :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
@@ -324,8 +325,8 @@
               <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link"
                 v-if="canBeLinked(isActive, true)">
                 <template #default>
-                  <v-icon name="edit2" viewbox="16" size="16" v-if="isActive.link()"></v-icon>
-                  <LinkIcon size="16" v-else></LinkIcon>
+                  <v-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></v-icon>
+                  <LinkIcon size="12" v-else></LinkIcon>
                 </template>
                 <template #options="{ hide }">
                   <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
@@ -347,18 +348,22 @@
                   @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <hr class="title-separator">
-        <EditorContent :editor="editor"></EditorContent>
+        <EditorContent :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
       </div>
-    </div>
-    <div class="page-history" v-show="isHistoryVisible">
-      <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
-                  @restore="restore"></DocHistory>
+      <div class="page-history" v-show="isHistoryVisible">
+        <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
+                    @restore="restore"></DocHistory>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { debounce } from 'lodash'
+import {
+  undoDepth,
+  redoDepth
+} from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
@@ -513,6 +518,15 @@ export default {
   },
   methods:
     {
+      consume () {
+        // NOTE: Any event that want to be consumed without action should be put here
+      },
+      canUndo () {
+        return undoDepth(this.editor.state) > 1
+      },
+      canRedo () {
+        return redoDepth(this.editor.state) > 0
+      },
       destroyProvider () {
         if (this.provider) {
           this.provider.destroy()
@@ -701,9 +715,15 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+          return true
+        }
       },
       canBeItalic (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -711,9 +731,15 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+          return true
+        }
       },
       canBeStrikethrough (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -729,6 +755,9 @@ export default {
       },
       canBeTextColored (isActive, focused) {
         if (isActive.paragraph() && focused) {
+          return true
+        }
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
           return true
         }
       },
@@ -824,9 +853,11 @@ export default {
           }
         })
       },
-      focusToEditor () {
+      focusToEditor ($evt, force = false) {
         if (this.editor) {
-          if (this.title.trim().length === 0) {
+          if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+            this.editor.focus()
+          } else if (this.title.trim().length === 0) {
             this.$refs.title.focus()
           } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
             this.editor.focus(1)
@@ -1095,32 +1126,50 @@ export default {
     flex: 0 0 auto;
     margin-left: auto;
 
-    .menu-btn {
-      padding: 12px;
+    .popover-trigger {
+      .menu-btn {
+        padding: 8px;
+        height: auto;
+      }
+      &.show {
+        .menu-btn {
+          color: #146493;
+          background: #DDF3FF;
+          box-shadow: none;
+          .stroke-current {
+            color: #146493;
+          }
+        }
+      }
     }
   }
 
 }
 
 .page-history {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 50;
-  width: 256px;
-  height: 100vh;
-  background: #fafafa;
+  width: 304px;
+  height: 100%;
+  background: #F8F8FB;
   flex: 0 0 auto;
-  overflow-y: scroll;
+  display: flex;
 }
 
 .page-editor {
   margin: 0 auto;
-  padding: 96px 0;
   flex: 1 1 auto;
   overflow-y: scroll;
   width: 100%;
   position: relative;
+  display: flex;
+  user-select: all;
+}
+
+.paper {
+  max-width: 856px;
+  margin: auto;
+  flex: 1 1 auto;
+  height: 100%;
+  padding: 96px 0;
 }
 
 .menu-separator {
@@ -1182,7 +1231,7 @@ export default {
 }
 
 .bg-color, .text-color {
-  padding: 2px 4px;
+  //padding: 2px 4px;
   box-sizing: border-box;
   font-size: 12px;
 }
@@ -1218,6 +1267,7 @@ export default {
 .action-line-text {
   @apply ml-2;
   flex: 1 1 auto;
+  font-weight: normal;
 }
 
 .action-separator {
@@ -1238,11 +1288,7 @@ export default {
   width: 100%;
   resize: none;
   height: auto;
-}
-
-.paper {
-  width: 704px;
-  margin: auto;
+  padding: 0 64px;
 }
 
 .bubble {
@@ -1253,6 +1299,7 @@ export default {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
     border-radius: 4px;
     padding: 4px;
+    box-sizing: border-box;
     max-width: 100%;
     font-size: 12px;
     flex: 0 0 auto;
@@ -1264,11 +1311,12 @@ export default {
 
 .title-separator {
   border: 1px solid #EDEFF3;
-  margin: 24px 0;
+  margin: 24px 64px;
 }
 </style>
 <style lang="postcss">
 .ProseMirror {
+  padding: 0 64px;
   outline: none;
 }
 
@@ -1472,6 +1520,10 @@ export default {
 
   .todo-content {
     flex: 1;
+
+    &[contenteditable='true']::before {
+      content: none;
+    }
 
     > p:last-of-type {
       margin-bottom: 0;
