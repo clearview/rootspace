@@ -11,47 +11,52 @@
       </div>
     </header>
     <main class="content">
-      <div class="group">
-        <div class="history-entry" :key="'current'"
-             :class="{current: !preview}"
-             @click="$emit('preview', null)" v-if="doc">
-          <div class="entry-left">
-            <div class="entry-metadata">
-              <time class="datetime" :title="doc.contentUpdatedAt">{{doc.contentUpdatedAt | formatSimpleDateTime}}</time>
-              <div class="current">Current Version</div>
+      <div class="history-entry" :key="'current'"
+           :class="{current: !preview}"
+           @click="$emit('preview', null)" v-if="doc">
+        <div class="entry-left">
+          <div class="entry-metadata">
+            <time class="datetime" :title="doc.contentUpdatedAt">{{ doc.contentUpdatedAt | formatSimpleDateTime }}
+            </time>
+            <div class="current">Current Version</div>
+          </div>
+          <div class="entry-author">
+            <div class="author-avatar">
+              <avatar :size="24"
+                      :src="currentUser.avatar && currentUser.avatar.versions ? currentUser.avatar.versions.default.location : ''"
+                      :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
             </div>
-            <div class="entry-author">
-              <div class="author-avatar">
-                <avatar :size="24" :src="currentUser.avatar && currentUser.avatar.versions ? currentUser.avatar.versions.default.location : ''"  :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
-              </div>
-              <div class="author-name">
-                {{currentUser.firstName}} {{currentUser.lastName}}
-              </div>
+            <div class="author-name">
+              {{ currentUser.firstName }} {{ currentUser.lastName }}
             </div>
           </div>
         </div>
-        <div class="history-entry" v-for="(entry) in history" :key="entry.id"
-             :class="{current: preview && preview.id === entry.id}"
-        @click="$emit('preview', entry)">
-          <div class="entry-left">
-            <div class="entry-metadata">
-              <time class="datetime" :title="entry.revisionAt">{{entry.revisionAt | formatSimpleDateTime}}</time>
+      </div>
+
+      <div class="history-entry" v-for="(entry) in history" :key="entry.id"
+           :class="{current: preview && preview.id === entry.id}"
+           @click="$emit('preview', entry)">
+        <div class="entry-left">
+          <div class="entry-metadata">
+            <time class="datetime" :title="entry.revisionAt">{{ entry.revisionAt | formatSimpleDateTime }}</time>
+          </div>
+          <div class="entry-author">
+            <div class="author-avatar">
+              <avatar :size="24"
+                      :src="entry.revisionUser.avatar && entry.revisionUser.avatar.versions ? entry.revisionUser.avatar.versions.default.location : ''"
+                      :username="`${entry.revisionUser.firstName} ${entry.revisionUser.lastName}`"></avatar>
             </div>
-            <div class="entry-author">
-              <div class="author-avatar">
-                <avatar :size="24" :src="entry.revisionUser.avatar && entry.revisionUser.avatar.versions ? entry.revisionUser.avatar.versions.default.location : ''"  :username="`${entry.revisionUser.firstName} ${entry.revisionUser.lastName}`"></avatar>
-              </div>
-              <div class="author-name">
-                {{entry.revisionUser.firstName}} {{entry.revisionUser.lastName}}
-              </div>
+            <div class="author-name">
+              {{ entry.revisionUser.firstName }} {{ entry.revisionUser.lastName }}
             </div>
           </div>
-          <div class="entry-right">
-            <div class="restore">
-              <button class="btn btn-icon" @click="$emit('restore', entry)" v-tippy="{ placement : 'top',  arrow: true }" content="Restore">
-                <v-icon name="restore" size="16px" viewbox="16" title="Restore"/>
-              </button>
-            </div>
+        </div>
+        <div class="entry-right">
+          <div class="restore">
+            <button class="btn btn-icon" @click="$emit('restore', entry)" v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Restore">
+              <v-icon name="restore" size="16px" viewbox="16" title="Restore"/>
+            </button>
           </div>
         </div>
       </div>
@@ -60,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
 import DocumentService from '@/services/document'
 import { DocRevisionResource, DocumentResource, UserResource } from '@/types/resource'
@@ -115,27 +120,40 @@ export default class DocHistory extends Vue {
 
 <style lang="postcss" scoped>
 .doc-history {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
+
 .header {
   padding: 24px 16px;
   display: flex;
   align-items: center;
+  flex: 0 0 auto;
 }
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: scroll;
+}
+
 .title {
   margin: 0;
-  font-weight: 500;
+  font-weight: bold;
   font-size: 18px;
   line-height: 21px;
-  color: #444754;
+  color: #2C2B35;
   flex: 1 1 auto;
   margin-right: 16px;
 }
+
 .close {
   .btn-icon {
     background: transparent;
-    color: #AAB1C5;
+    color: #444754;
     padding: 8px;
     height: auto;
+
     &:hover {
       background: #eee;
       color: #444754;
@@ -150,10 +168,12 @@ export default class DocHistory extends Vue {
     padding: 8px;
     height: auto;
     border-radius: 100%;
+
     &:hover {
       background: #EFF1F6;
       color: #444754;
     }
+
     .fill-current {
       fill: transparent;
     }
@@ -170,55 +190,73 @@ export default class DocHistory extends Vue {
   margin-bottom: 12px;
   padding: 0 16px;
 }
+
 .history-entry {
+  margin: 16px;
   padding: 16px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  transition: all 0.15s ease;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #E0E2E7;
+  }
+
   &.current, &:hover {
-    background: rgba(222, 226, 238, 0.4);
+    background: #fff;
+    border-radius: 6px;
+    border-bottom: 1px solid transparent;
   }
 }
+
 .entry-left {
   flex: 1 1 auto;
 }
+
 .entry-right {
   flex: 0 0 auto;
   margin-left: 8px;
 }
+
 .entry-metadata {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+
   .datetime {
-    font-weight: 600;
-    font-size: 13px;
-    line-height: 16px;
-    color: #444754;
     flex: 0 0 auto;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 17px;
+    color: #2C2B35;
   }
+
   .current {
     margin-left: 8px;
     font-size: 10px;
     font-weight: bold;
     line-height: 12px;
-    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #D83750;
-    flex: 1 1 auto;
-
+    color: #146493;
+    padding: 4px 8px;
+    border-radius: 13px;
+    background: #DDF3FF;
+    flex: 0 1 auto;
   }
 }
+
 .entry-author {
   display: flex;
   align-items: center;
+
   .author-name {
     margin-left: 8px;
     font-style: normal;
     font-weight: normal;
     font-size: 13px;
     line-height: 16px;
-    color: #444754;
+    color: #2C2B35;
   }
 }
 </style>
