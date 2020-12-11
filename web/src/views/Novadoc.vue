@@ -246,7 +246,7 @@
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
-                 :style="getBubblePosition()">
+                 :style="getBubblePosition()" @mousedown.stop.prevent="consume">
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
                   <template #default>
@@ -350,7 +350,7 @@
         <hr class="title-separator">
         <EditorContent :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
       </div>
-      <div class="page-history" v-show="isHistoryVisible">
+      <div class="page-history" v-show="isHistoryVisible" @mousedown.stop.prevent="consume">
         <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
                     @restore="restore"></DocHistory>
       </div>
