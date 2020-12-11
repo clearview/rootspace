@@ -1318,6 +1318,11 @@ export default {
 .ProseMirror {
   padding: 0 64px;
   outline: none;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -o-user-select: text;
+
 }
 
 .ProseMirror > .ProseMirror-yjs-cursor:first-child {
