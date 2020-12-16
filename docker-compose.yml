@@ -28,7 +28,6 @@ services:
       options:
         max-size: "100MB"
         max-file: "3"
-
   redis:
     image: redis:6
     container_name: root_redis

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm'
 import { IDocContent } from '../../types/doc'
 import { Doc } from './Doc'
 import { User } from './User'
@@ -24,6 +24,9 @@ export class DocRevision {
 
   @Column('json')
   content: IDocContent
+
+  @Column('int', { array: true })
+  contentState: number[]
 
   @Column('integer')
   number: number

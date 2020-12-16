@@ -143,7 +143,6 @@ export class DocService extends NodeContentService {
 
   private async _update(data: DocUpdateValue, doc: Doc, actorId: number): Promise<Doc> {
     const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
-
     let updatedDoc = await this.getById(doc.id)
 
     const setup =
@@ -180,6 +179,7 @@ export class DocService extends NodeContentService {
     docRevision.spaceId = doc.spaceId
     docRevision.docId = doc.id
     docRevision.content = doc.content
+    docRevision.contentState = doc.contentState
     docRevision.number = doc.revision
     docRevision.revisionBy = doc.contentUpdatedBy ?? doc.userId
     docRevision.revisionAt = doc.contentUpdatedAt ?? doc.createdAt
@@ -187,14 +187,21 @@ export class DocService extends NodeContentService {
     await this.getDocRevisionRepository().save(docRevision)
   }
 
-  async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
+  async restoreRevision(docRevisionId: number, actorId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(docRevisionId)
     const doc = await this.requireById(docRevision.docId)
+    const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
 
     let updatedDoc = await this.requireById(docRevision.docId)
 
-    const data = DocUpdateValue.fromObject({ content: docRevision.content })
-    const setup = new DocUpdateSetup(data, updatedDoc, userId)
+    const data = DocUpdateValue.fromObject({ content: docRevision.content, contentState: docRevision.contentState })
+
+    const setup =
+      node.config?.novaDoc === true
+        ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
+        : new DocUpdateSetup(data, updatedDoc, actorId)
+
+    console.log(setup.contentUpdated)
 
     if (setup.contentUpdated === false) {
       return updatedDoc
@@ -204,6 +211,7 @@ export class DocService extends NodeContentService {
 
     updatedDoc.revision = updatedDoc.revision + 1
     updatedDoc.content = docRevision.content
+    updatedDoc.contentState = docRevision.contentState
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
 

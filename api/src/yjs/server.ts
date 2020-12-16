@@ -1,101 +1,21 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
-import { config } from 'node-config-ts'
 
 import * as Http from 'http'
 import * as WebSocket from 'ws'
-import * as Y from 'yjs'
 import * as wsUtils from 'y-websocket/bin/utils.js'
-import { yDocToProsemirrorJSON } from 'y-prosemirror'
-import jwt from 'jsonwebtoken'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { UserService } from '../services'
-import { User } from '../database/entities/User'
-import { DocUpdateValue } from '../values/doc'
-import { Doc } from '../database/entities/Doc'
+import { authenticate, authorize } from './auth'
+import { persistence, saveState, docMonitor, onDocUpdate } from './persistence'
 
-const port = 6001
-const docStateInfo = new Map<string, { stateSavedAt: Date; stateUpdatedBy: number[] }>()
+const encoding = require('lib0/dist/encoding.cjs')
+const decoding = require('lib0/dist/decoding.cjs')
 
-const persistence = {
-  bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs bindState for', docName) // tslint:disable-line
-
-    const docId = Number(docName.split('_').pop())
-
-    const doc = await ServiceFactory.getInstance()
-      .getDocService()
-      .getById(docId)
-
-    if (doc && doc.contentState) {
-      const state = new Uint8Array(doc.contentState)
-      Y.applyUpdate(ydoc, state)
-    }
-
-    const stateSavedAt = doc.contentUpdatedAt ?? new Date(Date.now())
-    docStateInfo.set(docName, { stateSavedAt, stateUpdatedBy: [] })
-  },
-  writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
-    console.log('yjs writeState for', docName, 'does nothing') // tslint:disable-line
-  },
-  saveState: async (docName: string, ydoc: Y.Doc, userId: number): Promise<Doc> => {
-    console.log('yjs saveState for', docName, userId) // tslint:disable-line
-
-    const docId = Number(docName.split('_').pop())
-    const state = Y.encodeStateAsUpdate(ydoc)
-    const content = yDocToProsemirrorJSON(ydoc)
-
-    const data = DocUpdateValue.fromObject({
-      content,
-      contentState: Array.from(state),
-    })
-
-    return await ServiceFactory.getInstance()
-      .getDocService()
-      .update(data, docId, userId)
-  },
-}
-
-const authenticate = async (token: string): Promise<User | null> => {
-  try {
-    const decoded: any = jwt.verify(token, config.jwt.accessToken.secretKey)
-    const userId = decoded.id
-
-    if (typeof userId !== 'number') {
-      return null
-    }
-
-    const user = await UserService.getInstance().getUserById(userId)
-
-    return user ?? null
-  } catch (err) {
-    return null
-  }
-}
-
-const authorize = async (userId: number, docId: number): Promise<boolean> => {
-  const doc = await ServiceFactory.getInstance()
-    .getDocService()
-    .getById(docId)
-
-  if (!doc) {
-    return false
-  }
-
-  const inSpace = await ServiceFactory.getInstance()
-    .getUserSpaceService()
-    .isUserInSpace(userId, doc.spaceId)
-
-  if (inSpace) {
-    return true
-  }
-
-  return false
-}
+const messageSync = 0
 
 wsUtils.setPersistence(persistence)
 
 export default class YjsServer {
+  port: number = 6001
   httpServer: Http.Server
   wss: WebSocket.Server
 
@@ -124,6 +44,7 @@ export default class YjsServer {
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
     const docName = req.url.slice(1)
+
     if (typeof message === 'string') {
       const user = await authenticate(message)
 
@@ -144,64 +65,62 @@ export default class YjsServer {
       ;(conn as any).user = user
 
       conn.on('close', async () => {
-        await this.onClose(conn, req)
+        await this.connOnClose(conn, docName)
       })
 
-      await wsUtils.setupWSConnection(conn, req, docName)
-
-      const ydoc = wsUtils.docs.get(docName)
-
-      ydoc.on('update', () => {
-        this.onDocUpdate(conn, docName)
-      })
-
+      wsUtils.setupWSConnection(conn, req)
       conn.send('authorized')
+      return
     }
 
     if (!(conn as any).user) {
       conn.close()
     }
-  }
 
-  private onDocUpdate = (conn: WebSocket, docName: string) => {
-    const userId = (conn as any).user.id
-    const info = docStateInfo.get(docName)
+    const encoder = encoding.createEncoder()
+    const decoder = decoding.createDecoder(new Uint8Array(message))
+    const messageType = decoding.readVarUint(decoder)
 
-    if (info && !info.stateUpdatedBy.includes(userId)) {
-      info.stateUpdatedBy.push(userId)
-      docStateInfo.set(docName, info)
+    if (messageType === messageSync) {
+      encoding.writeVarUint(encoder, messageSync)
+      this.onSyncMessage(decoder, encoder, docName, (conn as any).user.id)
     }
   }
 
-  private onClose = async (conn: WebSocket, req: Http.IncomingMessage) => {
-    const docName = req.url.slice(1)
+  private onSyncMessage = (decoder: any, encoder: any, docName: string, userId: number) => {
+    console.log('syncMessage')
+
+    const syncMessageType = decoding.readVarUint(decoder)
+    console.log('syncMessageType', syncMessageType)
+
+    const updateMessage: Uint8Array = decoding.readVarUint8Array(decoder)
+    console.log(updateMessage)
+
+    if (syncMessageType > 0) {
+      onDocUpdate(docName, userId)
+    }
+  }
+
+  private connOnClose = async (conn: WebSocket, docName: string) => {
+    if (docMonitor.has(docName) === false) {
+      return
+    }
+
+    const updatedBy = docMonitor.get(docName).updatedBy
     const userId = (conn as any).user.id
 
-    if (!docStateInfo.has(docName)) {
+    if (!updatedBy.includes(userId)) {
       return
     }
 
-    const stateUpdatedBy = docStateInfo.get(docName).stateUpdatedBy
+    docMonitor.get(docName).updatedBy = updatedBy.filter((value) => value !== userId)
 
-    if (!stateUpdatedBy.includes(userId)) {
-      return
-    }
-
-    docStateInfo.get(docName).stateUpdatedBy = stateUpdatedBy.filter((value) => value !== userId)
-
-    const sharedDoc = wsUtils.getYDoc(docName)
-    const doc = await persistence.saveState(docName, sharedDoc, userId)
-
-    if (sharedDoc.conns.size === 0) {
-      docStateInfo.delete(docName)
-      return
-    }
-
-    docStateInfo.get(docName).stateSavedAt = doc.contentUpdatedAt
+    const sharedDoc = wsUtils.docs.get(docName)
+    await saveState(docName, userId, sharedDoc)
   }
 
   listen() {
-    this.httpServer.listen(port)
-    console.log(`🚀 y-websocket listening to http://localhost:${port}`) // tslint:disable-line
+    this.httpServer.listen(this.port)
+    console.log(`🚀 y-websocket listening to http://localhost:${this.port}`) // tslint:disable-line
   }
 }
