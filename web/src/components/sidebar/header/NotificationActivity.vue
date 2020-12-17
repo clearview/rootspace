@@ -242,6 +242,7 @@ export default class SidebarHeaderNotifActivity extends Vue {
     this.notifications = res.data.data
     if (res.data.data.length === 0) {
       this.peakNotif = true
+      this.state = 'activities'
     }
   }
 
