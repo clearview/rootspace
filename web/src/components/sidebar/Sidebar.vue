@@ -15,6 +15,7 @@
 
     <div class="sidebar-items">
       <sidebar-tree
+        ref="sidebarTree"
         v-if="pageReady"
         class="py-4"
         :menu-open="isMenuOpen"
@@ -75,6 +76,9 @@ export default class Sidebar extends Mixins(PageMixin) {
   @Ref('buttonAdd')
   private readonly buttonAddRef!: ButtonNodeAdd;
 
+  @Ref('sidebarTree')
+  private readonly sidebarTreeRef!: SidebarTree;
+
   get collapse () {
     return this.$store.state.sidebar.collapse
   }
@@ -104,6 +108,9 @@ export default class Sidebar extends Mixins(PageMixin) {
   }
 
   menuSelected (state: boolean) {
+    if (!this.sidebarTreeRef.deferredPath) {
+      this.sidebarTreeRef.scrollToBottom()
+    }
     this.isMenuOpen = state
     this.iconAddMenu = this.isMenuOpen ? 'close3' : 'plus3'
     this.textAddMenu = this.isMenuOpen ? 'Close' : 'Add New'
