@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full overflow-auto relative">
+  <div class="w-full overflow-auto relative" ref="scrollContainer">
     <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
     <tree
@@ -239,6 +239,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   @Ref('archiveNode')
   private readonly archiveNodeRef!: ArchiveNode;
 
+  @Ref('scrollContainer')
+  private readonly scrollContainerRef!: HTMLDivElement;
+
   $refs!: {
     tree: Tree & Fold & Draggable;
   }
@@ -255,7 +258,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   private deferredParent: NodeResource | null = null;
-  private deferredPath: number[] | null = null;
+  public deferredPath: number[] | null = null;
 
   // Computed
 
@@ -319,8 +322,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   async select (type: MenuType) {
     if (type === MenuType.DOCUMENT) {
-      this.$emit('menu-selected', false)
-
       try {
         const payload = {
           spaceId: this.activeSpace.id,
@@ -352,12 +353,12 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           })
       } catch { }
 
+      this.$emit('menu-selected', false)
+
       return true
     }
 
     if (type === MenuType.NOVADOC) {
-      this.$emit('menu-selected', false)
-
       try {
         const payload = {
           spaceId: this.activeSpace.id,
@@ -384,6 +385,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           // Silent duplicate error
         })
       } catch { }
+
+      this.$emit('menu-selected', false)
 
       return true
     }
@@ -730,6 +733,15 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     if (this.menuOpen) {
       this.setActiveMenu(true)
     }
+  }
+
+  public scrollToBottom () {
+    this.$nextTick(() => {
+      // Add slight delay to let the UI finishes render
+      setTimeout(() => {
+        this.scrollContainerRef.scrollTop = Number.MAX_SAFE_INTEGER
+      }, 500)
+    })
   }
 }
 </script>
