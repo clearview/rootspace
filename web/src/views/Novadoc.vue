@@ -959,6 +959,7 @@ export default {
           this.doc = res.data
           this.pageTitle = res.data.title
           this.title = res.data.title
+          this.readOnly = res.data.isLocked
           // Phantom emptiness detected
           if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
             this.pageTitle = 'Untitled'
@@ -990,26 +991,31 @@ export default {
           if (id) {
             const res = await DocumentService.update(id, data)
             this.doc = res.data.data
-            this.$store.commit('tree/updateNode', {
-              compareFn (node) {
-                return node.contentId.toString() === id
-              },
-              fn (node) {
-                return {
-                  ...node,
-                  title: data.title
+            if (data.title) {
+              this.$store.commit('tree/updateNode', {
+                compareFn (node) {
+                  return node.contentId.toString() === id
+                },
+                fn (node) {
+                  return {
+                    ...node,
+                    title: data.title
+                  }
                 }
-              }
-            })
+              })
+            }
           }
           this.loading = false
         } catch (err) {
           this.loading = false
         }
       },
-      toggleReadOnly () {
+      async toggleReadOnly () {
         this.readOnly = !this.readOnly
         this.isHistoryVisible = false
+        await this.createUpdateDocument({
+          isLocked: this.readOnly
+        })
       },
       showHistory () {
         this.isHistoryVisible = true
@@ -1057,7 +1063,7 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.mention() && !isActive.table()
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.mention() && !isActive.table()
       },
       openLink (url) {
         window.open(url, '_blank')
