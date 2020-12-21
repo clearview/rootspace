@@ -348,7 +348,8 @@
                   @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <hr class="title-separator">
-        <EditorContent :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
+        <EditorContent v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
+        <EditorContent v-show="isPreviewing" :editor="previewEditor"></EditorContent>
       </div>
       <div class="page-history" v-show="isHistoryVisible" @mousedown.stop.prevent="consume">
         <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
@@ -485,6 +486,7 @@ export default {
     return {
       provider: null,
       editor: null,
+      previewEditor: null,
       doc: null,
       preview: null,
       linkMarking: {
@@ -499,7 +501,8 @@ export default {
       isBubbleFocused: false,
       isTitleFocused: false,
       nodeNameChangesListener: null,
-      isMouseDown: false
+      isMouseDown: false,
+      isPreviewing: false
     }
   },
   beforeDestroy () {
@@ -654,6 +657,72 @@ export default {
             new TableRow(),
             new TableMenu(),
             new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+          ],
+          emptyDocument: {
+            type: 'doc',
+            content: []
+          }
+        })
+
+        this.previewEditor = new Editor({
+          editable: false,
+          extensions: [
+            new Novaschema(),
+            new Mention('@', this.fetchUsers),
+            new Reference('#', this.fetchReferences),
+            new Divider(),
+            new Paragraph(),
+            new TextColor(),
+            new BgColor(),
+            new Bold(),
+            new Blockquote(),
+            new CodeBlockHighlight({
+              languages: {
+                javascript,
+                typescript,
+                bash
+              }
+            }),
+            new HardBreak(),
+            new Italic(),
+            new Underline(),
+            new Strike(),
+            new Code(),
+            new History(),
+            new BulletList(),
+            new ListItem(),
+            new OrderedList(),
+            new Image(),
+            new TodoList(),
+            new TodoItem({
+              nested: true
+            }),
+            new Link({
+              openOnClick: false
+            }),
+            new TrailingNode({
+              node: 'paragraph',
+              notAfter: ['paragraph']
+            }),
+            new Placeholder({
+              emptyEditorClass: 'is-editor-empty',
+              emptyNodeClass: 'is-empty',
+              emptyNodeText: () => {
+                if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
+                  return ''
+                }
+                return 'Write something…'
+              },
+              showOnlyWhenEditable: false,
+              showOnlyCurrent: false
+            }),
+            new Table({
+              resizable: true
+            }),
+            new TableHeader(),
+            new TableCell(),
+            new TableRow(),
+            new TableMenu()
           ],
           emptyDocument: {
             type: 'doc',
@@ -961,19 +1030,17 @@ export default {
         this.editor.setContent(state.content)
       },
       showPreview (state) {
-        this.editor.setOptions({
-          editable: false
-        })
+        this.isPreviewing = true
         if (!state) {
-          this.preview = null
-          this.editor.setContent(this.doc.content)
+          this.preview = this.editor.getJSON()
         } else {
-          this.preview = state
-          this.editor.setContent(state.content)
+          this.preview = state.content
         }
+        this.previewEditor.setContent(this.preview)
       },
       closeHistory () {
         this.isHistoryVisible = false
+        this.isPreviewing = false
         this.editor.setOptions({
           editable: !this.readOnly
         })
@@ -1165,7 +1232,6 @@ export default {
 }
 
 .paper {
-  max-width: 856px;
   margin: auto;
   flex: 1 1 auto;
   height: 100%;
@@ -1288,7 +1354,7 @@ export default {
   width: 100%;
   resize: none;
   height: auto;
-  padding: 0 64px;
+  padding: 0 16vw;
 }
 
 .bubble {
@@ -1311,12 +1377,13 @@ export default {
 
 .title-separator {
   border: 1px solid #EDEFF3;
-  margin: 24px 64px;
+  margin: 24px 16vw;
 }
 </style>
 <style lang="postcss">
 .ProseMirror {
-  padding: 0 64px;
+  margin: auto;
+  padding: 0 16vw;
   outline: none;
   -moz-user-select: text;
   -khtml-user-select: text;

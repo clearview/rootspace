@@ -199,6 +199,10 @@ export default class DocHistory extends Vue {
   align-items: center;
   transition: all 0.15s ease;
 
+  &:first-child {
+    border-bottom: 1px solid transparent;
+  }
+
   &:not(:last-child) {
     border-bottom: 1px solid #E0E2E7;
   }
