@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-group-item" :class="{disabled}" @click="handleClick">
+  <div class="menu-group-item" :class="{disabled, active}" @click="handleClick">
     <div class="icon">
       <slot name="icon"></slot>
     </div>
@@ -17,6 +17,9 @@ export default class MenuGroupItem extends Vue {
   @Prop({ type: Boolean, default: false })
   private readonly disabled!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly active!: boolean;
+
   handleClick () {
     if (!this.disabled) {
       this.$emit('click')
@@ -29,11 +32,13 @@ export default class MenuGroupItem extends Vue {
 .menu-group-item {
   display: flex;
   align-items: center;
-  padding: 12px;
-  margin: 4px 0;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #2C2B35;
+  user-select: none;
   &:hover{
-    background: #146493;
-    color: #fff;
+    background: #F4F5F7;
+    cursor: pointer;
   }
   .icon {
     width: 32px;
@@ -47,6 +52,10 @@ export default class MenuGroupItem extends Vue {
     margin-left: 8px;
     flex: 1 0 auto;
     color: inherit;
+  }
+  &.active, &:active {
+    background: #DDF3FF;
+    color: #146493;
   }
   &.disabled {
     opacity: 0.5;

@@ -12,15 +12,8 @@
               </div>
             </template>
             <template #options="{select, hide}">
-              <MenuGroupOption @click="select('Normal Text');hide();commands.paragraph({level: 0})">
-                <template #icon>
-                  Tt
-                </template>
-                <template #label>
-                  Normal Text
-                </template>
-              </MenuGroupOption>
-              <MenuGroupOption @click="select('Heading 1');hide();commands.paragraph({level: 1})">
+              <MenuGroupOption @click="select('Heading 1');hide();commands.paragraph({level: 1})"
+                               :active="isActive.paragraph({level: 1})">
                 <template #icon>
                   H1
                 </template>
@@ -28,7 +21,8 @@
                   Heading 1
                 </template>
               </MenuGroupOption>
-              <MenuGroupOption @click="select('Heading 2');hide();commands.paragraph({level: 2})">
+              <MenuGroupOption @click="select('Heading 2');hide();commands.paragraph({level: 2})"
+                               :active="isActive.paragraph({level: 2})">
                 <template #icon>
                   H2
                 </template>
@@ -36,12 +30,22 @@
                   Heading 2
                 </template>
               </MenuGroupOption>
-              <MenuGroupOption @click="select('Heading 3');hide();commands.paragraph({level: 3})">
+              <MenuGroupOption @click="select('Heading 3');hide();commands.paragraph({level: 3})"
+                               :active="isActive.paragraph({level: 3})">
                 <template #icon>
                   H3
                 </template>
                 <template #label>
                   Heading 3
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Normal Text');hide();commands.paragraph({level: 0})"
+                               :active="isActive.paragraph({level: 0})">
+                <template #icon>
+                  Tt
+                </template>
+                <template #label>
+                  Normal Text
                 </template>
               </MenuGroupOption>
             </template>
