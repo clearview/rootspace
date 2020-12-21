@@ -1393,7 +1393,7 @@ export default {
 <style lang="postcss">
 .ProseMirror {
   margin: auto;
-  padding: 0 16vw;
+  padding: 0 16vw 128px 16vw;
   outline: none;
   -moz-user-select: text;
   -khtml-user-select: text;
