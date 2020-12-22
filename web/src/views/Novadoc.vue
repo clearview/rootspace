@@ -245,8 +245,8 @@
         </Popover>
       </div>
     </header>
-    <div class="page-editor" @scroll="determineHeaderState" ref="pageEditor">
-      <div class="paper" ref="paper" @mousedown.self="focusToEditor($event, true)">
+    <div class="page-editor" ref="pageEditor">
+      <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
@@ -1234,7 +1234,7 @@ export default {
 .page-editor {
   margin: 0 auto;
   flex: 1 1 auto;
-  overflow-y: scroll;
+  height: 0;
   width: 100%;
   position: relative;
   display: flex;
@@ -1246,6 +1246,7 @@ export default {
   flex: 1 1 auto;
   height: 100%;
   padding: 96px 0;
+  overflow-y: scroll;
 }
 
 .menu-separator {
