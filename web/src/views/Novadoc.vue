@@ -967,6 +967,9 @@ export default {
             this.title = ''
             this.$refs.title.focus()
           }
+          if (!this.pageReady) {
+            await this.activateSpace(res.data.spaceId)
+          }
           this.autoResizeTitle()
           this.buildEditor()
         }

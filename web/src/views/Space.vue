@@ -53,7 +53,7 @@ export default class Space extends Mixins(SpaceMixin) {
         if (this.$route.path === '/') {
           await this.$router.replace(this.activeSpaceSetting.activePage)
         } else {
-          this.redirection = true
+          this.redirection = false
         }
       }
     } catch { }
@@ -63,11 +63,7 @@ export default class Space extends Mixins(SpaceMixin) {
   async watchActiveSpaceId () {
     try {
       this.setting = this.activeSpaceSetting
-      if (this.redirection) {
-        await this.$router.push(this.activeSpaceSetting.activePage || '/')
-      } else {
-        this.redirection = true
-      }
+      await this.$router.push(this.activeSpaceSetting.activePage || '/')
     } catch { }
   }
 
