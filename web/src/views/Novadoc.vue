@@ -245,8 +245,8 @@
         </Popover>
       </div>
     </header>
-    <div class="page-editor" @scroll="determineHeaderState" ref="pageEditor">
-      <div class="paper" ref="paper" @mousedown.self="focusToEditor($event, true)">
+    <div class="page-editor" ref="pageEditor">
+      <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
@@ -438,7 +438,6 @@ import TableMenu from '@/views/Novadoc/TableMenu'
 import MenuGroup from '@/views/Novadoc/MenuGroup'
 import MenuGroupOption from '@/views/Novadoc/MenuGroupOption'
 import Image from '@/views/Novadoc/Image'
-import Mention from '@/views/Novadoc/Mentions/Mention'
 import Reference from '@/views/Novadoc/Reference/Reference'
 import TextColor from '@/views/Novadoc/TextColor'
 import BgColor from '@/views/Novadoc/BgColor'
@@ -605,7 +604,6 @@ export default {
           editable: true,
           extensions: [
             new Novaschema(),
-            new Mention('@', this.fetchUsers),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -672,7 +670,6 @@ export default {
           editable: false,
           extensions: [
             new Novaschema(),
-            new Mention('@', this.fetchUsers),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -970,6 +967,9 @@ export default {
             this.title = ''
             this.$refs.title.focus()
           }
+          if (!this.pageReady) {
+            await this.activateSpace(res.data.spaceId)
+          }
           this.autoResizeTitle()
           this.buildEditor()
         }
@@ -1067,7 +1067,7 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.mention() && !isActive.table()
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.table()
       },
       openLink (url) {
         window.open(url, '_blank')
@@ -1234,7 +1234,7 @@ export default {
 .page-editor {
   margin: 0 auto;
   flex: 1 1 auto;
-  overflow-y: scroll;
+  height: 0;
   width: 100%;
   position: relative;
   display: flex;
@@ -1246,6 +1246,7 @@ export default {
   flex: 1 1 auto;
   height: 100%;
   padding: 96px 0;
+  overflow-y: scroll;
 }
 
 .menu-separator {
@@ -1484,21 +1485,35 @@ export default {
 
   ul {
     list-style: disc;
-    margin-left: 18px;
+    ul {
+      list-style: circle;
+    }
   }
 
   ol {
     list-style: decimal;
-    margin-left: 18px;
   }
 
-  ul, ol {
+  ul {
     li {
       line-height: 24px;
       margin-top: 16px;
       margin-bottom: 16px;
-      margin-left: 26px;
-      padding-left: 18px;
+      margin-left: 16px;
+      padding-left: 4px;
+    }
+  }
+
+  ol {
+    li {
+      line-height: 24px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      margin-left: 16px;
+      padding-left: 4px;
+      li {
+        margin-left: 24px;
+      }
     }
   }
 
