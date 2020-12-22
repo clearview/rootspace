@@ -438,7 +438,6 @@ import TableMenu from '@/views/Novadoc/TableMenu'
 import MenuGroup from '@/views/Novadoc/MenuGroup'
 import MenuGroupOption from '@/views/Novadoc/MenuGroupOption'
 import Image from '@/views/Novadoc/Image'
-import Mention from '@/views/Novadoc/Mentions/Mention'
 import Reference from '@/views/Novadoc/Reference/Reference'
 import TextColor from '@/views/Novadoc/TextColor'
 import BgColor from '@/views/Novadoc/BgColor'
@@ -605,7 +604,6 @@ export default {
           editable: true,
           extensions: [
             new Novaschema(),
-            new Mention('@', this.fetchUsers),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -672,7 +670,6 @@ export default {
           editable: false,
           extensions: [
             new Novaschema(),
-            new Mention('@', this.fetchUsers),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -1067,7 +1064,7 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.mention() && !isActive.table()
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.table()
       },
       openLink (url) {
         window.open(url, '_blank')
@@ -1485,21 +1482,32 @@ export default {
 
   ul {
     list-style: disc;
-    margin-left: 18px;
+    ul {
+      list-style: circle;
+    }
   }
 
   ol {
     list-style: decimal;
-    margin-left: 18px;
   }
 
-  ul, ol {
+  ul {
     li {
       line-height: 24px;
       margin-top: 16px;
       margin-bottom: 16px;
-      margin-left: 26px;
-      padding-left: 18px;
+      margin-left: 16px;
+      padding-left: 4px;
+    }
+  }
+
+  ol {
+    li {
+      line-height: 24px;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      margin-left: 24px;
+      padding-left: 4px;
     }
   }
 
