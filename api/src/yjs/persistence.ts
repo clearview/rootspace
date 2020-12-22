@@ -7,14 +7,14 @@ export const docMonitor = new Map<string, { updatedBy: number[] }>()
 
 export const onDocUpdate = (docName: string, userId: number) => {
   console.log(`onYDocUpdate`, docName, 'user id', userId) // tslint:disable-line
-  
+
   const info = docMonitor.get(docName)
 
   if (info && !info.updatedBy.includes(userId)) {
     info.updatedBy.push(userId)
   }
 
-  console.log(docMonitor)
+  console.log(docMonitor) // tslint:disable-line
 }
 
 export const onUserDisconnect = async (docName: string, userId: number, ydoc: Y.Doc) => {
@@ -54,7 +54,7 @@ export const persistence = {
   bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('yjs bindState for', docName) // tslint:disable-line
 
-    docMonitor.set(docName, { listening: false, updatedBy: [] })
+    docMonitor.set(docName, { updatedBy: [] })
 
     const docId = Number(docName.split('_').pop())
     const doc = await ServiceFactory.getInstance()
