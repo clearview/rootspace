@@ -1506,8 +1506,11 @@ export default {
       line-height: 24px;
       margin-top: 16px;
       margin-bottom: 16px;
-      margin-left: 24px;
+      margin-left: 16px;
       padding-left: 4px;
+      li {
+        margin-left: 24px;
+      }
     }
   }
 
