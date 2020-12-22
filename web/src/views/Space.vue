@@ -50,11 +50,10 @@ export default class Space extends Mixins(SpaceMixin) {
         await this.$router.replace({ name: 'SpaceInit' })
       } else {
         this.setting = this.activeSpaceSetting
-
         if (this.$route.path === '/') {
           await this.$router.replace(this.activeSpaceSetting.activePage)
         } else {
-          this.redirection = false
+          this.redirection = true
         }
       }
     } catch { }
@@ -64,7 +63,6 @@ export default class Space extends Mixins(SpaceMixin) {
   async watchActiveSpaceId () {
     try {
       this.setting = this.activeSpaceSetting
-
       if (this.redirection) {
         await this.$router.push(this.activeSpaceSetting.activePage || '/')
       } else {
