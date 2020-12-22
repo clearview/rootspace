@@ -5,7 +5,7 @@ export interface IDocCreateAttributes {
   spaceId: number
   title: string
   content: object
-  docState: number[]
+  contentState: number[]
   access: number
   isLocked: boolean
   parentId?: number

@@ -6,7 +6,7 @@ export const DocCreateAttributes: IDocCreateAttributes = {
   spaceId: null,
   title: null,
   content: null,
-  docState: null,
+  contentState: null,
   access: null,
   isLocked: null,
   parentId: null,

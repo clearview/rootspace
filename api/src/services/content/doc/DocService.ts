@@ -108,9 +108,9 @@ export class DocService extends NodeContentService {
     return { ...doc, ...node }
   }
 
-  async update(data: DocUpdateValue, id: number, userId: number): Promise<Doc> {
+  async update(data: DocUpdateValue, id: number, actorId: number): Promise<Doc> {
     const doc = await this.requireById(id)
-    const updatedDoc = await this._update(data, doc, userId)
+    const updatedDoc = await this._update(data, doc, actorId)
 
     if (doc.title !== updatedDoc.title) {
       await this.nodeContentMediator.contentUpdated(updatedDoc.id, this.getNodeType(), {
@@ -136,22 +136,19 @@ export class DocService extends NodeContentService {
       title: data.title,
     })
 
-    await this._update(value, doc)
+    const actorId = httpRequestContext.get('user').id
+
+    await this._update(value, doc, actorId)
   }
 
-  private async _update(data: DocUpdateValue, doc: Doc, userId?: number): Promise<Doc> {
-    if (!userId) {
-      userId = httpRequestContext.get('user').id
-    }
-
+  private async _update(data: DocUpdateValue, doc: Doc, actorId: number): Promise<Doc> {
     const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
-
     let updatedDoc = await this.getById(doc.id)
 
     const setup =
       node.config?.novaDoc === true
-        ? new NovaDocUpdateSetup(data, updatedDoc, userId)
-        : new DocUpdateSetup(data, updatedDoc, userId)
+        ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
+        : new DocUpdateSetup(data, updatedDoc, actorId)
 
     if (setup.createRevision === true) {
       await this.createRevision(doc)
@@ -160,7 +157,7 @@ export class DocService extends NodeContentService {
 
     if (setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
-      updatedDoc.contentUpdatedBy = userId
+      updatedDoc.contentUpdatedBy = actorId
     }
 
     Object.assign(updatedDoc, data.attributes)
@@ -169,7 +166,7 @@ export class DocService extends NodeContentService {
     updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
     if (setup.registerActivity) {
-      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
+      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
     }
 
     return updatedDoc
@@ -182,6 +179,7 @@ export class DocService extends NodeContentService {
     docRevision.spaceId = doc.spaceId
     docRevision.docId = doc.id
     docRevision.content = doc.content
+    docRevision.contentState = doc.contentState
     docRevision.number = doc.revision
     docRevision.revisionBy = doc.contentUpdatedBy ?? doc.userId
     docRevision.revisionAt = doc.contentUpdatedAt ?? doc.createdAt
@@ -189,14 +187,19 @@ export class DocService extends NodeContentService {
     await this.getDocRevisionRepository().save(docRevision)
   }
 
-  async restoreRevision(docRevisionId: number, userId: number): Promise<Doc> {
+  async restoreRevision(docRevisionId: number, actorId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(docRevisionId)
     const doc = await this.requireById(docRevision.docId)
+    const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
 
     let updatedDoc = await this.requireById(docRevision.docId)
 
-    const data = DocUpdateValue.fromObject({ content: docRevision.content })
-    const setup = new DocUpdateSetup(data, updatedDoc, userId)
+    const data = DocUpdateValue.fromObject({ content: docRevision.content, contentState: docRevision.contentState })
+
+    const setup =
+      node.config?.novaDoc === true
+        ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
+        : new DocUpdateSetup(data, updatedDoc, actorId)
 
     if (setup.contentUpdated === false) {
       return updatedDoc
@@ -206,6 +209,7 @@ export class DocService extends NodeContentService {
 
     updatedDoc.revision = updatedDoc.revision + 1
     updatedDoc.content = docRevision.content
+    updatedDoc.contentState = docRevision.contentState
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
 
