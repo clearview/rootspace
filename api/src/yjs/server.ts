@@ -5,7 +5,7 @@ import * as Http from 'http'
 import * as WebSocket from 'ws'
 import * as wsUtils from 'y-websocket/bin/utils.js'
 import { authenticate, authorize } from './auth'
-import { persistence, saveState, docMonitor, onDocUpdate } from './persistence'
+import { persistence, onDocUpdate, onUserDisconnect } from './persistence'
 
 const encoding = require('lib0/dist/encoding.cjs')
 const decoding = require('lib0/dist/decoding.cjs')
@@ -43,33 +43,8 @@ export default class YjsServer {
   }
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    const docName = req.url.slice(1)
-
     if (typeof message === 'string') {
-      const user = await authenticate(message)
-
-      if (!user) {
-        conn.send('unauthenticated')
-        conn.close()
-        return
-      }
-
-      const docId = Number(docName.split('_').pop())
-
-      if (!(await authorize(user.id, docId))) {
-        conn.send('unauthorized')
-        conn.close()
-        return
-      }
-
-      ;(conn as any).user = user
-
-      conn.on('close', async () => {
-        await this.connOnClose(conn, docName)
-      })
-
-      wsUtils.setupWSConnection(conn, req)
-      conn.send('authorized')
+      await this.onStringMessage(conn, req, message)
       return
     }
 
@@ -83,40 +58,43 @@ export default class YjsServer {
 
     if (messageType === messageSync) {
       encoding.writeVarUint(encoder, messageSync)
-      this.onSyncMessage(decoder, encoder, docName, (conn as any).user.id)
+      const syncMessageType = decoding.readVarUint(decoder)
+
+      console.log('syncMessageType', syncMessageType) // tslint:disable-line
+
+      if (syncMessageType > 0) {
+        onDocUpdate(req.url.slice(1), (conn as any).user.id)
+      }
     }
   }
 
-  private onSyncMessage = (decoder: any, encoder: any, docName: string, userId: number) => {
-    console.log('syncMessage')
+  private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    const docName = req.url.slice(1)
+    const user = await authenticate(message)
 
-    const syncMessageType = decoding.readVarUint(decoder)
-    console.log('syncMessageType', syncMessageType)
-
-    const updateMessage: Uint8Array = decoding.readVarUint8Array(decoder)
-    console.log(updateMessage)
-
-    if (syncMessageType > 0) {
-      onDocUpdate(docName, userId)
-    }
-  }
-
-  private connOnClose = async (conn: WebSocket, docName: string) => {
-    if (docMonitor.has(docName) === false) {
+    if (!user) {
+      conn.send('unauthenticated')
+      conn.close()
       return
     }
 
-    const updatedBy = docMonitor.get(docName).updatedBy
-    const userId = (conn as any).user.id
+    const docId = Number(docName.split('_').pop())
 
-    if (!updatedBy.includes(userId)) {
+    if (!(await authorize(user.id, docId))) {
+      conn.send('unauthorized')
+      conn.close()
       return
     }
 
-    docMonitor.get(docName).updatedBy = updatedBy.filter((value) => value !== userId)
+    ;(conn as any).user = user
 
-    const sharedDoc = wsUtils.docs.get(docName)
-    await saveState(docName, userId, sharedDoc)
+    conn.on('close', async () => {
+      const sharedDoc = wsUtils.docs.get(docName)
+      await onUserDisconnect(docName, (conn as any).user.id, sharedDoc)
+    })
+
+    wsUtils.setupWSConnection(conn, req)
+    conn.send('authorized')
   }
 
   listen() {

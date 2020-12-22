@@ -49,10 +49,10 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
       return false
     }
 
-    const dataContentState = this._data.attributes.contentState
-    const docContentState = this._doc.contentState
+    const dataContent = this._data.attributes.content
+    const docContent = this._doc.content
 
-    if (JSON.stringify(dataContentState) === JSON.stringify(docContentState)) {
+    if (JSON.stringify(dataContent) === JSON.stringify(docContent)) {
       return false
     }
 

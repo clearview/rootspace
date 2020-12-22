@@ -201,8 +201,6 @@ export class DocService extends NodeContentService {
         ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
         : new DocUpdateSetup(data, updatedDoc, actorId)
 
-    console.log(setup.contentUpdated)
-
     if (setup.contentUpdated === false) {
       return updatedDoc
     }
