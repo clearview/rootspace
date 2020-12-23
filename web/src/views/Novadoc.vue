@@ -189,7 +189,7 @@
           </button>
           <button class="menu" :class="{ 'active': isActive.code_block() }"
                   :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
-                  @click="commands.code_block" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
+                  @click="createCodeBlock(commands.paragraph_merger, commands.code_block)" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
             <CodeIcon size="16"></CodeIcon>
           </button>
           <div class="menu-separator"></div>
@@ -445,6 +445,7 @@ import DocHistory from '@/views/Document/DocHistory'
 import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
 import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
 import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
+import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -524,6 +525,9 @@ export default {
   },
   methods:
     {
+      createCodeBlock (merger, coder) {
+        merger({ command: coder })
+      },
       consume () {
         // NOTE: Any event that want to be consumed without action should be put here
       },
@@ -604,6 +608,7 @@ export default {
           editable: true,
           extensions: [
             new Novaschema(),
+            new ParagraphMerger(),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -670,6 +675,7 @@ export default {
           editable: false,
           extensions: [
             new Novaschema(),
+            new ParagraphMerger(),
             new Reference('#', this.fetchReferences),
             new Divider(),
             new Paragraph(),
@@ -1068,7 +1074,7 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.image() && !this.isMouseDown && !isActive.table()
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() && !this.isMouseDown && !isActive.table()
       },
       openLink (url) {
         window.open(url, '_blank')
@@ -1080,11 +1086,13 @@ export default {
         this.isMouseDown = false
       },
       setSlug (slug) {
-        this.$router.replace({
-          params: {
-            slug
-          }
-        })
+        if (this.$route.params.slug !== slug) {
+          this.$router.replace({
+            params: {
+              slug
+            }
+          })
+        }
       }
     },
   watch: {
@@ -1185,6 +1193,7 @@ export default {
 }
 
 .page-header {
+  user-select: none;
   display: flex;
   background: #fff;
   z-index: 1;
@@ -1695,10 +1704,10 @@ export default {
   pre > code {
     display: block;
     padding: 16px;
-    background: #F8F8FB;
+    background: #1c1c1d;
     border-radius: 12px;
     font-size: 16px;
-    color: #2C2B35;
+    color: #e5e4ec;
     margin: 12px 0;
 
     .hljs {
