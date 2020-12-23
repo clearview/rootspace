@@ -961,6 +961,7 @@ export default {
           this.pageTitle = res.data.title
           this.title = res.data.title
           this.readOnly = res.data.isLocked
+          this.setSlug(res.data.slug)
           // Phantom emptiness detected
           if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
             this.pageTitle = 'Untitled'
@@ -1077,6 +1078,13 @@ export default {
       },
       releaseMouseDown () {
         this.isMouseDown = false
+      },
+      setSlug (slug) {
+        this.$router.replace({
+          params: {
+            slug
+          }
+        })
       }
     },
   watch: {
