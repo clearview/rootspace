@@ -1105,7 +1105,6 @@ export default {
           await this.activateSpace(this.activeSpace.id)
         }
         this.pageReady = true
-        this.focusToEditor()
       }
     },
     title (newTitle) {
