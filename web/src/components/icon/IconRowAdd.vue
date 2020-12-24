@@ -1,12 +1,12 @@
 <template>
   <g>
-    <rect x="1.5" y="1.5" width="13" height="13" rx="1.5" stroke="currentStroke"/>
-    <rect x="14" y="6" width="5" height="12" transform="rotate(90 14 6)" fill="#DEE2EE"/>
-    <line y1="-0.5" x2="14" y2="-0.5" transform="matrix(-1 -8.74226e-08 -8.74226e-08 1 15 6)" stroke="currentStroke"/>
-    <path d="M15 11L1 11" stroke="currentStroke"/>
-    <ellipse cx="14.5" cy="8" rx="3.5" ry="4" fill="white"/>
-    <path d="M14.5 6.25V9.75" stroke="currentStroke" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M12.75 8H16.25" stroke="currentStroke" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="11" y="5" width="6" height="10" transform="rotate(90 11 5)" fill="#DEE2EE"/>
+    <path d="M11 11L1 11" stroke="strokeCurrent"/>
+    <path d="M11 5L1 5" stroke="strokeCurrent"/>
+    <path d="M15 4V3C15 1.89543 14.1046 1 13 1H3C1.89543 1 1 1.89543 1 3V8V13C1 14.1046 1.89543 15 3 15H13C14.1046 15 15 14.1046 15 13V12" stroke="strokeCurrent"/>
+    <path d="M15 5.66666V10.3333" stroke="strokeCurrent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.6667 8H17.3334" stroke="strokeCurrent" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.6667 8H17.3334" stroke="strokeCurrent" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </template>
 
