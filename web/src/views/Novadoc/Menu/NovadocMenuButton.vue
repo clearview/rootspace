@@ -27,6 +27,7 @@ export default class NovadocMenuButton extends Vue {
   font-size: 12px;
   display: flex;
   align-items: center;
+  user-select: none;
 
   > span {
     margin-left: 4px;
@@ -38,6 +39,13 @@ export default class NovadocMenuButton extends Vue {
   .fill-current {
     fill: #444754;
   }
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    background: #eee;
+  }
 
   &.active, &:active {
     background: #DDF3FF;
@@ -47,14 +55,6 @@ export default class NovadocMenuButton extends Vue {
     .fill-current {
       fill: #146493;
     }
-  }
-
-  &:last-child {
-    margin-right: 0;
-  }
-
-  &:hover {
-    background: #eee;
   }
 
   &[disabled] {
