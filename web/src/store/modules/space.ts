@@ -70,14 +70,14 @@ const SpaceModule: Module<SpaceState, RootState> = {
     },
 
     setList (state, payload: SpaceResource[]) {
-      state.list = payload
+      state.list = [...payload].sort((a: SpaceResource, b: SpaceResource) => a.title.localeCompare(b.title))
     },
 
     addListItem (state, payload: SpaceResource) {
       state.list = [
         ...state.list,
         payload
-      ]
+      ].sort((a: SpaceResource, b: SpaceResource) => a.title.localeCompare(b.title))
     },
 
     updateListItem (state, payload: { index: number; data: SpaceResource}) {
