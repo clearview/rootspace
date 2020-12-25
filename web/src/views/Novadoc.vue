@@ -1002,6 +1002,7 @@ export default {
           if (id) {
             const res = await DocumentService.update(id, data)
             this.doc = res.data.data
+            this.setSlug(res.data.data.slug)
             if (data.title) {
               this.$store.commit('tree/updateNode', {
                 compareFn (node) {
@@ -1089,7 +1090,7 @@ export default {
         if (this.$route.params.slug !== slug) {
           this.$router.replace({
             params: {
-              slug
+              slug: slug || 'Untitled'
             }
           })
         }
