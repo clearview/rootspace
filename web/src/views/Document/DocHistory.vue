@@ -12,7 +12,7 @@
     </header>
     <main class="content">
       <div class="history-entry" :key="'current'"
-           :class="{current: !preview}"
+           :class="{current: !preview || !preview.id}"
            @click="$emit('preview', null)" v-if="doc">
         <div class="entry-left">
           <div class="entry-metadata">
