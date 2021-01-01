@@ -352,10 +352,10 @@
                   @blur="isTitleFocused = false"
                   @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
         <hr class="title-separator">
-        <EditorContent v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
-        <EditorContent v-show="isPreviewing" :editor="previewEditor"></EditorContent>
+        <EditorContent key="editor" v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
+        <EditorContent key="preview" class="preview" v-show="isPreviewing" :editor="previewEditor"></EditorContent>
       </div>
-      <div class="page-history" v-show="isHistoryVisible" @mousedown.stop.prevent="consume">
+      <div class="page-history" v-if="isHistoryVisible" @mousedown.stop.prevent="consume">
         <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
                     @restore="restore"></DocHistory>
       </div>
@@ -546,6 +546,9 @@ export default {
         if (this.editor) {
           this.editor.destroy()
         }
+        if (this.previewEditor) {
+          this.previewEditor.destroy()
+        }
       },
       buildProvider () {
         const wsProviderUrl = process.env.VUE_APP_YWS_URL
@@ -706,22 +709,6 @@ export default {
             }),
             new Link({
               openOnClick: false
-            }),
-            new TrailingNode({
-              node: 'paragraph',
-              notAfter: ['paragraph']
-            }),
-            new Placeholder({
-              emptyEditorClass: 'is-editor-empty',
-              emptyNodeClass: 'is-empty',
-              emptyNodeText: () => {
-                if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
-                  return ''
-                }
-                return 'Write something…'
-              },
-              showOnlyWhenEditable: false,
-              showOnlyCurrent: false
             }),
             new Table({
               resizable: true
@@ -1030,6 +1017,7 @@ export default {
         })
       },
       showHistory () {
+        this.preview = null
         this.isHistoryVisible = true
       },
       deleteNovadoc () {
@@ -1050,18 +1038,23 @@ export default {
       showPreview (state) {
         this.isPreviewing = true
         if (!state) {
-          this.preview = this.editor.getJSON()
+          this.preview = {
+            id: null,
+            content: this.editor.getJSON()
+          }
         } else {
-          this.preview = state.content
+          this.preview = state
         }
-        this.previewEditor.setContent(this.preview)
+        this.previewEditor.setContent(this.preview.content)
       },
       closeHistory () {
-        this.isHistoryVisible = false
-        this.isPreviewing = false
-        this.editor.setOptions({
-          editable: !this.readOnly
-        })
+        if (this.editor) {
+          this.isHistoryVisible = false
+          this.isPreviewing = false
+          this.editor.setOptions({
+            editable: !this.readOnly
+          })
+        }
       },
       handleTitleEnter (evt) {
         evt.preventDefault()
@@ -1100,6 +1093,7 @@ export default {
     id: {
       immediate: true,
       async handler () {
+        this.closeHistory()
         await this.load()
         await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
         if (!this.pageReady) {
