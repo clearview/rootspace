@@ -84,7 +84,7 @@ export default class ReferenceView extends Vue {
 <style lang="postcss" scoped>
 .reference-view {
   display: inline-block;
-  padding: 0;
+  padding: 0 2px;
   border-radius: 4px;
   a {
     text-decoration: none;
@@ -99,7 +99,6 @@ export default class ReferenceView extends Vue {
     }
   }
   .label {
-    margin-left: 0;
     color: #146493;
   }
   &.ProseMirror-selectednode{
