@@ -219,7 +219,7 @@ export default class ReferenceList extends Vue {
 }
 .search-icon {
   position: absolute;
-  top: 22px;
+  top: 19px;
   left: 16px;
 }
 .reference-search input{
