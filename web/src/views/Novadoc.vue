@@ -1468,30 +1468,42 @@ export default {
   }
 
   h1, h2, h3 {
-    margin: 40px 0 24px 0;
+    margin: 0;
   }
 
   h1 {
-    font-weight: bold;
-    font-size: 28px;
-    line-height: 33px;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 36px;
+    margin-top: 40px;
   }
 
   h2 {
-    font-weight: bold;
-    font-size: 22px;
-    line-height: 26px;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 29px;
+    margin-top: 32px;
   }
 
   h3 {
-    font-weight: bold;
-    font-size: 18px;
-    line-height: 21px;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    margin-top: 24px;
   }
 
   p {
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 19px;
+    margin-top: 16px;
+    font-weight: 400;
+    & + p {
+      margin-top: 8px;
+    }
+  }
+
+  br {
+    height: 24px;
   }
 
   ul {
@@ -1507,21 +1519,21 @@ export default {
 
   ul {
     li {
-      line-height: 24px;
-      margin-top: 16px;
-      margin-bottom: 16px;
-      margin-left: 16px;
-      padding-left: 4px;
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
     }
   }
 
   ol {
     li {
-      line-height: 24px;
-      margin-top: 16px;
-      margin-bottom: 16px;
-      margin-left: 16px;
-      padding-left: 4px;
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
       li {
         margin-left: 24px;
       }
@@ -1568,6 +1580,12 @@ export default {
     border-radius: 4px;
     border-style: hidden;
     box-shadow: 0 0 0 1px #DEE2EE;
+
+    p {
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 400;
+    }
 
     tr {
       td {

@@ -1,23 +1,33 @@
 <template>
   <div class="cloak" @click.self="$emit('cancel')">
-  <ul class="reference-list" :style="{top: coords.top+'px', left: coords.left + 5 + 'px'}">
-    <li class="reference-search">
-      <input type="text" v-model="search" placeholder="Search" ref="search" @keydown="handleKeypress"/>
-    </li>
-    <li class="reference" v-for="(reference, index) in filteredReferences" :key="reference.id+';'+index" :class="{selected: index === selectedIndex}" @click="$emit('confirm', reference)">
-      <div class="icon">
-        <v-icon viewbox="16" :name="getIcon(reference.type)"/>
+    <ul class="reference-list" :style="{top: coords.top+'px', left: coords.left + 5 + 'px'}">
+      <li class="reference-search">
+        <v-icon name="search" size="16px" class="search-icon"></v-icon>
+        <input type="text" v-model="search" placeholder="Search" ref="search" @keydown="handleKeypress"/>
+      </li>
+      <div class="scrollview">
+        <li class="group" v-for="(key, groupIndex) in Object.keys(filteredReferences)" :key="`${key};${groupIndex}`">
+          <div class="group-title">
+            {{ groupKeyToLabel(key) }}
+          </div>
+          <ul class="references">
+            <li class="reference" v-for="(reference, index) in filteredReferences[key]"
+                :key="`${reference.id};${index}`"
+                :class="{selected: index === selectedIndex && groupIndex === selectedGroupIndex}"
+                @click="$emit('confirm', reference)">
+              <div class="icon">
+                <v-icon viewbox="16" :name="getIcon(reference.type)"/>
+              </div>
+              <div class="label">{{ reference.title }}
+              </div>
+            </li>
+          </ul>
+        </li>
       </div>
-      <div class="label">{{ reference.title }}
-      </div>
-    </li>
-    <li class="empty" v-if="filteredReferences.length === 0">
-      No matching references found
-    </li>
-    <li class="help">
-      Press esc to cancel, enter to choose
-    </li>
-  </ul>
+      <li class="empty" v-if="Object.keys(filteredReferences).length === 0">
+        No matching references found
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -41,14 +51,15 @@ export default class ReferenceList extends Vue {
   private readonly references!: NodeResource[];
 
   @Prop({ type: Object, required: true })
-  private readonly coords!: {top: number;left: number;bottom: number;right: number};
+  private readonly coords!: { top: number; left: number; bottom: number; right: number };
 
   @Ref('search')
   private readonly searchRef!: HTMLInputElement;
 
   private search = '';
-  private selectedIndex = -1
-  private flattennedReferences: Optional<NodeResource, 'children'>[] = []
+  private selectedIndex = -1;
+  private selectedGroupIndex = 0;
+  private flattennedReferences: Optional<NodeResource, 'children'>[] = [];
 
   getIcon (type: string) {
     return nodeIconNames[type]
@@ -56,7 +67,15 @@ export default class ReferenceList extends Vue {
 
   get filteredReferences () {
     const regex = new RegExp(this.search, 'i')
-    return this.flattennedReferences.filter(reference => regex.test(reference.title))
+    const filtered = this.flattennedReferences.filter(reference => regex.test(reference.title))
+    const groups: Record<string, Optional<NodeResource, 'children'>[]> = {}
+    for (const item of filtered) {
+      if (!groups[item.type]) {
+        groups[item.type] = []
+      }
+      groups[item.type].push(item)
+    }
+    return groups
   }
 
   mounted () {
@@ -81,26 +100,55 @@ export default class ReferenceList extends Vue {
 
   handleKeypress (evt: KeyboardEvent) {
     evt.stopPropagation()
+    const groups = Object.keys(this.filteredReferences)
     if (evt.key === 'ArrowDown') {
       evt.preventDefault()
       this.selectedIndex++
-      if (this.selectedIndex > this.filteredReferences.length) {
+      if (this.filteredReferences[groups[this.selectedGroupIndex]] && this.selectedIndex >= this.filteredReferences[groups[this.selectedGroupIndex]].length) {
+        this.selectedGroupIndex++
+        if (this.selectedGroupIndex >= groups.length) {
+          this.selectedGroupIndex = 0
+        }
         this.selectedIndex = 0
       }
     } else if (evt.key === 'ArrowUp') {
       evt.preventDefault()
       this.selectedIndex--
-      if (this.selectedIndex < 0) {
-        this.selectedIndex = this.filteredReferences.length
+      if (this.filteredReferences[groups[this.selectedGroupIndex]] && this.selectedIndex < 0) {
+        this.selectedGroupIndex--
+        if (this.selectedGroupIndex < 0) {
+          this.selectedGroupIndex = groups.length - 1
+        }
+        this.selectedIndex = this.filteredReferences[groups[this.selectedGroupIndex]].length - 1
       }
-    } else if (evt.key === 'Escape') {
+    } else if (evt.key === 'Escape' || evt.key === 'Tab') {
       evt.preventDefault()
       this.$emit('cancel')
     } else if (evt.key === 'Enter') {
       evt.preventDefault()
-      if (this.filteredReferences[this.selectedIndex]) {
-        this.$emit('confirm', this.filteredReferences[this.selectedIndex])
+      if (this.filteredReferences[groups[this.selectedGroupIndex]][this.selectedIndex]) {
+        this.$emit('confirm', this.filteredReferences[groups[this.selectedGroupIndex]][this.selectedIndex])
       }
+    } else {
+      this.selectedGroupIndex = 0
+      this.selectedIndex = 0
+    }
+  }
+
+  groupKeyToLabel (key: string) {
+    switch (key) {
+      case 'doc':
+        return 'Documents'
+      case 'taskBoard':
+        return 'Task Boards'
+      case 'link':
+        return 'Links'
+      case 'embed':
+        return 'Embeds'
+      case 'folder':
+        return 'Folders'
+      default:
+        return 'Unknown'
     }
   }
 }
@@ -115,64 +163,115 @@ export default class ReferenceList extends Vue {
   left: 0;
   z-index: 50;
 }
+
 .reference-list {
   margin: 0;
   padding: 0;
   background: #fff;
   position: fixed;
   z-index: 5;
-  color: #333;
+  color: #2C2B35;
   border-radius: 4px;
   font-size: 14px;
-  box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 4px 8px rgba(0, 0, 0, .05);
+  width: 224px;
 }
+
+.group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  .group-title {
+    padding: 8px 16px;
+    text-transform: uppercase;
+    color: #444754;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 14px;
+  }
+}
+
 .reference, .empty {
-  padding: 6px;
+  padding: 8px 16px;
   margin: 0;
   list-style: none;
   display: flex;
   align-items: center;
+  font-size: 13px;
+  line-height: 16px;
+  color: #2C2B35;
+  cursor: pointer;
+
   &.selected, &:hover {
-    background: #146493;
-    color: #fff;
+    background: #F4F5F7;
+
     .icon {
     }
+
     .label {
-      color: #fff;
+      color: #2C2B35;
     }
   }
+
   .icon {
     flex: 0 0 auto;
     font-size: 24px;
+
     .stroke-current, .fill-current {
       fill: transparent;
     }
   }
+
   .label {
     flex: 1 1 auto;
     margin-left: 8px;
+    color: #2C2B35;
   }
 }
+
 .empty {
   opacity: 0.5;
 }
+
 .reference-search {
   list-style: none;
-  padding: 6px;
+  padding: 8px;
   margin: 0;
+  position: relative;
 }
-.reference-search input{
+
+.search-icon {
+  position: absolute;
+  top: 19px;
+  left: 16px;
+}
+
+.reference-search input {
   outline: none;
   background: transparent;
-  padding: 6px;
+  padding: 8px 8px 8px 32px;
   box-sizing: border-box;
   display: block;
+  border: solid 2px transparent;
+  border-radius: 4px;
+  width: 100%;
+
+  &:active, &:focus {
+    border: 2px solid #8CD5FF;
+  }
 }
+
 .help {
   margin: 0;
   opacity: 0.75;
-  padding: 6px;
+  padding: 8px;
   list-style: none;
   font-size: 12px;
+}
+
+.scrollview {
+  max-height: 400px;
+  overflow-y: scroll;
 }
 </style>
