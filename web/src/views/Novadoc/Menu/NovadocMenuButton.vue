@@ -19,12 +19,12 @@ export default class NovadocMenuButton extends Vue {
   background: #fff;
   color: #444754;
   border: none;
-  padding: 8px;
+  padding: 4px;
   outline: none;
   border-radius: 2px;
   transition: all 0.15s ease;
   margin-right: 4px;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   user-select: none;
