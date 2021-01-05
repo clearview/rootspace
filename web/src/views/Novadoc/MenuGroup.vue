@@ -1,6 +1,6 @@
 <template>
   <div class="menu-group">
-    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible }">
+    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible, big }">
       <div class="text">
         <slot :value="value"></slot>
       </div>
@@ -41,6 +41,9 @@ export default class MenuGroup extends Vue {
 
   @Prop({ type: Boolean, default: true })
   private readonly showArrow!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly big!: boolean;
 
   @Prop({ type: Number, default: 6 })
   private readonly offset!: number;
@@ -86,13 +89,20 @@ export default class MenuGroup extends Vue {
   cursor: pointer;
 }
 .display {
-  padding: 8px;
+  padding: 4px;
   font-weight: bolder;
   display: flex;
   align-items: center;
   border:solid 2px transparent;
   border-radius: 4px;
   transition: all 0.15s ease;
+
+  &.big {
+    padding: 6px;
+    min-height: 32px;
+    min-width: 32px;
+    justify-content: center;
+  }
 
   &:hover {
     background: #F4F5F7;
@@ -106,6 +116,9 @@ export default class MenuGroup extends Vue {
 
   .text {
     flex: 1 1 auto;
+    font-size: 12px;
+    line-height: 14px;
+    color: #2C2B35;
   }
   .icon {
     margin-left: 8px;

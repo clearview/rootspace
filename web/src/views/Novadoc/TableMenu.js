@@ -20,6 +20,7 @@ export default class TableMenu extends Extension {
   }
 
   get plugins () {
+    const editable = this.editor.options.editable
     return [
       new Plugin({
         state: {
@@ -34,7 +35,7 @@ export default class TableMenu extends Extension {
                 tablePos = sel.$from.before(i) + 1
               }
             }
-            if (tablePos) {
+            if (tablePos && editable) {
               // Adjust decoration positions to changes made by the transaction
               // See if the transaction adds or removes any placeholders
               const widget = document.createElement('div')
