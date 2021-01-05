@@ -17,7 +17,7 @@ module.exports = {
         invert: '#000000'
       },
       primary: {
-        default: '#D83750',
+        default: '#D64141',
         invert: '#FFFFFF'
       },
       secondary: {

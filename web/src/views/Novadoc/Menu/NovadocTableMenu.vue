@@ -1,4 +1,5 @@
 <template>
+  <div class="table-menu-container">
   <NovadocMenu class="novadoc-table-menu">
     <NovadocMenuButton @click="api.addRowAfter">
       <v-icon name="row-add" viewbox="18 16" size="16"></v-icon> <span>Row</span>
@@ -22,6 +23,7 @@
       <v-icon name="trash-archive" viewbox="16" size="16"></v-icon> <span>Delete</span>
     </NovadocMenuButton>
   </NovadocMenu>
+  </div>
 </template>
 
 <script>
@@ -49,9 +51,15 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+.table-menu-container{
+  position: absolute;
+  overflow: visible;
+  width: 100%;
+}
 .novadoc-table-menu {
   position: absolute;
-  top: -54px;
+  top: -40px;
+  z-index: 10;
   .fill-current {
     fill: transparent;
   }

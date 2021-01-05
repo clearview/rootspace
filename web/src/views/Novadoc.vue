@@ -4,7 +4,7 @@
       <editor-menu-bar ref="menuBar" :editor="editor"
                        v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }">
         <div class="editor-toolbar">
-          <MenuGroup value="Normal Text" :disabled="!canChangeTextType(isActive, focused)"
+          <MenuGroup big value="Normal Text" :disabled="!canChangeTextType(isActive, focused)"
                      v-tippy="{ placement : 'top',  arrow: true }" content="Text Style">
             <template #default>
               <div style="padding-right: 32px;">
@@ -51,32 +51,32 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
+          <button class="menu menu-big" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
                   @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
             <BoldIcon size="16"></BoldIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
+          <button class="menu menu-big" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
                   @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
             <ItalicIcon size="16"></ItalicIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.underline() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.underline() }"
                   :disabled="!canBeUnderline(isActive, focused)"
                   @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
             <UnderlineIcon size="16"></UnderlineIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.strike() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.strike() }"
                   :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike"
                   v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
             <span>
               <v-icon name="strike" viewbox="16" size="16"></v-icon>
             </span>
           </button>
-          <button class="menu" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
+          <button class="menu menu-big" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
                   @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
             <TerminalIcon size="16"></TerminalIcon>
           </button>
           <div class="menu-separator"></div>
-          <MenuGroup value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment">
+          <MenuGroup big value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment">
             <template #default>
               <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
             </template>
@@ -116,7 +116,7 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+          <MenuGroup big value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
             <template #default>
               <div class="text-color" :style="{
                   color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
@@ -132,9 +132,9 @@
               </div>
             </template>
           </MenuGroup>
-          <MenuGroup value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
+          <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
             <template #default>
-              <v-icon name="pen" viewbox="16" size="12"
+              <v-icon name="pen" viewbox="16" size="16"
                       v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
               <div class="bg-color bg-color-display" v-else
                    :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
@@ -149,27 +149,27 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.bullet_list() } "
+          <button class="menu menu-big" :class="{ 'active': isActive.bullet_list() } "
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
             <ListIcon size="16"></ListIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.ordered_list() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.ordered_list() }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.todo_list() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.todo_list() }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
             <CheckSquareIcon size="16"></CheckSquareIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.image() }" :disabled="!canInsertImage(isActive, focused)"
+          <button class="menu menu-big" :class="{ 'active': isActive.image() }" :disabled="!canInsertImage(isActive, focused)"
                   @click="commands.image({docId: id, spaceId: activeSpace.id})" v-tippy="{ placement : 'top',  arrow: true }" content="Image">
             <ImageIcon size="16"></ImageIcon>
           </button>
-          <MenuGroup :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
+          <MenuGroup big :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
                      v-tippy="{ placement : 'top',  arrow: true }" content="Link">
             <template #default>
               <LinkIcon size="16"></LinkIcon>
@@ -178,60 +178,63 @@
               <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
             </template>
           </MenuGroup>
-          <button class="menu" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
+          <button class="menu menu-big" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
                   @click="commands.divider" v-tippy="{ placement : 'top',  arrow: true }" content="Horizontal line">
             <MinusIcon size="16"></MinusIcon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.blockquote() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.blockquote() }"
                   :disabled="!canBeConvertedToQuote(isActive, focused)"
                   @click="commands.blockquote" v-tippy="{ placement : 'top',  arrow: true }" content="Blockquote">
             <v-icon viewbox="16" name="quote" size="16"></v-icon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.code_block() }"
+          <button class="menu menu-big" :class="{ 'active': isActive.code_block() }"
                   :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
                   @click="createCodeBlock(commands.paragraph_merger, commands.code_block)" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
             <CodeIcon size="16"></CodeIcon>
           </button>
           <div class="menu-separator"></div>
           <button
-            class="menu" :disabled="!canCreateTable(isActive, focused)"
+            class="menu menu-big" :disabled="!canCreateTable(isActive, focused)"
             @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
             v-tippy="{ placement : 'top',  arrow: true }" content="Table"
           >
             <v-icon name="table" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
+          <button class="menu menu-big" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
           :disabled="!canUndo()">
             <v-icon name="undo" viewbox="16" size="16"></v-icon>
           </button>
-          <button class="menu" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
+          <button class="menu menu-big" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
           :disabled="!canRedo()">
             <v-icon name="redo" viewbox="16" size="16"></v-icon>
           </button>
         </div>
       </editor-menu-bar>
       <div class="editor-context-menu">
+        <div class="lock-indicator" v-if="readOnly">
+          <v-icon name="lock"></v-icon>
+        </div>
         <Popover :z-index="1001" :with-close="false" position="bottom-start" borderless>
           <template #default="{ hide }">
-            <div class="action-line" @click="hide();toggleReadOnly()">
-<!--              <v-icon name="lock"></v-icon>-->
-              <div class="action-line-text" v-if="readOnly">
-                Make Editable
-              </div>
-              <div class="action-line-text" v-else>
-                Make Read-only
-              </div>
-            </div>
             <div class="action-line" @click="hide();showHistory()">
-<!--              <v-icon name="history" viewbox="20"></v-icon>-->
+              <v-icon name="history" viewbox="20"></v-icon>
               <div class="action-line-text">
                 History
               </div>
             </div>
+            <div class="action-line" @click="hide();toggleReadOnly()">
+              <v-icon name="lock"></v-icon>
+              <div class="action-line-text" v-if="readOnly">
+                Unlock
+              </div>
+              <div class="action-line-text" v-else>
+                Lock
+              </div>
+            </div>
             <div class="action-separator"></div>
             <div class="action-line danger" @click="hide();deleteNovadoc()">
-<!--              <v-icon name="trash"></v-icon>-->
+              <v-icon name="trash-archive" viewbox="16"></v-icon>
               <div class="action-line-text">
                 Delete
               </div>
@@ -249,7 +252,7 @@
       <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
-            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link()"
+            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !readOnly"
                  :style="getBubblePosition()" @mousedown.stop.prevent="consume">
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
@@ -608,7 +611,7 @@ export default {
         this.buildProvider()
 
         this.editor = new Editor({
-          editable: true,
+          editable: !this.readOnly,
           extensions: [
             new Novaschema(),
             new ParagraphMerger(),
@@ -743,12 +746,12 @@ export default {
       getBubblePosition () {
         const sel = this.editor.state.selection
         const coords = this.editor.view.coordsAtPos(sel.$from.pos)
-        const offsetTop = 48
+        const offsetTop = 36
         if (this.$refs.pageEditor) {
           const left = coords.x - this.$refs.pageEditor.offsetLeft - this.$refs.pageEditor.offsetParent.offsetLeft
           return {
             left: left + 'px',
-            top: coords.top - offsetTop - this.$refs.pageEditor.offsetTop + this.$refs.pageEditor.scrollTop + 'px'
+            top: coords.top - offsetTop - this.$refs.pageEditor.offsetTop + this.$refs.paper.scrollTop + 'px'
           }
         }
         return {
@@ -1119,9 +1122,11 @@ export default {
     },
     readOnly: {
       async handler () {
-        this.editor.setOptions({
-          editable: !this.readOnly
-        })
+        if (this.editor) {
+          this.editor.setOptions({
+            editable: !this.readOnly
+          })
+        }
       }
     }
   },
@@ -1213,6 +1218,16 @@ export default {
   .editor-context-menu {
     flex: 0 0 auto;
     margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    .lock-indicator {
+      border-radius: 4px;
+      background: #FFE0E0;
+      color: #D64141;
+      padding: 8px;
+      margin-right: 8px;
+    }
 
     .popover-trigger {
       .menu-btn {
@@ -1258,6 +1273,7 @@ export default {
   height: 100%;
   padding: 96px 0;
   overflow-y: scroll;
+  position: relative;
 }
 
 .menu-separator {
@@ -1272,11 +1288,15 @@ export default {
   background: #fff;
   color: #333;
   border: none;
-  padding: 8px;
+  padding: 4px;
   outline: none;
   border-radius: 2px;
   transition: all 0.15s ease;
   margin-right: 4px;
+
+  &-big {
+    padding: 8px;
+  }
 
   .stroke-current {
     stroke: transparent;
@@ -1291,8 +1311,8 @@ export default {
   }
 
   &.active, &:active {
-    background: #444754;
-    color: #fff;
+    background: #DDF3FF;
+    color: #146493;
   }
 
   &[disabled] {
@@ -1574,7 +1594,6 @@ export default {
     width: 100%;
     max-width: 800px;
     margin: 48px 0;
-    position: relative;
     border-spacing: 0;
     border-collapse: collapse;
     border-radius: 4px;

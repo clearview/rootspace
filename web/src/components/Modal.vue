@@ -28,7 +28,7 @@
         >
           <div class="modal-footer">
             <button
-              class="btn btn-small"
+              class="btn btn-ghost btn-small"
               @click="cancel"
             >
               {{ cancelText }}

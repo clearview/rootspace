@@ -107,6 +107,7 @@ import IconMerge from '@/components/icon/IconMerge.vue'
 import IconRowAdd from '@/components/icon/IconRowAdd.vue'
 import IconColumnAdd from '@/components/icon/IconColumnAdd.vue'
 import IconRowRemove from '@/components/icon/IconRowRemove.vue'
+import IconHighlight from '@/components/icon/IconHighlight.vue'
 
 @Component({
   name: 'Icon',
@@ -202,7 +203,8 @@ import IconRowRemove from '@/components/icon/IconRowRemove.vue'
     IconRowRemove,
     IconColumnAdd,
     IconColumnRemove,
-    IconMerge
+    IconMerge,
+    IconHighlight
   }
 })
 export default class Icon extends Vue {
