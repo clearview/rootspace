@@ -1,5 +1,5 @@
 <template>
-  <button class="editor-menu-button" :class="{ active }" @click="$emit('click')">
+  <button class="editor-menu-button" :class="{ active, 'no-margin': noMargin }" @click="$emit('click')">
     <slot></slot>
   </button>
 </template>
@@ -11,6 +11,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 export default class NovadocMenuButton extends Vue {
   @Prop({ type: Boolean, default: false })
   private readonly active!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly noMargin!: boolean;
 }
 </script>
 
@@ -21,13 +24,20 @@ export default class NovadocMenuButton extends Vue {
   border: none;
   padding: 4px;
   outline: none;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: all 0.15s ease;
-  margin-right: 4px;
   font-size: 11px;
   display: flex;
   align-items: center;
   user-select: none;
+
+  &:not(:last-child){
+    margin-right: 4px;
+  }
+
+  &.no-margin {
+    margin-right: 0 ;
+  }
 
   > span {
     margin-left: 4px;
@@ -44,7 +54,7 @@ export default class NovadocMenuButton extends Vue {
   }
 
   &:hover {
-    background: #eee;
+    background: #F4F5F7;
   }
 
   &.active, &:active {

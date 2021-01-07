@@ -4,18 +4,18 @@
     <NovadocMenuButton @click="api.addRowAfter">
       <v-icon name="row-add" viewbox="18 16" size="16"></v-icon> <span>Row</span>
     </NovadocMenuButton>
-    <NovadocMenuButton @click="api.addColumnAfter">
+    <NovadocMenuButton @click="api.addColumnAfter" no-margin>
       <v-icon name="column-add" viewbox="18 16" size="16"></v-icon> <span>Column</span>
     </NovadocMenuButton>
     <NovadocMenuSeparator></NovadocMenuSeparator>
     <NovadocMenuButton @click="api.deleteRow">
       <v-icon name="row-remove" viewbox="18 16" size="16"></v-icon> <span>Row</span>
     </NovadocMenuButton>
-    <NovadocMenuButton @click="api.deleteColumn">
+    <NovadocMenuButton @click="api.deleteColumn" no-margin>
       <v-icon name="column-remove" viewbox="18 16" size="16"></v-icon> <span>Column</span>
     </NovadocMenuButton>
     <NovadocMenuSeparator></NovadocMenuSeparator>
-    <NovadocMenuButton @click="api.mergeCells">
+    <NovadocMenuButton @click="api.mergeCells" no-margin>
       <v-icon name="merge" viewbox="16 16" size="16"></v-icon> <span>Merge</span>
     </NovadocMenuButton>
     <NovadocMenuSeparator></NovadocMenuSeparator>

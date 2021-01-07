@@ -10,7 +10,8 @@
         </button>
       </div>
     </header>
-    <main class="content">
+    <HistoryGhost active v-if="loading"></HistoryGhost>
+    <main class="content" v-if="history && !loading">
       <div class="history-entry" :key="'current'"
            :class="{current: !preview || !preview.id}"
            @click="$emit('preview', null)" v-if="doc">
@@ -70,9 +71,13 @@ import Avatar from 'vue-avatar'
 import DocumentService from '@/services/document'
 import { DocRevisionResource, DocumentResource, UserResource } from '@/types/resource'
 import { formatAsSimpleDateTime } from '@/utils/date'
+import Ghost from '@/components/Ghost.vue'
+import HistoryGhost from '@/components/HistoryGhost.vue'
 
 @Component({
   components: {
+    HistoryGhost,
+    Ghost,
     Avatar
   },
   filters: {
@@ -91,6 +96,8 @@ export default class DocHistory extends Vue {
   @Prop(Object)
   private readonly preview?: DocRevisionResource;
 
+  private loading = false;
+
   get currentUser (): UserResource {
     return this.$store.state.auth.user
   }
@@ -106,6 +113,7 @@ export default class DocHistory extends Vue {
   }
 
   private async loadHistory () {
+    this.loading = true
     try {
       if (this.id) {
         const res = await DocumentService.history(this.id)
@@ -114,6 +122,7 @@ export default class DocHistory extends Vue {
     } catch (e) {
       // Error loading history
     }
+    this.loading = false
   }
 }
 </script>
