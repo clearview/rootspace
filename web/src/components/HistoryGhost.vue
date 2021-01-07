@@ -8,9 +8,9 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'Ghost'
+  name: 'HistoryGhost'
 })
-export default class Ghost extends Vue {
+export default class HistoryGhost extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly active!: boolean;
 
@@ -34,10 +34,11 @@ export default class Ghost extends Vue {
     background: repeating-linear-gradient(
       0deg,
       theme('colors.gray.100'),
-      theme('colors.gray.100') 20px,
-      transparent 20px,
-      transparent 40px
+      theme('colors.gray.100') 100px,
+      transparent 100px,
+      transparent 120px
     );
+    background-position-y: 20px;
   }
 
   @keyframes haunt {

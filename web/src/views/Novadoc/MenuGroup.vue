@@ -1,6 +1,6 @@
 <template>
-  <div class="menu-group">
-    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible, big }">
+  <div class="menu-group" :class="{'no-margin': noMargin }">
+    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible, big}">
       <div class="text">
         <slot :value="value"></slot>
       </div>
@@ -45,6 +45,9 @@ export default class MenuGroup extends Vue {
   @Prop({ type: Boolean, default: false })
   private readonly big!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly noMargin!: boolean;
+
   @Prop({ type: Number, default: 6 })
   private readonly offset!: number;
 
@@ -87,9 +90,15 @@ export default class MenuGroup extends Vue {
   position: relative;
   font-size: 14px;
   cursor: pointer;
+  &:not(:last-child){
+    margin-right: 4px;
+  }
+  &.no-margin {
+    margin-right: 0;
+  }
 }
 .display {
-  padding: 4px;
+  padding: 2px;
   font-weight: bolder;
   display: flex;
   align-items: center;
