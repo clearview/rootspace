@@ -76,7 +76,8 @@
             <TerminalIcon size="16"></TerminalIcon>
           </button>
           <div class="menu-separator"></div>
-          <MenuGroup big value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment">
+          <MenuGroup big value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment"
+          no-margin>
             <template #default>
               <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
             </template>
@@ -116,35 +117,20 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup big value="#000" :disabled="!canBeTextColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+          <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
+          no-margin>
             <template #default>
-              <div class="text-color" :style="{
-                  color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
-                  background: getMarkAttrs('text_color') && getMarkAttrs('text_color').color === '#fff' ? '#333' : 'transparent'
-                }">Tt
-              </div>
+              <v-icon name="highlight" viewbox="16" size="16"
+              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
             </template>
             <template #options="{select, hide}">
-              <div class="color-blocks text-color-blocks">
-                <div v-for="color in textColors" :key="color" class="color-block"
-                     :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
-                     @click="select(color);hide();commands.text_color({color: color})"></div>
+              <div class="color-combo-title">
+                select combination
               </div>
-            </template>
-          </MenuGroup>
-          <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
-            <template #default>
-              <v-icon name="pen" viewbox="16" size="16"
-                      v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
-              <div class="bg-color bg-color-display" v-else
-                   :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
-              </div>
-            </template>
-            <template #options="{select, hide}">
-              <div class="color-blocks">
-                <div v-for="color in colors" :key="color" class="color-block"
-                     :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
-                     @click="select(color);hide();commands.bg_color({color: color})"></div>
+              <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
+              :style="{background: combo.background, color: combo.color}"
+              :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                {{combo.name}}
               </div>
             </template>
           </MenuGroup>
@@ -187,14 +173,14 @@
                   @click="commands.blockquote" v-tippy="{ placement : 'top',  arrow: true }" content="Blockquote">
             <v-icon viewbox="16" name="quote" size="16"></v-icon>
           </button>
-          <button class="menu menu-big" :class="{ 'active': isActive.code_block() }"
+          <button class="menu menu-big no-margin" :class="{ 'active': isActive.code_block() }"
                   :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
                   @click="createCodeBlock(commands.paragraph_merger, commands.code_block)" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
             <CodeIcon size="16"></CodeIcon>
           </button>
           <div class="menu-separator"></div>
           <button
-            class="menu menu-big" :disabled="!canCreateTable(isActive, focused)"
+            class="menu menu-big no-margin" :disabled="!canCreateTable(isActive, focused)"
             @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
             v-tippy="{ placement : 'top',  arrow: true }" content="Table"
           >
@@ -248,7 +234,8 @@
         </Popover>
       </div>
     </header>
-    <div class="page-editor" ref="pageEditor">
+    <DocGhost v-if="!doc" active></DocGhost>
+    <div v-show="doc" class="page-editor" ref="pageEditor">
       <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
@@ -257,13 +244,13 @@
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
                   <template #default>
-                    <v-icon name="edit2" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></v-icon>
+                    <v-icon name="link-edit" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></v-icon>
                   </template>
                   <template #options="{ hide }">
                     <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
                   </template>
                 </MenuGroup>
-                <NovadocMenuButton @click="commands.link({})" v-tippy="{ placement : 'top',  arrow: true }" content="Unlink">
+                <NovadocMenuButton @click="commands.link({})" v-tippy="{ placement : 'top',  arrow: true }" content="Unlink" no-margin>
                   <v-icon name="unlink" viewbox="16" size="16"></v-icon>
                 </NovadocMenuButton>
                 <NovadocMenuSeparator></NovadocMenuSeparator>
@@ -296,35 +283,20 @@
                       @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
-              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
+              no-margin>
                 <template #default>
-                  <div class="text-color text-color-display" :style="{
-                  color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
-                  background: getMarkAttrs('text_color') && getMarkAttrs('text_color').color === '#fff' ? '#333' : 'transparent'
-                }">Tt
-                  </div>
+                  <v-icon name="highlight" viewbox="16" size="16"
+                          :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
                 </template>
                 <template #options="{select, hide}">
-                  <div class="color-blocks text-color-blocks">
-                    <div v-for="color in textColors" :key="color" class="color-block"
-                         :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
-                         @click="select(color);hide();commands.text_color({color: color})"></div>
+                  <div class="color-combo-title">
+                    select combination
                   </div>
-                </template>
-              </MenuGroup>
-              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Background Color">
-                <template #default>
-                  <v-icon name="pen" viewbox="16" size="12"
-                          v-if="!getMarkAttrs('bg_color').color || getMarkAttrs('bg_color').color === '#fff'"></v-icon>
-                  <div class="bg-color bg-color-display" v-else
-                       :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">
-                  </div>
-                </template>
-                <template #options="{select, hide}">
-                  <div class="color-blocks">
-                    <div v-for="color in colors" :key="color" class="color-block"
-                         :style="{background: color, border: color === '#FFFFFF' ? 'solid 1px #DEE2EE' : ''}"
-                         @click="select(color);hide();commands.bg_color({color: color})"></div>
+                  <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
+                       :style="{background: combo.background, color: combo.color}"
+                       :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                    {{combo.name}}
                   </div>
                 </template>
               </MenuGroup>
@@ -339,7 +311,8 @@
                   <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
                 </template>
               </MenuGroup>
-              <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink">
+              <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink"
+                                 no-margin>
                 <v-icon name="unlink" viewbox="16" size="16"></v-icon>
               </NovadocMenuButton>
               <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
@@ -449,10 +422,12 @@ import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
 import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
 import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
+import DocGhost from '@/components/DocGhost'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {
+    DocGhost,
     NovadocMenuSeparator,
     NovadocMenuButton,
     NovadocLinkInput,
@@ -828,7 +803,7 @@ export default {
         }
       },
       canBeBgColored (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph() && focused) {
           return true
         }
       },
@@ -1176,6 +1151,66 @@ export default {
         '#F4F5F7',
         '#FFFFFF'
       ]
+    },
+    colorCombinations () {
+      return [
+        {
+          border: '#E0E2E7',
+          color: '#2C2B35',
+          background: '#FFFFFF',
+          activeBorder: '#E0E2E7',
+          name: 'Default Example',
+          class: 'white'
+        },
+        {
+          border: 'transparent',
+          color: '#D64141',
+          background: '#FFF3F3',
+          activeBorder: '#FFB6B6',
+          name: 'Red Example',
+          class: 'red'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FEFFBA',
+          activeBorder: '#c7c879',
+          name: 'Yellow Example',
+          class: 'yellow'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFEBD8',
+          activeBorder: '#dbbc9e',
+          name: 'Orange Example',
+          class: 'orange'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFE4F3',
+          activeBorder: '#bc8aa6',
+          name: 'Pink Example',
+          class: 'pink'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1F8FF',
+          activeBorder: '#86b3c1',
+          name: 'Blue Example',
+          class: 'blue'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1FFBC',
+          activeBorder: '#b0d287',
+          name: 'Green Example',
+          class: 'green'
+        }
+      ]
     }
   }
 
@@ -1183,6 +1218,47 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+
+.color-combo {
+  padding: 6px;
+  border-radius: 4px;
+  border: solid 1px transparent;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 14px;
+  margin: 16px 8px;
+  width: 160px;
+
+  &.white {
+    border: 1px solid #E0E2E7;
+  }
+  &:not(.white){
+    border: 2px solid transparent;
+  }
+  &:hover, &.active {
+    &.white {
+      border: 1px solid #bcbfc8;
+    }
+    &.red {
+      border: 2px solid #FFB6B6;
+    }
+    &.yellow {
+      border: 2px solid #c7c879;
+    }
+    &.orange {
+      border: 2px solid #dbbc9e;
+    }
+    &.pink {
+      border: 2px solid #bc8aa6;
+    }
+    &.blue {
+      border: 2px solid #86b3c1;
+    }
+    &.green {
+      border: 2px solid #b0d287;
+    }
+  }
+}
 .page {
   position: relative;
   display: flex;
@@ -1281,6 +1357,7 @@ export default {
   height: 24px;
   background: #E0E2E7;
   margin: 0 8px;
+  margin-block: auto;
   display: inline-block;
 }
 
@@ -1290,9 +1367,13 @@ export default {
   border: none;
   padding: 4px;
   outline: none;
-  border-radius: 2px;
+  border-radius: 4px;
   transition: all 0.15s ease;
   margin-right: 4px;
+
+  &.no-margin {
+    margin-right: 0
+  }
 
   &-big {
     padding: 8px;
@@ -1307,7 +1388,7 @@ export default {
   }
 
   &:hover {
-    background: #eee;
+    background: #F4F5F7;
   }
 
   &.active, &:active {
@@ -1420,6 +1501,15 @@ export default {
 .title-separator {
   border: 1px solid #EDEFF3;
   margin: 24px 16vw;
+}
+
+.color-combo-title {
+  margin: 20px 8px 16px 8px;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: #444754;
 }
 </style>
 <style lang="postcss">
