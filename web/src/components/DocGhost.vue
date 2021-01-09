@@ -1,14 +1,24 @@
 <template>
   <div :class="{'ghost': true, 'visible': active}">
     <div class="ghost-title"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph-short"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph"></div>
-    <div class="ghost-paragraph-short"></div>
+    <hr>
+    <div class="ghost-heading"></div>
+    <div class="ghost-paragraph" style="width: 50%"></div>
+    <div class="ghost-paragraph" style="width: 60%"></div>
+    <div class="ghost-paragraph" style="width: 40%"></div>
+    <div class="ghost-paragraph" style="width: 45%"></div>
+
+    <div class="ghost-heading"></div>
+    <div class="ghost-paragraph" style="width: 50%"></div>
+    <div class="ghost-paragraph" style="width: 60%"></div>
+    <div class="ghost-paragraph" style="width: 40%"></div>
+    <div class="ghost-paragraph" style="width: 45%"></div>
+
+    <div class="ghost-heading"></div>
+    <div class="ghost-paragraph" style="width: 50%"></div>
+    <div class="ghost-paragraph" style="width: 60%"></div>
+    <div class="ghost-paragraph" style="width: 40%"></div>
+    <div class="ghost-paragraph" style="width: 45%"></div>
   </div>
 </template>
 
@@ -41,22 +51,30 @@ export default class DocGhost extends Vue {
   }
 
   .ghost-title {
-    width: 50%;
-    height: 48px;
+    width: 100%;
+    height: 36px;
     margin-bottom: 32px;
-    background: #eee;
+    background: linear-gradient(275.41deg, #EFF2F8 0%, rgba(241, 244, 249, 0.5) 100%);
   }
   .ghost-paragraph{
-    background: #eee;
+    background: linear-gradient(275.41deg, #EFF2F8 0%, rgba(241, 244, 249, 0.5) 100%);
     width: 100%;
-    margin: 24px 0;
-    height: 24px;
+    margin: 16px 0;
+    height: 12px;
   }
-  .ghost-paragraph-short {
-    background: #eee;
-    width: 30%;
-    margin: 24px 0 48px 0;
-    height: 24px;
+  .ghost-heading{
+    background: linear-gradient(275.41deg, #EFF2F8 0%, rgba(241, 244, 249, 0.5) 100%);
+    width: 80%;
+    margin: 32px 0 24px;
+    height: 28px;
+    &:not(:nth-child(3)){
+      margin-top: 80px;
+    }
+  }
+
+  hr {
+    border: 1px solid #EDEFF3;
+    margin: 24px 0;
   }
 
   @keyframes haunt {
