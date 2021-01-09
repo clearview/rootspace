@@ -1,8 +1,12 @@
 <template>
   <div class="page" ref="page">
     <header class="page-header" :class="{scrolled: pageScrolled}">
+      <div class="editor-toolbar m-0 w-full" v-if="!doc">
+        <ToolbarGhost active></ToolbarGhost>
+      </div>
       <editor-menu-bar ref="menuBar" :editor="editor"
-                       v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }">
+                       v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }"
+                       v-show="doc">
         <div class="editor-toolbar">
           <MenuGroup big value="Normal Text" :disabled="!canChangeTextType(isActive, focused)"
                      v-tippy="{ placement : 'top',  arrow: true }" content="Text Style">
@@ -53,16 +57,16 @@
           <div class="menu-separator"></div>
           <button class="menu menu-big" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
                   @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
-            <BoldIcon size="16"></BoldIcon>
+            <v-icon name="bold" viewbox="16" size="16"></v-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
                   @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
-            <ItalicIcon size="16"></ItalicIcon>
+            <v-icon name="italic" viewbox="16" size="16"></v-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.underline() }"
                   :disabled="!canBeUnderline(isActive, focused)"
                   @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
-            <UnderlineIcon size="16"></UnderlineIcon>
+            <v-icon name="underline" viewbox="16" size="16"></v-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.strike() }"
                   :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike"
@@ -79,12 +83,12 @@
           <MenuGroup big value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment"
           no-margin>
             <template #default>
-              <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14"></component>
+              <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14" :name="getalignmentIconName(getNodeAttrs('paragraph').align)"></component>
             </template>
             <template #options="{select, hide}">
               <MenuGroupOption @click="select('Left');hide();commands.paragraph({align: 'left'})">
                 <template #icon>
-                  <AlignLeftIcon size="16"></AlignLeftIcon>
+                  <v-icon name="align-left" viewbox="16" size="16"></v-icon>
                 </template>
                 <template #label>
                   Left
@@ -92,7 +96,7 @@
               </MenuGroupOption>
               <MenuGroupOption @click="select('Center');hide();commands.paragraph({align: 'center'})">
                 <template #icon>
-                  <AlignCenterIcon size="16"></AlignCenterIcon>
+                  <v-icon name="align-center" viewbox="16" size="16"></v-icon>
                 </template>
                 <template #label>
                   Center
@@ -100,7 +104,7 @@
               </MenuGroupOption>
               <MenuGroupOption @click="select('Right');hide();commands.paragraph({align: 'right'})">
                 <template #icon>
-                  <AlignRightIcon size="16"></AlignRightIcon>
+                  <v-icon name="align-right" viewbox="16" size="16"></v-icon>
                 </template>
                 <template #label>
                   Right
@@ -117,11 +121,24 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
+          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+            <template #default>
+              <v-icon name="text-color" viewbox="16" size="16"
+                      :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+            </template>
+            <template #options="{select, hide}">
+              <div class="color-blocks text-color-blocks">
+                <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
+                     :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
+                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+              </div>
+            </template>
+          </MenuGroup>
           <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
           no-margin>
             <template #default>
               <v-icon name="highlight" viewbox="16" size="16"
-              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
+              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-combo-title">
@@ -158,12 +175,16 @@
           <MenuGroup big :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
                      v-tippy="{ placement : 'top',  arrow: true }" content="Link">
             <template #default>
-              <LinkIcon size="16"></LinkIcon>
+              <v-icon name="link2" viewbox="16" size="16"></v-icon>
             </template>
             <template #options="{ hide }">
               <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
             </template>
           </MenuGroup>
+          <button class="menu menu-big" :class="{ 'active': isActive.reference() }" :disabled="!canInsertReference(isActive, focused)"
+                  @click="insertReference(commands)" v-tippy="{ placement : 'top',  arrow: true }" content="Reference">
+            <v-icon name="reference-link" viewbox="16" size="16"></v-icon>
+          </button>
           <button class="menu menu-big" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
                   @click="commands.divider" v-tippy="{ placement : 'top',  arrow: true }" content="Horizontal line">
             <MinusIcon size="16"></MinusIcon>
@@ -197,7 +218,7 @@
           </button>
         </div>
       </editor-menu-bar>
-      <div class="editor-context-menu">
+      <div class="editor-context-menu" v-show="doc">
         <div class="lock-indicator" v-if="readOnly">
           <v-icon name="lock"></v-icon>
         </div>
@@ -239,7 +260,7 @@
       <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
         <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
           <div>
-            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !readOnly"
+            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !readOnly"
                  :style="getBubblePosition()" @mousedown.stop.prevent="consume">
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
@@ -283,6 +304,19 @@
                       @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+                <template #default>
+                  <v-icon name="text-color" viewbox="16" size="16"
+                          :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+                </template>
+                <template #options="{select, hide}">
+                  <div class="color-blocks text-color-blocks">
+                    <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
+                         :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+                  </div>
+                </template>
+              </MenuGroup>
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
               no-margin>
                 <template #default>
@@ -373,6 +407,7 @@ import {
 } from 'tiptap-extensions'
 import javascript from 'highlight.js/lib/languages/javascript'
 import typescript from 'highlight.js/lib/languages/typescript'
+import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
@@ -423,10 +458,12 @@ import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
 import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
+import ToolbarGhost from '@/components/ToolbarGhost'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {
+    ToolbarGhost,
     DocGhost,
     NovadocMenuSeparator,
     NovadocMenuButton,
@@ -601,7 +638,8 @@ export default {
               languages: {
                 javascript,
                 typescript,
-                bash
+                bash,
+                xml
               }
             }),
             new HardBreak(),
@@ -668,7 +706,8 @@ export default {
               languages: {
                 javascript,
                 typescript,
-                bash
+                bash,
+                xml
               }
             }),
             new HardBreak(),
@@ -723,7 +762,7 @@ export default {
         const coords = this.editor.view.coordsAtPos(sel.$from.pos)
         const offsetTop = 36
         if (this.$refs.pageEditor) {
-          const left = coords.x - this.$refs.pageEditor.offsetLeft - this.$refs.pageEditor.offsetParent.offsetLeft
+          const left = coords.left - this.$refs.pageEditor.offsetLeft - this.$refs.pageEditor.offsetParent.offsetLeft
           return {
             left: left + 'px',
             top: coords.top - offsetTop - this.$refs.pageEditor.offsetTop + this.$refs.paper.scrollTop + 'px'
@@ -742,6 +781,14 @@ export default {
           return true
         }
       },
+      insertReference (commands) {
+        commands.showReference()
+      },
+      canInsertReference (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
       canInsertLine (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
@@ -756,7 +803,7 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+        if (this.isCellSelection() && focused) {
           return true
         }
       },
@@ -764,7 +811,7 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+        if (this.isCellSelection() && focused) {
           return true
         }
       },
@@ -772,7 +819,7 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+        if (this.isCellSelection() && focused) {
           return true
         }
       },
@@ -780,7 +827,7 @@ export default {
         if (isActive.paragraph({ level: 0 }) && focused) {
           return true
         }
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+        if (this.isCellSelection() && focused) {
           return true
         }
       },
@@ -798,7 +845,7 @@ export default {
         if (isActive.paragraph() && focused) {
           return true
         }
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection' && focused) {
+        if (this.isCellSelection() && focused) {
           return true
         }
       },
@@ -829,6 +876,11 @@ export default {
       },
       canCreateTable (isActive, focused) {
         if (isActive.paragraph({ level: 0 }) && focused) {
+          return true
+        }
+      },
+      isCellSelection () {
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection') {
           return true
         }
       },
@@ -878,6 +930,19 @@ export default {
             return AlignJustifyIcon
         }
         return AlignLeftIcon
+      },
+      getalignmentIconName (align) {
+        switch (align) {
+          case 'left':
+            return 'align-left'
+          case 'center':
+            return 'align-center'
+          case 'right':
+            return 'align-right'
+          case 'justify':
+            return null
+        }
+        return 'align-left'
       },
       getListTypeIcon (isActive) {
         if (isActive.todo_list()) {
@@ -1120,22 +1185,26 @@ export default {
     },
     textColors () {
       return [
-        '#2C2B35',
-        '#444754',
-        '#AAB1C5',
-        '#DEE2EE',
-        '#E0E2E7',
-        '#EDEFF3',
-        '#F4F5F7',
-        '#FFFFFF',
-        '#4E32F0',
-        '#9C3DBF',
-        '#D64141',
-        '#F2994A',
-        '#219653',
-        '#4574D3',
-        '#8CD5FF',
-        '#65F3E3'
+        { border: 'transparent', color: '#212121' },
+        { border: 'transparent', color: '#424242' },
+        { border: 'transparent', color: '#616161' },
+        { border: 'transparent', color: '#757575' },
+        { border: 'transparent', color: '#9E9E9E' },
+        { border: 'transparent', color: '#BDBDBD' },
+        { border: 'transparent', color: '#E0E0E0' },
+        { border: '#DEE2EE', color: '#EEEEEE' },
+        { border: '#DEE2EE', color: '#F5F5F5' },
+        { border: '#DEE2EE', color: '#FAFAFA' },
+        { border: 'transparent', color: '#962218' },
+        { border: 'transparent', color: '#D64141' },
+        { border: 'transparent', color: '#F2994A' },
+        { border: 'transparent', color: '#F9EB13' },
+        { border: 'transparent', color: '#219653' },
+        { border: 'transparent', color: '#8CD5FF' },
+        { border: 'transparent', color: '#4574D3' },
+        { border: 'transparent', color: '#4E32F0' },
+        { border: 'transparent', color: '#9C3DBF' },
+        { border: 'transparent', color: '#DC56E7' }
       ]
     },
     colors () {
@@ -1174,7 +1243,7 @@ export default {
           border: 'transparent',
           color: '#2C2B35',
           background: '#FEFFBA',
-          activeBorder: '#c7c879',
+          activeBorder: '#E1E26F',
           name: 'Yellow Example',
           class: 'yellow'
         },
@@ -1182,7 +1251,7 @@ export default {
           border: 'transparent',
           color: '#2C2B35',
           background: '#FFEBD8',
-          activeBorder: '#dbbc9e',
+          activeBorder: '#FFC391',
           name: 'Orange Example',
           class: 'orange'
         },
@@ -1190,7 +1259,7 @@ export default {
           border: 'transparent',
           color: '#2C2B35',
           background: '#FFE4F3',
-          activeBorder: '#bc8aa6',
+          activeBorder: '#FFC2E4',
           name: 'Pink Example',
           class: 'pink'
         },
@@ -1198,7 +1267,7 @@ export default {
           border: 'transparent',
           color: '#2C2B35',
           background: '#E1F8FF',
-          activeBorder: '#86b3c1',
+          activeBorder: '#93D3E7',
           name: 'Blue Example',
           class: 'blue'
         },
@@ -1206,7 +1275,7 @@ export default {
           border: 'transparent',
           color: '#2C2B35',
           background: '#E1FFBC',
-          activeBorder: '#b0d287',
+          activeBorder: '#B8EA7C',
           name: 'Green Example',
           class: 'green'
         }
@@ -1403,7 +1472,7 @@ export default {
 
 .color-blocks {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   grid-gap: 8px;
   padding: 24px;
 }
@@ -1604,7 +1673,7 @@ export default {
 
   p {
     font-size: 16px;
-    line-height: 19px;
+    line-height: 20px;
     margin-top: 16px;
     font-weight: 400;
     & + p {
@@ -1689,6 +1758,7 @@ export default {
     border-radius: 4px;
     border-style: hidden;
     box-shadow: 0 0 0 1px #DEE2EE;
+    position: relative;
 
     p {
       font-size: 14px;
@@ -1855,7 +1925,6 @@ export default {
       color: #f8f8f2;
     }
 
-    .hljs-string,
     .hljs-title,
     .hljs-name,
     .hljs-type,
@@ -1866,7 +1935,14 @@ export default {
     .hljs-variable,
     .hljs-template-tag,
     .hljs-template-variable {
-      color: #f1fa8c;
+      color: #de3f79;
+    }
+
+    .hljs-string {
+      color: #edd70b;
+    }
+    .hljs-attr {
+      color: #93d128;
     }
 
     .hljs-comment,

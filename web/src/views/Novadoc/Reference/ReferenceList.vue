@@ -50,7 +50,7 @@ export default class ReferenceList extends Vue {
   @Prop({ type: Array, required: true })
   private readonly references!: NodeResource[];
 
-  @Prop({ type: Object, required: true })
+  @Prop({ required: true })
   private readonly coords!: { top: number; left: number; bottom: number; right: number };
 
   @Ref('search')
