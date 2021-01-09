@@ -8,7 +8,8 @@
         <NovadocMenuButton :active="node.attrs.size === 'medium'" @click="resize('medium')">
           Medium
         </NovadocMenuButton>
-        <NovadocMenuButton :active="node.attrs.size === 'large'" @click="resize('large')">
+        <NovadocMenuButton :active="node.attrs.size === 'large'" @click="resize('large')"
+        no-margin>
           Large
         </NovadocMenuButton>
         <NovadocMenuSeparator></NovadocMenuSeparator>
@@ -20,7 +21,8 @@
           <v-icon name="image-center" viewbox="16" size="16"></v-icon>
           <span>Center</span>
         </NovadocMenuButton>
-        <NovadocMenuButton :active="node.attrs.align === 'right'" @click="align('right')">
+        <NovadocMenuButton :active="node.attrs.align === 'right'" @click="align('right')"
+                           no-margin>
           <v-icon name="image-right" viewbox="16" size="16"></v-icon>
           <span>Right</span>
         </NovadocMenuButton>
