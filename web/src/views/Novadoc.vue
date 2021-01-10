@@ -376,10 +376,11 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
-import { WebsocketProvider } from 'y-websocket'
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
 import * as Y from 'yjs'
+import { WebsocketProvider } from 'y-websocket'
 import CollaborationExtension from './Novadoc/CollaborationExtension'
-
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 
 import {
@@ -465,7 +466,16 @@ export default {
     const debouncedSaveTitleOnly = debounce(() => {
       this.saveTitleOnly(this.title)
     }, 1000)
+
+    const providerDisconnect = debounce(() => {
+      if (this.provider) {
+        this.provider.disconnect()
+      }
+    }, 1000)
+
     return {
+      messageRestore: 6,
+      providerDisconnect: providerDisconnect,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -546,18 +556,36 @@ export default {
           const providerOnMessage = this.provider.ws.onmessage
           const providerOnOpen = this.provider.ws.onopen
 
+          console.log('onConnecting')
           this.provider.ws.onmessage = event => {
             const { data } = event
+            console.log('data', data)
 
             if (typeof data === 'string') {
               switch (data) {
-                case 'authorized':
-                  this.provider.ws.onmessage = providerOnMessage
+                case 'init':
+                  this.provider.ws.onmessage = event => {
+                    const decoder = decoding.createDecoder(new Uint8Array(event.data))
+                    const encoder = encoding.createEncoder()
+                    const messageType = decoding.readVarUint(decoder)
+
+                    console.log('messageType', messageType)
+
+                    if (messageType === this.messageRestore) {
+                      this.closeHistory()
+                      this.buildEditor()
+                      return
+                    }
+
+                    providerOnMessage(event)
+                  }
                   providerOnOpen()
                   break
                 case 'unauthenticated':
                 case 'unauthorized':
-                  this.provider.disconnect()
+                  break
+                case 'wait':
+                  this.providerDisconnect()
                   break
                 default:
                   break
@@ -571,6 +599,7 @@ export default {
         }
 
         this.provider.on('status', ({ status }) => {
+          console.log('status', status)
           if (status === 'connecting') {
             onConnecting()
           }
@@ -1008,10 +1037,15 @@ export default {
           }
         })
       },
-      restore (state) {
-        this.save(state.content)
-        this.preview = null
-        this.editor.setContent(state.content)
+      restore (revision) {
+        const encoder = encoding.createEncoder()
+        encoding.writeVarUint(encoder, this.messageRestore)
+        encoding.writeVarUint(encoder, revision.id)
+        this.provider.ws.send(encoding.toUint8Array(encoder))
+
+        // this.save(state.content)
+        // this.preview = null
+        // this.editor.setContent(state.content)
       },
       showPreview (state) {
         this.isPreviewing = true

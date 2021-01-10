@@ -1,3 +1,4 @@
+import { String } from 'aws-sdk/clients/apigateway'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -5,14 +6,15 @@ import * as Http from 'http'
 import * as WebSocket from 'ws'
 import * as wsUtils from 'y-websocket/bin/utils.js'
 import { authenticate, authorize } from './auth'
-import { persistence, onDocUpdate, onUserDisconnect } from './persistence'
+import * as state from './state'
 
 const encoding = require('lib0/dist/encoding.cjs')
 const decoding = require('lib0/dist/decoding.cjs')
 
 const messageSync = 0
+const messageRestore = 6
 
-wsUtils.setPersistence(persistence)
+wsUtils.setPersistence(state.persistence)
 
 export default class YjsServer {
   port: number = 6001
@@ -44,7 +46,7 @@ export default class YjsServer {
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
     if (typeof message === 'string') {
-      await this.onStringMessage(conn, req, message)
+      this.onAuthMessage(conn, req, message)
       return
     }
 
@@ -52,25 +54,30 @@ export default class YjsServer {
       conn.close()
     }
 
-    const encoder = encoding.createEncoder()
     const decoder = decoding.createDecoder(new Uint8Array(message))
     const messageType = decoding.readVarUint(decoder)
 
-    if (messageType === messageSync) {
-      encoding.writeVarUint(encoder, messageSync)
-      const syncMessageType = decoding.readVarUint(decoder)
+    console.log('messageType', messageType) // tslint:disable-line
 
+    if (messageType === messageRestore) {
+      const revisionId = decoding.readVarUint(decoder)
+      await this.onRestoreMessage(conn, req, revisionId)
+      return
+    }
+
+    if (messageType === messageSync) {
+      const syncMessageType = decoding.readVarUint(decoder)
       console.log('syncMessageType', syncMessageType) // tslint:disable-line
 
       if (syncMessageType > 0) {
-        onDocUpdate(req.url.slice(1), (conn as any).user.id)
+        state.onUpdate(req.url.slice(1), (conn as any).user.id)
       }
     }
   }
 
-  private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+  private onAuthMessage = async (conn: WebSocket, req: Http.IncomingMessage, token: String) => {
     const docName = req.url.slice(1)
-    const user = await authenticate(message)
+    const user = await authenticate(token)
 
     if (!user) {
       conn.send('unauthenticated')
@@ -86,15 +93,44 @@ export default class YjsServer {
       return
     }
 
-    ;(conn as any).user = user
+    Object.assign(conn, { user: user })
 
     conn.on('close', async () => {
+      if (state.isLocked(docName)) {
+        return
+      }
+
       const sharedDoc = wsUtils.docs.get(docName)
-      await onUserDisconnect(docName, (conn as any).user.id, sharedDoc)
+      await state.save(docName, (conn as any).user.id, sharedDoc)
     })
 
     wsUtils.setupWSConnection(conn, req)
-    conn.send('authorized')
+    conn.send(state.isLocked(docName) ? 'wait' : 'init')
+  }
+
+  private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, revisionId: number) => {
+    console.log('onRestoreMessage')
+    const userId = (conn as any).user.id
+    const docName = req.url.slice(1)
+    const sharedDoc = wsUtils.docs.get(docName)
+
+    const encoder = encoding.createEncoder()
+    encoding.writeVarUint(encoder, messageRestore)
+
+    state.lock(docName)
+
+    sharedDoc.conns.forEach(async (_, c: WebSocket) => {
+      c.send(encoding.toUint8Array(encoder))
+    })
+
+    try {
+      await state.restore(docName, userId, revisionId, sharedDoc)
+      wsUtils.docs.delete(docName)
+    } catch (err) {
+      console.log(err)
+    }
+
+    state.unlock(docName)
   }
 
   listen() {
