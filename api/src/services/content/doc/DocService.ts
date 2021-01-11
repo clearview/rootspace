@@ -213,7 +213,7 @@ export class DocService extends NodeContentService {
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
 
-    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
 
     return updatedDoc
   }

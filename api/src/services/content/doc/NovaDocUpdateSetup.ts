@@ -1,10 +1,15 @@
 import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
-import { IDocUpdateSetup, INovaDocContent } from '../../../types/doc'
+import { IDocUpdateSetup } from '../../../types/doc'
+
+// seconds
+const revisonIdleTime = 30
 
 export class NovaDocUpdateSetup implements IDocUpdateSetup {
   private _data: DocUpdateValue
   private _doc: Doc
+  private _actorId: number
+  private _time: number
 
   private _updatedAttributes: string[] = []
   private _contentUpdated: boolean = false
@@ -14,6 +19,8 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   constructor(data: DocUpdateValue, doc: Doc, actorId: number) {
     this._data = data
     this._doc = doc
+    this._actorId = actorId
+    this._time = Date.now()
 
     this._contentUpdated = this._isContentUpdated()
     this._updatedAttributes = this._getUpdatedAttributes()
@@ -38,7 +45,7 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _isContentUpdated(): boolean {
-    if (this._data.attributes.content === undefined) {
+    if (this._data.attributes.contentState === undefined) {
       return false
     }
 
@@ -82,11 +89,22 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
       return false
     }
 
-    if (this._isDocContentEmpty()) {
+    if (this._doc.contentState === null) {
       return false
     }
 
-    return true
+    if (this._isNewUserUpdating()) {
+      return true
+    }
+
+    // seconds
+    const timeSpan = (this._time - this._doc.contentUpdatedAt.valueOf()) / 1000
+
+    if (timeSpan > revisonIdleTime) {
+      return true
+    }
+
+    return false
   }
 
   private _doRegisterActivity(): boolean {
@@ -101,6 +119,18 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
     return true
   }
 
+  private _isNewUserUpdating(): boolean {
+    if (this._doc.contentUpdatedBy === this._actorId) {
+      return false
+    }
+
+    if (this._doc.contentUpdatedBy === null && this._doc.userId === this._actorId) {
+      return false
+    }
+
+    return true
+  }
+
   private _isOnlyContentUpdated() {
     if (this._updatedAttributes.length === 1 && this._updatedAttributes[0] === 'contentState') {
       return true
@@ -108,20 +138,4 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
 
     return false
   }
-
-  private _isDocContentEmpty(): boolean {
-    const docContent = this._doc.content as INovaDocContent
-
-    if (docContent.content === undefined) {
-      return true
-    }
-
-    if (docContent === null || docContent.content.length === 0) {
-      return true
-    }
-
-    return false
-  }
-
-  
 }
