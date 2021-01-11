@@ -411,11 +411,10 @@ import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
-import * as encoding from 'lib0/encoding.js'
-import * as decoding from 'lib0/decoding.js'
-import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
 import CollaborationExtension from './Novadoc/CollaborationExtension'
+
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 
 import {
@@ -503,9 +502,7 @@ export default {
     const debouncedSaveTitleOnly = debounce(() => {
       this.saveTitleOnly(this.title)
     }, 1000)
-
     return {
-      messageRestore: 6,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -588,32 +585,16 @@ export default {
 
           this.provider.ws.onmessage = event => {
             const { data } = event
-            console.log('data', data)
 
             if (typeof data === 'string') {
               switch (data) {
-                case 'init':
-                  this.provider.ws.onmessage = event => {
-                    const decoder = decoding.createDecoder(new Uint8Array(event.data))
-                    const encoder = encoding.createEncoder()
-                    const messageType = decoding.readVarUint(decoder)
-
-                    console.log('messageType', messageType)
-
-                    if (messageType === this.messageRestore) {
-                      this.closeHistory()
-                      this.buildEditor()
-                      return
-                    }
-
-                    providerOnMessage(event)
-                  }
+                case 'authorized':
+                  this.provider.ws.onmessage = providerOnMessage
                   providerOnOpen()
                   break
                 case 'unauthenticated':
                 case 'unauthorized':
-                  break
-                case 'wait':
+                  this.provider.disconnect()
                   break
                 default:
                   break
@@ -627,7 +608,6 @@ export default {
         }
 
         this.provider.on('status', ({ status }) => {
-          console.log('status', status)
           if (status === 'connecting') {
             onConnecting()
           }
@@ -1093,15 +1073,10 @@ export default {
           }
         })
       },
-      restore (revision) {
-        const encoder = encoding.createEncoder()
-        encoding.writeVarUint(encoder, this.messageRestore)
-        encoding.writeVarUint(encoder, revision.id)
-        this.provider.ws.send(encoding.toUint8Array(encoder))
-
-        // this.save(state.content)
-        // this.preview = null
-        // this.editor.setContent(state.content)
+      restore (state) {
+        this.save(state.content)
+        this.preview = null
+        this.editor.setContent(state.content)
       },
       showPreview (state) {
         this.isPreviewing = true
