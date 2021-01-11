@@ -467,15 +467,8 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
 
-    const providerDisconnect = debounce(() => {
-      if (this.provider) {
-        this.provider.disconnect()
-      }
-    }, 1000)
-
     return {
       messageRestore: 6,
-      providerDisconnect: providerDisconnect,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -556,7 +549,6 @@ export default {
           const providerOnMessage = this.provider.ws.onmessage
           const providerOnOpen = this.provider.ws.onopen
 
-          console.log('onConnecting')
           this.provider.ws.onmessage = event => {
             const { data } = event
             console.log('data', data)
@@ -585,7 +577,6 @@ export default {
                 case 'unauthorized':
                   break
                 case 'wait':
-                  this.providerDisconnect()
                   break
                 default:
                   break

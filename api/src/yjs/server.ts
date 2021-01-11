@@ -1,10 +1,10 @@
-import { String } from 'aws-sdk/clients/apigateway'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
 import * as Http from 'http'
 import * as WebSocket from 'ws'
 import * as wsUtils from 'y-websocket/bin/utils.js'
+import { User } from '../database/entities/User'
 import { authenticate, authorize } from './auth'
 import * as state from './state'
 
@@ -45,8 +45,30 @@ export default class YjsServer {
   }
 
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    const docName = req.url.slice(1)
+
     if (typeof message === 'string') {
-      this.onAuthMessage(conn, req, message)
+      const user = await this.auth(conn, req, message)
+
+      if (!user) {
+        conn.close()
+        return
+      }
+
+      Object.assign(conn, { user })
+
+      conn.on('close', async () => {
+        this.connOnClose(conn, docName)
+      })
+
+      wsUtils.setupWSConnection(conn, req)
+
+      if (state.isLocked(docName)) {
+        state.locks.get(docName).push(conn)
+      } else {
+        conn.send('init')
+      }
+
       return
     }
 
@@ -75,41 +97,71 @@ export default class YjsServer {
     }
   }
 
-  private onAuthMessage = async (conn: WebSocket, req: Http.IncomingMessage, token: String) => {
+  private auth = async (conn: WebSocket, req: Http.IncomingMessage, token: string): Promise<User | null> => {
     const docName = req.url.slice(1)
     const user = await authenticate(token)
 
     if (!user) {
       conn.send('unauthenticated')
-      conn.close()
-      return
+      return null
     }
 
     const docId = Number(docName.split('_').pop())
 
     if (!(await authorize(user.id, docId))) {
       conn.send('unauthorized')
-      conn.close()
+      return null
+    }
+
+    return user
+  }
+
+  private connOnClose = async (conn: WebSocket, docName: string) => {
+    console.log('conn on close') // tslint:disable-line
+
+    const sharedDoc = wsUtils.docs.get(docName)
+
+    if (!sharedDoc) {
       return
     }
 
-    Object.assign(conn, { user: user })
+    const connsCount = sharedDoc.conns.size
+    console.log('connsCount', connsCount) // tslint:disable-line
 
-    conn.on('close', async () => {
-      if (state.isLocked(docName)) {
-        return
+    if (state.isLocked(docName) === false) {
+      await state.save(docName, (conn as any).user.id, sharedDoc)
+
+      if (connsCount < 2) {
+        state.clearMonitors(docName)
       }
 
-      const sharedDoc = wsUtils.docs.get(docName)
-      await state.save(docName, (conn as any).user.id, sharedDoc)
-    })
+      return
+    }
 
-    wsUtils.setupWSConnection(conn, req)
-    conn.send(state.isLocked(docName) ? 'wait' : 'init')
+    if (connsCount < 2) {
+      if (state.restoreMonitor.get(docName)) {
+        const info = state.restoreMonitor.get(docName)
+
+        try {
+          await state.restore(docName, info.userId, info.revisionId, sharedDoc)
+        } catch (err) {
+          console.log(err) // tslint:disable-line
+        }
+      }
+
+      state.clearMonitors(docName)
+
+      const waitingConns = state.locks.get(docName)
+      state.unlock(docName)
+
+      waitingConns.forEach(async (c: WebSocket) => {
+        c.send('init')
+      })
+    }
   }
 
   private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, revisionId: number) => {
-    console.log('onRestoreMessage')
+    console.log('onRestoreMessage') // tslint:disable-line
     const userId = (conn as any).user.id
     const docName = req.url.slice(1)
     const sharedDoc = wsUtils.docs.get(docName)
@@ -117,20 +169,12 @@ export default class YjsServer {
     const encoder = encoding.createEncoder()
     encoding.writeVarUint(encoder, messageRestore)
 
+    state.onRestore(docName, userId, revisionId)
     state.lock(docName)
 
     sharedDoc.conns.forEach(async (_, c: WebSocket) => {
       c.send(encoding.toUint8Array(encoder))
     })
-
-    try {
-      await state.restore(docName, userId, revisionId, sharedDoc)
-      wsUtils.docs.delete(docName)
-    } catch (err) {
-      console.log(err)
-    }
-
-    state.unlock(docName)
   }
 
   listen() {
