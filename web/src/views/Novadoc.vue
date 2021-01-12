@@ -417,6 +417,8 @@ import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
 import CollaborationExtension from './Novadoc/CollaborationExtension'
@@ -576,7 +578,7 @@ export default {
           this.previewEditor.destroy()
         }
       },
-      buildProvider () {
+      initProvider () {
         const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
         if (!wsProviderUrl) {
@@ -596,16 +598,30 @@ export default {
 
           this.provider.ws.onmessage = event => {
             const { data } = event
+            console.log('onmessage data', data)
 
             if (typeof data === 'string') {
               switch (data) {
-                case 'authorized':
-                  this.provider.ws.onmessage = providerOnMessage
+                case 'init':
+                  this.provider.ws.onmessage = event => {
+                    const decoder = decoding.createDecoder(new Uint8Array(event.data))
+                    const encoder = encoding.createEncoder()
+                    const messageType = decoding.readVarUint(decoder)
+
+                    if (messageType === this.messageRestore) {
+                      this.closeHistory()
+                      this.initEditor()
+                      return
+                    }
+
+                    providerOnMessage(event)
+                  }
                   providerOnOpen()
                   break
                 case 'unauthenticated':
                 case 'unauthorized':
-                  this.provider.disconnect()
+                  break
+                case 'wait':
                   break
                 default:
                   break
@@ -619,6 +635,7 @@ export default {
         }
 
         this.provider.on('status', ({ status }) => {
+          console.log('status', status)
           if (status === 'connecting') {
             onConnecting()
           }
@@ -626,12 +643,12 @@ export default {
 
         onConnecting()
       },
-      buildEditor () {
+      initEditor () {
         this.destroyProvider()
         this.destroyEditor()
 
         this.ydoc = this.ydoc = new Y.Doc()
-        this.buildProvider()
+        this.initProvider()
 
         this.editor = new Editor({
           editable: !this.readOnly,
@@ -1022,12 +1039,14 @@ export default {
             await this.activateSpace(res.data.spaceId)
           }
           this.autoResizeTitle()
-          this.buildEditor()
+
           if (this.title.trim().length === 0) {
             this.$nextTick(() => {
               this.$refs.title.focus()
             })
           }
+
+          this.initEditor()
         }
       },
       autoResizeTitle () {
@@ -1101,20 +1120,21 @@ export default {
           }
         })
       },
-      restore (state) {
-        this.save(state.content)
-        this.preview = null
-        this.editor.setContent(state.content)
+      restore (revision) {
+        const encoder = encoding.createEncoder()
+        encoding.writeVarUint(encoder, this.messageRestore)
+        encoding.writeVarUint(encoder, revision.id)
+        this.provider.ws.send(encoding.toUint8Array(encoder))
       },
-      showPreview (state) {
+      showPreview (revision) {
         this.isPreviewing = true
-        if (!state) {
+        if (!revision) {
           this.preview = {
             id: null,
             content: this.editor.getJSON()
           }
         } else {
-          this.preview = state
+          this.preview = revision
         }
         this.previewEditor.setContent(this.preview.content)
       },

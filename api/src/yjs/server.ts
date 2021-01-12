@@ -4,8 +4,9 @@ dotenv.config()
 import * as Http from 'http'
 import * as WebSocket from 'ws'
 import * as wsUtils from 'y-websocket/bin/utils.js'
+import { User } from '../database/entities/User'
 import { authenticate, authorize } from './auth'
-import { persistence, onDocUpdate, onUserDisconnect } from './persistence'
+import * as state from './state'
 
 /* tslint:disable */
 const encoding = require('lib0/dist/encoding.cjs')
@@ -13,8 +14,9 @@ const decoding = require('lib0/dist/decoding.cjs')
 /* tslint:enable */
 
 const messageSync = 0
+const messageRestore = 6
 
-wsUtils.setPersistence(persistence)
+wsUtils.setPersistence(state.persistence)
 
 export default class YjsServer {
   port: number = 6001
@@ -30,7 +32,7 @@ export default class YjsServer {
     this.wss = new WebSocket.Server({ noServer: true })
 
     this.httpServer.on('upgrade', (request, socket, head) => {
-      this.wss.handleUpgrade(request, socket, head, this.handleAuth)
+      this.wss.handleUpgrade(request, socket, head, this.handleUpgrade)
     })
 
     this.wss.on('connection', (conn: WebSocket, req: Http.IncomingMessage, {} = {}) => {
@@ -40,13 +42,52 @@ export default class YjsServer {
     })
   }
 
-  private handleAuth = (ws: WebSocket, request: Http.IncomingMessage) => {
+  private handleUpgrade = (ws: WebSocket, request: Http.IncomingMessage) => {
     this.wss.emit('connection', ws, request)
   }
 
+  private auth = async (conn: WebSocket, req: Http.IncomingMessage, token: string): Promise<User | null> => {
+    const docName = req.url.slice(1)
+    const user = await authenticate(token)
+
+    if (!user) {
+      conn.send('unauthenticated')
+      return null
+    }
+
+    const docId = Number(docName.split('_').pop())
+
+    if (!(await authorize(user.id, docId))) {
+      conn.send('unauthorized')
+      return null
+    }
+
+    return user
+  }
+
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+    const docName = req.url.slice(1)
+
     if (typeof message === 'string') {
-      await this.onStringMessage(conn, req, message)
+      console.log('on string message')
+      const user = await this.auth(conn, req, message)
+
+      if (!user) {
+        conn.close()
+        return
+      }
+
+      Object.assign(conn, { user })
+
+      console.log('isLocked', state.isLocked(docName))
+
+      if (state.isLocked(docName) === true) {
+        state.locks.get(docName).push(conn)
+        conn.send('wait')
+        return
+      }
+
+      this.setupWSConnection(conn, req)
       return
     }
 
@@ -54,50 +95,88 @@ export default class YjsServer {
       conn.close()
     }
 
-    const encoder = encoding.createEncoder()
     const decoder = decoding.createDecoder(new Uint8Array(message))
     const messageType = decoding.readVarUint(decoder)
 
+    if (messageType === messageRestore) {
+      const revisionId = decoding.readVarUint(decoder)
+      await this.onRestoreMessage(conn, req, revisionId)
+      return
+    }
+
     if (messageType === messageSync) {
-      encoding.writeVarUint(encoder, messageSync)
       const syncMessageType = decoding.readVarUint(decoder)
 
-      console.log('syncMessageType', syncMessageType) // tslint:disable-line
-
       if (syncMessageType > 0) {
-        onDocUpdate(req.url.slice(1), (conn as any).user.id)
+        state.onUpdate(req.url.slice(1), (conn as any).user.id)
       }
     }
   }
 
-  private onStringMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
+  private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, revisionId: number) => {
+    console.log('onRestoreMessage') // tslint:disable-line
+    const userId = (conn as any).user.id
     const docName = req.url.slice(1)
-    const user = await authenticate(message)
+    const sharedDoc = wsUtils.docs.get(docName)
 
-    if (!user) {
-      conn.send('unauthenticated')
-      conn.close()
-      return
-    }
+    const encoder = encoding.createEncoder()
+    encoding.writeVarUint(encoder, messageRestore)
 
-    const docId = Number(docName.split('_').pop())
+    state.onRestore(docName, userId, revisionId)
+    state.lock(docName)
 
-    if (!(await authorize(user.id, docId))) {
-      conn.send('unauthorized')
-      conn.close()
-      return
-    }
+    sharedDoc.conns.forEach(async (_, c: WebSocket) => {
+      c.send(encoding.toUint8Array(encoder))
+    })
+  }
 
-    // tslint:disable-next-line
-    ;(conn as any).user = user
-
+  private setupWSConnection(conn: WebSocket, req: Http.IncomingMessage) {
     conn.on('close', async () => {
-      const sharedDoc = wsUtils.docs.get(docName)
-      await onUserDisconnect(docName, (conn as any).user.id, sharedDoc)
+      this.connOnClose(conn, req)
     })
 
     wsUtils.setupWSConnection(conn, req)
-    conn.send('authorized')
+    conn.send('init')
+  }
+
+  private connOnClose = async (conn: WebSocket, req: Http.IncomingMessage) => {
+    console.log('conn on close') // tslint:disable-line
+
+    const docName = req.url.slice(1)
+    const sharedDoc = wsUtils.docs.get(docName)
+
+    if (!sharedDoc) {
+      return
+    }
+
+    const connsCount = sharedDoc.conns.size
+    console.log('connsCount', connsCount) // tslint:disable-line
+
+    if (state.isLocked(docName) === false) {
+      await state.save(docName, (conn as any).user.id, sharedDoc)
+      return
+    }
+
+    if (connsCount < 2) {
+      if (state.restoreMonitor.get(docName)) {
+        const info = state.restoreMonitor.get(docName)
+
+        try {
+          await state.restore(docName, info.userId, info.revisionId, sharedDoc)
+        } catch (err) {
+          console.log(err) // tslint:disable-line
+        }
+      }
+
+      state.clearMonitors(docName)
+
+      const waitingConns = state.locks.get(docName)
+      state.unlock(docName)
+
+      waitingConns.forEach(async (c: WebSocket) => {
+        this.setupWSConnection(c, req)
+      })
+    }
   }
 
   listen() {
