@@ -777,7 +777,7 @@ export default {
         this.isBubbleFocused = true
       },
       canInsertImage (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
@@ -785,97 +785,97 @@ export default {
         commands.showReference()
       },
       canInsertReference (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       canInsertLine (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       canBeLinked (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       canBeBold (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused) {
+        if (this.isCellSelection() && focused && !this.readOnly) {
           return true
         }
       },
       canBeItalic (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused) {
+        if (this.isCellSelection() && focused && !this.readOnly) {
           return true
         }
       },
       canBeUnderline (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused) {
+        if (this.isCellSelection() && focused && !this.readOnly) {
           return true
         }
       },
       canBeStrikethrough (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused) {
+        if (this.isCellSelection() && focused && !this.readOnly) {
           return true
         }
       },
       canBeInlineCode (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       canBeAligned (isActive, focused) {
-        if (isActive.paragraph() && focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
           return true
         }
       },
       canBeTextColored (isActive, focused) {
-        if (isActive.paragraph() && focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused) {
+        if (this.isCellSelection() && focused && !this.readOnly) {
           return true
         }
       },
       canBeBgColored (isActive, focused) {
-        if (isActive.paragraph() && focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
           return true
         }
       },
       canBeConvertedToList (isActive, focused) {
-        if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.readOnly) {
           return true
         }
       },
       canBeConvertedToQuote (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       canBeConvertedToCodeBlock (isActive, focused) {
-        if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused && !this.readOnly) {
           return true
         }
       },
       canChangeTextType (isActive, focused) {
-        if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused) {
+        if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused && !this.readOnly) {
           return true
         }
       },
       canCreateTable (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
@@ -1058,6 +1058,11 @@ export default {
         await this.createUpdateDocument({
           isLocked: this.readOnly
         })
+        if (this.readOnly) {
+          this.showPreview(null)
+        } else {
+          this.closeHistory()
+        }
       },
       showHistory () {
         this.preview = null
@@ -1111,7 +1116,8 @@ export default {
         }
       },
       canShowBubble (isActive, menu) {
-        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() && !this.isMouseDown && !isActive.table()
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() &&
+          !isActive.table() && !isActive.divider() && !this.isMouseDown
       },
       openLink (url) {
         window.open(url, '_blank')
@@ -1751,7 +1757,7 @@ export default {
 
   table {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     margin: 48px 0;
     border-spacing: 0;
     border-collapse: collapse;
