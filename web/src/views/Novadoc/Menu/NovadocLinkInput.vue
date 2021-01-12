@@ -2,7 +2,7 @@
   <div class="novadoc-link-input">
     <LinkIcon size="16"></LinkIcon>
     <input title="Link URL" type="text" class="link-input" v-model="href" placeholder="Paste link"
-           ref="input"
+           ref="input" @mousedown.capture.stop=""
            @keydown.esc="$emit('cancel')" @keypress.prevent.enter="$emit('submit', href);href = ''">
   </div>
 </template>

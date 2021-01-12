@@ -1,7 +1,7 @@
 <template>
   <div>
     <div :class="`image-view align-${node.attrs.align} size-${node.attrs.size} ${selected ? 'selected' : ''}`">
-      <NovadocMenu v-show="selected">
+      <NovadocMenu v-show="selected && view.editable">
         <NovadocMenuButton :active="node.attrs.size === 'small'" @click="resize('small')">
           Small
         </NovadocMenuButton>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="divider-view" :class="{selected}">
-      <NovadocMenu v-show="selected" class="menu">
+      <NovadocMenu v-show="selected && view.editable" class="menu">
         <NovadocMenuButton @click="remove">
           <v-icon name="trash-archive" viewbox="16" size="16"></v-icon>
           Delete
@@ -49,7 +49,7 @@ export default {
   margin: 24px 0;
   .menu {
     position: absolute;
-    top: -64px;
+    top: -48px;
   }
   hr {
     align-self: stretch;
