@@ -187,8 +187,8 @@ export class DocService extends NodeContentService {
     await this.getDocRevisionRepository().save(docRevision)
   }
 
-  async restoreRevision(docRevisionId: number, actorId: number): Promise<Doc> {
-    const docRevision = await this.requireDocRevisionById(docRevisionId)
+  async restoreRevision(revisionId: number, actorId: number): Promise<Doc> {
+    const docRevision = await this.requireDocRevisionById(revisionId)
     const doc = await this.requireById(docRevision.docId)
     const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
 
@@ -213,7 +213,7 @@ export class DocService extends NodeContentService {
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
 
-    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
 
     return updatedDoc
   }
