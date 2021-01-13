@@ -284,15 +284,15 @@
             <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
-                <BoldIcon size="16"></BoldIcon>
+                <v-icon name="bold" viewbox="16" size="16"></v-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
                       @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
-                <ItalicIcon size="16"></ItalicIcon>
+                <v-icon name="italic" viewbox="16" size="16"></v-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
                       @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
-                <UnderlineIcon size="16"></UnderlineIcon>
+                <v-icon name="underline" viewbox="16" size="16"></v-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
                       @click="commands.strike" v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
@@ -339,7 +339,7 @@
                 v-if="canBeLinked(isActive, true)">
                 <template #default>
                   <v-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></v-icon>
-                  <LinkIcon size="12" v-else></LinkIcon>
+                  <v-icon v-else   name="link2" viewbox="16" size="16"></v-icon>
                 </template>
                 <template #options="{ hide }">
                   <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
@@ -875,7 +875,7 @@ export default {
         }
       },
       canCreateTable (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly && !isActive.table()) {
           return true
         }
       },
@@ -995,7 +995,7 @@ export default {
           const res = await DocumentService.view(id)
           this.doc = res.data
           this.pageTitle = res.data.title
-          this.title = res.data.title
+          this.title = res.data.title.trim()
           this.readOnly = res.data.isLocked
           this.setSlug(res.data.slug)
           // Phantom emptiness detected
@@ -1014,7 +1014,11 @@ export default {
       autoResizeTitle () {
         this.$refs.title.style.height = '1px'
         const height = this.$refs.title.scrollHeight
-        this.$refs.title.style.height = height + 'px'
+        if (height === 0) {
+          this.$refs.title.style.height = '29px'
+        } else {
+          this.$refs.title.style.height = height + 'px'
+        }
       },
       async saveTitleOnly () {
         const title = this.title
@@ -1766,6 +1770,21 @@ export default {
     box-shadow: 0 0 0 1px #DEE2EE;
     position: relative;
 
+    &.striped:not(.deletion) tr:nth-of-type(2n) td {
+      background: #F4F5F7;
+    }
+
+    &.deletion {
+      box-shadow: 0 0 0 1px #D64141;
+      tr{
+        background: #FFE0E0;
+        td {
+          border: 1px solid #D64141;
+          border-top: none;
+        }
+      }
+    }
+
     p {
       font-size: 14px;
       line-height: 17px;
@@ -1773,6 +1792,9 @@ export default {
     }
 
     tr {
+      &:hover td {
+        background: #F4F5F7;
+      }
       td {
         border: solid 1px #DEE2EE;
         padding: 8px;
