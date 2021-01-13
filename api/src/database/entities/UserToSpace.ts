@@ -28,7 +28,7 @@ export class UserToSpace {
   @ManyToOne(type => User, user => user.spaces)
   public user!: User
 
-  @ManyToOne(type => Space, space => space.users)
+  @ManyToOne(type => Space, space => space.users,{ onDelete: 'CASCADE' })
   public space!: Space
 
 }

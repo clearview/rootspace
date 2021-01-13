@@ -30,6 +30,8 @@ export class DeleteCommand {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow(`Deleting space ID: ${id} - ${space.title} ...`))
 
+    await repository.remove(space)
+
     // tslint:disable-next-line:no-console
     console.log(chalk.green('Operation completed'))
   }
