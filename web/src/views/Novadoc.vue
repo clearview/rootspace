@@ -1759,15 +1759,6 @@ export default {
     margin-top: inherit;
   }
 
-  .novadoc-table-menu.striped ~ tr:nth-child(2n){
-    background: #F4F5F7;
-  }
-  .novadoc-table-menu.deletion ~ tr{
-    background: #FFE0E0;
-    td {
-      border: 1px solid #D64141;
-    }
-  }
   table {
     width: 100%;
     max-width: 100%;
@@ -1778,6 +1769,21 @@ export default {
     border-style: hidden;
     box-shadow: 0 0 0 1px #DEE2EE;
     position: relative;
+
+    &.striped:not(.deletion) tr:nth-of-type(2n) td {
+      background: #F4F5F7;
+    }
+
+    &.deletion {
+      box-shadow: 0 0 0 1px #D64141;
+      tr{
+        background: #FFE0E0;
+        td {
+          border: 1px solid #D64141;
+          border-top: none;
+        }
+      }
+    }
 
     p {
       font-size: 14px;

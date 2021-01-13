@@ -1,5 +1,5 @@
 <template>
-  <NovadocMenu class="novadoc-table-menu" :class="{striped, deletion}">
+  <NovadocMenu class="novadoc-table-menu">
     <template v-if="isExpanded">
       <NovadocMenuButton @click="api.addRowAfter">
         <v-icon name="row-add" viewbox="18 16" size="16"></v-icon> <span>Row</span>
@@ -55,7 +55,10 @@ export default {
       deletion: false
     }
   },
-  mounted () {
+  updated () {
+    if (this.$el.closest('table')) {
+      this.striped = this.$el.closest('table').classList.contains('striped')
+    }
   },
   methods: {
     toggleExpand () {
@@ -63,9 +66,19 @@ export default {
     },
     makeStriped () {
       this.striped = !this.striped
+      if (this.striped) {
+        this.$el.closest('table').classList.add('striped')
+      } else {
+        this.$el.closest('table').classList.remove('striped')
+      }
     },
     markDeletion (value) {
       this.deletion = value
+      if (value) {
+        this.$el.closest('table').classList.add('deletion')
+      } else {
+        this.$el.closest('table').classList.remove('deletion')
+      }
     }
   }
 }
