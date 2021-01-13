@@ -1,5 +1,5 @@
 <template>
-  <NovadocMenu class="novadoc-table-menu">
+  <NovadocMenu class="novadoc-table-menu" :class="{striped, deletion}">
     <template v-if="isExpanded">
       <NovadocMenuButton @click="api.addRowAfter">
         <v-icon name="row-add" viewbox="18 16" size="16"></v-icon> <span>Row</span>
@@ -19,7 +19,11 @@
         <v-icon name="merge" viewbox="16 16" size="16"></v-icon> <span>Merge</span>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
-      <NovadocMenuButton @click="api.deleteTable">
+      <NovadocMenuButton @click="makeStriped" no-margin class="striped-button" :class="{active: striped}">
+        <v-icon name="striped" viewbox="16 16" size="16"></v-icon> <span>Striped</span>
+      </NovadocMenuButton>
+      <NovadocMenuSeparator></NovadocMenuSeparator>
+      <NovadocMenuButton @click="api.deleteTable" @mouseover.native="markDeletion(true)" @mouseout.native="markDeletion(false)">
         <v-icon name="trash-archive" viewbox="16" size="16"></v-icon> <span>Delete</span>
       </NovadocMenuButton>
     </template>
@@ -46,7 +50,9 @@ export default {
   name: 'NovadocTableMenu',
   data () {
     return {
-      isExpanded: false
+      isExpanded: false,
+      striped: false,
+      deletion: false
     }
   },
   mounted () {
@@ -54,6 +60,12 @@ export default {
   methods: {
     toggleExpand () {
       this.isExpanded = !this.isExpanded
+    },
+    makeStriped () {
+      this.striped = !this.striped
+    },
+    markDeletion (value) {
+      this.deletion = value
     }
   }
 }
@@ -75,6 +87,15 @@ export default {
     .fill-current {
       fill: transparent;
     }
+  }
+}
+
+.striped-button {
+  .fill-current {
+    color: #AAB1C5;
+  }
+  &.active .fill-current, &:active .fill-current {
+    color: #146493;
   }
 }
 </style>
