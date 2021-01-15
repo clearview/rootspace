@@ -39,7 +39,8 @@ export class DocRevision {
 
   @ManyToOne(
     (type) => Doc,
-    (doc) => doc.revisions
+    (doc) => doc.revisions,
+    { onDelete: 'CASCADE' }
   )
   doc: Doc
 }

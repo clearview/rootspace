@@ -31,7 +31,7 @@ export class Doc {
   @Column('integer')
   spaceId: number
 
-  @ManyToOne((type) => Space)
+  @ManyToOne((type) => Space, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'spaceId' })
   @Index()
   space!: Space
