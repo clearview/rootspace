@@ -14,13 +14,6 @@ Deploy steps:
 - `cd deploy`
 - `yarn run deploy`
 
-#### API
-- `cd ./api`
-- `yarn`
-- `yarn global add nodemon`
-- create `.env` file from `.env.example`
-- `nodemon`
-
 #### API Testing
 
 ##### Writing tests
@@ -36,7 +29,6 @@ This will spawn a fresh postgres db container for every test so `root_postgres_t
 
 ### DB Seeding
 DB Seeder will populate following models: User, Space and Link
-
 - Run `cd ./api & yarn seed:run`
 
 #### API docs
@@ -53,6 +45,7 @@ https://documenter.getpostman.com/view/152732/Szf27X36?version=latest
 - Copy `.env.example` file to `.env` in /web folder
 - Make sure to run `yarn install` in both /api and /web folders
 - Run `docker-compose up` or `docker-compose up -d` from project root
+- Intialize DB schema, `cd infra/docker` and `./typeorm.sh schema:run`
 
 Note: You can also run `docker-compose up` or `docker-compose up -d` from `tests` directory to bring up ephemeral testing postgres database
 
