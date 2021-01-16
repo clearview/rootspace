@@ -1,6 +1,8 @@
 <template>
-  <button class="editor-menu-button" :class="{ active, 'no-margin': noMargin }" @click="$emit('click')">
-    <slot></slot>
+  <button class="editor-menu-button" :class="{ active, 'no-margin': noMargin }" @click="$emit('click')"
+    @mouseover="toggleHoverSlot(true)" @mouseleave="toggleHoverSlot(false)">
+    <slot name="default" v-if="!isHover"></slot>
+    <slot name="hover" v-if="isHover"></slot>
   </button>
 </template>
 
@@ -14,6 +16,14 @@ export default class NovadocMenuButton extends Vue {
 
   @Prop({ type: Boolean, default: false })
   private readonly noMargin!: boolean;
+
+  private isHover = false
+
+  toggleHoverSlot (value: boolean) {
+    if (this.$slots.hover) {
+      this.isHover = value
+    }
+  }
 }
 </script>
 

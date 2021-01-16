@@ -117,6 +117,9 @@ import IconAlignLeft from '@/components/icon/IconAlignLeft.vue'
 import IconAlignCenter from '@/components/icon/IconAlignCenter.vue'
 import IconReferenceLink from '@/components/icon/IconReferenceLink.vue'
 import IconStriped from '@/components/icon/IconStriped.vue'
+import IconAddGreen from '@/components/icon/IconAddGreen.vue'
+import IconRemoveRed from '@/components/icon/IconRemoveRed.vue'
+import IconCheckmark3 from '@/components/icon/IconCheckmark3.vue'
 
 @Component({
   name: 'Icon',
@@ -222,7 +225,10 @@ import IconStriped from '@/components/icon/IconStriped.vue'
     IconItalic,
     IconUnderline,
     IconReferenceLink,
-    IconStriped
+    IconStriped,
+    IconAddGreen,
+    IconRemoveRed,
+    IconCheckmark3
   }
 })
 export default class Icon extends Vue {
