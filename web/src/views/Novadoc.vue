@@ -853,6 +853,9 @@ export default {
         if (isActive.paragraph() && focused && !this.readOnly) {
           return true
         }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
       },
       canBeConvertedToList (isActive, focused) {
         if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.readOnly) {
@@ -880,7 +883,7 @@ export default {
         }
       },
       isCellSelection () {
-        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection') {
+        if (this.editor && this.editor.state.selection.$anchorCell && this.editor.state.selection.$headCell) {
           return true
         }
       },
