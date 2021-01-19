@@ -121,7 +121,8 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+          :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
             <template #default>
               <v-icon name="text-color" viewbox="16" size="16"
                       :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -135,10 +136,10 @@
             </template>
           </MenuGroup>
           <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-          no-margin>
+                     :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
             <template #default>
               <v-icon name="highlight" viewbox="16" size="16"
-              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-combo-title">
@@ -304,7 +305,8 @@
                       @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
-              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+                         :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
                 <template #default>
                   <v-icon name="text-color" viewbox="16" size="16"
                           :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -318,10 +320,10 @@
                 </template>
               </MenuGroup>
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-              no-margin>
+              :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
                 <template #default>
                   <v-icon name="highlight" viewbox="16" size="16"
-                          :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
+                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
                 </template>
                 <template #options="{select, hide}">
                   <div class="color-combo-title">
@@ -503,6 +505,7 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
+      lengthChecked: false,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -964,10 +967,10 @@ export default {
       },
       focusToEditor ($evt, force = false) {
         if (this.editor) {
-          if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
-            this.editor.focus()
-          } else if (this.title.trim().length === 0) {
+          if (this.title.trim().length === 0) {
             this.$refs.title.focus()
+          } else if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+            this.editor.focus()
           } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
             this.editor.focus(1)
           } else {
@@ -1012,6 +1015,11 @@ export default {
           }
           this.autoResizeTitle()
           this.buildEditor()
+          if (this.title.trim().length === 0) {
+            this.$nextTick(() => {
+              this.$refs.title.focus()
+            })
+          }
         }
       },
       autoResizeTitle () {
@@ -1141,6 +1149,9 @@ export default {
             params: {
               slug: slug || 'Untitled'
             }
+          }).catch(e => {
+            return e
+            // Consume redundant error
           })
         }
       }
