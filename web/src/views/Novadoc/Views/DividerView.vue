@@ -49,7 +49,8 @@ export default {
   margin: 24px 0;
   .menu {
     position: absolute;
-    top: -48px;
+    top: -16px;
+    right: -86px;
   }
   hr {
     align-self: stretch;

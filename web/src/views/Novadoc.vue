@@ -121,7 +121,8 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+          :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
             <template #default>
               <v-icon name="text-color" viewbox="16" size="16"
                       :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -130,15 +131,17 @@
               <div class="color-blocks text-color-blocks">
                 <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                      :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                  <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                </div>
               </div>
             </template>
           </MenuGroup>
           <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-          no-margin>
+                     :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
             <template #default>
               <v-icon name="highlight" viewbox="16" size="16"
-              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-combo-title">
@@ -146,7 +149,7 @@
               </div>
               <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
               :style="{background: combo.background, color: combo.color}"
-              :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+              :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
                 {{combo.name}}
               </div>
             </template>
@@ -304,7 +307,8 @@
                       @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
-              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+                         :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
                 <template #default>
                   <v-icon name="text-color" viewbox="16" size="16"
                           :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -313,15 +317,17 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                      <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                    </div>
                   </div>
                 </template>
               </MenuGroup>
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-              no-margin>
+              :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
                 <template #default>
                   <v-icon name="highlight" viewbox="16" size="16"
-                          :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
+                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
                 </template>
                 <template #options="{select, hide}">
                   <div class="color-combo-title">
@@ -459,6 +465,7 @@ import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
+import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -503,6 +510,7 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
+      lengthChecked: false,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -540,6 +548,9 @@ export default {
   },
   methods:
     {
+      blackOrWhite (color) {
+        return blackOrWhite(hexToHsl(color))
+      },
       createCodeBlock (merger, coder) {
         merger({ command: coder })
       },
@@ -964,10 +975,10 @@ export default {
       },
       focusToEditor ($evt, force = false) {
         if (this.editor) {
-          if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
-            this.editor.focus()
-          } else if (this.title.trim().length === 0) {
+          if (this.title.trim().length === 0) {
             this.$refs.title.focus()
+          } else if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+            this.editor.focus()
           } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
             this.editor.focus(1)
           } else {
@@ -1012,6 +1023,11 @@ export default {
           }
           this.autoResizeTitle()
           this.buildEditor()
+          if (this.title.trim().length === 0) {
+            this.$nextTick(() => {
+              this.$refs.title.focus()
+            })
+          }
         }
       },
       autoResizeTitle () {
@@ -1141,6 +1157,9 @@ export default {
             params: {
               slug: slug || 'Untitled'
             }
+          }).catch(e => {
+            return e
+            // Consume redundant error
           })
         }
       }
@@ -1495,6 +1514,13 @@ export default {
   height: 24px;
   border-radius: 100%;
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .check {
+
+  }
 
   &:hover {
     transform: scale(0.9);

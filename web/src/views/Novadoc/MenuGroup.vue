@@ -1,6 +1,7 @@
 <template>
   <div class="menu-group" :class="{'no-margin': noMargin }">
-    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible, big}">
+    <div class="display" @click.prevent.stop="showOptions" ref="display" :class="{ disabled, visible, big}"
+    :style="{background}">
       <div class="text">
         <slot :value="value"></slot>
       </div>
@@ -29,6 +30,9 @@ import { ChevronDownIcon } from 'vue-feather-icons'
 export default class MenuGroup extends Vue {
   @Prop({ required: true })
   private readonly value!: any;
+
+  @Prop({ type: String, default: 'unset' })
+  private readonly background!: string;
 
   @Ref('display')
   private readonly displayRef!: HTMLDivElement;
