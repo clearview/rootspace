@@ -131,7 +131,9 @@
               <div class="color-blocks text-color-blocks">
                 <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                      :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                  <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                </div>
               </div>
             </template>
           </MenuGroup>
@@ -147,7 +149,7 @@
               </div>
               <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
               :style="{background: combo.background, color: combo.color}"
-              :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+              :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
                 {{combo.name}}
               </div>
             </template>
@@ -315,7 +317,9 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                      <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                    </div>
                   </div>
                 </template>
               </MenuGroup>
@@ -461,6 +465,7 @@ import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
+import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -543,6 +548,9 @@ export default {
   },
   methods:
     {
+      blackOrWhite (color) {
+        return blackOrWhite(hexToHsl(color))
+      },
       createCodeBlock (merger, coder) {
         merger({ command: coder })
       },
@@ -1506,6 +1514,13 @@ export default {
   height: 24px;
   border-radius: 100%;
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .check {
+
+  }
 
   &:hover {
     transform: scale(0.9);
