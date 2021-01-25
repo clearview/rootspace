@@ -50,6 +50,7 @@ services:
   api:
     image: node:12
     container_name: root_api
+    build: "./api"
     depends_on:
       - postgres
       - redis
