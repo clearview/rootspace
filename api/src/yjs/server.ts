@@ -7,8 +7,10 @@ import * as wsUtils from 'y-websocket/bin/utils.js'
 import { authenticate, authorize } from './auth'
 import { persistence, onDocUpdate, onUserDisconnect } from './persistence'
 
+/* tslint:disable */
 const encoding = require('lib0/dist/encoding.cjs')
 const decoding = require('lib0/dist/decoding.cjs')
+/* tslint:enable */
 
 const messageSync = 0
 
@@ -86,6 +88,7 @@ export default class YjsServer {
       return
     }
 
+    // tslint:disable-next-line
     ;(conn as any).user = user
 
     conn.on('close', async () => {
