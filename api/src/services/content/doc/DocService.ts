@@ -155,7 +155,7 @@ export class DocService extends NodeContentService {
       updatedDoc.revision = updatedDoc.revision + 1
     }
 
-    if (setup.contentUpdated === true) {
+    if (node.config?.novaDoc === true || setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
       updatedDoc.contentUpdatedBy = actorId
     }

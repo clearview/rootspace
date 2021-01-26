@@ -4,12 +4,12 @@ import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../values/doc'
 
-export const locks = new Map<string, WebSocket[]>()
 export const docMonitor = new Map<string, { updatedBy: number[] }>()
 export const restoreMonitor = new Map<string, { userId: number; revisionId: number }>()
+export const locks = new Map<string, WebSocket[]>()
 
-export const clearMonitors = (docName: string) => {
-  console.log('clear monitors') // tslint:disable-line
+export const clearMonitoring = (docName: string) => {
+  console.log('clearMonitoring', docName) // tslint:disable-line
   docMonitor.delete(docName)
   restoreMonitor.delete(docName)
 }
@@ -34,8 +34,6 @@ export const onUpdate = (docName: string, userId: number) => {
   if (docMonitor.get(docName).updatedBy.includes(userId) === false) {
     docMonitor.get(docName).updatedBy.push(userId)
   }
-
-  console.log(docMonitor) // tslint:disable-line
 }
 
 export const onRestore = (docName: string, userId: number, revisionId: number) => {
@@ -47,41 +45,27 @@ export const save = async (docName: string, userId: number, ydoc: Y.Doc) => {
   const docId = Number(docName.split('_').pop())
   console.log('saveState for', docName, 'user id', userId) // tslint:disable-line
 
-  if (docMonitor.has(docName) === false) {
-    return
-  }
-
-  const updatedBy = docMonitor.get(docName).updatedBy
-
-  if (updatedBy.includes(userId) === false) {
+  if (docMonitor.get(docName).updatedBy.includes(userId) === false) {
     console.log('user not updated dcument') // tslint:disable-line
     return
   }
 
-  docMonitor.get(docName).updatedBy = updatedBy.filter((value) => value !== userId)
-
-  console.log('saving state') // tslint:disable-line
+  docMonitor.get(docName).updatedBy.filter((value) => value !== userId)
 
   const data = DocUpdateValue.fromObject({
     content: yDocToProsemirrorJSON(ydoc),
     contentState: Array.from(Y.encodeStateAsUpdate(ydoc)),
   })
 
+  console.log('saving state') // tslint:disable-line
+
   await ServiceFactory.getInstance()
     .getDocService()
     .update(data, docId, userId)
 }
 
-export const restore = async (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
-  console.log('restoreDoc', docName, revisionId, userId) // tslint:disable-line
-
-  const updateBy = docMonitor.get(docName).updatedBy
-
-  for (const actorId of updateBy) {
-    await save(docName, actorId, ydoc)
-  }
-
-  console.log('restoring doc', docName, revisionId, userId) // tslint:disable-line
+export const restore = async (revisionId: number, userId: number) => {
+  console.log('restoreDoc', revisionId, userId) // tslint:disable-line
 
   await ServiceFactory.getInstance()
     .getDocService()

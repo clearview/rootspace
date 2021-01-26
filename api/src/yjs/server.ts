@@ -3,7 +3,7 @@ dotenv.config()
 
 import * as Http from 'http'
 import * as WebSocket from 'ws'
-import * as wsUtils from 'y-websocket/bin/utils.js'
+import * as yWsUtils from 'y-websocket/bin/utils.js'
 import { User } from '../database/entities/User'
 import { authenticate, authorize } from './auth'
 import * as state from './state'
@@ -13,10 +13,24 @@ const encoding = require('lib0/dist/encoding.cjs')
 const decoding = require('lib0/dist/decoding.cjs')
 /* tslint:enable */
 
-const messageSync = 0
-const messageRestore = 6
+const messageSync = 0 // used by yjs
 
-wsUtils.setPersistence(state.persistence)
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15,
+}
+
+const encodeMessage = (messageType: number) => {
+  const encoder = encoding.createEncoder()
+  encoding.writeVarUint(encoder, messageType)
+  return encoding.toUint8Array(encoder)
+}
+
+yWsUtils.setPersistence(state.persistence)
 
 export default class YjsServer {
   port: number = 6001
@@ -51,14 +65,14 @@ export default class YjsServer {
     const user = await authenticate(token)
 
     if (!user) {
-      conn.send('unauthenticated')
+      conn.send(encodeMessage(wsMessageType.unauthenticated))
       return null
     }
 
     const docId = Number(docName.split('_').pop())
 
     if (!(await authorize(user.id, docId))) {
-      conn.send('unauthorized')
+      conn.send(encodeMessage(wsMessageType.unauthorized))
       return null
     }
 
@@ -68,9 +82,12 @@ export default class YjsServer {
   private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
     const docName = req.url.slice(1)
 
-    if (typeof message === 'string') {
-      console.log('on string message')
-      const user = await this.auth(conn, req, message)
+    const decoder = decoding.createDecoder(new Uint8Array(message))
+    const messageType = decoding.readVarUint(decoder)
+
+    if (messageType === wsMessageType.authenticate) {
+      const token = decoding.readVarString(decoder)
+      const user = await this.auth(conn, req, token)
 
       if (!user) {
         conn.close()
@@ -79,71 +96,69 @@ export default class YjsServer {
 
       Object.assign(conn, { user })
 
-      console.log('isLocked', state.isLocked(docName))
-
       if (state.isLocked(docName) === true) {
         state.locks.get(docName).push(conn)
-        conn.send('wait')
+        conn.send(encodeMessage(wsMessageType.wait))
         return
       }
 
-      this.setupWSConnection(conn, req)
+      this.setupCollaboration(conn, req)
+
+      conn.send(encodeMessage(wsMessageType.initCollaboration))
       return
     }
 
     if (!(conn as any).user) {
       conn.close()
+      return
     }
 
-    const decoder = decoding.createDecoder(new Uint8Array(message))
-    const messageType = decoding.readVarUint(decoder)
-
-    if (messageType === messageRestore) {
-      const revisionId = decoding.readVarUint(decoder)
-      await this.onRestoreMessage(conn, req, revisionId)
+    if (messageType === wsMessageType.restore) {
+      await this.onRestoreMessage(conn, req, message)
       return
     }
 
     if (messageType === messageSync) {
       const syncMessageType = decoding.readVarUint(decoder)
-
       if (syncMessageType > 0) {
         state.onUpdate(req.url.slice(1), (conn as any).user.id)
       }
     }
   }
 
-  private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, revisionId: number) => {
+  private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
     console.log('onRestoreMessage') // tslint:disable-line
+
     const userId = (conn as any).user.id
     const docName = req.url.slice(1)
-    const sharedDoc = wsUtils.docs.get(docName)
+    const sharedDoc = yWsUtils.docs.get(docName)
 
-    const encoder = encoding.createEncoder()
-    encoding.writeVarUint(encoder, messageRestore)
+    const decoder = decoding.createDecoder(new Uint8Array(message))
+    const messageType = decoding.readVarUint(decoder)
+    const revisionId = decoding.readVarUint(decoder)
 
     state.onRestore(docName, userId, revisionId)
     state.lock(docName)
 
     sharedDoc.conns.forEach(async (_, c: WebSocket) => {
-      c.send(encoding.toUint8Array(encoder))
+      c.send(encodeMessage(wsMessageType.restore))
     })
   }
 
-  private setupWSConnection(conn: WebSocket, req: Http.IncomingMessage) {
+  private setupCollaboration(conn: WebSocket, req: Http.IncomingMessage) {
     conn.on('close', async () => {
       this.connOnClose(conn, req)
     })
 
-    wsUtils.setupWSConnection(conn, req)
-    conn.send('init')
+    yWsUtils.setupWSConnection(conn, req)
+    conn.send(encodeMessage(wsMessageType.initCollaboration))
   }
 
   private connOnClose = async (conn: WebSocket, req: Http.IncomingMessage) => {
     console.log('conn on close') // tslint:disable-line
 
     const docName = req.url.slice(1)
-    const sharedDoc = wsUtils.docs.get(docName)
+    const sharedDoc = yWsUtils.docs.get(docName)
 
     if (!sharedDoc) {
       return
@@ -154,27 +169,37 @@ export default class YjsServer {
 
     if (state.isLocked(docName) === false) {
       await state.save(docName, (conn as any).user.id, sharedDoc)
+
+      if (connsCount < 2) {
+        state.clearMonitoring(docName)
+      }
+
       return
     }
 
     if (connsCount < 2) {
       if (state.restoreMonitor.get(docName)) {
-        const info = state.restoreMonitor.get(docName)
+        const restoreInfo = state.restoreMonitor.get(docName)
+        const updateBy = state.docMonitor.get(docName).updatedBy
+
+        for (const userId of updateBy) {
+          await state.save(docName, userId, sharedDoc)
+        }
 
         try {
-          await state.restore(docName, info.userId, info.revisionId, sharedDoc)
+          await state.restore(restoreInfo.revisionId, restoreInfo.userId)
         } catch (err) {
           console.log(err) // tslint:disable-line
         }
       }
 
-      state.clearMonitors(docName)
-
       const waitingConns = state.locks.get(docName)
+
+      state.clearMonitoring(docName)
       state.unlock(docName)
 
       waitingConns.forEach(async (c: WebSocket) => {
-        this.setupWSConnection(c, req)
+        c.send(encodeMessage(wsMessageType.initCollaboration))
       })
     }
   }
