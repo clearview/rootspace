@@ -1,307 +1,392 @@
 <template>
   <div class="page" ref="page">
-    <header class="page-header">
-      <editor-menu-bar ref="menuBar" :editor="editor" v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs }">
-        <div class="editor-menu">
-          <div class="menubar">
-            <MenuGroup value="Normal Text">
-              <template #default>
+    <header class="page-header" :class="{scrolled: pageScrolled}">
+      <div class="editor-toolbar m-0 w-full" v-if="!doc">
+        <ToolbarGhost active></ToolbarGhost>
+      </div>
+      <editor-menu-bar ref="menuBar" :editor="editor"
+                       v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }"
+                       v-show="doc">
+        <div class="editor-toolbar">
+          <MenuGroup big value="Normal Text" :disabled="!canChangeTextType(isActive, focused)"
+                     v-tippy="{ placement : 'top',  arrow: true }" content="Text Style">
+            <template #default>
+              <div style="padding-right: 32px;">
                 {{ getTextDisplayType(isActive) }}
-              </template>
-              <template #options="{select, hide}">
-                  <MenuGroupOption @click="select('Normal Text');hide();commands.paragraph()">
-                    <template #icon>
-                      Tt
-                    </template>
-                    <template #label>
-                      Normal Text
-                    </template>
-                  </MenuGroupOption>
-                <MenuGroupOption @click="select('Heading 1');hide();commands.heading({level: 1})">
-                  <template #icon>
-                    H1
-                  </template>
-                  <template #label>
-                    Heading 1
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Heading 2');hide();commands.heading({level: 2})">
-                  <template #icon>
-                    H2
-                  </template>
-                  <template #label>
-                    Heading 2
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Heading 3');hide();commands.heading({level: 3})">
-                  <template #icon>
-                    H3
-                  </template>
-                  <template #label>
-                    Heading 3
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Heading 4');hide();commands.heading({level: 4})">
-                  <template #icon>
-                    H4
-                  </template>
-                  <template #label>
-                    Heading 4
-                  </template>
-                </MenuGroupOption>
-              </template>
-            </MenuGroup>
-            <div class="menu-separator"></div>
-            <button class="menu" :class="{ 'active': isActive.bold() }" @click="commands.bold">
-              <BoldIcon size="16"></BoldIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.italic() }" @click="commands.italic">
-              <ItalicIcon size="16"></ItalicIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.underline() }" @click="commands.underline">
-              <UnderlineIcon size="16"></UnderlineIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.strike() }" @click="commands.strike">
-              <span style="text-decoration: line-through;">ST</span>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.code() }" @click="commands.code">
-              <TerminalIcon size="16"></TerminalIcon>
-            </button>
-            <div class="menu-separator"></div>
-            <MenuGroup value="Left">
-              <template #default>
-                <component :is="getTextAlignmentIcon(getNodeAttrs('paragraph').textAlign)" size="14"></component>
-              </template>
-              <template #options="{select, hide}">
-                <MenuGroupOption @click="select('Left');hide();commands.paragraph({textAlign: 'left'})">
-                  <template #icon>
-                    <AlignLeftIcon size="16"></AlignLeftIcon>
-                  </template>
-                  <template #label>
-                    Left
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Center');hide();commands.paragraph({textAlign: 'center'})">
-                  <template #icon>
-                    <AlignCenterIcon size="16"></AlignCenterIcon>
-                  </template>
-                  <template #label>
-                    Center
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Right');hide();commands.paragraph({textAlign: 'right'})">
-                  <template #icon>
-                    <AlignRightIcon size="16"></AlignRightIcon>
-                  </template>
-                  <template #label>
-                    Right
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Justify');hide();commands.paragraph({textAlign: 'justify'})">
-                  <template #icon>
-                    <AlignJustifyIcon size="16"></AlignJustifyIcon>
-                  </template>
-                  <template #label>
-                    Justify
-                  </template>
-                </MenuGroupOption>
-              </template>
-            </MenuGroup>
-            <div class="menu-separator"></div>
-            <MenuGroup value="#000">
-              <template #default>
-                <div class="text-color" :style="{
-                  color: getMarkAttrs('text_color') ? getMarkAttrs('text_color').color : '#000',
-                  background: getMarkAttrs('text_color') && getMarkAttrs('text_color').color === '#fff' ? '#333' : 'transparent'
-                }">Tt</div>
-              </template>
-              <template #options="{select, hide}">
-                <div class="color-blocks">
-                  <div v-for="color in colors" :key="color" class="color-block" :style="{background: color}" @click="select(color);hide();commands.text_color({color: color})"></div>
-                </div>
-              </template>
-            </MenuGroup>
-            <MenuGroup value="#000">
-              <template #default>
-                <div class="bg-color" :style="{background: getMarkAttrs('bg_color') ? getMarkAttrs('bg_color').color : '#fff'}">Bg</div>
-              </template>
-              <template #options="{select, hide}">
-                <div class="color-blocks">
-                  <div v-for="color in colors" :key="color" class="color-block" :style="{background: color}" @click="select(color);hide();commands.bg_color({color: color})"></div>
-                </div>
-              </template>
-            </MenuGroup>
-            <div class="menu-separator"></div>
-            <MenuGroup value="Left">
-              <template #default>
-                <component :is="getListTypeIcon(isActive)" size="14"></component>
-              </template>
-              <template #options="{select, hide}">
-                <MenuGroupOption @click="select('Left');hide();commands.bullet_list()">
-                  <template #icon>
-                    <ListIcon size="16"></ListIcon>
-                  </template>
-                  <template #label>
-                    Bullet List
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Left');hide();commands.ordered_list()">
-                  <template #icon>
-                    <ListIcon size="16"></ListIcon>
-                  </template>
-                  <template #label>
-                    Ordered List
-                  </template>
-                </MenuGroupOption>
-                <MenuGroupOption @click="select('Left');hide();commands.todo_list()">
-                  <template #icon>
-                    <CheckSquareIcon size="16"></CheckSquareIcon>
-                  </template>
-                  <template #label>
-                    Todo List
-                  </template>
-                </MenuGroupOption>
-              </template>
-            </MenuGroup>
-            <div class="menu-separator"></div>
-            <button class="menu" :class="{ 'active': isActive.image() }"
-                    @click="commands.image({docId: id, spaceId: activeSpace.id})">
-              <ImageIcon size="16"></ImageIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.link() }"
-                    @click="isActive.link() ? commands.link({href: null}) : showLinkForm(getMarkAttrs('link'))">
-              <LinkIcon size="16"></LinkIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.divider() }" @click="commands.divider">
-              <MinusIcon size="16"></MinusIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.blockquote() }" @click="commands.blockquote">
-              <MessageCircleIcon size="16"></MessageCircleIcon>
-            </button>
-            <button class="menu" :class="{ 'active': isActive.code_block() }" @click="commands.code_block">
-              <CodeIcon size="16"></CodeIcon>
-            </button>
-            <div class="menu-separator"></div>
-            <button
-              class="menubar__button"
-              @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
-            >
-              <ColumnsIcon size="16"/>
-            </button>
-            <div class="menu-separator"></div>
-            <button class="menu" @click="commands.undo">
-              <ChevronLeftIcon size="16"></ChevronLeftIcon>
-            </button>
-            <button class="menu" @click="commands.redo">
-              <ChevronRightIcon size="16"></ChevronRightIcon>
-            </button>
-            <button class="menu" v-if="isActive.link()" @click="visitLink(getMarkAttrs('link'))">
-              Open Link
-            </button>
-          </div>
-          <div class="menu-options">
-            <Popover :z-index="1001" :with-close="false" position="bottom-start">
-              <template #default="{ hide }">
-                <div class="action-line" @click="hide();toggleReadOnly()">
-                  <v-icon name="lock"></v-icon>
-                  <div class="action-line-text" v-if="readOnly">
-                    Make Editable
-                  </div>
-                  <div class="action-line-text" v-else>
-                    Make Read-only
-                  </div>
-                </div>
-                <div class="action-line" @click="hide();showHistory()">
-                  <v-icon name="history" viewbox="20"></v-icon>
-                  <div class="action-line-text">
-                    History
-                  </div>
-                </div>
-                <div class="action-separator"></div>
-                <div class="action-line danger" @click="hide();deleteNovadoc()">
-                  <v-icon name="trash"></v-icon>
-                  <div class="action-line-text">
-                    Delete
-                  </div>
-                </div>
-              </template>
-              <template #trigger="{ visible }">
-                <button class="menu-btn btn btn-link" :class="{'btn-link-primary': visible}">
-                  <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
-                </button>
-              </template>
-            </Popover>
-          </div>
-        </div>
-      </editor-menu-bar>
-    </header>
-    <editor-menu-bubble :editor="editor" @hide="hideLinkForm" v-slot="{ commands, isActive, getMarkAttrs, menu }">
-      <div
-        class="bubble"
-        :class="{ 'is-active': menu.isActive && !isActive.mention() && !isActive.reference() && !isActive.title() && !readOnly }"
-        :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
-      >
-        <div class="link-form" v-if="linkMarking.active">
-          <div class="bubble-form">
-            <input type="url" class="bubble-input" v-model="linkMarking.href" placeholder="https://" ref="linkInput"
-                   @keydown.esc="hideLinkForm"
-                   @keypress.enter="setLinkData(commands.link, linkMarking.href)">
-            <button class="bubble-form-no" @click="hideLinkForm">
-              <XIcon size="16"></XIcon>
-            </button>
-            <button class="bubble-form-yes" @click="setLinkData(commands.link, linkMarking.href)">
-              <CheckIcon size="16"></CheckIcon>
-            </button>
-          </div>
-        </div>
-        <template v-if="isActive.image()">
-          <button class="menu" @click="commands.image({remove: true})">
-            <TrashIcon size="16"></TrashIcon>
+              </div>
+            </template>
+            <template #options="{select, hide}">
+              <MenuGroupOption @click="select('Heading 1');hide();commands.paragraph({level: 1})"
+                               :active="isActive.paragraph({level: 1})">
+                <template #icon>
+                  H1
+                </template>
+                <template #label>
+                  Heading 1
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Heading 2');hide();commands.paragraph({level: 2})"
+                               :active="isActive.paragraph({level: 2})">
+                <template #icon>
+                  H2
+                </template>
+                <template #label>
+                  Heading 2
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Heading 3');hide();commands.paragraph({level: 3})"
+                               :active="isActive.paragraph({level: 3})">
+                <template #icon>
+                  H3
+                </template>
+                <template #label>
+                  Heading 3
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Normal Text');hide();commands.paragraph({level: 0})"
+                               :active="isActive.paragraph({level: 0})">
+                <template #icon>
+                  Tt
+                </template>
+                <template #label>
+                  Normal Text
+                </template>
+              </MenuGroupOption>
+            </template>
+          </MenuGroup>
+          <div class="menu-separator"></div>
+          <button class="menu menu-big" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
+                  @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
+            <v-icon name="bold" viewbox="16" size="16"></v-icon>
           </button>
-        </template>
-        <template v-if="!linkMarking.active && !isActive.image() && !isActive.divider()">
-          <button class="menu" :class="{ 'active': isActive.bold() }" @click="commands.bold">
-            <BoldIcon size="16"></BoldIcon>
+          <button class="menu menu-big" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
+                  @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
+            <v-icon name="italic" viewbox="16" size="16"></v-icon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.italic() }" @click="commands.italic">
-            <ItalicIcon size="16"></ItalicIcon>
+          <button class="menu menu-big" :class="{ 'active': isActive.underline() }"
+                  :disabled="!canBeUnderline(isActive, focused)"
+                  @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
+            <v-icon name="underline" viewbox="16" size="16"></v-icon>
           </button>
-          <button class="menu" :class="{ 'active': isActive.underline() }" @click="commands.underline">
-            <UnderlineIcon size="16"></UnderlineIcon>
+          <button class="menu menu-big" :class="{ 'active': isActive.strike() }"
+                  :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike"
+                  v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
+            <span>
+              <v-icon name="strike" viewbox="16" size="16"></v-icon>
+            </span>
           </button>
-          <button class="menu" :class="{ 'active': isActive.strike() }" @click="commands.strike">
-            <span style="text-decoration: line-through;">ST</span>
-          </button>
-          <button class="menu" :class="{ 'active': isActive.code() }" @click="commands.code">
+          <button class="menu menu-big" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
+                  @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
             <TerminalIcon size="16"></TerminalIcon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu" :class="{ 'active': isActive.link() }"
-                  @click="isActive.link() ? commands.link({href: null}) : showLinkForm(getMarkAttrs('link'))">
-            <LinkIcon size="16"></LinkIcon>
+          <MenuGroup big value="Left" :disabled="!canBeAligned(isActive, focused)" v-tippy="{ placement : 'top',  arrow: true }" content="Alignment"
+          no-margin>
+            <template #default>
+              <component :is="getalignmentIcon(getNodeAttrs('paragraph').align)" size="14" :name="getalignmentIconName(getNodeAttrs('paragraph').align)"></component>
+            </template>
+            <template #options="{select, hide}">
+              <MenuGroupOption @click="select('Left');hide();commands.paragraph({align: 'left'})">
+                <template #icon>
+                  <v-icon name="align-left" viewbox="16" size="16"></v-icon>
+                </template>
+                <template #label>
+                  Left
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Center');hide();commands.paragraph({align: 'center'})">
+                <template #icon>
+                  <v-icon name="align-center" viewbox="16" size="16"></v-icon>
+                </template>
+                <template #label>
+                  Center
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Right');hide();commands.paragraph({align: 'right'})">
+                <template #icon>
+                  <v-icon name="align-right" viewbox="16" size="16"></v-icon>
+                </template>
+                <template #label>
+                  Right
+                </template>
+              </MenuGroupOption>
+              <MenuGroupOption @click="select('Justify');hide();commands.paragraph({align: 'justify'})">
+                <template #icon>
+                  <AlignJustifyIcon size="16"></AlignJustifyIcon>
+                </template>
+                <template #label>
+                  Justify
+                </template>
+              </MenuGroupOption>
+            </template>
+          </MenuGroup>
+          <div class="menu-separator"></div>
+          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+          :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
+            <template #default>
+              <v-icon name="text-color" viewbox="16" size="16"
+                      :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+            </template>
+            <template #options="{select, hide}">
+              <div class="color-blocks text-color-blocks">
+                <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
+                     :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
+                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                  <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                </div>
+              </div>
+            </template>
+          </MenuGroup>
+          <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
+                     :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
+            <template #default>
+              <v-icon name="highlight" viewbox="16" size="16"
+                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+            </template>
+            <template #options="{select, hide}">
+              <div class="color-combo-title">
+                select combination
+              </div>
+              <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
+              :style="{background: combo.background, color: combo.color}"
+              :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                {{combo.name}}
+              </div>
+            </template>
+          </MenuGroup>
+          <div class="menu-separator"></div>
+          <button class="menu menu-big" :class="{ 'active': isActive.bullet_list() } "
+                  :disabled="!canBeConvertedToList(isActive, focused)"
+                  @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
+            <ListIcon size="16"></ListIcon>
+          </button>
+          <button class="menu menu-big" :class="{ 'active': isActive.ordered_list() }"
+                  :disabled="!canBeConvertedToList(isActive, focused)"
+                  @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
+            <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-        </template>
+          <button class="menu menu-big" :class="{ 'active': isActive.todo_list() }"
+                  :disabled="!canBeConvertedToList(isActive, focused)"
+                  @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
+            <CheckSquareIcon size="16"></CheckSquareIcon>
+          </button>
+          <button class="menu menu-big" :class="{ 'active': isActive.image() }" :disabled="!canInsertImage(isActive, focused)"
+                  @click="commands.image({docId: id, spaceId: activeSpace.id})" v-tippy="{ placement : 'top',  arrow: true }" content="Image">
+            <ImageIcon size="16"></ImageIcon>
+          </button>
+          <MenuGroup big :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
+                     v-tippy="{ placement : 'top',  arrow: true }" content="Link">
+            <template #default>
+              <v-icon name="link2" viewbox="16" size="16"></v-icon>
+            </template>
+            <template #options="{ hide }">
+              <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
+            </template>
+          </MenuGroup>
+          <button class="menu menu-big" :class="{ 'active': isActive.reference() }" :disabled="!canInsertReference(isActive, focused)"
+                  @click="insertReference(commands)" v-tippy="{ placement : 'top',  arrow: true }" content="Reference">
+            <v-icon name="reference-link" viewbox="16" size="16"></v-icon>
+          </button>
+          <button class="menu menu-big" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
+                  @click="commands.divider" v-tippy="{ placement : 'top',  arrow: true }" content="Horizontal line">
+            <MinusIcon size="16"></MinusIcon>
+          </button>
+          <button class="menu menu-big" :class="{ 'active': isActive.blockquote() }"
+                  :disabled="!canBeConvertedToQuote(isActive, focused)"
+                  @click="commands.blockquote" v-tippy="{ placement : 'top',  arrow: true }" content="Blockquote">
+            <v-icon viewbox="16" name="quote" size="16"></v-icon>
+          </button>
+          <button class="menu menu-big no-margin" :class="{ 'active': isActive.code_block() }"
+                  :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
+                  @click="createCodeBlock(commands.paragraph_merger, commands.code_block)" v-tippy="{ placement : 'top',  arrow: true }" content="Code block">
+            <CodeIcon size="16"></CodeIcon>
+          </button>
+          <div class="menu-separator"></div>
+          <button
+            class="menu menu-big no-margin" :disabled="!canCreateTable(isActive, focused)"
+            @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
+            v-tippy="{ placement : 'top',  arrow: true }" content="Table"
+          >
+            <v-icon name="table" viewbox="16" size="16"></v-icon>
+          </button>
+          <div class="menu-separator"></div>
+          <button class="menu menu-big" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
+          :disabled="!canUndo()">
+            <v-icon name="undo" viewbox="16" size="16"></v-icon>
+          </button>
+          <button class="menu menu-big" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
+          :disabled="!canRedo()">
+            <v-icon name="redo" viewbox="16" size="16"></v-icon>
+          </button>
+        </div>
+      </editor-menu-bar>
+      <div class="editor-context-menu" v-show="doc">
+        <div class="lock-indicator" v-if="readOnly">
+          <v-icon name="lock"></v-icon>
+        </div>
+        <Popover :z-index="1001" :with-close="false" position="bottom-start" borderless>
+          <template #default="{ hide }">
+            <div class="action-line" @click="hide();showHistory()">
+              <v-icon name="history" viewbox="20"></v-icon>
+              <div class="action-line-text">
+                History
+              </div>
+            </div>
+            <div class="action-line" @click="hide();toggleReadOnly()">
+              <v-icon name="lock"></v-icon>
+              <div class="action-line-text" v-if="readOnly">
+                Unlock
+              </div>
+              <div class="action-line-text" v-else>
+                Lock
+              </div>
+            </div>
+            <div class="action-separator"></div>
+            <div class="action-line danger" @click="hide();deleteNovadoc()">
+              <v-icon name="trash-archive" viewbox="16"></v-icon>
+              <div class="action-line-text">
+                Delete
+              </div>
+            </div>
+          </template>
+          <template #trigger="{ visible }">
+            <button class="menu-btn btn btn-link" :class="{'btn-link-primary': visible}">
+              <v-icon name="vertical-ellipsis" viewbox="20" size="16px"/>
+            </button>
+          </template>
+        </Popover>
       </div>
-    </editor-menu-bubble>
-    <div class="page-editor" @click.self="focusToEditor">
-      <EditorContent :editor="editor"></EditorContent>
-    </div>
-    <div class="page-history" v-show="isHistoryVisible">
-      <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview" @restore="restore"></DocHistory>
+    </header>
+    <DocGhost v-if="!doc" active></DocGhost>
+    <div v-show="doc" class="page-editor" ref="pageEditor">
+      <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
+        <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
+          <div>
+            <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !readOnly"
+                 :style="getBubblePosition()" @mousedown.stop.prevent="consume">
+              <div class="bubble-wrap">
+                <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
+                  <template #default>
+                    <v-icon name="link-edit" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></v-icon>
+                  </template>
+                  <template #options="{ hide }">
+                    <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
+                  </template>
+                </MenuGroup>
+                <NovadocMenuButton @click="commands.link({})" v-tippy="{ placement : 'top',  arrow: true }" content="Unlink" no-margin>
+                  <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+                </NovadocMenuButton>
+                <NovadocMenuSeparator></NovadocMenuSeparator>
+                <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
+                  <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+                </NovadocMenuButton>
+              </div>
+            </div>
+            <div class="bubble" ref="bubble" :style="getBubblePosition()" @mousedown.stop.prevent="consume">
+            <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
+              <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
+                      @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
+                <v-icon name="bold" viewbox="16" size="16"></v-icon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
+                      @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
+                <v-icon name="italic" viewbox="16" size="16"></v-icon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
+                      @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
+                <v-icon name="underline" viewbox="16" size="16"></v-icon>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
+                      @click="commands.strike" v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
+              <span>
+                <v-icon name="strike" viewbox="16" size="16"></v-icon>
+              </span>
+              </button>
+              <button class="menu" :class="{ 'active': isActive.code() }" v-if="canBeInlineCode(isActive, true)"
+                      @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
+                <TerminalIcon size="16"></TerminalIcon>
+              </button>
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
+                         :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
+                <template #default>
+                  <v-icon name="text-color" viewbox="16" size="16"
+                          :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+                </template>
+                <template #options="{select, hide}">
+                  <div class="color-blocks text-color-blocks">
+                    <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
+                         :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                      <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                    </div>
+                  </div>
+                </template>
+              </MenuGroup>
+              <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
+              :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
+                <template #default>
+                  <v-icon name="highlight" viewbox="16" size="16"
+                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+                </template>
+                <template #options="{select, hide}">
+                  <div class="color-combo-title">
+                    select combination
+                  </div>
+                  <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
+                       :style="{background: combo.background, color: combo.color}"
+                       :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                    {{combo.name}}
+                  </div>
+                </template>
+              </MenuGroup>
+              <NovadocMenuSeparator v-if="canBeLinked(isActive, true)"></NovadocMenuSeparator>
+              <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link"
+                v-if="canBeLinked(isActive, true)">
+                <template #default>
+                  <v-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></v-icon>
+                  <v-icon v-else   name="link2" viewbox="16" size="16"></v-icon>
+                </template>
+                <template #options="{ hide }">
+                  <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
+                </template>
+              </MenuGroup>
+              <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink"
+                                 no-margin>
+                <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+              </NovadocMenuButton>
+              <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
+              <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-if="isActive.link()" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
+                <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+              </NovadocMenuButton>
+            </div>
+          </div>
+          </div>
+        </editor-menu-bubble>
+        <textarea title="Title" ref="title" class="editor-title-input" placeholder="Untitled" v-model="title"
+                  @focus="isTitleFocused = true"
+                  @blur="isTitleFocused = false"
+                  @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
+        <hr class="title-separator">
+        <EditorContent key="editor" v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
+        <EditorContent key="preview" class="preview" v-show="isPreviewing" :editor="previewEditor"></EditorContent>
+      </div>
+      <div class="page-history" v-if="isHistoryVisible" @mousedown.stop.prevent="consume">
+        <DocHistory ref="docHistory" :doc="doc" :preview="preview" :id="id" @close="closeHistory" @preview="showPreview"
+                    @restore="restore"></DocHistory>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { debounce } from 'lodash'
+import {
+  undoDepth,
+  redoDepth
+} from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
-
-import { WebsocketProvider } from 'y-websocket'
-import * as Y from 'yjs'
-import CollaborationExtension from './Novadoc/CollaborationExtension'
-
 import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
 import {
   Blockquote,
@@ -309,7 +394,7 @@ import {
   BulletList,
   Code,
   CodeBlockHighlight,
-  Heading,
+  HardBreak,
   History,
   Italic,
   Link,
@@ -320,17 +405,23 @@ import {
   Table,
   TableCell,
   TableHeader,
-  TableRow, TodoItem, TodoList,
+  TableRow,
+  TodoItem,
+  TodoList,
   TrailingNode,
   Underline
 } from 'tiptap-extensions'
 import javascript from 'highlight.js/lib/languages/javascript'
 import typescript from 'highlight.js/lib/languages/typescript'
+import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+import CollaborationExtension from './Novadoc/CollaborationExtension'
+
 import Novaschema from '@/views/Novadoc/Novaschema.js'
-import Title from '@/views/Novadoc/Title.js'
 
 import {
   AlignCenterIcon,
@@ -338,19 +429,21 @@ import {
   AlignLeftIcon,
   AlignRightIcon,
   BoldIcon,
-  CheckIcon, CheckSquareIcon,
+  CheckIcon,
+  CheckSquareIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CodeIcon,
-  ColumnsIcon, ImageIcon,
+  ColumnsIcon,
+  ImageIcon,
   ItalicIcon,
   LinkIcon,
   ListIcon,
   MessageCircleIcon,
   MinusIcon,
   TerminalIcon,
-  UnderlineIcon,
   TrashIcon,
+  UnderlineIcon,
   XIcon
 } from 'vue-feather-icons'
 import DocumentService from '@/services/document'
@@ -362,15 +455,26 @@ import TableMenu from '@/views/Novadoc/TableMenu'
 import MenuGroup from '@/views/Novadoc/MenuGroup'
 import MenuGroupOption from '@/views/Novadoc/MenuGroupOption'
 import Image from '@/views/Novadoc/Image'
-import Mention from '@/views/Novadoc/Mentions/Mention'
 import Reference from '@/views/Novadoc/Reference/Reference'
 import TextColor from '@/views/Novadoc/TextColor'
 import BgColor from '@/views/Novadoc/BgColor'
 import DocHistory from '@/views/Document/DocHistory'
+import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
+import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
+import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
+import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
+import DocGhost from '@/components/DocGhost'
+import ToolbarGhost from '@/components/ToolbarGhost'
+import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {
+    ToolbarGhost,
+    DocGhost,
+    NovadocMenuSeparator,
+    NovadocMenuButton,
+    NovadocLinkInput,
     DocHistory,
     MenuGroupOption,
     MenuGroup,
@@ -402,376 +506,669 @@ export default {
     Popover
   },
   data () {
+    const debouncedSaveTitleOnly = debounce(() => {
+      this.saveTitleOnly(this.title)
+    }, 1000)
     return {
-      doc: null,
-      ydoc: null,
+      lengthChecked: false,
       provider: null,
       editor: null,
+      previewEditor: null,
+      doc: null,
       preview: null,
       linkMarking: {
         active: false,
         href: null
       },
+      title: '',
       readOnly: false,
-      isHistoryVisible: false
+      isHistoryVisible: false,
+      debouncedSaveTitleOnly: debouncedSaveTitleOnly,
+      pageScrolled: false,
+      isBubbleFocused: false,
+      isTitleFocused: false,
+      nodeNameChangesListener: null,
+      isMouseDown: false,
+      isPreviewing: false
     }
   },
   beforeDestroy () {
-    this.destroyEditor()
-  },
-  async mounted () {
-    await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-    await this.activateSpace(this.activeSpace.id)
-  },
-  destroyed () {
     this.destroyProvider()
     this.destroyEditor()
   },
-  methods: {
-    destroyProvider () {
-      if (this.provider) {
-        this.provider.destroy()
-      }
-    },
-    destroyEditor () {
-      if (this.editor) {
-        this.editor.destroy()
-      }
-    },
-    build () {
-      this.destroyProvider()
-      this.destroyEditor()
+  async mounted () {
+    this.listenForNodeNameChanges()
+    this.listenForDocumentMouseUp()
+  },
+  destroyed () {
+    if (this.nodeNameChangesListener) {
+      this.nodeNameChangesListener()
+    }
+    document.removeEventListener('mouseup', this.releaseMouseDown)
+  },
+  methods:
+    {
+      blackOrWhite (color) {
+        return blackOrWhite(hexToHsl(color))
+      },
+      createCodeBlock (merger, coder) {
+        merger({ command: coder })
+      },
+      consume () {
+        // NOTE: Any event that want to be consumed without action should be put here
+      },
+      canUndo () {
+        return undoDepth(this.editor.state) > 1
+      },
+      canRedo () {
+        return redoDepth(this.editor.state) > 0
+      },
+      destroyProvider () {
+        if (this.provider) {
+          this.provider.destroy()
+        }
+      },
+      destroyEditor () {
+        if (this.editor) {
+          this.editor.destroy()
+        }
+        if (this.previewEditor) {
+          this.previewEditor.destroy()
+        }
+      },
+      buildProvider () {
+        const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
-      this.ydoc = new Y.Doc()
+        if (!wsProviderUrl) {
+          console.log('process.env.VUE_APP_YWS_URL is missing')
+        }
 
-      this.buildProvider()
-      this.buildEditor()
-    },
-    buildProvider () {
-      this.provider = new WebsocketProvider('ws://localhost:6001', 'doc_' + this.id, this.ydoc)
+        this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
 
-      this.provider.awareness.setLocalStateField('user', {
-        color: '#333',
-        name: this.currentUser.firstName
-      })
+        this.provider.awareness.setLocalStateField('user', {
+          color: '#333',
+          name: this.currentUser.firstName
+        })
 
-      const onConnecting = () => {
-        const providerOnMessage = this.provider.ws.onmessage
-        const providerOnOpen = this.provider.ws.onopen
+        const onConnecting = () => {
+          const providerOnMessage = this.provider.ws.onmessage
+          const providerOnOpen = this.provider.ws.onopen
 
-        this.provider.ws.onmessage = event => {
-          const { data } = event
+          this.provider.ws.onmessage = event => {
+            const { data } = event
 
-          if (typeof data === 'string') {
-            switch (data) {
-              case 'authenticated':
-                this.provider.ws.onmessage = providerOnMessage
-                providerOnOpen()
-                break
-              case 'unauthenticated':
-                this.provider.disconnect()
-                break
-              default:
-                break
+            if (typeof data === 'string') {
+              switch (data) {
+                case 'authorized':
+                  this.provider.ws.onmessage = providerOnMessage
+                  providerOnOpen()
+                  break
+                case 'unauthenticated':
+                case 'unauthorized':
+                  this.provider.disconnect()
+                  break
+                default:
+                  break
+              }
             }
+          }
+
+          this.provider.ws.onopen = () => {
+            this.provider.ws.send(this.$store.state.auth.token)
           }
         }
 
-        this.provider.ws.onopen = () => {
-          this.provider.ws.send(this.$store.state.auth.token)
-        }
-      }
-
-      this.provider.on('status', ({ status }) => {
-        if (status === 'connecting') {
-          onConnecting()
-        }
-      })
-
-      onConnecting()
-    },
-    buildEditor () {
-      this.editor = new Editor({
-        editable: true,
-        autoFocus: true,
-        extensions: [
-          new Novaschema(),
-          new Mention('@', this.fetchUsers),
-          new Reference('#', this.fetchReferences),
-          new Title(),
-          new Divider(),
-          new Paragraph(),
-          new TextColor(),
-          new BgColor(),
-          new Heading({
-            level: [1, 2, 3, 4]
-          }),
-          new Bold(),
-          new Blockquote(),
-          new CodeBlockHighlight({
-            languages: {
-              javascript,
-              typescript,
-              bash
-            }
-          }),
-          new Italic(),
-          new Underline(),
-          new Strike(),
-          new Code(),
-          new History(),
-          new BulletList(),
-          new ListItem(),
-          new OrderedList(),
-          new Image(),
-          new TodoList(),
-          new TodoItem({
-            nested: true
-          }),
-          new Link({
-            openOnClick: false
-          }),
-          new TrailingNode({
-            node: 'paragraph',
-            notAfter: ['paragraph']
-          }),
-          new Placeholder({
-            emptyEditorClass: 'is-editor-empty',
-            emptyNodeClass: 'is-empty',
-            emptyNodeText: (node) => {
-              if (node.type.name === 'title') {
-                return 'Untitled'
-              }
-              if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 2) {
-                return ''
-              }
-              return 'Write something…'
-            },
-            showOnlyWhenEditable: false,
-            showOnlyCurrent: false
-          }),
-          new Table({
-            resizable: true
-          }),
-          new TableHeader(),
-          new TableCell(),
-          new TableRow(),
-          new TableMenu(),
-          new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
-        ]
-      })
-
-      const deb = debounce((json) => {
-        this.save(json)
-      }, 1000)
-
-      this.editor.on('update', (api) => {
-        const newTitle = api.getJSON().content.reduce((prev, next) => {
-          if (next.type === 'title' && next.content && next.content[0]) {
-            return next.content[0].text
-          }
-          return prev
-        }, 'Untitled')
-
-        const id = this.id
-
-        this.$store.commit('tree/updateNode', {
-          compareFn (node) {
-            return node.contentId.toString() === id.toString()
-          },
-          fn (node) {
-            return { ...node, title: newTitle }
+        this.provider.on('status', ({ status }) => {
+          if (status === 'connecting') {
+            onConnecting()
           }
         })
-        deb(api.getJSON())
-      })
 
-      this.focusToEditor()
-    },
-    async fetchUsers () {
-      return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
-    },
-    async fetchReferences () {
-      return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
-    },
-    getTextDisplayType (isActive) {
-      if (isActive.paragraph()) {
-        return 'Normal Text'
-      }
-      if (isActive.heading({ level: 1 })) {
-        return 'Heading 1'
-      }
-      if (isActive.heading({ level: 2 })) {
-        return 'Heading 2'
-      }
-      if (isActive.heading({ level: 3 })) {
-        return 'Heading 3'
-      }
-      if (isActive.heading({ level: 4 })) {
-        return 'Heading 4'
-      }
-      return 'Normal Text'
-    },
-    getTextAlignmentType (align) {
-      switch (align) {
-        case 'left':
-          return 'Left'
-        case 'center':
-          return 'Center'
-        case 'right':
-          return 'Right'
-        case 'justify':
-          return 'Justify'
-      }
-      return 'Left'
-    },
-    getTextAlignmentIcon (align) {
-      switch (align) {
-        case 'left':
-          return AlignLeftIcon
-        case 'center':
-          return AlignCenterIcon
-        case 'right':
-          return AlignRightIcon
-        case 'justify':
-          return AlignJustifyIcon
-      }
-      return AlignLeftIcon
-    },
-    getListTypeIcon (isActive) {
-      if (isActive.todo_list()) {
-        return CheckSquareIcon
-      }
-      return ListIcon
-    },
-    showLinkForm (attr) {
-      this.linkMarking.active = true
-      this.linkMarking.href = attr.href
-      this.$nextTick(() => {
-        if (this.$refs.linkInput) {
-          this.$refs.linkInput.focus()
-        }
-      })
-    },
-    focusToEditor () {
-      if (this.editor) {
-        if (this.editor.state.doc.content.firstChild.content.size === 0) {
-          this.editor.focus('start')
-        } else {
-          this.editor.focus('end')
-        }
-      }
-    },
-    hideLinkForm () {
-      this.linkMarking.active = false
-      this.linkMarking.href = null
-    },
-    setLinkData (command, href) {
-      command({ href })
-      this.hideLinkForm()
-    },
-    visitLink (attr) {
-      window.open(attr.href, '_blank')
-    },
-    async load () {
-      const id = this.$route.params.id
+        onConnecting()
+      },
+      buildEditor () {
+        this.destroyProvider()
+        this.destroyEditor()
 
-      if (id) {
-        const res = await DocumentService.view(id)
-        this.doc = res.data
-        this.pageTitle = res.data.title
+        this.ydoc = this.ydoc = new Y.Doc()
+        this.buildProvider()
 
-        this.build()
-      }
-    },
-    async save (data) {
-      const title = data.content.reduce((prev, next) => {
-        if (next.type === 'title' && next.content && next.content[0]) {
-          return next.content[0].text
-        }
-        return prev
-      }, 'Untitled')
-      this.pageTitle = title
-      const payload = {
-        spaceId: this.activeSpace.id,
-        title: title,
-        access: 2,
-        isLocked: false
-      }
+        this.editor = new Editor({
+          editable: !this.readOnly,
+          extensions: [
+            new Novaschema(),
+            new ParagraphMerger(),
+            new Reference('#', this.fetchReferences),
+            new Divider(),
+            new Paragraph(),
+            new TextColor(),
+            new BgColor(),
+            new Bold(),
+            new Blockquote(),
+            new CodeBlockHighlight({
+              languages: {
+                javascript,
+                typescript,
+                bash,
+                xml
+              }
+            }),
+            new HardBreak(),
+            new Italic(),
+            new Underline(),
+            new Strike(),
+            new Code(),
+            new History(),
+            new BulletList(),
+            new ListItem(),
+            new OrderedList(),
+            new Image(),
+            new TodoList(),
+            new TodoItem({
+              nested: true
+            }),
+            new Link({
+              openOnClick: false
+            }),
+            new TrailingNode({
+              node: 'paragraph',
+              notAfter: ['paragraph']
+            }),
+            new Placeholder({
+              emptyEditorClass: 'is-editor-empty',
+              emptyNodeClass: 'is-empty',
+              emptyNodeText: () => {
+                if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
+                  return ''
+                }
+                return 'Write something…'
+              },
+              showOnlyWhenEditable: false,
+              showOnlyCurrent: false
+            }),
+            new Table({
+              resizable: true
+            }),
+            new TableHeader(),
+            new TableCell(),
+            new TableRow(),
+            new TableMenu(),
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+          ],
+          emptyDocument: {
+            type: 'doc',
+            content: []
+          }
+        })
 
-      await this.createUpdateDocument(payload)
-    },
-    async createUpdateDocument (data) {
-      try {
-        const id = this.$route.params.id
-        this.loading = true
-
-        if (id) {
-          const res = await DocumentService.update(id, data)
-          this.doc = res.data.data
-
-          this.$store.commit('tree/updateNode', {
-            compareFn (node) {
-              return node.contentId.toString() === id
-            },
-            fn (node) {
-              return {
-                ...node,
-                title: data.title
+        this.previewEditor = new Editor({
+          editable: false,
+          extensions: [
+            new Novaschema(),
+            new ParagraphMerger(),
+            new Reference('#', this.fetchReferences),
+            new Divider(),
+            new Paragraph(),
+            new TextColor(),
+            new BgColor(),
+            new Bold(),
+            new Blockquote(),
+            new CodeBlockHighlight({
+              languages: {
+                javascript,
+                typescript,
+                bash,
+                xml
+              }
+            }),
+            new HardBreak(),
+            new Italic(),
+            new Underline(),
+            new Strike(),
+            new Code(),
+            new History(),
+            new BulletList(),
+            new ListItem(),
+            new OrderedList(),
+            new Image(),
+            new TodoList(),
+            new TodoItem({
+              nested: true
+            }),
+            new Link({
+              openOnClick: false
+            }),
+            new Table({
+              resizable: true
+            }),
+            new TableHeader(),
+            new TableCell(),
+            new TableRow(),
+            new TableMenu()
+          ],
+          emptyDocument: {
+            type: 'doc',
+            content: []
+          }
+        })
+      },
+      listenForNodeNameChanges () {
+        this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
+          if (mutation.type === 'tree/setList') {
+            const referencedNode = mutation.payload.find(
+              node => node.type === 'doc' && node.contentId.toString() === this.id.toString()
+            )
+            if (referencedNode) {
+              if (referencedNode.title.charCodeAt(0) === 1 && referencedNode.title.charCodeAt(1) === 2) {
+                this.title = ''
+              } else {
+                this.title = referencedNode.title
               }
             }
+          }
+        })
+      },
+      getBubblePosition () {
+        const sel = this.editor.state.selection
+        const coords = this.editor.view.coordsAtPos(sel.$from.pos)
+        const offsetTop = 36
+        if (this.$refs.pageEditor) {
+          const left = coords.left - this.$refs.pageEditor.offsetLeft - this.$refs.pageEditor.offsetParent.offsetLeft
+          return {
+            left: left + 'px',
+            top: coords.top - offsetTop - this.$refs.pageEditor.offsetTop + this.$refs.paper.scrollTop + 'px'
+          }
+        }
+        return {
+          left: '0',
+          top: coords.top - offsetTop + 'px'
+        }
+      },
+      focusBubble () {
+        this.isBubbleFocused = true
+      },
+      canInsertImage (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      insertReference (commands) {
+        commands.showReference()
+      },
+      canInsertReference (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canInsertLine (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeLinked (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeBold (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeItalic (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeUnderline (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeStrikethrough (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeInlineCode (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeAligned (isActive, focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeTextColored (isActive, focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeBgColored (isActive, focused) {
+        if (isActive.paragraph() && focused && !this.readOnly) {
+          return true
+        }
+        if (this.isCellSelection() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeConvertedToList (isActive, focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeConvertedToQuote (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canBeConvertedToCodeBlock (isActive, focused) {
+        if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canChangeTextType (isActive, focused) {
+        if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused && !this.readOnly) {
+          return true
+        }
+      },
+      canCreateTable (isActive, focused) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly && !isActive.table()) {
+          return true
+        }
+      },
+      isCellSelection () {
+        if (this.editor && this.editor.state.selection.$anchorCell && this.editor.state.selection.$headCell) {
+          return true
+        }
+      },
+      async fetchUsers () {
+        return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
+      },
+      async fetchReferences () {
+        return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
+      },
+      getTextDisplayType (isActive) {
+        if (isActive.paragraph({ level: 0 })) {
+          return 'Text'
+        }
+        if (isActive.paragraph({ level: 1 })) {
+          return 'Heading 1'
+        }
+        if (isActive.paragraph({ level: 2 })) {
+          return 'Heading 2'
+        }
+        if (isActive.paragraph({ level: 3 })) {
+          return 'Heading 3'
+        }
+        return 'Text'
+      },
+      getalignmentType (align) {
+        switch (align) {
+          case 'left':
+            return 'Left'
+          case 'center':
+            return 'Center'
+          case 'right':
+            return 'Right'
+          case 'justify':
+            return 'Justify'
+        }
+        return 'Left'
+      },
+      getalignmentIcon (align) {
+        switch (align) {
+          case 'left':
+            return AlignLeftIcon
+          case 'center':
+            return AlignCenterIcon
+          case 'right':
+            return AlignRightIcon
+          case 'justify':
+            return AlignJustifyIcon
+        }
+        return AlignLeftIcon
+      },
+      getalignmentIconName (align) {
+        switch (align) {
+          case 'left':
+            return 'align-left'
+          case 'center':
+            return 'align-center'
+          case 'right':
+            return 'align-right'
+          case 'justify':
+            return null
+        }
+        return 'align-left'
+      },
+      getListTypeIcon (isActive) {
+        if (isActive.todo_list()) {
+          return CheckSquareIcon
+        }
+        return ListIcon
+      },
+      showLinkForm (attr) {
+        this.linkMarking.active = true
+        this.linkMarking.href = attr.href
+        this.$nextTick(() => {
+          if (this.$refs.linkInput) {
+            this.$refs.linkInput.focus()
+          }
+        })
+      },
+      focusToEditor ($evt, force = false) {
+        if (this.editor) {
+          if (this.title.trim().length === 0) {
+            this.$refs.title.focus()
+          } else if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+            this.editor.focus()
+          } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
+            this.editor.focus(1)
+          } else {
+            this.editor.focus(this.editor.state.doc.content.size - 1)
+          }
+        }
+      },
+      hideLinkForm () {
+        this.linkMarking.active = false
+        this.linkMarking.href = null
+      },
+      setLinkData (command, href) {
+        command({ href })
+        this.hideLinkForm()
+      },
+      visitLink (attr) {
+        window.open(attr.href, '_blank')
+      },
+      async load () {
+        const id = this.$route.params.id
+        if (id) {
+          if (this.provider) {
+            this.provider.awareness.setLocalStateField('user', {
+              color: '#333',
+              name: this.currentUser.firstName
+            })
+          }
+          const res = await DocumentService.view(id)
+          this.doc = res.data
+          this.pageTitle = res.data.title
+          this.title = res.data.title.trim()
+          this.readOnly = res.data.isLocked
+          this.setSlug(res.data.slug)
+          // Phantom emptiness detected
+          if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
+            this.pageTitle = 'Untitled'
+            this.title = ''
+            this.$refs.title.focus()
+          }
+          if (!this.pageReady) {
+            await this.activateSpace(res.data.spaceId)
+          }
+          this.autoResizeTitle()
+          this.buildEditor()
+          if (this.title.trim().length === 0) {
+            this.$nextTick(() => {
+              this.$refs.title.focus()
+            })
+          }
+        }
+      },
+      autoResizeTitle () {
+        this.$refs.title.style.height = '1px'
+        const height = this.$refs.title.scrollHeight
+        if (height === 0) {
+          this.$refs.title.style.height = '29px'
+        } else {
+          this.$refs.title.style.height = height + 'px'
+        }
+      },
+      async saveTitleOnly () {
+        const title = this.title
+        this.pageTitle = this.title
+        const payload = {
+          title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2)
+        }
+        await this.createUpdateDocument(payload)
+      },
+      async createUpdateDocument (data) {
+        try {
+          const id = this.$route.params.id
+          this.loading = true
+
+          if (id) {
+            const res = await DocumentService.update(id, data)
+            this.doc = res.data.data
+            this.setSlug(res.data.data.slug)
+            if (data.title) {
+              this.$store.commit('tree/updateNode', {
+                compareFn (node) {
+                  return node.contentId.toString() === id
+                },
+                fn (node) {
+                  return {
+                    ...node,
+                    title: data.title
+                  }
+                }
+              })
+            }
+          }
+          this.loading = false
+        } catch (err) {
+          this.loading = false
+        }
+      },
+      async toggleReadOnly () {
+        this.readOnly = !this.readOnly
+        this.isHistoryVisible = false
+        await this.createUpdateDocument({
+          isLocked: this.readOnly
+        })
+        if (this.readOnly) {
+          this.showPreview(null)
+        } else {
+          this.closeHistory()
+        }
+      },
+      showHistory () {
+        this.preview = null
+        this.isHistoryVisible = true
+      },
+      deleteNovadoc () {
+        window.app.confirm('Delete document?', `Delete document ${this.doc.title} permanently?`, async () => {
+          try {
+            await this.$store.dispatch('document/destroy', this.doc)
+            await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+            this.$router.push({ name: 'Main' })
+          } catch (err) {
+          }
+        })
+      },
+      restore (state) {
+        this.save(state.content)
+        this.preview = null
+        this.editor.setContent(state.content)
+      },
+      showPreview (state) {
+        this.isPreviewing = true
+        if (!state) {
+          this.preview = {
+            id: null,
+            content: this.editor.getJSON()
+          }
+        } else {
+          this.preview = state
+        }
+        this.previewEditor.setContent(this.preview.content)
+      },
+      closeHistory () {
+        if (this.editor) {
+          this.isHistoryVisible = false
+          this.isPreviewing = false
+          this.editor.setOptions({
+            editable: !this.readOnly
           })
         }
-        this.loading = false
-      } catch (err) {
-        this.loading = false
-      }
-    },
-    toggleReadOnly () {
-      this.readOnly = !this.readOnly
-      this.isHistoryVisible = false
-    },
-    showHistory () {
-      this.isHistoryVisible = true
-    },
-    deleteNovadoc () {
-      window.app.confirm('Delete document?', `Delete document ${this.doc.title} permanently?`, async () => {
-        try {
-          await this.$store.dispatch('document/destroy', this.doc)
-          await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-          this.$router.push({ name: 'Main' })
-        } catch (err) {
+      },
+      handleTitleEnter (evt) {
+        evt.preventDefault()
+        this.editor.focus()
+      },
+      determineHeaderState (evt) {
+        if (evt.target.scrollTop > 96) {
+          this.pageScrolled = true
+        } else {
+          this.pageScrolled = false
         }
-      })
-    },
-    restore (state) {
-      this.save(state.content)
-      this.preview = null
-      this.editor.setContent(state.content)
-    },
-    showPreview (state) {
-      this.editor.setOptions({
-        editable: false
-      })
-      if (!state) {
-        this.preview = null
-        this.editor.setContent(this.doc.content)
-      } else {
-        this.preview = state
-        this.editor.setContent(state.content)
+      },
+      canShowBubble (isActive, menu) {
+        return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() &&
+          !isActive.table() && !isActive.divider() && !this.isMouseDown
+      },
+      openLink (url) {
+        window.open(url, '_blank')
+      },
+      listenForDocumentMouseUp () {
+        document.addEventListener('mouseup', this.releaseMouseDown)
+      },
+      releaseMouseDown () {
+        this.isMouseDown = false
+      },
+      setSlug (slug) {
+        if (this.$route.params.slug !== slug) {
+          this.$router.replace({
+            params: {
+              slug: slug || 'Untitled'
+            }
+          }).catch(e => {
+            return e
+            // Consume redundant error
+          })
+        }
       }
     },
-    closeHistory () {
-      this.isHistoryVisible = false
-      this.editor.setOptions({
-        editable: !this.readOnly
-      })
-    }
-  },
   watch: {
     id: {
       immediate: true,
       async handler () {
+        this.closeHistory()
         await this.load()
         await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
         if (!this.pageReady) {
@@ -780,11 +1177,28 @@ export default {
         this.pageReady = true
       }
     },
+    title (newTitle) {
+      this.autoResizeTitle()
+      const id = this.id
+      this.$store.commit('tree/updateNode', {
+        compareFn (node) {
+          return node.type === 'doc' && node.contentId.toString() === id.toString()
+        },
+        fn (node) {
+          return {
+            ...node,
+            title: newTitle
+          }
+        }
+      })
+    },
     readOnly: {
       async handler () {
-        this.editor.setOptions({
-          editable: !this.readOnly
-        })
+        if (this.editor) {
+          this.editor.setOptions({
+            editable: !this.readOnly
+          })
+        }
       }
     }
   },
@@ -801,18 +1215,102 @@ export default {
     id () {
       return Number(this.$route.params.id) || 0
     },
+    textColors () {
+      return [
+        { border: 'transparent', color: '#212121' },
+        { border: 'transparent', color: '#424242' },
+        { border: 'transparent', color: '#616161' },
+        { border: 'transparent', color: '#757575' },
+        { border: 'transparent', color: '#9E9E9E' },
+        { border: 'transparent', color: '#BDBDBD' },
+        { border: 'transparent', color: '#E0E0E0' },
+        { border: '#DEE2EE', color: '#EEEEEE' },
+        { border: '#DEE2EE', color: '#F5F5F5' },
+        { border: '#DEE2EE', color: '#FAFAFA' },
+        { border: 'transparent', color: '#962218' },
+        { border: 'transparent', color: '#D64141' },
+        { border: 'transparent', color: '#F2994A' },
+        { border: 'transparent', color: '#F9EB13' },
+        { border: 'transparent', color: '#219653' },
+        { border: 'transparent', color: '#8CD5FF' },
+        { border: 'transparent', color: '#4574D3' },
+        { border: 'transparent', color: '#4E32F0' },
+        { border: 'transparent', color: '#9C3DBF' },
+        { border: 'transparent', color: '#DC56E7' }
+      ]
+    },
     colors () {
       return [
-        '#000',
-        '#fff',
-        '#C53',
-        '#3a3',
-        '#35A',
-        '#3AA',
-        '#A3A',
-        '#BA8',
-        '#333',
-        '#777'
+        '#DED3F8',
+        '#F6DDFF',
+        '#FFE0E0',
+        '#FFEAD2',
+        '#DEFFD9',
+        '#E0EAFF',
+        '#DDF3FF',
+        '#65F3E3',
+        '#F4F5F7',
+        '#FFFFFF'
+      ]
+    },
+    colorCombinations () {
+      return [
+        {
+          border: '#E0E2E7',
+          color: '#2C2B35',
+          background: '#FFFFFF',
+          activeBorder: '#E0E2E7',
+          name: 'Default Example',
+          class: 'white'
+        },
+        {
+          border: 'transparent',
+          color: '#D64141',
+          background: '#FFF3F3',
+          activeBorder: '#FFB6B6',
+          name: 'Red Example',
+          class: 'red'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FEFFBA',
+          activeBorder: '#E1E26F',
+          name: 'Yellow Example',
+          class: 'yellow'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFEBD8',
+          activeBorder: '#FFC391',
+          name: 'Orange Example',
+          class: 'orange'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFE4F3',
+          activeBorder: '#FFC2E4',
+          name: 'Pink Example',
+          class: 'pink'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1F8FF',
+          activeBorder: '#93D3E7',
+          name: 'Blue Example',
+          class: 'blue'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1FFBC',
+          activeBorder: '#B8EA7C',
+          name: 'Green Example',
+          class: 'green'
+        }
       ]
     }
   }
@@ -821,180 +1319,227 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+
+.color-combo {
+  padding: 6px;
+  border-radius: 4px;
+  border: solid 1px transparent;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 14px;
+  margin: 16px 8px;
+  width: 160px;
+
+  &.white {
+    border: 1px solid #E0E2E7;
+  }
+  &:not(.white){
+    border: 2px solid transparent;
+  }
+  &:hover, &.active {
+    &.white {
+      border: 1px solid #bcbfc8;
+    }
+    &.red {
+      border: 2px solid #FFB6B6;
+    }
+    &.yellow {
+      border: 2px solid #c7c879;
+    }
+    &.orange {
+      border: 2px solid #dbbc9e;
+    }
+    &.pink {
+      border: 2px solid #bc8aa6;
+    }
+    &.blue {
+      border: 2px solid #86b3c1;
+    }
+    &.green {
+      border: 2px solid #b0d287;
+    }
+  }
+}
 .page {
-  @apply pt-4;
   position: relative;
   display: flex;
   width: 0;
   flex: 1 1 auto;
   flex-direction: column;
 }
+
 .page-header {
-  position: fixed;
-  top: 0;
+  user-select: none;
   display: flex;
   background: #fff;
   z-index: 1;
   width: 100%;
-  box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  border-bottom: solid 1px transparent;
   padding: 12px 24px;
   box-sizing: border-box;
+  align-items: center;
+  transition: all 0.15s ease;
+
+  &.scrolled {
+    border-bottom: solid 1px #E0E2E7;
+  }
+
+  .editor-toolbar {
+    flex: 0 0 auto;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .editor-context-menu {
+    flex: 0 0 auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    .lock-indicator {
+      border-radius: 4px;
+      background: #FFE0E0;
+      color: #D64141;
+      padding: 8px;
+      margin-right: 8px;
+    }
+
+    .popover-trigger {
+      .menu-btn {
+        padding: 8px;
+        height: auto;
+      }
+      &.show {
+        .menu-btn {
+          color: #146493;
+          background: #DDF3FF;
+          box-shadow: none;
+          .stroke-current {
+            color: #146493;
+          }
+        }
+      }
+    }
+  }
+
 }
 
 .page-history {
-  position: fixed;
-  top:0;
-  right: 0;
-  z-index: 50;
-  width: 256px;
-  height: 100vh;
-  background: #fafafa;
+  width: 304px;
+  height: 100%;
+  background: #F8F8FB;
   flex: 0 0 auto;
-  overflow-y: scroll;
-}
-.page-editor {
-  width: 800px;
-  margin: 0 auto;
-  padding: 96px 0;
-  flex: 1 1 auto;
-}
-
-.menubar {
   display: flex;
-  align-items: center;
-  font-size: 12px;
 }
 
-.menubar.focused {
-  visibility: visible;
-  opacity: 1;
+.page-editor {
+  margin: 0 auto;
+  flex: 1 1 auto;
+  height: 0;
+  width: 100%;
+  position: relative;
+  display: flex;
+  user-select: all;
 }
 
-.menu {
-  background: #fff;
-  color: #333;
-  border: none;
-  padding: 4px 6px;
-  outline: none;
-  border-radius: 2px;
-  transition: all 0.15s ease;
-  margin-right: 4px;
+.paper {
+  margin: auto;
+  flex: 1 1 auto;
+  height: 100%;
+  padding: 96px 0;
+  overflow-y: scroll;
+  position: relative;
 }
 
 .menu-separator {
   width: 1px;
   height: 24px;
   background: #E0E2E7;
-  margin:0 8px;
+  margin: 0 8px;
+  margin-block: auto;
   display: inline-block;
 }
 
-.menu:last-child {
-  margin-right: 0;
-}
-
-.menu:hover {
-  background: #eee;
-}
-
-.menu.active, .menu:active {
-  background: #146493;
-  color: #fff;
-}
-
-.bubble {
-  position: absolute;
-  opacity: 0;
-  visibility: hidden;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  z-index: 1;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 2px 14px rgba(0, 0, 0, .05);
-  margin-bottom: 4px;
+.menu {
   background: #fff;
-  border-radius: 2px;
-  padding: 4px;
-
-  &.is-active {
-    visibility: visible;
-    opacity: 1;
-  }
-}
-
-.bubble-form {
-  margin: 4px;
-  display: flex;
-  align-self: center;
-}
-
-.bubble-input {
-  font-size: 12px;
-  padding: 4px;
-  border-radius: 4px;
+  color: #333;
   border: none;
+  padding: 4px;
   outline: none;
-  min-width: 220px;
-  flex: 1 1 auto;
-}
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  margin-right: 4px;
 
-.bubble-form-yes {
-  flex: 0 0 auto;
-  border: none;
-  padding: 4px 6px;
-  color: #146493;
-
-  &:hover {
-    background: #eee;
+  &.no-margin {
+    margin-right: 0
   }
-}
 
-.bubble-form-no {
-  flex: 0 0 auto;
-  border: none;
-  padding: 4px 6px;
-  color: #aaa;
+  &-big {
+    padding: 8px;
+  }
+
+  .stroke-current {
+    stroke: transparent;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   &:hover {
-    background: #eee;
-    color: #333;
+    background: #F4F5F7;
+  }
+
+  &.active, &:active {
+    background: #DDF3FF;
+    color: #146493;
+  }
+
+  &[disabled] {
+    opacity: 0.5;
   }
 }
 
 .color-blocks {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(10, 1fr);
   grid-gap: 8px;
   padding: 24px;
 }
+
 .color-block {
   width: 24px;
   height: 24px;
-  border-radius: 2px;
+  border-radius: 100%;
   transition: all 0.15s ease;
-  border:solid 1px #146493;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .check {
+
+  }
+
   &:hover {
-    transform:scale(0.9);
+    transform: scale(0.9);
   }
 }
+
 .bg-color, .text-color {
-  padding: 2px 4px;
+  //padding: 2px 4px;
   box-sizing: border-box;
   font-size: 12px;
 }
 
-.editor-menu{
+.bg-color-display, .text-color-display {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  .menubar{
-    flex: 1 1 auto;
-  }
-  .menu-options {
-    flex: 0 0 auto;
-  }
-  .menu-btn {
-    padding: 12px;
-  }
+  justify-content: center;
 }
 
 .action-line {
@@ -1007,27 +1552,84 @@ export default {
   font-size: 13px;
   line-height: 16px;
 
-  &:hover{
+  &:hover {
     background: #F0F2F5;
   }
+
   &.danger {
     color: theme("colors.danger.default");
   }
 }
+
 .action-line-text {
   @apply ml-2;
   flex: 1 1 auto;
+  font-weight: normal;
 }
-.action-separator{
+
+.action-separator {
   @apply my-1;
-  height:1px;
+  height: 1px;
   background: theme("colors.gray.100");
 }
 
+.editor-title-input {
+  color: #202225;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 29px;
+  outline: none;
+  border: none;
+  margin-bottom: 24px;
+  display: block;
+  width: 100%;
+  resize: none;
+  height: auto;
+  padding: 0 16vw;
+}
+
+.bubble {
+  position: absolute;
+  z-index: 5;
+  .bubble-wrap {
+    background: #FFFFFF;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+    border-radius: 4px;
+    padding: 4px;
+    box-sizing: border-box;
+    max-width: 100%;
+    font-size: 12px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
+}
+
+.title-separator {
+  border: 1px solid #EDEFF3;
+  margin: 24px 16vw;
+}
+
+.color-combo-title {
+  margin: 20px 8px 16px 8px;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: #444754;
+}
 </style>
 <style lang="postcss">
 .ProseMirror {
+  margin: auto;
+  padding: 0 16vw 128px 16vw;
   outline: none;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -o-user-select: text;
+
 }
 
 .ProseMirror > .ProseMirror-yjs-cursor:first-child {
@@ -1073,6 +1675,7 @@ export default {
 .ProseMirror {
 
   font-size: 16px;
+  color: #2C2B35;
 
   &.resize-cursor {
     cursor: col-resize;
@@ -1082,38 +1685,77 @@ export default {
     font-size: 2.4em;
   }
 
-  h1, h2, h3, h4 {
-    margin: 24px 0 8px 0;
+  h1, h2, h3 {
+    margin: 0;
   }
 
   h1 {
-    font-size: 2em;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 36px;
+    margin-top: 40px;
   }
 
   h2 {
-    font-size: 1.7em;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 29px;
+    margin-top: 32px;
   }
 
   h3 {
-    font-size: 1.5em;
-  }
-
-  h4 {
-    font-size: 1.35em;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    margin-top: 24px;
   }
 
   p {
-    font-size: 1em;
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 16px;
+    font-weight: 400;
+    & + p {
+      margin-top: 8px;
+    }
+  }
+
+  br {
+    height: 24px;
   }
 
   ul {
     list-style: disc;
-    margin-left: 18px;
+    ul {
+      list-style: circle;
+    }
   }
 
   ol {
     list-style: decimal;
-    margin-left: 18px;
+  }
+
+  ul {
+    li {
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
+    }
+  }
+
+  ol {
+    li {
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
+      li {
+        margin-left: 24px;
+      }
+    }
   }
 
   a {
@@ -1122,24 +1764,12 @@ export default {
   }
 
   blockquote {
-    padding: 16px;
-    background: #fff;
-    border: solid 1px #ddd;
-    border-radius: 4px;
+    background: #F8F8FB;
+    border-radius: 12px;
+    border: none;
+    padding: 16px 12px;
     position: relative;
-    margin: 16px 0 24px 0;
-
-    &::after {
-      content: ' ';
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-bottom: solid 1px #ddd;
-      border-right: solid 1px #ddd;
-      transform: rotate(45deg);
-      position: absolute;
-      bottom: -9px;
-    }
+    margin: 24px 0;
 
     > p:first-child {
       margin-top: 0;
@@ -1147,36 +1777,67 @@ export default {
   }
 
   code {
-    padding: 4px;
-    background: #ddd;
-    border-radius: 2px;
+    padding: 2px;
+    background: #2C2B35;
+    border-radius: 4px;
     font-size: 0.8em;
+    color: #fff;
   }
 
   p:first-child, h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
     margin-top: inherit;
   }
 
-  .novadoc-divider {
-    color: #ccc;
-    margin: 16px;
-  }
-
   table {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     margin: 48px 0;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-radius: 4px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px #DEE2EE;
     position: relative;
 
+    &.striped:not(.deletion) tr:nth-of-type(2n) td {
+      background: #F4F5F7;
+    }
+
+    &.deletion {
+      box-shadow: 0 0 0 1px #D64141;
+      tr{
+        background: #FFE0E0;
+        td {
+          border: 1px solid #D64141;
+          border-top: none;
+        }
+      }
+    }
+
+    p {
+      font-size: 14px;
+      line-height: 17px;
+      font-weight: 400;
+    }
+
     tr {
+      &:hover td {
+        background: #F4F5F7;
+      }
       td {
-        border: solid 1px #ccc;
+        border: solid 1px #DEE2EE;
         padding: 8px;
         position: relative;
+
         &.selectedCell {
           background: #def;
         }
       }
+    }
+
+    tbody tr td {
+      border-top: none;
+      border-right: none;
     }
 
     .column-resize-handle {
@@ -1188,75 +1849,81 @@ export default {
       position: absolute;
     }
   }
-  .novadoc-table-menu {
-    position: absolute;
-    top: -40px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 2px 14px rgba(0, 0, 0, .05);
-    background: #fff;
-    padding: 4px;
-    cursor: default;
-  }
-  .novadoc-table-menu-button {
-    background: #fff;
-    color: #333;
-    border: none;
-    padding: 4px 6px;
-    outline: none;
-    border-radius: 2px;
-    transition: all 0.15s ease;
-    margin-right: 4px;
-
-    &:hover {
-      background: #eee;
-    }
-
-  }
 
   ul[data-type="todo_list"] {
     padding-left: 0;
+    margin-left: 0;
   }
+
   li[data-type="todo_item"] {
     display: flex;
     flex-direction: row;
+    margin: 8px 0;
+
+    & {
+      margin-bottom: 0;
+    }
   }
+
   .todo-checkbox {
-    border: 2px solid #146493;
-    height: 0.9em;
-    width: 0.9em;
+    border: 1px solid #AAB1C5;
+    height: 20px;
+    width: 20px;
     box-sizing: border-box;
     margin-right: 10px;
-    margin-top: 0.3rem;
+    margin-top: 2px;
     user-select: none;
     -webkit-user-select: none;
     cursor: pointer;
-    border-radius: 0.2em;
+    border-radius: 6px;
     background-color: transparent;
     transition: 0.4s background;
   }
+
   .todo-content {
     flex: 1;
+
+    &[contenteditable='true']::before {
+      content: none;
+    }
+
     > p:last-of-type {
       margin-bottom: 0;
     }
+
     > ul[data-type="todo_list"] {
-      margin: .5rem 0;
+      margin: 0;
     }
   }
+
   li[data-done="true"] {
     > .todo-content {
       > p {
         text-decoration: line-through;
         opacity: 0.85;
+        color: #777B81;
       }
     }
+
     > .todo-checkbox {
-      background-color: #146493;
+      border: 1px solid #8CD5FF;
+      background-color: #8CD5FF;
+      position: relative;
+      &::before {
+        position: absolute;
+        content: '';
+        display: block;
+        width: 12px;
+        height: 6px;
+        border-left: solid 2px  #2C2B35;
+        border-bottom: solid 2px  #2C2B35;
+        top: 5px;
+        left: 4px;
+        transform: rotate(-45deg);
+      }
     }
   }
+
   li[data-done="false"] {
     text-decoration: none;
   }
@@ -1264,21 +1931,9 @@ export default {
   ul, ol {
     margin-top: 16px;
     margin-bottom: 16px;
+
     ul, ol {
       margin-top: 8px;
-    }
-  }
-
-  .novadoc-image {
-    margin: 36px auto;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-    border:solid 4px transparent;
-    padding: 4px;
-
-    &.ProseMirror-selectednode {
-      //box-shadow: 0 2px 4px rgba(0,0,0,.25), 0 16px 64px rgba(0,0,0,.5);
-      border: solid 4px #146493;
     }
   }
 
@@ -1287,26 +1942,27 @@ export default {
     font-weight: bolder;
     padding: 4px;
     border-radius: 4px;
+
     &.ProseMirror-selectednode {
-      background:  #ddd;
+      background: #ddd;
       color: #333;
     }
   }
 
   pre > code {
     display: block;
-    padding: 12px;
-    background: #333;
-    border-radius: 2px;
-    font-size: 0.8em;
-    color: #eee;
+    padding: 16px;
+    background: #1c1c1d;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #e5e4ec;
     margin: 12px 0;
 
     .hljs {
       display: block;
       overflow-x: auto;
       padding: 0.5em;
-      background: #282a36;
+      background: #F8F8FB;
     }
 
     .hljs-keyword,
@@ -1326,7 +1982,6 @@ export default {
       color: #f8f8f2;
     }
 
-    .hljs-string,
     .hljs-title,
     .hljs-name,
     .hljs-type,
@@ -1337,7 +1992,14 @@ export default {
     .hljs-variable,
     .hljs-template-tag,
     .hljs-template-variable {
-      color: #f1fa8c;
+      color: #de3f79;
+    }
+
+    .hljs-string {
+      color: #edd70b;
+    }
+    .hljs-attr {
+      color: #93d128;
     }
 
     .hljs-comment,
