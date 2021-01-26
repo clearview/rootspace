@@ -121,8 +121,7 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
-          :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
+          <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
             <template #default>
               <v-icon name="text-color" viewbox="16" size="16"
                       :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -131,17 +130,15 @@
               <div class="color-blocks text-color-blocks">
                 <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                      :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
-                  <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
-                </div>
+                     @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
               </div>
             </template>
           </MenuGroup>
           <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-                     :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
+          no-margin>
             <template #default>
               <v-icon name="highlight" viewbox="16" size="16"
-                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+              :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-combo-title">
@@ -149,7 +146,7 @@
               </div>
               <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
               :style="{background: combo.background, color: combo.color}"
-              :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+              :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
                 {{combo.name}}
               </div>
             </template>
@@ -287,15 +284,15 @@
             <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
-                <v-icon name="bold" viewbox="16" size="16"></v-icon>
+                <BoldIcon size="16"></BoldIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
                       @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
-                <v-icon name="italic" viewbox="16" size="16"></v-icon>
+                <ItalicIcon size="16"></ItalicIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
                       @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
-                <v-icon name="underline" viewbox="16" size="16"></v-icon>
+                <UnderlineIcon size="16"></UnderlineIcon>
               </button>
               <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
                       @click="commands.strike" v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
@@ -307,8 +304,7 @@
                       @click="commands.code" v-tippy="{ placement : 'top',  arrow: true }" content="Inline Code">
                 <TerminalIcon size="16"></TerminalIcon>
               </button>
-              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
-                         :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
+              <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color">
                 <template #default>
                   <v-icon name="text-color" viewbox="16" size="16"
                           :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
@@ -317,17 +313,15 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
-                      <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
-                    </div>
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})"></div>
                   </div>
                 </template>
               </MenuGroup>
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
-              :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
+              no-margin>
                 <template #default>
                   <v-icon name="highlight" viewbox="16" size="16"
-                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+                          :style="{background: getMarkAttrs('bg_color').color, color: getMarkAttrs('text_color').color}"></v-icon>
                 </template>
                 <template #options="{select, hide}">
                   <div class="color-combo-title">
@@ -345,7 +339,7 @@
                 v-if="canBeLinked(isActive, true)">
                 <template #default>
                   <v-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></v-icon>
-                  <v-icon v-else   name="link2" viewbox="16" size="16"></v-icon>
+                  <LinkIcon size="12" v-else></LinkIcon>
                 </template>
                 <template #options="{ hide }">
                   <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
@@ -467,7 +461,6 @@ import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
 import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
-import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 const wsMessageType = {
   authenticate: 10,
@@ -521,7 +514,7 @@ export default {
       this.saveTitleOnly(this.title)
     }, 1000)
     return {
-      lengthChecked: false,
+      doBindState: true,
       provider: null,
       editor: null,
       previewEditor: null,
@@ -559,9 +552,6 @@ export default {
   },
   methods:
     {
-      blackOrWhite (color) {
-        return blackOrWhite(hexToHsl(color))
-      },
       createCodeBlock (merger, coder) {
         merger({ command: coder })
       },
@@ -903,9 +893,6 @@ export default {
         if (isActive.paragraph() && focused && !this.readOnly) {
           return true
         }
-        if (this.isCellSelection() && focused && !this.readOnly) {
-          return true
-        }
       },
       canBeConvertedToList (isActive, focused) {
         if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.readOnly) {
@@ -928,12 +915,12 @@ export default {
         }
       },
       canCreateTable (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly && !isActive.table()) {
+        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
           return true
         }
       },
       isCellSelection () {
-        if (this.editor && this.editor.state.selection.$anchorCell && this.editor.state.selection.$headCell) {
+        if (this.editor && this.editor.state.selection.constructor.name === 'CellSelection') {
           return true
         }
       },
@@ -1014,10 +1001,10 @@ export default {
       },
       focusToEditor ($evt, force = false) {
         if (this.editor) {
-          if (this.title.trim().length === 0) {
-            this.$refs.title.focus()
-          } else if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
+          if (!this.editor.state.selection.empty && this.editor.state.selection.to !== this.editor.state.selection.from && !force) {
             this.editor.focus()
+          } else if (this.title.trim().length === 0) {
+            this.$refs.title.focus()
           } else if (this.editor.state.doc.content.firstChild.content.size === 0) {
             this.editor.focus(1)
           } else {
@@ -1048,7 +1035,7 @@ export default {
           const res = await DocumentService.view(id)
           this.doc = res.data
           this.pageTitle = res.data.title
-          this.title = res.data.title.trim()
+          this.title = res.data.title
           this.readOnly = res.data.isLocked
           this.setSlug(res.data.slug)
           // Phantom emptiness detected
@@ -1061,24 +1048,13 @@ export default {
             await this.activateSpace(res.data.spaceId)
           }
           this.autoResizeTitle()
-
-          if (this.title.trim().length === 0) {
-            this.$nextTick(() => {
-              this.$refs.title.focus()
-            })
-          }
-
           this.initEditor()
         }
       },
       autoResizeTitle () {
         this.$refs.title.style.height = '1px'
         const height = this.$refs.title.scrollHeight
-        if (height === 0) {
-          this.$refs.title.style.height = '29px'
-        } else {
-          this.$refs.title.style.height = height + 'px'
-        }
+        this.$refs.title.style.height = height + 'px'
       },
       async saveTitleOnly () {
         const title = this.title
@@ -1200,9 +1176,6 @@ export default {
             params: {
               slug: slug || 'Untitled'
             }
-          }).catch(e => {
-            return e
-            // Consume redundant error
           })
         }
       }
@@ -1557,13 +1530,6 @@ export default {
   height: 24px;
   border-radius: 100%;
   transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .check {
-
-  }
 
   &:hover {
     transform: scale(0.9);
@@ -1842,21 +1808,6 @@ export default {
     box-shadow: 0 0 0 1px #DEE2EE;
     position: relative;
 
-    &.striped:not(.deletion) tr:nth-of-type(2n) td {
-      background: #F4F5F7;
-    }
-
-    &.deletion {
-      box-shadow: 0 0 0 1px #D64141;
-      tr{
-        background: #FFE0E0;
-        td {
-          border: 1px solid #D64141;
-          border-top: none;
-        }
-      }
-    }
-
     p {
       font-size: 14px;
       line-height: 17px;
@@ -1864,9 +1815,6 @@ export default {
     }
 
     tr {
-      &:hover td {
-        background: #F4F5F7;
-      }
       td {
         border: solid 1px #DEE2EE;
         padding: 8px;
