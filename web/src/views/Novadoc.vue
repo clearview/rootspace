@@ -421,8 +421,8 @@ import * as encoding from 'lib0/encoding.js'
 import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
-import CollaborationExtension from './Novadoc/CollaborationExtension'
 
+import CollaborationExtension from './Novadoc/CollaborationExtension'
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 
 import {
@@ -468,6 +468,15 @@ import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -586,51 +595,72 @@ export default {
         }
 
         this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
-
         this.provider.awareness.setLocalStateField('user', {
           color: '#333',
           name: this.currentUser.firstName
         })
+
+        const wsAuthenticate = () => {
+          const encoder = encoding.createEncoder()
+          encoding.writeVarUint(encoder, wsMessageType.authenticate)
+          encoding.writeVarString(encoder, this.$store.state.auth.token)
+          this.provider.ws.send(encoding.toUint8Array(encoder))
+        }
 
         const onConnecting = () => {
           const providerOnMessage = this.provider.ws.onmessage
           const providerOnOpen = this.provider.ws.onopen
 
           this.provider.ws.onmessage = event => {
-            const { data } = event
-            console.log('onmessage data', data)
+            const decoder = decoding.createDecoder(new Uint8Array(event.data))
+            const messageType = decoding.readVarUint(decoder)
 
-            if (typeof data === 'string') {
-              switch (data) {
-                case 'init':
-                  this.provider.ws.onmessage = event => {
-                    const decoder = decoding.createDecoder(new Uint8Array(event.data))
-                    const encoder = encoding.createEncoder()
-                    const messageType = decoding.readVarUint(decoder)
+            console.log('onmessage', messageType)
 
-                    if (messageType === this.messageRestore) {
-                      this.closeHistory()
-                      this.initEditor()
-                      return
-                    }
-
-                    providerOnMessage(event)
-                  }
-                  providerOnOpen()
-                  break
-                case 'unauthenticated':
-                case 'unauthorized':
-                  break
-                case 'wait':
-                  break
-                default:
-                  break
+            for (const key in wsMessageType) {
+              if (wsMessageType[key] === messageType) {
+                console.log('messageType', key)
               }
+            }
+
+            switch (messageType) {
+              case wsMessageType.unauthenticated:
+                // notify user
+                break
+              case wsMessageType.unauthorized:
+                // notify user
+                break
+              case 'wait':
+                // wait next message
+                break
+              case wsMessageType.initCollaboration:
+                this.provider.ws.onmessage = event => {
+                  const decoder = decoding.createDecoder(new Uint8Array(event.data))
+                  const messageType = decoding.readVarUint(decoder)
+
+                  if (messageType === wsMessageType.restore) {
+                    // notify user
+                    this.closeHistory()
+                    this.initEditor()
+                    return
+                  }
+
+                  // skip our custom messages, don't pass them to yjs to handle
+                  if (messageType >= 10) {
+                    return
+                  }
+
+                  providerOnMessage(event)
+                }
+                providerOnOpen()
+                break
+              default:
+                break
             }
           }
 
           this.provider.ws.onopen = () => {
-            this.provider.ws.send(this.$store.state.auth.token)
+            wsAuthenticate()
           }
         }
 
@@ -646,6 +676,7 @@ export default {
       initEditor () {
         this.destroyProvider()
         this.destroyEditor()
+        this.doBindState = true
 
         this.ydoc = this.ydoc = new Y.Doc()
         this.initProvider()
@@ -1122,8 +1153,9 @@ export default {
       },
       restore (revision) {
         const encoder = encoding.createEncoder()
-        encoding.writeVarUint(encoder, this.messageRestore)
+        encoding.writeVarUint(encoder, wsMessageType.restore)
         encoding.writeVarUint(encoder, revision.id)
+
         this.provider.ws.send(encoding.toUint8Array(encoder))
       },
       showPreview (revision) {
