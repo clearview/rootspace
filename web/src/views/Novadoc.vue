@@ -417,10 +417,12 @@ import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
-import CollaborationExtension from './Novadoc/CollaborationExtension'
 
+import CollaborationExtension from './Novadoc/CollaborationExtension'
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 
 import {
@@ -466,6 +468,15 @@ import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -576,7 +587,7 @@ export default {
           this.previewEditor.destroy()
         }
       },
-      buildProvider () {
+      initProvider () {
         const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
         if (!wsProviderUrl) {
@@ -584,37 +595,64 @@ export default {
         }
 
         this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
-
         this.provider.awareness.setLocalStateField('user', {
           color: '#333',
           name: this.currentUser.firstName
         })
+
+        const wsAuthenticate = () => {
+          const encoder = encoding.createEncoder()
+          encoding.writeVarUint(encoder, wsMessageType.authenticate)
+          encoding.writeVarString(encoder, this.$store.state.auth.token)
+          this.provider.ws.send(encoding.toUint8Array(encoder))
+        }
 
         const onConnecting = () => {
           const providerOnMessage = this.provider.ws.onmessage
           const providerOnOpen = this.provider.ws.onopen
 
           this.provider.ws.onmessage = event => {
-            const { data } = event
+            const decoder = decoding.createDecoder(new Uint8Array(event.data))
+            const messageType = decoding.readVarUint(decoder)
 
-            if (typeof data === 'string') {
-              switch (data) {
-                case 'authorized':
-                  this.provider.ws.onmessage = providerOnMessage
-                  providerOnOpen()
-                  break
-                case 'unauthenticated':
-                case 'unauthorized':
-                  this.provider.disconnect()
-                  break
-                default:
-                  break
-              }
+            switch (messageType) {
+              case wsMessageType.unauthenticated:
+                // notify user
+                break
+              case wsMessageType.unauthorized:
+                // notify user
+                break
+              case 'wait':
+                // wait next message
+                break
+              case wsMessageType.initCollaboration:
+                this.provider.ws.onmessage = event => {
+                  const decoder = decoding.createDecoder(new Uint8Array(event.data))
+                  const messageType = decoding.readVarUint(decoder)
+
+                  if (messageType === wsMessageType.restore) {
+                    // notify user
+                    this.closeHistory()
+                    this.initEditor()
+                    return
+                  }
+
+                  // skip our custom messages, don't pass them to yjs to handle
+                  if (messageType >= 10) {
+                    return
+                  }
+
+                  providerOnMessage(event)
+                }
+                providerOnOpen()
+                break
+              default:
+                break
             }
           }
 
           this.provider.ws.onopen = () => {
-            this.provider.ws.send(this.$store.state.auth.token)
+            wsAuthenticate()
           }
         }
 
@@ -626,12 +664,13 @@ export default {
 
         onConnecting()
       },
-      buildEditor () {
+      initEditor () {
         this.destroyProvider()
         this.destroyEditor()
+        this.doBindState = true
 
         this.ydoc = this.ydoc = new Y.Doc()
-        this.buildProvider()
+        this.initProvider()
 
         this.editor = new Editor({
           editable: !this.readOnly,
@@ -1022,12 +1061,14 @@ export default {
             await this.activateSpace(res.data.spaceId)
           }
           this.autoResizeTitle()
-          this.buildEditor()
+
           if (this.title.trim().length === 0) {
             this.$nextTick(() => {
               this.$refs.title.focus()
             })
           }
+
+          this.initEditor()
         }
       },
       autoResizeTitle () {
@@ -1101,20 +1142,22 @@ export default {
           }
         })
       },
-      restore (state) {
-        this.save(state.content)
-        this.preview = null
-        this.editor.setContent(state.content)
+      restore (revision) {
+        const encoder = encoding.createEncoder()
+        encoding.writeVarUint(encoder, wsMessageType.restore)
+        encoding.writeVarUint(encoder, revision.id)
+
+        this.provider.ws.send(encoding.toUint8Array(encoder))
       },
-      showPreview (state) {
+      showPreview (revision) {
         this.isPreviewing = true
-        if (!state) {
+        if (!revision) {
           this.preview = {
             id: null,
             content: this.editor.getJSON()
           }
         } else {
-          this.preview = state
+          this.preview = revision
         }
         this.previewEditor.setContent(this.preview.content)
       },
