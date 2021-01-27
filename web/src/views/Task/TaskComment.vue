@@ -78,7 +78,7 @@ import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import Popover from '@/components/Popover.vue'
-import VModal from '@/components/Modal.vue'
+import VModal from '@/components/legacy/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
 
   @Component({

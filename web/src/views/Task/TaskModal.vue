@@ -197,7 +197,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
   TagResource,
