@@ -3,7 +3,7 @@ import { Doc } from '../../../database/entities/Doc'
 import { IDocUpdateSetup } from '../../../types/doc'
 
 // seconds
-const revisonIdleTime = 30
+const revisonIdleTime = 0
 
 export class NovaDocUpdateSetup implements IDocUpdateSetup {
   private _data: DocUpdateValue
@@ -45,7 +45,7 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _isContentUpdated(): boolean {
-    if (this._data.attributes.contentState === undefined) {
+    if (this._data.attributes.content === undefined) {
       return false
     }
 
@@ -60,7 +60,7 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _getUpdatedAttributes(): string[] {
-    const attributes = ['title', 'contentState']
+    const attributes = ['title', 'content']
     const updated = []
 
     for (const attr of attributes) {
@@ -68,7 +68,7 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
         continue
       }
 
-      if (attr === 'contentState') {
+      if (attr === 'content') {
         if (this._isContentUpdated()) {
           updated.push(attr)
         }
@@ -85,16 +85,12 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _doCreateRevision(): boolean {
-    if (this.contentUpdated === false) {
+    if (this._doc.content === null) {
       return false
     }
 
-    if (this._doc.contentState === null) {
+    if (!this._contentUpdated && !this._isNewUserUpdating()) {
       return false
-    }
-
-    if (this._isNewUserUpdating()) {
-      return true
     }
 
     // seconds
@@ -132,7 +128,7 @@ export class NovaDocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _isOnlyContentUpdated() {
-    if (this._updatedAttributes.length === 1 && this._updatedAttributes[0] === 'contentState') {
+    if (this._updatedAttributes.length === 1 && this._updatedAttributes[0] === 'content') {
       return true
     }
 
