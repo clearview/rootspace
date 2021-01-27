@@ -103,8 +103,6 @@ export default class YjsServer {
       }
 
       this.setupCollaboration(conn, req)
-
-      conn.send(encodeMessage(wsMessageType.initCollaboration))
       return
     }
 
@@ -199,7 +197,7 @@ export default class YjsServer {
       state.unlock(docName)
 
       waitingConns.forEach(async (c: WebSocket) => {
-        c.send(encodeMessage(wsMessageType.initCollaboration))
+        this.setupCollaboration(c, req)
       })
     }
   }

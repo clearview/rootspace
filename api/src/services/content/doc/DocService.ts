@@ -210,9 +210,10 @@ export class DocService extends NodeContentService {
     updatedDoc.revision = updatedDoc.revision + 1
     updatedDoc.content = docRevision.content
     updatedDoc.contentState = docRevision.contentState
+    updatedDoc.contentUpdatedAt = new Date(Date.now())
+    updatedDoc.contentUpdatedBy = docRevision.revisionBy
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
-
     await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
 
     return updatedDoc
