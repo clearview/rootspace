@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import VModal from '@/components/Modal.vue'
+import VModal from '@/components/legacy/Modal.vue'
 @Component({
   components: { VModal }
 })
