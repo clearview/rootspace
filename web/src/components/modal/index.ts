@@ -2,6 +2,7 @@ import { defineComponent } from '@vue/composition-api'
 import { Component } from 'vue'
 
 export { default as BaseModal } from './BaseModal.vue'
+export { default as ProfileModal } from './ProfileModal.vue'
 
 interface WithPortalOptions {
   to: string;
