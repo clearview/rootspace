@@ -130,7 +130,7 @@
         <div class="right-field">
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
-            <div class="created-by">
+            <div class="created-by cursor-pointer" @click="openProfile(item.user)">
               <avatar :size="24" :src="item.user && item.user.avatar && item.user.avatar.versions ? item.user.avatar.versions.default.location : ''" :username="memberName(item.user)"></avatar>
               <span class="label">{{ memberName(item.user) }}</span>
             </div>
@@ -163,7 +163,7 @@
                       </li>
                     </template>
                   </MemberPopover>
-                <li class="assignee" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" v-tippy>
+                <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
                   <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
@@ -196,7 +196,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
@@ -225,6 +225,7 @@ import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 
 @Component({
   name: 'TaskModal',
@@ -262,6 +263,9 @@ export default class TaskModal extends Vue {
 
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement
+
+    @Inject('modal')
+    modal!: ModalInjectedContext
 
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
@@ -563,6 +567,15 @@ export default class TaskModal extends Vue {
 
       await this.$store.dispatch('task/item/archiveTask', {
         taskId: taskId
+      })
+    }
+
+    openProfile (user: UserResource) {
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
       })
     }
 }
@@ -869,6 +882,7 @@ export default class TaskModal extends Vue {
         margin-left: -7px;
         letter-spacing: 0.03em;
         color: #fff !important;
+        background-position: center center impor !important;
       }
     }
 
