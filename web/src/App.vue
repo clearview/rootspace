@@ -3,11 +3,16 @@
     id="app"
     class="relative h-screen overflow-y-auto"
   >
-    <router-view />
-    <portal-target name="default" />
-    <portal-target name="secondary" />
-    <portal-target name="tertiary" />
-    <portal-target name="sub-popover" />
+    <modal-provider>
+      <router-view />
+
+      <portal-target name="default" />
+      <portal-target name="secondary" />
+      <portal-target name="tertiary" />
+      <portal-target name="sub-popover" />
+    </modal-provider>
+
+    <!-- TODO: Replace with modal provider -->
     <v-modal
       :title="confirmData.title"
       :visible="confirmData.visible"
@@ -25,8 +30,10 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import VModal from '@/components/legacy/Modal.vue'
+import { ModalProvider } from '@/components/modal'
+
 @Component({
-  components: { VModal }
+  components: { VModal, ModalProvider }
 })
 export default class App extends Vue {
   async created () {
