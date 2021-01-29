@@ -1,41 +1,12 @@
-import { defineComponent } from '@vue/composition-api'
-import { Component } from 'vue'
+import { ModalInjectedContext } from './types'
 
-export { default as BaseModal } from './BaseModal.vue'
-export { default as ProfileModal } from './ProfileModal.vue'
+import ModalProvider from './ModalProvider.vue'
+import BaseModal from './BaseModal.vue'
+import ProfileModal from './ProfileModal.vue'
 
-interface WithPortalOptions {
-  to: string;
-}
-
-export const withPortal = (component: Component, options?: WithPortalOptions) => {
-  return defineComponent({
-    name: 'ModalWithPortal',
-    template: `
-      <portal :to="to" v-if="visible">
-        <component
-          :is="component"
-          v-bind="$attrs"
-          @close="close"
-        />
-      </portal>
-    `,
-    model: {
-      prop: 'visible',
-      event: 'close'
-    },
-    props: {
-      visible: Boolean
-    },
-    setup (props, { emit }) {
-      const { to } = { to: 'default', ...options }
-      const close = () => emit('close', !props.visible)
-
-      return {
-        to,
-        component,
-        close
-      }
-    }
-  })
+export {
+  ModalProvider,
+  BaseModal,
+  ProfileModal,
+  ModalInjectedContext
 }
