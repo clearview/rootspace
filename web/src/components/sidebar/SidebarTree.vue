@@ -2,6 +2,9 @@
   <div class="w-full overflow-auto relative" ref="scrollContainer">
     <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
+    <FavoriteNode ref="favoriteNode" @restore="refresh"></FavoriteNode>
+
+    <sidebar-title v-if="favorites.length">Main</sidebar-title>
     <tree
       v-if="treeData.length > 0"
       edge-scroll
@@ -30,6 +33,8 @@
         @content:update="updateContent"
         @node:update="updateNode"
         @node:archive="archiveNode"
+        @node:addToFavorites="addToFavorites"
+        @node:removeFromFavorites="removeFromFavorites"
         @node:fold:toggle="toggleNodeFold"
         @node:addNew="addNewNode"
       />
@@ -168,8 +173,10 @@ import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
 import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
+import SidebarTitle from './SidebarTitle.vue'
 import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
+import FavoriteNode from '@/components/sidebar/FavoriteNode.vue'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
@@ -208,10 +215,12 @@ enum ModalType {
   name: 'SidebarTree',
   components: {
     ArchiveNode,
+    FavoriteNode,
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
     SidebarEmptyTree,
+    SidebarTitle,
     FolderMenu,
     ListMenu,
     LinkMenu,
@@ -239,6 +248,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   @Ref('archiveNode')
   private readonly archiveNodeRef!: ArchiveNode;
 
+  @Ref('favoriteNode')
+  private readonly favoriteNodeRef!: FavoriteNode;
+
   @Ref('scrollContainer')
   private readonly scrollContainerRef!: HTMLDivElement;
 
@@ -264,6 +276,13 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
+  }
+
+  get favorites (): Node[] {
+    const state = this.$store.state.tree
+    const favorites = [...state.favorites]
+
+    return favorites
   }
 
   get treeData (): Node[] {
@@ -523,6 +542,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     const spaceId = this.activeSpace.id
 
     try {
+      this.$store.dispatch('tree/fetchFavorites', { spaceId })
+
       await this.$store.dispatch('tree/fetch', { spaceId })
 
       this.updateFold()
@@ -587,6 +608,17 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       this.$router.push({ name: 'Main' }).catch(() => null)
     } catch { }
+  }
+
+  async addToFavorites (path: number[], node: Node) {
+    try {
+      await this.$store.dispatch('tree/addToFavorites', node)
+      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
+    } catch {}
+  }
+
+  async removeFromFavorites (path: number[], node: Node) {
+    await this.favoriteNodeRef.removeFromFavorites(path, node)
   }
 
   async updateNode (path: number[], node: Node, { localOnly = false } = {}) {

@@ -45,6 +45,7 @@ export interface AuthState {
 
 export interface TreeState {
   list: NodeResource[];
+  favorites: NodeResource[];
   folded: {
     [key: string]: boolean;
   };

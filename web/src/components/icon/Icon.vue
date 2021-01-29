@@ -116,6 +116,8 @@ import IconBold from '@/components/icon/IconBold.vue'
 import IconAlignLeft from '@/components/icon/IconAlignLeft.vue'
 import IconAlignCenter from '@/components/icon/IconAlignCenter.vue'
 import IconReferenceLink from '@/components/icon/IconReferenceLink.vue'
+import IconRemoveCircle from '@/components/icon/IconRemoveCircle.vue'
+import IconStar from '@/components/icon/IconStar.vue'
 import IconStriped from '@/components/icon/IconStriped.vue'
 import IconAddGreen from '@/components/icon/IconAddGreen.vue'
 import IconRemoveRed from '@/components/icon/IconRemoveRed.vue'
@@ -225,6 +227,8 @@ import IconCheckmark3 from '@/components/icon/IconCheckmark3.vue'
     IconItalic,
     IconUnderline,
     IconReferenceLink,
+    IconRemoveCircle,
+    IconStar,
     IconStriped,
     IconAddGreen,
     IconRemoveRed,
