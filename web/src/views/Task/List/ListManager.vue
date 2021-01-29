@@ -17,8 +17,8 @@
               @save="clearNewList"
               @cancel="clearNewList"/>
     <div class="add-another-list">
-    <ListAddLaneButton @click="addList" v-if="!isInputtingNewList && childDragEnable && orderedLanes.length !== 0">
-      Add Another List
+    <ListAddLaneButton @click="addList" v-if="childDragEnable && orderedLanes.length !== 0">
+      Add List
     </ListAddLaneButton>
     </div>
   </div>
@@ -120,11 +120,16 @@ export default class ListManager extends Vue {
   }
 
   .list-manager {
-    padding: 40px;
+    padding: 40px 20px;
+  }
+  .list-lane-draggable {
+    margin-bottom: 38px;
   }
   .empty {
     font-size: 16px;
     color: theme("colors.gray.800");
+    margin-left: 20px;
+    padding-top: 8px;
   }
   .add-empty {
     margin-top: 16px;
@@ -139,6 +144,7 @@ export default class ListManager extends Vue {
   }
 
   .add-another-list {
-    margin-top: 40px;
+    margin-top: 36px;
+    margin-left: 20px;
   }
 </style>

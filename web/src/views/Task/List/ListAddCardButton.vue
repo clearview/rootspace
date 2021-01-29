@@ -1,6 +1,6 @@
 <template>
   <button class="add-card-button" @click="$emit('click')">
-    <v-icon class="add-card-button-icon" name="plus" size="1.5rem"/>
+    <v-icon class="add-card-button-icon" name="plus" size="20px"/>
     <span class="add-card-button-label"><slot></slot></span>
   </button>
 </template>
@@ -25,16 +25,20 @@ export default class ListAddCardButton extends Vue {
     @apply inline-flex items-center rounded outline-none;
     background: transparent;
 
-    color: theme("colors.gray.800");
+    color: theme("colors.gray.900");
     transition: all 0.15s ease;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
+    margin: 16px 0;
+
     .stroke-current {
-      stroke-width: 3px;
+      stroke: theme('colors.gray.900');
     }
 
     &-icon {
       flex: 0 0 auto;
+      background-color: #EFF1F6;
+      border-radius: 50%;
     }
 
     &-label {

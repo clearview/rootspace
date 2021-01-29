@@ -1,23 +1,23 @@
 <template>
   <div class="list-lane" @dragstart="tryDrag" :draggable="!canDrag">
+    <div class="list-input-cloak" v-if="isInputtingNewLane" @click.self="cancel"></div>
     <div class="list-input" v-show="isInputtingNewLane">
       <input ref="newInput" v-model="listCopy.title" placeholder="Enter a title for this list…"
              @keyup.enter="save"
              @keyup.esc="cancel"
              class="list-input-field"/>
-      <div class="list-actions">
-        <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="20px" title="Close"/>
-        </button>
-        <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
-      </div>
     </div>
     <div class="lane" v-show="!isInputtingNewLane">
-      <header class="header" >
-        <div class="drag">
+      <header class="header">
+        <div class="btn-header drag">
           <v-icon name="drag" size="20px" viewbox="20"></v-icon>
         </div>
-        <div class="dot" :style="{background: list.settings.color}"></div>
+        <div class="btn-header expand" :class="{'expanded': isExpanded}" @click="toggleExpand">
+          <v-icon name="down" size="20px"></v-icon>
+        </div>
+        <div class="btn-header">
+          <div class="dot" :style="{background: list.settings.color}"></div>
+        </div>
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
@@ -61,26 +61,26 @@
           </template>
         </Popover>
       </header>
-
-      <main class="cards" ref="cardContainer"
-            :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
-        <Draggable  handle=".drag" :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-          <ListCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
-                    :opacite="!isColorDefault"/>
-        </Draggable>
-
-        <ListCard default-inputting
-                  class="card-input"
-                  v-if="isInputtingNewItem"
-                  :item="newItem"
-                  @save="clearNewItem"
-                  @cancel="clearNewItem"/>
-      </main>
-      <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane">
-        <ListAddCardButton  @click="addCard">
-          Add new Task
-        </ListAddCardButton>
-      </footer>
+      <Collapsible :is-expanded="isExpanded">
+        <main class="cards" ref="cardContainer"
+              :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
+          <Draggable  handle=".drag" :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
+            <ListCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
+                      :opacite="!isColorDefault"/>
+          </Draggable>
+          <ListCard default-inputting
+                    class="card-input"
+                    v-if="isInputtingNewItem"
+                    :item="newItem"
+                    @save="clearNewItem"
+                    @cancel="clearNewItem"/>
+        </main>
+        <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane">
+          <ListAddCardButton  @click="addCard">
+            Add new Task
+          </ListAddCardButton>
+        </footer>
+      </Collapsible>
     </div>
     <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
       It's not possible to move tasks and lists in search results
@@ -92,6 +92,7 @@
 import Draggable from 'vuedraggable'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import Collapsible from '@/components/Collapsible.vue'
 import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
@@ -105,6 +106,7 @@ import ListCard from '@/views/Task/List/ListCard.vue'
 @Component({
   name: 'ListLane',
   components: {
+    Collapsible,
     ListCard,
     ListAddCardButton,
     PopoverList,
@@ -149,6 +151,7 @@ export default class TaskLane extends Vue {
   private drag = false
   private containerShadowTop = false
   private containerShadowBottom = false
+  private isExpanded = true
 
   private get orderedCards () {
     if (!this.list.tasks) {
@@ -250,6 +253,10 @@ export default class TaskLane extends Vue {
         position: newPos
       })
     }
+  }
+
+  private toggleExpand () {
+    this.isExpanded = !this.isExpanded
   }
 
   get dragOptions () {
@@ -367,6 +374,7 @@ export default class TaskLane extends Vue {
 
 .drag {
   cursor: grab;
+  visibility: hidden;
 }
 .drag .stroke-current{
   stroke: none;
@@ -378,6 +386,18 @@ export default class TaskLane extends Vue {
 .list-lane {
   @apply flex flex-col h-full;
   flex: 0 0 auto;
+  padding-bottom: 8px;
+  position: relative;
+
+  &:not(:last-child):not(.sortable-choosen):not(.lane-input)::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: -8px;
+    border-bottom: solid 1px theme('colors.gray.100');
+  }
 }
 
 .list-lane ~ .list-lane {
@@ -391,7 +411,7 @@ export default class TaskLane extends Vue {
   margin: -16px;
 }
 .lane {
-  /*To prevent transparency during drag and drop*/
+
 }
 
 .header {
@@ -400,10 +420,16 @@ export default class TaskLane extends Vue {
     box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
     z-index: 50;
   }
+
+  &:hover {
+    .drag {
+      visibility: visible;
+    }
+  }
 }
 
 .header-title {
-  @apply mr-2;
+  margin: 0 2px;
   font-weight: bold;
   font-size: 16px;
   line-height: 19px;
@@ -441,10 +467,33 @@ export default class TaskLane extends Vue {
   color: theme("colors.gray.400");
 }
 
+.list-input-cloak {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100vh;
+    z-index: 50;
+  }
 .list-input {
-  @apply rounded p-4 rounded;
+  @apply rounded;
+  position: relative;
   width: 307px;
-  background: rgba(theme("colors.gray.100"), 0.25);
+  z-index: 51;
+  margin-left: 62px;
+
+  &::before {
+    content: "";
+    display: block;
+    position: absolute;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background-color: theme("colors.gray.100");
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 .list-input-field {
@@ -498,8 +547,7 @@ export default class TaskLane extends Vue {
 }
 
 .card-input {
-  @apply mt-4;
-  padding: 0 8px;
+  padding: 8px 0;
 }
 
 .lane-transition-group {
@@ -631,14 +679,42 @@ export default class TaskLane extends Vue {
   color: theme("colors.gray.400");
 }
 
+.btn-header {
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  >* {
+    display: flex;
+  }
+}
+
+.expand {
+  cursor: pointer;
+
+  >svg {
+    transition: transform .3s;
+    transform: rotate(-90deg);
+    stroke: theme('colors.gray.400');
+  }
+
+  &.expanded {
+    >svg {
+      transform: rotate(0deg);
+    }
+  }
+}
+
 .dot {
   width: 12px;
   height: 12px;
   border-radius: 100%;
-  margin:0 8px;
 }
 .footer {
-  margin-top: 16px;
+  padding-left: 40px;
 }
 
 .btn-edit {
