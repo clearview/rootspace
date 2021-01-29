@@ -28,10 +28,9 @@ export default class ListAddLaneButton extends Vue {
 
     color: theme("colors.gray.800");
     transition: all 0.3s ease;
-    font-weight: bold;
 
     .stroke-current {
-      stroke-width: 3px;
+
     }
 
     &-icon {

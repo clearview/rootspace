@@ -8,10 +8,12 @@
       <div class="title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="save" @keyup="calculateShowPlaceholder"
         @input="titleBackbone = $event.target.innerText" @paste="handlePaste">{{itemCopy.title}}</div>
       <div class="item-actions">
+        <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">
+          <v-icon name="checkmark" size="14px" viewbox="12 9" title="Checkmark"/>
+        </button>
         <button class="btn btn-link" @click="cancel">
           <v-icon name="close" size="20px" title="Close"/>
         </button>
-        <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Task</button>
       </div>
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
@@ -359,6 +361,7 @@ export default class ListCard extends Vue {
 <style lang="postcss" scoped>
 
   .drag {
+    margin-left: 8px;
     cursor: grab;
     visibility: hidden;
   }
@@ -393,8 +396,10 @@ export default class ListCard extends Vue {
   }
   .item-input {
     @apply relative;
-    max-width: 300px;
+    max-width: 400px;
     z-index: 51;
+    margin-left: 44px;
+    padding: 8px 0;
   }
 
   .btn-link {
@@ -409,8 +414,11 @@ export default class ListCard extends Vue {
 
   .item-actions {
     @apply flex items-center justify-end;
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 
-    margin-top: 16px;
     .btn {
       padding: 8px;
       font-size: 14px;
@@ -420,9 +428,6 @@ export default class ListCard extends Vue {
     }
     .btn-link {
       padding: 6px;
-    }
-    .btn-primary {
-      padding: 8px 24px;
     }
   }
 
@@ -485,8 +490,8 @@ export default class ListCard extends Vue {
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: 500;
-      font-size: 14px;
-      line-height: 17px;
+      font-size: 16px;
+      line-height: 19px;
       color: theme("colors.gray.900");
     }
 
@@ -577,20 +582,18 @@ export default class ListCard extends Vue {
     font-size: 16px;
     line-height: 19px;
     z-index: 1;
-    top: 10px;
-    left: 15px;
+    top: 11px;
+    left: 11px;
     color: theme("colors.gray.400");
     font-weight: 500;
     opacity: 0.75;
   }
   .title-editable {
-    @apply p-2 px-3 block items-center rounded;
-
     background: theme("colors.white.default");
     outline: none;
     font-weight: 500;
     color: theme("colors.gray.900");
-    border: 1px solid theme("colors.gray.400");
+    border-left: 3px solid theme("colors.gray.100");
     white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
@@ -599,10 +602,8 @@ export default class ListCard extends Vue {
     white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
     word-break: break-word;
     white-space: normal;
-    &:focus {
-      border: 1px solid rgba(47, 128, 237, 0.75);
-      box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
-    }
+    padding: 2px 9px;
+    font-size: 16px;
   }
 
   @keyframes shake {
