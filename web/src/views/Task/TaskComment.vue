@@ -1,7 +1,7 @@
 <template>
   <li class="comment">
     <div class="comment-left">
-      <div class="comment-avatar">
+      <div class="comment-avatar cursor-pointer" @click="openProfile(comment.user)">
         <avatar :src="comment.user.avatar && comment.user.avatar.versions ? comment.user.avatar.versions.default.location : ''" :username="`${comment.user.firstName} ${comment.user.lastName}`"
                 :size="32"
                 :alt="`${comment.user.firstName} ${comment.user.lastName}`"></avatar>
@@ -9,7 +9,7 @@
     </div>
     <div class="comment-right">
       <header class="comment-header">
-        <div class="header-name">
+        <div class="header-name cursor-pointer" @click="openProfile(comment.user)">
           {{comment.user.firstName}} {{comment.user.lastName}}
         </div>
         <div class="header-date">
@@ -72,14 +72,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
-import { TaskCommentResource } from '@/types/resource'
+import { Component, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { TaskCommentResource, UserResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
 import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import Popover from '@/components/Popover.vue'
 import VModal from '@/components/legacy/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
+import { ProfileModal, ModalInjectedContext } from '@/components/modal'
 
   @Component({
     name: 'TaskComment',
@@ -104,6 +105,9 @@ import { formatRelativeTo } from '@/utils/date'
 export default class TaskComment extends Vue {
     @Prop({ type: Object, required: true })
     private readonly comment!: TaskCommentResource;
+
+    @Inject('modal')
+    modal!: ModalInjectedContext
 
     private readonly user!: Record<string, string>;
 
@@ -155,6 +159,15 @@ export default class TaskComment extends Vue {
       const withLinks = comment.replace(URLMatcher, match => `<a href="${match}" target="_blank">${match}</a>`)
 
       return withLinks
+    }
+
+    openProfile (user: UserResource) {
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
+      })
     }
 }
 </script>

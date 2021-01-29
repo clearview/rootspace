@@ -48,7 +48,7 @@
             <li v-if="moreAssignees" class="assignee">
               <avatar :size="28" :content="moreAssignees.labels" :username="moreAssignees.count+' +'" v-tippy></avatar>
             </li>
-            <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee">
+            <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee cursor-pointer" @click.stop="openProfile(assignee)">
               <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
           </ul>
@@ -62,13 +62,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 
 @Component({
   name: 'ListCard',
@@ -119,6 +120,9 @@ export default class ListCard extends Vue {
 
     @Ref('assignees')
     private readonly assigneesRef!: HTMLUListElement;
+
+    @Inject('modal')
+    readonly modal!: ModalInjectedContext
 
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
@@ -348,6 +352,15 @@ export default class ListCard extends Vue {
         this.titleBackbone = data
       }
     }
+
+    openProfile (user: UserResource) {
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
+      })
+    }
 }
 </script>
 <style>
@@ -549,6 +562,7 @@ export default class ListCard extends Vue {
           border: 2px solid #FFF;
           margin-left: -6px;
           color: #fff !important;
+          background-position: center center !important;
         }
       }
     }
