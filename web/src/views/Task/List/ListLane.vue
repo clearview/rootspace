@@ -31,9 +31,7 @@
           <template #default="{ hide }">
             <div class="action-line">
               <v-icon class="action-icon" name="color" viewbox="18" size="18px"></v-icon>
-              <div class="action-line-text">
-                Change Color
-              </div>
+              <div class="action-line-text">Color</div>
               <v-icon name="right2" viewbox="20" size="20px" class="action-arrow"></v-icon>
               <div class="action-submenu">
                 <div class="colors">
