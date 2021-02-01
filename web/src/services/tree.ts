@@ -22,6 +22,12 @@ export default class TreeService {
     return res.data
   }
 
+  static async fetchFavoritesBySpace (spaceId: number): Promise<Response> {
+    const res = await api.get(`spaces/${spaceId}/favorites`)
+
+    return res.data
+  }
+
   static async update (id: number, data: NodeResource) {
     const res = await api.patch(`nodes/${id}`, { data })
 
@@ -42,6 +48,18 @@ export default class TreeService {
 
   static async archive (id: number) {
     const res = await api.post(`nodes/${id}/archive`)
+
+    return res.data
+  }
+
+  static async addToFavorites (id: number) {
+    const res = await api.post(`nodes/${id}/favorites`)
+
+    return res.data
+  }
+
+  static async removeFromFavorites (id: number) {
+    const res = await api.delete(`nodes/${id}/favorites`)
 
     return res.data
   }

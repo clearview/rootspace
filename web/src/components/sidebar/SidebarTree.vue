@@ -2,6 +2,18 @@
   <div class="w-full overflow-auto relative" ref="scrollContainer">
     <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
+    <FavoriteNode
+      ref="favoriteNode"
+      @restore="refresh"
+      @content:update="updateContent"
+      @node:update="updateNode"
+      @node:archive="archiveNode"
+      @node:removeFromFavorites="removeFromFavorites"
+      @node:fold:toggle="toggleNodeFold"
+      @node:addNew="addNewNode"
+    />
+
+    <sidebar-title v-if="favorites.length">Main</sidebar-title>
     <tree
       v-if="treeData.length > 0"
       edge-scroll
@@ -30,6 +42,8 @@
         @content:update="updateContent"
         @node:update="updateNode"
         @node:archive="archiveNode"
+        @node:addToFavorites="addToFavorites"
+        @node:removeFromFavorites="removeFromFavorites"
         @node:fold:toggle="toggleNodeFold"
         @node:addNew="addNewNode"
       />
@@ -168,8 +182,10 @@ import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
 import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
 import TreeNode, { nodeRouteNames } from './SidebarTreeNode.vue'
+import SidebarTitle from './SidebarTitle.vue'
 import { EmbedResource } from '@/services/embed'
 import ArchiveNode from '@/components/sidebar/ArchiveNode.vue'
+import FavoriteNode from '@/components/sidebar/FavoriteNode.vue'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
@@ -208,10 +224,12 @@ enum ModalType {
   name: 'SidebarTree',
   components: {
     ArchiveNode,
+    FavoriteNode,
     Tree: Mixins(Tree, Fold, Draggable),
     TreeNode,
     Modal,
     SidebarEmptyTree,
+    SidebarTitle,
     FolderMenu,
     ListMenu,
     LinkMenu,
@@ -239,6 +257,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   @Ref('archiveNode')
   private readonly archiveNodeRef!: ArchiveNode;
 
+  @Ref('favoriteNode')
+  private readonly favoriteNodeRef!: FavoriteNode;
+
   @Ref('scrollContainer')
   private readonly scrollContainerRef!: HTMLDivElement;
 
@@ -264,6 +285,13 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
+  }
+
+  get favorites (): Node[] {
+    const state = this.$store.state.tree
+    const favorites = [...state.favorites]
+
+    return favorites
   }
 
   get treeData (): Node[] {
@@ -523,6 +551,8 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     const spaceId = this.activeSpace.id
 
     try {
+      this.$store.dispatch('tree/fetchFavorites', { spaceId })
+
       await this.$store.dispatch('tree/fetch', { spaceId })
 
       this.updateFold()
@@ -532,45 +562,49 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async updateContent (path: number[], node: Node) {
     switch (node.type) {
       case NodeType.Link:
-        return this.updateLink(path, node)
+        await this.updateLink(path, node)
+        break
       case NodeType.Task:
-        return this.updateTask(path, node)
+        await this.updateTask(path, node)
+        break
       case NodeType.Embed:
-        return this.updateEmbed(path, node)
+        await this.updateEmbed(path, node)
+        break
     }
+    this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
   }
 
-  async updateLink (path: number[], { contentId }: Node) {
+  async updateLink (path: number[], { id, contentId }: Node) {
     try {
       await this.$store.dispatch('link/view', contentId)
 
       const data = await this.modalOpen(ModalType.UpdateLink, this.$store.state.link.item) as LinkResource
 
-      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.updateNode(path, { ...pick(data, ['title']), id }, { localOnly: true })
       await this.$store.dispatch('link/update', data)
     } catch { }
   }
 
-  async updateTask (path: number[], { contentId }: Node) {
+  async updateTask (path: number[], { id, contentId }: Node) {
     try {
       await this.$store.dispatch('task/board/view', contentId)
 
       const data = await this.modalOpen(ModalType.UpdateTask, this.$store.state.task.board.current) as TaskBoardResource
 
-      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.updateNode(path, { ...pick(data, ['title']), id }, { localOnly: true })
       await this.$store.dispatch('task/board/update', pick(data, ['id', 'title', 'isPublic', 'type']))
 
       EventBus.$emit('BUS_TASKBOARD_UPDATE', data)
     } catch { }
   }
 
-  async updateEmbed (path: number[], { contentId }: Node) {
+  async updateEmbed (path: number[], { id, contentId }: Node) {
     try {
       await this.$store.dispatch('embed/view', contentId)
 
       const data = await this.modalOpen(ModalType.UpdateEmbed, this.$store.state.embed.item) as EmbedResource
 
-      await this.updateNode(path, pick(data, ['title']), { localOnly: true })
+      await this.updateNode(path, { ...pick(data, ['title']), id }, { localOnly: true })
       await this.$store.dispatch('embed/update', data)
     } catch { }
   }
@@ -583,16 +617,50 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       this.treeData = this.$refs.tree.cloneTreeData()
 
       await this.$store.dispatch('tree/archive', node)
+      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
       this.archiveNodeRef.loadArchive()
 
       this.$router.push({ name: 'Main' }).catch(() => null)
     } catch { }
   }
 
-  async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
+  async addToFavorites (path: number[], node: Node) {
+    try {
+      await this.$store.dispatch('tree/addToFavorites', node)
+      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
+    } catch {}
+  }
+
+  async removeFromFavorites (path: number[], node: Node) {
+    try {
+      await this.$store.dispatch('tree/removeFromFavorites', node)
+      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
+    } catch {}
+  }
+
+  findPathFromId (treeData: Node, id: number): number[] {
+    let path: number[] = []
+
+    for (let i = 0; i < treeData.length; i++) {
+      path = []
+      const node = treeData[i]
+      if (node.id === id) {
+        path = [i]
+        break
+      } else if (node.children?.length) {
+        path = [i, ...this.findPathFromId(node.children, id)]
+      }
+    }
+
+    return path
+  }
+
+  async updateNode (_: number[], node: Node, { localOnly = false } = {}) {
     try {
       // Mutate node
       let nextNode = node
+
+      const path = this.findPathFromId(this.$refs.tree.cloneTreeData(), node.id)
 
       if (!this.deferredParent && !this.deferredPath) {
         nextNode = Object.assign(
@@ -609,6 +677,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         this.eventBusTree(node.type, node)
         await this.$store.dispatch('tree/update', nextNode)
       }
+      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.activeSpace.id })
     } catch (ex) {
       console.error(ex)
     }
