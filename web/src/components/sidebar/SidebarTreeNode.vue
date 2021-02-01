@@ -38,7 +38,7 @@
     <div class="tree-node-actions" v-if="!isRenaming">
       <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event" v-if="value.contentId !== 0">
         <template #default="{ hide }">
-          <div v-if="hasMenuAddNew" class="action-line" @click.prevent.stop="hide();addNew()">
+          <div class="action-line" @click.prevent.stop="hide();addNew()">
             <v-icon class="action-icon" name="plus3" viewbox="16" size="16px"></v-icon>
             <div class="action-line-text">
               Add new
@@ -56,7 +56,7 @@
               Remove from Favorites
             </div>
           </div>
-          <div v-if="!hideSecondaryMenu">
+          <div>
             <div class="action-separator"></div>
             <div class="action-line" @click.prevent.stop="hide();rename();">
               <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
@@ -248,14 +248,6 @@ export default class SidebarTreeNode extends Vue {
 
   get isFavorited (): boolean {
     return this.$store.getters['tree/isFavorited'](this.value)
-  }
-
-  get hasMenuAddNew (): boolean {
-    return !!(this.$listeners && this.$listeners['node:addNew'])
-  }
-
-  get hasMenuRename (): boolean {
-    return !!(this.$listeners && this.$listeners['node:addNew'])
   }
 
   get folded (): boolean {

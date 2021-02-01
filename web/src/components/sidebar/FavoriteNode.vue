@@ -13,7 +13,7 @@
         :value="node"
         :path="path"
         :hideSecondaryMenu="true"
-        @node:removeFromFavorites="removeFromFavorites"
+        v-on="$listeners"
       />
     </tree>
   </div>
@@ -40,17 +40,6 @@ export default class FavoriteNode extends Vue {
     const favorites = [...state.favorites]
 
     return favorites
-  }
-
-  get currentSpaceId () {
-    return store.getters['space/activeSpace'].id
-  }
-
-  async removeFromFavorites (path: number[], node: Node) {
-    try {
-      await this.$store.dispatch('tree/removeFromFavorites', node)
-      this.$store.dispatch('tree/fetchFavorites', { spaceId: this.currentSpaceId })
-    } catch {}
   }
 }
 </script>
