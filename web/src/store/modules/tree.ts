@@ -1,4 +1,5 @@
 import { Module } from 'vuex'
+import { findIndex } from 'lodash'
 
 import { RootState, TreeState } from '@/types/state'
 import { NodeResource } from '@/types/resource'
@@ -16,14 +17,27 @@ const TreeModule: Module<TreeState, RootState> = {
   state () {
     return {
       list: [],
+      favorites: [],
       folded: {},
       touched: {}
+    }
+  },
+
+  getters: {
+    isFavorited: state => (data: NodeResource) => {
+      if (!state.favorites.length) {
+        return false
+      }
+      return (findIndex(state.favorites, { id: data.id }) >= 0)
     }
   },
 
   mutations: {
     setList (state, list) {
       state.list = list
+    },
+    setFavorites (state, favorites) {
+      state.favorites = favorites
     },
     updateNode (state, payload: {compareFn: (node: NodeResource) => boolean; fn: (node: NodeResource) => NodeResource}) {
       const looper = (nodes: NodeResource[]) => {
@@ -59,6 +73,12 @@ const TreeModule: Module<TreeState, RootState> = {
       commit('setList', res.data)
     },
 
+    async fetchFavorites ({ commit }, params: FetchParams) {
+      const res = await TreeService.fetchFavoritesBySpace(params.spaceId)
+
+      commit('setFavorites', res.data)
+    },
+
     async update (_, data: NodeResource) {
       await TreeService.update(data.id, data)
     },
@@ -73,6 +93,14 @@ const TreeModule: Module<TreeState, RootState> = {
 
     async archive (_, data: NodeResource) {
       await TreeService.archive(data.id)
+    },
+
+    async addToFavorites (_, data: NodeResource) {
+      await TreeService.addToFavorites(data.id)
+    },
+
+    async removeFromFavorites (_, data: NodeResource) {
+      await TreeService.removeFromFavorites(data.id)
     },
 
     async restore (_, data: NodeResource) {
