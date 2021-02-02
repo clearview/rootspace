@@ -12,11 +12,13 @@
 
     <h3 class="text-base font-bold mb-2">Activities</h3>
 
-    <div class="activities-container">
-      <Activities :value="activities" />
+    <Activities
+      class="mb-2"
+      :value="activities"
+      @click="$emit('close')"
+    />
 
-      <button v-if="canLoadMore" class="btn btn-mute w-full" @click="fetchMoreActivities">View More</button>
-    </div>
+    <button v-if="canLoadMore" class="btn btn-mute w-full" @click="fetchMoreActivities">View More</button>
   </base-modal>
 </template>
 
