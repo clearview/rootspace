@@ -37,7 +37,7 @@ import { UserResource } from '@/types/resource'
 import UserService from '@/services/user'
 import Loading from '@/components/Loading.vue'
 import Avatar from 'vue-avatar'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 @Component({
   components: { Modal, Loading, FormSettings, Alert, UploadableImage, Avatar }
 })
