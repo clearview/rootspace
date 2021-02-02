@@ -396,10 +396,12 @@ export default class ListCard extends Vue {
   }
   .item-input {
     @apply relative;
-    max-width: 400px;
+    min-width: 400px;
+    display: inline-block;
     z-index: 51;
     margin-left: 44px;
     padding: 8px 0;
+    max-width: calc(100% - 136px);
   }
 
   .btn-link {
@@ -484,7 +486,7 @@ export default class ListCard extends Vue {
 
     .title {
       flex: 0 0 auto;
-      max-width: 320px;
+      max-width: calc(100% - 420px);
       word-break: break-word;
       white-space: nowrap;
       overflow: hidden;
