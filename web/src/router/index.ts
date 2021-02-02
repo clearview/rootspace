@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import { roleIdAdmin } from '@/mixins/RoleMixin'
 
 import store from '@/store'
+import api from '@/utils/api'
 import Space from '@/views/Space.vue'
 
 Vue.use(VueRouter)
@@ -195,6 +196,22 @@ router.beforeEach(async (to, from, next) => {
   const queryParams = to.fullPath ? { redirectTo: to.fullPath } : {}
 
   next({ name: 'SignIn', query: queryParams })
+})
+
+// FIXME: It's feel a bit hacky. There should be a better way
+api.interceptors.response.use(value => {
+  return value
+}, error => {
+  if (error && error.response && error.response.status === 403) {
+    Vue.nextTick(() => {
+      router.replace('/forbidden').catch(() => null)
+    })
+  } else if (error && error.response && error.response.status === 404) {
+    Vue.nextTick(() => {
+      router.replace('/not-found').catch(() => null)
+    })
+  }
+  throw error
 })
 
 export default router
