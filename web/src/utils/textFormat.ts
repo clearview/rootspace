@@ -48,15 +48,15 @@ function getContextListOutput (data: ActivityResource, listName: string, propert
   return entries.join(', ') + ' and ' + last
 }
 
-const getDisplayName = (userId: number, user: UserResource) => {
-  if (userId === user.id) {
+const getDisplayName = (user: UserResource, userId?: number) => {
+  if (userId && userId === user.id) {
     return 'You'
   } else {
     return `${sanitize(user.firstName)} ${sanitize(user.lastName)}`
   }
 }
 
-export function textFormat (data: ActivityResource, userID: number) {
+export function textFormat (data: ActivityResource, userID?: number) {
   const ACTIVITIES_LIST = {
     Created: 'Created',
     Updated: 'Updated',
@@ -87,7 +87,7 @@ export function textFormat (data: ActivityResource, userID: number) {
     Uploaded: 'Uploaded'
   }
 
-  const userName = getDisplayName(userID, data.actor)
+  const userName = getDisplayName(data.actor, userID)
 
   let text = `<span class="actor">${userName}</span>&nbsp;`
   let name = ''
@@ -139,7 +139,7 @@ export function textFormat (data: ActivityResource, userID: number) {
     data.entity === 'Embed' ||
     data.entity === 'Folder'
   ) {
-    name = data.context.entity.title
+    name = data.context.entity.title.replace(/(^\s+|\s+$)/g, '') || 'Untitled'
   }
 
   switch (data.action) {

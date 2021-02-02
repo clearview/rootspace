@@ -158,7 +158,7 @@ import { email, required, maxLength } from 'vuelidate/lib/validators'
 import { PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 import FormChangePassword from '@/components/form/FormChangePassword.vue'
 import UserService from '@/services/user'
 import Alert from '@/components/Alert.vue'

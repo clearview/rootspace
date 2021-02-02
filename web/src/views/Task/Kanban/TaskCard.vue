@@ -46,7 +46,7 @@
             </ul>
           </div>
           <ul class="assignees" v-if="item.assignees && item.assignees.length > 0" :class="{ 'assignees-margin' : isTagMoreThanOneLine }">
-            <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee">
+            <li v-for="(assignee, index) in item.assignees.slice(0, 10)" :key="index" class="assignee cursor-pointer" @click.stop="openProfile(assignee)">
               <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
             <li class="assignee more-assignee" v-if="hasMoreAssignee">
@@ -64,13 +64,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 
 @Component({
   name: 'TaskCard',
@@ -103,6 +104,9 @@ export default class TaskCard extends Vue {
 
     @Ref('cardTitle')
     private readonly cardTitleRef!: HTMLDivElement;
+
+    @Inject('modal')
+    readonly modal!: ModalInjectedContext
 
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
@@ -313,6 +317,15 @@ export default class TaskCard extends Vue {
         this.titleBackbone = data
       }
     }
+
+    openProfile (user: UserResource) {
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
+      })
+    }
 }
 </script>
 
@@ -510,6 +523,7 @@ export default class TaskCard extends Vue {
             letter-spacing: 0.03em;
             margin-left: -7px;
             color: #fff !important;
+            background-position: center center !important;
           }
         }
 

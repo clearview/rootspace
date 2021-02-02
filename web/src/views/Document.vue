@@ -66,7 +66,7 @@ import DocumentService from '@/services/document'
 import Editor from '@/components/Editor.vue'
 import EditorMenu from '@/components/editor/EditorMenu.vue'
 import EditorReadonly from '@/components/editor/ReadOnly.vue'
-import VModal from '@/components/Modal.vue'
+import VModal from '@/components/legacy/Modal.vue'
 
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'

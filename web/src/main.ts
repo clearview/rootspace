@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import VueCompositionAPI from '@vue/composition-api'
 import Vuelidate from 'vuelidate'
 import PortalVue from 'portal-vue'
 import ClickOutside from 'vue-click-outside'
@@ -19,6 +20,7 @@ import 'tippy.js/themes/translucent.css'
 Vue.config.productionTip = false
 
 // Register plugins
+Vue.use(VueCompositionAPI)
 Vue.use(Vuelidate)
 Vue.use(VueTippy, {
   placement: 'bottom',

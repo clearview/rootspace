@@ -30,7 +30,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import FormSettings from '@/components/form/FormSettings.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
 import VLoading from '@/components/Loading.vue'
-import VModal from '@/components/Modal.vue'
+import VModal from '@/components/legacy/Modal.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import UploadableImage from '@/components/UploadableImage.vue'
