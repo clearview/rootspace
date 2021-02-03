@@ -6,7 +6,7 @@
       ref="favoriteNode"
       @restore="refresh"
       @content:update="updateContent"
-      @node:update="updateNode"
+      @node:update="updateNodeFromFavorites"
       @node:archive="archiveNode"
       @node:removeFromFavorites="removeFromFavorites"
       @node:fold:toggle="toggleNodeFold"
@@ -655,12 +655,15 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     return path
   }
 
-  async updateNode (_: number[], node: Node, { localOnly = false } = {}) {
+  async updateNodeFromFavorites (_: number[], node: Node, { localOnly = false } = {}) {
+    const path = this.findPathFromId(this.$refs.tree.cloneTreeData(), node.id)
+    this.updateNode(path, node, { localOnly })
+  }
+
+  async updateNode (path: number[], node: Node, { localOnly = false } = {}) {
     try {
       // Mutate node
       let nextNode = node
-
-      const path = this.findPathFromId(this.$refs.tree.cloneTreeData(), node.id)
 
       if (!this.deferredParent && !this.deferredPath) {
         nextNode = Object.assign(
