@@ -31,7 +31,7 @@
         v-model="title"
         v-if="!isRenaming"
       />
-      <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" v-model="title"
+      <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" :value="title"
         @blur="saveTitle" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
     </div>
 
@@ -269,10 +269,14 @@ export default class SidebarTreeNode extends Vue {
   }
 
   saveTitle () {
-    if (this.title.trim().length === 0) {
-      this.title = this.value.title
+    const title = this.inputRef.value
+    if (title.trim().length === 0) {
       this.isRenaming = false
     } else {
+      this.payload = {
+        ...this.payload,
+        title: this.inputRef.value
+      }
       this.update()
       this.isRenaming = false
     }
