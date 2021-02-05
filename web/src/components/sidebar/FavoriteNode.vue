@@ -24,7 +24,6 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Tree, Node } from '@adityapurwa/he-tree-vue'
 import TreeNode from '@/components/sidebar/SidebarTreeNode.vue'
 import SidebarTitle from '@/components/sidebar/SidebarTitle.vue'
-import store from '@/store'
 
 @Component({
   name: 'FavoriteNode',

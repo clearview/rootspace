@@ -23,8 +23,6 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 
-import { UserResource } from '@/types/resource'
-
 import VAlert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import FormSettings from '@/components/form/FormSettings.vue'
@@ -37,30 +35,6 @@ import RoleMixin from '@/mixins/RoleMixin'
 import UploadableImage from '@/components/UploadableImage.vue'
 import Avatar from 'vue-avatar'
 import store from '@/store'
-
-type ComponentData = {
-  tab: string;
-  errorAccount: object;
-  errorSpace: object;
-  mobileNotifications: boolean;
-  emailNotifications: boolean;
-
-  spaceData: {
-    title: string;
-    invites: UserResource[];
-  };
-
-  spaceUsersObj: object;
-  spaceUsersPendingObj: object;
-  account: {
-    alert: object | null;
-  };
-  space: {
-    alert: object | null;
-    error: boolean;
-    errorMessage: string;
-  };
-}
 
 @Component({
   name: 'Settings',

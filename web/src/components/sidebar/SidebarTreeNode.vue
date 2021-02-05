@@ -299,11 +299,11 @@ export default class SidebarTreeNode extends Vue {
 
   addToFavorites () {
     this.$emit('node:addToFavorites', this.path, this.payload)
-  };
+  }
 
   removeFromFavorites () {
     this.$emit('node:removeFromFavorites', this.path, this.payload)
-  };
+  }
 
   updateContent () {
     this.$emit('content:update', this.path, this.payload)

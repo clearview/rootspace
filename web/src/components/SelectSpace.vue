@@ -143,11 +143,6 @@ import FormSpace from '@/components/form/FormSpace.vue'
 import Modal from '@/components/legacy/Modal.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
-interface ModalState {
-  visible: boolean;
-  loading: boolean;
-}
-
 @Component({
   name: 'SelectSpace',
   components: {

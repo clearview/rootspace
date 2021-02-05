@@ -25,7 +25,7 @@ export default class GoogleCallback extends Vue {
 
   async created () {
     await this.submit()
-  };
+  }
 
   async submit () {
     await this.$store.dispatch('auth/signin', {

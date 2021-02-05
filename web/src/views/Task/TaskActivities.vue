@@ -50,7 +50,7 @@ export default class TaskActivities extends Vue {
     const res = await api.get(`activities/entity/task/${this.item.id}`)
     this.activities = res.data.data
   }
-};
+}
 </script>
 
 <style lang="postcss" scoped>
