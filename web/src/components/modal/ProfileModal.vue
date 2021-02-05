@@ -28,7 +28,6 @@ import { createNamespacedHelpers } from 'vuex-composition-helpers'
 import Avatar from 'vue-avatar'
 import Activities from '@/components/Activities.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
-import Icon from '@/components/icon/Icon.vue'
 import ActivityService from '@/services/activity.ts'
 import UserService from '@/services/user'
 import { ActivityResource, UserResource } from '@/types/resource.ts'
@@ -39,8 +38,7 @@ export default defineComponent({
   components: {
     Avatar,
     Activities,
-    BaseModal,
-    Icon
+    BaseModal
   },
   props: {
     userId: Number

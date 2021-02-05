@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'InputIcon'
@@ -35,7 +35,12 @@ export default class InputIcon extends Vue {
     @Ref('input')
     private readonly inputRef!: HTMLInputElement;
 
-    private payload: string = this.value || ''
+    private payload = ''
+
+    @Watch('value', { immediate: true })
+    watchValue (value: string) {
+      this.payload = value
+    }
 
     submit (): void {
       this.$emit('input', this.payload)

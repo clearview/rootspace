@@ -94,7 +94,6 @@ import { Component, Vue } from 'vue-property-decorator'
         required,
         minLength: minLength(8)
       },
-      // eslint-disable-next-line @typescript-eslint/camelcase
       password_confirmation: {
         required,
         minLength: minLength(8),
@@ -107,7 +106,6 @@ export default class FormSetPassword extends Vue {
   private payload: PasswordResetResource = {
     token: '',
     password: '',
-    // eslint-disable-next-line @typescript-eslint/camelcase
     password_confirmation: ''
   }
 

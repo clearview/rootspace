@@ -50,8 +50,9 @@ export default class UploadableImage extends Vue {
   @Prop(Object)
   private readonly upload?: NewUploadResource;
 
-  private uploadCopy = this.upload;
-  @Watch('upload')
+  private uploadCopy?: NewUploadResource
+
+  @Watch('upload', { immediate: true })
   private recopy () {
     this.uploadCopy = this.upload
   }
