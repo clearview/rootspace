@@ -171,6 +171,7 @@ export interface SpaceRole {
 
 export interface SpaceSettingResource {
   activePage: string;
+  listFolded?: Array<number>;
   sidebarCollapse: boolean;
   sidebarSize: boolean;
   treeFolded: Record<string, boolean>;
