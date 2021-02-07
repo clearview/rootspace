@@ -27,8 +27,10 @@ router.post('/signup', mapRoute(UsersCtrl, 'signup'))
 router.patch('/users/confirm/email', mapRoute(UsersCtrl, 'confirmEmail'))
 
 router.get('/whoami', authenticate, mapRoute(UsersCtrl, 'whoami'))
+router.get('/users/role/:spaceId', authenticate, mapRoute(UsersCtrl, 'role'))
 router.get('/users/:id/profile', authenticate, mapRoute(UsersCtrl, 'profile'))
 router.patch('/users', authenticate, mapRoute(UsersCtrl, 'update'))
+router.patch('/users/role/:spaceId', authenticate, mapRoute(UsersCtrl, 'updateRole'))
 
 router.patch('/users/password', authenticate, [
   mapRoute(UsersCtrl, 'changePassword'),
