@@ -19,6 +19,9 @@ export class UserToSpace {
   @Column('boolean', { default: true })
   active: boolean
 
+  @Column('integer', { default: 1 })
+  roleId: number
+
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date
 
