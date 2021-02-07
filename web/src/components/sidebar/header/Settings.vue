@@ -12,7 +12,7 @@
           My Account
         </div>
       </router-link>
-      <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
+      <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()" v-if="isAdmin">
         <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
         <div class="action-line-text">
           Space Settings
@@ -44,8 +44,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
-
+import { Prop, Watch, Component, Mixins } from 'vue-property-decorator'
+import RoleMixin from '@/mixins/RoleMixin'
 import Popover from '@/components/Popover.vue'
 
 @Component({
@@ -55,7 +55,7 @@ import Popover from '@/components/Popover.vue'
   }
 })
 
-export default class SidebarHeaderSettings extends Vue {
+export default class SidebarHeaderSettings extends Mixins(RoleMixin) {
   @Prop(Boolean)
   private readonly collapseState!: boolean
 

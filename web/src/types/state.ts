@@ -93,6 +93,7 @@ export interface DocumentState {
 
 export interface SpaceState {
   activeIndex: number;
+  activeSpaceId: number;
   list: SpaceResource[];
   settings: SpaceSettingResource[];
   freezeSettings: boolean;

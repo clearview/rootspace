@@ -2,7 +2,7 @@ import { Module } from 'vuex'
 import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
-import { SpaceResource, SpaceSettingResource } from '@/types/resource'
+import { SpaceResource, SpaceSettingResource, SpaceRole } from '@/types/resource'
 
 import api from '@/utils/api'
 
@@ -12,6 +12,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
   state () {
     return {
       activeIndex: 0,
+      activeSpaceId: 0,
       list: [],
       settings: [],
       freezeSettings: false,
@@ -91,8 +92,23 @@ const SpaceModule: Module<SpaceState, RootState> = {
       state.list = list
     },
 
+    updateListItemRole (state, payload: { index: number; data: SpaceRole}) {
+      const list = [...state.list]
+
+      list[payload.index] = {
+        ...list[payload.index],
+        ...payload.data
+      }
+
+      state.list = list
+    },
+
     setSettings (state, payload: SpaceSettingResource[]) {
       state.settings = payload
+    },
+
+    setCurrentSpace (state, payload: { activeSpaceId: number }) {
+      state.activeSpaceId = payload.activeSpaceId
     },
 
     updateSettingsItem (state, payload: { index: number; data: SpaceSettingResource }) {
@@ -132,6 +148,16 @@ const SpaceModule: Module<SpaceState, RootState> = {
       return res.data
     },
 
+    async role ({ commit, getters }, data: SpaceRole) {
+      const index = getters.getIndex(data.index)
+
+      commit('updateListItemRole', { index, data })
+
+      const res = await api.patch('/users/role/' + data.spaceId, data)
+
+      return res.data
+    },
+
     async initSetting ({ commit, dispatch, state, getters }) {
       const { data } = await api.get('/users/settings/')
       const activeIndex = get(data, 'preferences.activeIndex', 0)
@@ -143,12 +169,13 @@ const SpaceModule: Module<SpaceState, RootState> = {
       await dispatch('fetchSetting', getters.activeSpace.id)
     },
 
-    async fetchSetting ({ commit, getters }, id: number) {
+    async fetchSetting ({ commit, state, getters }, id: number) {
       const index = getters.getIndex(id)
 
       const res = await api.get('/users/settings/' + id)
       const data = get(res, 'data.preferences', {})
 
+      commit('setCurrentSpace', { state, activeSpaceId: id })
       commit('updateSettingsItem', { index, data })
 
       return data

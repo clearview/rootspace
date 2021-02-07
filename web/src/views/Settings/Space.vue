@@ -15,6 +15,7 @@
       <form-space
         @submit="updateSpace"
         @addUser="addSpaceUser"
+        @updateRole="updateRole"
         @deleteUser="deleteSpaceUser"
         @invitesAlertDisplay="invitesAlertDisplay"
         :value="spaceData"
@@ -52,7 +53,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { find } from 'lodash'
 import SpaceService from '@/services/space'
 import UserService from '@/services/user'
-import { SpaceResource } from '@/types/resource'
+import { SpaceResource, SpaceRole } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
@@ -118,6 +119,34 @@ export default class Space extends Vue {
       this.space.alert = {
         type: 'success',
         message: 'Your space settings have been saved'
+      }
+    } catch (err) {
+      this.space.alert = {
+        type: 'danger',
+        message: err.message,
+        fields: err.fields
+      }
+    } finally {
+      this.isLoading = false
+    }
+  }
+
+  async updateRole (data: SpaceRole) {
+    this.isLoading = true
+    try {
+      this.isLoading = true
+      this.loadingMessage = 'Update User Role...'
+
+      await this.$store.dispatch('space/role', {
+        spaceId: this.activeSpace.id,
+        index: data.index,
+        userId: data.userId,
+        roleId: data.roleId
+      })
+
+      this.space.alert = {
+        type: 'success',
+        message: 'User Role settings have been saved'
       }
     } catch (err) {
       this.space.alert = {
