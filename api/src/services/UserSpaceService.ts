@@ -52,4 +52,11 @@ export class UserSpaceService {
 
     return this.getUserToSpaceRepository().save(userToSpace)
   }
+
+  async updateRole(userId: number, spaceId: number, roleId: number): Promise<UserToSpace> {
+    const userToSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
+    userToSpace.roleId = roleId
+
+    return this.getUserToSpaceRepository().save(userToSpace)
+  }
 }

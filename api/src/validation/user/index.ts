@@ -5,6 +5,7 @@ import { PasswordChangeValidator } from './PasswordChangeValidator'
 import { PasswordRecoveryValidator } from './PasswordRecoveryValidator'
 import { PasswordResetValidator } from './PasswordResetValidator'
 import { PasswordSetValidator } from './PasswordSetValidator'
+import { RoleUpdateValidator } from './RoleUpdateValidator'
 
 export function validateUserSignup(input: ISignupProvider): Promise<any> {
   return new UserSignupValidator().validate(input)
@@ -28,4 +29,8 @@ export function validatePasswordRecovery(input: object): Promise<any> {
 
 export function validatePasswordReset(input: object): Promise<any> {
   return new PasswordResetValidator().validate(input)
+}
+
+export function validatRoleUpdate(input: object, userId: number): Promise<any> {
+  return new RoleUpdateValidator(userId).validate(input)
 }

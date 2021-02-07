@@ -25,3 +25,6 @@ export interface IPasswordResetAttributes {
   token: string
   password: string
 }
+export interface IUserRoleSetAttributes {
+  roleId: number
+}
