@@ -35,11 +35,11 @@ function transform (data?: EditorData): EditorData | undefined {
     const data = block.data as EditorBlockData
 
     switch (block.type) {
-      default:
-        return block
-
       case 'header':
         return { ...block, type: `h${data.level}` }
+
+      default:
+        return block
     }
   })
 

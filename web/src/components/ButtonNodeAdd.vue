@@ -125,13 +125,6 @@ enum ModalType {
   EMBED = 'embed'
 }
 
-interface ModalState {
-  type: ModalType;
-  visible: boolean;
-  loading: boolean;
-  alert: object | null;
-}
-
 @Component({
   name: 'ButtonNodeAdd',
   components: {

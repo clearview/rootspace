@@ -258,7 +258,7 @@
     <DocGhost v-if="!doc" active></DocGhost>
     <div v-show="doc" class="page-editor" ref="pageEditor">
       <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
-        <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
+        <editor-menu-bubble :editor="editor" v-slot="{ isActive, commands, menu, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !readOnly"
                  :style="getBubblePosition()" @mousedown.stop.prevent="consume">

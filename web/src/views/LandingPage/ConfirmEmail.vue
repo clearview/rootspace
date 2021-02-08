@@ -22,10 +22,6 @@ import UserService from '@/services/user'
 import RootHeader from '@/components/RootHeader.vue'
 import { Component, Vue } from 'vue-property-decorator'
 
-  type ComponentData = {
-    isLoading: boolean;
-  }
-
 @Component({
   name: 'ConfirmEmail',
   components: {
