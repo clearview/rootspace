@@ -88,6 +88,7 @@
 
 <script lang="ts">
 import Draggable from 'vuedraggable'
+import { uniq } from 'lodash'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Collapsible from '@/components/Collapsible.vue'
@@ -149,7 +150,7 @@ export default class TaskLane extends Vue {
   private drag = false
   private containerShadowTop = false
   private containerShadowBottom = false
-  private isExpanded = true
+  private isExpanded = false
 
   private get orderedCards () {
     if (!this.list.tasks) {
@@ -192,6 +193,7 @@ export default class TaskLane extends Vue {
 
   mounted () {
     this.setScrollColor()
+    this.updateExpandStatus()
   }
 
   private setScrollColor () {
@@ -202,6 +204,15 @@ export default class TaskLane extends Vue {
       scrollColor = this.scrollColors[index]
       this.cardContainerRef.style.setProperty('scroll-color', scrollColor)
     }
+  }
+
+  private updateExpandStatus () {
+    const spaceId = this.$store.getters['space/activeSpace'].id
+    const index = this.$store.getters['space/getIndex'](spaceId)
+    const settings = this.$store.getters['space/getSettingByIndex'](index)
+    const listFolded = settings.listFolded || []
+    const isFolded = listFolded.indexOf(this.list.id) >= 0
+    this.isExpanded = !isFolded
   }
 
   private tryDrag (e: DragEvent) {
@@ -255,6 +266,21 @@ export default class TaskLane extends Vue {
 
   private toggleExpand () {
     this.isExpanded = !this.isExpanded
+
+    const spaceId = this.$store.getters['space/activeSpace'].id
+    const index = this.$store.getters['space/getIndex'](spaceId)
+    const settings = this.$store.getters['space/getSettingByIndex'](index)
+
+    const listFolded = settings.listFolded || []
+
+    const newListFolded = this.isExpanded ? listFolded.filter((id: number) => id !== this.list.id) : uniq([...listFolded, this.list.id])
+
+    this.$store.dispatch('space/updateSetting', {
+      id: spaceId,
+      data: {
+        listFolded: newListFolded
+      }
+    })
   }
 
   get dragOptions () {
