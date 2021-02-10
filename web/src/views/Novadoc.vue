@@ -1265,21 +1265,12 @@ export default {
         { border: 'transparent', color: '#616161' },
         { border: 'transparent', color: '#757575' },
         { border: 'transparent', color: '#9E9E9E' },
-        { border: 'transparent', color: '#BDBDBD' },
-        { border: 'transparent', color: '#E0E0E0' },
-        { border: '#DEE2EE', color: '#EEEEEE' },
-        { border: '#DEE2EE', color: '#F5F5F5' },
-        { border: '#DEE2EE', color: '#FAFAFA' },
-        { border: 'transparent', color: '#962218' },
-        { border: 'transparent', color: '#D64141' },
-        { border: 'transparent', color: '#F2994A' },
-        { border: 'transparent', color: '#F9EB13' },
-        { border: 'transparent', color: '#219653' },
-        { border: 'transparent', color: '#8CD5FF' },
-        { border: 'transparent', color: '#4574D3' },
-        { border: 'transparent', color: '#4E32F0' },
+
+        { border: 'transparent', color: '#CF3C3C' },
+        { border: 'transparent', color: '#B0611A' },
         { border: 'transparent', color: '#9C3DBF' },
-        { border: 'transparent', color: '#DC56E7' }
+        { border: 'transparent', color: '#1D8449' },
+        { border: 'transparent', color: '#3467CE' }
       ]
     },
     colors () {
@@ -1547,7 +1538,7 @@ export default {
 
 .color-blocks {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   grid-gap: 8px;
   padding: 24px;
 }
