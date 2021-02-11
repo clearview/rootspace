@@ -56,6 +56,7 @@ export default class FormMenu extends Vue {
   bottom: 0;
   right: 0;
   left: 0;
+  max-height: 100%;
 
   h3 {
     font-weight: 500;

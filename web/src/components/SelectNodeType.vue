@@ -145,6 +145,7 @@ export default class SelectNodeype extends Vue { }
 
 <style lang="postcss" scoped>
 .SelectNodeType {
+  padding-bottom: 1rem;
 }
 
 .SelectNodeType-option {
