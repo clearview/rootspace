@@ -3,6 +3,7 @@
     <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
     <FavoriteNode
+      v-if="!menuOpen"
       ref="favoriteNode"
       @restore="refresh"
       @content:update="updateContent"
@@ -13,16 +14,16 @@
       @node:addNew="addNewNode"
     />
 
-    <sidebar-title v-if="favorites.length">Main</sidebar-title>
+    <sidebar-title v-if="favorites.length && !menuOpen">Main</sidebar-title>
     <tree
-      v-if="treeData.length > 0"
+      v-if="treeData.length > 0 && !menuOpen"
       edge-scroll
       ref="tree"
       v-model="treeData"
       :class="{
         'tree': true,
         'tree--dragging': dragging,
-        'h-full overflow-hidden': menuOpen
+        'overflow-hidden': menuOpen
       }"
       :indent="16"
       :ondragstart="startDragging"
@@ -49,7 +50,7 @@
       />
     </tree>
 
-    <ArchiveNode ref="archiveNode" @restore="refresh"></ArchiveNode>
+    <ArchiveNode ref="archiveNode" @restore="refresh" v-if="!menuOpen"></ArchiveNode>
 
     <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
       <div id="addnew-menu" v-if="menuOpen">
@@ -827,8 +828,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   left: 0;
   bottom: 0;
   background: #F8F9FD;
-  padding: 1rem;
+  padding: 1rem 1rem 0 1rem;
   min-width: 304px;
+  overflow-y: auto;
 
   .menu-wrapper {
     @apply relative h-full;
