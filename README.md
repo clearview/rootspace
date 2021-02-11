@@ -29,6 +29,7 @@ This will spawn a fresh postgres db container for every test so `root_postgres_t
 
 ### DB Seeding
 DB Seeder will populate following models: User, Space and Link
+- Edit `POSTGRES` .env to `POSTGRES=postgresql://user:password@localhost:5432/root`
 - Run `cd ./api & yarn seed:run`
 
 #### API docs
