@@ -2,6 +2,7 @@ import { Component } from 'vue'
 
 export interface ComponentAttrs {
   [key: string]: any;
+  onClose?: Function;
 }
 
 export interface OpenModalOptions {

@@ -195,7 +195,14 @@ export default class TaskCard extends Vue {
       }
     }
 
-    closeModal () {
+    closeModal (params: { visibilityOnly?: boolean }) {
+      this.showModal = false
+
+      if (params?.visibilityOnly) {
+        return
+      }
+
+      this.$store.commit('task/item/setCurrent', null)
       if (this.board?.id && this.item.id) {
         this.$router.replace({
           name: 'TaskPage',
@@ -204,8 +211,6 @@ export default class TaskCard extends Vue {
           }
         })
       }
-      this.$store.commit('task/item/setCurrent', null)
-      this.showModal = false
     }
 
     formatDate (taskDate: string) {

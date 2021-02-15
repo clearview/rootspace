@@ -239,7 +239,13 @@ export default class ListCard extends Vue {
       }
     }
 
-    closeModal () {
+    closeModal (params: { visibilityOnly?: boolean }) {
+      this.showModal = false
+
+      if (params?.visibilityOnly) {
+        return
+      }
+
       if (this.board?.id && this.item.id) {
         this.$router.replace({
           name: 'TaskPage',
@@ -248,8 +254,6 @@ export default class ListCard extends Vue {
           }
         })
       }
-      this.$store.commit('task/item/setCurrent', null)
-      this.showModal = false
     }
 
     formatDate (taskDate: string) {
@@ -320,6 +324,17 @@ export default class ListCard extends Vue {
       }
       this.invalidateMeasurement()
       window.addEventListener('resize', this.invalidateMeasurement)
+    }
+
+    @Watch('$route')
+    watchRoute () {
+      if (this.$route.name === 'TaskPageWithItem') {
+        const itemId = parseInt(this.$route.params.item)
+        if (itemId === this.item.id) {
+          this.$store.commit('task/item/setCurrent', this.item)
+          this.showModal = true
+        }
+      }
     }
 
     destroyed () {
