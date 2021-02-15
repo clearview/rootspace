@@ -6,8 +6,7 @@
       <h5 v-if="isLoading">Checking your invitation...</h5>
       <h5 v-if="!isLoading && message">{{ message }}!</h5>
       <h6 v-if="!isLoading && code !== 401 && message">
-        <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
-        to going to the Root App
+        <router-link :to="{ name: 'Main'}" class="signin">click here to go back...</router-link>
       </h6>
     </div>
   </div>
