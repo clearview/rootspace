@@ -1,8 +1,10 @@
 import httpRequestContext from 'http-request-context'
 import { User } from '../../../../database/entities/User'
-import { IAppActivity, IAppActivityData, ActivityType } from '../types'
+import { IActivity } from '../Activity'
+import { ActivityType } from '../types'
 import { UserActions } from './actions'
 import { Invite } from '../../../../database/entities/Invite'
+import { IActivityData } from '../ActivityData'
 
 const handlers = {
   [UserActions.Signup]: 'UserSignupHandler',
@@ -10,7 +12,7 @@ const handlers = {
   [UserActions.Invite]: 'UserInviteHandler',
 }
 
-export class UserActivitiy implements IAppActivity {
+export class UserActivitiy implements IActivity {
   private _action: string
   private _actorId: number
   private _spaceId: number
@@ -49,7 +51,7 @@ export class UserActivitiy implements IAppActivity {
     return ActivityType.User
   }
 
-  toObject(): IAppActivityData {
+  toObject(): IActivityData {
     return {
       actorId: this._actorId,
       spaceId: this._spaceId,

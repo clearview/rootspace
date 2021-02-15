@@ -1,158 +1,87 @@
 import httpRequestContext from 'http-request-context'
-import { IContentEntity, IContentActivity } from './types'
-import { IContentActivityData } from './types'
+import { IContentEntity } from './types'
 import { ActivityType } from '../types'
+import { Activity, IActivity } from '../Activity'
+import { IContentActivityData } from './ContentActivityData'
+import * as Util from '../util'
+import { ContentActions } from './actions'
 
-export abstract class ContentActivity<T extends IContentEntity> implements IContentActivity {
-  protected _action: string
-  protected _entity: T
-  protected _actorId: number
-  protected _context: any
+export interface IContentActivity extends IActivity {
+  getEntityName(): string
+}
 
-  protected _filterEntityAttributes = []
-  protected _notifyUpdatedAttributes = []
+export abstract class ContentActivity<T extends IContentEntity> extends Activity implements IContentActivity {
+  protected _entityObject: T
+  protected _entityAttributes = []
+  protected _entityUpdateAttributes = []
 
-  protected _handler: any
+  protected constructor(entity: T, actorId?: number) {
+    super()
 
-  protected constructor(action: string, entity: T, actorId?: number) {
-    this._action = action
-    this._entity = entity
-
+    this._entityObject = entity
     this._actorId = actorId ?? httpRequestContext.get('user').id
+    this._spaceId = entity.spaceId
+    this._entityId = entity.id
+    this._entity = this.getEntityName()
   }
 
   abstract getEntityName(): string
+
+  type(): string {
+    return ActivityType.Content
+  }
 
   getType(): string {
     return ActivityType.Content
   }
 
-  toObject(): IContentActivityData {
-    return {
-      actorId: this._actorId,
-      spaceId: this._entity.spaceId,
-      entityId: this._entity.id,
-      entity: this.getEntityName(),
-      action: this._action,
-      type: this.getType(),
-      context: this._context,
-      handler: this._handler,
-    }
-  }
-
-  protected created(): IContentActivity {
+  created(): ContentActivity<T> {
+    this._action = ContentActions.Created
     this._context = {
-      entity: this.filterEntityAttributes(this._entity),
+      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  protected updated(updatedEntity: T): ContentActivity<T> {
+  updated(updatedEntity: T) {
+    this._action = ContentActions.Updated
+
+    console.log(this._entityAttributes)
+
     this._context = {
-      updatedAttributes: this.notifyUpdatedAttributes(this._entity, updatedEntity),
-      entity: this.filterEntityAttributes(this._entity),
-      updatedEntity: this.filterEntityAttributes(updatedEntity),
+      updatedAttributes: Util.getUpdatedAttributes<T>(this._entityObject, updatedEntity, this._entityAttributes),
+      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
+      updatedEntity: Util.filterEntityAttributes(updatedEntity, this._entityUpdateAttributes),
     }
 
     return this
   }
 
-  protected archived(): ContentActivity<T> {
+  archived() {
+    this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entity),
+      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  protected restored(): ContentActivity<T> {
+  restored() {
+    this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entity),
+      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  protected deleted(): ContentActivity<T> {
+  deleted() {
+    this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entity),
+      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
     }
 
     return this
-  }
-
-  protected filterEntityAttributes(entity: T): Partial<T> {
-    const filtered: Partial<T> = {}
-
-    for (const attribute in entity) {
-      if (entity.hasOwnProperty(attribute) && this._filterEntityAttributes.includes(attribute)) {
-        filtered[attribute] = entity[attribute]
-      }
-    }
-
-    return filtered
-  }
-
-  protected notifyUpdatedAttributes(entity1: T, entity2: T): string[] {
-    const attributes = []
-
-    for (const attribute in entity1) {
-      if (!this._notifyUpdatedAttributes.includes(attribute)) {
-        continue
-      }
-
-      if (!entity1.hasOwnProperty(attribute) || !entity2.hasOwnProperty(attribute)) {
-        continue
-      }
-
-      const value1 = entity1[attribute]
-      const value2 = entity2[attribute]
-
-      if (this.isDateValue(value1) || this.isDateValue(value2)) {
-        if (this.compareDates(value1, value2) === false) {
-          attributes.push(attribute)
-        }
-
-        continue
-      }
-
-      if (value1 !== value2) {
-        attributes.push(attribute)
-      }
-    }
-
-    return attributes
-  }
-
-  protected isDateValue(value: any): boolean {
-    if (value === null) {
-      return false
-    }
-
-    if (value.constructor.name !== 'Date') {
-      return false
-    }
-
-    return true
-  }
-
-  protected compareDates(value1: any, value2: any): boolean {
-    if (value1 === null && value2 === null) {
-      return true
-    }
-
-    if (value1 === null || value2 === null) {
-      return false
-    }
-
-    const date1: Date = value1 as any
-    const date2: Date = value2 as any
-
-    if (date1.getTime() !== date2.getTime()) {
-      return false
-    }
-
-    return true
   }
 }

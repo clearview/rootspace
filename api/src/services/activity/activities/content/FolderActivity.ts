@@ -1,6 +1,5 @@
 import { Folder } from '../../../../database/entities/Folder'
-import { IContentActivity } from './types'
-import { ContentActivity } from './ContentActivity'
+import { ContentActivity, IContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class FolderActivity extends ContentActivity<Folder> {

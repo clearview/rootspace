@@ -1,8 +1,8 @@
 import { IActivity } from '../Activity'
-import { IActivityData } from '../ActivityData'
+import { ISpaceActivityData } from './SpaceActivityData'
 import { ActivityType } from '../types'
 
-export abstract class AppActivity implements IActivity {
+export abstract class SpaceActivity implements IActivity {
   protected _action: string
   protected _actorId: number
   protected _spaceId: number
@@ -10,22 +10,21 @@ export abstract class AppActivity implements IActivity {
   protected _entity: string
   protected _context: any
 
-  constructor(action: string, entity: string, entityId: number, actorId?: number) {
+  constructor(action: string, spaceId: number, actorId?: number) {
     this._action = action
-    this._entity = entity
-    this._entityId = entityId
+    this._spaceId = spaceId
     this._actorId = actorId
   }
 
-  protected getHandler(): string | null {
+  getHandler(): string | null {
     return null
   }
 
   getType() {
-    return ActivityType.App
+    return ActivityType.Space
   }
 
-  toObject(): IActivityData {
+  toObject(): ISpaceActivityData {
     return {
       actorId: this._actorId,
       spaceId: this._spaceId,

@@ -7,7 +7,7 @@ import { TaskRepository } from '../../../database/repositories/tasks/TaskReposit
 import { Task } from '../../../database/entities/tasks/Task'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { Service, UserService, TaskBoardTagService } from '../../'
-import { TaskActivity } from '../../activity/activities/content'
+import { TaskActivity } from '../../activity/activities/content/'
 
 export class TaskService extends Service {
   private userService: UserService
@@ -59,7 +59,7 @@ export class TaskService extends Service {
     data.space = await this.getSpaceRepository().findOneOrFail(data.board.spaceId)
 
     const task = await this.getTaskRepository().save(data)
-    await this.notifyActivity(TaskActivity.created(task))
+    await this.notifyActivity(new TaskActivity(task).created())
 
     await this.assigneesUpdate(task, data)
 
@@ -76,13 +76,13 @@ export class TaskService extends Service {
     })
 
     updatedTask = await this.getTaskRepository().reload(updatedTask)
-    await this.notifyActivity(TaskActivity.updated(task, updatedTask))
+    await this.notifyActivity(new TaskActivity(task).updated(updatedTask))
 
     if (task.listId !== updatedTask.listId) {
       const oldList = await this.getTaskListRepository().findOne(task.listId)
       const newList = await this.getTaskListRepository().findOne(updatedTask.listId)
 
-      this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList))
+      this.notifyActivity(new TaskActivity(updatedTask).listMoved(oldList, newList))
     }
 
     await this.assigneesUpdate(updatedTask, data)
@@ -91,11 +91,10 @@ export class TaskService extends Service {
   }
 
   async archive(taskId: number): Promise<Task | undefined> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.notifyActivity(TaskActivity.archived(task, actor.id))
+      await this.notifyActivity(new TaskActivity(task).archived())
       return this.getTaskRepository().softRemove(task)
     }
 
@@ -111,11 +110,10 @@ export class TaskService extends Service {
   }
 
   async restore(taskId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     const recoveredTask = await this.getTaskRepository().recover(task)
-    await this.notifyActivity(TaskActivity.restored(task, actor.id))
+    await this.notifyActivity(new TaskActivity(task).restored())
 
     return recoveredTask
   }
@@ -131,7 +129,7 @@ export class TaskService extends Service {
   async remove(taskId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId, { withDeleted: true })
 
-    await this.notifyActivity(TaskActivity.deleted(task))
+    await this.notifyActivity(new TaskActivity(task).deleted())
     return this.getTaskRepository().remove(task)
   }
 
@@ -162,7 +160,7 @@ export class TaskService extends Service {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user))
+      await this.notifyActivity(new TaskActivity(savedTask).assigneeAdded(user))
 
       return savedTask
     }
@@ -179,7 +177,7 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user))
+    await this.notifyActivity(new TaskActivity(savedTask).assigneeRemoved(user))
 
     return savedTask
   }
@@ -194,7 +192,7 @@ export class TaskService extends Service {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag))
+      await this.notifyActivity(new TaskActivity(task).tagAdded(boardTag))
 
       return savedTask
     }
@@ -211,7 +209,7 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag))
+    await this.notifyActivity(new TaskActivity(task).tagRemoved(boardTag))
 
     return savedTask
   }
