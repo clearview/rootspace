@@ -122,7 +122,7 @@
       class="btn w-full mx-0 mt-5 clear-both pointer"
       @click="changePasswordModal(true)"
     >
-      Change Password
+      {{ passwordModalTitle }}
     </a>
 
     <button
@@ -134,7 +134,7 @@
     </button>
 
     <modal
-      title="Change Password"
+      :title="passwordModalTitle"
       :visible="isModalVisible('changePassword')"
       :is-loading="modal.loading"
       :contentStyle="{ width: '456px' }"
@@ -205,6 +205,10 @@ export default class FormSettings extends Vue {
 
   get user () {
     return this.$store.state.auth.user
+  }
+
+  get passwordModalTitle () {
+    return this.user.authProvider === 'local' ? 'Change Password' : 'Set Password'
   }
 
   created () {
