@@ -34,6 +34,9 @@ export default defineComponent({
     }
 
     const close: CloseModal = () => {
+      if (componentAttrs.value.onClose) {
+        componentAttrs.value.onClose()
+      }
       visible.value = false
     }
 

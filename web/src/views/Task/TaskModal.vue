@@ -570,11 +570,24 @@ export default class TaskModal extends Vue {
       })
     }
 
+    onUserProfileClose () {
+      // Hack, wait a while in case any other process that update current item.
+      // It's because this function will be triggered when user open another task modal.
+      setTimeout(() => {
+        const currentItem = this.$store.state.task.item.current.id
+        const closeOldModal = currentItem && currentItem !== this.item.id
+        if (closeOldModal) {
+          this.$emit('close', { visibilityOnly: true })
+        }
+      })
+    }
+
     openProfile (user: UserResource) {
       this.modal.open({
         component: ProfileModal,
         attrs: {
-          userId: user.id
+          userId: user.id,
+          onClose: this.onUserProfileClose
         }
       })
     }
