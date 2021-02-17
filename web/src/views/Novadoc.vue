@@ -366,7 +366,7 @@
         <textarea title="Title" ref="title" class="editor-title-input" placeholder="Untitled" v-model="title"
                   @focus="isTitleFocused = true"
                   @blur="isTitleFocused = false"
-                  @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
+                  @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter" :readonly="readOnly"></textarea>
         <hr class="title-separator">
         <EditorContent key="editor" v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
         <EditorContent key="preview" class="preview" v-show="isPreviewing" :editor="previewEditor"></EditorContent>
