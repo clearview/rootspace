@@ -1,36 +1,40 @@
 import { Embed } from '../../../../database/entities/Embed'
-import { ContentActivity, IContentActivity } from './ContentActivity'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class EmbedActivity extends ContentActivity<Embed> {
   constructor(action: string, entity: Embed, actorId?: number) {
     super(action, entity, actorId)
 
-    this._filterEntityAttributes = ['id', 'title']
-    this._notifyUpdatedAttributes = ['id', 'title', 'content']
+    this._entityAttributes = ['id', 'title']
+    this._entityUpdateAttributes = ['id', 'title', 'content']
   }
 
   getEntityName(): string {
     return 'Embed'
   }
 
-  static created(entity: Embed, actorId?: number): IContentActivity {
-    return new EmbedActivity(ContentActions.Created, entity, actorId).created()
+  handler(): string | null {
+    return null
+  }
+
+  static created(entity: Embed, actorId?: number) {
+    return new EmbedActivity(ContentActions.Created, entity, actorId).contentCreated()
   }
 
   static updated(entity: Embed, updatedEntity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Updated, entity, actorId).updated(updatedEntity)
+    return new EmbedActivity(ContentActions.Updated, entity, actorId).contentUpdated(updatedEntity)
   }
 
-  static archived(entity: Embed, actorId?: number): IContentActivity {
-    return new EmbedActivity(ContentActions.Archived, entity, actorId).archived()
+  static archived(entity: Embed, actorId?: number) {
+    return new EmbedActivity(ContentActions.Archived, entity, actorId).contentArchived()
   }
 
-  static restored(entity: Embed, actorId?: number): IContentActivity {
-    return new EmbedActivity(ContentActions.Restored, entity, actorId).restored()
+  static restored(entity: Embed, actorId?: number) {
+    return new EmbedActivity(ContentActions.Restored, entity, actorId).contentRestored()
   }
 
-  static deleted(entity: Embed, actorId?: number): IContentActivity {
-    return new EmbedActivity(ContentActions.Deleted, entity, actorId).deleted()
+  static deleted(entity: Embed, actorId?: number) {
+    return new EmbedActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
   }
 }

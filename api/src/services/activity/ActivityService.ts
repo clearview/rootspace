@@ -6,7 +6,6 @@ import { ActivityRepository } from '../../database/repositories/ActivityReposito
 import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
-import { WsEvent } from '../events/websockets/WsEvent'
 import { processActivities } from './processor/'
 import { IActivityObserver } from '../contracts'
 import { IActivity } from './activities/Activity'
@@ -34,26 +33,14 @@ export class ActivityService implements IActivityObserver {
   }
 
   async activityNotification(appActivity: IActivity): Promise<void> {
-    console.log(appActivity.toObject())
     const data = appActivity.toObject()
     const activity = await this.getActivityRepository().save(data as any)
 
-    console.log(activity)
-    
     data.activityId = activity.id
 
     if (data.handler) {
       await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
     }
-  }
-
-  async add(event: ActivityEvent): Promise<Bull.Job> {
-    const activityObject = event.toObject()
-
-    await this.getActivityRepository().save(activityObject)
-    this.wsEventEmitter.emit(WsEvent.NAME, event)
-
-    return this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
   }
 
   getById(id: number): Promise<Activity | undefined> {

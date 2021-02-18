@@ -4,31 +4,50 @@ import { Tag } from '../../../../database/entities/tasks/Tag'
 import { TaskComment } from '../../../../database/entities/tasks/TaskComment'
 import { Upload } from '../../../../database/entities/Upload'
 import { User } from '../../../../database/entities/User'
-import * as Util from '../util'
 import { ContentActivity } from './ContentActivity'
-import { TaskActions } from './actions'
-import { push, persist, handler } from '../activityProperties'
-import { entityAttributes, entityUpdateAttributes } from '../entityAttributes'
+import { ContentActions, TaskActions } from './actions'
 
-@push()
-@persist()
-@handler('TaskActivityHandler')
-@entityAttributes(['id', 'boardId', 'title', 'dueDate'])
-@entityUpdateAttributes(['title', 'description', 'dueDate'])
 export class TaskActivity extends ContentActivity<Task> {
-  constructor(task: Task, actorId?: number) {
-    super(task, actorId)
+  constructor(action: string, task: Task, actorId?: number) {
+    super(action, task, actorId)
+
+    this._entityAttributes = ['id', 'boardId', 'title', 'dueDate']
+    this._entityUpdateAttributes = ['title', 'description', 'dueDate']
   }
 
   getEntityName(): string {
     return 'Task'
   }
 
-  listMoved(fromList: TaskList, toList: TaskList) {
-    this._action = TaskActions.List_Moved
+  handler(): string {
+    return 'TaskActivityHandler'
+  }
 
-    this._context = {
-      entity: Util.filterEntityAttributes<Task>(this._entityObject, this._entityAttributes),
+  static created(entity: Task, actorId?: number): TaskActivity {
+    return new TaskActivity(ContentActions.Created, entity, actorId).contentCreated()
+  }
+
+  static updated(entity: Task, updatedEntity: Task, actorId?: number) {
+    return new TaskActivity(ContentActions.Updated, entity, actorId).contentUpdated(updatedEntity)
+  }
+
+  static archived(entity: Task, actorId?: number): TaskActivity {
+    return new TaskActivity(ContentActions.Archived, entity, actorId).contentArchived()
+  }
+
+  static restored(entity: Task, actorId?: number): TaskActivity {
+    return new TaskActivity(ContentActions.Restored, entity, actorId).contentRestored()
+  }
+
+  static deleted(entity: Task, actorId?: number): TaskActivity {
+    return new TaskActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
+  }
+
+  static listMoved(entity: Task, fromList: TaskList, toList: TaskList, actorId?: number) {
+    const activity = new TaskActivity(TaskActions.List_Moved, entity, actorId)
+
+    activity._context = {
+      entity: activity.filterEntityAttributes(activity._entityObject, activity._entityAttributes),
       fromList: {
         title: fromList.title,
       },
@@ -37,61 +56,49 @@ export class TaskActivity extends ContentActivity<Task> {
       },
     }
 
-    return this
+    return activity
   }
 
-  commentCreated(comment: TaskComment) {
-    this._action = TaskActions.Comment_Created
+  static CommentCreated(entity: Task, comment: TaskComment, actorId?: number) {
+    const activity = new TaskActivity(TaskActions.Comment_Created, entity, actorId)
 
-    this._context = {
-      entity: Util.filterEntityAttributes<Task>(this._entityObject, this._entityAttributes),
+    activity._context = {
+      entity: activity.filterEntityAttributes(activity._entityObject, activity._entityAttributes),
       comment: {
         id: comment.id,
       },
     }
 
-    return this
+    return activity
   }
 
-  assigneeAdded(assignee: User) {
-    this._action = TaskActions.Assignee_Added
-    this.createAssigneeContext(assignee)
-    return this
+  static AssigneeAdded(entity: Task, assignee: User, actorId?: number) {
+    return new TaskActivity(TaskActions.Assignee_Added, entity, actorId).createAssigneeContext(assignee)
   }
 
-  assigneeRemoved(assignee: User) {
-    this._action = TaskActions.Assignee_Removed
-    this.createAssigneeContext(assignee)
-    return this
+  static AssigneeRemoved(entity: Task, assignee: User, actorId?: number) {
+    return new TaskActivity(TaskActions.Assignee_Removed, entity, actorId).createAssigneeContext(assignee)
   }
 
-  tagAdded(tag: Tag) {
-    this._action = TaskActions.Tag_Added
-    this.createTagContext(tag)
-    return this
+  static TagAdded(entity: Task, tag: Tag, actorId?: number) {
+    return new TaskActivity(TaskActions.Tag_Added, entity, actorId).createTagContext(tag)
   }
 
-  tagRemoved(tag: Tag) {
-    this._action = TaskActions.Tag_Removed
-    this.createTagContext(tag)
-    return this
+  static TagRemoved(entity: Task, tag: Tag, actorId?: number) {
+    return new TaskActivity(TaskActions.Tag_Removed, entity, actorId).createTagContext(tag)
   }
 
-  attachmentAdded(upload: Upload) {
-    this._action = TaskActions.Attachment_Added
-    this.createAttachmentContext(upload)
-    return this
+  static attachmentAdded(entity: Task, upload: Upload, actorId?: number) {
+    return new TaskActivity(TaskActions.Attachment_Added, entity, actorId).createAttachmentContext(upload)
   }
 
-  attachmentRemoved(upload: Upload) {
-    this._action = TaskActions.Attachment_Removed
-    this.createAttachmentContext(upload)
-    return this
+  static attachmentRemoved(entity: Task, upload: Upload, actorId?: number) {
+    return new TaskActivity(TaskActions.Attachment_Removed, entity, actorId).createAttachmentContext(upload)
   }
 
   private createAssigneeContext(assignee: User) {
     this._context = {
-      entity: Util.filterEntityAttributes<Task>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
       assignee: {
         id: assignee.id,
         email: assignee.email,
@@ -100,24 +107,30 @@ export class TaskActivity extends ContentActivity<Task> {
         fullName: assignee.firstName + ' ' + assignee.lastName,
       },
     }
+
+    return this
   }
 
   private createTagContext(tag: Tag) {
     this._context = {
-      entity: Util.filterEntityAttributes<Task>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
       tag: {
         label: tag.label,
       },
     }
+
+    return this
   }
 
   private createAttachmentContext(upload: Upload) {
     this._context = {
-      entity: Util.filterEntityAttributes<Task>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
       attachment: {
         id: upload.id,
         filename: upload.filename,
       },
     }
+
+    return this
   }
 }

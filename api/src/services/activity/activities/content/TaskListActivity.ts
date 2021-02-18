@@ -1,38 +1,40 @@
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
-import { ContentActivity, IContentActivity } from './ContentActivity'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class TaskListActivity extends ContentActivity<TaskList> {
   constructor(action: string, entity: TaskList, actorId?: number) {
     super(action, entity, actorId)
 
-    this._filterEntityAttributes = ['id', 'title']
-    this._notifyUpdatedAttributes = ['title']
-
-    this._handler = 'TaskListActivityHandler'
+    this._entityAttributes = ['id', 'title']
+    this._entityUpdateAttributes = ['title']
   }
 
   getEntityName(): string {
     return 'TaskList'
   }
 
-  static created(entity: TaskList, actorId?: number): IContentActivity {
-    return new TaskListActivity(ContentActions.Created, entity, actorId).created()
+  handler(): string {
+    return 'TaskListActivityHandler'
+  }
+
+  static created(entity: TaskList, actorId?: number) {
+    return new TaskListActivity(ContentActions.Created, entity, actorId).contentCreated()
   }
 
   static updated(entity: TaskList, updatedEntity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Updated, entity, actorId).updated(updatedEntity)
+    return new TaskListActivity(ContentActions.Updated, entity, actorId).contentUpdated(updatedEntity)
   }
 
-  static archived(entity: TaskList, actorId?: number): IContentActivity {
-    return new TaskListActivity(ContentActions.Archived, entity, actorId).archived()
+  static archived(entity: TaskList, actorId?: number) {
+    return new TaskListActivity(ContentActions.Archived, entity, actorId).contentArchived()
   }
 
-  static restored(entity: TaskList, actorId?: number): IContentActivity {
-    return new TaskListActivity(ContentActions.Restored, entity, actorId).restored()
+  static restored(entity: TaskList, actorId?: number) {
+    return new TaskListActivity(ContentActions.Restored, entity, actorId).contentRestored()
   }
 
-  static deleted(entity: TaskList, actorId?: number): IContentActivity {
-    return new TaskListActivity(ContentActions.Deleted, entity, actorId).deleted()
+  static deleted(entity: TaskList, actorId?: number) {
+    return new TaskListActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
   }
 }

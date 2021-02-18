@@ -1,7 +1,7 @@
 import { IActivityData } from './ActivityData'
 
 export interface IActivity {
-  getType(): string
+  type(): string
   toObject(): IActivityData
 }
 
@@ -13,23 +13,20 @@ export abstract class Activity {
   protected _entity: string
   protected _context: any
 
-  protected _push: boolean = false
-  protected _persist: boolean = false
-  protected _handler: string = null
-
-  push(): boolean {
-    return this._push
+  protected _config = {
+    push: false,
+    persist: false,
+    handler: null,
   }
 
-  persist(): boolean {
-    return this._persist
-  }
-
-  handler(): string {
-    return this._handler
+  constructor(action: string) {
+    this._action = action
   }
 
   abstract type(): string
+  abstract push(): boolean
+  abstract persist(): boolean
+  abstract handler(): string
 
   toObject(): IActivityData {
     return {
@@ -38,9 +35,9 @@ export abstract class Activity {
       spaceId: this._spaceId,
       entityId: this._entityId,
       entity: this._entity,
-      type: this.type(),
       context: this._context,
-      handler: this._handler,
+      type: this.type(),
+      handler: this.handler(),
     }
   }
 }

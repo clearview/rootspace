@@ -1,85 +1,70 @@
 import httpRequestContext from 'http-request-context'
 import { IContentEntity } from './types'
 import { ActivityType } from '../types'
-import { Activity, IActivity } from '../Activity'
-import { IContentActivityData } from './ContentActivityData'
-import * as Util from '../util'
 import { ContentActions } from './actions'
+import { EntityActivity } from '../EntityActivity'
 
-export interface IContentActivity extends IActivity {
-  getEntityName(): string
-}
+export abstract class ContentActivity<T extends IContentEntity> extends EntityActivity<T> {
+  protected constructor(action: string, entityObject: T, actorId?: number) {
+    super(action, entityObject)
 
-export abstract class ContentActivity<T extends IContentEntity> extends Activity implements IContentActivity {
-  protected _entityObject: T
-  protected _entityAttributes = []
-  protected _entityUpdateAttributes = []
-
-  protected constructor(entity: T, actorId?: number) {
-    super()
-
-    this._entityObject = entity
-    this._actorId = actorId ?? httpRequestContext.get('user').id
-    this._spaceId = entity.spaceId
-    this._entityId = entity.id
-    this._entity = this.getEntityName()
+    this._actorId = actorId ?? 1
+    this._spaceId = entityObject.spaceId
   }
-
-  abstract getEntityName(): string
 
   type(): string {
     return ActivityType.Content
   }
 
-  getType(): string {
-    return ActivityType.Content
+  push(): boolean {
+    return false
   }
 
-  created(): ContentActivity<T> {
+  persist(): boolean {
+    return true
+  }
+
+  protected contentCreated() {
     this._action = ContentActions.Created
     this._context = {
-      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  updated(updatedEntity: T) {
-    this._action = ContentActions.Updated
-
-    console.log(this._entityAttributes)
-
+  protected contentUpdated(updatedEntity: T) {
     this._context = {
-      updatedAttributes: Util.getUpdatedAttributes<T>(this._entityObject, updatedEntity, this._entityAttributes),
-      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
-      updatedEntity: Util.filterEntityAttributes(updatedEntity, this._entityUpdateAttributes),
+      updatedAttributes: this.getUpdatedAttributes(this._entityObject, updatedEntity, this._entityUpdateAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
     }
 
     return this
   }
 
-  archived() {
+  protected contentArchived() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  restored() {
+  protected contentRestored() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
     }
 
     return this
   }
 
-  deleted() {
+  protected contentDeleted() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: Util.filterEntityAttributes<T>(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
     }
 
     return this

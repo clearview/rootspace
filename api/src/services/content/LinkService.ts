@@ -11,6 +11,7 @@ import { ServiceFactory } from '../factory/ServiceFactory'
 import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { LinkActivity } from '../activity/activities/content'
+import { ContentActions } from '../activity/activities/content/actions'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService

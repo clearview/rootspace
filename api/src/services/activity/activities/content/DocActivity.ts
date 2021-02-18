@@ -1,6 +1,6 @@
 import { Doc } from '../../../../database/entities/Doc'
 import { IDocUpdateSetup } from '../../../../types/doc'
-import { ContentActivity, IContentActivity } from './ContentActivity'
+import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class DocActivity extends ContentActivity<Doc> {
@@ -9,41 +9,43 @@ export class DocActivity extends ContentActivity<Doc> {
   constructor(action: string, entity: Doc, actorId?: number) {
     super(action, entity, actorId)
 
-    this._filterEntityAttributes = ['id', 'title']
-    this._notifyUpdatedAttributes = ['id', 'title']
-
-    this._handler = 'DocActivityHandler'
+    this._entityAttributes = ['id', 'title']
+    this._entityUpdateAttributes = ['id', 'title']
   }
 
   getEntityName(): string {
     return 'Doc'
   }
 
-  static created(entity: Doc, actorId?: number): IContentActivity {
-    return new DocActivity(ContentActions.Created, entity, actorId).created()
+  handler(): string {
+    return 'DocActivityHandler'
   }
 
-  static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId: number): IContentActivity {
+  static created(entity: Doc, actorId?: number) {
+    return new DocActivity(ContentActions.Created, entity, actorId).contentCreated()
+  }
+
+  static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId: number) {
     const activity = new DocActivity(ContentActions.Updated, entity, actorId)
     activity.docUpdateSetup = docUpdateSetup
 
     return activity.updated(updatedEntity)
   }
 
-  static archived(entity: Doc, actorId?: number): IContentActivity {
-    return new DocActivity(ContentActions.Archived, entity, actorId).archived()
+  static archived(entity: Doc, actorId?: number) {
+    return new DocActivity(ContentActions.Archived, entity, actorId).contentArchived()
   }
 
-  static restored(entity: Doc, actorId?: number): IContentActivity {
-    return new DocActivity(ContentActions.Restored, entity, actorId).restored()
+  static restored(entity: Doc, actorId?: number) {
+    return new DocActivity(ContentActions.Restored, entity, actorId).contentRestored()
   }
 
-  static deleted(entity: Doc, actorId?: number): IContentActivity {
-    return new DocActivity(ContentActions.Deleted, entity, actorId).deleted()
+  static deleted(entity: Doc, actorId?: number) {
+    return new DocActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
   }
 
-  protected updated(updatedEntity: Doc): ContentActivity<Doc> {
-    const updatedAttributes = this.notifyUpdatedAttributes(this._entity, updatedEntity)
+  protected updated(updatedEntity: Doc) {
+    const updatedAttributes = this.getUpdatedAttributes(this._entityObject, updatedEntity, this._entityUpdateAttributes)
 
     if (this.docUpdateSetup.contentUpdated) {
       updatedAttributes.push('content')
@@ -51,8 +53,8 @@ export class DocActivity extends ContentActivity<Doc> {
 
     this._context = {
       updatedAttributes,
-      entity: this.filterEntityAttributes(this._entity),
-      updatedEntity: this.filterEntityAttributes(updatedEntity),
+      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
     }
 
     return this
