@@ -44,8 +44,6 @@ export class Room {
   }
 
   private parseType(parts: string[]): string | null {
-    console.log(parts.length)
-
     if (parts[0] === RoomType.App && parts.length === 1) {
       return RoomType.App
     }

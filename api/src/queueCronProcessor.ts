@@ -3,7 +3,7 @@ dotenv.config()
 import { config } from 'node-config-ts'
 import Bull from 'bull'
 import { Queue } from './libs/Queue'
-import { CronEvent } from './services/events/CronEvent'
+import { CronEvent } from './events/CronEvent'
 import { Cron } from './libs/Cron'
 
 async function main() {

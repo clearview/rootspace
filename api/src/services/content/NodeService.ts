@@ -183,7 +183,6 @@ export class NodeService extends Service {
       updatedNode = await this.updateNodePosition(updatedNode, data.position)
     }
 
-    console.log('ide')
     await this.notifyActivity(NodeActivity.updated(node, updatedNode))
 
     return updatedNode

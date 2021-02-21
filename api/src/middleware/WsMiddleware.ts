@@ -4,7 +4,7 @@ import Primus = require('primus')
 import Spark = require('primus-rooms')
 import { UserService, UserSpaceService } from '../services'
 import { Request } from 'express'
-import { WsInAction, WsInMessage } from '../services/models/websockets/WsInMessage'
+import { WsInAction, WsInMessage } from '../ws/WsInMessage'
 import { Room, RoomType } from '../ws/'
 
 export enum WsEvent {
@@ -71,7 +71,6 @@ function onDisconnect(spark: Spark): any {
 }
 
 function onData(spark: Spark): any {
-  console.log('onData')
   const user = spark.request.user
   if (!user) {
     return

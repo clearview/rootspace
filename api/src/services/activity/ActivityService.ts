@@ -1,24 +1,23 @@
 import 'dotenv/config'
 import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
 import { getCustomRepository } from 'typeorm'
 import { ActivityRepository } from '../../database/repositories/ActivityRepository'
 import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
-import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
+import { EventName } from '../../events/EventName'
+import { MyEventEmitter } from '../../events/MyEventEmitter'
 import { processActivities } from './processor/'
 import { IActivityObserver } from '../contracts'
 import { Activity as AppActivity } from './activities/Activity'
-import { Events } from '../events/websockets/WsEvent'
 
 export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
   readonly queue: Bull.Queue
-  readonly wsEventEmitter: WsEventEmitter
+  readonly eventEmitter: MyEventEmitter
 
   private constructor() {
     this.queue = Queue.getActivityInstance()
-    this.wsEventEmitter = WsEventEmitter.getInstance()
+    this.eventEmitter = MyEventEmitter.getInstance()
   }
 
   static getInstance() {
@@ -35,9 +34,9 @@ export class ActivityService implements IActivityObserver {
 
   async activityNotification(appActivity: AppActivity): Promise<void> {
     const activityObject = appActivity.toObject()
-    
+
     if (appActivity.push()) {
-      this.wsEventEmitter.emit(Events.Activity, appActivity)
+      this.eventEmitter.emit(EventName.Activity, appActivity)
     }
 
     if (appActivity.persist()) {
@@ -52,10 +51,6 @@ export class ActivityService implements IActivityObserver {
 
   getById(id: number): Promise<Activity | undefined> {
     return this.getActivityRepository().findOne(id)
-  }
-
-  async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
-    return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
   async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
