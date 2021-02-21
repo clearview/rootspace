@@ -1,3 +1,7 @@
 export enum WsEvent {
-  NAME = 'WebSocketEvent'
+  NAME = 'WebSocketEvent',
+}
+
+export const Events = {
+  Activity: 'Activity',
 }

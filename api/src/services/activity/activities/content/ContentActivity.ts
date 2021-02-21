@@ -27,7 +27,7 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   protected contentCreated() {
     this._action = ContentActions.Created
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
     }
 
     return this
@@ -35,8 +35,8 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
 
   protected contentUpdated(updatedEntity: T) {
     this._context = {
-      updatedAttributes: this.getUpdatedAttributes(this._entityObject, updatedEntity, this._entityUpdateAttributes),
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      updatedAttributes: this.getUpdatedAttributes(this._entity, updatedEntity, this._entityUpdateAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
       updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
     }
 
@@ -46,7 +46,7 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   protected contentArchived() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
     }
 
     return this
@@ -55,7 +55,7 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   protected contentRestored() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
     }
 
     return this
@@ -64,7 +64,7 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   protected contentDeleted() {
     this._action = ContentActions.Archived
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
     }
 
     return this

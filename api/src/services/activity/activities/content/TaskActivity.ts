@@ -47,7 +47,7 @@ export class TaskActivity extends ContentActivity<Task> {
     const activity = new TaskActivity(TaskActions.List_Moved, entity, actorId)
 
     activity._context = {
-      entity: activity.filterEntityAttributes(activity._entityObject, activity._entityAttributes),
+      entity: activity.filterEntityAttributes(activity._entity, activity._entityAttributes),
       fromList: {
         title: fromList.title,
       },
@@ -63,7 +63,7 @@ export class TaskActivity extends ContentActivity<Task> {
     const activity = new TaskActivity(TaskActions.Comment_Created, entity, actorId)
 
     activity._context = {
-      entity: activity.filterEntityAttributes(activity._entityObject, activity._entityAttributes),
+      entity: activity.filterEntityAttributes(activity._entity, activity._entityAttributes),
       comment: {
         id: comment.id,
       },
@@ -98,7 +98,7 @@ export class TaskActivity extends ContentActivity<Task> {
 
   private createAssigneeContext(assignee: User) {
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
       assignee: {
         id: assignee.id,
         email: assignee.email,
@@ -113,7 +113,7 @@ export class TaskActivity extends ContentActivity<Task> {
 
   private createTagContext(tag: Tag) {
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
       tag: {
         label: tag.label,
       },
@@ -124,7 +124,7 @@ export class TaskActivity extends ContentActivity<Task> {
 
   private createAttachmentContext(upload: Upload) {
     this._context = {
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
       attachment: {
         id: upload.id,
         filename: upload.filename,

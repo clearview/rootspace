@@ -6,6 +6,7 @@ import { NodeType } from '../../types/node'
 import { IContentNodeUpdate, INodeContentMediator } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Service } from '../Service'
+import { NodeActivity } from '../activity/activities/space'
 
 export class NodeService extends Service {
   private nodeContentMediator: INodeContentMediator
@@ -142,26 +143,50 @@ export class NodeService extends Service {
   }
 
   async update(data: NodeUpdateValue, id: number): Promise<Node> {
-    let node = await this.getNodeById(id)
+    const node = await this.getNodeById(id)
 
     if (!node) {
       throw clientError('Error updating node')
     }
 
-    Object.assign(node, data.attributes)
+    const updatedNode = await this._update(data, node)
+    this.nodeContentMediator.nodeUpdated(updatedNode)
+
+    return updatedNode
+  }
+
+  async contentUpdated(contentId: number, type: NodeType, data: IContentNodeUpdate): Promise<void> {
+    const node = await this.getNodeByContentId(contentId, type)
+
+    if (!node) {
+      return
+    }
+
+    if (data.title) {
+      node.title = data.title
+    }
 
     await this.getNodeRepository().save(node)
+  }
+
+  private async _update(data: NodeUpdateValue, node: Node): Promise<Node> {
+    let updatedNode = await this.getNodeById(node.id)
+
+    Object.assign(updatedNode, data.attributes)
+    await this.getNodeRepository().save(updatedNode)
 
     if (data.parent !== undefined) {
-      node = await this.updateNodeParent(node, data.parent)
+      updatedNode = await this.updateNodeParent(updatedNode, data.parent)
     }
 
     if (data.position !== undefined) {
-      node = await this.updateNodePosition(node, data.position)
+      updatedNode = await this.updateNodePosition(updatedNode, data.position)
     }
 
-    this.nodeContentMediator.nodeUpdated(node)
-    return node
+    console.log('ide')
+    await this.notifyActivity(NodeActivity.updated(node, updatedNode))
+
+    return updatedNode
   }
 
   async updateNodeParent(node: Node, toParentId: number | null): Promise<Node> {
@@ -222,20 +247,6 @@ export class NodeService extends Service {
     node.position = toPosition
 
     return this.getNodeRepository().save(node)
-  }
-
-  async contentUpdated(contentId: number, type: NodeType, data: IContentNodeUpdate): Promise<void> {
-    const node = await this.getNodeByContentId(contentId, type)
-
-    if (!node) {
-      return
-    }
-
-    if (data.title) {
-      node.title = data.title
-    }
-
-    await this.getNodeRepository().save(node)
   }
 
   async archive(id: number): Promise<Node> {

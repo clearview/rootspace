@@ -7,7 +7,8 @@ import { WsOutMessage } from './models/websockets/WsOutMessage'
 import Primus from 'primus'
 import { ActivityType } from '../types/activity'
 import { WsEventEmitter } from './events/websockets/WsEventEmitter'
-import { WsEvent } from './events/websockets/WsEvent'
+import { WsEvent, Events } from './events/websockets/WsEvent'
+import { Activity } from './activity/activities/Activity'
 
 export class WebSocketsService {
   private static instance: WebSocketsService
@@ -29,6 +30,10 @@ export class WebSocketsService {
       WebSocketsService.instance.wsEventEmitter.on(WsEvent.NAME, async (event: ActivityEvent) => {
         await WebSocketsService.instance.broadcast(event)
       })
+
+      WebSocketsService.instance.wsEventEmitter.on(Events.Activity, async (event: Activity) => {
+        await WebSocketsService.instance.broadcastActivity(event)
+      })
     }
 
     return WebSocketsService.instance
@@ -42,6 +47,10 @@ export class WebSocketsService {
     const message = await this.createMessageFromActivityEvent(event)
 
     return this.write(message)
+  }
+
+  async broadcastActivity(activity: Activity): Promise<void> {
+    this.wsServer.room(activity.pushTo()).write(activity.data())
   }
 
   async createMessageFromActivityEvent(event: ActivityEvent): Promise<WsOutMessage> {
@@ -98,14 +107,14 @@ export class WebSocketsService {
   private write(message: WsOutMessage): void {
     if (this.isSidebarRelated(message)) {
       const sideBarRoom = `${message.space.id}.Sidebar`
-      this.wsServer.room(sideBarRoom).write({message})
+      this.wsServer.room(sideBarRoom).write({ message })
     }
 
     const roomName = this.roomName(message)
-    this.wsServer.room(roomName).write({message})
+    this.wsServer.room(roomName).write({ message })
 
     // Test: send all activities
     const activitiesRoom = `${message.space.id}.Activity`
-    this.wsServer.room(activitiesRoom).write({message})
+    this.wsServer.room(activitiesRoom).write({ message })
   }
 }

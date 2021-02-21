@@ -2,16 +2,16 @@ import { Activity } from './Activity'
 import { IContentEntity } from './content/types'
 
 export abstract class EntityActivity<T extends IContentEntity> extends Activity {
-  protected _entityObject: T
+  protected _entity: T
   protected _entityAttributes = []
   protected _entityUpdateAttributes = []
 
   constructor(action: string, _entityObject: T) {
     super(action)
 
-    this._entityObject = _entityObject
+    this._entity = _entityObject
     this._entityId = _entityObject.id
-    this._entity = this.getEntityName()
+    this._entityName = this.getEntityName()
   }
 
   abstract getEntityName(): string

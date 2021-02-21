@@ -8,7 +8,8 @@ import { Queue } from '../../libs/Queue'
 import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
 import { processActivities } from './processor/'
 import { IActivityObserver } from '../contracts'
-import { IActivity } from './activities/Activity'
+import { Activity as AppActivity } from './activities/Activity'
+import { Events } from '../events/websockets/WsEvent'
 
 export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
@@ -32,14 +33,20 @@ export class ActivityService implements IActivityObserver {
     return getCustomRepository(ActivityRepository)
   }
 
-  async activityNotification(appActivity: IActivity): Promise<void> {
-    const data = appActivity.toObject()
-    const activity = await this.getActivityRepository().save(data as any)
+  async activityNotification(appActivity: AppActivity): Promise<void> {
+    const activityObject = appActivity.toObject()
+    
+    if (appActivity.push()) {
+      this.wsEventEmitter.emit(Events.Activity, appActivity)
+    }
 
-    data.activityId = activity.id
+    if (appActivity.persist()) {
+      const activity = await this.getActivityRepository().save(activityObject.data as any)
+      activityObject.data.activityId = activity.id
+    }
 
-    if (data.handler) {
-      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+    if (appActivity.handler()) {
+      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
     }
   }
 

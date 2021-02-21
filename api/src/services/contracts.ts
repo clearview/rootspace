@@ -1,11 +1,11 @@
-import { IActivity } from './activity/activities/Activity'
+import { Activity } from './activity/activities/Activity'
 
 export interface IService {
   attachActivityObserver(observer: IActivityObserver): void
   detachActivityObserver(observer: IActivityObserver): void
-  notifyActivity(activity: IActivity): void
+  notifyActivity(activity: Activity): void
 }
 
 export interface IActivityObserver {
-  activityNotification(activity: IActivity): Promise<void>
+  activityNotification(activity: Activity): Promise<void>
 }

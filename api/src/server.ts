@@ -40,7 +40,7 @@ export default class Server {
       pathname: config.ws.path,
       parser: 'JSON',
       transformer: 'websockets',
-      plugin: {'rooms': Rooms}
+      plugin: {'rooms': Rooms},
     })
 
     wsServerHooks(this.wsServer)

@@ -45,7 +45,7 @@ export class DocActivity extends ContentActivity<Doc> {
   }
 
   protected updated(updatedEntity: Doc) {
-    const updatedAttributes = this.getUpdatedAttributes(this._entityObject, updatedEntity, this._entityUpdateAttributes)
+    const updatedAttributes = this.getUpdatedAttributes(this._entity, updatedEntity, this._entityUpdateAttributes)
 
     if (this.docUpdateSetup.contentUpdated) {
       updatedAttributes.push('content')
@@ -53,7 +53,7 @@ export class DocActivity extends ContentActivity<Doc> {
 
     this._context = {
       updatedAttributes,
-      entity: this.filterEntityAttributes(this._entityObject, this._entityAttributes),
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
       updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
     }
 

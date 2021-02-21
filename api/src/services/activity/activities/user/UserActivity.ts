@@ -15,7 +15,7 @@ export class UserActivitiy extends Activity {
   private constructor(action: string, entity: string, entityId: number, actorId?: number) {
     super(action)
 
-    this._entity = entity
+    this._entityName = entity
     this._entityId = entityId
     this._actorId = actorId ?? httpRequestContext.get('user').id
   }

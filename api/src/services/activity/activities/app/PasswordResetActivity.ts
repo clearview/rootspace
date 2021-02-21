@@ -7,7 +7,7 @@ export class PasswordResetActivity extends Activity {
   constructor(action: string, entity: string, entityId: number, actorId?: number) {
     super(action)
 
-    this._entity = entity
+    this._entityName = entity
     this._entityId = entityId
     this._actorId = actorId
   }
