@@ -21,7 +21,7 @@
       <h2 class="text-center">Check your Email</h2>
       <p class="text-center">We’ve sent you an email with password recovery instructions.</p>
       <p class="text-center mb-2">
-        <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
+        <router-link :to="{ name: 'SignIn', query: redirectTo}" class="signin">click here</router-link>
         to login to the Root App
       </p>
     </div>
@@ -63,7 +63,8 @@ export default class Forgotpassword extends Vue {
       this.isLoading = true
 
       try {
-        await this.$store.dispatch('auth/recoverPassword', { data })
+        const urlQueryParams = Object.entries(this.$route.query).map(v => v.join('=')).join('&')
+        await this.$store.dispatch('auth/recoverPassword', { data: { ...data, urlQueryParams } })
         this.showSuccessPage = true
       } catch (err) {
         this.alert = {

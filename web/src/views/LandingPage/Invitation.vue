@@ -45,12 +45,10 @@ export default class Invitation extends Mixins(SpaceMixin) {
         this.isLoading = true
 
         const data = await UserService.acceptInvitation(payload)
-
+        await this.$store.dispatch('space/fetch')
         await this.$store.dispatch('auth/whoami')
+        await this.activateSpace(data.data[0].spaceId)
 
-        const space = find(this.spaces, ['id', data.data.spaceId])
-
-        this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         const user = this.$store.state.auth.user

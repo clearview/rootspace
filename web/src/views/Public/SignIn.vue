@@ -79,7 +79,9 @@ export default class SignIn extends Vue {
           message: 'Password has been changed successfully',
           noicon: true
         }
-        this.$router.replace({ query: undefined })
+        // eslint-disable-next-line
+        const { from, ...redirectQuery } = query
+        this.$router.replace({ query: redirectQuery })
       }
     }
 
