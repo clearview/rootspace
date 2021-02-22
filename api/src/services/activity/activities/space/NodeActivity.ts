@@ -40,14 +40,48 @@ export class NodeActivity extends EntityActivity<Node> {
     return null
   }
 
-  static updated(node: Node, updatedNode: Node, actorId?: number) {
-    const activity = new NodeActivity(NodeActions.Updated, node, actorId)
-    activity.updated(updatedNode)
+  static created(node: Node, actorId?: number) {
+    const activity = new NodeActivity(NodeActions.Created, node, actorId)
+    activity.createContext()
 
     return activity
   }
 
-  updated(updatedNode: Node) {
+  static updated(node: Node, updatedNode: Node, actorId?: number) {
+    const activity = new NodeActivity(NodeActions.Updated, node, actorId)
+    activity.createUpdateContext(updatedNode)
+
+    return activity
+  }
+
+  static archived(node: Node, actorId?: number) {
+    const activity = new NodeActivity(NodeActions.Archived, node, actorId)
+    activity.createContext()
+
+    return activity
+  }
+
+  static restored(node: Node, actorId?: number) {
+    const activity = new NodeActivity(NodeActions.Restored, node, actorId)
+    activity.createContext()
+
+    return activity
+  }
+
+  static deleted(node: Node, actorId?: number) {
+    const activity = new NodeActivity(NodeActions.Deleted, node, actorId)
+    activity.createContext()
+
+    return activity
+  }
+
+  private createContext() {
+    this._context = {
+      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
+    }
+  }
+
+  private createUpdateContext(updatedNode: Node) {
     this._context = {
       updatedAttributes: this.getUpdatedAttributes(this._entity, updatedNode, this._entityUpdateAttributes),
       entity: this.filterEntityAttributes(this._entity, this._entityAttributes),

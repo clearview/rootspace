@@ -8,7 +8,7 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   protected constructor(action: string, entityObject: T, actorId?: number) {
     super(action, entityObject)
 
-    this._actorId = actorId ?? 1
+    this._actorId = actorId ?? httpRequestContext.get('user').id
     this._spaceId = entityObject.spaceId
   }
 

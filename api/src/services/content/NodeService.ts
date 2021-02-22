@@ -139,6 +139,8 @@ export class NodeService extends Service {
     node.parent = parent
 
     const savedNode = await this.getNodeRepository().save(node)
+    this.notifyActivity(NodeActivity.created(savedNode))
+
     return savedNode
   }
 
@@ -162,11 +164,8 @@ export class NodeService extends Service {
       return
     }
 
-    if (data.title) {
-      node.title = data.title
-    }
-
-    await this.getNodeRepository().save(node)
+    const value = NodeUpdateValue.fromObject({ title: data.title })
+    await this._update(value, node)
   }
 
   private async _update(data: NodeUpdateValue, node: Node): Promise<Node> {
@@ -280,6 +279,8 @@ export class NodeService extends Service {
     node = await this.updateNodeParent(node, archiveNode.id)
     node = await this.getNodeRepository().softRemove(node)
 
+    await this.notifyActivity(NodeActivity.archived(node))
+
     return node
   }
 
@@ -332,6 +333,8 @@ export class NodeService extends Service {
 
     node = await this.getNodeRepository().recover(node)
     await this._restoreChildren(node)
+
+    await this.notifyActivity(NodeActivity.restored(node))
 
     return node
   }
@@ -392,6 +395,8 @@ export class NodeService extends Service {
     node = await this.getNodeRepository().remove(node)
 
     await this.getNodeRepository().decreasePositions(node.parentId, node.position)
+
+    await this.notifyActivity(NodeActivity.deleted(node))
 
     return node
   }
