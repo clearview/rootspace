@@ -1072,13 +1072,15 @@ export default {
         }
       },
       autoResizeTitle () {
-        this.$refs.title.style.height = '1px'
-        const height = this.$refs.title.scrollHeight
-        if (height === 0) {
-          this.$refs.title.style.height = '29px'
-        } else {
-          this.$refs.title.style.height = height + 'px'
-        }
+        this.$nextTick(() => {
+          this.$refs.title.style.height = '1px'
+          const height = this.$refs.title.scrollHeight
+          if (height === 0) {
+            this.$refs.title.style.height = '29px'
+          } else {
+            this.$refs.title.style.height = height + 'px'
+          }
+        })
       },
       async saveTitleOnly () {
         const title = this.title
@@ -1475,7 +1477,6 @@ export default {
   width: 100%;
   position: relative;
   display: flex;
-  user-select: all;
 }
 
 .paper {
