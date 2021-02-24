@@ -5,6 +5,7 @@ import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Node } from '../../database/entities/Node'
+import { SpaceUserRole } from '../../types/spaceUser'
 
 export class SpaceFacade {
   private spaceService: SpaceService
@@ -42,7 +43,7 @@ export class SpaceFacade {
   async createSpace(data: SpaceCreateValue): Promise<Space> {
     const space = await this.spaceService.create(data)
 
-    await this.userSpaceService.add(space.userId, space.id)
+    await this.userSpaceService.add(space.userId, space.id, SpaceUserRole.Admin)
 
     await this.nodeService.createSpaceRootNode(space.id, space.userId)
     await this.nodeService.createSpaceArchiveNode(space.id)

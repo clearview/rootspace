@@ -20,7 +20,7 @@ export class UserToSpace {
   active: boolean
 
   @Column('integer', { default: 1 })
-  roleId: number
+  role: number
 
   @CreateDateColumn({ type: 'timestamptz'})
   createdAt: Date

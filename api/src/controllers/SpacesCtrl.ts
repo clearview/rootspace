@@ -11,7 +11,6 @@ export class SpacesCtrl extends BaseCtrl {
   private spaceFacade: SpaceFacade
   private userSpaceService: UserSpaceService
 
-
   constructor() {
     super()
     this.inviteFacade = new InviteFacade()
@@ -79,8 +78,6 @@ export class SpacesCtrl extends BaseCtrl {
 
     const data = SpaceCreateValue.fromObjectAndUserId(req.body, req.user.id)
     const space = await this.spaceFacade.createSpace(data)
-    
-    await this.userSpaceService.updateRole(space.userId, space.id, 0)
 
     if (req.body.invites) {
       await this.inviteFacade.sendToEmails(req.body.invites, space.id, req.user.id)

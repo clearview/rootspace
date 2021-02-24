@@ -2,11 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import { config } from 'node-config-ts'
 import jwt from 'jsonwebtoken'
 import passport from '../passport'
-import { getCustomRepository } from 'typeorm'
 import { BaseCtrl } from './BaseCtrl'
-import { UserRepository } from '../database/repositories/UserRepository'
-import { SpaceRepository } from '../database/repositories/SpaceRepository'
-import { UserService, ActivityService, UserSettingService, UserSpaceService, SpaceService } from '../services'
+import { UserService, ActivityService, UserSettingService, SpaceService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import {
   validateUserSignup,
@@ -15,7 +12,6 @@ import {
   validatePasswordRecovery,
   validatePasswordReset,
   validatePasswordSet,
-  validatRoleUpdate,
 } from '../validation/user'
 import {
   UserUpdateValue,
@@ -23,7 +19,6 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
   PasswordSetValue,
-  RoleSetValue,
 } from '../values/user'
 import { UserAuthProvider } from '../types/user'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
@@ -33,13 +28,10 @@ export class UsersCtrl extends BaseCtrl {
   private userSettingsService: UserSettingService
   private spaceService: SpaceService
   private activityService: ActivityService
-  private userSpaceService: UserSpaceService
-
 
   constructor() {
     super()
     this.userService = UserService.getInstance()
-    this.userSpaceService = UserSpaceService.getInstance()
     this.userSettingsService = UserSettingService.getInstance()
     this.spaceService = ServiceFactory.getInstance().getSpaceService()
     this.activityService = ServiceFactory.getInstance().getActivityService()
@@ -121,12 +113,6 @@ export class UsersCtrl extends BaseCtrl {
     const spaces = await this.spaceService.getSpacesByUserId(user.id)
 
     res.send({ user, spaces })
-  }
-
-  async role(req: Request, res: Response) {
-    const space = await this.userSpaceService.getByUserIdAndSpaceId(req.user.id, Number(req.params.spaceId))
-
-    res.send({ roleId: space?.roleId })
   }
 
   async profile(req: Request, res: Response) {
@@ -237,19 +223,4 @@ export class UsersCtrl extends BaseCtrl {
 
     res.send(updatedSettings)
   }
-
-  async updateRole(req: Request, res: Response) {
-    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
-    const userIdAdmin = req.user.id
-    const data = req.body
-
-    // this.checkSpaceAccess(req, spaceId) TODO: Check if user can update
-    await validatRoleUpdate(data, userIdAdmin)
-
-    const user = await this.userSpaceService.updateRole(data.userId, spaceId, data.roleId)
-    const resData = this.responseData(user)
-
-    res.send(resData)
-  }
-
 }

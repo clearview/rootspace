@@ -21,6 +21,9 @@ router.get('/spaces/:id/invites', mapRoute(SpacesCtrl, 'invites'))
 router.get('/spaces/:id/favorites', mapRoute(SpacesCtrl, 'favorites'))
 
 router.get('/spaces/:spaceId/users', mapRoute(SpaceUsersCtrl, 'listAll'))
+router.get('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'view'))
+router.get('/spaces/:spaceId/whoami', mapRoute(SpaceUsersCtrl, 'whoami'))
+router.patch('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'update'))
 router.delete('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'remove'))
 
 export { router as spaceRouter }
