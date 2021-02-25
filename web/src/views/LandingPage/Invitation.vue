@@ -40,7 +40,7 @@ export default class Invitation extends Mixins(SpaceMixin) {
         return this.submit()
       } else {
         window.localStorage.setItem('root:invite:token', this.$route.params.token)
-        return this.$router.push({ name: 'SignIn' })
+        return this.$router.push({ name: 'SignIn', query: { redirectTo: `/invitation/${this.$route.params.token}` } })
       }
     }
 
