@@ -14,7 +14,6 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import { find } from 'lodash'
 
 import UserService from '@/services/user'
 import RootHeader from '@/components/RootHeader.vue'
@@ -31,8 +30,18 @@ export default class Invitation extends Mixins(SpaceMixin) {
     private message = ''
     private code = 0
 
-    created () {
-      this.submit()
+    private get isLoggedIn () {
+      return this.$store.state.auth.token !== null
+    }
+
+    async created () {
+      if (this.isLoggedIn) {
+        window.localStorage.removeItem('root:invite:token')
+        return this.submit()
+      } else {
+        window.localStorage.setItem('root:invite:token', this.$route.params.token)
+        return this.$router.push({ name: 'SignIn' })
+      }
     }
 
     async submit () {
