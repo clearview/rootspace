@@ -158,8 +158,6 @@ export default class FormSetPassword extends Vue {
 
       this.$v.payload.$reset()
 
-      this.user.authProvider = 'local'
-
       this.payload = {
         password: '',
         newPassword: '',
