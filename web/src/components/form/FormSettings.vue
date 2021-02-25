@@ -254,8 +254,9 @@ export default class FormSettings extends Vue {
       this.modal.loading = true
       let message = ''
 
-      await UserService.passwordChange(password)
+      const result = await UserService.passwordChange(password)
       message += 'Your password have been saved'
+      this.$store.commit('auth/setUser', result.data.data)
 
       // await this.$store.dispatch('auth/whoami')
 
