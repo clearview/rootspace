@@ -4,7 +4,7 @@
 
     <div id="confirm-email-content" class="flex flex-col items-center justify-center">
       <h5 v-if="isLoading">Checking your invitation...</h5>
-      <h5 v-if="!isLoading && message">{{ message }}!</h5>
+      <h5 v-if="!isLoading && message" v-html="message"/>
       <h6 v-if="!isLoading && code !== 401 && message">
         <router-link :to="{ name: 'Main'}" class="signin">click here to go back...</router-link>
       </h6>
@@ -53,7 +53,9 @@ export default class Invitation extends Mixins(SpaceMixin) {
         this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
-        this.message = err.message.includes('invalid input syntax for type uuid') ? 'The invitation token is invalid' : err.message
+        const user = this.$store.state.auth.user
+        const message = err.message.includes('invalid input syntax for type uuid') ? 'The invitation token is invalid' : err.message
+        this.message = user ? `Hi <b>${[user.firstName, user.lastName].join(' ')}</b>, ${message}` : message
         this.code = err.code
       } finally {
         this.isLoading = false
