@@ -74,7 +74,7 @@ export class InviteFacade {
       : await this.userService.getUserByEmail(invite.email)
 
     if (!user || user.id !== authorizedUserId) {
-      throw clientError('The invitation token is not valid', HttpErrName.InvalidToken, HttpStatusCode.NotFound)
+      throw clientError('The invitation token is not valid', HttpErrName.InvalidToken)
     }
 
     const space = await this.spaceService.requireSpaceById(invite.spaceId)

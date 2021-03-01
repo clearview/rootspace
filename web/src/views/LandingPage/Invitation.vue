@@ -14,7 +14,6 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import { find } from 'lodash'
 
 import UserService from '@/services/user'
 import RootHeader from '@/components/RootHeader.vue'
@@ -31,8 +30,18 @@ export default class Invitation extends Mixins(SpaceMixin) {
     private message = ''
     private code = 0
 
-    created () {
-      this.submit()
+    private get isLoggedIn () {
+      return this.$store.state.auth.token !== null
+    }
+
+    async created () {
+      if (this.isLoggedIn) {
+        window.localStorage.removeItem('root:invite:token')
+        return this.submit()
+      } else {
+        window.localStorage.setItem('root:invite:token', this.$route.params.token)
+        return this.$router.push({ name: 'SignIn', query: { redirectTo: `/invitation/${this.$route.params.token}` } })
+      }
     }
 
     async submit () {
@@ -45,12 +54,10 @@ export default class Invitation extends Mixins(SpaceMixin) {
         this.isLoading = true
 
         const data = await UserService.acceptInvitation(payload)
-
+        await this.$store.dispatch('space/fetch')
         await this.$store.dispatch('auth/whoami')
+        await this.activateSpace(data.data[0].spaceId)
 
-        const space = find(this.spaces, ['id', data.data.spaceId])
-
-        this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
         const user = this.$store.state.auth.user
