@@ -64,10 +64,10 @@ export class User {
   updatedAt: Date
 
   @OneToMany(
-    (type) => UserToSpace,
-    (space) => space.user
+    () => UserToSpace,
+    (userToSpace) => userToSpace.user
   )
-  public spaces!: UserToSpace[]
+  public userToSpaces!: UserToSpace[]
 
   @OneToMany(
     (type) => Follow,

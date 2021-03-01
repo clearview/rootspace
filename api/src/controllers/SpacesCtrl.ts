@@ -3,19 +3,16 @@ import { BaseCtrl } from './BaseCtrl'
 import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
 import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
 import { clientError, HttpErrName } from '../response/errors'
-import { UserSpaceService } from '../services'
 import { SpaceFacade, InviteFacade } from '../services/facade'
 
 export class SpacesCtrl extends BaseCtrl {
   private inviteFacade: InviteFacade
   private spaceFacade: SpaceFacade
-  private userSpaceService: UserSpaceService
 
   constructor() {
     super()
     this.inviteFacade = new InviteFacade()
     this.spaceFacade = new SpaceFacade()
-    this.userSpaceService = UserSpaceService.getInstance()
   }
 
   async listAll(req: Request, res: Response) {
