@@ -51,12 +51,18 @@
       </template>
 
       <template #feedback v-if="$v.invitation.$error">
-        <p
+        <div
           v-if="isEmailError && !$v.invitation.email"
           class="feedback is-danger"
         >
           Email format is not valid.
-        </p>
+        </div>
+        <div
+          v-if="isEmailError && !$v.invitation.$model"
+          class="feedback is-danger"
+        >
+          Email is required.
+        </div>
         <div
           v-if="$v.invitation.$model.length > 100 && !$v.invitation.email.maxlength"
           class="feedback is-danger"
@@ -200,11 +206,11 @@ export default class FormSpace extends Vue {
     }
 
     addInvitationList (email: string, bypassValidation = false): void {
-      if (!this.$v.invitation.email &&
-          this.$v.invitation.required &&
-          this.$v.invitation.maxLength &&
-          !bypassValidation) {
-        if (!this.$v.invitation.email) this.isEmailError = true
+      if (!bypassValidation && !email) {
+        this.isEmailError = true
+        return
+      } else if (!bypassValidation && this.$v.invitation.$error) {
+        this.isEmailError = true
         return
       }
 
