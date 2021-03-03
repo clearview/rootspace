@@ -7,9 +7,11 @@
         <li :class="{ active: $route.name === 'SettingsAccount' }">
           <router-link :to="{name: 'SettingsAccount'}">My Account</router-link>
         </li>
-        <li  :class="{ active: $route.name === 'SettingsSpace' }" v-if="isAdmin">
-          <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
-        </li>
+        <permission role="admin">
+          <li  :class="{ active: $route.name === 'SettingsSpace' }">
+            <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
+          </li>
+        </permission>
       </ul>
 
       <div class="settings-content">
@@ -31,8 +33,8 @@ import VLoading from '@/components/Loading.vue'
 import VModal from '@/components/legacy/Modal.vue'
 
 import PageMixin from '@/mixins/PageMixin'
-import RoleMixin from '@/mixins/RoleMixin'
 import UploadableImage from '@/components/UploadableImage.vue'
+import { Permission } from '@/components/access'
 import Avatar from 'vue-avatar'
 import store from '@/store'
 
@@ -46,10 +48,11 @@ import store from '@/store'
     Avatar,
     VAlert,
     VLoading,
-    VModal
+    VModal,
+    Permission
   }
 })
-export default class Settings extends Mixins(PageMixin, RoleMixin) {
+export default class Settings extends Mixins(PageMixin) {
     private tab = 'account';
     private emailNotifications = true;
     private loadingMessage = 'Update Settings...';

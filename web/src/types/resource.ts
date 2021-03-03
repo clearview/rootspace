@@ -162,11 +162,13 @@ export interface SpaceResource {
   invites: string[];
   settings?: object;
 }
-export interface SpaceRole {
-  index: number;
-  userId: number;
+
+export interface SpaceRoleResource {
+  id: number;
   spaceId: number;
-  roleId: boolean;
+  userId: number;
+  active: boolean;
+  role: 0 | 1;
 }
 
 export interface SpaceSettingResource {
@@ -191,8 +193,6 @@ export interface UserResource {
   token?: string;
   created?: string;
   updated?: string;
-  hasRole: boolean;
-  hasRoleId: number;
 }
 
 export interface DocumentResource {

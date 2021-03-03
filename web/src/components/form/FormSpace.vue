@@ -83,10 +83,6 @@
             <span class="invite-again" @click="addInvitationList(list.email, true)">Invite again</span>
           </div>
         </div>
-
-        <span class="role-switch" v-if="currentUser.email !== list.email">
-          <button-switch v-model="roleId[indexList]" @input="updateRole(indexList, list.id, roleId[indexList])" />
-        </span>
         <span class="close-icon" v-if="currentUser.email !== list.email" @click="deleteInvitation(indexList, list.email)">
           <v-icon name="close" size=".9em" viewbox="32" title="Remove"/>
         </span>
@@ -124,7 +120,6 @@
 import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
 import { SpaceResource, UserResource } from '@/types/resource'
-import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Alert from '@/components/Alert.vue'
 import VField from '@/components/Field.vue'
 import Avatar from 'vue-avatar'
@@ -132,7 +127,6 @@ import Avatar from 'vue-avatar'
 @Component({
   name: 'FormSpace',
   components: {
-    ButtonSwitch,
     VField,
     Avatar,
     Alert
@@ -184,10 +178,9 @@ export default class FormSpace extends Vue {
       return this.$store.state.auth.user
     }
 
-    private roleId = [];
     private invitation = '';
     private invitationList = [];
-    private isEmailError = false;
+    private isEmailError = false
 
     @Ref('initialInput')
     private readonly initialInputRef!: HTMLInputElement;
@@ -225,10 +218,6 @@ export default class FormSpace extends Vue {
       }
     }
 
-    updateRole (index: number, userId: number, roleId: boolean): void {
-      this.$emit('updateRole', { index, userId, roleId: roleId ? 0 : 1 })
-    }
-
     deleteInvitation (index: number, email: string): void {
       if (this.isEdit) {
         this.$emit('deleteUser', email)
@@ -264,7 +253,7 @@ export default class FormSpace extends Vue {
       @apply py-2;
 
       &:hover {
-        .close-icon, .role-switch {
+        .close-icon {
           @apply visible;
         }
       }
@@ -293,11 +282,7 @@ export default class FormSpace extends Vue {
         cursor: pointer;
       }
     }
-    .role-switch {
-      @apply invisible;
 
-      margin-top: 0.3rem;
-    }
     .close-icon {
       @apply rounded-full bg-gray-100 self-center;
       @apply invisible;
@@ -305,7 +290,6 @@ export default class FormSpace extends Vue {
       /* transition: all .01s;
       transition-timing-function: ease; */
       padding: 0.15rem;
-      margin-left: 2.5rem;
       cursor: pointer;
     }
   }

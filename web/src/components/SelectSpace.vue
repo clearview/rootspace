@@ -209,11 +209,6 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
       const space = await this.$store.dispatch('space/create', data)
 
       await this.activateSpace(space.id)
-
-      this.$store.dispatch('auth/setUserRoles', {
-        spaceId: space.id,
-        userId: this.$store.state.auth.user?.id
-      })
     } catch { }
 
     this.modal.loading = false

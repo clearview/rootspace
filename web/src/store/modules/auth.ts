@@ -24,16 +24,6 @@ const AuthModule: Module<AuthState, RootState> = {
     setToken (state, token) {
       state.token = token
     },
-    setUserRole (state, value) {
-      if (state.user) {
-        state.user.hasRole = value
-      }
-    },
-    setUserRoleId (state, value) {
-      if (state.user) {
-        state.user.hasRoleId = value
-      }
-    },
     setUser (state, user) {
       state.user = user
     }
@@ -50,31 +40,6 @@ const AuthModule: Module<AuthState, RootState> = {
         await dispatch('space/initSetting', null, { root: true })
       } catch (err) {
         dispatch('signout')
-      }
-    },
-    async hasRoles ({ commit }, payload) {
-      try {
-        const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
-
-        if (!payload.hasRoles || payload.hasRoles?.includes(data?.roleId)) {
-          commit('setUserRole', true)
-          return true
-        }
-
-        commit('setUserRole', false)
-
-        return false
-      } catch (err) {
-        throw new Error('Something went wrong')
-      }
-    },
-    async setUserRoles ({ commit }, payload) {
-      try {
-        const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
-
-        commit('setUserRoleId', data?.roleId)
-      } catch (err) {
-        throw new Error('Something went wrong')
       }
     },
     async signup (_, payload) {

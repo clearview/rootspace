@@ -28,24 +28,6 @@ export default class AuthService {
     }
   }
 
-  static async getUserRolesBySpaceId (spaceId: number, userId: number) {
-    try {
-      const res = await api.get('/spaces/' + spaceId + '/whoami')
-
-      if (!res.data) {
-        throw new Error('Invalid response from server')
-      }
-
-      if (res.data.status === 'error') {
-        throw new Error(res.data.msg)
-      }
-
-      return res
-    } catch (err) {
-      throw new Error('No roles available')
-    }
-  }
-
   static async signup (payload: object) {
     try {
       const res = await api.post('signup', payload)

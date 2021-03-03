@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import { roleIdAdmin } from '@/mixins/RoleMixin'
-
 import store from '@/store'
 import api from '@/utils/api'
 import Space from '@/views/Space.vue'
@@ -35,7 +33,6 @@ const routes: Array<RouteConfig> = [
           {
             path: 'space',
             name: 'SettingsSpace',
-            meta: { hasRoles: [roleIdAdmin] },
             component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue')
           }
         ]
@@ -161,32 +158,13 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   const noAuth = to.meta.noAuth
   const skipAuth = to.meta.skipAuth
-  const hasRoles = to.meta.hasRoles
   const hasToken = store.state.auth.token !== null
   const hasUser = store.state.auth.user !== null
 
   if (hasToken && !hasUser) {
-    await store.dispatch('auth/whoami', { updateSpace: true, spaceId: store.state.space.activeSpaceId })
+    await store.dispatch('auth/whoami', { updateSpace: true })
   }
-
-  store.dispatch('auth/setUserRoles', {
-    spaceId: store.state.space.activeSpaceId,
-    userId: store.state.auth.user?.id
-  })
-
-  if (hasRoles) {
-    const hasRole = await store.dispatch('auth/hasRoles', {
-      spaceId: store.state.space.activeSpaceId,
-      userId: store.state.auth.user?.id,
-      hasRoles
-    })
-
-    if (!hasRole) {
-      next('/')
-    }
-  }
-
-  if ((hasToken && skipAuth)) {
+  if (hasToken && skipAuth) {
     next('/')
   }
   if (hasToken || noAuth) {

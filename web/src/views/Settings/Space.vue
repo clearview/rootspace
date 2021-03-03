@@ -1,51 +1,52 @@
 <template>
-  <div class="space">
-    <div class="col-center">
-      <Alert v-model="space.alert"/>
+  <permission role="admin">
+    <div class="space">
+      <div class="col-center">
+        <Alert v-model="space.alert"/>
 
-      <div class="space-logo">
-        <UploadableImage width="64px" height="64px" radius="4px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
-                         :upload="activeSpace.avatar" edit-offset="-12px" key="space"
-                         @uploaded="refreshWhoami">
-          <template #fallback>
-            <img src="../../assets/images/default-space.png" alt="Avatar Logo">
-          </template>
-        </UploadableImage>
-      </div>
-      <form-space
-        @submit="updateSpace"
-        @addUser="addSpaceUser"
-        @updateRole="updateRole"
-        @deleteUser="deleteSpaceUser"
-        @invitesAlertDisplay="invitesAlertDisplay"
-        :value="spaceData"
-        :is-edit="true"
-        :alert="invitesAlert"
-        button="Save"
-        ref="space">
-        <div class="form-border">
-          <p>Email notifications</p>
-          <button-switch v-model="emailNotifications"/>
+        <div class="space-logo">
+          <UploadableImage width="64px" height="64px" radius="4px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
+                          :upload="activeSpace.avatar" edit-offset="-12px" key="space"
+                          @uploaded="refreshWhoami">
+            <template #fallback>
+              <img src="../../assets/images/default-space.png" alt="Avatar Logo">
+            </template>
+          </UploadableImage>
         </div>
-      </form-space>
-    </div>
-
-    <Loading :loading="isLoading">
-      <p>{{ loadingMessage }}</p>
-    </Loading>
-
-    <Modal
-      title="User Space"
-      :visible="space.error"
-      :nosubmit="true"
-      cancel-text="Okay"
-      @cancel="space.error = false"
-    >
-      <div class="modal-body text-center">
-        {{ space.errorMessage }}
+        <form-space
+          @submit="updateSpace"
+          @addUser="addSpaceUser"
+          @deleteUser="deleteSpaceUser"
+          @invitesAlertDisplay="invitesAlertDisplay"
+          :value="spaceData"
+          :is-edit="true"
+          :alert="invitesAlert"
+          button="Save"
+          ref="space">
+          <div class="form-border">
+            <p>Email notifications</p>
+            <button-switch v-model="emailNotifications"/>
+          </div>
+        </form-space>
       </div>
-    </Modal>
-  </div>
+
+      <Loading :loading="isLoading">
+        <p>{{ loadingMessage }}</p>
+      </Loading>
+
+      <Modal
+        title="User Space"
+        :visible="space.error"
+        :nosubmit="true"
+        cancel-text="Okay"
+        @cancel="space.error = false"
+      >
+        <div class="modal-body text-center">
+          {{ space.errorMessage }}
+        </div>
+      </Modal>
+    </div>
+  </permission>
 </template>
 
 <script lang="ts">
@@ -53,7 +54,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { find } from 'lodash'
 import SpaceService from '@/services/space'
 import UserService from '@/services/user'
-import { SpaceResource, SpaceRole } from '@/types/resource'
+import { SpaceResource } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
@@ -61,8 +62,10 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import UploadableImage from '@/components/UploadableImage.vue'
 import Loading from '@/components/Loading.vue'
 import Modal from '@/components/legacy/Modal.vue'
+import { Permission } from '@/components/access'
+
 @Component({
-  components: { Modal, Loading, UploadableImage, ButtonSwitch, FormSpace, Alert }
+  components: { Modal, Loading, UploadableImage, ButtonSwitch, FormSpace, Alert, Permission }
 })
 export default class Space extends Vue {
   async refreshWhoami () {
@@ -119,34 +122,6 @@ export default class Space extends Vue {
       this.space.alert = {
         type: 'success',
         message: 'Your space settings have been saved'
-      }
-    } catch (err) {
-      this.space.alert = {
-        type: 'danger',
-        message: err.message,
-        fields: err.fields
-      }
-    } finally {
-      this.isLoading = false
-    }
-  }
-
-  async updateRole (data: SpaceRole) {
-    this.isLoading = true
-    try {
-      this.isLoading = true
-      this.loadingMessage = 'Update User Role...'
-
-      await this.$store.dispatch('space/role', {
-        spaceId: this.activeSpace.id,
-        index: data.index,
-        userId: data.userId,
-        roleId: data.roleId
-      })
-
-      this.space.alert = {
-        type: 'success',
-        message: 'User Role settings have been saved'
       }
     } catch (err) {
       this.space.alert = {
