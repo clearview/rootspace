@@ -40,7 +40,7 @@ const routes: Array<RouteConfig> = [
       {
         path: '/document/:id?/:slug?',
         name: 'Document',
-        component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
+        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
       },
       {
         path: '/novadoc/:id?/:slug?',

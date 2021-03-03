@@ -103,5 +103,4 @@ export default class ReadOnly extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-@import '../../assets/css/editorjs';
 </style>
