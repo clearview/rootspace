@@ -38,6 +38,13 @@ const routes: Array<RouteConfig> = [
         ]
       },
       {
+        path: '/document/:id?/:slug?',
+        name: 'Document',
+        redirect: {
+          name: 'Novadoc'
+        }
+      },
+      {
         path: '/doc/:id?/:slug?',
         name: 'Novadoc',
         component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
