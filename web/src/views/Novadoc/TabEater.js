@@ -1,5 +1,4 @@
 import { Extension, Plugin } from 'tiptap'
-import { joinUp } from 'tiptap-commands'
 
 const plugins = [
   new Plugin({
