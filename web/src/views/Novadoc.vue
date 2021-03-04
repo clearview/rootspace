@@ -469,6 +469,7 @@ import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
 import ListMerger from '@/views/Novadoc/ListMerger'
+import TabEater from '@/views/Novadoc/TabEater'
 
 const wsMessageType = {
   authenticate: 10,
@@ -734,7 +735,8 @@ export default {
             new TableCell(),
             new TableRow(),
             new TableMenu(),
-            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror')),
+            new TabEater()
           ],
           emptyDocument: {
             type: 'doc',
