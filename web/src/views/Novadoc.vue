@@ -317,7 +317,7 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()">
                       <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
                     </div>
                   </div>
@@ -335,7 +335,7 @@
                   </div>
                   <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
                        :style="{background: combo.background, color: combo.color}"
-                       :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                       :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']"  @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color});hideBubble()">
                     {{combo.name}}
                   </div>
                 </template>
@@ -387,7 +387,7 @@ import {
 } from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
-import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble, TextSelection } from 'tiptap'
 import {
   Blockquote,
   Bold,
@@ -559,6 +559,11 @@ export default {
   },
   methods:
     {
+      hideBubble () {
+        const sel = this.editor.view.state.selection
+        const tr = this.editor.view.state.tr
+        this.editor.view.dispatch(tr.setSelection(TextSelection.create(tr.doc, sel.to)))
+      },
       blackOrWhite (color) {
         return blackOrWhite(hexToHsl(color))
       },
@@ -1426,6 +1431,10 @@ export default {
     display: flex;
     align-items: center;
     font-size: 12px;
+    @media only screen and (max-width: 1300px){
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+    }
   }
 
   .editor-context-menu {
@@ -1433,6 +1442,10 @@ export default {
     margin-left: auto;
     display: flex;
     align-items: center;
+    @media only screen and (max-width: 1300px){
+      align-self: flex-start;
+      margin-left: 32px;
+    }
 
     .lock-indicator {
       border-radius: 4px;
