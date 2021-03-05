@@ -155,18 +155,18 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.bullet_list() } "
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'bullet_list' } "
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
+                  @click="commands.bullet_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
             <ListIcon size="16"></ListIcon>
           </button>
-          <button class="menu menu-big" :class="{ 'active': isActive.ordered_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
+                  @click="commands.ordered_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.todo_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'todo_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
             <CheckSquareIcon size="16"></CheckSquareIcon>
@@ -468,6 +468,8 @@ import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
+import ListMerger from '@/views/Novadoc/ListMerger'
+import TabEater from '@/views/Novadoc/TabEater'
 
 const wsMessageType = {
   authenticate: 10,
@@ -706,11 +708,12 @@ export default {
             new BulletList(),
             new ListItem(),
             new OrderedList(),
-            new Image(),
             new TodoList(),
             new TodoItem({
               nested: true
             }),
+            new ListMerger(),
+            new Image(),
             new Link({
               openOnClick: false
             }),
@@ -737,7 +740,8 @@ export default {
             new TableCell(),
             new TableRow(),
             new TableMenu(),
-            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror')),
+            new TabEater()
           ],
           emptyDocument: {
             type: 'doc',
@@ -795,6 +799,15 @@ export default {
             content: []
           }
         })
+      },
+      getCurrentActiveNode (depth = 1) {
+        const sel = this.editor.state.selection
+        if (sel) {
+          const node = sel.$from.node(sel.$from.depth - depth)
+          if (node) {
+            return node.type.name
+          }
+        }
       },
       listenForNodeNameChanges () {
         this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
