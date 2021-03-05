@@ -3,6 +3,7 @@ import { IPasswordRecoveryAttributes } from './types'
 
 export const PasswordRecoveryAttributes: IPasswordRecoveryAttributes = {
   email: null,
+  urlQueryParams: null,
 }
 
 @attributes(PasswordRecoveryAttributes)

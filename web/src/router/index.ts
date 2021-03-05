@@ -40,10 +40,12 @@ const routes: Array<RouteConfig> = [
       {
         path: '/document/:id?/:slug?',
         name: 'Document',
-        component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
+        redirect: {
+          name: 'Novadoc'
+        }
       },
       {
-        path: '/novadoc/:id?/:slug?',
+        path: '/doc/:id?/:slug?',
         name: 'Novadoc',
         component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
       },
@@ -108,7 +110,10 @@ const routes: Array<RouteConfig> = [
   {
     path: '/invitation/:token',
     name: 'Invitation',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue')
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue'),
+    meta: {
+      noAuth: true
+    }
   },
   {
     path: '/auth/google/callback',
