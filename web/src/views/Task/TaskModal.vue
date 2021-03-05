@@ -73,22 +73,7 @@
             <span class="description-title-placeholder">Description</span>
             <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <div
-            :class="{
-              'description-input': true,
-              'is-disabled': !isEditingDescription
-            }"
-          >
-            <quill-editor
-              :options="editorOption"
-              :disabled="!isEditingDescription"
-              v-model="descriptionCopy.description"
-            />
-            <div class="description-input-actions">
-              <span class="cancel" @click="cancelDescription">Cancel</span>
-              <span class="save" @click="saveDescription">Save</span>
-            </div>
-          </div>
+          <ProseInput :read-only="!isEditingDescription" v-model="editDescription" @save="saveDescription" @cancel="cancelDescription"></ProseInput>
         </div>
         <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
           <div class="attachments-label">
@@ -226,10 +211,12 @@ import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
+import ProseInput from '@/components/prose-input/ProseInput.vue'
 
 @Component({
   name: 'TaskModal',
   components: {
+    ProseInput,
     TaskActivities,
     TaskAttachmentView,
     DueDatePopover,
@@ -267,6 +254,7 @@ export default class TaskModal extends Vue {
     @Inject('modal')
     modal!: ModalInjectedContext
 
+    private editDescription = JSON.parse(this.item.description as string)
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
     private isEditingDescription = false
@@ -364,15 +352,15 @@ export default class TaskModal extends Vue {
     async saveDescription () {
       await this.$store.dispatch('task/item/update', {
         id: this.item.id,
-        description: this.descriptionCopy.description
+        description: this.editDescription
       })
-      this.itemCopy.description = this.descriptionCopy.description
+      this.itemCopy.description = this.editDescription
       this.isEditingDescription = false
     }
 
     cancelDescription () {
       this.isEditingDescription = false
-      this.descriptionCopy.description = this.itemCopy.description
+      this.editDescription = JSON.parse(this.item.description as string)
     }
 
     commentHandler (e: any) {
