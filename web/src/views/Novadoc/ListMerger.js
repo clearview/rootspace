@@ -9,10 +9,12 @@ const plugins = [
           const sel = view.state.selection
           const currentList = sel.$from.node(sel.$from.depth - 1)
           const currentListParent = sel.$from.node(sel.$from.depth - 2)
+          const currentListGrandParent = sel.$from.node(sel.$from.depth - 3)
           // We want to merge only if its the first child
           if (
             currentList.type.name === 'list_item' &&
             (currentListParent.type.name === 'ordered_list' || currentListParent.type.name === 'bullet_list') &&
+            currentListGrandParent.type.name !== 'list_item' &&
             currentListParent.childCount === 1
           ) {
             joinUp(view.state, view.dispatch)
