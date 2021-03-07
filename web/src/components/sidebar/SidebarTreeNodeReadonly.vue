@@ -41,14 +41,6 @@ import LabelEditable from '@/components/LabelEditable.vue'
 import { NodeResource } from '@/types/resource'
 import Popover from '@/components/Popover.vue'
 
-// Interfaces
-
-interface WrapperConfig {
-  tag: string;
-  attrs?: object;
-  listeners?: object;
-}
-
 // Enums
 
 export enum NodeType {

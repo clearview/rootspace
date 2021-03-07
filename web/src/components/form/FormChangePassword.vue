@@ -129,7 +129,6 @@ import { Component, Vue } from 'vue-property-decorator'
         minLength: minLength(8),
         maxLength: maxLength(100)
       },
-      // eslint-disable-next-line @typescript-eslint/camelcase
       newPassword_confirmation: {
         required,
         minLength: minLength(8),
@@ -144,7 +143,6 @@ export default class FormSetPassword extends Vue {
   private payload: PasswordResource = {
     password: '',
     newPassword: '',
-    // eslint-disable-next-line @typescript-eslint/camelcase
     newPassword_confirmation: ''
   }
 
@@ -160,12 +158,9 @@ export default class FormSetPassword extends Vue {
 
       this.$v.payload.$reset()
 
-      this.user.authProvider = 'local'
-
       this.payload = {
         password: '',
         newPassword: '',
-        // eslint-disable-next-line @typescript-eslint/camelcase
         newPassword_confirmation: ''
       }
     }

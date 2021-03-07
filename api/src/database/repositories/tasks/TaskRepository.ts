@@ -14,14 +14,14 @@ export class TaskRepository extends BaseRepository<Task> {
         'createdBy.avatar',
         Upload,
         'avatar',
-        "avatar.entityId = createdBy.id and avatar.entity = 'User'"
+        `avatar.entityId = createdBy.id and avatar.entity = 'User'`
       )
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndMapOne(
         'assignee.avatar',
         Upload,
         'assigneeAvatar',
-        "assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = 'User'"
+        `assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = 'User'`
       )
       .leftJoinAndMapMany(
         'task.attachments',
@@ -39,7 +39,7 @@ export class TaskRepository extends BaseRepository<Task> {
         'user.avatar',
         Upload,
         'commentAvatar',
-        "commentAvatar.entityId = user.id and commentAvatar.entity = 'User'"
+        `commentAvatar.entityId = user.id and commentAvatar.entity = 'User'`
       )
       .getOne()
   }
@@ -88,7 +88,7 @@ export class TaskRepository extends BaseRepository<Task> {
         'user.avatar',
         Upload,
         'commentAvatar',
-        "commentAvatar.entityId = user.id and commentAvatar.entity = 'User'"
+        `commentAvatar.entityId = user.id and commentAvatar.entity = 'User'`
       )
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')

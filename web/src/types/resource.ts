@@ -38,8 +38,8 @@ export interface UploadResource {
   userId: number;
 }
 export interface UploadKeyPath {
-  path: string;
-  key: string;
+  location: string;
+  filename: string;
 }
 export interface NewUploadResource {
   createdAt: Date;
@@ -171,6 +171,7 @@ export interface SpaceRole {
 
 export interface SpaceSettingResource {
   activePage: string;
+  listFolded?: Array<number>;
   sidebarCollapse: boolean;
   sidebarSize: boolean;
   treeFolded: Record<string, boolean>;

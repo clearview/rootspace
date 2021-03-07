@@ -140,13 +140,8 @@ import Avatar from 'vue-avatar'
 import { SpaceResource, UserResource } from '@/types/resource'
 
 import FormSpace from '@/components/form/FormSpace.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
-
-interface ModalState {
-  visible: boolean;
-  loading: boolean;
-}
 
 @Component({
   name: 'SelectSpace',

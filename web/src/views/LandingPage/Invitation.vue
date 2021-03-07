@@ -4,10 +4,9 @@
 
     <div id="confirm-email-content" class="flex flex-col items-center justify-center">
       <h5 v-if="isLoading">Checking your invitation...</h5>
-      <h5 v-if="!isLoading && message">{{ message }}!</h5>
+      <h5 v-if="!isLoading && message" v-html="message"/>
       <h6 v-if="!isLoading && code !== 401 && message">
-        <router-link :to="{ name: 'Main'}" class="signin">click here</router-link>
-        to going to the Root App
+        <router-link :to="{ name: 'Main'}" class="signin">click here to go back...</router-link>
       </h6>
     </div>
   </div>
@@ -15,7 +14,6 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import { find } from 'lodash'
 
 import UserService from '@/services/user'
 import RootHeader from '@/components/RootHeader.vue'
@@ -32,8 +30,18 @@ export default class Invitation extends Mixins(SpaceMixin) {
     private message = ''
     private code = 0
 
-    created () {
-      this.submit()
+    private get isLoggedIn () {
+      return this.$store.state.auth.token !== null
+    }
+
+    async created () {
+      if (this.isLoggedIn) {
+        window.localStorage.removeItem('root:invite:token')
+        return this.submit()
+      } else {
+        window.localStorage.setItem('root:invite:token', this.$route.params.token)
+        return this.$router.push({ name: 'SignIn', query: { redirectTo: `/invitation/${this.$route.params.token}` } })
+      }
     }
 
     async submit () {
@@ -46,15 +54,15 @@ export default class Invitation extends Mixins(SpaceMixin) {
         this.isLoading = true
 
         const data = await UserService.acceptInvitation(payload)
-
+        await this.$store.dispatch('space/fetch')
         await this.$store.dispatch('auth/whoami')
+        await this.activateSpace(data.data[0].spaceId)
 
-        const space = find(this.spaces, ['id', data.data.spaceId])
-
-        this.$store.commit('space/setActive', { space })
         this.$router.push({ name: 'Main', query: { from: 'invitation', accept: '1' } })
       } catch (err) {
-        this.message = err.message.includes('invalid input syntax for type uuid') ? 'The invitation token is invalid' : err.message
+        const user = this.$store.state.auth.user
+        const message = err.message.includes('invalid input syntax for type uuid') ? 'The invitation token is invalid' : err.message
+        this.message = user ? `Hi <b>${[user.firstName, user.lastName].join(' ')}</b>, ${message}` : message
         this.code = err.code
       } finally {
         this.isLoading = false

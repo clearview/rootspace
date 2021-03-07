@@ -18,7 +18,8 @@ export interface IPasswordSetAttributes {
 }
 
 export interface IPasswordRecoveryAttributes {
-  email: string
+  email: string,
+  urlQueryParams: string
 }
 
 export interface IPasswordResetAttributes {

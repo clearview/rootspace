@@ -155,18 +155,18 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.bullet_list() } "
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'bullet_list' } "
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
+                  @click="commands.bullet_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
             <ListIcon size="16"></ListIcon>
           </button>
-          <button class="menu menu-big" :class="{ 'active': isActive.ordered_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
+                  @click="commands.ordered_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.todo_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'todo_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
             <CheckSquareIcon size="16"></CheckSquareIcon>
@@ -261,7 +261,7 @@
     <DocGhost v-if="!doc" active></DocGhost>
     <div v-show="doc" class="page-editor" ref="pageEditor">
       <div class="paper" @scroll="determineHeaderState" ref="paper" @mousedown.self="focusToEditor($event, true)">
-        <editor-menu-bubble :editor="editor" v-slot="{ isActive, focused, commands, menu, getNodeAttrs, getMarkAttrs }">
+        <editor-menu-bubble :editor="editor" v-slot="{ isActive, commands, menu, getMarkAttrs }">
           <div>
             <div class="link-bubble bubble" ref="linkBubble" v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !readOnly"
                  :style="getBubblePosition()" @mousedown.stop.prevent="consume">
@@ -317,7 +317,7 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()">
                       <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
                     </div>
                   </div>
@@ -335,7 +335,7 @@
                   </div>
                   <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
                        :style="{background: combo.background, color: combo.color}"
-                       :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                       :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']"  @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color});hideBubble()">
                     {{combo.name}}
                   </div>
                 </template>
@@ -366,7 +366,7 @@
         <textarea title="Title" ref="title" class="editor-title-input" placeholder="Untitled" v-model="title"
                   @focus="isTitleFocused = true"
                   @blur="isTitleFocused = false"
-                  @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter"></textarea>
+                  @keyup="debouncedSaveTitleOnly" @keypress.enter="handleTitleEnter" :readonly="readOnly"></textarea>
         <hr class="title-separator">
         <EditorContent key="editor" v-show="!isPreviewing" :editor="editor" @mousedown.native="isMouseDown = true"></EditorContent>
         <EditorContent key="preview" class="preview" v-show="isPreviewing" :editor="previewEditor"></EditorContent>
@@ -387,7 +387,7 @@ import {
 } from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
-import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble, TextSelection } from 'tiptap'
 import {
   Blockquote,
   Bold,
@@ -417,10 +417,12 @@ import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 import ButtonSwitch from '@/components/ButtonSwitch'
 
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
-import CollaborationExtension from './Novadoc/CollaborationExtension'
 
+import CollaborationExtension from './Novadoc/CollaborationExtension'
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 
 import {
@@ -466,6 +468,17 @@ import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
+import ListMerger from '@/views/Novadoc/ListMerger'
+import TabEater from '@/views/Novadoc/TabEater'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 export default {
   mixins: [SpaceMixin, PageMixin],
@@ -548,6 +561,11 @@ export default {
   },
   methods:
     {
+      hideBubble () {
+        const sel = this.editor.view.state.selection
+        const tr = this.editor.view.state.tr
+        this.editor.view.dispatch(tr.setSelection(TextSelection.create(tr.doc, sel.to)))
+      },
       blackOrWhite (color) {
         return blackOrWhite(hexToHsl(color))
       },
@@ -576,7 +594,7 @@ export default {
           this.previewEditor.destroy()
         }
       },
-      buildProvider () {
+      initProvider () {
         const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
         if (!wsProviderUrl) {
@@ -584,37 +602,64 @@ export default {
         }
 
         this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
-
         this.provider.awareness.setLocalStateField('user', {
           color: '#333',
           name: this.currentUser.firstName
         })
+
+        const wsAuthenticate = () => {
+          const encoder = encoding.createEncoder()
+          encoding.writeVarUint(encoder, wsMessageType.authenticate)
+          encoding.writeVarString(encoder, this.$store.state.auth.token)
+          this.provider.ws.send(encoding.toUint8Array(encoder))
+        }
 
         const onConnecting = () => {
           const providerOnMessage = this.provider.ws.onmessage
           const providerOnOpen = this.provider.ws.onopen
 
           this.provider.ws.onmessage = event => {
-            const { data } = event
+            const decoder = decoding.createDecoder(new Uint8Array(event.data))
+            const messageType = decoding.readVarUint(decoder)
 
-            if (typeof data === 'string') {
-              switch (data) {
-                case 'authorized':
-                  this.provider.ws.onmessage = providerOnMessage
-                  providerOnOpen()
-                  break
-                case 'unauthenticated':
-                case 'unauthorized':
-                  this.provider.disconnect()
-                  break
-                default:
-                  break
-              }
+            switch (messageType) {
+              case wsMessageType.unauthenticated:
+                // notify user
+                break
+              case wsMessageType.unauthorized:
+                // notify user
+                break
+              case 'wait':
+                // wait next message
+                break
+              case wsMessageType.initCollaboration:
+                this.provider.ws.onmessage = event => {
+                  const decoder = decoding.createDecoder(new Uint8Array(event.data))
+                  const messageType = decoding.readVarUint(decoder)
+
+                  if (messageType === wsMessageType.restore) {
+                    // notify user
+                    this.closeHistory()
+                    this.initEditor()
+                    return
+                  }
+
+                  // skip our custom messages, don't pass them to yjs to handle
+                  if (messageType >= 10) {
+                    return
+                  }
+
+                  providerOnMessage(event)
+                }
+                providerOnOpen()
+                break
+              default:
+                break
             }
           }
 
           this.provider.ws.onopen = () => {
-            this.provider.ws.send(this.$store.state.auth.token)
+            wsAuthenticate()
           }
         }
 
@@ -626,12 +671,13 @@ export default {
 
         onConnecting()
       },
-      buildEditor () {
+      initEditor () {
         this.destroyProvider()
         this.destroyEditor()
+        this.doBindState = true
 
         this.ydoc = this.ydoc = new Y.Doc()
-        this.buildProvider()
+        this.initProvider()
 
         this.editor = new Editor({
           editable: !this.readOnly,
@@ -662,11 +708,12 @@ export default {
             new BulletList(),
             new ListItem(),
             new OrderedList(),
-            new Image(),
             new TodoList(),
             new TodoItem({
               nested: true
             }),
+            new ListMerger(),
+            new Image(),
             new Link({
               openOnClick: false
             }),
@@ -693,7 +740,8 @@ export default {
             new TableCell(),
             new TableRow(),
             new TableMenu(),
-            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror')),
+            new TabEater()
           ],
           emptyDocument: {
             type: 'doc',
@@ -751,6 +799,15 @@ export default {
             content: []
           }
         })
+      },
+      getCurrentActiveNode (depth = 1) {
+        const sel = this.editor.state.selection
+        if (sel) {
+          const node = sel.$from.node(sel.$from.depth - depth)
+          if (node) {
+            return node.type.name
+          }
+        }
       },
       listenForNodeNameChanges () {
         this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
@@ -1022,22 +1079,26 @@ export default {
             await this.activateSpace(res.data.spaceId)
           }
           this.autoResizeTitle()
-          this.buildEditor()
+
           if (this.title.trim().length === 0) {
             this.$nextTick(() => {
               this.$refs.title.focus()
             })
           }
+
+          this.initEditor()
         }
       },
       autoResizeTitle () {
-        this.$refs.title.style.height = '1px'
-        const height = this.$refs.title.scrollHeight
-        if (height === 0) {
-          this.$refs.title.style.height = '29px'
-        } else {
-          this.$refs.title.style.height = height + 'px'
-        }
+        this.$nextTick(() => {
+          this.$refs.title.style.height = '1px'
+          const height = this.$refs.title.scrollHeight
+          if (height === 0) {
+            this.$refs.title.style.height = '29px'
+          } else {
+            this.$refs.title.style.height = height + 'px'
+          }
+        })
       },
       async saveTitleOnly () {
         const title = this.title
@@ -1101,20 +1162,22 @@ export default {
           }
         })
       },
-      restore (state) {
-        this.save(state.content)
-        this.preview = null
-        this.editor.setContent(state.content)
+      restore (revision) {
+        const encoder = encoding.createEncoder()
+        encoding.writeVarUint(encoder, wsMessageType.restore)
+        encoding.writeVarUint(encoder, revision.id)
+
+        this.provider.ws.send(encoding.toUint8Array(encoder))
       },
-      showPreview (state) {
+      showPreview (revision) {
         this.isPreviewing = true
-        if (!state) {
+        if (!revision) {
           this.preview = {
             id: null,
             content: this.editor.getJSON()
           }
         } else {
-          this.preview = state
+          this.preview = revision
         }
         this.previewEditor.setContent(this.preview.content)
       },
@@ -1222,21 +1285,12 @@ export default {
         { border: 'transparent', color: '#616161' },
         { border: 'transparent', color: '#757575' },
         { border: 'transparent', color: '#9E9E9E' },
-        { border: 'transparent', color: '#BDBDBD' },
-        { border: 'transparent', color: '#E0E0E0' },
-        { border: '#DEE2EE', color: '#EEEEEE' },
-        { border: '#DEE2EE', color: '#F5F5F5' },
-        { border: '#DEE2EE', color: '#FAFAFA' },
-        { border: 'transparent', color: '#962218' },
-        { border: 'transparent', color: '#D64141' },
-        { border: 'transparent', color: '#F2994A' },
-        { border: 'transparent', color: '#F9EB13' },
-        { border: 'transparent', color: '#219653' },
-        { border: 'transparent', color: '#8CD5FF' },
-        { border: 'transparent', color: '#4574D3' },
-        { border: 'transparent', color: '#4E32F0' },
+
+        { border: 'transparent', color: '#CF3C3C' },
+        { border: 'transparent', color: '#B0611A' },
         { border: 'transparent', color: '#9C3DBF' },
-        { border: 'transparent', color: '#DC56E7' }
+        { border: 'transparent', color: '#1D8449' },
+        { border: 'transparent', color: '#3467CE' }
       ]
     },
     colors () {
@@ -1390,6 +1444,10 @@ export default {
     display: flex;
     align-items: center;
     font-size: 12px;
+    @media only screen and (max-width: 1300px){
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+    }
   }
 
   .editor-context-menu {
@@ -1397,6 +1455,10 @@ export default {
     margin-left: auto;
     display: flex;
     align-items: center;
+    @media only screen and (max-width: 1300px){
+      align-self: flex-start;
+      margin-left: 32px;
+    }
 
     .lock-indicator {
       border-radius: 4px;
@@ -1441,7 +1503,6 @@ export default {
   width: 100%;
   position: relative;
   display: flex;
-  user-select: all;
 }
 
 .paper {
@@ -1504,7 +1565,7 @@ export default {
 
 .color-blocks {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   grid-gap: 8px;
   padding: 24px;
 }

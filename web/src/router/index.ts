@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import { roleIdAdmin } from '@/mixins/RoleMixin'
 
 import store from '@/store'
+import api from '@/utils/api'
 import Space from '@/views/Space.vue'
 
 Vue.use(VueRouter)
@@ -42,10 +43,12 @@ const routes: Array<RouteConfig> = [
       {
         path: '/document/:id?/:slug?',
         name: 'Document',
-        component: () => import(/* webpackChunkName: "document" */ '../views/Document.vue')
+        redirect: {
+          name: 'Novadoc'
+        }
       },
       {
-        path: '/novadoc/:id?/:slug?',
+        path: '/doc/:id?/:slug?',
         name: 'Novadoc',
         component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
       },
@@ -110,7 +113,10 @@ const routes: Array<RouteConfig> = [
   {
     path: '/invitation/:token',
     name: 'Invitation',
-    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue')
+    component: () => import(/* webpackChunkName: "signup-success" */ '../views/LandingPage/Invitation.vue'),
+    meta: {
+      noAuth: true
+    }
   },
   {
     path: '/auth/google/callback',
@@ -195,6 +201,22 @@ router.beforeEach(async (to, from, next) => {
   const queryParams = to.fullPath ? { redirectTo: to.fullPath } : {}
 
   next({ name: 'SignIn', query: queryParams })
+})
+
+// FIXME: It's feel a bit hacky. There should be a better way
+api.interceptors.response.use(value => {
+  return value
+}, error => {
+  if (error && error.response && error.response.status === 403) {
+    Vue.nextTick(() => {
+      router.replace('/forbidden').catch(() => null)
+    })
+  } else if (error && error.response && error.response.status === 404) {
+    Vue.nextTick(() => {
+      router.replace('/not-found').catch(() => null)
+    })
+  }
+  throw error
 })
 
 export default router

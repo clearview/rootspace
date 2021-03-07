@@ -33,4 +33,7 @@ export class PasswordReset {
 
   @UpdateDateColumn({ type: 'timestamptz'})
   updatedAt: Date
+
+  @Column('text')
+  urlQueryParams: string
 }

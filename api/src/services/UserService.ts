@@ -184,6 +184,7 @@ export class UserService extends Service {
 
     passwordReset.email = data.attributes.email
     passwordReset.expiration = new Date(Date.now() + 3600000)
+    passwordReset.urlQueryParams = data.attributes.urlQueryParams
 
     passwordReset = await this.getPasswordResetRepository().save(passwordReset)
 

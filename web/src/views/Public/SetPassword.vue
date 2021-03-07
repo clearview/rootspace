@@ -53,7 +53,7 @@ export default class Forgotpassword extends Vue {
 
       try {
         await this.$store.dispatch('auth/passwordReset', { data })
-        this.$router.push({ name: 'SignIn', query: { from: 'passwordreset' } })
+        this.$router.push({ name: 'SignIn', query: { ...this.$route.query, from: 'passwordreset' } })
       } catch (err) {
         this.alert = {
           type: 'danger',

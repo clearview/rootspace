@@ -122,7 +122,7 @@
       class="btn w-full mx-0 mt-5 clear-both pointer"
       @click="changePasswordModal(true)"
     >
-      Change Password
+      {{ passwordModalTitle }}
     </a>
 
     <button
@@ -134,7 +134,7 @@
     </button>
 
     <modal
-      title="Change Password"
+      :title="passwordModalTitle"
       :visible="isModalVisible('changePassword')"
       :is-loading="modal.loading"
       :contentStyle="{ width: '456px' }"
@@ -158,7 +158,7 @@ import { email, required, maxLength } from 'vuelidate/lib/validators'
 import { PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 import FormChangePassword from '@/components/form/FormChangePassword.vue'
 import UserService from '@/services/user'
 import Alert from '@/components/Alert.vue'
@@ -207,6 +207,10 @@ export default class FormSettings extends Vue {
     return this.$store.state.auth.user
   }
 
+  get passwordModalTitle () {
+    return this.user.authProvider === 'local' ? 'Change Password' : 'Set Password'
+  }
+
   created () {
     this.payload = {
       firstName: this.user.firstName,
@@ -250,8 +254,9 @@ export default class FormSettings extends Vue {
       this.modal.loading = true
       let message = ''
 
-      await UserService.passwordChange(password)
+      const result = await UserService.passwordChange(password)
       message += 'Your password have been saved'
+      this.$store.commit('auth/setUser', result.data.data)
 
       // await this.$store.dispatch('auth/whoami')
 

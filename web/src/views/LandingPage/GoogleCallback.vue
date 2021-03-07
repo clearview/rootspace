@@ -20,12 +20,12 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class GoogleCallback extends Vue {
   get redirect () {
-    return this.$store.state.option.redirect || {}
+    return this.$route.query.state
   }
 
   async created () {
     await this.submit()
-  };
+  }
 
   async submit () {
     await this.$store.dispatch('auth/signin', {
@@ -34,7 +34,7 @@ export default class GoogleCallback extends Vue {
     })
 
     if (!isEmpty(this.redirect)) {
-      this.$router.replace({ path: this.redirect.redirectTo.toString() })
+      this.$router.replace({ path: this.redirect.toString() })
       this.$store.commit('option/setRedirect', null)
     } else {
       this.$router.replace({ name: 'Main' })

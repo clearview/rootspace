@@ -43,7 +43,7 @@ export class TaskCommentService extends Service {
       .createQueryBuilder('comment')
       .where('comment.id = :id', { id: taskComment.id })
       .leftJoinAndSelect('comment.user', 'user')
-      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', "avatar.entityId = user.id and avatar.entity = 'User'")
+      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', `avatar.entityId = user.id and avatar.entity = 'User'`)
       .getOne()
   }
 
@@ -59,7 +59,7 @@ export class TaskCommentService extends Service {
       .createQueryBuilder('comment')
       .where('comment.id = :id', { id: taskComment.id })
       .leftJoinAndSelect('comment.user', 'user')
-      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', "avatar.entityId = user.id and avatar.entity = 'User'")
+      .leftJoinAndMapOne('user.avatar', Upload, 'avatar', `avatar.entityId = user.id and avatar.entity = 'User'`)
       .getOne()
   }
 

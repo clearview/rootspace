@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'Searchbar'
@@ -27,7 +27,12 @@ export default class Searchbar extends Vue {
     @Prop({ type: String, default: 'Search' })
     private readonly placeholder?: string;
 
-    private payload: string = this.value || ''
+    private payload = ''
+
+    @Watch('value', { immediate: true })
+    watchValue (value: string) {
+      this.payload = value
+    }
 
     submit (): void {
       this.$emit('input', this.payload)

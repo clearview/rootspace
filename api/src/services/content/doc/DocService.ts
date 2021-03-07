@@ -155,7 +155,7 @@ export class DocService extends NodeContentService {
       updatedDoc.revision = updatedDoc.revision + 1
     }
 
-    if (setup.contentUpdated === true) {
+    if (node.config?.novaDoc === true || setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
       updatedDoc.contentUpdatedBy = actorId
     }
@@ -187,8 +187,8 @@ export class DocService extends NodeContentService {
     await this.getDocRevisionRepository().save(docRevision)
   }
 
-  async restoreRevision(docRevisionId: number, actorId: number): Promise<Doc> {
-    const docRevision = await this.requireDocRevisionById(docRevisionId)
+  async restoreRevision(revisionId: number, actorId: number): Promise<Doc> {
+    const docRevision = await this.requireDocRevisionById(revisionId)
     const doc = await this.requireById(docRevision.docId)
     const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
 
@@ -210,10 +210,11 @@ export class DocService extends NodeContentService {
     updatedDoc.revision = updatedDoc.revision + 1
     updatedDoc.content = docRevision.content
     updatedDoc.contentState = docRevision.contentState
+    updatedDoc.contentUpdatedAt = new Date(Date.now())
+    updatedDoc.contentUpdatedBy = docRevision.revisionBy
 
     updatedDoc = await this.getDocRepository().save(updatedDoc)
-
-    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup))
+    await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
 
     return updatedDoc
   }

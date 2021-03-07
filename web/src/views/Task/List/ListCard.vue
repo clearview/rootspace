@@ -8,10 +8,12 @@
       <div class="title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="save" @keyup="calculateShowPlaceholder"
         @input="titleBackbone = $event.target.innerText" @paste="handlePaste">{{itemCopy.title}}</div>
       <div class="item-actions">
+        <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">
+          <v-icon name="checkmark" size="14px" viewbox="12 9" title="Checkmark"/>
+        </button>
         <button class="btn btn-link" @click="cancel">
           <v-icon name="close" size="20px" title="Close"/>
         </button>
-        <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Task</button>
       </div>
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
@@ -48,7 +50,7 @@
             <li v-if="moreAssignees" class="assignee">
               <avatar :size="28" :content="moreAssignees.labels" :username="moreAssignees.count+' +'" v-tippy></avatar>
             </li>
-            <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee">
+            <li v-for="(assignee, index) in displayedAssignees" :key="index" class="assignee cursor-pointer" @click.stop="openProfile(assignee)">
               <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''" :content="memberName(assignee)" :username="memberName(assignee)" v-tippy></avatar>
             </li>
           </ul>
@@ -62,13 +64,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 
 @Component({
   name: 'ListCard',
@@ -119,6 +122,9 @@ export default class ListCard extends Vue {
 
     @Ref('assignees')
     private readonly assigneesRef!: HTMLUListElement;
+
+    @Inject('modal')
+    readonly modal!: ModalInjectedContext
 
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
@@ -233,7 +239,13 @@ export default class ListCard extends Vue {
       }
     }
 
-    closeModal () {
+    closeModal (params: { visibilityOnly?: boolean }) {
+      this.showModal = false
+
+      if (params?.visibilityOnly) {
+        return
+      }
+
       if (this.board?.id && this.item.id) {
         this.$router.replace({
           name: 'TaskPage',
@@ -242,8 +254,6 @@ export default class ListCard extends Vue {
           }
         })
       }
-      this.$store.commit('task/item/setCurrent', null)
-      this.showModal = false
     }
 
     formatDate (taskDate: string) {
@@ -316,6 +326,17 @@ export default class ListCard extends Vue {
       window.addEventListener('resize', this.invalidateMeasurement)
     }
 
+    @Watch('$route')
+    watchRoute () {
+      if (this.$route.name === 'TaskPageWithItem') {
+        const itemId = parseInt(this.$route.params.item)
+        if (itemId === this.item.id) {
+          this.$store.commit('task/item/setCurrent', this.item)
+          this.showModal = true
+        }
+      }
+    }
+
     destroyed () {
       window.removeEventListener('resize', this.invalidateMeasurement)
     }
@@ -348,6 +369,15 @@ export default class ListCard extends Vue {
         this.titleBackbone = data
       }
     }
+
+    openProfile (user: UserResource) {
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
+      })
+    }
 }
 </script>
 <style>
@@ -359,6 +389,7 @@ export default class ListCard extends Vue {
 <style lang="postcss" scoped>
 
   .drag {
+    margin-left: 8px;
     cursor: grab;
     visibility: hidden;
   }
@@ -393,8 +424,12 @@ export default class ListCard extends Vue {
   }
   .item-input {
     @apply relative;
-    max-width: 300px;
+    min-width: 400px;
+    display: inline-block;
     z-index: 51;
+    margin-left: 44px;
+    padding: 8px 0;
+    max-width: calc(100% - 136px);
   }
 
   .btn-link {
@@ -409,8 +444,11 @@ export default class ListCard extends Vue {
 
   .item-actions {
     @apply flex items-center justify-end;
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
 
-    margin-top: 16px;
     .btn {
       padding: 8px;
       font-size: 14px;
@@ -420,9 +458,6 @@ export default class ListCard extends Vue {
     }
     .btn-link {
       padding: 6px;
-    }
-    .btn-primary {
-      padding: 8px 24px;
     }
   }
 
@@ -479,14 +514,14 @@ export default class ListCard extends Vue {
 
     .title {
       flex: 0 0 auto;
-      max-width: 320px;
+      max-width: calc(100% - 420px);
       word-break: break-word;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       font-weight: 500;
-      font-size: 14px;
-      line-height: 17px;
+      font-size: 16px;
+      line-height: 19px;
       color: theme("colors.gray.900");
     }
 
@@ -549,6 +584,7 @@ export default class ListCard extends Vue {
           border: 2px solid #FFF;
           margin-left: -6px;
           color: #fff !important;
+          background-position: center center !important;
         }
       }
     }
@@ -577,20 +613,18 @@ export default class ListCard extends Vue {
     font-size: 16px;
     line-height: 19px;
     z-index: 1;
-    top: 10px;
-    left: 15px;
+    top: 11px;
+    left: 11px;
     color: theme("colors.gray.400");
     font-weight: 500;
     opacity: 0.75;
   }
   .title-editable {
-    @apply p-2 px-3 block items-center rounded;
-
     background: theme("colors.white.default");
     outline: none;
     font-weight: 500;
     color: theme("colors.gray.900");
-    border: 1px solid theme("colors.gray.400");
+    border-left: 3px solid theme("colors.gray.100");
     white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
@@ -599,10 +633,8 @@ export default class ListCard extends Vue {
     white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
     word-break: break-word;
     white-space: normal;
-    &:focus {
-      border: 1px solid rgba(47, 128, 237, 0.75);
-      box-shadow: 0 0 0 2px rgba(47, 128, 237, 0.25);
-    }
+    padding: 2px 9px;
+    font-size: 16px;
   }
 
   @keyframes shake {

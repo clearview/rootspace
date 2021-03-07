@@ -1,6 +1,6 @@
 import { Vue, Component } from 'vue-property-decorator'
 
-export { default as Modal } from '@/components/Modal.vue'
+export { default as Modal } from '@/components/legacy/Modal.vue'
 
 export interface ModalState {
   visible: boolean;

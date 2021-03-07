@@ -60,7 +60,7 @@ import FormSpace from '@/components/form/FormSpace.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import UploadableImage from '@/components/UploadableImage.vue'
 import Loading from '@/components/Loading.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 @Component({
   components: { Modal, Loading, UploadableImage, ButtonSwitch, FormSpace, Alert }
 })

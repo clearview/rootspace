@@ -1,11 +1,11 @@
 <template>
   <div class="task-activity">
-    <div class="avatar">
+    <div class="avatar cursor-pointer" @click="openProfile(activity.actor)">
       <avatar :src="activity.actor.avatar && activity.actor.avatar.versions ? activity.actor.avatar.versions.default.location : ''" :username="`${activity.actor.firstName} ${activity.actor.lastName}`" :size="32"></avatar>
     </div>
     <div class="content">
       <div class="title">
-        <span class="actor">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
+        <span class="actor cursor-pointer" @click="openProfile(activity.actor)">{{ activity.actor.firstName }} {{activity.actor.lastName}}</span>&nbsp;
 
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.Created"> created this task</span>
         <span class="action" v-if="activity.action === ACTIVITY_TYPE.Archived"> archived this task</span>
@@ -83,10 +83,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
 import { formatDueDate, formatRelativeTo } from '@/utils/date'
 import Avatar from 'vue-avatar'
-import { TaskActivityResource } from '@/types/resource'
+import { TaskActivityResource, UserResource } from '@/types/resource'
+import { ProfileModal, ModalInjectedContext } from '@/components/modal'
 
 @Component(
   {
@@ -109,6 +110,9 @@ import { TaskActivityResource } from '@/types/resource'
 export default class TaskActivity extends Vue {
   @Prop({ type: Object, required: true })
   private readonly activity!: TaskActivityResource;
+
+  @Inject('modal')
+  modal!: ModalInjectedContext
 
   get assignees () {
     return this.getContextListOutput('assignee', 'fullName', 'strong')
@@ -160,6 +164,15 @@ export default class TaskActivity extends Vue {
       AttachmentAdded: 'Attachment_Added',
       AttachmentRemoved: 'Attachment_Removed'
     }
+  }
+
+  openProfile (user: UserResource) {
+    this.modal.open({
+      component: ProfileModal,
+      attrs: {
+        userId: user.id
+      }
+    })
   }
 }
 </script>

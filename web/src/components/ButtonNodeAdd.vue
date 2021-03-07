@@ -113,7 +113,7 @@ import FormFolder from '@/components/form/FormFolder.vue'
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/legacy/Modal.vue'
 import SelectNodeType from '@/components/SelectNodeType.vue'
 
 enum ModalType {
@@ -123,13 +123,6 @@ enum ModalType {
   TASK = 'task',
   DOCUMENT = 'document',
   EMBED = 'embed'
-}
-
-interface ModalState {
-  type: ModalType;
-  visible: boolean;
-  loading: boolean;
-  alert: object | null;
 }
 
 @Component({

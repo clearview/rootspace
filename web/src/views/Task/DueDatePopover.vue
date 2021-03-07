@@ -75,9 +75,17 @@ export default class DueDatePopover extends Vue {
     @Prop(Date)
     private readonly initialDate?: Date;
 
-    private date = this.initialDate ? this.initialDate : new Date()
-    private hour = this.initialDate ? this.initialDate.getHours() : 0
-    private minute = this.initialDate ? this.initialDate.getMinutes() : 0
+    private get date () {
+      return this.initialDate ? this.initialDate : new Date()
+    }
+
+    private get hour () {
+      return this.initialDate ? this.initialDate.getHours() : 0
+    }
+
+    private get minute () {
+      return this.initialDate ? this.initialDate.getMinutes() : 0
+    }
 
     @Watch('hour')
     @Watch('minute')

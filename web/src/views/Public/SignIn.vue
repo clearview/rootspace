@@ -42,6 +42,7 @@ import VLoading from '@/components/Loading.vue'
 import FormSignin from '@/components/form/FormSignin.vue'
 import ButtonAuthGoogle from '@/components/ButtonAuthGoogle.vue'
 import { Component, Vue } from 'vue-property-decorator'
+import { RawLocation } from 'vue-router'
 
 @Component({
   name: 'Signin',
@@ -79,11 +80,16 @@ export default class SignIn extends Vue {
           message: 'Password has been changed successfully',
           noicon: true
         }
-        this.$router.replace({ query: undefined })
+        // eslint-disable-next-line
+        const { from, ...redirectQuery } = query
+        this.$router.replace({ query: redirectQuery })
       }
     }
 
     async userSignin (data: SigninResource) {
+      const { redirectTo } = this.$route.query
+      const inviteToken = window.localStorage.getItem('root:invite:token')
+
       this.isLoading = true
 
       try {
@@ -92,12 +98,22 @@ export default class SignIn extends Vue {
           payload: data
         })
 
-        const query = this.$route.query
-        if (query.redirectTo) {
-          this.$router.push({ path: query.redirectTo.toString() })
+        let target: RawLocation
+
+        if (inviteToken) {
+          target = {
+            name: 'Invitation',
+            params: {
+              token: inviteToken
+            }
+          }
+        } else if (redirectTo) {
+          target = { path: redirectTo.toString() }
         } else {
-          this.$router.push({ name: 'Main' })
+          target = { name: 'Main' }
         }
+
+        await this.$router.push(target)
       } catch (err) {
         const message = err.message === 'Unauthorized' ? 'Incorrect email or password entered.' : err.message
 

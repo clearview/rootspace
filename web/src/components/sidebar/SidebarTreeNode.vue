@@ -31,7 +31,7 @@
         v-model="title"
         v-if="!isRenaming"
       />
-      <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" v-model="title"
+      <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" :value="title"
         @blur="saveTitle" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
     </div>
 
@@ -44,23 +44,37 @@
               Add new
             </div>
           </div>
-          <div class="action-separator"></div>
-          <div class="action-line" @click.prevent.stop="hide();rename();">
-            <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+          <div v-if="!isFavorited && !isFolder" class="action-line" @click.prevent.stop="hide();addToFavorites();">
+            <v-icon class="action-icon" name="star" size="16px"></v-icon>
             <div class="action-line-text">
-              Rename
+              Add to Favorites
             </div>
           </div>
-          <div class="action-line" v-if="canEdit" @click.prevent.stop="hide();updateContent();">
-            <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+          <div v-if="isFavorited" class="action-line" @click.prevent.stop="hide();removeFromFavorites();">
+            <v-icon class="action-icon" name="remove-circle" size="16px"></v-icon>
             <div class="action-line-text">
-              Edit
+              Remove from Favorites
             </div>
           </div>
-          <div class="action-line" @click.prevent.stop="hide();archive()">
-            <v-icon class="action-icon" name="archive" viewbox="16" size="16px"></v-icon>
-            <div class="action-line-text">
-              Archive
+          <div>
+            <div class="action-separator"></div>
+            <div class="action-line" @click.prevent.stop="hide();rename();">
+              <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+              <div class="action-line-text">
+                Rename
+              </div>
+            </div>
+            <div class="action-line" v-if="canEdit" @click.prevent.stop="hide();updateContent();">
+              <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+              <div class="action-line-text">
+                Edit
+              </div>
+            </div>
+            <div class="action-line" @click.prevent.stop="hide();archive()">
+              <v-icon class="action-icon" name="archive" viewbox="16" size="16px"></v-icon>
+              <div class="action-line-text">
+                Archive
+              </div>
             </div>
           </div>
         </template>
@@ -144,6 +158,9 @@ export default class SidebarTreeNode extends Vue {
   @Prop(Boolean)
   private readonly editable!: boolean
 
+  @Prop({ type: Boolean, default: false })
+  private readonly hideSecondaryMenu!: boolean
+
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
@@ -173,6 +190,10 @@ export default class SidebarTreeNode extends Vue {
 
   set title (title: string) {
     this.payload.title = title
+  }
+
+  get isFolder (): boolean {
+    return this.type === NodeType.Folder
   }
 
   get iconName (): string {
@@ -225,6 +246,10 @@ export default class SidebarTreeNode extends Vue {
     return children && children.length > 0
   }
 
+  get isFavorited (): boolean {
+    return this.$store.getters['tree/isFavorited'](this.value)
+  }
+
   get folded (): boolean {
     const index = this.path.join('.')
 
@@ -244,10 +269,14 @@ export default class SidebarTreeNode extends Vue {
   }
 
   saveTitle () {
-    if (this.title.trim().length === 0) {
-      this.title = this.value.title
+    const title = this.inputRef.value
+    if (title.trim().length === 0) {
       this.isRenaming = false
     } else {
+      this.payload = {
+        ...this.payload,
+        title: this.inputRef.value
+      }
       this.update()
       this.isRenaming = false
     }
@@ -266,6 +295,14 @@ export default class SidebarTreeNode extends Vue {
 
   archive () {
     this.$emit('node:archive', this.path, this.payload)
+  }
+
+  addToFavorites () {
+    this.$emit('node:addToFavorites', this.path, this.payload)
+  }
+
+  removeFromFavorites () {
+    this.$emit('node:removeFromFavorites', this.path, this.payload)
   }
 
   updateContent () {
@@ -305,7 +342,6 @@ export default class SidebarTreeNode extends Vue {
   font-weight: 500;
   font-size: 14px;
   line-height: 17px;
-  width: 168px;
   color: #2C2B35;
   cursor: pointer;
   .action-icon {

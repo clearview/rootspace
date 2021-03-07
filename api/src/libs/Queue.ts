@@ -31,11 +31,11 @@ export class Queue {
   static options: Bull.QueueOptions = {
     ...redisOpts,
     limiter: {
-      max: 16,
+      max: 8,
       duration: 1000,
     },
     defaultJobOptions: {
-      removeOnComplete: false,
+      removeOnComplete: 1666,
     },
   }
 

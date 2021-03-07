@@ -9,7 +9,7 @@
 
 <script lang="ts">
 
-import VModal from '@/components/Modal.vue'
+import VModal from '@/components/legacy/Modal.vue'
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({

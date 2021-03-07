@@ -24,7 +24,7 @@ export class DocActivity extends ContentActivity<Doc> {
     return new DocActivity(ContentActions.Created, entity, actorId).created()
   }
 
-  static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId?: number): IContentActivity {
+  static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId: number): IContentActivity {
     const activity = new DocActivity(ContentActions.Updated, entity, actorId)
     activity.docUpdateSetup = docUpdateSetup
 
