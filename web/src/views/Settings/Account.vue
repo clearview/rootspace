@@ -1,23 +1,25 @@
 <template>
-  <div class="account">
-    <div class="col-left">
-      <div class="user-avatar">
-        <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
-                         edit-offset="0px"
-                         key="avatar"
-                         :upload="currentUser.avatar"
-                         @uploaded="refreshWhoami">
-          <template #fallback>
-            <avatar :size="109" :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
-          </template>
-        </UploadableImage>
+  <div>
+    <Alert v-model="account.alert"/>
+    <div class="account">
+      <div class="col-left">
+        <div class="user-avatar">
+          <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
+                          edit-offset="0px"
+                          key="avatar"
+                          :upload="currentUser.avatar"
+                          @uploaded="refreshWhoami">
+            <template #fallback>
+              <avatar :size="109" :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
+            </template>
+          </UploadableImage>
+        </div>
       </div>
-    </div>
-    <div class="col-right">
-      <Alert v-model="account.alert"/>
-      <form-settings
-        @submit-account="updateAccount"
-        ref="account"/>
+      <div class="col-right">
+        <form-settings
+          @submit-account="updateAccount"
+          ref="account"/>
+      </div>
     </div>
 
     <Loading :loading="isLoading">

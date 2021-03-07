@@ -43,6 +43,7 @@ import IconRight from './IconRight.vue'
 import IconSearch from './IconSearch.vue'
 import IconSettings from './IconSettings.vue'
 import IconTrash from './IconTrash.vue'
+import IconTrash2 from './IconTrash2.vue'
 import IconUnlock from './IconUnlock.vue'
 import IconUp from './IconUp.vue'
 import IconUser from './IconUser.vue'
@@ -180,6 +181,7 @@ import IconCheckmark3 from '@/components/icon/IconCheckmark3.vue'
     IconTag,
     IconTime,
     IconTrash,
+    IconTrash2,
     IconTrashArchive,
     IconUnlock,
     IconUp,

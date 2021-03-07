@@ -56,8 +56,9 @@ const AuthModule: Module<AuthState, RootState> = {
       try {
         const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
 
-        if (!payload.hasRoles || payload.hasRoles?.includes(data?.roleId)) {
+        if (!payload.hasRoles || payload.hasRoles?.includes(data?.data?.role)) {
           commit('setUserRole', true)
+          commit('setUserRoleId', data.data.role)
           return true
         }
 
@@ -71,8 +72,7 @@ const AuthModule: Module<AuthState, RootState> = {
     async setUserRoles ({ commit }, payload) {
       try {
         const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
-
-        commit('setUserRoleId', data?.roleId)
+        commit('setUserRoleId', data?.data?.role)
       } catch (err) {
         throw new Error('Something went wrong')
       }

@@ -156,17 +156,29 @@ export interface PasswordResetResource {
   password_confirmation: string; // eslint-disable-line
 }
 
+export interface Invite {
+  email: string,
+  role: number
+}
+
 export interface SpaceResource {
   id: number;
-  title: string;
-  invites: string[];
+  invites: Invite[];
+  role?: number;
   settings?: object;
+  title: string;
 }
 export interface SpaceRole {
   index: number;
   userId: number;
   spaceId: number;
-  roleId: boolean;
+  role: number;
+}
+export interface InvitationRole {
+  index: number;
+  id: number;
+  spaceId: number;
+  role: number;
 }
 
 export interface SpaceSettingResource {
@@ -193,6 +205,8 @@ export interface UserResource {
   updated?: string;
   hasRole: boolean;
   hasRoleId: number;
+  isSpaceUser?: boolean;
+  role?: number;
 }
 
 export interface DocumentResource {

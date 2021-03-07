@@ -90,6 +90,11 @@ export class InviteService extends Service {
     return this.getInviteRepository().softRemove(invite)
   }
 
+  async updateRole(invite: Invite, role: number) {
+    invite.role = role
+    return await this.getInviteRepository().save(invite)
+  }
+
   async cancelByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {
     const invites = await this.getInviteRepository().getByEmailAndSpaceId(email, spaceId, { accepted: false })
 
@@ -100,9 +105,10 @@ export class InviteService extends Service {
     return invites
   }
 
-  async createWithEmail(email: string, space: Space, senderId: number): Promise<Invite> {
+  async createWithEmail(email: string, role: number, space: Space, senderId: number): Promise<Invite> {
     const invite = new Invite()
 
+    invite.role = role
     invite.spaceId = space.id
     invite.senderId = senderId
     invite.email = email
@@ -113,9 +119,10 @@ export class InviteService extends Service {
     return invite
   }
 
-  async createWithUser(user: User, space: Space, senderId: number): Promise<Invite> {
+  async createWithUser(user: User, role: number, space: Space, senderId: number): Promise<Invite> {
     const invite = new Invite()
 
+    invite.role = role
     invite.spaceId = space.id
     invite.userId = user.id
     invite.senderId = senderId

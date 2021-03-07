@@ -6,22 +6,15 @@ export const roleIdMember = 1
 
 @Component
 export default class RouteMixin extends Vue {
-  isVisibleByUserRole (hasRoles: number[], userRole: number) {
-    console.log(hasRoles)
-    console.log(userRole)
-
-    return true
-  }
-
   hasRoleId (roleId: number): boolean {
-    return this.$store.state.auth.user.hasRoleId === roleId
+    return this.$store.state.auth.user?.hasRoleId === roleId
   }
 
   get isAdmin (): boolean {
-    return this.$store.state.auth.user.hasRoleId === roleIdAdmin
+    return this.$store.state.auth.user?.hasRoleId === roleIdAdmin
   }
 
   get isMember (): boolean {
-    return this.$store.state.auth.user.hasRoleId === roleIdMember
+    return this.$store.state.auth.user?.hasRoleId === roleIdMember
   }
 }
