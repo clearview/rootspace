@@ -91,10 +91,35 @@ export default class Settings extends Mixins(PageMixin) {
 
     width: 44rem;
     margin-left: 70px;
+
+    .tab {
+      border-bottom-width: 0;
+      margin-bottom: 40px;
+
+      li {
+        a {
+          padding-top: 0.4rem;
+          padding-bottom: 0.4rem;
+          padding-left: 1.2rem;
+          padding-right: 1.2rem;
+        }
+      }
+
+      li.active {
+
+        a {
+          border-bottom-width: 0;
+          background-color: theme('colors.gray.900');
+          color: white;
+          border-radius: 4px;
+          font-weight: normal;
+        }
+      }
+    }
   }
 
   .settings-content {
-    @apply p-8;
+
   }
 
 </style>

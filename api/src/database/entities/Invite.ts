@@ -25,6 +25,9 @@ export class Invite {
   @Column('integer')
   senderId: number
 
+  @Column('integer', { default: 1 })
+  role: number
+
   @Column('varchar', { length: 100 })
   @Index()
   email: string

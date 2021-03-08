@@ -42,6 +42,31 @@ const AuthModule: Module<AuthState, RootState> = {
         dispatch('signout')
       }
     },
+    async hasRoles ({ commit }, payload) {
+      try {
+        const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
+
+        if (!payload.hasRoles || payload.hasRoles?.includes(data?.data?.role)) {
+          commit('setUserRole', true)
+          commit('setUserRoleId', data.data.role)
+          return true
+        }
+
+        commit('setUserRole', false)
+
+        return false
+      } catch (err) {
+        throw new Error('Something went wrong')
+      }
+    },
+    async setUserRoles ({ commit }, payload) {
+      try {
+        const { data } = await AuthService.getUserRolesBySpaceId(payload.spaceId, payload.userId)
+        commit('setUserRoleId', data?.data?.role)
+      } catch (err) {
+        throw new Error('Something went wrong')
+      }
+    },
     async signup (_, payload) {
       await AuthService.signup(payload)
     },

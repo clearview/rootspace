@@ -22,7 +22,7 @@ export class InvitesCtrl extends BaseCtrl {
     const spaceId = Number(data.spaceId)
     this.checkSpaceAccess(req, spaceId)
 
-    const invites = await this.inviteFacade.sendToEmails(data.emails, data.spaceId, req.user.id)
+    const invites = await this.inviteFacade.sendToEmails(data.invites, data.spaceId, req.user.id)
     res.send(this.responseData(invites))
   }
 
@@ -39,6 +39,15 @@ export class InvitesCtrl extends BaseCtrl {
     await validateInviteAccept(data)
 
     const result = await this.inviteFacade.accept(data.token, req.user.id)
+    res.send(this.responseData(result))
+  }
+
+  async updateRole(req: Request, res: Response) {
+    const data = req.body.data
+    const invite = await this.inviteFacade.requireInviteById(Number(req.params.inviteId))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, invite)
+
+    const result = await this.inviteFacade.updateRole(invite, data.role)
     res.send(this.responseData(result))
   }
 }

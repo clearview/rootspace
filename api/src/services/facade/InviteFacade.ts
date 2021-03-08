@@ -2,7 +2,7 @@ import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { InviteSendStatus } from '../../types/invite'
+import { InviteSendStatus, Invite as InviteType } from '../../types/invite'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -25,13 +25,13 @@ export class InviteFacade {
     return this.inviteService.getInvitesBySpaceId(spaceId)
   }
 
-  async sendToEmails(emails: string[], spaceId: number, senderId: number): Promise<object[]> {
+  async sendToEmails(invites: InviteType[], spaceId: number, senderId: number): Promise<object[]> {
     const result: object[] = []
     const space = await this.spaceService.requireSpaceById(spaceId)
 
-    emails = Array.from(new Set(emails))
+    invites = Array.from(new Set(invites))
 
-    for (const email of emails) {
+    for (const { email, role } of invites) {
       const inSpace = await this.userSpaceService.isEmailInSpace(email, space.id)
 
       if (inSpace === true) {
@@ -53,8 +53,8 @@ export class InviteFacade {
       const user = await this.userService.getUserByEmail(email)
 
       const invite = user
-        ? await this.inviteService.createWithUser(user, space, senderId)
-        : await this.inviteService.createWithEmail(email, space, senderId)
+        ? await this.inviteService.createWithUser(user, role, space, senderId)
+        : await this.inviteService.createWithEmail(email, role, space, senderId)
 
       result.push({
         email: invite.email,
@@ -80,7 +80,7 @@ export class InviteFacade {
     const space = await this.spaceService.requireSpaceById(invite.spaceId)
 
     if (!(await this.userSpaceService.isUserInSpace(user.id, space.id))) {
-      await this.userSpaceService.add(user.id, space.id)
+      await this.userSpaceService.add(user.id, space.id, invite.role)
     }
 
     const accepted: Invite[] = []
@@ -108,5 +108,18 @@ export class InviteFacade {
     canceled.push(...otherCanceled)
 
     return canceled
+  }
+
+  async updateRole(invite: Invite, role: number): Promise<Invite[]> {
+    if (invite.accepted) {
+      throw clientError('Can not update role this invite', HttpErrName.NotAllowed, HttpStatusCode.BadRequest)
+    }
+
+    const updated: Invite[] = []
+
+    await this.inviteService.updateRole(invite, role)
+    updated.push(invite)
+
+    return updated
   }
 }
