@@ -170,6 +170,7 @@ export interface SpaceResource {
 }
 
 export interface SpaceRoleResource {
+  index: number;
   id: number;
   spaceId: number;
   userId: number;

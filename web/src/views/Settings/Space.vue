@@ -1,40 +1,42 @@
 <template>
-  <div>
-    <Alert v-model="space.alert"/>
-    <div class="space">
-      <div class="col-left">
-        <h4 class="title">Space Photo</h4>
-        <div class="space-logo">
-          <UploadableImage width="96px" height="96px" radius="48px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
-                          :upload="activeSpace.avatar" edit-offset="-12px" key="space"
-                          @uploaded="refreshWhoami">
-            <template #fallback>
-              <img class="fallback-logo" src="../../assets/images/default-space.png" alt="Avatar Logo">
-            </template>
-          </UploadableImage>
-        </div>
-      </div>
-      <div class="col-right">
-        <h4 class="title">Space Information</h4>
-        <form-space
-          @submit="updateSpace"
-          @addUser="addSpaceUser"
-          @updateUserSpaceRole="updateUserSpaceRole"
-          @updateInvitationRole="updateInvitationRole"
-          @deleteUser="deleteSpaceUser"
-          @invitesAlertDisplay="invitesAlertDisplay"
-          :value="spaceData"
-          :is-edit="true"
-          :alert="invitesAlert"
-          button="Save"
-          ref="space">
-          <div class="form-border">
-            <p>Email notifications</p>
-            <div class="switch-wrapper">
-              <button-switch v-model="emailNotifications"/>
-            </div>
+  <permission role="admin">
+    <div>
+      <Alert v-model="space.alert"/>
+      <div class="space">
+        <div class="col-left">
+          <h4 class="title">Space Photo</h4>
+          <div class="space-logo">
+            <UploadableImage width="96px" height="96px" radius="48px" type="spaceLogo" :extra="{spaceId: activeSpace.id}"
+                            :upload="activeSpace.avatar" edit-offset="-12px" key="space"
+                            @uploaded="refreshWhoami">
+              <template #fallback>
+                <img class="fallback-logo" src="../../assets/images/default-space.png" alt="Avatar Logo">
+              </template>
+            </UploadableImage>
           </div>
-        </form-space>
+        </div>
+        <div class="col-right">
+          <h4 class="title">Space Information</h4>
+          <form-space
+            @submit="updateSpace"
+            @addUser="addSpaceUser"
+            @updateUserSpaceRole="updateUserSpaceRole"
+            @updateInvitationRole="updateInvitationRole"
+            @deleteUser="deleteSpaceUser"
+            @invitesAlertDisplay="invitesAlertDisplay"
+            :value="spaceData"
+            :is-edit="true"
+            :alert="invitesAlert"
+            button="Save"
+            ref="space">
+            <div class="form-border">
+              <p>Email notifications</p>
+              <div class="switch-wrapper">
+                <button-switch v-model="emailNotifications"/>
+              </div>
+            </div>
+          </form-space>
+        </div>
       </div>
     </div>
   </permission>
@@ -45,7 +47,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { find } from 'lodash'
 import SpaceService from '@/services/space'
 import UserService from '@/services/user'
-import { SpaceResource, SpaceRole, InvitationRole } from '@/types/resource'
+import { SpaceResource, SpaceRoleResource, InvitationRole } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
@@ -125,7 +127,7 @@ export default class Space extends Vue {
     }
   }
 
-  async updateUserSpaceRole (data: SpaceRole) {
+  async updateUserSpaceRole (data: SpaceRoleResource) {
     this.isLoading = true
     try {
       this.isLoading = true

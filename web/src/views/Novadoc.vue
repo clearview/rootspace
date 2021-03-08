@@ -479,16 +479,6 @@ const wsMessageType = {
   initCollaboration: 14,
   restore: 15
 }
-
-const wsMessageType = {
-  authenticate: 10,
-  unauthenticated: 11,
-  unauthorized: 12,
-  wait: 13,
-  initCollaboration: 14,
-  restore: 15
-}
-
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {

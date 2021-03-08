@@ -2,7 +2,7 @@ import { Module } from 'vuex'
 import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
-import { SpaceResource, SpaceSettingResource, SpaceRole, InvitationRole } from '@/types/resource'
+import { SpaceResource, SpaceSettingResource, SpaceRoleResource, InvitationRole } from '@/types/resource'
 
 import api from '@/utils/api'
 
@@ -132,7 +132,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
       return res.data
     },
 
-    async role ({ commit, getters }, data: SpaceRole) {
+    async role ({ commit, getters }, data: SpaceRoleResource) {
       const index = getters.getIndex(data.index)
 
       commit('updateListItemRole', { index, data })

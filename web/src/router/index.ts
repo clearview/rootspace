@@ -167,27 +167,9 @@ router.beforeEach(async (to, from, next) => {
   const hasUser = store.state.auth.user !== null
 
   if (hasToken && !hasUser) {
-    await store.dispatch('auth/whoami', { updateSpace: true, spaceId: store.state.space.activeSpaceId })
+    await store.dispatch('auth/whoami', { updateSpace: true })
   }
 
-  if (hasToken && hasUser && store.state.space.activeSpaceId) {
-    await store.dispatch('auth/setUserRoles', {
-      spaceId: store.state.space.activeSpaceId,
-      userId: store.state.auth.user?.id
-    })
-  }
-
-  if (hasRoles) {
-    const hasRole = await store.dispatch('auth/hasRoles', {
-      spaceId: store.state.space.activeSpaceId,
-      userId: store.state.auth.user?.id,
-      hasRoles
-    })
-
-    if (!hasRole) {
-      next('/')
-    }
-  }
   if (hasToken && skipAuth) {
     next('/')
   }
