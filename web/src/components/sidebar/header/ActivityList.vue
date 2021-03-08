@@ -30,7 +30,7 @@ import textFormat from '@/utils/textFormat'
 
 export const nodeRouteNames: any = {
   Link: 'Link',
-  Doc: 'Document',
+  Doc: 'Novadoc',
   TaskBoard: 'TaskPage',
   Task: 'TaskPageWithItem',
   Embed: 'Embed',

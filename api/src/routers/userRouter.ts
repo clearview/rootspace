@@ -8,10 +8,18 @@ const router = PromiseRouter()
 
 router.get(
   '/auth/google',
-  passport.authenticate('google', {
-    session: false,
-    scope: ['openid profile email '],
-  })
+  (req, res, next) => {
+    const { redirectTo } = req.query
+    const state = redirectTo
+      ? redirectTo.toString()
+      : undefined
+
+    passport.authenticate('google', {
+      session: false,
+      scope: ['openid profile email '],
+      state,
+    })(req, res, next)
+  }
 )
 
 router.get(

@@ -155,18 +155,18 @@
             </template>
           </MenuGroup>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.bullet_list() } "
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'bullet_list' } "
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.bullet_list" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
+                  @click="commands.bullet_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Bullet List">
             <ListIcon size="16"></ListIcon>
           </button>
-          <button class="menu menu-big" :class="{ 'active': isActive.ordered_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
-                  @click="commands.ordered_list" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
+                  @click="commands.ordered_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
             <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
           </button>
           <div class="menu-separator"></div>
-          <button class="menu menu-big" :class="{ 'active': isActive.todo_list() }"
+          <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'todo_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.todo_list" v-tippy="{ placement : 'top',  arrow: true }" content="Checklist">
             <CheckSquareIcon size="16"></CheckSquareIcon>
@@ -317,7 +317,7 @@
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
+                         @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()">
                       <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
                     </div>
                   </div>
@@ -335,7 +335,7 @@
                   </div>
                   <div class="color-combo" v-for="combo in colorCombinations" :key="combo.background"
                        :style="{background: combo.background, color: combo.color}"
-                       :class="combo.class" @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color})">
+                       :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']"  @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color});hideBubble()">
                     {{combo.name}}
                   </div>
                 </template>
@@ -387,7 +387,7 @@ import {
 } from 'prosemirror-history'
 import api from '../utils/api'
 import Popover from '@/components/Popover'
-import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBar, EditorMenuBubble, TextSelection } from 'tiptap'
 import {
   Blockquote,
   Bold,
@@ -468,6 +468,17 @@ import ParagraphMerger from '@/views/Novadoc/ParagraphMerger'
 import DocGhost from '@/components/DocGhost'
 import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
+import ListMerger from '@/views/Novadoc/ListMerger'
+import TabEater from '@/views/Novadoc/TabEater'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 const wsMessageType = {
   authenticate: 10,
@@ -559,6 +570,11 @@ export default {
   },
   methods:
     {
+      hideBubble () {
+        const sel = this.editor.view.state.selection
+        const tr = this.editor.view.state.tr
+        this.editor.view.dispatch(tr.setSelection(TextSelection.create(tr.doc, sel.to)))
+      },
       blackOrWhite (color) {
         return blackOrWhite(hexToHsl(color))
       },
@@ -701,11 +717,12 @@ export default {
             new BulletList(),
             new ListItem(),
             new OrderedList(),
-            new Image(),
             new TodoList(),
             new TodoItem({
               nested: true
             }),
+            new ListMerger(),
+            new Image(),
             new Link({
               openOnClick: false
             }),
@@ -732,7 +749,8 @@ export default {
             new TableCell(),
             new TableRow(),
             new TableMenu(),
-            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror'))
+            new CollaborationExtension(this.provider, this.ydoc.getXmlFragment('prosemirror')),
+            new TabEater()
           ],
           emptyDocument: {
             type: 'doc',
@@ -790,6 +808,15 @@ export default {
             content: []
           }
         })
+      },
+      getCurrentActiveNode (depth = 1) {
+        const sel = this.editor.state.selection
+        if (sel) {
+          const node = sel.$from.node(sel.$from.depth - depth)
+          if (node) {
+            return node.type.name
+          }
+        }
       },
       listenForNodeNameChanges () {
         this.nodeNameChangesListener = this.$store.subscribe(async (mutation) => {
@@ -1426,6 +1453,10 @@ export default {
     display: flex;
     align-items: center;
     font-size: 12px;
+    @media only screen and (max-width: 1300px){
+      flex: 1 1 auto;
+      flex-wrap: wrap;
+    }
   }
 
   .editor-context-menu {
@@ -1433,6 +1464,10 @@ export default {
     margin-left: auto;
     display: flex;
     align-items: center;
+    @media only screen and (max-width: 1300px){
+      align-self: flex-start;
+      margin-left: 32px;
+    }
 
     .lock-indicator {
       border-radius: 4px;
