@@ -348,7 +348,8 @@ export default class Space extends Vue {
   }
 
   .col-left {
-    @apply flex flex-col p-2 w-2/6;
+    @apply flex flex-col p-2;
+    flex: 1;
 
     .space-logo {
       .fallback-logo {
@@ -358,7 +359,8 @@ export default class Space extends Vue {
   }
 
   .col-right {
-    @apply flex flex-col p-2 w-5/6;
+    @apply flex flex-col p-2;
+    flex: 4;
 
     .form-border {
       @apply flex flex-row;

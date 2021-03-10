@@ -87,9 +87,9 @@ export default class Settings extends Mixins(PageMixin) {
 
 <style lang="postcss" scoped>
   .settings-container {
-    @apply max-w-3xl p-4 mt-10;
+    @apply p-4 mt-10;
 
-    width: 44rem;
+    width: 100%;
     margin-left: 70px;
 
     .tab {

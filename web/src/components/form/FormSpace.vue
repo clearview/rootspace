@@ -104,7 +104,7 @@
           <div class="self-center" v-if="list.accepted == false">
 
             <span class="pending">PENDING</span>
-            <!-- <span class="invite-again" @click="addInvitationList(list.email, true)">Invite again</span> -->
+            <span class="invite-again" @click="addInvitationList(list.email, list.role, true)">Invite again</span>
           </div>
         </div>
 
@@ -369,7 +369,7 @@ export default class FormSpace extends Vue {
       padding-top: 16px;
       padding-bottom: 16px;
       display: grid;
-      grid-template-columns: auto 105px 32px;
+      grid-template-columns: auto 85px 32px;
       grid-column-gap: 8px;
       align-items: center;
 
@@ -406,6 +406,7 @@ export default class FormSpace extends Vue {
 
       .invite-again {
         @apply mr-2 text-xs;
+        white-space: nowrap;
 
         color: theme("colors.primary.default");
         cursor: pointer;
