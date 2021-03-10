@@ -33,7 +33,10 @@ const routes: Array<RouteConfig> = [
           {
             path: 'space',
             name: 'SettingsSpace',
-            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue')
+            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue'),
+            meta: {
+              roles: [0]
+            }
           }
         ]
       },
@@ -165,9 +168,16 @@ router.beforeEach(async (to, from, next) => {
   const skipAuth = to.meta.skipAuth
   const hasToken = store.state.auth.token !== null
   const hasUser = store.state.auth.user !== null
+  const roles = to.meta?.roles
 
   if (hasToken && !hasUser) {
     await store.dispatch('auth/whoami', { updateSpace: true })
+    await store.dispatch('space/whoami')
+    const activeSpace = store.getters['space/activeSpace']
+
+    if (roles && activeSpace.role && !roles.includes(activeSpace.role)) {
+      next('/')
+    }
   }
 
   if (hasToken && skipAuth) {

@@ -21,7 +21,7 @@ export default defineComponent({
           role.value = data.role
         }
       },
-      { immediate: true }
+      { immediate: false }
     )
 
     provide(accessRoleKey, readonly(role))
