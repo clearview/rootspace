@@ -42,13 +42,13 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
   }
 
   restored() {
-    this._action = ContentActions.Archived
+    this._action = ContentActions.Restored
     this._buildContext()
     return this
   }
 
   deleted() {
-    this._action = ContentActions.Archived
+    this._action = ContentActions.Deleted
     this._buildContext()
     return this
   }
