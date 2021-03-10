@@ -3,7 +3,7 @@ import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class EmbedActivity extends ContentActivity<Embed> {
-  constructor(action: string, entity: Embed, actorId?: number) {
+  constructor(action: string, entity: Embed, actorId: number) {
     super(action, entity, actorId)
 
     this._entityAttributes = ['id', 'title']
@@ -18,23 +18,23 @@ export class EmbedActivity extends ContentActivity<Embed> {
     return null
   }
 
-  static created(entity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Created, entity, actorId).contentCreated()
+  static created(entity: Embed, actorId: number) {
+    return new EmbedActivity(ContentActions.Created, entity, actorId).created()
   }
 
-  static updated(entity: Embed, updatedEntity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Updated, entity, actorId).contentUpdated(updatedEntity)
+  static updated(entity: Embed, updatedEntity: Embed, actorId: number) {
+    return new EmbedActivity(ContentActions.Updated, entity, actorId).updated(updatedEntity)
   }
 
-  static archived(entity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Archived, entity, actorId).contentArchived()
+  static archived(entity: Embed, actorId: number) {
+    return new EmbedActivity(ContentActions.Archived, entity, actorId).archived()
   }
 
-  static restored(entity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Restored, entity, actorId).contentRestored()
+  static restored(entity: Embed, actorId: number) {
+    return new EmbedActivity(ContentActions.Restored, entity, actorId).restored()
   }
 
-  static deleted(entity: Embed, actorId?: number) {
-    return new EmbedActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
+  static deleted(entity: Embed, actorId: number) {
+    return new EmbedActivity(ContentActions.Deleted, entity, actorId).deleted()
   }
 }

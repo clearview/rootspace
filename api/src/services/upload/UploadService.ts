@@ -66,7 +66,7 @@ export class UploadService extends Service {
     return this.getUploadRepository().getByEntity(entity, entityId)
   }
 
-  async upload(data: UploadValue) {
+  async upload(data: UploadValue, actorId: number) {
     const entity = await this.entityService.getEntityByNameAndId(data.attributes.entity, data.attributes.entityId)
 
     if (!entity) {
@@ -98,7 +98,7 @@ export class UploadService extends Service {
     // TO DO: implement other upload types activities
     if (upload.type === UploadType.TaskAttachment) {
       const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
-      await this.notifyActivity(TaskActivity.attachmentAdded(task, upload))
+      await this.notifyActivity(TaskActivity.attachmentAdded(task, upload, actorId))
     }
 
     return upload
@@ -199,7 +199,7 @@ export class UploadService extends Service {
     return null
   }
 
-  async remove(id: number): Promise<Upload> {
+  async remove(id: number, actorId: number): Promise<Upload> {
     const upload = await this.requireUploadById(id)
     await this.removeUploadFiles(upload)
 
@@ -207,7 +207,7 @@ export class UploadService extends Service {
     if (upload.type === UploadType.TaskAttachment) {
       if (upload.type === UploadType.TaskAttachment) {
         const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
-        await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload))
+        await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
       }
     }
 

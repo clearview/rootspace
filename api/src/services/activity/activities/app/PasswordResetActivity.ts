@@ -4,12 +4,11 @@ import { Activity } from '../Activity'
 import { ActivityType } from '../types'
 
 export class PasswordResetActivity extends Activity {
-  constructor(action: string, entity: string, entityId: number, actorId?: number) {
+  constructor(action: string, entity: string, entityId: number) {
     super(action)
 
     this._entityName = entity
     this._entityId = entityId
-    this._actorId = actorId
   }
 
   type(): string {

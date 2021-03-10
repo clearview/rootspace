@@ -6,7 +6,7 @@ import { ContentActions } from './actions'
 export class DocActivity extends ContentActivity<Doc> {
   protected docUpdateSetup: IDocUpdateSetup
 
-  constructor(action: string, entity: Doc, actorId?: number) {
+  constructor(action: string, entity: Doc, actorId: number) {
     super(action, entity, actorId)
 
     this._entityAttributes = ['id', 'title']
@@ -21,8 +21,8 @@ export class DocActivity extends ContentActivity<Doc> {
     return 'DocActivityHandler'
   }
 
-  static created(entity: Doc, actorId?: number) {
-    return new DocActivity(ContentActions.Created, entity, actorId).contentCreated()
+  static created(entity: Doc, actorId: number) {
+    return new DocActivity(ContentActions.Created, entity, actorId).created()
   }
 
   static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId: number) {
@@ -32,20 +32,20 @@ export class DocActivity extends ContentActivity<Doc> {
     return activity.updated(updatedEntity)
   }
 
-  static archived(entity: Doc, actorId?: number) {
-    return new DocActivity(ContentActions.Archived, entity, actorId).contentArchived()
+  static archived(entity: Doc, actorId: number) {
+    return new DocActivity(ContentActions.Archived, entity, actorId).archived()
   }
 
-  static restored(entity: Doc, actorId?: number) {
-    return new DocActivity(ContentActions.Restored, entity, actorId).contentRestored()
+  static restored(entity: Doc, actorId: number) {
+    return new DocActivity(ContentActions.Restored, entity, actorId).restored()
   }
 
-  static deleted(entity: Doc, actorId?: number) {
-    return new DocActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
+  static deleted(entity: Doc, actorId: number) {
+    return new DocActivity(ContentActions.Deleted, entity, actorId).deleted()
   }
 
-  protected updated(updatedEntity: Doc) {
-    const updatedAttributes = this.getUpdatedAttributes(this._entity, updatedEntity, this._entityUpdateAttributes)
+  updated(updatedEntity: Doc) {
+    const updatedAttributes = this._getUpdatedAttributes(this._entity, updatedEntity, this._entityUpdateAttributes)
 
     if (this.docUpdateSetup.contentUpdated) {
       updatedAttributes.push('content')
@@ -53,8 +53,8 @@ export class DocActivity extends ContentActivity<Doc> {
 
     this._context = {
       updatedAttributes,
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-      updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      updatedEntity: this._filterEntityAttributes(updatedEntity, this._entityAttributes),
     }
 
     return this

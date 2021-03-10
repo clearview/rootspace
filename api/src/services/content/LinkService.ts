@@ -8,10 +8,8 @@ import { NodeCreateValue } from '../../values/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { LinkActivity } from '../activity/activities/content'
-import { ContentActions } from '../activity/activities/content/actions'
 
 export class LinkService extends NodeContentService {
   private nodeService: NodeService
@@ -70,17 +68,17 @@ export class LinkService extends NodeContentService {
     const node = await this.nodeService.create(value)
 
     link = await this.getLinkRepository().reload(link)
-    await this.notifyActivity(LinkActivity.created(link))
+    await this.notifyActivity(LinkActivity.created(link, link.userId))
 
     return { ...link, ...node }
   }
 
-  async update(data: LinkUpdateValue, id: number): Promise<Link> {
+  async update(data: LinkUpdateValue, id: number, actorId: number): Promise<Link> {
     const link = await this.requireLinkById(id)
-    const updatedLink = await this._update(data, link)
+    const updatedLink = await this._update(data, link, actorId)
 
     if (link.title !== updatedLink.title) {
-      await this.nodeContentMediator.contentUpdated(updatedLink.id, this.getNodeType(), {
+      await this.nodeContentMediator.contentUpdated(updatedLink.id, this.getNodeType(), actorId, {
         title: updatedLink.title,
       })
     }
@@ -88,8 +86,8 @@ export class LinkService extends NodeContentService {
     return updatedLink
   }
 
-  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
-    const link = await this.getLinkById(contentId)
+  async nodeUpdated(node: Node, actorId: number): Promise<void> {
+    const link = await this.getLinkById(node.contentId)
 
     if (!link) {
       return
@@ -97,96 +95,97 @@ export class LinkService extends NodeContentService {
 
     await this._update(
       LinkUpdateValue.fromObject({
-        title: data.title,
+        title: node.title,
       }),
-      link
+      link,
+      actorId
     )
   }
 
-  private async _update(data: LinkUpdateValue, link: Link): Promise<Link> {
+  private async _update(data: LinkUpdateValue, link: Link, actorId: number): Promise<Link> {
     let updatedLink = await this.requireLinkById(link.id)
 
     Object.assign(updatedLink, data.attributes)
     updatedLink = await this.getLinkRepository().save(updatedLink)
 
-    await this.notifyActivity(LinkActivity.updated(link, updatedLink))
+    await this.notifyActivity(LinkActivity.updated(link, updatedLink, actorId))
 
     return updatedLink
   }
 
-  async archive(id: number): Promise<Link> {
+  async archive(id: number, actorId: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
     this.verifyArchive(link)
 
-    link = await this._archive(link)
+    link = await this._archive(link, actorId)
 
-    await this.nodeService.contentArchived(link.id, this.getNodeType())
+    await this.nodeService.contentArchived(link.id, this.getNodeType(), actorId)
     return link
   }
 
-  async nodeArchived(contentId: number): Promise<void> {
-    const link = await this.getLinkById(contentId)
+  async nodeArchived(node: Node, actorId: number): Promise<void> {
+    const link = await this.getLinkById(node.contentId)
 
     if (!link) {
       return
     }
 
-    await this._archive(link)
+    await this._archive(link, actorId)
   }
 
-  private async _archive(link: Link): Promise<Link> {
+  private async _archive(link: Link, actorId: number): Promise<Link> {
     link = await this.getLinkRepository().softRemove(link)
-    await this.notifyActivity(LinkActivity.archived(link))
+    await this.notifyActivity(LinkActivity.archived(link, actorId))
 
     return link
   }
 
-  async restore(id: number): Promise<Link> {
+  async restore(id: number, actorId: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
     this.verifyRestore(link)
 
-    link = await this._restore(link)
+    link = await this._restore(link, actorId)
 
-    await this.nodeContentMediator.contentRestored(link.id, this.getNodeType())
+    await this.nodeContentMediator.contentRestored(link.id, this.getNodeType(), actorId)
     return link
   }
 
-  async nodeRestored(contentId: number): Promise<void> {
-    const link = await this.getLinkById(contentId, null, { withDeleted: true })
+  async nodeRestored(node: Node, actorId: number): Promise<void> {
+    const link = await this.getLinkById(node.contentId, null, { withDeleted: true })
 
     if (!link) {
       return
     }
 
-    await this._restore(link)
+    await this._restore(link, actorId)
   }
 
-  private async _restore(link: Link): Promise<Link> {
+  private async _restore(link: Link, actorId: number): Promise<Link> {
     link = await this.getLinkRepository().recover(link)
-    await this.notifyActivity(LinkActivity.restored(link))
+    await this.notifyActivity(LinkActivity.restored(link, actorId))
     return link
   }
 
-  async remove(id: number): Promise<Link> {
+  async remove(id: number, actorId: number): Promise<Link> {
     let link = await this.requireLinkById(id, null, { withDeleted: true })
     // this.verifyRemove(link)
 
-    link = await this._remove(link)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    link = await this._remove(link, actorId)
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType(), actorId)
 
     return link
   }
 
-  async nodeRemoved(contentId: number): Promise<void> {
-    const link = await this.getLinkById(contentId, null, { withDeleted: true })
+  async nodeRemoved(node: Node, actorId: number): Promise<void> {
+    const link = await this.getLinkById(node.contentId, null, { withDeleted: true })
 
     if (link) {
-      await this._remove(link)
+      await this._remove(link, actorId)
     }
   }
 
-  private async _remove(link: Link): Promise<Link> {
-    await this.notifyActivity(LinkActivity.deleted(link))
+  private async _remove(link: Link, actorId: number): Promise<Link> {
+    await this.notifyActivity(LinkActivity.deleted(link, actorId))
     return this.getLinkRepository().remove(link)
   }
 

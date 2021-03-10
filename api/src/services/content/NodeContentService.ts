@@ -1,26 +1,22 @@
+import { Node } from '../../database/entities/Node'
 import { Service } from '../Service'
 import { NodeType } from '../../types/node'
-import { INodeContentMediator, INodeContentUpdate } from './contracts'
+import { NodeContentMediator } from './NodeContentMediator'
 
 export abstract class NodeContentService extends Service {
-  protected nodeContentMediator: INodeContentMediator
+  protected nodeContentMediator: NodeContentMediator
 
-  protected constructor(mediator: INodeContentMediator = null) {
-    super()
-    this.nodeContentMediator = mediator
-  }
-
-  public setMediator(mediator: INodeContentMediator): void {
+  public setMediator(mediator: NodeContentMediator): void {
     this.nodeContentMediator = mediator
   }
 
   abstract getNodeType(): NodeType
 
-  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
+  async nodeUpdated(node: Node, actorId: number): Promise<void> {
     return
   }
 
-  abstract nodeArchived(contentId: number): Promise<void>
-  abstract nodeRestored(contentId: number): Promise<void>
-  abstract nodeRemoved(contentId: number): Promise<void>
+  abstract nodeArchived(node: Node, actorId: number): Promise<void>
+  abstract nodeRestored(node: Node, actorId: number): Promise<void>
+  abstract nodeRemoved(node: Node, actorId: number): Promise<void>
 }

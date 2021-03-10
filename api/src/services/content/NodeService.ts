@@ -3,13 +3,14 @@ import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
-import { IContentNodeUpdate, INodeContentMediator } from './contracts'
+import { INodeContentUpdate } from './NodeContentUpdate'
+import { NodeContentMediator } from './NodeContentMediator'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Service } from '../Service'
 import { NodeActivity } from '../activity/activities/space'
 
 export class NodeService extends Service {
-  private nodeContentMediator: INodeContentMediator
+  private nodeContentMediator: NodeContentMediator
 
   private static instance: NodeService
 
@@ -21,7 +22,7 @@ export class NodeService extends Service {
     return NodeService.instance
   }
 
-  setMediator(mediator: INodeContentMediator) {
+  setMediator(mediator: NodeContentMediator) {
     this.nodeContentMediator = mediator
   }
 
@@ -69,7 +70,7 @@ export class NodeService extends Service {
     return this.getNodeRepository().getArchiveBySpaceId(spaceId)
   }
 
-  async deleteArchivedBySpaceId(spaceId: number): Promise<Node[]> {
+  async deleteArchivedBySpaceId(spaceId: number, actorId: number): Promise<Node[]> {
     const tree = await this.getArchiveTreeBySpaceId(spaceId)
 
     for (const node of tree) {
@@ -78,7 +79,7 @@ export class NodeService extends Service {
         continue
       }
 
-      await this.remove(node.id)
+      await this.remove(node.id, actorId)
     }
 
     return tree
@@ -139,25 +140,25 @@ export class NodeService extends Service {
     node.parent = parent
 
     const savedNode = await this.getNodeRepository().save(node)
-    this.notifyActivity(NodeActivity.created(savedNode))
+    this.notifyActivity(NodeActivity.created(savedNode, savedNode.userId))
 
     return savedNode
   }
 
-  async update(data: NodeUpdateValue, id: number): Promise<Node> {
+  async update(data: NodeUpdateValue, id: number, actorId: number): Promise<Node> {
     const node = await this.getNodeById(id)
 
     if (!node) {
       throw clientError('Error updating node')
     }
 
-    const updatedNode = await this._update(data, node)
-    this.nodeContentMediator.nodeUpdated(updatedNode)
+    const updatedNode = await this._update(data, node, actorId)
+    this.nodeContentMediator.nodeUpdated(updatedNode, actorId)
 
     return updatedNode
   }
 
-  async contentUpdated(contentId: number, type: NodeType, data: IContentNodeUpdate): Promise<void> {
+  async contentUpdated(contentId: number, type: NodeType, actorId: number, data: INodeContentUpdate): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
@@ -165,10 +166,10 @@ export class NodeService extends Service {
     }
 
     const value = NodeUpdateValue.fromObject({ title: data.title })
-    await this._update(value, node)
+    await this._update(value, node, actorId)
   }
 
-  private async _update(data: NodeUpdateValue, node: Node): Promise<Node> {
+  private async _update(data: NodeUpdateValue, node: Node, actorId: number): Promise<Node> {
     let updatedNode = await this.getNodeById(node.id)
 
     Object.assign(updatedNode, data.attributes)
@@ -182,7 +183,7 @@ export class NodeService extends Service {
       updatedNode = await this.updateNodePosition(updatedNode, data.position)
     }
 
-    await this.notifyActivity(NodeActivity.updated(node, updatedNode))
+    await this.notifyActivity(NodeActivity.updated(node, updatedNode, actorId))
 
     return updatedNode
   }
@@ -247,31 +248,31 @@ export class NodeService extends Service {
     return this.getNodeRepository().save(node)
   }
 
-  async archive(id: number): Promise<Node> {
+  async archive(id: number, actorId: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
 
-    node = await this._archive(node)
-    await this.nodeContentMediator.nodeArchived(node)
+    node = await this._archive(node, actorId)
+    await this.nodeContentMediator.nodeArchived(node, actorId)
 
     return node
   }
 
-  async contentArchived(contentId: number, type: NodeType): Promise<void> {
+  async contentArchived(contentId: number, type: NodeType, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
       return
     }
 
-    await this._archive(node)
+    await this._archive(node, actorId)
   }
 
-  private async _archive(node: Node): Promise<Node> {
+  private async _archive(node: Node, actorId: number): Promise<Node> {
     this.verifyArchive(node)
 
     const archiveNode = await this.getArchiveNodeBySpaceId(node.spaceId)
 
-    await this._archiveChildren(node)
+    await this._archiveChildren(node, actorId)
 
     node.restoreParentId = node.parentId
     node = await this.getNodeRepository().save(node)
@@ -279,12 +280,12 @@ export class NodeService extends Service {
     node = await this.updateNodeParent(node, archiveNode.id)
     node = await this.getNodeRepository().softRemove(node)
 
-    await this.notifyActivity(NodeActivity.archived(node))
+    await this.notifyActivity(NodeActivity.archived(node, actorId))
 
     return node
   }
 
-  private async _archiveChildren(node: Node): Promise<void> {
+  private async _archiveChildren(node: Node, actorId: number): Promise<void> {
     const children = await this.getNodeRepository().getChildren(node.id)
 
     if (children.length === 0) {
@@ -292,25 +293,25 @@ export class NodeService extends Service {
     }
 
     for (let child of children) {
-      await this._archiveChildren(child)
+      await this._archiveChildren(child, actorId)
 
       child.restoreParentId = child.parentId
       child = await this.getNodeRepository().save(child)
 
       child = await this.getNodeRepository().softRemove(child)
-      await this.nodeContentMediator.nodeArchived(child)
+      await this.nodeContentMediator.nodeArchived(child, actorId)
     }
   }
 
-  async restore(id: number): Promise<Node> {
+  async restore(id: number, actorId: number): Promise<Node> {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
-    node = await this._restore(node)
+    node = await this._restore(node, actorId)
 
-    await this.nodeContentMediator.nodeRestored(node)
+    await this.nodeContentMediator.nodeRestored(node, actorId)
     return node
   }
 
-  async contentRestored(contentId: number, type: NodeType): Promise<void> {
+  async contentRestored(contentId: number, type: NodeType, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type, {
       withDeleted: true,
     })
@@ -319,10 +320,10 @@ export class NodeService extends Service {
       return
     }
 
-    await this._restore(node)
+    await this._restore(node, actorId)
   }
 
-  private async _restore(node: Node): Promise<Node> {
+  private async _restore(node: Node, actorId: number): Promise<Node> {
     this.verifyRestore(node)
 
     const restoreToParent = await this._getRestoreParentNode(node)
@@ -332,14 +333,14 @@ export class NodeService extends Service {
     node = await this.getNodeRepository().save(node)
 
     node = await this.getNodeRepository().recover(node)
-    await this._restoreChildren(node)
+    await this._restoreChildren(node, actorId)
 
-    await this.notifyActivity(NodeActivity.restored(node))
+    await this.notifyActivity(NodeActivity.restored(node, actorId))
 
     return node
   }
 
-  private async _restoreChildren(node: Node): Promise<void> {
+  private async _restoreChildren(node: Node, actorId: number): Promise<void> {
     const children = await this.getNodeRepository().getChildren(node.id, {
       withDeleted: true,
     })
@@ -353,9 +354,9 @@ export class NodeService extends Service {
       child = await this.getNodeRepository().save(child)
 
       child = await this.getNodeRepository().recover(child)
-      await this.nodeContentMediator.nodeRestored(child)
+      await this.nodeContentMediator.nodeRestored(child, actorId)
 
-      await this._restoreChildren(child)
+      await this._restoreChildren(child, actorId)
     }
   }
 
@@ -369,39 +370,39 @@ export class NodeService extends Service {
     return this.getRootNodeBySpaceId(node.spaceId)
   }
 
-  async remove(id: number) {
+  async remove(id: number, actorId: number) {
     let node = await this.requireNodeById(id, null, { withDeleted: true })
 
-    node = await this._remove(node)
-    await this.nodeContentMediator.nodeRemoved(node)
+    node = await this._remove(node, actorId)
+    await this.nodeContentMediator.nodeRemoved(node, actorId)
 
     return node
   }
 
-  async contentRemoved(contentId: number, type: NodeType): Promise<void> {
+  async contentRemoved(contentId: number, type: NodeType, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type, {
       withDeleted: true,
     })
 
     if (node) {
-      await this._remove(node)
+      await this._remove(node, actorId)
     }
   }
 
-  private async _remove(node: Node): Promise<Node> {
+  private async _remove(node: Node, actorId: number): Promise<Node> {
     this.verifyRemove(node)
 
-    await this._removeChildren(node)
+    await this._removeChildren(node, actorId)
     node = await this.getNodeRepository().remove(node)
 
     await this.getNodeRepository().decreasePositions(node.parentId, node.position)
 
-    await this.notifyActivity(NodeActivity.deleted(node))
+    await this.notifyActivity(NodeActivity.deleted(node, actorId))
 
     return node
   }
 
-  private async _removeChildren(node: Node): Promise<void> {
+  private async _removeChildren(node: Node, actorId: number): Promise<void> {
     const children = await this.getNodeRepository().getChildren(node.id, {
       withDeleted: true,
     })
@@ -411,10 +412,10 @@ export class NodeService extends Service {
     }
 
     for (const child of children) {
-      await this._removeChildren(child)
+      await this._removeChildren(child, actorId)
 
       await this.getNodeRepository().remove(child)
-      await this.nodeContentMediator.nodeRemoved(child)
+      await this.nodeContentMediator.nodeRemoved(child, actorId)
     }
   }
 

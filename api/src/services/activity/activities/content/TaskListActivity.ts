@@ -3,7 +3,7 @@ import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
 
 export class TaskListActivity extends ContentActivity<TaskList> {
-  constructor(action: string, entity: TaskList, actorId?: number) {
+  constructor(action: string, entity: TaskList, actorId: number) {
     super(action, entity, actorId)
 
     this._entityAttributes = ['id', 'title']
@@ -18,23 +18,23 @@ export class TaskListActivity extends ContentActivity<TaskList> {
     return 'TaskListActivityHandler'
   }
 
-  static created(entity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Created, entity, actorId).contentCreated()
+  static created(entity: TaskList, actorId: number) {
+    return new TaskListActivity(ContentActions.Created, entity, actorId).created()
   }
 
-  static updated(entity: TaskList, updatedEntity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Updated, entity, actorId).contentUpdated(updatedEntity)
+  static updated(entity: TaskList, updatedEntity: TaskList, actorId: number) {
+    return new TaskListActivity(ContentActions.Updated, entity, actorId).updated(updatedEntity)
   }
 
-  static archived(entity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Archived, entity, actorId).contentArchived()
+  static archived(entity: TaskList, actorId: number) {
+    return new TaskListActivity(ContentActions.Archived, entity, actorId).archived()
   }
 
-  static restored(entity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Restored, entity, actorId).contentRestored()
+  static restored(entity: TaskList, actorId: number) {
+    return new TaskListActivity(ContentActions.Restored, entity, actorId).restored()
   }
 
-  static deleted(entity: TaskList, actorId?: number) {
-    return new TaskListActivity(ContentActions.Deleted, entity, actorId).contentDeleted()
+  static deleted(entity: TaskList, actorId: number) {
+    return new TaskListActivity(ContentActions.Deleted, entity, actorId).deleted()
   }
 }

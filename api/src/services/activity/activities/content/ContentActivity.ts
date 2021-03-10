@@ -1,14 +1,13 @@
-import httpRequestContext from 'http-request-context'
 import { IContentEntity } from './types'
 import { ActivityType } from '../types'
 import { ContentActions } from './actions'
 import { EntityActivity } from '../EntityActivity'
 
 export abstract class ContentActivity<T extends IContentEntity> extends EntityActivity<T> {
-  protected constructor(action: string, entityObject: T, actorId?: number) {
+  protected constructor(action: string, entityObject: T, actorId: number) {
     super(action, entityObject)
 
-    this._actorId = actorId ?? httpRequestContext.get('user').id
+    this._actorId = actorId
     this._spaceId = entityObject.spaceId
   }
 
@@ -24,49 +23,33 @@ export abstract class ContentActivity<T extends IContentEntity> extends EntityAc
     return true
   }
 
-  protected contentCreated() {
+  created() {
     this._action = ContentActions.Created
-    this._context = {
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-    }
-
+    this._buildContext()
     return this
   }
 
-  protected contentUpdated(updatedEntity: T) {
-    this._context = {
-      updatedAttributes: this.getUpdatedAttributes(this._entity, updatedEntity, this._entityUpdateAttributes),
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-      updatedEntity: this.filterEntityAttributes(updatedEntity, this._entityAttributes),
-    }
-
+  updated(updatedEntity: T) {
+    this._action = ContentActions.Updated
+    this._buildUpdateContext(updatedEntity)
     return this
   }
 
-  protected contentArchived() {
+  archived() {
     this._action = ContentActions.Archived
-    this._context = {
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-    }
-
+    this._buildContext()
     return this
   }
 
-  protected contentRestored() {
+  restored() {
     this._action = ContentActions.Archived
-    this._context = {
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-    }
-
+    this._buildContext()
     return this
   }
 
-  protected contentDeleted() {
+  deleted() {
     this._action = ContentActions.Archived
-    this._context = {
-      entity: this.filterEntityAttributes(this._entity, this._entityAttributes),
-    }
-
+    this._buildContext()
     return this
   }
 }

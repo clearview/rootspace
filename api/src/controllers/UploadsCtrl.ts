@@ -28,7 +28,7 @@ export class UploadsCtrl extends BaseCtrl {
     data.entity = UploadEntity.User
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
-    const upload = await this.uploadService.upload(value)
+    const upload = await this.uploadService.upload(value, req.user.id)
 
     res.send(this.responseData(upload))
   }
@@ -47,7 +47,7 @@ export class UploadsCtrl extends BaseCtrl {
     data.entity = UploadEntity.Space
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
-    const upload = await this.uploadService.upload(value)
+    const upload = await this.uploadService.upload(value, req.user.id)
 
     res.send(this.responseData(upload))
   }
@@ -59,14 +59,14 @@ export class UploadsCtrl extends BaseCtrl {
     await validateUpload(Object.assign({ ...data }, { file }))
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
-    const upload = await this.uploadService.upload(value)
+    const upload = await this.uploadService.upload(value, req.user.id)
 
     res.send(this.responseData(upload))
   }
 
   async delete(req: Request, res: Response) {
     const id = Number(req.params.id)
-    const result = await this.uploadService.remove(id)
+    const result = await this.uploadService.remove(id, req.user.id)
 
     res.send(this.responseData(result))
   }

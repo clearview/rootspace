@@ -44,7 +44,7 @@ export class SpacesCtrl extends BaseCtrl {
     const spaceId = Number(req.params.id)
     this.checkSpaceAccess(req, spaceId)
 
-    const nodes = await this.spaceFacade.deleteArchive(spaceId)
+    const nodes = await this.spaceFacade.deleteArchive(spaceId, req.user.id)
     const result = this.responseData(nodes)
 
     res.send(this.responseData(result))
