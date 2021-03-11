@@ -172,11 +172,14 @@ router.beforeEach(async (to, from, next) => {
 
   if (hasToken && !hasUser) {
     await store.dispatch('auth/whoami', { updateSpace: true })
-    await store.dispatch('space/whoami')
     const activeSpace = store.getters['space/activeSpace']
 
-    if (roles && activeSpace.role && !roles.includes(activeSpace.role)) {
-      next('/')
+    if (activeSpace.id) {
+      await store.dispatch('space/whoami')
+
+      if (roles && activeSpace.role && !roles.includes(activeSpace.role)) {
+        next('/')
+      }
     }
   }
 

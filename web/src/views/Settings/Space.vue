@@ -133,12 +133,7 @@ export default class Space extends Vue {
       this.isLoading = true
       this.loadingMessage = 'Update User Role...'
 
-      await this.$store.dispatch('space/role', {
-        spaceId: this.activeSpace.id,
-        index: data.index,
-        userId: data.userId,
-        role: data.role
-      })
+      await SpaceService.updateUserRole(data)
 
       this.space.alert = {
         type: 'success',
@@ -161,7 +156,7 @@ export default class Space extends Vue {
       this.isLoading = true
       this.loadingMessage = 'Update User Role...'
 
-      await this.$store.dispatch('space/invitationRole', {
+      await SpaceService.updateInvitationRole({
         spaceId: this.activeSpace.id,
         index: data.index,
         id: data.id,

@@ -3,7 +3,7 @@ import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
 import SpaceService from '@/services/space'
-import { SpaceResource, SpaceSettingResource, SpaceRoleResource, InvitationRole } from '@/types/resource'
+import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
 import api from '@/utils/api'
 
@@ -129,26 +129,6 @@ const SpaceModule: Module<SpaceState, RootState> = {
       commit('updateListItem', { index, data })
 
       const res = await api.patch('/spaces/' + data.id, data)
-
-      return res.data
-    },
-
-    async role ({ commit, getters }, data: SpaceRoleResource) {
-      const index = getters.getIndex(data.index)
-
-      commit('updateListItemRole', { index, data })
-
-      const res = await api.patch(`/spaces/${data.spaceId}/users/${data.userId}`, { data })
-
-      return res.data
-    },
-
-    async invitationRole ({ commit, getters }, data: InvitationRole) {
-      const index = getters.getIndex(data.index)
-
-      commit('updateListItemRole', { index, data })
-
-      const res = await api.patch(`/invites/role/${data.id}`, { data })
 
       return res.data
     },

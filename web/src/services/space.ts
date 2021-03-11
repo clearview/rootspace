@@ -1,4 +1,4 @@
-import { SpaceRoleResource } from '@/types/resource'
+import { SpaceRoleResource, InvitationRoleResource } from '@/types/resource'
 import api from '@/utils/api'
 
 export default class SpaceService {
@@ -142,5 +142,17 @@ export default class SpaceService {
 
       throw err
     }
+  }
+
+  static async updateUserRole (data: SpaceRoleResource) {
+    const res = await api.patch(`/spaces/${data.id}/users/${data.userId}`, { data })
+
+    return res.data
+  }
+
+  static async updateInvitationRole (data: InvitationRoleResource) {
+    const res = await api.patch(`/invites/role/${data.id}`, { data })
+
+    return res.data
   }
 }

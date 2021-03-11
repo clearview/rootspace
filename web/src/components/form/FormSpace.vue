@@ -208,6 +208,10 @@ export default class FormSpace extends Vue {
     @Prop({ type: Object })
     private readonly alert!: any;
 
+    get activeSpace () {
+      return this.$store.getters['space/activeSpace'] || {}
+    }
+
     get hasSlot () {
       return !!this.$slots.default
     }
@@ -277,7 +281,7 @@ export default class FormSpace extends Vue {
       const { isSpaceUser } = data
 
       if (isSpaceUser) {
-        this.$emit('updateUserSpaceRole', { index, userId: data.id, role: data.role })
+        this.$emit('updateUserSpaceRole', { index, id: this.activeSpace.id, userId: data.id, role: data.role })
       } else {
         this.$emit('updateInvitationRole', { index, id: data.id, role: data.role })
       }

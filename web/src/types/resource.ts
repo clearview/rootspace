@@ -177,7 +177,7 @@ export interface SpaceRoleResource {
   active: boolean;
   role: 0 | 1;
 }
-export interface InvitationRole {
+export interface InvitationRoleResource {
   index: number;
   id: number;
   spaceId: number;
