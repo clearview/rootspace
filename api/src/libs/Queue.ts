@@ -35,7 +35,8 @@ export class Queue {
       duration: 1000,
     },
     defaultJobOptions: {
-      removeOnComplete: 1666,
+      removeOnComplete: 666,
+      removeOnFail: 666
     },
   }
 
