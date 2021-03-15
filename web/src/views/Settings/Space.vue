@@ -47,7 +47,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { find } from 'lodash'
 import SpaceService from '@/services/space'
 import UserService from '@/services/user'
-import { SpaceResource, SpaceRoleResource, InvitationRole } from '@/types/resource'
+import { SpaceResource, SpaceRoleResource, InvitationRoleResource } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
 import FormSpace from '@/components/form/FormSpace.vue'
@@ -150,7 +150,7 @@ export default class Space extends Vue {
     }
   }
 
-  async updateInvitationRole (data: InvitationRole) {
+  async updateInvitationRole (data: InvitationRoleResource) {
     this.isLoading = true
     try {
       this.isLoading = true

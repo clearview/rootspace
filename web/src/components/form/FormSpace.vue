@@ -115,7 +115,7 @@
             class="input input-role"
             @change="updateRole(indexList)"
           >
-            <option :value="undefined">Select Role</option>
+            <option :value="undefined" disabled>Select Role</option>
             <option :value="0">Admin</option>
             <option :value="1">Member</option>
           </select>
