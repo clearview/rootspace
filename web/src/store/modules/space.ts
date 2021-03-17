@@ -181,6 +181,10 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
     async whoami ({ commit, state, getters }) {
       const activeSpace = getters.getSpaceByIndex(state.activeIndex)
+      if (!activeSpace) {
+        return
+      }
+
       const data = await SpaceService.whoami(activeSpace.id)
 
       commit('setList', state.list.map((item) => {

@@ -36,14 +36,8 @@ export default class Forbidden extends Vue {
   }
 
   async goBack () {
-    // Clear last active page to prevent loop
-    const spaceId = this.$store.getters['space/activeSpace'].id
-    await this.$store.dispatch('space/updateSetting', {
-      id: spaceId,
-      data: { activePage: '/' }
-    })
     // Going home is more consistent because the previous page might be another 404 page
-    await this.$router.replace('/')
+    window.location.href = '/'
   }
 }
 </script>
