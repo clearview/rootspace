@@ -19,7 +19,7 @@ export class FolderCtrl extends BaseCtrl {
     const data = req.body.data
     await validateFolderCreate(data)
 
-    this.checkSpaceAccess(req, data.spaceId)
+    this.isSpaceMember(req, data.spaceId)
 
     const value = FolderCreateValue.fromObjectAndUserId(data, Number(req.user.id))
 

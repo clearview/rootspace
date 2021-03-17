@@ -22,12 +22,20 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
-  getByUserIdAndSpaceId(userId: number, spaceId: number, active?: boolean): Promise<UserToSpace> {
-    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(userId, spaceId, active)
+  getByUserId(userId: number): Promise<UserToSpace[]> {
+    return this.getUserToSpaceRepository().getByUserId(userId)
   }
 
-  async requireByUserIdAndSpaceId(userId: number, spaceId: number): Promise<UserToSpace> {
-    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId)
+  getByUserIdAndSpaceId(userId: number, spaceId: number, filter: { active?: boolean } = {}): Promise<UserToSpace> {
+    return this.getUserToSpaceRepository().getByUserIdAndSpaceId(userId, spaceId, filter)
+  }
+
+  async requireByUserIdAndSpaceId(
+    userId: number,
+    spaceId: number,
+    filter: { active?: boolean } = {}
+  ): Promise<UserToSpace> {
+    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, filter)
 
     if (!userSpace) {
       throw clientError('Not found', HttpErrName.EntityNotFound)
@@ -37,7 +45,7 @@ export class UserSpaceService {
   }
 
   async isUserInSpace(userId: number, spaceId: number): Promise<boolean> {
-    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
+    const userSpace = await this.getByUserIdAndSpaceId(userId, spaceId, { active: true })
     return !!userSpace
   }
 
@@ -60,14 +68,14 @@ export class UserSpaceService {
   }
 
   async remove(userId: number, spaceId: number): Promise<UserToSpace> {
-    const userToSpace = await this.getByUserIdAndSpaceId(userId, spaceId, true)
+    const userToSpace = await this.getByUserIdAndSpaceId(userId, spaceId, { active: true })
     userToSpace.active = false
 
     return this.getUserToSpaceRepository().save(userToSpace)
   }
 
   async update(data: SpaceUserUpdateValue, userId: number, spaceId: number): Promise<UserToSpace> {
-    const userToSpace = await this.requireByUserIdAndSpaceId(userId, spaceId)
+    const userToSpace = await this.requireByUserIdAndSpaceId(userId, spaceId, { active: true })
     Object.assign(userToSpace, data.attributes)
     return this.getUserToSpaceRepository().save(userToSpace)
   }

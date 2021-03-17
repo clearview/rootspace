@@ -38,7 +38,7 @@ export class Space {
 
   @OneToMany(
     (type) => UserToSpace,
-    (space) => space.space
+    (userSpace) => userSpace.space
   )
-  public users!: UserToSpace[]
+  userSpaces: UserToSpace[]
 }

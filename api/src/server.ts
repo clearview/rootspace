@@ -19,10 +19,11 @@ declare global {
   namespace Express {
     interface User {
       id: number
-      firstName: string,
-      lastName: string,
-      email: string,
+      firstName: string
+      lastName: string
+      email: string
       ability: Ability
+      spaces: Map<number, number>
     }
   }
 }
@@ -40,7 +41,7 @@ export default class Server {
       pathname: config.ws.path,
       parser: 'JSON',
       transformer: 'websockets',
-      plugin: {'rooms': Rooms}
+      plugin: { rooms: Rooms },
     })
 
     wsServerHooks(this.wsServer)
@@ -52,7 +53,7 @@ export default class Server {
     WebSocketsService.initFromWebSocketServer(this.wsServer)
 
     if (config.env === 'production') {
-      Sentry.init({dsn: config.sentry.dsn})
+      Sentry.init({ dsn: config.sentry.dsn })
       this.app.use(Sentry.Handlers.requestHandler() as express.RequestHandler)
     }
 

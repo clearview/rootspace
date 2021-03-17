@@ -11,7 +11,7 @@ export enum WsEvent {
   'Error' = 'error',
   'Connect' = 'connection',
   'Data' = 'data',
-  'Disconnect' = 'disconnection'
+  'Disconnect' = 'disconnection',
 }
 
 export function wsServerHooks(primus: Primus) {
@@ -40,12 +40,12 @@ export function wsServerHooks(primus: Primus) {
     }
 
     const user = await UserService.getInstance().getUserById(userId)
+
     if (!user) {
       return done(new Error('Wrong token'))
     }
 
-    req.user = user
-
+    req.user = { ...user, spaces: new Map<number, number>() }
     done()
   })
 
@@ -158,7 +158,6 @@ async function joinRoom(spark: Spark, message: WsInMessage) {
   }
 
   spark.join(room.name(), async () => {
-
     // send message to this client
     spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} joined room ${room.name()}`)
 

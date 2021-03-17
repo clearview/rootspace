@@ -19,7 +19,7 @@ export class NotificationsCtrl extends BaseCtrl {
 
   async getForSpace(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const filter: any = {}
     const options: any = {}
@@ -68,7 +68,7 @@ export class NotificationsCtrl extends BaseCtrl {
 
   async seenForSpace(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const result = await this.notificationService.seenForSpace(Number(req.user.id), spaceId)
     res.send(this.responseData(result))
