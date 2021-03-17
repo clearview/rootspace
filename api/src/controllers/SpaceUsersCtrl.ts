@@ -8,14 +8,12 @@ import { validateSpaceUserUpdate } from '../validation/spaceUser'
 
 export class SpaceUsersCtrl extends BaseCtrl {
   private spaceFacade: SpaceFacade
-  private spaceService: SpaceService
   private userService: UserService
   private userSpaceService: UserSpaceService
 
   constructor() {
     super()
     this.spaceFacade = new SpaceFacade()
-    this.spaceService = ServiceFactory.getInstance().getSpaceService()
     this.userService = ServiceFactory.getInstance().getUserService()
     this.userSpaceService = ServiceFactory.getInstance().getUserSpaceService()
   }
@@ -47,6 +45,8 @@ export class SpaceUsersCtrl extends BaseCtrl {
     const userId = Number(req.params.userId)
     const spaceId = Number(req.params.spaceId)
 
+    this.isSpaceAdmin(req, spaceId)
+    
     const data = req.body.data
     await validateSpaceUserUpdate(data)
 
@@ -60,7 +60,7 @@ export class SpaceUsersCtrl extends BaseCtrl {
     const spaceId = Number(req.params.spaceId)
     const userId = Number(req.params.userId)
 
-    this.isSpaceMember(req, spaceId)
+    this.isSpaceAdmin(req, spaceId)
 
     const result = await this.spaceFacade.removeUserFromSpace(userId, spaceId)
     res.send(this.responseData(result))
