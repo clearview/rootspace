@@ -153,7 +153,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Mixins, Ref } from 'vue-property-decorator'
-import { omit, last, pick, findKey, pickBy } from 'lodash'
+import { omit, last, pick, findKey, pickBy, throttle } from 'lodash'
 
 import {
   Tree,
@@ -194,6 +194,7 @@ import FormEmbed from '@/components/form/FormEmbed.vue'
 
 import DocumentService from '@/services/document'
 import EventBus from '@/utils/eventBus'
+import Primus from '@/utils/primus'
 
 enum NodeType {
   Link = 'link',
@@ -271,6 +272,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // State
 
   dragging = false
+  socket!: Primus
 
   private activeMenu = {
     visible: false,
@@ -784,11 +786,36 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$store.commit('tree/setFolded', foldeds)
   }
 
+  public scrollToBottom () {
+    this.$nextTick(() => {
+      // Add slight delay to let the UI finishes render
+      setTimeout(() => {
+        this.scrollContainerRef.scrollTop = Number.MAX_SAFE_INTEGER
+      }, 500)
+    })
+  }
+
   // Hooks
 
   async created () {
+    this.socket = Primus.connect(this.$store.state.auth.token)
+    this.socket.on('data', throttle(
+      (data) => {
+        console.log(data.spaceId)
+
+        this.fetch()
+
+        if (this.archiveNodeRef) {
+          this.archiveNodeRef.loadArchive()
+        }
+      },
+      1000
+    ))
+
     if (this.activeSpace.id) {
       await this.fetch()
+
+      this.socket.join(`space.${this.activeSpace.id}.Node`)
     }
   }
 
@@ -798,6 +825,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
     if (space.id && space.id !== prevSpace.id) {
       await this.fetch()
+
+      this.socket.leave(`space.${prevSpace.id}.Node`)
+      this.socket.join(`space.${space.id}.Node`)
     }
   }
 
@@ -806,15 +836,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     if (this.menuOpen) {
       this.setActiveMenu(true)
     }
-  }
-
-  public scrollToBottom () {
-    this.$nextTick(() => {
-      // Add slight delay to let the UI finishes render
-      setTimeout(() => {
-        this.scrollContainerRef.scrollTop = Number.MAX_SAFE_INTEGER
-      }, 500)
-    })
   }
 }
 </script>
