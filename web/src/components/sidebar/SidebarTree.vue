@@ -1,59 +1,59 @@
 <template>
-  <div class="w-full overflow-auto relative" ref="scrollContainer">
-    <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
+  <div class="h-full w-full relative" ref="scrollContainer">
+    <div class="h-full overflow-auto">
+      <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
-    <FavoriteNode
-      v-if="!menuOpen"
-      ref="favoriteNode"
-      @restore="refresh"
-      @content:update="updateContent"
-      @node:update="updateNodeFromFavorites"
-      @node:archive="archiveNode"
-      @node:removeFromFavorites="removeFromFavorites"
-      @node:fold:toggle="toggleNodeFold"
-      @node:addNew="addNewNode"
-    />
-
-    <sidebar-title v-if="favorites.length && !menuOpen">Main</sidebar-title>
-    <tree
-      v-if="treeData.length > 0 && !menuOpen"
-      edge-scroll
-      ref="tree"
-      v-model="treeData"
-      :class="{
-        'tree': true,
-        'tree--dragging': dragging,
-        'overflow-hidden': menuOpen
-      }"
-      :indent="16"
-      :ondragstart="startDragging"
-      :ondragend="endDragging"
-      :minDisplacement="18"
-      edgeScrollTriggerMode="mouse"
-      :edgeScrollTriggerMargin="18"
-      edgeScroll
-      :opacity="0.5"
-      :allowOutOfBounds="true"
-      @change="change"
-      #default="{ node, path }"
-    >
-      <tree-node
-        :value="node"
-        :path="path"
+      <FavoriteNode
+        ref="favoriteNode"
+        @restore="refresh"
         @content:update="updateContent"
-        @node:update="updateNode"
+        @node:update="updateNodeFromFavorites"
         @node:archive="archiveNode"
-        @node:addToFavorites="addToFavorites"
         @node:removeFromFavorites="removeFromFavorites"
         @node:fold:toggle="toggleNodeFold"
         @node:addNew="addNewNode"
       />
-    </tree>
 
-    <ArchiveNode ref="archiveNode" @restore="refresh" v-if="!menuOpen"></ArchiveNode>
+      <sidebar-title v-if="favorites.length">Main</sidebar-title>
+      <tree
+        v-if="treeData.length > 0"
+        edge-scroll
+        ref="tree"
+        v-model="treeData"
+        :class="{
+          'tree': true,
+          'tree--dragging': dragging,
+        }"
+        :indent="16"
+        :ondragstart="startDragging"
+        :ondragend="endDragging"
+        :minDisplacement="18"
+        edgeScrollTriggerMode="mouse"
+        :edgeScrollTriggerMargin="18"
+        edgeScroll
+        :opacity="0.5"
+        :allowOutOfBounds="true"
+        @change="change"
+        #default="{ node, path }"
+      >
+        <tree-node
+          :value="node"
+          :path="path"
+          @content:update="updateContent"
+          @node:update="updateNode"
+          @node:archive="archiveNode"
+          @node:addToFavorites="addToFavorites"
+          @node:removeFromFavorites="removeFromFavorites"
+          @node:fold:toggle="toggleNodeFold"
+          @node:addNew="addNewNode"
+        />
+      </tree>
 
-    <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
-      <div id="addnew-menu" v-if="menuOpen">
+      <ArchiveNode ref="archiveNode" @restore="refresh"></ArchiveNode>
+    </div>
+
+    <transition name="menu">
+      <div id="addnew-menu" v-show="menuOpen">
         <div class="menu-wrapper">
           <component
             :is="menuActive(activeMenu.type)"
@@ -65,7 +65,7 @@
           </component>
         </div>
       </div>
-    <!-- </transition> -->
+    </transition>
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -834,6 +834,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   .menu-wrapper {
     @apply relative h-full;
+
+    >>> .list-menu  {
+      padding-bottom: 16px;
+    }
   }
 }
 </style>

@@ -222,6 +222,11 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
   @apply flex flex-1;
 }
 
+.SelectSpace .btn {
+  background: transparent;
+  box-shadow: none;
+}
+
 .SelectSpace-options {
   @apply absolute z-10;
   @apply py-2;
@@ -234,7 +239,7 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
   .SelectSpace-options-lists {
     @apply px-2 pb-2;
-    overflow-y: scroll;
+    overflow-y: auto;
     max-height: 70vh;
   }
 }

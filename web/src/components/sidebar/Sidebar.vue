@@ -134,6 +134,7 @@ export default class Sidebar extends Mixins(PageMixin) {
   min-width: 232px;
   color: #2C2B35;
   height: auto;
+  background: #EDEFF3;
 
   span {
      @apply mr-2;
@@ -145,7 +146,6 @@ export default class Sidebar extends Mixins(PageMixin) {
   div {
     line-height: 19px;
     font-weight: 500;
-    font-size: 16px;
   }
 
   &:focus {
