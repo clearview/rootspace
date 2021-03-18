@@ -37,7 +37,7 @@ export class TaskCommentService extends Service {
 
     const taskComment = await this.getTaskCommentRepository().save(data)
 
-    await this.notifyActivity(TaskActivity.CommentCreated(data.task, taskComment))
+    await this.notifyActivity(TaskActivity.CommentCreated(data.task, taskComment, taskComment.userId))
 
     return this.getTaskCommentRepository()
       .createQueryBuilder('comment')

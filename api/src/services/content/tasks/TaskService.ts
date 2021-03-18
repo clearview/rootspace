@@ -1,4 +1,3 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { SpaceRepository } from '../../../database/repositories/SpaceRepository'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
@@ -59,14 +58,14 @@ export class TaskService extends Service {
     data.space = await this.getSpaceRepository().findOneOrFail(data.board.spaceId)
 
     const task = await this.getTaskRepository().save(data)
-    await this.notifyActivity(TaskActivity.created(task))
+    await this.notifyActivity(TaskActivity.created(task, task.userId))
 
     await this.assigneesUpdate(task, data)
 
     return this.getTaskRepository().getById(task.id)
   }
 
-  async update(id: number, data: any): Promise<Task> {
+  async update(id: number, data: any, actorId: number): Promise<Task> {
     const task = await this.getById(id)
     let updatedTask = await this.getById(id)
 
@@ -76,13 +75,13 @@ export class TaskService extends Service {
     })
 
     updatedTask = await this.getTaskRepository().reload(updatedTask)
-    await this.notifyActivity(TaskActivity.updated(task, updatedTask))
+    await this.notifyActivity(TaskActivity.updated(task, updatedTask, actorId))
 
     if (task.listId !== updatedTask.listId) {
       const oldList = await this.getTaskListRepository().findOne(task.listId)
       const newList = await this.getTaskListRepository().findOne(updatedTask.listId)
 
-      this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList))
+      this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList, actorId))
     }
 
     await this.assigneesUpdate(updatedTask, data)
@@ -90,12 +89,11 @@ export class TaskService extends Service {
     return this.getTaskRepository().getById(updatedTask.id)
   }
 
-  async archive(taskId: number): Promise<Task | undefined> {
-    const actor = httpRequestContext.get('user')
+  async archive(taskId: number, actorId: number): Promise<Task | undefined> {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     if (task) {
-      await this.notifyActivity(TaskActivity.archived(task, actor.id))
+      await this.notifyActivity(TaskActivity.archived(task, actorId))
       return this.getTaskRepository().softRemove(task)
     }
 
@@ -110,12 +108,11 @@ export class TaskService extends Service {
     }
   }
 
-  async restore(taskId: number): Promise<Task> {
-    const actor = httpRequestContext.get('user')
+  async restore(taskId: number, actorId: number): Promise<Task> {
     const task = await this.getTaskRepository().findOneArchived(taskId)
 
     const recoveredTask = await this.getTaskRepository().recover(task)
-    await this.notifyActivity(TaskActivity.restored(task, actor.id))
+    await this.notifyActivity(TaskActivity.restored(task, actorId))
 
     return recoveredTask
   }
@@ -128,10 +125,10 @@ export class TaskService extends Service {
     }
   }
 
-  async remove(taskId: number) {
+  async remove(taskId: number, actorId: number) {
     const task = await this.getTaskRepository().findOneOrFail(taskId, { withDeleted: true })
 
-    await this.notifyActivity(TaskActivity.deleted(task))
+    await this.notifyActivity(TaskActivity.deleted(task, actorId))
     return this.getTaskRepository().remove(task)
   }
 
@@ -152,7 +149,7 @@ export class TaskService extends Service {
     return this.getTaskRepository().save(task)
   }
 
-  async assigneeAdd(taskId: number, userId: number): Promise<Task> {
+  async assigneeAdd(taskId: number, userId: number, actorId: number): Promise<Task> {
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -162,7 +159,7 @@ export class TaskService extends Service {
       task.assignees = assignees
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user))
+      await this.notifyActivity(TaskActivity.AssigneeAdded(savedTask, user, actorId))
 
       return savedTask
     }
@@ -170,7 +167,7 @@ export class TaskService extends Service {
     return task
   }
 
-  async assigneeRemove(taskId: number, userId: number): Promise<Task> {
+  async assigneeRemove(taskId: number, userId: number, actorId: number): Promise<Task> {
     const task = await this.getById(taskId)
     const user = await this.userService.getUserById(userId)
 
@@ -179,12 +176,12 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user))
+    await this.notifyActivity(TaskActivity.AssigneeRemoved(savedTask, user, actorId))
 
     return savedTask
   }
 
-  async tagAdd(taskId: number, tagId: number): Promise<Task> {
+  async tagAdd(taskId: number, tagId: number, actorId: number): Promise<Task> {
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -194,7 +191,7 @@ export class TaskService extends Service {
       task.tags = tags
 
       const savedTask = await this.getTaskRepository().save(task)
-      await this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag))
+      await this.notifyActivity(TaskActivity.TagAdded(savedTask, boardTag, actorId))
 
       return savedTask
     }
@@ -202,7 +199,7 @@ export class TaskService extends Service {
     return task
   }
 
-  async tagRemove(taskId: number, tagId: number): Promise<Task> {
+  async tagRemove(taskId: number, tagId: number, actorId: number): Promise<Task> {
     const task = await this.getById(taskId)
     const boardTag = await this.tagService.getById(tagId)
 
@@ -211,7 +208,7 @@ export class TaskService extends Service {
     })
 
     const savedTask = await this.getTaskRepository().save(task)
-    await this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag))
+    await this.notifyActivity(TaskActivity.TagRemoved(savedTask, boardTag, actorId))
 
     return savedTask
   }

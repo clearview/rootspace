@@ -5,7 +5,6 @@ import { Node } from '../../database/entities/Node'
 import { FolderCreateValue, FolderUpdateValue } from '../../values/folder'
 import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
-import { INodeContentUpdate } from './contracts'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { FolderActivity } from '../activity/activities/content'
 import { NodeService, NodeContentService } from '../'
@@ -68,17 +67,17 @@ export class FolderService extends NodeContentService {
 
     const node = await this.nodeService.create(value)
 
-    await this.notifyActivity(FolderActivity.created(folder))
+    await this.notifyActivity(FolderActivity.created(folder, folder.userId))
 
     return { ...folder, ...node }
   }
 
-  async update(data: FolderUpdateValue, id: number): Promise<Folder> {
+  async update(data: FolderUpdateValue, id: number, actorId: number): Promise<Folder> {
     const folder = await this.requireById(id)
-    const updatedFolder = await this._update(data, folder)
+    const updatedFolder = await this._update(data, folder, actorId)
 
     if (folder.title !== updatedFolder.title) {
-      await this.nodeContentMediator.contentUpdated(updatedFolder.id, this.getNodeType(), {
+      await this.nodeContentMediator.contentUpdated(updatedFolder.id, this.getNodeType(), actorId, {
         title: updatedFolder.title,
       })
     }
@@ -86,8 +85,8 @@ export class FolderService extends NodeContentService {
     return updatedFolder
   }
 
-  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
-    const folder = await this.getById(contentId)
+  async nodeUpdated(node: Node, actorId: number): Promise<void> {
+    const folder = await this.getById(node.contentId)
 
     if (!folder) {
       return
@@ -95,97 +94,98 @@ export class FolderService extends NodeContentService {
 
     await this._update(
       FolderUpdateValue.fromObject({
-        title: data.title,
+        title: node.title,
       }),
-      folder
+      folder,
+      actorId
     )
   }
 
-  private async _update(data: FolderUpdateValue, folder: Folder): Promise<Folder> {
+  private async _update(data: FolderUpdateValue, folder: Folder, actorId: number): Promise<Folder> {
     let updatedFolder = await this.requireById(folder.id)
 
     Object.assign(updatedFolder, data.attributes)
     updatedFolder = await this.getFolderRepository().save(updatedFolder)
 
-    await this.notifyActivity(FolderActivity.updated(folder, updatedFolder))
+    await this.notifyActivity(FolderActivity.updated(folder, updatedFolder, actorId))
 
     return updatedFolder
   }
 
-  async archive(id: number): Promise<Folder> {
+  async archive(id: number, actorId: number): Promise<Folder> {
     let folder = await this.requireById(id, { withDeleted: true })
     this.verifyArchive(folder)
 
-    folder = await this._archive(folder)
-    await this.nodeService.contentArchived(folder.id, this.getNodeType())
+    folder = await this._archive(folder, actorId)
+    await this.nodeService.contentArchived(folder.id, this.getNodeType(), actorId)
 
     return folder
   }
 
-  async nodeArchived(contentId: number): Promise<void> {
-    const folder = await this.getById(contentId)
+  async nodeArchived(node: Node, actorId: number): Promise<void> {
+    const folder = await this.getById(node.contentId)
 
     if (!folder) {
       return
     }
 
-    await this._archive(folder)
+    await this._archive(folder, actorId)
   }
 
-  private async _archive(folder: Folder): Promise<Folder> {
+  private async _archive(folder: Folder, actorId: number): Promise<Folder> {
     folder = await this.getFolderRepository().softRemove(folder)
-    await this.notifyActivity(FolderActivity.archived(folder))
+    await this.notifyActivity(FolderActivity.archived(folder, actorId))
 
     return folder
   }
 
-  async restore(id: number): Promise<Folder> {
+  async restore(id: number, actorId: number): Promise<Folder> {
     let folder = await this.requireById(id, { withDeleted: true })
     this.verifyRestore(folder)
 
-    folder = await this._restore(folder)
+    folder = await this._restore(folder, actorId)
 
-    await this.nodeContentMediator.contentRestored(folder.id, this.getNodeType())
+    await this.nodeContentMediator.contentRestored(folder.id, this.getNodeType(), actorId)
     return folder
   }
 
-  async nodeRestored(contentId: number): Promise<void> {
-    const folder = await this.getById(contentId, { withDeleted: true })
+  async nodeRestored(node: Node, actorId: number): Promise<void> {
+    const folder = await this.getById(node.contentId, { withDeleted: true })
 
     if (!folder) {
       return
     }
 
-    await this._restore(folder)
+    await this._restore(folder, actorId)
   }
 
-  private async _restore(folder: Folder): Promise<Folder> {
+  private async _restore(folder: Folder, actorId: number): Promise<Folder> {
     folder = await this.getFolderRepository().recover(folder)
-    await this.notifyActivity(FolderActivity.restored(folder))
+    await this.notifyActivity(FolderActivity.restored(folder, actorId))
 
     return folder
   }
 
-  async remove(id: number): Promise<Folder> {
+  async remove(id: number, actorId: number): Promise<Folder> {
     let folder = await this.requireById(id, { withDeleted: true })
     // this.verifyRemove(folder)
 
-    folder = await this._remove(folder)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    folder = await this._remove(folder, actorId)
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType(), actorId)
 
     return folder
   }
 
-  async nodeRemoved(contentId: number): Promise<void> {
-    const folder = await this.getById(contentId, { withDeleted: true })
+  async nodeRemoved(node: Node, actorId: number): Promise<void> {
+    const folder = await this.getById(node.contentId, { withDeleted: true })
 
     if (folder) {
-      await this._remove(folder)
+      await this._remove(folder, actorId)
     }
   }
 
-  private async _remove(folder: Folder): Promise<Folder> {
-    await this.notifyActivity(FolderActivity.deleted(folder))
+  private async _remove(folder: Folder, actorId: number): Promise<Folder> {
+    await this.notifyActivity(FolderActivity.deleted(folder, actorId))
     return this.getFolderRepository().remove(folder)
   }
 

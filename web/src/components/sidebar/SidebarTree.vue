@@ -1,59 +1,59 @@
 <template>
-  <div class="w-full overflow-auto relative" ref="scrollContainer">
-    <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
+  <div class="h-full w-full relative" ref="scrollContainer">
+    <div class="h-full overflow-auto">
+      <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
-    <FavoriteNode
-      v-if="!menuOpen"
-      ref="favoriteNode"
-      @restore="refresh"
-      @content:update="updateContent"
-      @node:update="updateNodeFromFavorites"
-      @node:archive="archiveNode"
-      @node:removeFromFavorites="removeFromFavorites"
-      @node:fold:toggle="toggleNodeFold"
-      @node:addNew="addNewNode"
-    />
-
-    <sidebar-title v-if="favorites.length && !menuOpen">Main</sidebar-title>
-    <tree
-      v-if="treeData.length > 0 && !menuOpen"
-      edge-scroll
-      ref="tree"
-      v-model="treeData"
-      :class="{
-        'tree': true,
-        'tree--dragging': dragging,
-        'overflow-hidden': menuOpen
-      }"
-      :indent="16"
-      :ondragstart="startDragging"
-      :ondragend="endDragging"
-      :minDisplacement="18"
-      edgeScrollTriggerMode="mouse"
-      :edgeScrollTriggerMargin="18"
-      edgeScroll
-      :opacity="0.5"
-      :allowOutOfBounds="true"
-      @change="change"
-      #default="{ node, path }"
-    >
-      <tree-node
-        :value="node"
-        :path="path"
+      <FavoriteNode
+        ref="favoriteNode"
+        @restore="refresh"
         @content:update="updateContent"
-        @node:update="updateNode"
+        @node:update="updateNodeFromFavorites"
         @node:archive="archiveNode"
-        @node:addToFavorites="addToFavorites"
         @node:removeFromFavorites="removeFromFavorites"
         @node:fold:toggle="toggleNodeFold"
         @node:addNew="addNewNode"
       />
-    </tree>
 
-    <ArchiveNode ref="archiveNode" @restore="refresh" v-if="!menuOpen"></ArchiveNode>
+      <sidebar-title v-if="favorites.length">Main</sidebar-title>
+      <tree
+        v-if="treeData.length > 0"
+        edge-scroll
+        ref="tree"
+        v-model="treeData"
+        :class="{
+          'tree': true,
+          'tree--dragging': dragging,
+        }"
+        :indent="16"
+        :ondragstart="startDragging"
+        :ondragend="endDragging"
+        :minDisplacement="18"
+        edgeScrollTriggerMode="mouse"
+        :edgeScrollTriggerMargin="18"
+        edgeScroll
+        :opacity="0.5"
+        :allowOutOfBounds="true"
+        @change="change"
+        #default="{ node, path }"
+      >
+        <tree-node
+          :value="node"
+          :path="path"
+          @content:update="updateContent"
+          @node:update="updateNode"
+          @node:archive="archiveNode"
+          @node:addToFavorites="addToFavorites"
+          @node:removeFromFavorites="removeFromFavorites"
+          @node:fold:toggle="toggleNodeFold"
+          @node:addNew="addNewNode"
+        />
+      </tree>
 
-    <!-- <transition name="menu"> : Disable this to prevent animation glitch - will fix soon -->
-      <div id="addnew-menu" v-if="menuOpen">
+      <ArchiveNode ref="archiveNode" @restore="refresh"></ArchiveNode>
+    </div>
+
+    <transition name="menu">
+      <div id="addnew-menu" v-show="menuOpen">
         <div class="menu-wrapper">
           <component
             :is="menuActive(activeMenu.type)"
@@ -65,7 +65,7 @@
           </component>
         </div>
       </div>
-    <!-- </transition> -->
+    </transition>
 
     <modal
       v-if="modal.type === 'UpdateLink'"
@@ -153,7 +153,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Mixins, Ref } from 'vue-property-decorator'
-import { omit, last, pick, findKey, pickBy } from 'lodash'
+import { omit, last, pick, findKey, pickBy, throttle } from 'lodash'
 
 import {
   Tree,
@@ -194,6 +194,7 @@ import FormEmbed from '@/components/form/FormEmbed.vue'
 
 import DocumentService from '@/services/document'
 import EventBus from '@/utils/eventBus'
+import Primus from '@/utils/primus'
 
 enum NodeType {
   Link = 'link',
@@ -271,6 +272,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   // State
 
   dragging = false
+  socket!: Primus
 
   private activeMenu = {
     visible: false,
@@ -784,11 +786,36 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$store.commit('tree/setFolded', foldeds)
   }
 
+  public scrollToBottom () {
+    this.$nextTick(() => {
+      // Add slight delay to let the UI finishes render
+      setTimeout(() => {
+        this.scrollContainerRef.scrollTop = Number.MAX_SAFE_INTEGER
+      }, 500)
+    })
+  }
+
   // Hooks
 
   async created () {
+    this.socket = Primus.connect(this.$store.state.auth.token)
+    this.socket.on('data', throttle(
+      (data) => {
+        console.log(data.spaceId)
+
+        this.fetch()
+
+        if (this.archiveNodeRef) {
+          this.archiveNodeRef.loadArchive()
+        }
+      },
+      1000
+    ))
+
     if (this.activeSpace.id) {
       await this.fetch()
+
+      this.socket.join(`space.${this.activeSpace.id}.Node`)
     }
   }
 
@@ -798,6 +825,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async watchActiveSpace (space: SpaceResource, prevSpace: SpaceResource) {
     if (space.id && space.id !== prevSpace.id) {
       await this.fetch()
+
+      this.socket.leave(`space.${prevSpace.id}.Node`)
+      this.socket.join(`space.${space.id}.Node`)
     }
   }
 
@@ -806,15 +836,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     if (this.menuOpen) {
       this.setActiveMenu(true)
     }
-  }
-
-  public scrollToBottom () {
-    this.$nextTick(() => {
-      // Add slight delay to let the UI finishes render
-      setTimeout(() => {
-        this.scrollContainerRef.scrollTop = Number.MAX_SAFE_INTEGER
-      }, 500)
-    })
   }
 }
 </script>
@@ -834,6 +855,10 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   .menu-wrapper {
     @apply relative h-full;
+
+    >>> .list-menu  {
+      padding-bottom: 16px;
+    }
   }
 }
 </style>

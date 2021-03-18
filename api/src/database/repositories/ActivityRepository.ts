@@ -1,22 +1,12 @@
 import { EntityRepository, SelectQueryBuilder } from 'typeorm'
-import { getConnection } from 'typeorm'
 import { BaseRepository } from './BaseRepository'
 import { Upload } from '../entities/Upload'
 import { User } from '../entities/User'
 import { Activity } from '../entities/Activity'
-import { ActivityEvent } from '../../services/events/ActivityEvent'
 import { Notification } from '../entities/Notification'
 
 @EntityRepository(Activity)
 export class ActivityRepository extends BaseRepository<Activity> {
-  async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
-    return getConnection()
-      .getRepository(event.entity)
-      .createQueryBuilder('Entity')
-      .where('Entity.id = :id', { id: event.entityId })
-      .getOne()
-  }
-
   async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
     const queryBuilder = this.createQueryBuilder('activity')
       .leftJoinAndSelect('activity.actor', 'user')

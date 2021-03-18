@@ -5,16 +5,17 @@
       class="SelectNodeType-option"
       @click="$emit('select', 'novadoc')"
     >
-      <v-icon
-        name="menu-document"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
+      <div class="SelectNodeType-icon">
+        <v-icon
+          name="menu-document"
+          size="24px"
+          viewbox="24"
+        />
+      </div>
 
       <div class="SelectNodeType-desc">
         <h5>Document</h5>
-        <p>WRITE NOTES, THOUGHTS OR IDEAS.</p>
+        <p>Write notes, thoughts or ideas.</p>
       </div>
 
       <span class="arrow">
@@ -31,16 +32,17 @@
       class="SelectNodeType-option"
       @click="$emit('select', 'task')"
     >
-      <v-icon
-        name="menu-task"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
+      <div class="SelectNodeType-icon">
+        <v-icon
+          name="menu-task"
+          size="24px"
+          viewbox="24"
+        />
+      </div>
 
       <div class="SelectNodeType-desc">
         <h5>Task Board</h5>
-        <p>CREATE BOARD, LIST OR IDEAS.</p>
+        <p>Create board, list or table view.</p>
       </div>
 
       <span class="arrow">
@@ -57,16 +59,17 @@
       class="SelectNodeType-option"
       @click="$emit('select', 'folder')"
     >
-      <v-icon
-        name="menu-folder"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
+      <div class="SelectNodeType-icon">
+        <v-icon
+          name="menu-folder"
+          size="24px"
+          viewbox="24"
+        />
+      </div>
 
       <div class="SelectNodeType-desc">
         <h5>Folder</h5>
-        <p>GROUPS AND ORGANIZE YOUR FILES.</p>
+        <p>Groups and organize your files.</p>
       </div>
 
       <span class="arrow">
@@ -83,16 +86,18 @@
       class="SelectNodeType-option"
       @click="$emit('select', 'embed')"
     >
-      <v-icon
-        name="menu-embed"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
+      <div class="SelectNodeType-icon">
+        <v-icon
+          name="menu-embed"
+          size="24px"
+          viewbox="24"
+          class="SelectNodeType-icon"
+        />
+      </div>
 
       <div class="SelectNodeType-desc">
         <h5>Embed</h5>
-        <p>EMBED ANY THIRD-PART APP...</p>
+        <p>Embed any third-part application.</p>
       </div>
 
       <span class="arrow">
@@ -109,16 +114,17 @@
       class="SelectNodeType-option"
       @click="$emit('select', 'link')"
     >
-      <v-icon
-        name="menu-link"
-        size="24px"
-        viewbox="24"
-        class="SelectNodeType-icon"
-      />
+      <div class="SelectNodeType-icon">
+        <v-icon
+          name="menu-link"
+          size="24px"
+          viewbox="24"
+        />
+      </div>
 
       <div class="SelectNodeType-desc">
         <h5>Link</h5>
-        <p>ADD A LINK TO ANYTHING YOU’D LIKE.</p>
+        <p>Add a link to anything you’d like.</p>
       </div>
 
       <span class="arrow">
@@ -144,24 +150,22 @@ export default class SelectNodeype extends Vue { }
 </script>
 
 <style lang="postcss" scoped>
-.SelectNodeType {
-  padding-bottom: 1rem;
-}
-
 .SelectNodeType-option {
-  @apply flex flex-row rounded bg-white border border-white;
+  @apply flex flex-row;
+
+  height: 80px;
+  border-radius: 8px;
+  transition: all 300ms;
 
   & + & {
-    @apply mt-4;
+    margin-top: 8px;
   }
 
   cursor: pointer;
   padding: 10px 16px;
 
   &:hover {
-    @apply border;
-
-    border-color: theme("colors.primary.default");
+    @apply  bg-white;
 
     .arrow {
       visibility: initial;
@@ -170,7 +174,19 @@ export default class SelectNodeype extends Vue { }
 }
 
 .SelectNodeType-icon {
-  @apply self-center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  background: #EDEFF3;
+  border-radius: 50%;
+  transition: all 500ms;
+
+  .SelectNodeType-option:hover & {
+    color: white;
+    background: #444754;
+  }
 }
 
 .SelectNodeType-desc {
@@ -182,7 +198,7 @@ export default class SelectNodeype extends Vue { }
   }
 
   p {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 

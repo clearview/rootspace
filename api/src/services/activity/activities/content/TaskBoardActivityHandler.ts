@@ -1,7 +1,7 @@
 import { config } from 'node-config-ts'
 import { TaskBoard } from '../../../../database/entities/tasks/TaskBoard'
 import { ContentActivityHandler } from './ContentActivityHandler'
-import { IContentActivityData } from './types'
+import { IContentActivityData } from './ContentActivityData'
 import { ContentActions } from './actions'
 
 export class TaskBoardActivityHandler extends ContentActivityHandler<TaskBoard> {

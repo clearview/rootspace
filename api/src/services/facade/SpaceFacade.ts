@@ -27,8 +27,8 @@ export class SpaceFacade {
     return this.nodeService.getArchiveTreeBySpaceId(spaceId)
   }
 
-  deleteArchive(spaceId: number): Promise<Node[]> {
-    return this.nodeService.deleteArchivedBySpaceId(spaceId)
+  deleteArchive(spaceId: number, actorId: number): Promise<Node[]> {
+    return this.nodeService.deleteArchivedBySpaceId(spaceId, actorId)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {

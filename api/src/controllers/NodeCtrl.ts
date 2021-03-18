@@ -34,7 +34,7 @@ export class NodeCtrl extends BaseCtrl {
       value = value.withPosition(data.position)
     }
 
-    const result = await this.nodeService.update(value, node.id)
+    const result = await this.nodeService.update(value, node.id, req.user.id)
     res.send(this.responseData(result))
   }
 
@@ -42,7 +42,7 @@ export class NodeCtrl extends BaseCtrl {
     const node = await this.nodeService.requireNodeById(Number(req.params.id))
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
 
-    const resutl = await this.nodeService.archive(node.id)
+    const resutl = await this.nodeService.archive(node.id, req.user.id)
     res.send(this.responseData(resutl))
   }
 
@@ -50,7 +50,7 @@ export class NodeCtrl extends BaseCtrl {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, node)
 
-    const result = await this.nodeService.restore(node.id)
+    const result = await this.nodeService.restore(node.id, req.user.id)
     res.send(this.responseData(result))
   }
 
@@ -58,7 +58,7 @@ export class NodeCtrl extends BaseCtrl {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, node)
 
-    const result = await this.nodeService.remove(node.id)
+    const result = await this.nodeService.remove(node.id, req.user.id)
     res.send(this.responseData(result))
   }
 

@@ -38,7 +38,7 @@ export class FolderCtrl extends BaseCtrl {
 
     const value = FolderUpdateValue.fromObject(data)
 
-    const result = await this.folderService.update(value, id)
+    const result = await this.folderService.update(value, id, req.user.id)
     res.send(this.responseData(result))
   }
 
@@ -48,7 +48,7 @@ export class FolderCtrl extends BaseCtrl {
     const folder = await this.folderService.requireById(id)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, folder)
 
-    const result = await this.folderService.archive(id)
+    const result = await this.folderService.archive(id, req.user.id)
     res.send(this.responseData(result))
   }
 
@@ -58,7 +58,7 @@ export class FolderCtrl extends BaseCtrl {
     const folder = await this.folderService.requireById(id)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, folder)
 
-    const result = await this.folderService.restore(id)
+    const result = await this.folderService.restore(id, req.user.id)
 
     res.send(this.responseData(result))
   }
@@ -69,7 +69,7 @@ export class FolderCtrl extends BaseCtrl {
     const folder = await this.folderService.requireById(id)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, folder)
 
-    const resutl = await this.folderService.remove(id)
+    const resutl = await this.folderService.remove(id, req.user.id)
     res.send(this.responseData(resutl))
   }
 }

@@ -1,7 +1,8 @@
 import pug from 'pug'
 import { MailService, UserService } from '../../..'
 import { ServiceFactory } from '../../../factory/ServiceFactory'
-import { IActivityHandler, IAppActivityData } from '../types'
+import { IActivityData } from '../ActivityData'
+import { IActivityHandler } from '../ActivityHandler'
 
 const mailTemplatesDir = `${process.cwd()}/src/templates/mail/user/`
 
@@ -9,9 +10,9 @@ export class UserEmailConfirmedHandler implements IActivityHandler {
   private mailService: MailService
   private userService: UserService
 
-  private data: IAppActivityData
+  private data: IActivityData
 
-  private constructor(data: IAppActivityData) {
+  private constructor(data: IActivityData) {
     this.mailService = ServiceFactory.getInstance().getMailService()
     this.userService = ServiceFactory.getInstance().getUserService()
 

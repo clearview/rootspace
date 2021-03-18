@@ -1,24 +1,23 @@
 import 'dotenv/config'
 import Bull from 'bull'
-import { ActivityEvent } from '../events/ActivityEvent'
 import { getCustomRepository } from 'typeorm'
 import { ActivityRepository } from '../../database/repositories/ActivityRepository'
 import { Activity } from '../../database/entities/Activity'
 import { Queue } from '../../libs/Queue'
-import { WsEventEmitter } from '../events/websockets/WsEventEmitter'
-import { WsEvent } from '../events/websockets/WsEvent'
+import { EventName } from '../../events/EventName'
+import { MyEventEmitter } from '../../events/MyEventEmitter'
 import { processActivities } from './processor/'
-import { IAppActivity } from './activities/types'
 import { IActivityObserver } from '../contracts'
+import { Activity as AppActivity } from './activities/Activity'
 
 export class ActivityService implements IActivityObserver {
   private static instance: ActivityService
   readonly queue: Bull.Queue
-  readonly wsEventEmitter: WsEventEmitter
+  readonly eventEmitter: MyEventEmitter
 
   private constructor() {
     this.queue = Queue.getActivityInstance()
-    this.wsEventEmitter = WsEventEmitter.getInstance()
+    this.eventEmitter = MyEventEmitter.getInstance()
   }
 
   static getInstance() {
@@ -33,32 +32,25 @@ export class ActivityService implements IActivityObserver {
     return getCustomRepository(ActivityRepository)
   }
 
-  async activityNotification(appActivity: IAppActivity): Promise<void> {
-    const data = appActivity.toObject()
-    const activity = await this.getActivityRepository().save(data as any)
+  async activityNotification(appActivity: AppActivity): Promise<void> {
+    const activityObject = appActivity.toObject()
 
-    data.activityId = activity.id
-
-    if (data.handler) {
-      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, data)
+    if (appActivity.push()) {
+      this.eventEmitter.emit(EventName.Activity, appActivity)
     }
-  }
 
-  async add(event: ActivityEvent): Promise<Bull.Job> {
-    const activityObject = event.toObject()
+    if (appActivity.persist()) {
+      const activity = await this.getActivityRepository().save(activityObject.data as any)
+      activityObject.data.activityId = activity.id
+    }
 
-    await this.getActivityRepository().save(activityObject)
-    this.wsEventEmitter.emit(WsEvent.NAME, event)
-
-    return this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
+    if (appActivity.handler()) {
+      await this.queue.add(Queue.ACTIVITY_QUEUE_NAME, activityObject)
+    }
   }
 
   getById(id: number): Promise<Activity | undefined> {
     return this.getActivityRepository().findOne(id)
-  }
-
-  async getEntityFromActivityEvent(event: ActivityEvent): Promise<any> {
-    return this.getActivityRepository().getEntityFromActivityEvent(event)
   }
 
   async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {

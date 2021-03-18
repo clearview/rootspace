@@ -68,7 +68,6 @@ export default class SidebarHeader extends Vue {
 
     span {
       &.title {
-        font-size: 16px;
         line-height: 19px;
         margin-left: 8px;
       }
