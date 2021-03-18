@@ -2,10 +2,17 @@ import pug from 'pug'
 import { Activity } from '../../../../database/entities/Activity'
 import { User } from '../../../../database/entities/User'
 import { ServiceFactory } from '../../../factory/ServiceFactory'
-import { FollowService, NotificationService, EntityService } from '../../../'
-import { IContentActivityData } from './types'
-import { IActivityHandler } from '../types'
-import { ActivityService, UserService, MailService, UserSettingService } from '../../../'
+import {
+  ActivityService,
+  UserService,
+  MailService,
+  UserSettingService,
+  FollowService,
+  NotificationService,
+  EntityService,
+} from '../../../'
+import { IContentActivityData } from './ContentActivityData'
+import { IActivityHandler } from '../ActivityHandler'
 
 export abstract class ContentActivityHandler<T> implements IActivityHandler {
   protected mailTemplate = `${process.cwd()}/src/templates/mail/notification/content.pug`

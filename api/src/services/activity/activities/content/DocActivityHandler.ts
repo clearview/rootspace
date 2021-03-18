@@ -1,7 +1,7 @@
 import { config } from 'node-config-ts'
 import { Doc } from '../../../../database/entities/Doc'
 import { ContentActivityHandler } from './ContentActivityHandler'
-import { IContentActivityData } from './types'
+import { IContentActivityData } from './ContentActivityData'
 import { ContentActions } from './actions'
 
 export class DocActivityHandler extends ContentActivityHandler<Doc> {

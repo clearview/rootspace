@@ -1,7 +1,7 @@
 import { config } from 'node-config-ts'
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
 import { ContentActivityHandler } from './ContentActivityHandler'
-import { IContentActivityData } from './types'
+import { IContentActivityData } from './ContentActivityData'
 import { ContentActions } from './actions'
 
 export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {

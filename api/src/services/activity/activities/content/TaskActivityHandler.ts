@@ -3,7 +3,7 @@ import { config } from 'node-config-ts'
 import { User } from '../../../../database/entities/User'
 import { Task } from '../../../../database/entities/tasks/Task'
 import { ContentActivityHandler } from './ContentActivityHandler'
-import { IContentActivityData } from './types'
+import { IContentActivityData } from './ContentActivityData'
 import { ContentActions, TaskActions } from './actions'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {

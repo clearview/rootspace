@@ -1,4 +1,3 @@
-import httpRequestContext from 'http-request-context'
 import { getCustomRepository } from 'typeorm'
 import { DeepPartial } from 'typeorm/common/DeepPartial'
 import { TaskBoardRepository } from '../../../database/repositories/tasks/TaskBoardRepository'
@@ -11,7 +10,6 @@ import { ServiceFactory } from '../../factory/ServiceFactory'
 import { NodeContentService } from '../NodeContentService'
 import { NodeService, TaskListService } from '../../'
 import { NodeCreateValue } from '../../../values/node'
-import { INodeContentUpdate } from '../contracts'
 import { HttpErrName, HttpStatusCode, clientError } from '../../../response/errors'
 import { TaskBoardActivity } from '../../activity/activities/content/TaskBoardActivity'
 
@@ -120,12 +118,12 @@ export class TaskBoardService extends NodeContentService {
     const node = await this.nodeService.create(value)
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
-    await this.notifyActivity(TaskBoardActivity.created(taskBoard))
+    await this.notifyActivity(TaskBoardActivity.created(taskBoard, taskBoard.userId))
 
     return { ...taskBoard, ...node }
   }
 
-  async update(id: number, data: any): Promise<TaskBoard> {
+  async update(id: number, data: any, actorId: number): Promise<TaskBoard> {
     const existingTaskBoard = await this.getById(id)
     let taskBoard = await this.getById(id)
 
@@ -136,110 +134,106 @@ export class TaskBoardService extends NodeContentService {
 
     taskBoard = await this.getTaskBoardRepository().reload(taskBoard)
 
-    await this.nodeContentMediator.contentUpdated(taskBoard.id, this.getNodeType(), { title: taskBoard.title })
-    await this.notifyActivity(TaskBoardActivity.updated(existingTaskBoard, taskBoard))
+    await this.nodeContentMediator.contentUpdated(taskBoard.id, this.getNodeType(), actorId, { title: taskBoard.title })
+    await this.notifyActivity(TaskBoardActivity.updated(existingTaskBoard, taskBoard, actorId))
 
     return taskBoard
   }
 
-  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
-    if (!data.title) {
-      return
-    }
-
-    const taskBoard = await this.getById(contentId)
+  async nodeUpdated(node: Node, actorId: number): Promise<void> {
+    const taskBoard = await this.getById(node.contentId)
 
     if (!taskBoard) {
       return
     }
 
-    const updatedTaskBoard = await this.getById(contentId)
-    updatedTaskBoard.title = data.title
+    const updatedTaskBoard = await this.getById(node.contentId)
+    updatedTaskBoard.title = node.title
 
     await this.getTaskBoardRepository().save(updatedTaskBoard)
-    await this.notifyActivity(TaskBoardActivity.updated(taskBoard, updatedTaskBoard))
+    await this.notifyActivity(TaskBoardActivity.updated(taskBoard, updatedTaskBoard, actorId))
   }
 
-  async archive(taskBoardId: number): Promise<TaskBoard> {
+  async archive(taskBoardId: number, actorId: number): Promise<TaskBoard> {
     let taskBoard = await this.getFullTaskBoard(taskBoardId)
     this.verifyArchive(taskBoard)
 
-    taskBoard = await this._archive(taskBoard)
+    taskBoard = await this._archive(taskBoard, actorId)
 
-    await this.nodeService.contentArchived(taskBoardId, this.getNodeType())
+    await this.nodeService.contentArchived(taskBoardId, this.getNodeType(), actorId)
 
     return taskBoard
   }
 
-  async nodeArchived(contentId: number): Promise<void> {
-    const taskBoard = await this.getFullTaskBoard(contentId)
+  async nodeArchived(node: Node, actorId: number): Promise<void> {
+    const taskBoard = await this.getFullTaskBoard(node.contentId)
 
     if (!taskBoard) {
       return
     }
 
-    await this._archive(taskBoard)
+    await this._archive(taskBoard, actorId)
   }
 
-  private async _archive(taskBoard: TaskBoard): Promise<TaskBoard> {
+  private async _archive(taskBoard: TaskBoard, actorId: number): Promise<TaskBoard> {
     await this.getTaskBoardRepository().softRemove(taskBoard)
     await this.taskListService.boardArchived(taskBoard.id)
 
-    await this.notifyActivity(TaskBoardActivity.archived(taskBoard))
+    await this.notifyActivity(TaskBoardActivity.archived(taskBoard, actorId))
 
     return taskBoard
   }
 
-  async restore(taskBoardId: number): Promise<TaskBoard> {
+  async restore(taskBoardId: number, actorId: number): Promise<TaskBoard> {
     let taskBoard = await this.getArchivedTaskBoardById(taskBoardId)
     this.verifyRestore(taskBoard)
 
-    taskBoard = await this._restore(taskBoard)
+    taskBoard = await this._restore(taskBoard, actorId)
 
-    await this.nodeService.contentRestored(taskBoardId, this.getNodeType())
+    await this.nodeService.contentRestored(taskBoardId, this.getNodeType(), actorId)
     return taskBoard
   }
 
-  async nodeRestored(contentId: number) {
-    const taskBoard = await this.getArchivedTaskBoardById(contentId)
+  async nodeRestored(node: Node, actorId: number) {
+    const taskBoard = await this.getArchivedTaskBoardById(node.contentId)
 
     if (!taskBoard) {
       return
     }
 
-    await this._restore(taskBoard)
+    await this._restore(taskBoard, actorId)
   }
 
-  private async _restore(taskBoard: TaskBoard): Promise<TaskBoard> {
+  private async _restore(taskBoard: TaskBoard, actorId: number): Promise<TaskBoard> {
     await this.getTaskBoardRepository().recover(taskBoard)
     await this.taskListService.boardRestored(taskBoard.id)
 
-    await this.notifyActivity(TaskBoardActivity.restored(taskBoard))
+    await this.notifyActivity(TaskBoardActivity.restored(taskBoard, actorId))
 
     return this.getCompleteTaskBoard(taskBoard.id)
   }
 
-  async remove(id: number) {
+  async remove(id: number, actorId: number) {
     let taskBoard = await this.requireById(id, { withDeleted: true })
     // this.verifyRemove(taskBoard)
 
-    taskBoard = await this._remove(taskBoard)
+    taskBoard = await this._remove(taskBoard, actorId)
 
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType(), actorId)
 
     return taskBoard
   }
 
-  async nodeRemoved(contentId: number): Promise<void> {
-    const taskBoard = await this.getById(contentId, { withDeleted: true })
+  async nodeRemoved(node: Node, actorId: number): Promise<void> {
+    const taskBoard = await this.getById(node.contentId, { withDeleted: true })
 
     if (taskBoard) {
-      await this._remove(taskBoard)
+      await this._remove(taskBoard, actorId)
     }
   }
 
-  private async _remove(taskBoard: TaskBoard): Promise<TaskBoard> {
-    await this.notifyActivity(TaskBoardActivity.deleted(taskBoard))
+  private async _remove(taskBoard: TaskBoard, actorId: number): Promise<TaskBoard> {
+    await this.notifyActivity(TaskBoardActivity.deleted(taskBoard, actorId))
     return this.getTaskBoardRepository().remove(taskBoard)
   }
 

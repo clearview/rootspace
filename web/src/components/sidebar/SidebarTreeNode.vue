@@ -377,7 +377,6 @@ export default class SidebarTreeNode extends Vue {
   outline: none;
   padding: 5px 4px 6px 4px;
   margin: 4px 4px 4px -4px;
-  font-size: 16px;
   font-weight: 500;
   line-height: 0;
   color: #2C2B35;

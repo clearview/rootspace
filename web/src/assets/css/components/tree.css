@@ -50,7 +50,6 @@
 
   padding: 9px 0 9px 8px;
   border-radius: 4px;
-  font-size: 16px;
   margin: 0 16px;
   align-items: center;
   cursor: pointer;
@@ -105,7 +104,6 @@
   @apply block;
   @apply overflow-hidden leading-tight;
   font-weight: 500;
-  font-size: 16px;
 
   input {
     @apply outline-none;

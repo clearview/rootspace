@@ -1,16 +1,15 @@
 import { getCustomRepository } from 'typeorm'
 import { EmbedRepository } from '../../database/repositories/EmbedRepository'
 import { Embed } from '../../database/entities/Embed'
+import { Node } from '../../database/entities/Node'
 import { EmbedCreateValue, EmbedUpdateValue } from '../../values/embed'
 import { NodeCreateValue } from '../../values/node'
 import { NodeType } from '../../types/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
-import { INodeContentUpdate } from './contracts'
-import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { Node } from '../../database/entities/Node'
 import { EmbedActivity } from '../activity/activities/content'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 
 export class EmbedService extends NodeContentService {
   private nodeService: NodeService
@@ -69,17 +68,17 @@ export class EmbedService extends NodeContentService {
     const node = await this.nodeService.create(value)
 
     embed = await this.getEmbedRepository().reload(embed)
-    await this.notifyActivity(EmbedActivity.created(embed))
+    await this.notifyActivity(EmbedActivity.created(embed, embed.userId))
 
     return { ...embed, ...node }
   }
 
-  async update(data: EmbedUpdateValue, id: number): Promise<Embed> {
+  async update(data: EmbedUpdateValue, id: number, actorId: number): Promise<Embed> {
     const embed = await this.requireEmbedById(id)
-    const updatedEmbed = await this._update(data, embed)
+    const updatedEmbed = await this._update(data, embed, actorId)
 
     if (embed.title !== updatedEmbed.title) {
-      this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), {
+      this.nodeContentMediator.contentUpdated(embed.id, this.getNodeType(), actorId, {
         title: updatedEmbed.title,
       })
     }
@@ -87,8 +86,8 @@ export class EmbedService extends NodeContentService {
     return embed
   }
 
-  async nodeUpdated(contentId: number, data: INodeContentUpdate): Promise<void> {
-    const embed = await this.getEmbedById(contentId)
+  async nodeUpdated(node: Node, actorId: number): Promise<void> {
+    const embed = await this.getEmbedById(node.contentId)
 
     if (!embed) {
       return
@@ -96,97 +95,98 @@ export class EmbedService extends NodeContentService {
 
     await this._update(
       EmbedUpdateValue.fromObject({
-        title: data.title,
+        title: node.title,
       }),
-      embed
+      embed,
+      actorId
     )
   }
 
-  private async _update(data: EmbedUpdateValue, embed: Embed): Promise<Embed> {
+  private async _update(data: EmbedUpdateValue, embed: Embed, actorId: number): Promise<Embed> {
     const updatedEmbed = await this.requireEmbedById(embed.id)
 
     Object.assign(updatedEmbed, data.attributes)
 
     await this.getEmbedRepository().save(updatedEmbed)
-    await this.notifyActivity(EmbedActivity.updated(embed, updatedEmbed))
+    await this.notifyActivity(EmbedActivity.updated(embed, updatedEmbed, actorId))
 
     return updatedEmbed
   }
 
-  async archive(id: number): Promise<Embed> {
+  async archive(id: number, actorId: number): Promise<Embed> {
     let embed = await this.requireEmbedById(id, { withDeleted: true })
     this.verifyArchive(embed)
 
-    embed = await this._archive(embed)
-    await this.nodeContentMediator.contentArchived(embed.id, this.getNodeType())
+    embed = await this._archive(embed, actorId)
+    await this.nodeContentMediator.contentArchived(embed.id, this.getNodeType(), actorId)
 
     return embed
   }
 
-  async nodeArchived(contentId: number): Promise<void> {
-    const embed = await this.getEmbedById(contentId)
+  async nodeArchived(node: Node, actorId: number): Promise<void> {
+    const embed = await this.getEmbedById(node.contentId)
 
     if (!embed) {
       return
     }
 
-    await this._archive(embed)
+    await this._archive(embed, actorId)
   }
 
-  private async _archive(_embed: Embed): Promise<Embed> {
+  private async _archive(_embed: Embed, actorId: number): Promise<Embed> {
     const embed = await this.getEmbedRepository().softRemove(_embed)
-    await this.notifyActivity(EmbedActivity.archived(embed))
+    await this.notifyActivity(EmbedActivity.archived(embed, actorId))
 
     return embed
   }
 
-  async restore(id: number): Promise<Embed> {
+  async restore(id: number, actorId: number): Promise<Embed> {
     let embed = await this.requireEmbedById(id, { withDeleted: true })
     this.verifyRestore(embed)
 
-    embed = await this._restore(embed)
-    await this.nodeContentMediator.contentRestored(embed.id, this.getNodeType())
+    embed = await this._restore(embed, actorId)
+    await this.nodeContentMediator.contentRestored(embed.id, this.getNodeType(), actorId)
 
     return embed
   }
 
-  async nodeRestored(contentId: number): Promise<void> {
-    const embed = await this.getEmbedById(contentId, { withDeleted: true })
+  async nodeRestored(node: Node, actorId: number): Promise<void> {
+    const embed = await this.getEmbedById(node.contentId, { withDeleted: true })
 
     if (!embed) {
       return
     }
 
-    await this._restore(embed)
+    await this._restore(embed, actorId)
   }
 
-  private async _restore(_embed: Embed): Promise<Embed> {
+  private async _restore(_embed: Embed, actorId: number): Promise<Embed> {
     const embed = await this.getEmbedRepository().recover(_embed)
-    await this.notifyActivity(EmbedActivity.restored(embed))
+    await this.notifyActivity(EmbedActivity.restored(embed, actorId))
 
     return embed
   }
 
-  async remove(id: number): Promise<Embed> {
+  async remove(id: number, actorId: number): Promise<Embed> {
     let embed = await this.requireEmbedById(id, { withDeleted: true })
     // this.verifyRemove(embed)
 
-    embed = await this._remove(embed)
-    await this.nodeContentMediator.contentRemoved(id, this.getNodeType())
+    embed = await this._remove(embed, actorId)
+    await this.nodeContentMediator.contentRemoved(id, this.getNodeType(), actorId)
 
     return embed
   }
 
-  async nodeRemoved(contentId: number): Promise<void> {
-    const embed = await this.getEmbedById(contentId, { withDeleted: true })
+  async nodeRemoved(node: Node, actorId: number): Promise<void> {
+    const embed = await this.getEmbedById(node.contentId, { withDeleted: true })
 
     if (embed) {
-      await this._remove(embed)
+      await this._remove(embed, actorId)
     }
   }
 
-  private async _remove(embed: Embed) {
-    await this.notifyActivity(EmbedActivity.deleted(embed))
+  private async _remove(embed: Embed, actorId: number) {
+    await this.notifyActivity(EmbedActivity.deleted(embed, actorId))
     return this.getEmbedRepository().remove(embed)
   }
 

@@ -3,6 +3,7 @@
   width: 304px;
   min-width: 304px;
   max-width: 70%;
+  background: #F8F8FB;
   transition: 300ms;
   overflow: hidden;
 }
@@ -40,7 +41,7 @@
 }
 
 .sidebar-items {
-  @apply flex flex-1 w-full overflow-auto;
+  @apply flex flex-1 w-full overflow-hidden;
 }
 
 .sidebar.sidebar--noanimate {
@@ -49,7 +50,7 @@
 
 .sidebar.sidebar--collapse {
   @apply cursor-pointer;
-  background: white;
+  background: #F8F8FB;
   width: 50px !important;
   min-width: 50px;
 

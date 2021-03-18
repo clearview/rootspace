@@ -1,5 +1,5 @@
 import { IService, IActivityObserver } from './contracts'
-import { IAppActivity } from './activity/activities/types'
+import { Activity } from './activity/activities/Activity'
 
 export abstract class Service implements IService {
   private activityObservers: IActivityObserver[] = []
@@ -24,7 +24,7 @@ export abstract class Service implements IService {
     this.activityObservers.splice(observerIndex, 1)
   }
 
-  async notifyActivity(activity: IAppActivity): Promise<void> {
+  async notifyActivity(activity: Activity): Promise<void> {
     for (const observer of this.activityObservers) {
       await observer.activityNotification(activity)
     }

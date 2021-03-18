@@ -40,27 +40,28 @@ export class EmbedCtrl extends BaseCtrl {
     await validateEmbedUpdate(data)
 
     const value = EmbedUpdateValue.fromObject(data)
-    const embed = await this.embedService.update(value, id)
+    const embed = await this.embedService.update(value, id, req.user.id)
 
     res.send(this.responseData(embed))
   }
 
   async archive(req: Request, res: Response) {
     const id = Number(req.params.id)
-    const result = await this.embedService.archive(id)
+    const result = await this.embedService.archive(id, req.user.id)
 
     res.send(this.responseData(result))
   }
 
   async restore(req: Request, res: Response) {
     const id = Number(req.params.id)
-    const result = await this.embedService.restore(id)
+    const result = await this.embedService.restore(id, req.user.id)
 
     res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {
-    const emebd = await this.embedService.remove(Number(req.params.id))
+    const id = Number(req.params.id)
+    const emebd = await this.embedService.remove(id, req.user.id)
     res.send(this.responseData(emebd))
   }
 }
