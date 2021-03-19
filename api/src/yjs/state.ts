@@ -44,6 +44,10 @@ class StateQueue extends EventEmitter {
     }
   }
 
+  get() {
+    return this.queue
+  }
+
   isRunning(docName: string): boolean {
     return this.running.has(docName)
   }
