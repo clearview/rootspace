@@ -11,12 +11,7 @@ import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { DocActivity } from '../../activity/activities/content/index'
-<<<<<<< HEAD
-import { NovaDocUpdateSetup } from './NovaDocUpdateSetup'
-=======
-import { INodeContentUpdate } from '../contracts'
 import { DocUpdateSetup } from './DocUpdateSetup'
->>>>>>> doc collab
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService

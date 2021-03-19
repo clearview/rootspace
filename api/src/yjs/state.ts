@@ -90,7 +90,7 @@ class StateQueue extends EventEmitter {
 }
 
 // seconds
-const saveIdleTime = 5
+const saveIdleTime = 120
 
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
@@ -187,8 +187,6 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
     content: json,
   })
 
-  await sleep(2000)
-
   await ServiceFactory.getInstance()
     .getDocService()
     .update(data, docId, userId)
@@ -198,8 +196,6 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
 
 export const restore = async (docName: string, userId: number, revisionId: number) => {
   console.log('state restore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
-
-  await sleep(2000)
 
   await ServiceFactory.getInstance()
     .getDocService()
