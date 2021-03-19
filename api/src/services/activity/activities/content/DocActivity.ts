@@ -2,9 +2,13 @@ import { Doc } from '../../../../database/entities/Doc'
 import { IDocUpdateSetup } from '../../../../types/doc'
 import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
+<<<<<<< HEAD
+=======
+import { DocUpdateSetup } from '../../../content/doc/DocUpdateSetup'
+>>>>>>> doc collab
 
 export class DocActivity extends ContentActivity<Doc> {
-  protected docUpdateSetup: IDocUpdateSetup
+  protected docUpdateSetup: DocUpdateSetup
 
   constructor(action: string, entity: Doc, actorId: number) {
     super(action, entity, actorId)
@@ -25,7 +29,11 @@ export class DocActivity extends ContentActivity<Doc> {
     return new DocActivity(ContentActions.Created, entity, actorId).created()
   }
 
+<<<<<<< HEAD
   static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: IDocUpdateSetup, actorId: number) {
+=======
+  static updated(entity: Doc, updatedEntity: Doc, docUpdateSetup: DocUpdateSetup, actorId: number): IContentActivity {
+>>>>>>> doc collab
     const activity = new DocActivity(ContentActions.Updated, entity, actorId)
     activity.docUpdateSetup = docUpdateSetup
 

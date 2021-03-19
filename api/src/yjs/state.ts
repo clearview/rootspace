@@ -1,100 +1,215 @@
+import { EventEmitter } from 'events'
 import * as Y from 'yjs'
 import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../values/doc'
 
-export const updates = new Map<string, Set<number>>()
-export const restores = new Map<string, { userId: number; revisionId: number }>()
-export const locks = new Map<string, number>()
+interface StateAction {
+  name: string
+  lock: boolean
+  docName: string
+  userId: number
+  data: ActionSaveData | ActionRestoreData
+}
 
-function sleep(ms: number) {
+interface ActionSaveData {
+  state: Uint8Array
+  json: object
+}
+
+interface ActionRestoreData {
+  revisionId: number
+}
+
+class StateQueue extends EventEmitter {
+  private queue = new Map<string, StateAction[]>()
+  private running = new Set<string>()
+  private locks = new Set<string>()
+
+  enqueue(action: StateAction) {
+    console.log('StateQueue enqueue', action) // tslint:disable-line
+
+    if (this.queue.has(action.docName) === false) {
+      this.queue.set(action.docName, [])
+    }
+
+    if (action.lock) {
+      this.locks.add(action.docName)
+    }
+
+    this.queue.get(action.docName).push(action)
+
+    if (this.running.has(action.docName) === false) {
+      this.run(action.docName)
+    }
+  }
+
+  isRunning(docName: string): boolean {
+    return this.running.has(docName)
+  }
+
+  private async run(docName: string) {
+    console.log('StateQueue run, queue', this.queue) // tslint:disable-line
+
+    const action = this.queue.get(docName).shift()
+
+    if (!action) {
+      this.running.delete(docName)
+      this.locks.delete(docName)
+      this.queue.delete(docName)
+
+      this.emit('dequeued', docName)
+
+      return
+    }
+
+    this.running.add(docName)
+
+    if (action.name === 'save') {
+      const data = action.data as ActionSaveData
+      await save(action.docName, action.userId, data.state, data.json)
+      this.run(docName)
+
+      return
+    }
+
+    if (action.name === 'restore') {
+      const data = action.data as ActionRestoreData
+      await restore(action.docName, action.userId, data.revisionId)
+      this.run(docName)
+
+      return
+    }
+
+    this.run(docName)
+  }
+}
+
+// seconds
+const saveIdleTime = 5
+
+export const queue = new StateQueue()
+export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
+
+function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const clearMonitoring = (docName: string) => {
-  console.log('clearMonitoring', docName) // tslint:disable-line
+export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
+  // console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
 
-  updates.delete(docName)
-  restores.delete(docName)
-  locks.delete(docName)
-}
+  if (!updates.get(docName)) {
+    updates.set(docName, new Map())
+  }
 
-export const lock = (docName: string) => {
-  console.log('state lock', docName) // tslint:disable-line
-  const count = locks.get(docName)
-  locks.set(docName, count + 1)
-}
-
-export const unlock = (docName: string) => {
-  console.log('state unlock', docName) // tslint:disable-line
-  const count = locks.get(docName)
-
-  if (count === 0) {
-    console.log('error unlocking doc, locks count 0')
+  if (!updates.get(docName).has(userId)) {
+    updates.get(docName).set(userId, { lastSave: Date.now(), saved: false })
     return
   }
 
-  locks.set(docName, count - 1)
+  updates.get(docName).get(userId).saved = false
+
+  // seconds
+  const timeSpan = (Date.now() - updates.get(docName).get(userId).lastSave) / 1000
+
+  if (timeSpan > saveIdleTime) {
+    enqueueSave(docName, userId, ydoc)
+  }
 }
 
-export const onUpdate = (docName: string, userId: number) => {
-  updates.get(docName).add(userId)
+export const onRestore = (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
+  console.log('state onRestore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
+
+  if (updates.has(docName)) {
+    updates.get(docName).forEach((info, updateBy) => {
+      if (info.saved === false) {
+        enqueueSave(docName, updateBy, ydoc)
+      }
+    })
+  }
+
+  const action: StateAction = {
+    name: 'restore',
+    lock: true,
+    docName: docName,
+    userId: userId,
+    data: {
+      revisionId: revisionId,
+    },
+  }
+
+  queue.enqueue(action)
 }
 
-export const onRestore = (docName: string, userId: number, revisionId: number) => {
-  console.log('state onRestore ', docName, 'revision', revisionId, 'user', userId) // tslint:disable-line
-  restores.set(docName, { userId, revisionId })
-}
+export const onClientClose = (docName: string, userId: number, ydoc: Y.Doc) => {
+  console.log('state onClientClose', docName, 'user', userId) // tslint:disable-line
 
-export const save = async (docName: string, userId: number, ydoc: Y.Doc) => {
-  const docId = Number(docName.split('_').pop())
-  console.log('state save', docName, 'user', userId) // tslint:disable-line
-
-  if (updates.get(docName).has(userId) === false) {
-    console.log('user not updated document', docName, 'user', userId) // tslint:disable-line
+  if (!updates.has(docName) || !updates.get(docName).has(userId)) {
     return
+  }
+
+  if (updates.get(docName).get(userId).saved === false) {
+    enqueueSave(docName, userId, ydoc)
   }
 
   updates.get(docName).delete(userId)
+}
+
+const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
+  const action: StateAction = {
+    name: 'save',
+    lock: false,
+    docName: docName,
+    userId: userId,
+    data: {
+      state: Y.encodeStateAsUpdate(ydoc),
+      json: yDocToProsemirrorJSON(ydoc),
+    },
+  }
+
+  queue.enqueue(action)
+
+  updates.get(docName).get(userId).lastSave = Date.now()
+  updates.get(docName).get(userId).saved = true
+}
+
+export const save = async (docName: string, userId: number, state: Uint8Array, json: object) => {
+  console.log('state save', docName, 'user', userId) // tslint:disable-line
+
+  const docId = Number(docName.split('_').pop())
 
   const data = DocUpdateValue.fromObject({
-    content: yDocToProsemirrorJSON(ydoc),
-    contentState: Array.from(Y.encodeStateAsUpdate(ydoc)),
+    contentState: Array.from(state),
+    content: json,
   })
 
-  console.log('saving state', docName, 'user', userId) // tslint:disable-line
+  await sleep(2000)
 
   await ServiceFactory.getInstance()
     .getDocService()
     .update(data, docId, userId)
+
+  console.log('state saved', docName, 'user', userId) // tslint:disable-line
 }
 
-export const restore = async (docName: string, ydoc: Y.Doc) => {
-  const { revisionId, userId } = restores.get(docName)
+export const restore = async (docName: string, userId: number, revisionId: number) => {
+  console.log('state restore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 
-  console.log('state restore', docName, 'user', userId) // tslint:disable-line
-
-  sleep(2000)
-
-  for (let userId of Array.from(updates.get(docName))) {
-    await save(docName, userId, ydoc)
-  }
-
-  console.log('restoring', docName, 'revision', revisionId, 'user', userId) // tslint:disable-line
+  await sleep(2000)
 
   await ServiceFactory.getInstance()
     .getDocService()
     .restoreRevision(revisionId, userId)
+
+  console.log('state restored', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 }
 
 export const persistence = {
   bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('bindState for', docName) // tslint:disable-line
 
-    updates.set(docName, new Set())
-    locks.set(docName, 0)
-
     const docId = Number(docName.split('_').pop())
+
     const doc = await ServiceFactory.getInstance()
       .getDocService()
       .getById(docId)
@@ -105,6 +220,9 @@ export const persistence = {
     }
   },
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
-    // console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
+    console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
+
+    updates.delete(docName)
+    console.log(updates)
   },
 }

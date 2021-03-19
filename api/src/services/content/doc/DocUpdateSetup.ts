@@ -1,15 +1,13 @@
 import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
-import { IDocContent } from '../../../types/doc'
-import { IDocUpdateSetup } from '../../../types/doc'
 
 // seconds
-const revisonIdleTime = 180
+const revisonIdleTime = 0
 
-export class DocUpdateSetup implements IDocUpdateSetup {
+export class DocUpdateSetup {
   private _data: DocUpdateValue
   private _doc: Doc
-  private _userId: number
+  private _actorId: number
   private _time: number
 
   private _updatedAttributes: string[] = []
@@ -17,10 +15,10 @@ export class DocUpdateSetup implements IDocUpdateSetup {
   private _createRevision: boolean = false
   private _registerActivity: boolean = false
 
-  constructor(data: DocUpdateValue, doc: Doc, userId: number) {
+  constructor(data: DocUpdateValue, doc: Doc, actorId: number) {
     this._data = data
     this._doc = doc
-    this._userId = userId
+    this._actorId = actorId
     this._time = Date.now()
 
     this._contentUpdated = this._isContentUpdated()
@@ -50,13 +48,10 @@ export class DocUpdateSetup implements IDocUpdateSetup {
       return false
     }
 
-    const dataContent = this._data.attributes.content as IDocContent
-    const docContent = this._doc.content as IDocContent
+    const dataContent = this._data.attributes.content
+    const docContent = this._doc.content
 
-    const dataContentJson = JSON.stringify(dataContent.blocks)
-    const docContentJson = JSON.stringify(docContent.blocks)
-
-    if (docContentJson === dataContentJson) {
+    if (JSON.stringify(dataContent) === JSON.stringify(docContent)) {
       return false
     }
 
@@ -89,16 +84,18 @@ export class DocUpdateSetup implements IDocUpdateSetup {
   }
 
   private _doCreateRevision(): boolean {
+    if (this._doc.content === null) {
+      return false
+    }
+
+    console.log('contentUpdated', this.contentUpdated)
+
     if (this.contentUpdated === false) {
       return false
     }
 
     if (this._isNewUserUpdating()) {
       return true
-    }
-
-    if (this._isDocContentEmpty()) {
-      return false
     }
 
     // seconds
@@ -123,25 +120,12 @@ export class DocUpdateSetup implements IDocUpdateSetup {
     return true
   }
 
-  private _isDocContentEmpty(): boolean {
-    const content = this._doc.content as IDocContent
-    if (content.blocks === undefined) {
-      return true
-    }
-
-    if (content.blocks.length === 0) {
-      return true
-    }
-
-    return false
-  }
-
   private _isNewUserUpdating(): boolean {
-    if (this._doc.contentUpdatedBy === this._userId) {
+    if (this._doc.contentUpdatedBy === this._actorId) {
       return false
     }
 
-    if (this._doc.contentUpdatedBy === null && this._doc.userId === this._userId) {
+    if (this._doc.contentUpdatedBy === null && this._doc.userId === this._actorId) {
       return false
     }
 

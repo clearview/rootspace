@@ -12,7 +12,6 @@ import {
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
-import { IDocContent } from '../../types/doc'
 import { DocRevision } from './DocRevision'
 
 @Entity('docs')
