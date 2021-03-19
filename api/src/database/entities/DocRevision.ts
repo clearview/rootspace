@@ -1,5 +1,4 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm'
-import { IDocContent } from '../../types/doc'
 import { Doc } from './Doc'
 import { User } from './User'
 
@@ -23,7 +22,7 @@ export class DocRevision {
   docId: number
 
   @Column('json')
-  content: IDocContent
+  content: object
 
   @Column('int', { array: true })
   contentState: number[]

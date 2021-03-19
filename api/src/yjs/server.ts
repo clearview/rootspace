@@ -13,24 +13,11 @@ const encoding = require('lib0/dist/encoding.cjs')
 const decoding = require('lib0/dist/decoding.cjs')
 /* tslint:enable */
 
-const messageSync = 0 // used by yjs
-
-const wsMessageType = {
-  authenticate: 10,
-  unauthenticated: 11,
-  unauthorized: 12,
-  wait: 13,
-  initCollaboration: 14,
-  restore: 15,
-}
-
-const encodeMessage = (messageType: number) => {
-  const encoder = encoding.createEncoder()
-  encoding.writeVarUint(encoder, messageType)
-  return encoding.toUint8Array(encoder)
-}
-
 yWsUtils.setPersistence(state.persistence)
+
+interface UserWebSocket extends WebSocket {
+  user?: User
+}
 
 export default class YjsServer {
   port: number = 6001
@@ -49,161 +36,161 @@ export default class YjsServer {
       this.wss.handleUpgrade(request, socket, head, this.handleUpgrade)
     })
 
-    this.wss.on('connection', (conn: WebSocket, req: Http.IncomingMessage, {} = {}) => {
-      conn.on('message', async (message) => {
-        await this.onMessage(conn, req, message)
+    this.wss.on('connection', (conn: UserWebSocket, req: Http.IncomingMessage, {} = {}) => {
+      conn.on('message', (message) => {
+        onInitMessage(conn, req, message)
       })
     })
   }
 
-  private handleUpgrade = (ws: WebSocket, request: Http.IncomingMessage) => {
+  private handleUpgrade = (ws: UserWebSocket, request: Http.IncomingMessage) => {
     this.wss.emit('connection', ws, request)
-  }
-
-  private auth = async (conn: WebSocket, req: Http.IncomingMessage, token: string): Promise<User | null> => {
-    const docName = req.url.slice(1)
-    const user = await authenticate(token)
-
-    if (!user) {
-      conn.send(encodeMessage(wsMessageType.unauthenticated))
-      return null
-    }
-
-    const docId = Number(docName.split('_').pop())
-
-    if (!(await authorize(user.id, docId))) {
-      conn.send(encodeMessage(wsMessageType.unauthorized))
-      return null
-    }
-
-    return user
-  }
-
-  private onMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    const docName = req.url.slice(1)
-
-    const decoder = decoding.createDecoder(new Uint8Array(message))
-    const messageType = decoding.readVarUint(decoder)
-
-    if (messageType === wsMessageType.authenticate) {
-      const token = decoding.readVarString(decoder)
-      const user = await this.auth(conn, req, token)
-
-      if (!user) {
-        conn.close()
-        return
-      }
-
-      Object.assign(conn, { user })
-
-      if (state.isLocked(docName) === true) {
-        state.locks.get(docName).push(conn)
-        conn.send(encodeMessage(wsMessageType.wait))
-        return
-      }
-
-      this.setupCollaboration(conn, req)
-      return
-    }
-
-    if (!(conn as any).user) {
-      conn.close()
-      return
-    }
-
-    if (messageType === wsMessageType.restore) {
-      await this.onRestoreMessage(conn, req, message)
-      return
-    }
-
-    if (messageType === messageSync) {
-      const syncMessageType = decoding.readVarUint(decoder)
-      if (syncMessageType > 0) {
-        state.onUpdate(req.url.slice(1), (conn as any).user.id)
-      }
-    }
-  }
-
-  private onRestoreMessage = async (conn: WebSocket, req: Http.IncomingMessage, message: any) => {
-    console.log('onRestoreMessage') // tslint:disable-line
-
-    const userId = (conn as any).user.id
-    const docName = req.url.slice(1)
-    const sharedDoc = yWsUtils.docs.get(docName)
-
-    const decoder = decoding.createDecoder(new Uint8Array(message))
-    const messageType = decoding.readVarUint(decoder)
-    const revisionId = decoding.readVarUint(decoder)
-
-    state.onRestore(docName, userId, revisionId)
-    state.lock(docName)
-
-    sharedDoc.conns.forEach(async (_, c: WebSocket) => {
-      c.send(encodeMessage(wsMessageType.restore))
-    })
-  }
-
-  private setupCollaboration(conn: WebSocket, req: Http.IncomingMessage) {
-    conn.on('close', async () => {
-      this.connOnClose(conn, req)
-    })
-
-    yWsUtils.setupWSConnection(conn, req)
-    conn.send(encodeMessage(wsMessageType.initCollaboration))
-  }
-
-  private connOnClose = async (conn: WebSocket, req: Http.IncomingMessage) => {
-    console.log('conn on close') // tslint:disable-line
-
-    const docName = req.url.slice(1)
-    const sharedDoc = yWsUtils.docs.get(docName)
-
-    if (!sharedDoc) {
-      return
-    }
-
-    const connsCount = sharedDoc.conns.size
-    console.log('connsCount', connsCount) // tslint:disable-line
-
-    if (state.isLocked(docName) === false) {
-      await state.save(docName, (conn as any).user.id, sharedDoc)
-
-      if (connsCount < 2) {
-        state.clearMonitoring(docName)
-      }
-
-      return
-    }
-
-    if (connsCount < 2) {
-      if (state.restoreMonitor.get(docName)) {
-        const restoreInfo = state.restoreMonitor.get(docName)
-        const updateBy = state.docMonitor.get(docName).updatedBy
-
-        for (const userId of updateBy) {
-          await state.save(docName, userId, sharedDoc)
-        }
-
-        try {
-          await state.restore(restoreInfo.revisionId, restoreInfo.userId)
-        } catch (err) {
-          console.log(err) // tslint:disable-line
-        }
-      }
-
-      const waitingConns = state.locks.get(docName)
-
-      state.clearMonitoring(docName)
-      state.unlock(docName)
-
-      waitingConns.forEach(async (c: WebSocket) => {
-        this.setupCollaboration(c, req)
-      })
-    }
   }
 
   listen() {
     this.httpServer.listen(this.port)
     console.log(`🚀 y-websocket listening to http://localhost:${this.port}`) // tslint:disable-line
   }
+}
+
+const messageSync = 0 // from yjs implementation
+
+const messageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15,
+}
+
+const encodeMessage = (message: number) => {
+  const encoder = encoding.createEncoder()
+  encoding.writeVarUint(encoder, message)
+  return encoding.toUint8Array(encoder)
+}
+
+const reqDocName = (req: Http.IncomingMessage) => {
+  return req.url.slice(1)
+}
+
+const waitingConns = new Map<UserWebSocket, Http.IncomingMessage>()
+
+const connWait = (conn: UserWebSocket, req: Http.IncomingMessage) => {
+  console.log('connWait user', conn.user.id, reqDocName(req))
+  conn.on('close', () => {
+    waitingConnOnClose(conn, req)
+  })
+
+  waitingConns.set(conn, req)
+  conn.send(encodeMessage(messageType.wait))
+}
+
+const waitingConnOnClose = (conn: UserWebSocket, req: Http.IncomingMessage) => {
+  console.log('waitingConnOnClose user', conn.user.id, reqDocName(req))
+  waitingConns.delete(conn)
+}
+
+state.queue.on('dequeued', (docName) => {
+  console.log('on dequeued', docName) // tslint:disable-line
+
+  waitingConns.forEach((req, conn) => {
+    const cDocName = req.url.slice(1)
+
+    if (cDocName === docName) {
+      conn.off('close', waitingConnOnClose)
+      setupCollaboration(conn, req)
+      waitingConns.delete(conn)
+    }
+  })
+})
+
+const setupCollaboration = (conn: UserWebSocket, req: Http.IncomingMessage) => {
+  conn.off('message', onInitMessage)
+
+  conn.on('close', async () => {
+    connOnCloseBeforeYWS(conn, req)
+  })
+
+  yWsUtils.setupWSConnection(conn, req)
+
+  conn.on('message', (message) => {
+    onMessage(conn, req, message)
+  })
+
+  conn.send(encodeMessage(messageType.initCollaboration))
+}
+
+const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, message: any) => {
+  const docName = req.url.slice(1)
+  const docId = Number(docName.split('_').pop())
+  const decoder = decoding.createDecoder(new Uint8Array(message))
+  const msgType = decoding.readVarUint(decoder)
+
+  if (msgType !== messageType.authenticate) {
+    return
+  }
+
+  const token = decoding.readVarString(decoder)
+  const user = await authenticate(token)
+
+  if (!user) {
+    conn.send(encodeMessage(messageType.unauthenticated))
+    return null
+  }
+
+  if (!(await authorize(user.id, docId))) {
+    conn.send(encodeMessage(messageType.unauthorized))
+    return null
+  }
+
+  conn.user = user
+
+  if (state.queue.isRunning(docName) === true) {
+    connWait(conn, req)
+    return
+  }
+
+  setupCollaboration(conn, req)
+}
+
+const onMessage = (conn: UserWebSocket, req: Http.IncomingMessage, message: any) => {
+  const docName = req.url.slice(1)
+
+  const decoder = decoding.createDecoder(new Uint8Array(message))
+  const msgType = decoding.readVarUint(decoder)
+
+  if (!conn.user) {
+    conn.close()
+    return
+  }
+
+  const sharedDoc = yWsUtils.docs.get(docName)
+
+  if (msgType === messageSync) {
+    const syncMessageType = decoding.readVarUint(decoder)
+    if (syncMessageType > 0) {
+      state.onUpdate(req.url.slice(1), conn.user.id, sharedDoc)
+    }
+  }
+
+  if (msgType === messageType.restore) {
+    console.log('onRestoreMessage user', conn.user.id, docName) // tslint:disable-line
+    const revisionId = decoding.readVarUint(decoder)
+
+    state.onRestore(docName, conn.user.id, revisionId, sharedDoc)
+
+    sharedDoc.conns.forEach(async (_: any, c: WebSocket) => {
+      c.send(encodeMessage(messageType.restore))
+    })
+  }
+}
+
+const connOnCloseBeforeYWS = async (conn: UserWebSocket, req: Http.IncomingMessage) => {
+  const docName = reqDocName(req)
+  console.log('connOnCloseBeforeYWS user', conn.user.id, docName) // tslint:disable-line
+
+  const sharedDoc = yWsUtils.docs.get(docName)
+
+  state.onClientClose(docName, conn.user.id, sharedDoc)
 }
