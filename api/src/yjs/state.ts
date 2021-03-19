@@ -71,16 +71,28 @@ class StateQueue extends EventEmitter {
 
     if (action.name === 'save') {
       const data = action.data as ActionSaveData
-      await save(action.docName, action.userId, data.state, data.json)
-      this.run(docName)
+
+      try {
+        await save(action.docName, action.userId, data.state, data.json)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.run(docName)
+      }
 
       return
     }
 
     if (action.name === 'restore') {
       const data = action.data as ActionRestoreData
-      await restore(action.docName, action.userId, data.revisionId)
-      this.run(docName)
+
+      try {
+        await restore(action.docName, action.userId, data.revisionId)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        this.run(docName)
+      }
 
       return
     }
@@ -187,6 +199,8 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
     content: json,
   })
 
+  await sleep(2000)
+
   await ServiceFactory.getInstance()
     .getDocService()
     .update(data, docId, userId)
@@ -197,6 +211,8 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
 export const restore = async (docName: string, userId: number, revisionId: number) => {
   console.log('state restore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 
+  await sleep(2000)
+  
   await ServiceFactory.getInstance()
     .getDocService()
     .restoreRevision(revisionId, userId)
@@ -223,6 +239,6 @@ export const persistence = {
     console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
 
     updates.delete(docName)
-    console.log(updates)
+    console.log('state updates', updates)
   },
 }
