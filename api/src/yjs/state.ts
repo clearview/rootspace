@@ -27,7 +27,11 @@ class StateQueue extends EventEmitter {
   private locks = new Set<string>()
 
   enqueue(action: StateAction) {
-    console.log('StateQueue enqueue', action) // tslint:disable-line
+    console.log('StateQueue enqueue', action.name, action.docName, 'user', action.userId) // tslint:disable-line
+
+    if (this.locks.has(action.docName)) {
+      return
+    }
 
     if (this.queue.has(action.docName) === false) {
       this.queue.set(action.docName, [])
@@ -106,10 +110,6 @@ const saveIdleTime = 120
 
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
   // console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
@@ -199,8 +199,6 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
     content: json,
   })
 
-  await sleep(2000)
-
   await ServiceFactory.getInstance()
     .getDocService()
     .update(data, docId, userId)
@@ -211,8 +209,6 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
 export const restore = async (docName: string, userId: number, revisionId: number) => {
   console.log('state restore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 
-  await sleep(2000)
-  
   await ServiceFactory.getInstance()
     .getDocService()
     .restoreRevision(revisionId, userId)
