@@ -10,9 +10,8 @@ import { NodeType } from '../../../types/node'
 import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
-import { DocUpdateSetup } from './DocUpdateSetup'
 import { DocActivity } from '../../activity/activities/content/index'
-import { NovaDocUpdateSetup } from './NovaDocUpdateSetup'
+import { DocUpdateSetup } from './DocUpdateSetup'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -134,20 +133,16 @@ export class DocService extends NodeContentService {
   }
 
   private async _update(data: DocUpdateValue, doc: Doc, actorId: number): Promise<Doc> {
-    const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
     let updatedDoc = await this.getById(doc.id)
 
-    const setup =
-      node.config?.novaDoc === true
-        ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
-        : new DocUpdateSetup(data, updatedDoc, actorId)
+    const setup = new DocUpdateSetup(data, updatedDoc, actorId)
 
     if (setup.createRevision === true) {
       await this.createRevision(doc)
       updatedDoc.revision = updatedDoc.revision + 1
     }
 
-    if (node.config?.novaDoc === true || setup.contentUpdated === true) {
+    if (setup.contentUpdated === true) {
       updatedDoc.contentUpdatedAt = new Date(Date.now())
       updatedDoc.contentUpdatedBy = actorId
     }
@@ -182,16 +177,12 @@ export class DocService extends NodeContentService {
   async restoreRevision(revisionId: number, actorId: number): Promise<Doc> {
     const docRevision = await this.requireDocRevisionById(revisionId)
     const doc = await this.requireById(docRevision.docId)
-    const node = await this.nodeService.getNodeByContentId(doc.id, this.getNodeType())
 
     let updatedDoc = await this.requireById(docRevision.docId)
 
     const data = DocUpdateValue.fromObject({ content: docRevision.content, contentState: docRevision.contentState })
 
-    const setup =
-      node.config?.novaDoc === true
-        ? new NovaDocUpdateSetup(data, updatedDoc, actorId)
-        : new DocUpdateSetup(data, updatedDoc, actorId)
+    const setup = new DocUpdateSetup(data, updatedDoc, actorId)
 
     if (setup.contentUpdated === false) {
       return updatedDoc

@@ -1,5 +1,3 @@
-import { IDocContent } from '../../types/doc'
-
 export interface IDocCreateAttributes {
   userId: number
   spaceId: number
