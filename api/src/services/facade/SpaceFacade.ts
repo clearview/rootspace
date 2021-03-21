@@ -6,6 +6,7 @@ import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { Node } from '../../database/entities/Node'
 import { SpaceUserRole } from '../../types/spaceUser'
+import { SpaceUserUpdateValue } from '../../values/spaceUser'
 
 export class SpaceFacade {
   private spaceService: SpaceService
@@ -55,7 +56,7 @@ export class SpaceFacade {
     return this.spaceService.update(data, spaceId)
   }
 
-  async removeUserFromSpace(userId: number, spaceId: number): Promise<UserToSpace> {
+  async updateSpaceUser(data: SpaceUserUpdateValue, userId: number, spaceId: number): Promise<UserToSpace> {
     const user = await this.userService.requireUserById(userId)
     const space = await this.spaceService.requireSpaceById(spaceId)
 
@@ -64,11 +65,26 @@ export class SpaceFacade {
     }
 
     if (user.id === space.userId) {
-      throw clientError('Can not remove space owner from space', HttpErrName.InvalidRequest, HttpStatusCode.NotAllowed)
+      throw clientError('Can not update space owner role', HttpErrName.NotAllowed, HttpStatusCode.Forbidden)
     }
 
-    const userSpace = this.userSpaceService.remove(userId, spaceId)
+    const result = await this.userSpaceService.update(data, userId, spaceId)
+    return result
+  }
 
+  async removeSpaceUser(userId: number, spaceId: number): Promise<UserToSpace> {
+    const user = await this.userService.requireUserById(userId)
+    const space = await this.spaceService.requireSpaceById(spaceId)
+
+    if ((await this.userSpaceService.isUserInSpace(userId, spaceId)) === false) {
+      throw clientError('User not found in space', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    if (user.id === space.userId) {
+      throw clientError('Can not remove space owner from space', HttpErrName.InvalidRequest, HttpStatusCode.Forbidden)
+    }
+
+    const userSpace = await this.userSpaceService.remove(userId, spaceId)
     return userSpace
   }
 }

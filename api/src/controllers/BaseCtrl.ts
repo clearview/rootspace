@@ -22,7 +22,7 @@ export class BaseCtrl {
     }
 
     if (throwError) {
-      throw clientError('Forbidden', HttpErrName.NotAllowed, HttpStatusCode.Forbidden)
+      throw clientError('You are not allowed to do this', HttpErrName.NotAllowed, HttpStatusCode.Forbidden)
     }
 
     return false
