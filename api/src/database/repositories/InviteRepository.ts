@@ -46,20 +46,44 @@ export class InviteRepository extends Repository<Invite> {
     return queryBuilder.getMany()
   }
 
-  getByEmailAndSpaceId(email: string, spaceId: number, params: any = { accepted: false }): Promise<Invite[]> {
-    return this.createQueryBuilder('invite')
+  getByEmailAndSpaceId(
+    email: string,
+    spaceId: number,
+    filter: { accepted: boolean } = { accepted: false },
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    const query = this.createQueryBuilder('invite')
       .where('invite.email = :email', { email })
       .andWhere('invite.spaceId = :spaceId', { spaceId })
-      .andWhere('invite.accepted = :accepted', { accepted: params.accepted })
-      .getMany()
+
+    if (filter.accepted != undefined) {
+      query.andWhere('invite.accepted = :accepted', { accepted: filter.accepted })
+    }
+
+    if (options.orderBy) {
+      query.orderBy('invite.' + options.orderBy.sort, options.orderBy.order ?? 'ASC')
+    }
+
+    return query.getMany()
   }
 
-  getBySpaceId(spaceId: number): Promise<Invite[]> {
-    return this.createQueryBuilder('invite')
+  getBySpaceId(
+    spaceId: number,
+    filter: { accepted?: boolean } = { accepted: false },
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    const query = this.createQueryBuilder('invite')
       .distinctOn(['invite.email'])
-      .where('invite.accepted = false AND invite.spaceId = :spaceId', {
-        spaceId,
-      })
-      .getMany()
+      .where('invite.spaceId = :spaceId', { spaceId })
+
+    if (filter.accepted !== undefined) {
+      query.andWhere('invite.accepted = :accepted', { accepted: filter.accepted })
+    }
+
+    if (options.orderBy) {
+      // query.addOrderBy('invite.' + options.orderBy.sort, options.orderBy.order ?? 'ASC')
+    }
+
+    return query.getMany()
   }
 }

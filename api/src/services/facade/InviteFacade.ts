@@ -3,6 +3,7 @@ import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { InviteSendStatus, Invite as InviteType } from '../../types/invite'
+import { IQueryOptions } from '../../types/query'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -21,8 +22,12 @@ export class InviteFacade {
     return this.inviteService.requireInviteById(id)
   }
 
-  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
-    return this.inviteService.getInvitesBySpaceId(spaceId)
+  getInvitesBySpaceId(
+    spaceId: number,
+    filter: { accepted?: boolean } = { accepted: false },
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    return this.inviteService.getBySpaceId(spaceId, filter, options)
   }
 
   async sendToEmails(invites: InviteType[], spaceId: number, senderId: number): Promise<object[]> {
@@ -67,29 +72,34 @@ export class InviteFacade {
   }
 
   async accept(token: string, authorizedUserId: number): Promise<Invite[]> {
-    const invite = await this.inviteService.requireInviteByToken(token, { accepted: false })
+    const tokneInvite = await this.inviteService.requireInviteByToken(token, { accepted: false })
 
-    const user = invite.userId
-      ? await this.userService.getUserById(invite.userId)
-      : await this.userService.getUserByEmail(invite.email)
+    const user = tokneInvite.userId
+      ? await this.userService.getUserById(tokneInvite.userId)
+      : await this.userService.getUserByEmail(tokneInvite.email)
 
     if (!user || user.id !== authorizedUserId) {
       throw clientError('The invitation token is not valid', HttpErrName.InvalidToken)
     }
 
-    const space = await this.spaceService.requireSpaceById(invite.spaceId)
+    const space = await this.spaceService.requireSpaceById(tokneInvite.spaceId)
+
+    const allInvites = await this.inviteService.getByEmailAndSpaceId(
+      tokneInvite.email,
+      space.id,
+      { accepted: false },
+      { orderBy: { sort: 'createdAt', order: 'DESC' } }
+    )
 
     if (!(await this.userSpaceService.isUserInSpace(user.id, space.id))) {
-      await this.userSpaceService.add(user.id, space.id, invite.role)
+      await this.userSpaceService.add(user.id, space.id, allInvites[0].role)
     }
 
     const accepted: Invite[] = []
 
-    await this.inviteService.accept(invite)
-    accepted.push(invite)
-
-    const otherAccepted = await this.inviteService.acceptByEmailToSpace(invite.email, space.id)
-    accepted.push(...otherAccepted)
+    for (const invite of allInvites) {
+      accepted.push(await this.inviteService.accept(invite))
+    }
 
     return accepted
   }

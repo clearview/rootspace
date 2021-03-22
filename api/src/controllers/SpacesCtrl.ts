@@ -64,9 +64,13 @@ export class SpacesCtrl extends BaseCtrl {
     const spaceId = Number(req.params.id)
     this.isSpaceMember(req, spaceId)
 
-    const invites = await this.inviteFacade.getInvitesBySpaceId(spaceId)
-    const resData = this.responseData(invites)
+    const invites = await this.inviteFacade.getInvitesBySpaceId(
+      spaceId,
+      { accepted: false },
+      { orderBy: { sort: 'createdAt', order: 'DESC' } }
+    )
 
+    const resData = this.responseData(invites)
     res.send(resData)
   }
 

@@ -65,8 +65,21 @@ export class InviteService extends Service {
     return invite
   }
 
-  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
-    return this.getInviteRepository().getBySpaceId(spaceId)
+  getBySpaceId(
+    spaceId: number,
+    filter: { accepted?: boolean } = { accepted: false },
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    return this.getInviteRepository().getBySpaceId(spaceId, filter, options)
+  }
+
+  getByEmailAndSpaceId(
+    email: string,
+    spaceId: number,
+    filter: { accepted: boolean } = { accepted: false },
+    options: IQueryOptions
+  ): Promise<Invite[]> {
+    return this.getInviteRepository().getByEmailAndSpaceId(email, spaceId, filter, options)
   }
 
   async accept(invite: Invite): Promise<Invite> {
@@ -74,16 +87,6 @@ export class InviteService extends Service {
     invite.acceptedDate = new Date(Date.now())
 
     return await this.getInviteRepository().save(invite)
-  }
-
-  async acceptByEmailToSpace(email: string, spaceId: number): Promise<Invite[]> {
-    const invites = await this.getInviteRepository().getByEmailAndSpaceId(email, spaceId)
-
-    for (const invite of invites) {
-      await this.accept(invite)
-    }
-
-    return invites
   }
 
   async cancel(invite: Invite) {

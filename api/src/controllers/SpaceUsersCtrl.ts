@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { SpaceService, UserService, UserSpaceService } from '../services'
+import { UserService, UserSpaceService } from '../services'
 import { SpaceFacade } from '../services/facade'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { SpaceUserUpdateValue } from '../values/spaceUser'
@@ -47,7 +47,7 @@ export class SpaceUsersCtrl extends BaseCtrl {
     const spaceId = Number(req.params.spaceId)
 
     this.isSpaceAdmin(req, spaceId)
-    
+
     await validateSpaceUserUpdate(req.body.data)
     const value = SpaceUserUpdateValue.fromObject(req.body.data)
 
