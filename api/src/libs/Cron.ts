@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 import { Job } from 'bull'
-import { CronEvent } from '../services/events/CronEvent'
+import { CronEvent } from '../events/CronEvent'
 import { MarkOverdueTasks } from './cron/MarkOverdueTasks'
 import db from '../db'
 import { Queue } from './Queue'

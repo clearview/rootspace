@@ -1,11 +1,11 @@
 import { config } from 'node-config-ts'
 import jwt from 'jsonwebtoken'
-import { UserService, UserSpaceService } from '../services'
-import { Request } from 'express'
-import { WsInAction, WsInMessage } from '../services/models/websockets/WsInMessage'
-import { Room } from '../types/room'
 import Primus = require('primus')
 import Spark = require('primus-rooms')
+import { UserService, UserSpaceService } from '../services'
+import { Request } from 'express'
+import { WsInAction, WsInMessage } from '../ws/WsInMessage'
+import { Room, RoomType } from '../ws/'
 
 export enum WsEvent {
   'Error' = 'error',
@@ -114,52 +114,30 @@ function echo(spark: Spark, message: WsInMessage) {
   })
 }
 
-function wsRoom(name: string): Room | null {
-  const parts = name.split('.')
-  const spaceId = Number(parts[0])
-  const entityName = String(parts[1])
-  const entityId = Number(parts[2])
-
-  if (!spaceId) {
-    return null
-  }
-
-  const aRoom = Room.forSpaceId(spaceId)
-
-  if (entityName !== 'undefined' && entityName !== '') {
-    aRoom.withEntity(entityName)
-  }
-
-  if (entityId) {
-    aRoom.ofId(entityId)
-  }
-
-  return aRoom
-}
-
 async function canJoin(user: any, room: Room): Promise<boolean> {
-  return UserSpaceService.getInstance().isUserInSpace(user.id, room.spaceId)
+  if (room.getType() === RoomType.App) {
+    return true
+  }
+
+  const result = await UserSpaceService.getInstance().isUserInSpace(user.id, room.getSpaceId())
+  return result
 }
 
 async function joinRoom(spark: Spark, message: WsInMessage) {
   const user = spark.request.user
-  const room = wsRoom(message.room)
+  const roomName = message.room
 
-  if (!room) {
-    spark.write(`[${spark.id}] Invalid room name ${message.room}`)
-    return
-  }
-
+  const room = new Room(roomName)
   const allowed = await canJoin(user, room)
 
   if (!allowed) {
-    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} is not allowed to joined room ${room.name()}`)
+    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} is not allowed to joined room ${room.getName()}`)
     return
   }
 
-  spark.join(room.name(), async () => {
+  spark.join(room.getName(), async () => {
     // send message to this client
-    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} joined room ${room.name()}`)
+    spark.write(`[${spark.id}] ${user.firstName} ${user.lastName} joined room ${room.getName()}`)
 
     // send message to all clients except this one
     // spark.room(message.room).except(spark.id).write(spark.id + ' joined room ' + message.room)
@@ -179,16 +157,16 @@ function listRooms(spark: Spark) {
 }
 
 function leaveRoom(spark: Spark, message: WsInMessage) {
-  const room = wsRoom(message.room)
+  const room = new Room(message.room)
 
   if (!room) {
     spark.write(`[${spark.id}] Invalid room name ${message.room}`)
     return
   }
 
-  spark.leave(room.name(), () => {
+  spark.leave(room.getName(), () => {
     const user = spark.request.user
-    spark.write(`${user.firstName} ${user.lastName} left room ${room.name()}`)
+    spark.write(`${user.firstName} ${user.lastName} left room ${room.getName()}`)
   })
 }
 

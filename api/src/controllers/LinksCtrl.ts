@@ -33,7 +33,7 @@ export class LinksCtrl extends BaseCtrl {
     const data = req.body.data
     await validateLinkCreate(data)
 
-    const value = LinkCreateValue.fromObjectAndUserId(data, Number(req.user.id))
+    const value = LinkCreateValue.fromObjectAndUserId(data, req.user.id)
 
     const link = await this.linkSrvice.create(value)
     const resData = this.responseData(link)
@@ -48,7 +48,7 @@ export class LinksCtrl extends BaseCtrl {
     await validateLinkUpdate(data)
 
     const value = LinkUpdateValue.fromObject(data)
-    const link = await this.linkSrvice.update(value, id)
+    const link = await this.linkSrvice.update(value, id, req.user.id)
 
     const resData = this.responseData(link)
     res.send(resData)
@@ -56,21 +56,21 @@ export class LinksCtrl extends BaseCtrl {
 
   async archive(req: Request, res: Response) {
     const id = Number(req.params.id)
-    const result = await this.linkSrvice.archive(id)
+    const result = await this.linkSrvice.archive(id, req.user.id)
 
     res.send(this.responseData(result))
   }
 
   async restore(req: Request, res: Response) {
     const id = Number(req.params.id)
-    const result = await this.linkSrvice.restore(id)
+    const result = await this.linkSrvice.restore(id, req.user.id)
 
     res.send(this.responseData(result))
   }
 
   public async delete(req: Request, res: Response, next: NextFunction) {
     const id = Number(req.params.id)
-    const link = await this.linkSrvice.remove(id)
+    const link = await this.linkSrvice.remove(id, req.user.id)
 
     res.send(this.responseData(link))
   }

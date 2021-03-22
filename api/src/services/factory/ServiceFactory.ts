@@ -176,6 +176,7 @@ export class ServiceFactory {
 
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
+    this.nodeService.attachActivityObserver(this.getActivityService())
 
     this.folderService = FolderService.getInstance()
     this.folderService.attachActivityObserver(this.getActivityService())

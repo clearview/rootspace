@@ -117,7 +117,7 @@ export class InviteService extends Service {
     invite.email = email
 
     await this.getInviteRepository().save(invite)
-    this.notifyActivity(UserActivitiy.invite(invite))
+    this.notifyActivity(UserActivitiy.invite(invite, senderId))
 
     return invite
   }
@@ -132,7 +132,7 @@ export class InviteService extends Service {
     invite.email = user.email
 
     await this.getInviteRepository().save(invite)
-    this.notifyActivity(UserActivitiy.invite(invite))
+    this.notifyActivity(UserActivitiy.invite(invite, senderId))
 
     return invite
   }

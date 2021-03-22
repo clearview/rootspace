@@ -3,7 +3,8 @@ import pug from 'pug'
 import { Invite } from '../../../../database/entities/Invite'
 import { Space } from '../../../../database/entities/Space'
 import { User } from '../../../../database/entities/User'
-import { IActivityHandler, IAppActivityData } from '../types'
+import { IActivityData } from '../ActivityData'
+import { IActivityHandler } from '../ActivityHandler'
 import { ServiceFactory } from '../../../../services/factory/ServiceFactory'
 import { InviteService, SpaceService, UserService, MailService } from '../../../'
 
@@ -15,12 +16,12 @@ export class UserInviteHandler implements IActivityHandler {
   private userService: UserService
   private mailService: MailService
 
-  private data: IAppActivityData
+  private data: IActivityData
   private invite: Invite
   private space: Space
   private sender: User
 
-  private constructor(data: IAppActivityData) {
+  private constructor(data: IActivityData) {
     this.inviteService = ServiceFactory.getInstance().getInviteService()
     this.spaceService = ServiceFactory.getInstance().getSpaceService()
     this.userService = ServiceFactory.getInstance().getUserService()

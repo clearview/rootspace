@@ -299,7 +299,6 @@ export default class SidebarHeaderNotifActivity extends Vue {
 
   span {
     &.title {
-      font-size: 16px;
       line-height: 19px;
       margin-left: 8px;
     }

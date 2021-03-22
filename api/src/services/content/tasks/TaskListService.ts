@@ -75,12 +75,12 @@ export class TaskListService extends Service {
     data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
 
     const taskList = await this.getTaskListRepository().save(data)
-    await this.notifyActivity(TaskListActivity.created(taskList))
+    await this.notifyActivity(TaskListActivity.created(taskList, taskList.userId))
 
     return this.getTaskListRepository().reload(taskList)
   }
 
-  async update(id: number, data: any): Promise<TaskList> {
+  async update(id: number, data: any, actorId: number): Promise<TaskList> {
     const existingTaskList = await this.getById(id)
     let taskList = await this.getById(id)
 
@@ -91,18 +91,18 @@ export class TaskListService extends Service {
 
     taskList = await this.getTaskListRepository().reload(taskList)
 
-    await this.notifyActivity(TaskListActivity.updated(existingTaskList, taskList))
+    await this.notifyActivity(TaskListActivity.updated(existingTaskList, taskList, actorId))
 
     return taskList
   }
 
-  async archive(taskListId: number): Promise<TaskList | undefined> {
+  async archive(taskListId: number, actorId: number): Promise<TaskList | undefined> {
     const taskList = await this.requireById(taskListId)
 
     await this.taskService.listArchived(taskList.id)
 
     await this.getTaskListRepository().softRemove(taskList)
-    await this.notifyActivity(TaskListActivity.archived(taskList))
+    await this.notifyActivity(TaskListActivity.archived(taskList, actorId))
 
     return taskList
   }
@@ -116,13 +116,13 @@ export class TaskListService extends Service {
     }
   }
 
-  async restore(taskListId: number): Promise<TaskList> {
+  async restore(taskListId: number, actorId: number): Promise<TaskList> {
     const taskList = await this.getArchivedById(taskListId)
 
     await this.taskService.listRestored(taskList.id)
 
     await this.getTaskListRepository().recover(taskList)
-    await this.notifyActivity(TaskListActivity.restored(taskList))
+    await this.notifyActivity(TaskListActivity.restored(taskList, actorId))
 
     return taskList
   }
@@ -136,10 +136,10 @@ export class TaskListService extends Service {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, actorId: number) {
     const taskList = await this.getById(id)
 
-    await this.notifyActivity(TaskListActivity.deleted(taskList))
+    await this.notifyActivity(TaskListActivity.deleted(taskList, actorId))
     return this.getTaskListRepository().remove(taskList)
   }
 }

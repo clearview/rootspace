@@ -61,7 +61,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, taskBoard)
 
     const data = req.body.data
-    taskBoard = await this.taskBoardService.update(taskBoard.id, data)
+    taskBoard = await this.taskBoardService.update(taskBoard.id, data, req.user.id)
 
     const resData = this.responseData(taskBoard)
     res.send(resData)
@@ -73,7 +73,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     const taskBoard = await this.taskBoardService.getById(taskBoardId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
 
-    const result = await this.taskBoardService.archive(taskBoardId)
+    const result = await this.taskBoardService.archive(taskBoardId, req.user.id)
     res.send(result)
   }
 
@@ -83,7 +83,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     const taskBoard = await this.taskBoardService.getArchivedTaskBoardById(taskBoardId)
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard ? taskBoard : Subjects.TaskBoard)
 
-    const result = await this.taskBoardService.restore(taskBoardId)
+    const result = await this.taskBoardService.restore(taskBoardId, req.user.id)
     res.send(result)
   }
 
@@ -91,7 +91,7 @@ export class TaskBoardCtrl extends BaseCtrl {
     const taskBoard = await this.taskBoardService.requireById(Number(req.params.id), { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, taskBoard)
 
-    const result = await this.taskBoardService.remove(taskBoard.id)
+    const result = await this.taskBoardService.remove(taskBoard.id, req.user.id)
     res.send(result)
   }
 }
