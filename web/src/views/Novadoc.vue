@@ -479,7 +479,6 @@ const wsMessageType = {
   initCollaboration: 14,
   restore: 15
 }
-
 export default {
   mixins: [SpaceMixin, PageMixin],
   components: {

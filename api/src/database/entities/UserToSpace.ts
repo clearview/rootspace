@@ -4,7 +4,6 @@ import { Space } from './Space'
 
 @Entity('users_spaces')
 export class UserToSpace {
-
   @PrimaryGeneratedColumn()
   public id!: number
 
@@ -19,16 +18,26 @@ export class UserToSpace {
   @Column('boolean', { default: true })
   active: boolean
 
-  @CreateDateColumn({ type: 'timestamptz'})
+  @Column('integer', { default: 1 })
+  role: number
+
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
 
-  @ManyToOne(type => User, user => user.spaces)
-  public user!: User
+  @ManyToOne(
+    (type) => User,
+    (user) => user.userSpaces,
+    { primary: true }
+  )
+  user: User
 
-  @ManyToOne(type => Space, space => space.users,{ onDelete: 'CASCADE' })
-  public space!: Space
-
+  @ManyToOne(
+    (type) => Space,
+    (space) => space.userSpaces,
+    { primary: true }
+  )
+  space: Space
 }

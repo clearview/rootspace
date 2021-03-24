@@ -8,7 +8,13 @@ import { IQueryOptions } from '../../types/query'
 export class UserRepository extends Repository<User> {
   getBySpaceId(spaceId: number): Promise<User[]> {
     const queryBuilder = this.createQueryBuilder('user')
-      .leftJoin(UserToSpace, 'userToSpace', 'userToSpace.userId = user.id')
+      .leftJoinAndMapOne(
+        'user.userToSpace',
+        UserToSpace,
+        'userToSpace',
+        'userToSpace.userId = user.id and userToSpace.spaceId = :spaceId AND userToSpace.active = true',
+        { spaceId }
+      )
       .where('userToSpace.spaceId = :spaceId AND userToSpace.active = true', {
         spaceId,
       })

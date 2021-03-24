@@ -3,8 +3,6 @@ import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services'
 import { validateInviteAccept, validateInviteCreate } from '../validation/invite'
 import { InviteFacade } from '../services/facade'
-import { ForbiddenError } from '@casl/ability'
-import { Actions } from '../middleware/AuthMiddleware'
 
 export class InvitesCtrl extends BaseCtrl {
   protected inviteService: InviteService
@@ -20,15 +18,15 @@ export class InvitesCtrl extends BaseCtrl {
     await validateInviteCreate(data)
 
     const spaceId = Number(data.spaceId)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceAdmin(req, spaceId)
 
-    const invites = await this.inviteFacade.sendToEmails(data.emails, data.spaceId, req.user.id)
+    const invites = await this.inviteFacade.sendToEmails(data.invites, data.spaceId, req.user.id)
     res.send(this.responseData(invites))
   }
 
   async cancel(req: Request, res: Response) {
     const invite = await this.inviteFacade.requireInviteById(Number(req.params.inviteId))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, invite)
+    this.isSpaceAdmin(req, invite.spaceId)
 
     const result = await this.inviteFacade.cancel(invite)
     res.send(this.responseData(result))
@@ -39,6 +37,16 @@ export class InvitesCtrl extends BaseCtrl {
     await validateInviteAccept(data)
 
     const result = await this.inviteFacade.accept(data.token, req.user.id)
+    res.send(this.responseData(result))
+  }
+
+  async updateRole(req: Request, res: Response) {
+    const data = req.body.data
+    const invite = await this.inviteFacade.requireInviteById(Number(req.params.inviteId))
+
+    this.isSpaceAdmin(req, invite.spaceId)
+
+    const result = await this.inviteFacade.updateRole(invite, data.role)
     res.send(this.responseData(result))
   }
 }

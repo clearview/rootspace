@@ -16,7 +16,7 @@ export class ActivitiesCtrl extends BaseCtrl {
 
   async getForSpace(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const filter: any = {}
     const options = this.getQueryOptions(req)
@@ -54,7 +54,7 @@ export class ActivitiesCtrl extends BaseCtrl {
 
     const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
 
-    if (this.checkSpaceAccess(req, entity.spaceId, false) === false) {
+    if (this.isSpaceMember(req, entity.spaceId, false) === false) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 

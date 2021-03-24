@@ -5,7 +5,8 @@ import * as Sentry from '@sentry/node'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
 import bcrypt from 'bcryptjs'
-import { SpaceService, UserService } from './services'
+import { Request } from 'express'
+import { UserService, UserSpaceService } from './services'
 import { unauthorized } from './response/errors'
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions, VerifiedCallback } from 'passport-jwt'
 import { Ability, AbilityBuilder } from '@casl/ability'
@@ -83,12 +84,6 @@ passport.use(
             return done(unauthorized())
           }
 
-          /* if (user.emailConfirmed !== true) {
-            return done(
-              unauthorized()
-            )
-          } */
-
           if (user.active !== true) {
             return done(unauthorized())
           }
@@ -132,46 +127,49 @@ const jwtOptions: StrategyOptions = {
 }
 
 passport.use(
-  new JwtStrategy(jwtOptions, async (req: any, payload: any, done: VerifiedCallback) => {
+  new JwtStrategy(jwtOptions, async (req: Request, payload: any, done: VerifiedCallback) => {
     const userId = payload.id
     verifyJWTPayload(payload, done)
 
     const user = await UserService.getInstance().getUserById(userId)
 
-    if (user) {
-      req.user = user
-
-      if (config.env === 'production') {
-        Sentry.configureScope((scope) => {
-          scope.setUser({ id: user.id.toString(), email: user.email })
-        })
-      }
-
-      const { can, cannot, rules } = new AbilityBuilder()
-      const userSpaces = await SpaceService.getInstance().getSpacesByUserId(req.user.id)
-      req.user.userSpaceIds = userSpaces.map((space) => {
-        return space.id
-      })
-
-      // User can manage any subject they own
-      can(Actions.Manage, Subjects.All, { userId: user.id })
-
-      // User can manage any subject from the space they have access to
-      can(Actions.Manage, Subjects.All, { spaceId: { $in: req.user.userSpaceIds } })
-
-      // User can not manage subjects outside spaces they belong to
-      cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: req.user.userSpaceIds } }).because(
-        'Access to space is not allowed'
-      )
-
-      // @ts-ignore
-      req.user.ability = new Ability<[Actions, Subjects]>(rules)
-
-      httpRequestContext.set('user', user)
-      return done(null, user)
+    if (!user) {
+      return done(null, false, { message: 'Wrong token' })
     }
 
-    return done(null, false, { message: 'Wrong token' })
+    if (config.env === 'production') {
+      Sentry.configureScope((scope) => {
+        scope.setUser({ id: user.id.toString(), email: user.email })
+      })
+    }
+
+    const spaces = new Map<number, number>()
+
+    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id)) {
+      spaces.set(userSpace.spaceId, userSpace.role)
+    }
+
+    const { can, cannot, rules } = new AbilityBuilder()
+
+    // User can manage any subject they own
+    can(Actions.Manage, Subjects.All, { userId: user.id })
+
+    // User can manage any subject from the space they have access to
+    can(Actions.Manage, Subjects.All, { spaceId: { $in: Array.from(spaces.keys()) } })
+
+    // User can not manage subjects outside spaces they belong to
+    cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: Array.from(spaces.keys()) } }).because(
+      'Access to space is not allowed'
+    )
+
+    // @ts-ignore
+    const ability = new Ability<[Actions, Subjects]>(rules)
+
+    const requestUser = { ...user, spaces, ability }
+
+    httpRequestContext.set('user', user)
+
+    return done(null, requestUser)
   })
 )
 

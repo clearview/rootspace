@@ -12,12 +12,14 @@
           My Account
         </div>
       </router-link>
-      <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
-        <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
-        <div class="action-line-text">
-          Space Settings
-        </div>
-      </router-link>
+      <permission role="admin">
+        <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
+          <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
+          <div class="action-line-text">
+            Space Settings
+          </div>
+        </router-link>
+      </permission>
     </template>
     <template #trigger="{ visible }">
       <span class="sidebar-icon">
@@ -47,11 +49,13 @@
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 import Popover from '@/components/Popover.vue'
+import { Permission } from '@/components/access'
 
 @Component({
   name: 'SidebarHeaderSettings',
   components: {
-    Popover
+    Popover,
+    Permission
   }
 })
 
