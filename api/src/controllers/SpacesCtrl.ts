@@ -22,7 +22,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async getTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const nodes = await this.spaceFacade.getTree(spaceId)
     const data = this.responseData(nodes)
@@ -32,7 +32,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async getArchiveTree(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const nodes = await this.spaceFacade.getArchiveTree(spaceId)
     const result = this.responseData(nodes)
@@ -42,7 +42,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async deleteArchive(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const nodes = await this.spaceFacade.deleteArchive(spaceId, req.user.id)
     const result = this.responseData(nodes)
@@ -52,7 +52,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async favorites(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
     const userId = req.user.id
 
@@ -62,11 +62,15 @@ export class SpacesCtrl extends BaseCtrl {
 
   async invites(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceMember(req, spaceId)
 
-    const invites = await this.inviteFacade.getInvitesBySpaceId(spaceId)
+    const invites = await this.inviteFacade.getInvitesBySpaceId(
+      spaceId,
+      { accepted: false },
+      { orderBy: { sort: 'createdAt', order: 'DESC' } }
+    )
+
     const resData = this.responseData(invites)
-
     res.send(resData)
   }
 
@@ -85,7 +89,7 @@ export class SpacesCtrl extends BaseCtrl {
 
   async update(req: Request, res: Response) {
     const spaceId = Number(req.params.id)
-    this.checkSpaceAccess(req, spaceId)
+    this.isSpaceAdmin(req, spaceId)
 
     const data = SpaceUpdateValue.fromObject(req.body)
 

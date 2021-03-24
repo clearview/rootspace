@@ -40,12 +40,12 @@ export function wsServerHooks(primus: Primus) {
     }
 
     const user = await UserService.getInstance().getUserById(userId)
+
     if (!user) {
       return done(new Error('Wrong token'))
     }
 
-    req.user = user
-
+    req.user = { ...user, spaces: new Map<number, number>() }
     done()
   })
 

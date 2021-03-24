@@ -2,10 +2,11 @@ import { EntityRepository, Repository, UpdateResult, SelectQueryBuilder } from '
 import { UserToSpace } from '../entities/UserToSpace'
 import { Space } from '../entities/Space'
 import { Upload } from '../entities/Upload'
+import { IQueryOptions } from '../../types/query'
 
 @EntityRepository(Space)
 export class SpaceRepository extends Repository<Space> {
-  getByUserId(userId: number) {
+  getByUserId(userId: number, filter: {} = {}, optiosn: IQueryOptions = {}) {
     const queryBuilder = this.createQueryBuilder('spaces')
       .innerJoin(UserToSpace, 'userToSpace', 'userToSpace.spaceId = spaces.id')
       .where('userToSpace.userId = :userId AND userToSpace.active = true', {

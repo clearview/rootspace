@@ -61,7 +61,9 @@ export default defineComponent({
       id: 0,
       email: '',
       firstName: '',
-      lastName: ''
+      lastName: '',
+      hasRole: false,
+      hasRoleId: 1
     })
 
     const fetchActivities = async () => {

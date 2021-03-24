@@ -65,9 +65,9 @@ export class User {
 
   @OneToMany(
     (type) => UserToSpace,
-    (space) => space.user
+    (userSpace) => userSpace.user
   )
-  public spaces!: UserToSpace[]
+  userSpaces: UserToSpace[]
 
   @OneToMany(
     (type) => Follow,
