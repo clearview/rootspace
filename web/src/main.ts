@@ -11,7 +11,7 @@ import router from './router'
 import store from './store'
 
 import LegacyIcon from '@/components/legacy/icon/Icon.vue'
-import { MonoIcon } from '@/components/icon'
+import { ColorIcon, MonoIcon } from '@/components/icon'
 
 import 'tippy.js/themes/light.css'
 import 'tippy.js/themes/light-border.css'
@@ -33,6 +33,7 @@ Vue.use(PortalVue)
 
 // Register components
 Vue.component('legacy-icon', LegacyIcon)
+Vue.component('color-icon', ColorIcon)
 Vue.component('mono-icon', MonoIcon)
 Vue.component('tippy', TippyComponent)
 
