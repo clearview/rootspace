@@ -29,7 +29,7 @@ export class SpaceUsersCtrl extends BaseCtrl {
 
   async whoami(req: Request, res: Response) {
     const spaceId = Number(req.params.spaceId)
-    const result = await this.userSpaceService.requireByUserIdAndSpaceId(req.user.id, spaceId)
+    const result = await this.userSpaceService.requireByUserIdAndSpaceId(req.user.id, spaceId, { active: true })
 
     res.send(this.responseData(result))
   }
