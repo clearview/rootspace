@@ -11,5 +11,5 @@ export interface ISignupProvider {
 
 export enum UserAuthProvider {
   LOCAL = 'local',
-  GOOGLE = 'google'
+  GOOGLE = 'google',
 }

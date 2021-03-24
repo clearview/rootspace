@@ -2,7 +2,8 @@ import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { InviteSendStatus } from '../../types/invite'
+import { InviteSendStatus, Invite as InviteType } from '../../types/invite'
+import { IQueryOptions } from '../../types/query'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -21,17 +22,21 @@ export class InviteFacade {
     return this.inviteService.requireInviteById(id)
   }
 
-  getInvitesBySpaceId(spaceId: number): Promise<Invite[]> {
-    return this.inviteService.getInvitesBySpaceId(spaceId)
+  getInvitesBySpaceId(
+    spaceId: number,
+    filter: { accepted?: boolean } = { accepted: false },
+    options: IQueryOptions = {}
+  ): Promise<Invite[]> {
+    return this.inviteService.getBySpaceId(spaceId, filter, options)
   }
 
-  async sendToEmails(emails: string[], spaceId: number, senderId: number): Promise<object[]> {
+  async sendToEmails(invites: InviteType[], spaceId: number, senderId: number): Promise<object[]> {
     const result: object[] = []
     const space = await this.spaceService.requireSpaceById(spaceId)
 
-    emails = Array.from(new Set(emails))
+    invites = Array.from(new Set(invites))
 
-    for (const email of emails) {
+    for (const { email, role } of invites) {
       const inSpace = await this.userSpaceService.isEmailInSpace(email, space.id)
 
       if (inSpace === true) {
@@ -53,8 +58,8 @@ export class InviteFacade {
       const user = await this.userService.getUserByEmail(email)
 
       const invite = user
-        ? await this.inviteService.createWithUser(user, space, senderId)
-        : await this.inviteService.createWithEmail(email, space, senderId)
+        ? await this.inviteService.createWithUser(user, role, space, senderId)
+        : await this.inviteService.createWithEmail(email, role, space, senderId)
 
       result.push({
         email: invite.email,
@@ -67,29 +72,34 @@ export class InviteFacade {
   }
 
   async accept(token: string, authorizedUserId: number): Promise<Invite[]> {
-    const invite = await this.inviteService.requireInviteByToken(token, { accepted: false })
+    const tokneInvite = await this.inviteService.requireInviteByToken(token, { accepted: false })
 
-    const user = invite.userId
-      ? await this.userService.getUserById(invite.userId)
-      : await this.userService.getUserByEmail(invite.email)
+    const user = tokneInvite.userId
+      ? await this.userService.getUserById(tokneInvite.userId)
+      : await this.userService.getUserByEmail(tokneInvite.email)
 
     if (!user || user.id !== authorizedUserId) {
       throw clientError('The invitation token is not valid', HttpErrName.InvalidToken)
     }
 
-    const space = await this.spaceService.requireSpaceById(invite.spaceId)
+    const space = await this.spaceService.requireSpaceById(tokneInvite.spaceId)
+
+    const allInvites = await this.inviteService.getByEmailAndSpaceId(
+      tokneInvite.email,
+      space.id,
+      { accepted: false },
+      { orderBy: { sort: 'createdAt', order: 'DESC' } }
+    )
 
     if (!(await this.userSpaceService.isUserInSpace(user.id, space.id))) {
-      await this.userSpaceService.add(user.id, space.id)
+      await this.userSpaceService.add(user.id, space.id, allInvites[0].role)
     }
 
     const accepted: Invite[] = []
 
-    await this.inviteService.accept(invite)
-    accepted.push(invite)
-
-    const otherAccepted = await this.inviteService.acceptByEmailToSpace(invite.email, space.id)
-    accepted.push(...otherAccepted)
+    for (const invite of allInvites) {
+      accepted.push(await this.inviteService.accept(invite))
+    }
 
     return accepted
   }
@@ -108,5 +118,18 @@ export class InviteFacade {
     canceled.push(...otherCanceled)
 
     return canceled
+  }
+
+  async updateRole(invite: Invite, role: number): Promise<Invite[]> {
+    if (invite.accepted) {
+      throw clientError('Can not update role this invite', HttpErrName.NotAllowed, HttpStatusCode.BadRequest)
+    }
+
+    const updated: Invite[] = []
+
+    await this.inviteService.updateRole(invite, role)
+    updated.push(invite)
+
+    return updated
   }
 }

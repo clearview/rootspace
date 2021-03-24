@@ -7,9 +7,11 @@
         <li :class="{ active: $route.name === 'SettingsAccount' }">
           <router-link :to="{name: 'SettingsAccount'}">My Account</router-link>
         </li>
-        <li  :class="{ active: $route.name === 'SettingsSpace' }">
-          <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
-        </li>
+        <permission role="admin">
+          <li  :class="{ active: $route.name === 'SettingsSpace' }">
+            <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
+          </li>
+        </permission>
       </ul>
 
       <div class="settings-content">
@@ -32,6 +34,7 @@ import VModal from '@/components/legacy/Modal.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import UploadableImage from '@/components/UploadableImage.vue'
+import { Permission } from '@/components/access'
 import Avatar from 'vue-avatar'
 import store from '@/store'
 
@@ -45,7 +48,8 @@ import store from '@/store'
     Avatar,
     VAlert,
     VLoading,
-    VModal
+    VModal,
+    Permission
   }
 })
 export default class Settings extends Mixins(PageMixin) {
@@ -83,14 +87,39 @@ export default class Settings extends Mixins(PageMixin) {
 
 <style lang="postcss" scoped>
   .settings-container {
-    @apply max-w-3xl p-4 mt-10;
+    @apply p-4 mt-10;
 
-    width: 44rem;
+    width: 100%;
     margin-left: 70px;
+
+    .tab {
+      border-bottom-width: 0;
+      margin-bottom: 40px;
+
+      li {
+        a {
+          padding-top: 0.4rem;
+          padding-bottom: 0.4rem;
+          padding-left: 1.2rem;
+          padding-right: 1.2rem;
+        }
+      }
+
+      li.active {
+
+        a {
+          border-bottom-width: 0;
+          background-color: theme('colors.gray.900');
+          color: white;
+          border-radius: 4px;
+          font-weight: normal;
+        }
+      }
+    }
   }
 
   .settings-content {
-    @apply p-8;
+
   }
 
 </style>

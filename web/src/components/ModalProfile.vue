@@ -61,7 +61,9 @@ export default class ModalProfile extends Mixins(SpaceMixin) {
     id: 0,
     email: '',
     firstName: '',
-    lastName: ''
+    lastName: '',
+    hasRole: false,
+    hasRoleId: 1
   }
 
   @Prop({ type: Number })

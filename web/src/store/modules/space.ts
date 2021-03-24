@@ -2,6 +2,7 @@ import { Module } from 'vuex'
 import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
+import SpaceService from '@/services/space'
 import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
 import api from '@/utils/api'
@@ -176,6 +177,22 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
         await api.put('/users/settings/', { activeIndex: index })
       }
+    },
+
+    async whoami ({ commit, state, getters }) {
+      const activeSpace = getters.getSpaceByIndex(state.activeIndex)
+      if (!activeSpace) {
+        return
+      }
+
+      const data = await SpaceService.whoami(activeSpace.id)
+
+      commit('setList', state.list.map((item) => {
+        return {
+          ...item,
+          ...(item.id === activeSpace.id ? { role: data.role } : {})
+        }
+      }))
     },
 
     async clean ({ commit }) {

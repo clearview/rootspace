@@ -4,7 +4,21 @@ import { User } from '../entities/User'
 
 @EntityRepository(UserToSpace)
 export class UserToSpaceRepository extends Repository<UserToSpace> {
-  getByUserIdAndSpaceId(userId: number, spaceId: number, active?: boolean): Promise<UserToSpace | undefined> {
+  getByUserId(userId: number, filter: { active?: boolean } = {}) {
+    const query = this.createQueryBuilder('userSpace').where('userSpace.userId = :userId', { userId })
+
+    if (filter.active !== undefined) {
+      query.andWhere('userSpace.active = :active', { active: filter.active })
+    }
+
+    return query.getMany()
+  }
+
+  getByUserIdAndSpaceId(
+    userId: number,
+    spaceId: number,
+    filter: { active?: boolean } = {}
+  ): Promise<UserToSpace | undefined> {
     const query = this.createQueryBuilder('userSpace').where(
       'userSpace.userId = :userId AND userSpace.spaceId = :spaceId',
       {
@@ -13,8 +27,8 @@ export class UserToSpaceRepository extends Repository<UserToSpace> {
       }
     )
 
-    if (active !== undefined) {
-      query.andWhere('userSpace.active = :active', { active })
+    if (filter.active !== undefined) {
+      query.andWhere('userSpace.active = :active', { active: filter.active })
     }
 
     return query.getOne()

@@ -4,7 +4,7 @@ export class InviteCreateValidator extends BaseValidator {
   rules() {
     return {
       spaceId: 'required|number',
-      emails: 'required|array',
+      invites: 'required|array',
     }
   }
 }
