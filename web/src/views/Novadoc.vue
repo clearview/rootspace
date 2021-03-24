@@ -798,6 +798,20 @@ export default {
             content: []
           }
         })
+
+        if (this.readOnly) {
+          // Hack, wait elements completely rendered
+          setTimeout(() => {
+            this.setLinksToOpenInNewTab()
+          }, 500)
+        }
+      },
+      setLinksToOpenInNewTab () {
+        const links = this.$refs.paper.querySelectorAll('a')
+        for (let i = 0; i < links.length; i++) {
+          const link = links[i]
+          link.setAttribute('target', '_blank')
+        }
       },
       getCurrentActiveNode (depth = 1) {
         const sel = this.editor.state.selection
@@ -1143,6 +1157,7 @@ export default {
         })
         if (this.readOnly) {
           this.showPreview(null)
+          this.setLinksToOpenInNewTab()
         } else {
           this.closeHistory()
         }
