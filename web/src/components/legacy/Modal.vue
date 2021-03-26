@@ -15,7 +15,7 @@
               class="btn btn-icon rounded-full"
               @click="cancel"
             >
-              <v-icon name="close" title="Close"/>
+              <legacy-icon name="close" title="Close"/>
             </button>
           </div>
         </slot>

@@ -18,15 +18,15 @@
           @click="tagsState !== 'manage' ? input(tag) : null">
           {{tag.label}}
           <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
-            <v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+            <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
           </span>
         </div>
         <div class="action" v-if="tagsState === 'manage'">
         <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-            <v-icon size="1rem" viewbox="32" name="edit"/>
+            <legacy-icon size="1rem" viewbox="32" name="edit"/>
         </span>
         <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-          <v-icon size="1rem" viewbox="32" name="trash"/>
+          <legacy-icon size="1rem" viewbox="32" name="trash"/>
         </span>
         </div>
       </div>
@@ -53,7 +53,7 @@
       <div class="color-boxes">
       <div class="color-box" v-for="color in colors" :key="color" :style="{ background: color }"
         @click="selectColor(color)" :class="{'checked': color === colorInput}">
-        <span class="icon-checkmark"><v-icon size="8px" name="checkmark" viewbox="12" /></span>
+        <span class="icon-checkmark"><legacy-icon size="8px" name="checkmark" viewbox="12" /></span>
       </div>
       </div>
 
@@ -72,11 +72,11 @@
     </div> -->
 
     <div class="manage-button" @click="manageTagsButton()" v-if="showManageTagButton()">
-      <span><v-icon name="edit" size="16" viewbox="32"/></span>
+      <span><legacy-icon name="edit" size="16" viewbox="32"/></span>
       Manage Tags
     </div>
     <div class="add-button" @click="addTagButton()" v-if="showAddTagButton()">
-      <span><v-icon name="plus2" size="16" viewbox="16"/></span>
+      <span><legacy-icon name="plus2" size="16" viewbox="16"/></span>
       Add Tag
     </div>
     </div>

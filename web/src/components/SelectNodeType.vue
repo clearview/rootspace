@@ -6,7 +6,7 @@
       @click="$emit('select', 'novadoc')"
     >
       <div class="SelectNodeType-icon">
-        <v-icon
+        <legacy-icon
           name="menu-document"
           size="24px"
           viewbox="24"
@@ -19,7 +19,7 @@
       </div>
 
       <span class="arrow">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"
@@ -33,7 +33,7 @@
       @click="$emit('select', 'task')"
     >
       <div class="SelectNodeType-icon">
-        <v-icon
+        <legacy-icon
           name="menu-task"
           size="24px"
           viewbox="24"
@@ -46,7 +46,7 @@
       </div>
 
       <span class="arrow">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"
@@ -60,7 +60,7 @@
       @click="$emit('select', 'folder')"
     >
       <div class="SelectNodeType-icon">
-        <v-icon
+        <legacy-icon
           name="menu-folder"
           size="24px"
           viewbox="24"
@@ -73,7 +73,7 @@
       </div>
 
       <span class="arrow">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"
@@ -87,7 +87,7 @@
       @click="$emit('select', 'embed')"
     >
       <div class="SelectNodeType-icon">
-        <v-icon
+        <legacy-icon
           name="menu-embed"
           size="24px"
           viewbox="24"
@@ -101,7 +101,7 @@
       </div>
 
       <span class="arrow">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"
@@ -115,7 +115,7 @@
       @click="$emit('select', 'link')"
     >
       <div class="SelectNodeType-icon">
-        <v-icon
+        <legacy-icon
           name="menu-link"
           size="24px"
           viewbox="24"
@@ -128,7 +128,7 @@
       </div>
 
       <span class="arrow">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"

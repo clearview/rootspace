@@ -8,7 +8,7 @@
     <div>
       <div class="message">
         <span v-if="!value.noicon" class="mr-1">
-          <v-icon
+          <legacy-icon
             name="warning"
             size="1.5em"
           />

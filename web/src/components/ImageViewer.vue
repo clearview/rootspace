@@ -14,7 +14,7 @@
   >
       <div class="task-modal-body">
         <span class="close" @click="close">
-          <v-icon
+          <legacy-icon
             name="close"
             title="Close"
             size="32"
@@ -24,7 +24,7 @@
         <div class="image-container">
           <div class="image-nav">
               <span class="previous" @click="prev">
-                <v-icon
+                <legacy-icon
                   name="left"
                   size="40px"
                   viewbox="40"
@@ -44,14 +44,14 @@
                 >
                 <div v-else class="others-file">
                   <span class="file">
-                    <v-icon
+                    <legacy-icon
                       name="file-document"
                       size="100px"
                       viewbox="120"
                     />
                   </span>
                   <span class="download-file pointer" @click="open(images[index].path)">
-                    <v-icon
+                    <legacy-icon
                       name="download"
                       size="16px"
                       viewbox="16"
@@ -62,7 +62,7 @@
               </div>
 
               <span class="next" @click="next">
-                <v-icon
+                <legacy-icon
                   name="right"
                   size="40px"
                   viewbox="40"
@@ -79,7 +79,7 @@
             <Popover :z-index="2001" :offset="10" :with-close="false" position="right-start" class="modal-action">
               <template #default="{ hide: topHide }">
                 <div class="action-line">
-                  <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
+                  <legacy-icon class="action-icon" name="download" viewbox="16" size="16px"></legacy-icon>
                   <div class="action-line-text" @click="open(images[index].location)">
                     Download
                   </div>
@@ -104,7 +104,7 @@
                   </template>
                   <template #trigger="{ visible }">
                     <div class="action-line danger" :class="{'btn-link-primary': visible}">
-                      <v-icon name="archive" viewbox="16" size="16px"></v-icon>
+                      <legacy-icon name="archive" viewbox="16" size="16px"></legacy-icon>
                       <div class="action-line-text">
                         Delete
                       </div>
@@ -114,7 +114,7 @@
               </template>
               <template #trigger="{ visible }">
                 <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-                  <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+                  <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
                 </button>
               </template>
             </Popover>

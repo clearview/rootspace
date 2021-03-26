@@ -4,7 +4,7 @@
       <ul class="list">
         <li class="item" v-for="item in items" :key="item.value" @click="input(item.value, slotApi)">
           <div class="icon">
-            <v-icon v-if="item.icon " :name="item.icon"/>
+            <legacy-icon v-if="item.icon " :name="item.icon"/>
           </div>
           <div class="label">
             {{item.label}}

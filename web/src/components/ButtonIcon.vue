@@ -8,7 +8,7 @@
     }"
     v-on="$listeners"
   >
-    <v-icon
+    <legacy-icon
       class="icon"
       :name="name"
       :size="size"

@@ -1,7 +1,7 @@
 <template>
   <div class="image-placeholder">
     <img :src="src" alt="">
-    <v-icon class="loading" name="loading" size="64" viewbox="100"></v-icon>
+    <legacy-icon class="loading" name="loading" size="64" viewbox="100"></legacy-icon>
   </div>
 </template>
 

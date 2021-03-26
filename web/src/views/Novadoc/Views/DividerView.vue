@@ -3,7 +3,7 @@
     <div class="divider-view" :class="{selected}">
       <NovadocMenu v-show="selected && view.editable" class="menu">
         <NovadocMenuButton @click="remove">
-          <v-icon name="trash-archive" viewbox="16" size="16"></v-icon>
+          <legacy-icon name="trash-archive" viewbox="16" size="16"></legacy-icon>
           Delete
         </NovadocMenuButton>
       </NovadocMenu>

@@ -8,7 +8,7 @@
           </slot>
 
           <div class="close" @click="close">
-            <icon name="close" size="24" />
+            <v-icon name="close" size="24" />
           </div>
         </div>
 
@@ -24,12 +24,8 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api'
-import Icon from '@/components/icon/Icon.vue'
 
 export default defineComponent({
-  components: {
-    Icon
-  },
   props: {
     title: String,
     size: Number

@@ -19,14 +19,14 @@
           <Popover :z-index="1001" :with-close="false" position="bottom-start">
             <template #default="{ hide }">
               <div class="action-line" @click="hide();enterEditMode()">
-                <v-icon name="edit"></v-icon>
+                <legacy-icon name="edit"></legacy-icon>
                 <div class="action-line-text">
                   Edit
                 </div>
               </div>
               <div class="action-separator"></div>
               <div class="action-line danger" @click="hide();deleteCommentActionConfirm()">
-                <v-icon name="trash"></v-icon>
+                <legacy-icon name="trash"></legacy-icon>
                 <div class="action-line-text">
                   Delete
                 </div>
@@ -34,7 +34,7 @@
             </template>
             <template #trigger="{ visible }">
               <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-                <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+                <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
               </button>
             </template>
           </Popover>

@@ -19,12 +19,12 @@
       }"
       @click.stop.prevent="toggleFold"
     >
-      <v-icon name="down2" viewbox="16" />
+      <legacy-icon name="down2" viewbox="16" />
     </div>
 
     <div class="tree-node-label overflow-hidden" >
       <div class="tree-node-icon">
-        <v-icon viewbox="16" :name="iconName" />
+        <legacy-icon viewbox="16" :name="iconName" />
       </div>
       <label-editable
         class="tree-node-text truncate"
@@ -39,19 +39,19 @@
       <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event" v-if="value.contentId !== 0">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
-            <v-icon class="action-icon" name="plus3" viewbox="16" size="16px"></v-icon>
+            <legacy-icon class="action-icon" name="plus3" viewbox="16" size="16px"></legacy-icon>
             <div class="action-line-text">
               Add new
             </div>
           </div>
           <div v-if="!isFavorited && !isFolder" class="action-line" @click.prevent.stop="hide();addToFavorites();">
-            <v-icon class="action-icon" name="star" size="16px"></v-icon>
+            <legacy-icon class="action-icon" name="star" size="16px"></legacy-icon>
             <div class="action-line-text">
               Add to Favorites
             </div>
           </div>
           <div v-if="isFavorited" class="action-line" @click.prevent.stop="hide();removeFromFavorites();">
-            <v-icon class="action-icon" name="remove-circle" size="16px"></v-icon>
+            <legacy-icon class="action-icon" name="remove-circle" size="16px"></legacy-icon>
             <div class="action-line-text">
               Remove from Favorites
             </div>
@@ -59,19 +59,19 @@
           <div>
             <div class="action-separator"></div>
             <div class="action-line" @click.prevent.stop="hide();rename();">
-              <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+              <legacy-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></legacy-icon>
               <div class="action-line-text">
                 Rename
               </div>
             </div>
             <div class="action-line" v-if="canEdit" @click.prevent.stop="hide();updateContent();">
-              <v-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></v-icon>
+              <legacy-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></legacy-icon>
               <div class="action-line-text">
                 Edit
               </div>
             </div>
             <div class="action-line" @click.prevent.stop="hide();archive()">
-              <v-icon class="action-icon" name="archive" viewbox="16" size="16px"></v-icon>
+              <legacy-icon class="action-icon" name="archive" viewbox="16" size="16px"></legacy-icon>
               <div class="action-line-text">
                 Archive
               </div>
@@ -80,7 +80,7 @@
         </template>
         <template #trigger="{ visible }">
           <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-            <v-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
+            <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
           </button>
         </template>
       </Popover>

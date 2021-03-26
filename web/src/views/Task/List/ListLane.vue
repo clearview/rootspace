@@ -10,10 +10,10 @@
     <div class="lane" v-show="!isInputtingNewLane">
       <header class="header">
         <div class="btn-header drag">
-          <v-icon name="drag" size="20px" viewbox="20"></v-icon>
+          <legacy-icon name="drag" size="20px" viewbox="20"></legacy-icon>
         </div>
         <div class="btn-header expand" :class="{'expanded': isExpanded}" @click="toggleExpand">
-          <v-icon name="down" size="20px"></v-icon>
+          <legacy-icon name="down" size="20px"></legacy-icon>
         </div>
         <div class="btn-header">
           <div class="dot" :style="{background: list.settings.color}"></div>
@@ -23,20 +23,20 @@
         <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
         <div class="list-actions-edit" v-if="isEditingLane">
           <button class="btn btn-link btn-edit" @click="cancel">
-            <v-icon name="close" size="20px" title="Close"/>
+            <legacy-icon name="close" size="20px" title="Close"/>
           </button>
           <button class="btn btn-primary btn-edit" :disabled="!canSave" @click="save">Save</button>
         </div>
         <Popover top="38px" :with-close="false" @trigger="handleMenuTrigger">
           <template #default="{ hide }">
             <div class="action-line">
-              <v-icon class="action-icon" name="color" viewbox="18" size="18px"></v-icon>
+              <legacy-icon class="action-icon" name="color" viewbox="18" size="18px"></legacy-icon>
               <div class="action-line-text">Color</div>
-              <v-icon name="right2" viewbox="20" size="20px" class="action-arrow"></v-icon>
+              <legacy-icon name="right2" viewbox="20" size="20px" class="action-arrow"></legacy-icon>
               <div class="action-submenu">
                 <div class="colors">
                   <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color);hide()">
-                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
+                    <span class="icon-checkmark" v-if="list.settings.color === color"><legacy-icon size="1.2rem" name="checkmark" viewbox="18" /></span>
                   </div>
                   <div class="color-default" @click="selectColor(defaultColor);hide()">
                     Default
@@ -46,7 +46,7 @@
             </div>
             <div class="action-separator"></div>
             <div class="action-line danger" @click="hide();handleMenu('archive')">
-              <v-icon name="archive" viewbox="16" size="18px"></v-icon>
+              <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
               <div class="action-line-text">
                 Archive
               </div>
@@ -54,7 +54,7 @@
           </template>
           <template #trigger="{ visible }">
             <button class="btn btn-link-primary" :class="{'btn-link-primary': visible}">
-              <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+              <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
             </button>
           </template>
         </Popover>
@@ -92,7 +92,6 @@ import { uniq } from 'lodash'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
 import Collapsible from '@/components/Collapsible.vue'
-import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
@@ -110,7 +109,6 @@ import ListCard from '@/views/Task/List/ListCard.vue'
     ListAddCardButton,
     PopoverList,
     Popover,
-    Icon,
     Draggable
   },
   validations: {

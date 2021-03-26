@@ -1,7 +1,7 @@
 <template>
   <div>
     <a class="add-list  mb-4" @click="$emit('link')">
-      <v-icon
+      <legacy-icon
         name="link"
         size="3.5em"
         class="icon-list"
@@ -14,7 +14,7 @@
     </a>
 
     <a class="add-list mb-4" @click="$emit('document')">
-      <v-icon
+      <legacy-icon
         name="file"
         size="3.5em"
         class="icon-list"
@@ -27,7 +27,7 @@
     </a>
 
     <a class="add-list" @click="$emit('task')">
-      <v-icon
+      <legacy-icon
         name="edit"
         size="3.5em"
         class="icon-list"

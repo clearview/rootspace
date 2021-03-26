@@ -20,7 +20,7 @@
           </ul>
           <div class="action-lists">
             <span v-if="state === 'notifications'" @click="markAllSeen">
-              <v-icon
+              <legacy-icon
                 name="checkmark2"
                 size="20px"
                 viewbox="20"
@@ -55,7 +55,7 @@
               </template>
               <template #trigger="{ visible }">
                 <span :class="{'btn-link-primary': visible}">
-                  <v-icon
+                  <legacy-icon
                     name="filter2"
                     size="20px"
                     viewbox="20"
@@ -75,7 +75,7 @@
             <ActivityList v-for="notif in notifications" :activity="notif" :key="notif.id" @click.native="markRead(notif, hide)"></ActivityList>
             <div class="view-more" v-if="!peakNotif">
               <div class="view-more-content" @click="loadMoreNotifications">
-              <v-icon class="more-icon" name="down" viewbox="32" size="20px"></v-icon>
+              <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
               <span class="more-label">
                 View More
               </span>
@@ -89,7 +89,7 @@
             <ActivityList v-for="act in activities" :activity="act" :key="act.id" @click.native="shouldHide(act, hide)"></ActivityList>
             <div class="view-more" v-if="!peakAct">
               <div class="view-more-content" @click="loadMoreActivities">
-              <v-icon class="more-icon" name="down" viewbox="32" size="20px"></v-icon>
+              <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
               <span class="more-label">
                 View More
               </span>
@@ -101,7 +101,7 @@
     </template>
     <template #trigger="{ visible }">
       <span class="sidebar-icon">
-        <v-icon
+        <legacy-icon
           name="grid"
           size="16px"
           viewbox="16"
@@ -113,7 +113,7 @@
         <span class="dot" v-if="showDot"></span>
       </span>
       <span class="more-menu collapse-hidden" :class="{'btn-link-primary': visible}">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"

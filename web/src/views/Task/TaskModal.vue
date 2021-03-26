@@ -22,14 +22,14 @@
             class="btn btn-icon"
             @click="close"
           >
-            <v-icon viewbox="20" size="1rem" name="close2" title="Close"/>
+            <legacy-icon viewbox="20" size="1rem" name="close2" title="Close"/>
           </button>
         </div>
       </div>
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
       <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
-        <v-icon
+        <legacy-icon
           name="upload"
           size="32px"
           viewbox="32"
@@ -44,8 +44,8 @@
           <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <div class="actions">
             <button class="btn btn-mute" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-              <v-icon v-if="!isUploading" name="attachment" viewbox="20" size="1rem"/>
-              <v-icon v-else name="loading" size="1rem" viewbox="100" />
+              <legacy-icon v-if="!isUploading" name="attachment" viewbox="20" size="1rem"/>
+              <legacy-icon v-else name="loading" size="1rem" viewbox="100" />
 
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
@@ -53,7 +53,7 @@
             <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="tag" size="1rem" viewbox="20"/>
+                  <legacy-icon name="tag" size="1rem" viewbox="20"/>
                   <span>Tag</span>
                 </button>
               </template>
@@ -61,7 +61,7 @@
             <DueDatePopover :initial-date="itemCopy.dueDate ? new Date(itemCopy.dueDate) : new Date()" @input="handleDateMenu" @clear="handleDateClear">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
-                  <v-icon name="time" size="1rem" viewbox="20"/>
+                  <legacy-icon name="time" size="1rem" viewbox="20"/>
                   <span>Due Date</span>
                 </button>
               </template>
@@ -71,7 +71,7 @@
         <div class="task-description">
           <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true">
             <span class="description-title-placeholder">Description</span>
-            <v-icon name="edit" size="1rem" viewbox="32"/>
+            <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
           <div
             :class="{
@@ -106,7 +106,7 @@
           </ul>
           <div v-if="item.attachments.length > 5">
             <p class="show-attachments" @click="attachmentState()">
-              <v-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
+              <legacy-icon :name="iconAttachmentState" size="25px" viewbox="32"/>
               {{ textAttachmentState }}
             </p>
           </div>
@@ -158,7 +158,7 @@
                     <template v-slot:trigger>
                       <li class="addmember-button" content="Add Member" v-tippy>
                         <span>
-                          <v-icon name="plus2" size="1rem" viewbox="16"/>
+                          <legacy-icon name="plus2" size="1rem" viewbox="16"/>
                         </span>
                       </li>
                     </template>
@@ -185,7 +185,7 @@
           <div class="right-field-title">Actions</div>
           <div class="right-field-content">
             <button class="archive-button" @click="archiveTask(itemCopy.id)">
-              <v-icon name="archive" viewbox="18" size="1rem"/>
+              <legacy-icon name="archive" viewbox="18" size="1rem"/>
               <span>Archive</span>
             </button>
           </div>
