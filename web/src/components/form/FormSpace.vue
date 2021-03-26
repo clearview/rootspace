@@ -99,8 +99,10 @@
         :key="'l-' + indexList"
       >
         <div class="flex flex-grow">
-          <avatar :size="32" :src="list.avatar && list.avatar.versions ? list.avatar.versions.default.location : ''"  :username="memberName(list)"></avatar>
-          <span class="text-gray-900 self-center email">{{ list.email }}</span>
+          <div class="flex cursor-pointer" @click="openProfile(list)">
+            <avatar :size="32" :src="list.avatar && list.avatar.versions ? list.avatar.versions.default.location : ''"  :username="memberName(list)"></avatar>
+            <span class="text-gray-900 self-center email">{{ list.email }}</span>
+          </div>
           <div class="self-center" v-if="list.accepted == false">
 
             <span class="pending">PENDING</span>
@@ -159,12 +161,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Inject, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
 import { SpaceResource, UserResource } from '@/types/resource'
 import Alert from '@/components/Alert.vue'
 import VField from '@/components/Field.vue'
 import Avatar from 'vue-avatar'
+import { ProfileModal, ModalInjectedContext } from '@/components/modal'
 
 @Component({
   name: 'FormSpace',
@@ -207,6 +210,9 @@ export default class FormSpace extends Vue {
 
     @Prop({ type: Object })
     private readonly alert!: any;
+
+    @Inject('modal')
+    modal!: ModalInjectedContext
 
     get activeSpace () {
       return this.$store.getters['space/activeSpace'] || {}
@@ -309,6 +315,16 @@ export default class FormSpace extends Vue {
       }
 
       return member.email
+    }
+
+    openProfile (user: UserResource) {
+      console.log(user)
+      this.modal.open({
+        component: ProfileModal,
+        attrs: {
+          userId: user.id
+        }
+      })
     }
 }
 
