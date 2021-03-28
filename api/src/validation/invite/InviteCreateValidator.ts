@@ -1,4 +1,4 @@
-import { BaseValidator } from '../BaseValidator'
+import { BaseValidator } from '../../root/validation/BaseValidator'
 
 export class InviteCreateValidator extends BaseValidator {
   rules() {

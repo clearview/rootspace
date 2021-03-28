@@ -21,6 +21,7 @@ import {
   EntityService,
   UserSettingService,
   TaskCommentService,
+  ContentAccessService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -172,6 +173,10 @@ export class ServiceFactory {
 
   getEntityService() {
     return EntityService.getInstance()
+  }
+
+  getContentAccessService() {
+    return ContentAccessService.getInstance()
   }
 
   private initNodeContentServices() {

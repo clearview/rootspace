@@ -1,5 +1,5 @@
 import { validations } from 'indicative/validator'
-import { BaseValidator } from '../BaseValidator'
+import { BaseValidator } from '../../root/validation/BaseValidator'
 import { DocAccess } from '../../types/doc'
 
 export class DocCreateValidator extends BaseValidator {
