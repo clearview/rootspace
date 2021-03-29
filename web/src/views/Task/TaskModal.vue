@@ -164,7 +164,7 @@
                     </template>
                   </MemberPopover>
                 <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
-                  <avatar :size="28" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
+                  <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
             </div>
