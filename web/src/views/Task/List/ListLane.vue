@@ -10,7 +10,7 @@
     <div class="lane" v-show="!isInputtingNewLane">
       <header class="header">
         <div class="btn-header drag">
-          <legacy-icon name="drag" size="20px" viewbox="20"></legacy-icon>
+          <mono-icon name="drag" />
         </div>
         <div class="btn-header expand" :class="{'expanded': isExpanded}" @click="toggleExpand">
           <legacy-icon name="down" size="20px"></legacy-icon>
@@ -75,7 +75,7 @@
         </main>
         <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane">
           <ListAddCardButton  @click="addCard">
-            Add new Task
+            Add Card
           </ListAddCardButton>
         </footer>
       </Collapsible>
@@ -578,7 +578,7 @@ export default class TaskLane extends Vue {
   opacity:0.5;
 }
 .ghost-floating {
-  @apply shadow shadow-xl;
+  @apply shadow-xl;
   background: #F8F9FD;
   opacity: 1 !important;
 }
@@ -592,7 +592,7 @@ export default class TaskLane extends Vue {
 }
 
 .drag-block {
-  @apply p-2 fixed z-50 rounded shadow shadow-lg;
+  @apply p-2 fixed z-50 rounded shadow-lg;
   animation: shake 0.5s ease, fadeOut 0.5s 2.5s ease-out;
   background: theme("colors.danger.default");
   color: #fff;

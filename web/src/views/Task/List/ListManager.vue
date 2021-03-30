@@ -120,8 +120,9 @@ export default class ListManager extends Vue {
   }
 
   .list-manager {
-    padding: 40px 20px;
+    /* padding: 40px 20px; */
   }
+
   .list-lane-draggable {
     margin-bottom: 38px;
   }

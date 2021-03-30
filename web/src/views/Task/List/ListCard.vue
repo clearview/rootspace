@@ -18,9 +18,8 @@
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="drag">
-        <legacy-icon name="drag" size="20px" viewbox="20"></legacy-icon>
+        <mono-icon name="drag" />
       </div>
-      <div class="color"></div>
       <div class="card-item" ref="cardItem">
           <div class="title" ref="title">
             {{item.title}}
@@ -493,16 +492,6 @@ export default class ListCard extends Vue {
     }
   }
 
-  .color {
-    @apply rounded;
-    margin-left: 8px;
-    background: theme("colors.gray.100");
-    width: 3px;
-    height: auto;
-    align-self: stretch;
-    flex: 0 0 auto;
-  }
-
   .card-item {
     @apply text-base flex flex-row items-center;
     margin-left: 8px;
@@ -592,7 +581,7 @@ export default class ListCard extends Vue {
   }
 
   .drag-block {
-    @apply p-2 fixed z-50 rounded shadow shadow-lg;
+    @apply p-2 fixed z-50 rounded shadow-lg;
     animation: shake 0.5s ease, fadeOut 0.5s 2.5s ease-out;
     background: theme("colors.danger.default");
     color: #fff;
