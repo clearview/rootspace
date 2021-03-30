@@ -1428,7 +1428,7 @@ export default {
   background: #fff;
   z-index: 1;
   width: 100%;
-  border-bottom: solid 1px transparent;
+  border-bottom: solid 1px #E0E2E7;
   padding: 12px 24px;
   box-sizing: border-box;
   align-items: center;
@@ -1509,7 +1509,7 @@ export default {
   margin: auto;
   flex: 1 1 auto;
   height: 100%;
-  padding: 96px 0;
+  padding: 40px 0;
   overflow-y: scroll;
   position: relative;
 }
@@ -1635,10 +1635,10 @@ export default {
 }
 
 .editor-title-input {
-  color: #202225;
+  color: #2C2B35;
   font-weight: bold;
-  font-size: 24px;
-  line-height: 29px;
+  font-size: 36px;
+  line-height: 43px;
   outline: none;
   border: none;
   margin-bottom: 24px;
@@ -1695,10 +1695,6 @@ export default {
 
 .ProseMirror > .ProseMirror-yjs-cursor:first-child {
   margin-top: 16px;
-}
-
-.ProseMirror p:first-child, .ProseMirror h1:first-child, .ProseMirror h2:first-child, .ProseMirror h3:first-child, .ProseMirror h4:first-child, .ProseMirror h5:first-child, .ProseMirror h6:first-child {
-  margin-top: 16px
 }
 
 .ProseMirror-yjs-cursor {
@@ -1779,6 +1775,11 @@ export default {
     & + p {
       margin-top: 8px;
     }
+    & + h1,
+    & + h2,
+    & + h3 {
+      margin-top: 40px;
+    }
   }
 
   br {
@@ -1790,10 +1791,18 @@ export default {
     ul {
       list-style: circle;
     }
+    & + ul,
+    & + ol {
+      margin-top: 40px;
+    }
   }
 
   ol {
     list-style: decimal;
+    & + ul,
+    & + ol {
+      margin-top: 40px;
+    }
   }
 
   ul {
@@ -1920,6 +1929,7 @@ export default {
     display: flex;
     flex-direction: row;
     margin: 8px 0;
+    padding-left: 0;
 
     & {
       margin-bottom: 0;
@@ -1931,8 +1941,7 @@ export default {
     height: 20px;
     width: 20px;
     box-sizing: border-box;
-    margin-right: 10px;
-    margin-top: 2px;
+    margin-right: 8px;
     user-select: none;
     -webkit-user-select: none;
     cursor: pointer;
@@ -2017,7 +2026,7 @@ export default {
     border-radius: 12px;
     font-size: 16px;
     color: #e5e4ec;
-    margin: 12px 0;
+    margin: 40px 0;
 
     .hljs {
       display: block;
