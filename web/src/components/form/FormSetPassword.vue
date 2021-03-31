@@ -45,7 +45,7 @@
         id="repeatpassword"
         type="password"
         placeholder="Enter new password again"
-        v-model.trim="$v.payload.password_confirmation.$model"
+        v-model.trim="$v.payload.passwordConfirmation.$model"
       />
         <v-icon
           class="icon is-right"
@@ -53,9 +53,9 @@
           size="1.5em"
         />
 
-      <template #feedback v-if="$v.payload.password_confirmation.$error">
+      <template #feedback v-if="$v.payload.passwordConfirmation.$error">
         <p
-          v-if="!$v.payload.password_confirmation.sameAsPassword"
+          v-if="!$v.payload.passwordConfirmation.sameAsPassword"
           class="feedback is-danger"
         >
           Passwords must be identical.
@@ -94,7 +94,7 @@ import { Component, Vue } from 'vue-property-decorator'
         required,
         minLength: minLength(8)
       },
-      password_confirmation: {
+      passwordConfirmation: {
         required,
         minLength: minLength(8),
         sameAsPassword: sameAs('password')
@@ -106,7 +106,7 @@ export default class FormSetPassword extends Vue {
   private payload: PasswordResetResource = {
     token: '',
     password: '',
-    password_confirmation: ''
+    passwordConfirmation: ''
   }
 
   private redirectTo: any = null

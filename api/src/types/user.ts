@@ -3,7 +3,7 @@ export interface ISignupProvider {
   lastName: string
   email: string
   password?: string
-  password_confirmation?: string
+  passwordConfirmation?: string
   authProvider: string
   active: boolean
   emailConfirmed?: boolean

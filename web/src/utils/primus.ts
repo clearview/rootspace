@@ -2,8 +2,8 @@ export const Client = (window as any).Primus
 export const PrimusClient = (window as any).Primus
 
 export type PrimusPayload = string | {
-  type: string
-  [key: string]: any
+  type: string;
+  [key: string]: any;
 }
 
 type CallbackFn = (data: PrimusPayload) => void

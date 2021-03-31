@@ -136,7 +136,7 @@ export interface SignupResource {
   lastName: string;
   email: string;
   password: string;
-  password_confirmation: string; // eslint-disable-line
+  passwordConfirmation: string; // eslint-disable-line
 }
 
 export interface SigninResource {
@@ -147,18 +147,18 @@ export interface SigninResource {
 export interface PasswordResource {
   password: string;
   newPassword: string;
-  newPassword_confirmation: string; // eslint-disable-line
+  newPasswordConfirmation: string; // eslint-disable-line
 }
 
 export interface PasswordResetResource {
   token: string;
   password: string;
-  password_confirmation: string; // eslint-disable-line
+  passwordConfirmation: string; // eslint-disable-line
 }
 
 export interface Invite {
-  email: string,
-  role: number
+  email: string;
+  role: number;
 }
 
 export interface SpaceResource {
