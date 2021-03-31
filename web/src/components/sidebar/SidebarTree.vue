@@ -145,7 +145,7 @@
       @confirm="modalConfirm"
     >
       <div class="modal-body text-center">
-        Are you sure you want to archive this item?
+        Are you sure you want to archive <span class="font-semibold">{{ modal.data }}</span>?
       </div>
     </modal>
   </div>
@@ -614,7 +614,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   async archiveNode (path: number[], node: Node) {
     try {
-      await this.modalOpen(ModalType.Archive)
+      await this.modalOpen(ModalType.Archive, node.title)
 
       this.$refs.tree.removeNodeByPath(path)
       this.treeData = this.$refs.tree.cloneTreeData()
