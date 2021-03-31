@@ -9,16 +9,16 @@
         @input="titleBackbone = $event.target.innerText" @paste="handlePaste">{{itemCopy.title}}</div>
       <div class="item-actions">
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">
-          <v-icon name="checkmark" size="14px" viewbox="12 9" title="Checkmark"/>
+          <legacy-icon name="checkmark" size="14px" viewbox="12 9" title="Checkmark"/>
         </button>
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="20px" title="Close"/>
+          <legacy-icon name="close" size="20px" title="Close"/>
         </button>
       </div>
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="drag">
-        <v-icon name="drag" size="20px" viewbox="20"></v-icon>
+        <legacy-icon name="drag" size="20px" viewbox="20"></legacy-icon>
       </div>
       <div class="color"></div>
       <div class="card-item" ref="cardItem">
@@ -41,10 +41,10 @@
             {{ formatDate(itemCopy.dueDate) }}
           </div>
           <div class="icon icon-attachment" v-show="item.attachments && item.attachments.length > 0" ref="attachment">
-            <v-icon name="attachment" viewbox="20" size="20" :withTitle="false" content="Attachment(s)" v-tippy/>
+            <legacy-icon name="attachment" viewbox="20" size="20" :withTitle="false" content="Attachment(s)" v-tippy/>
           </div>
           <div class="icon icon-comment" v-show="item.taskComments.length > 0" ref="comment">
-            <v-icon name="message" viewbox="20" size="20" :withTitle="false" content="Comment(s)" v-tippy/>
+            <legacy-icon name="message" viewbox="20" size="20" :withTitle="false" content="Comment(s)" v-tippy/>
           </div>
           <ul class="assignees" v-show="item.assignees && item.assignees.length > 0" ref="assignees">
             <li v-if="moreAssignees" class="assignee">

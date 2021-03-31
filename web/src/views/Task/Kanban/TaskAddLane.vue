@@ -1,7 +1,7 @@
 <template>
   <div class="task-add-lane">
     <button class="add-lane-button" @click="$emit('click')">
-      <v-icon class="add-lane-button-icon" name="plus" size="1.5rem"/>
+      <legacy-icon class="add-lane-button-icon" name="plus" size="1.5rem"/>
       <span class="add-lane-button-label">Add Another List</span>
     </button>
   </div>
@@ -9,14 +9,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 
-  @Component({
-    name: 'TaskAddLane',
-    components: {
-      Icon
-    }
-  })
+@Component({
+  name: 'TaskAddLane'
+})
 export default class TaskAddLane extends Vue {
 }
 </script>

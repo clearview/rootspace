@@ -28,8 +28,9 @@
         </div>
       </template>
     </v-field>
-    <v-field id="team-field" label="Team" name="team" has-addon has-icon-left>
-      <v-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+
+    <v-field label="Team" name="team" id="team-field" has-addon has-icon-left>
+      <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
       <input
         type="email"
         class="input"
@@ -123,7 +124,7 @@
           </select>
         </div>
         <span class="close-icon" v-if="currentUser.email !== list.email" @click="deleteInvitation(indexList, list.email)">
-          <v-icon name="trash2" size="16px" title="Remove"/>
+          <legacy-icon name="close" size=".9em" viewbox="32" title="Remove"/>
         </span>
       </div>
 
@@ -142,7 +143,7 @@
           <option value="1">Member</option>
         </select>
         <span class="close-icon" @click="deleteInvitation(index, invitation)">
-          <v-icon name="trash2" size="16px" title="Remove"/>
+          <legacy-icon name="close" size=".9em" viewbox="32" title="Remove"/>
         </span>
       </div>
     </div>

@@ -5,14 +5,14 @@
       <div class="popover" :class="{borderless, 'set-top': withTop }" v-if="visible" ref="popover" :style="{zIndex: zIndex+1}">
         <header class="popover-header" v-if="title || withClose">
           <div v-if="backButton" @click="back">
-              <v-icon id="back-button" name="left" size="24px" viewbox="36"/>
+              <legacy-icon id="back-button" name="left" size="24px" viewbox="36"/>
           </div>
           <div class="popover-title" :class="{ pointer: backButton }" @click="back">
             {{title}}
           </div>
           <div class="popover-close" v-if="withClose">
             <button class="btn btn-icon" @click.stop="hide">
-              <v-icon name="close2" size="1rem" viewbox="20" title="Close"/>
+              <legacy-icon name="close2" size="1rem" viewbox="20" title="Close"/>
             </button>
           </div>
         </header>

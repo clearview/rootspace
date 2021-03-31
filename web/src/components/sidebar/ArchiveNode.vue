@@ -26,7 +26,7 @@
             </template>
             <template #trigger="{ visible: subVisible }">
               <button class="delete-all-button" :class="{'active': subVisible}" v-if="archives.length > 0">
-                <v-icon class="delete-all-button-icon" name="trash" viewbox="30" size="20px"></v-icon>
+                <legacy-icon class="delete-all-button-icon" name="trash" viewbox="30" size="20px"></legacy-icon>
                 <span class="delete-all-button-text">
                   Delete everything permanently
                 </span>
@@ -59,7 +59,7 @@
     <template #trigger="{ visible }">
       <div class="archive-node" :class="{visible}" @click="loadArchive">
         <div class="archive-icon">
-          <v-icon
+          <legacy-icon
             name="trash-archive"
             size="16px"
             viewbox="16"

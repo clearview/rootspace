@@ -1,7 +1,7 @@
 <template>
   <v-modal :visible="loading" :noheader="true" :nofooter="true">
     <div class="modal-loading">
-      <v-icon class="icon-loading" name="loading" size="5em" viewbox="100"/>
+      <legacy-icon class="icon-loading" name="loading" size="5em" viewbox="100"/>
       <slot/>
     </div>
   </v-modal>

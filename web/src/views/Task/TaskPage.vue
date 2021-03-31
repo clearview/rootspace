@@ -9,7 +9,7 @@
       </h3>
       <div class="header-actions">
         <div class="action action-search">
-          <v-icon
+          <legacy-icon
             name="search"
             class="action-search-icon"
           />
@@ -37,7 +37,7 @@
                         <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}">
                           {{ option.label }}
                         </div>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.tags, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
+                        <span class="icon-checkmark"><legacy-icon v-if="idExistsOn(filters.tags, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option}">
@@ -61,7 +61,7 @@
                       <div class="member-option">
                         <avatar :src="option.avatar && option.avatar.versions ? option.avatar.versions.default.location : ''" :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
                         <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
-                        <span class="icon-checkmark"><v-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
+                        <span class="icon-checkmark"><legacy-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                       </div>
                     </template>
                     <template #selected-option-container="{ option }">
@@ -95,7 +95,7 @@
                 class="action-wrapper"
                 :class="{'active': visible}"
               >
-                <v-icon
+                <legacy-icon
                   name="filter"
                   class="action-filter-icon"
                   size="1.5em"
@@ -113,7 +113,7 @@
             </template>
             <div class="action action-type">
               <div @click="viewAsList">
-                <v-icon
+                <legacy-icon
                   name="list"
                   size="2.5em"
                   class="icon-circle"
@@ -121,7 +121,7 @@
                 />
               </div>
               <div @click="viewAsBoard">
-                <v-icon
+                <legacy-icon
                   name="kanban"
                   size="2.5em"
                   class="icon-circle"
@@ -144,7 +144,6 @@
 </template>
 
 <script lang="ts">
-import Icon from '@/components/icon/Icon.vue'
 import { Component, Mixins, Watch } from 'vue-property-decorator'
 import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
 import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
@@ -173,7 +172,6 @@ import EventBus from '@/utils/eventBus'
     ListGhost,
     TaskGhost,
     BoardManager,
-    Icon,
     Popover,
     VSelect,
     VField,

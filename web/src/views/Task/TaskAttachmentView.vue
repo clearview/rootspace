@@ -5,7 +5,7 @@
         <img :src="attachment.versions.thumbnail.location" :alt="attachment.id">
       </div>
       <div v-else class="attachment-media others">
-        <v-icon
+        <legacy-icon
           name="file"
           size="3.5em"
           class="SelectNodeType-icon"
@@ -22,7 +22,7 @@
       <Popover :z-index="1001" top="38px" :with-close="false" position="bottom-start">>
         <template #default>
           <div class="action-line">
-            <v-icon class="action-icon" name="download" viewbox="16" size="16px"></v-icon>
+            <legacy-icon class="action-icon" name="download" viewbox="16" size="16px"></legacy-icon>
             <div class="action-line-text" @click="open(attachment.location)">
               Download
             </div>
@@ -47,7 +47,7 @@
             </template>
             <template #trigger="{ visible }">
               <div class="action-line danger" :class="{'btn-link-primary': visible}">
-                <v-icon name="archive" viewbox="16" size="16px"></v-icon>
+                <legacy-icon name="archive" viewbox="16" size="16px"></legacy-icon>
                 <div class="action-line-text">
                   Delete
                 </div>
@@ -58,7 +58,7 @@
         </template>
         <template #trigger="{ visible }">
           <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-            <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+            <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
           </button>
         </template>
       </Popover>

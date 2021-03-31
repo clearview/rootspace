@@ -30,7 +30,7 @@
             class="btn add-button flex-grow"
             @click="toggleMenu()"
           >
-              <v-icon
+              <legacy-icon
                 :name="iconAddMenu"
                 size="16px"
                 viewbox="16"

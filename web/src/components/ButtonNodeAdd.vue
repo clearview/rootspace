@@ -4,7 +4,7 @@
       class="btn add-button flex-grow"
       @click="setModalVisible(true)"
     >
-      <v-icon
+      <legacy-icon
         name="plus2"
         size="16px"
         viewbox="16"

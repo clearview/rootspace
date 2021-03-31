@@ -24,7 +24,7 @@
         />
       </div>
       <span class="collapse-hidden">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"
@@ -97,7 +97,7 @@
           class="SelectSpace-create"
           @click="modal.visible = true"
         >
-          <v-icon name="plus2" size="16px" viewbox="16" class="icon" />
+          <legacy-icon name="plus2" size="16px" viewbox="16" class="icon" />
           <span>Add New Space</span>
         </button>
 
@@ -107,7 +107,7 @@
           class="SelectSpace-logout"
           @click="signout"
         >
-          <v-icon name="logout" size="16px" viewbox="16" class="icon" />
+          <legacy-icon name="logout" size="16px" viewbox="16" class="icon" />
           <span>Logout</span>
         </button>
       </div>
