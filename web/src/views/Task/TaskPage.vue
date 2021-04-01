@@ -10,29 +10,41 @@
 
       <div class="actions">
         <div class="action-group">
-          <div class="action action--search">
+          <div
+            class="action action--search"
+            :class="{ 'action__active': searchVisible }"
+            @click="searchVisible = true"
+          >
             <mono-icon
               name="search"
               class="action--icon"
             />
-            <!--
-            <div class="action--body">
+
+            <div
+              v-if="searchVisible"
+              class="action--body"
+            >
               <input
                 type="text"
-                class="action--search--input"
                 placeholder="Search"
                 v-model="search"
-                @keypress.enter="fetchTask"
+                @keydown.esc="closeSearch"
               >
+
+              <button
+                class="action--search--close"
+                @click.stop="closeSearch"
+              >
+                <mono-icon name="close" />
+              </button>
             </div>
-            -->
           </div>
         </div>
         <div class="action-group">
           <div
             class="action action--filter"
-            :class="{ 'action__active': showFilter }"
-            @click="showFilter = !showFilter"
+            :class="{ 'action__active': filterVisible }"
+            @click="filterVisible = !filterVisible"
           >
             <mono-icon
               name="filter"
@@ -95,14 +107,17 @@
     </header>
 
     <filter-bar
-      v-if="showFilter"
+      v-if="filterVisible"
       v-model="filters"
       :member-list="memberList"
       :tag-list="tags"
       @input="(x) => filters = x"
     />
 
-    <div class="view--kanban" v-if="isKanban">
+    <div
+      class="view--kanban"
+      v-if="isKanban"
+    >
       <TaskGhost
         v-if="isFetching"
         active
@@ -114,7 +129,10 @@
       />
     </div>
 
-    <div class="view--list" v-else>
+    <div
+      class="view--list"
+      v-else
+    >
       <ListGhost
         v-if="isFetching"
         active
@@ -180,7 +198,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private memberList: Array<UserResource> = []
   private isSearching = false
   private isFetching = false
-  private showFilter = false
+  private filterVisible = false
+  private searchVisible = false
 
   @Watch('boardId')
   async getSpaceMember () {
@@ -269,6 +288,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     await this.fetchTask()
   }
 
+  closeSearch () {
+    this.search = ''
+    this.searchVisible = false
+  }
+
   idExistsOn (array: number[], id: number) {
     return array.findIndex(v => v === id) !== -1
   }
@@ -352,6 +376,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   @Watch('filters')
+  @Watch('search')
   @debounce(500)
   async watchFilters () {
     await this.fetchTask()
@@ -408,18 +433,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   border-left: 1px solid #dee2ee;
 }
 
-.action-group--search {
-  @apply flex flex-row items-center;
-}
+.action-group--view {
+  >>> .target {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+  }
 
-.action-group--filter {
-  @apply flex flex-row items-center py-2;
-}
-
-.action-group--view >>> .target {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
+  .action__active {
+    background: #444754;
+    color: white;
+  }
 }
 
 .action {
@@ -456,9 +480,31 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   font-size: 20px;
 }
 
-.action-group--view .action__active {
-  background: #444754;
-  color: white;
+.action--search {
+  &.action__active {
+    width: 304px;
+    box-shadow: 0 0 2px 2px #8cd5ff;
+    border-radius: 4px;
+    background: white;
+    color: #444754;
+  }
+
+  input {
+    width: 100%;
+    outline: none;
+  }
+
+  .action--body {
+    display: flex;
+    flex-flow: row;
+    position: relative;
+    width: 100%;
+    z-index: 110;
+  }
+
+  .action--search--close {
+    outline: none;
+  }
 }
 
 .view--kanban {
