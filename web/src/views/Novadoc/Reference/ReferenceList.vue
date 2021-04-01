@@ -2,7 +2,7 @@
   <div class="cloak" @click.self="$emit('cancel')">
     <ul class="reference-list" :style="{top: coords.top+'px', left: coords.left + 5 + 'px'}">
       <li class="reference-search">
-        <v-icon name="search" size="16px" class="search-icon"></v-icon>
+        <legacy-icon name="search" size="16px" class="search-icon"></legacy-icon>
         <input type="text" v-model="search" placeholder="Search" ref="search" @keydown="handleKeypress"/>
       </li>
       <div class="scrollview">
@@ -16,7 +16,7 @@
                 :class="{selected: index === selectedIndex && groupIndex === selectedGroupIndex}"
                 @click="$emit('confirm', reference)">
               <div class="icon">
-                <v-icon viewbox="16" :name="getIcon(reference.type)"/>
+                <legacy-icon viewbox="16" :name="getIcon(reference.type)"/>
               </div>
               <div class="label">{{ reference.title }}
               </div>

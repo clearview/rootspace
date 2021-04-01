@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row flex-1">
-    <v-icon
+    <legacy-icon
       :name="icon"
       size="1.5em"
       class="text-gray-400"

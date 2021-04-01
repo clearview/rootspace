@@ -1,7 +1,7 @@
 <template>
   <layout-public>
     <div class="flex flex-col items-center justify-center h-full">
-      <v-icon class="icon-loading" name="loading" size="5em" viewbox="100"/>
+      <legacy-icon class="icon-loading" name="loading" size="5em" viewbox="100"/>
     </div>
   </layout-public>
 </template>

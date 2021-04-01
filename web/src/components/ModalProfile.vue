@@ -2,7 +2,7 @@
   <portal to="default">
     <div class="modal">
       <div class="p-4 bg-white rounded-lg" v-if="loading">
-        <Icon v-if="loading" name="loading" size="5em" viewbox="100"/>
+        <v-icon v-if="loading" name="loading" size="5em" viewbox="100"/>
       </div>
 
       <div class="modal-inner" v-else>
@@ -33,18 +33,16 @@
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import Avatar from 'vue-avatar'
-import { ActivityResource, UserResource } from '@/types/resource.ts'
-import SpaceMixin from '@/mixins/SpaceMixin.ts'
-import ActivityService from '@/services/activity.ts'
+import { ActivityResource, UserResource } from '@/types/resource'
+import SpaceMixin from '@/mixins/SpaceMixin'
+import ActivityService from '@/services/activity'
 import Activities from '@/components/Activities.vue'
-import Icon from '@/components/icon/Icon.vue'
 import UserService from '@/services/user'
 
 @Component({
   components: {
     Avatar,
-    Activities,
-    Icon
+    Activities
   },
   filters: {
     showFullName (user: UserResource) {

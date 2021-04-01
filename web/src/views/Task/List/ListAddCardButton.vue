@@ -1,20 +1,16 @@
 <template>
   <button class="add-card-button" @click="$emit('click')">
-    <v-icon class="add-card-button-icon" name="plus" size="20px"/>
+    <legacy-icon class="add-card-button-icon" name="plus" size="20px"/>
     <span class="add-card-button-label"><slot></slot></span>
   </button>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 
-  @Component({
-    name: 'ListAddCardButton',
-    components: {
-      Icon
-    }
-  })
+@Component({
+  name: 'ListAddCardButton'
+})
 export default class ListAddCardButton extends Vue {
 }
 </script>

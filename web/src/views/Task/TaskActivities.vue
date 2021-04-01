@@ -3,7 +3,7 @@
     <TaskActivity v-for="act in limitedActivities" :activity="act" :key="act.id"></TaskActivity>
     <div class="view-more" v-if="hasMore">
       <div class="view-more-content" @click="addLimit">
-      <v-icon class="more-icon" name="down" viewbox="32" size="20px"></v-icon>
+      <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
       <span class="more-label">
         View More
       </span>

@@ -13,9 +13,9 @@
       <div class="flex justify-center mb-4">
         <div class="email-success">
           <span class="email">
-            <v-icon name="email-success" size="56px" viewbox="56" />
+            <legacy-icon name="email-success" size="56px" viewbox="56" />
           </span>
-          <span class="checkmark"><v-icon size="16" name="checkmark" viewbox="12" /></span>
+          <span class="checkmark"><legacy-icon size="16" name="checkmark" viewbox="12" /></span>
         </div>
       </div>
       <h2 class="text-center">Check your Email</h2>

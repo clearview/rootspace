@@ -7,7 +7,7 @@
              class="list-input-field"/>
       <div class="list-actions">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem" title="Close"/>
+          <legacy-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Add List</button>
       </div>
@@ -20,13 +20,13 @@
         <Popover top="38px" :with-close="false" @trigger="handleMenuTrigger">
           <template #default="{ hide }">
             <div class="action-line">
-              <v-icon class="action-icon" name="color" viewbox="18" size="18px"></v-icon>
+              <legacy-icon class="action-icon" name="color" viewbox="18" size="18px"></legacy-icon>
               <div class="action-line-text">Color</div>
-              <v-icon name="right2" viewbox="20" size="20px" class="action-arrow"></v-icon>
+              <legacy-icon name="right2" viewbox="20" size="20px" class="action-arrow"></legacy-icon>
               <div class="action-submenu">
                 <div class="colors">
                   <div class="color" v-for="color in colors" :key="color" :style="{background: color}" @click="selectColor(color);hide()">
-                    <span class="icon-checkmark" v-if="list.settings.color === color"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
+                    <span class="icon-checkmark" v-if="list.settings.color === color"><legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
                   </div>
                   <div class="color-default" @click="selectColor(defaultColor);hide()">
                     Default
@@ -36,7 +36,7 @@
             </div>
             <div class="action-separator"></div>
             <div class="action-line danger" @click="hide();handleMenu('archive')">
-              <v-icon name="archive" viewbox="16" size="18px"></v-icon>
+              <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
               <div class="action-line-text">
                 Archive
               </div>
@@ -44,14 +44,14 @@
           </template>
           <template #trigger="{ visible }">
             <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-              <v-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+              <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
             </button>
           </template>
         </Popover>
       </header>
       <div class="list-actions" v-if="isEditingLane">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem" title="Close"/>
+          <legacy-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button class="btn btn-primary" :disabled="!canSave" @click="save">Save</button>
       </div>
@@ -82,7 +82,6 @@
 import Draggable from 'vuedraggable'
 
 import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import TaskCard from '@/views/Task/Kanban/TaskCard.vue'
 import { required } from 'vuelidate/lib/validators'
@@ -99,7 +98,6 @@ import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/re
     Popover,
     TaskAddCard,
     TaskCard,
-    Icon,
     Draggable
   },
   validations: {

@@ -1,7 +1,7 @@
 <template>
   <div class="task-add-card">
     <button class="add-card-button" @click="$emit('click')">
-      <v-icon class="add-card-button-icon" name="plus" size="1.5rem"/>
+      <legacy-icon class="add-card-button-icon" name="plus" size="1.5rem"/>
       <span class="add-card-button-label">Add Card</span>
     </button>
   </div>
@@ -9,14 +9,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 
-  @Component({
-    name: 'TaskAddCard',
-    components: {
-      Icon
-    }
-  })
+@Component({
+  name: 'TaskAddCard'
+})
 export default class TaskAddCard extends Vue {
 }
 </script>

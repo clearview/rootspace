@@ -2,7 +2,7 @@
   <span class="reference-view">
     <router-link v-if="linkable" :to="to">
       <span class="icon">
-        <v-icon viewbox="16" :name="getIcon(type)"/>
+        <legacy-icon viewbox="16" :name="getIcon(type)"/>
       </span>
       <span class="label">
         {{ label }}
@@ -10,7 +10,7 @@
     </router-link>
     <template v-else>
       <span class="icon">
-        <v-icon viewbox="16" :name="getIcon(type)"/>
+        <legacy-icon viewbox="16" :name="getIcon(type)"/>
       </span>
       <span class="label">
         {{ label }}

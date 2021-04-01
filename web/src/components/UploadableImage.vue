@@ -6,9 +6,9 @@
     <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
     </slot>
     <div class="edit" v-if="!isUploadingImage" :style="{top: editOffset, right: editOffset}">
-      <v-icon name="edit2" size="18px" viewbox="18"></v-icon>
+      <legacy-icon name="edit2" size="18px" viewbox="18"></legacy-icon>
     </div>
-    <v-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage"/>
+    <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage"/>
   </div>
 </template>
 

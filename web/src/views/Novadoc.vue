@@ -57,22 +57,22 @@
           <div class="menu-separator"></div>
           <button class="menu menu-big" :class="{ 'active': isActive.bold() }" :disabled="!canBeBold(isActive, focused)"
                   @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
-            <v-icon name="bold" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="bold" viewbox="16" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.italic() }" :disabled="!canBeItalic(isActive, focused)"
                   @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
-            <v-icon name="italic" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="italic" viewbox="16" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.underline() }"
                   :disabled="!canBeUnderline(isActive, focused)"
                   @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
-            <v-icon name="underline" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="underline" viewbox="16" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.strike() }"
                   :disabled="!canBeStrikethrough(isActive, focused)" @click="commands.strike"
                   v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
             <span>
-              <v-icon name="strike" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="strike" viewbox="16" size="16"></legacy-icon>
             </span>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.code() }" :disabled="!canBeInlineCode(isActive, focused)"
@@ -88,7 +88,7 @@
             <template #options="{select, hide}">
               <MenuGroupOption @click="select('Left');hide();commands.paragraph({align: 'left'})">
                 <template #icon>
-                  <v-icon name="align-left" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="align-left" viewbox="16" size="16"></legacy-icon>
                 </template>
                 <template #label>
                   Left
@@ -96,7 +96,7 @@
               </MenuGroupOption>
               <MenuGroupOption @click="select('Center');hide();commands.paragraph({align: 'center'})">
                 <template #icon>
-                  <v-icon name="align-center" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="align-center" viewbox="16" size="16"></legacy-icon>
                 </template>
                 <template #label>
                   Center
@@ -104,7 +104,7 @@
               </MenuGroupOption>
               <MenuGroupOption @click="select('Right');hide();commands.paragraph({align: 'right'})">
                 <template #icon>
-                  <v-icon name="align-right" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="align-right" viewbox="16" size="16"></legacy-icon>
                 </template>
                 <template #label>
                   Right
@@ -124,15 +124,15 @@
           <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
           :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
             <template #default>
-              <v-icon name="text-color" viewbox="16" size="16"
-                      :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+              <legacy-icon name="text-color" viewbox="16" size="16"
+                      :style="{ color: getMarkAttrs('text_color').color }"></legacy-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-blocks text-color-blocks">
                 <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                      :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
                      @click="select(textColor.color);hide();commands.text_color({color: textColor.color})">
-                  <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                  <legacy-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></legacy-icon>
                 </div>
               </div>
             </template>
@@ -140,8 +140,8 @@
           <MenuGroup big value="#000" :disabled="!canBeBgColored(isActive, focused)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
                      :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
             <template #default>
-              <v-icon name="highlight" viewbox="16" size="16"
-                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+              <legacy-icon name="highlight" viewbox="16" size="16"
+                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></legacy-icon>
             </template>
             <template #options="{select, hide}">
               <div class="color-combo-title">
@@ -163,7 +163,7 @@
           <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
                   :disabled="!canBeConvertedToList(isActive, focused)"
                   @click="commands.ordered_list();" v-tippy="{ placement : 'top',  arrow: true }" content="Numbered List">
-            <v-icon name="ordered-list" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="ordered-list" viewbox="16" size="16"></legacy-icon>
           </button>
           <div class="menu-separator"></div>
           <button class="menu menu-big" :class="{ 'active': getCurrentActiveNode(2) === 'todo_list' }"
@@ -178,7 +178,7 @@
           <MenuGroup big :value="getMarkAttrs('link').href" :disabled="!canBeLinked(isActive, focused)" :show-arrow="false"
                      v-tippy="{ placement : 'top',  arrow: true }" content="Link">
             <template #default>
-              <v-icon name="link2" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="link2" viewbox="16" size="16"></legacy-icon>
             </template>
             <template #options="{ hide }">
               <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
@@ -186,7 +186,7 @@
           </MenuGroup>
           <button class="menu menu-big" :class="{ 'active': isActive.reference() }" :disabled="!canInsertReference(isActive, focused)"
                   @click="insertReference(commands)" v-tippy="{ placement : 'top',  arrow: true }" content="Reference">
-            <v-icon name="reference-link" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="reference-link" viewbox="16" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big" :class="{ 'active': isActive.divider() }" :disabled="!canInsertLine(isActive, focused)"
                   @click="commands.divider" v-tippy="{ placement : 'top',  arrow: true }" content="Horizontal line">
@@ -195,7 +195,7 @@
           <button class="menu menu-big" :class="{ 'active': isActive.blockquote() }"
                   :disabled="!canBeConvertedToQuote(isActive, focused)"
                   @click="commands.blockquote" v-tippy="{ placement : 'top',  arrow: true }" content="Blockquote">
-            <v-icon viewbox="16" name="quote" size="16"></v-icon>
+            <legacy-icon viewbox="16" name="quote" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big no-margin" :class="{ 'active': isActive.code_block() }"
                   :disabled="!canBeConvertedToCodeBlock(isActive, focused)"
@@ -208,33 +208,33 @@
             @click="commands.createTable({rowsCount: 3, colsCount: 3, withHeaderRow: false })"
             v-tippy="{ placement : 'top',  arrow: true }" content="Table"
           >
-            <v-icon name="table" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="table" viewbox="16" size="16"></legacy-icon>
           </button>
           <div class="menu-separator"></div>
           <button class="menu menu-big" @click="commands.undo" v-tippy="{ placement : 'top',  arrow: true }" content="Undo"
           :disabled="!canUndo()">
-            <v-icon name="undo" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="undo" viewbox="16" size="16"></legacy-icon>
           </button>
           <button class="menu menu-big" @click="commands.redo" v-tippy="{ placement : 'top',  arrow: true }" content="Redo"
           :disabled="!canRedo()">
-            <v-icon name="redo" viewbox="16" size="16"></v-icon>
+            <legacy-icon name="redo" viewbox="16" size="16"></legacy-icon>
           </button>
         </div>
       </editor-menu-bar>
       <div class="editor-context-menu" v-show="doc">
         <div class="lock-indicator" v-if="readOnly">
-          <v-icon name="lock"></v-icon>
+          <legacy-icon name="lock"></legacy-icon>
         </div>
         <Popover :z-index="1001" :with-close="false" position="bottom-start" borderless>
           <template #default="{ hide }">
             <div class="action-line" @click="hide();showHistory()">
-              <v-icon name="history" viewbox="20"></v-icon>
+              <legacy-icon name="history" viewbox="20"></legacy-icon>
               <div class="action-line-text">
                 History
               </div>
             </div>
             <div class="action-line" @click="hide();toggleReadOnly()">
-              <v-icon name="lock"></v-icon>
+              <legacy-icon name="lock"></legacy-icon>
               <div class="action-line-text" v-if="readOnly">
                 Unlock
               </div>
@@ -244,7 +244,7 @@
             </div>
             <div class="action-separator"></div>
             <div class="action-line danger" @click="hide();deleteNovadoc()">
-              <v-icon name="trash-archive" viewbox="16"></v-icon>
+              <legacy-icon name="trash-archive" viewbox="16"></legacy-icon>
               <div class="action-line-text">
                 Delete
               </div>
@@ -252,7 +252,7 @@
           </template>
           <template #trigger="{ visible }">
             <button class="menu-btn btn btn-link" :class="{'btn-link-primary': visible}">
-              <v-icon name="vertical-ellipsis" viewbox="20" size="16px"/>
+              <legacy-icon name="vertical-ellipsis" viewbox="20" size="16px"/>
             </button>
           </template>
         </Popover>
@@ -268,18 +268,18 @@
               <div class="bubble-wrap">
                 <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
                   <template #default>
-                    <v-icon name="link-edit" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></v-icon>
+                    <legacy-icon name="link-edit" viewbox="16" size="16" v-tippy="{ placement : 'top',  arrow: true }" content="Edit Link"></legacy-icon>
                   </template>
                   <template #options="{ hide }">
                     <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
                   </template>
                 </MenuGroup>
                 <NovadocMenuButton @click="commands.link({})" v-tippy="{ placement : 'top',  arrow: true }" content="Unlink" no-margin>
-                  <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
                 </NovadocMenuButton>
                 <NovadocMenuSeparator></NovadocMenuSeparator>
                 <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
-                  <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="open-link" viewbox="16" size="16"></legacy-icon>
                 </NovadocMenuButton>
               </div>
             </div>
@@ -287,20 +287,20 @@
             <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
               <button class="menu" :class="{ 'active': isActive.bold() }" v-if="canBeBold(isActive, true)"
                       @click="commands.bold" v-tippy="{ placement : 'top',  arrow: true }" content="Bold">
-                <v-icon name="bold" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="bold" viewbox="16" size="16"></legacy-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.italic() }" v-if="canBeItalic(isActive, true)"
                       @click="commands.italic" v-tippy="{ placement : 'top',  arrow: true }" content="Italic">
-                <v-icon name="italic" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="italic" viewbox="16" size="16"></legacy-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.underline() }" v-if="canBeUnderline(isActive, true)"
                       @click="commands.underline" v-tippy="{ placement : 'top',  arrow: true }" content="Underline">
-                <v-icon name="underline" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="underline" viewbox="16" size="16"></legacy-icon>
               </button>
               <button class="menu" :class="{ 'active': isActive.strike() }" v-if="canBeStrikethrough(isActive, true)"
                       @click="commands.strike" v-tippy="{ placement : 'top',  arrow: true }" content="Strikethrough">
               <span>
-                <v-icon name="strike" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="strike" viewbox="16" size="16"></legacy-icon>
               </span>
               </button>
               <button class="menu" :class="{ 'active': isActive.code() }" v-if="canBeInlineCode(isActive, true)"
@@ -310,15 +310,15 @@
               <MenuGroup value="#000" v-if="canBeTextColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Text Color"
                          :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''">
                 <template #default>
-                  <v-icon name="text-color" viewbox="16" size="16"
-                          :style="{ color: getMarkAttrs('text_color').color }"></v-icon>
+                  <legacy-icon name="text-color" viewbox="16" size="16"
+                          :style="{ color: getMarkAttrs('text_color').color }"></legacy-icon>
                 </template>
                 <template #options="{select, hide}">
                   <div class="color-blocks text-color-blocks">
                     <div v-for="textColor in textColors" :key="textColor.color" class="color-block"
                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
                          @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()">
-                      <v-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></v-icon>
+                      <legacy-icon v-if="textColor.color === getMarkAttrs('text_color').color" name="checkmark3" viewbox="16" size="16" class="check" :style="{color: blackOrWhite(textColor.color)}"></legacy-icon>
                     </div>
                   </div>
                 </template>
@@ -326,8 +326,8 @@
               <MenuGroup value="#000" v-if="canBeBgColored(isActive, true)" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Highlight Color"
               :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''" no-margin>
                 <template #default>
-                  <v-icon name="highlight" viewbox="16" size="16"
-                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></v-icon>
+                  <legacy-icon name="highlight" viewbox="16" size="16"
+                          :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"></legacy-icon>
                 </template>
                 <template #options="{select, hide}">
                   <div class="color-combo-title">
@@ -344,8 +344,8 @@
               <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false" v-tippy="{ placement : 'top',  arrow: true }" content="Link"
                 v-if="canBeLinked(isActive, true)">
                 <template #default>
-                  <v-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></v-icon>
-                  <v-icon v-else   name="link2" viewbox="16" size="16"></v-icon>
+                  <legacy-icon name="edit2" viewbox="16" size="12" v-if="isActive.link()"></legacy-icon>
+                  <legacy-icon v-else   name="link2" viewbox="16" size="16"></legacy-icon>
                 </template>
                 <template #options="{ hide }">
                   <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();" :value="getMarkAttrs('link').href"></NovadocLinkInput>
@@ -353,11 +353,11 @@
               </MenuGroup>
               <NovadocMenuButton @click="commands.link({})" v-if="isActive.link()"  v-tippy="{ placement : 'top',  arrow: true }" content="Unlink"
                                  no-margin>
-                <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
               </NovadocMenuButton>
               <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
               <NovadocMenuButton @click="openLink(getMarkAttrs('link').href)" v-if="isActive.link()" v-tippy="{ placement : 'top',  arrow: true }" :content="getMarkAttrs('link').href">
-                <v-icon name="open-link" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="open-link" viewbox="16" size="16"></legacy-icon>
               </NovadocMenuButton>
             </div>
           </div>

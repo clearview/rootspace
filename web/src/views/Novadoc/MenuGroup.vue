@@ -6,7 +6,7 @@
         <slot :value="value"></slot>
       </div>
       <div class="icon" v-if="showArrow">
-        <v-icon name="down2" viewbox="16" size="16"></v-icon>
+        <legacy-icon name="down2" viewbox="16" size="16"></legacy-icon>
       </div>
     </div>
     <div class="options-cloak" v-show="visible" @click="hide"></div>
