@@ -73,15 +73,20 @@
     </div>
 
     <div class="filter-actions">
-      <button class="filter-action" @click="clearAll">
-        <mono-icon name="close" /> <span>Remove All</span>
+      <button
+        class="filter-action"
+        @click="clearAll"
+        :disabled="fieldsEmpty"
+      >
+        <mono-icon name="close" />
+        <span>Remove All</span>
       </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from '@vue/composition-api'
+import { computed, defineComponent, PropType, ref, watchEffect } from '@vue/composition-api'
 
 import { InlineModal } from '@/components/modal'
 import MemberChips from './MemberChips.vue'
@@ -113,18 +118,33 @@ export default defineComponent({
       default: () => ([])
     }
   },
-  setup () {
+  setup (props, { emit }) {
     const memberSelected = ref<UserResource[]>([])
     const tagSelected = ref<TagResource[]>([])
+    const fieldsEmpty = computed(() => (
+      memberSelected.value.length === 0 &&
+      tagSelected.value.length === 0
+    ))
 
     const clearAll = () => {
       memberSelected.value = []
       tagSelected.value = []
     }
 
+    watchEffect(() => {
+      const tags = tagSelected.value.map(x => x.id)
+      const assignees = memberSelected.value.map(x => x.id)
+
+      emit('input', {
+        tags,
+        assignees
+      })
+    })
+
     return {
       memberSelected,
       tagSelected,
+      fieldsEmpty,
       clearAll
     }
   }
@@ -214,9 +234,16 @@ export default defineComponent({
   display: flex;
   flex-flow: row;
   align-items: center;
+  font-weight: 700;
+  stroke-width: 2px;
 
   &:focus {
     outline: none;
+  }
+
+  &:disabled {
+    color: #95959A;
+    cursor: default;
   }
 
   span {

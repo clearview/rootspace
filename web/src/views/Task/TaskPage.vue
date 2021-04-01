@@ -99,6 +99,7 @@
       v-model="filters"
       :member-list="memberList"
       :tag-list="tags"
+      @input="(x) => filters = x"
     />
 
     <div class="view--kanban" v-if="isKanban">
@@ -129,25 +130,27 @@
 
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
-import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
-import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
-import Popover from '@/components/Popover.vue'
+import { debounce } from 'helpful-decorators'
 import VSelect from 'vue-select'
-import SpaceService from '@/services/space'
 import Avatar from 'vue-avatar'
+
+import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
+
+import SpaceService from '@/services/space'
+import SpaceMixin from '@/mixins/SpaceMixin'
+import PageMixin from '@/mixins/PageMixin'
+import { TaskSettings } from '@/store/modules/task/settings'
+import EventBus from '@/utils/eventBus'
+import FilterBar from './FilterBar.vue'
+
+import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
+import ListManager from '@/views/Task/List/ListManager.vue'
+import Popover from '@/components/Popover.vue'
 import TaskGhost from '@/components/TaskGhost.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-
-import SpaceMixin from '@/mixins/SpaceMixin'
-import PageMixin from '@/mixins/PageMixin'
 import ListGhost from '@/components/ListGhost.vue'
-import { TaskSettings } from '@/store/modules/task/settings'
 import Tip from '@/components/Tip.vue'
-import ListManager from '@/views/Task/List/ListManager.vue'
-import FilterBar from './FilterBar.vue'
-
-import EventBus from '@/utils/eventBus'
 
 @Component({
   name: 'TaskPage',
@@ -346,6 +349,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     const getBgPosition = this.colors.indexOf(bgColor)
 
     return textColor[getBgPosition]
+  }
+
+  @Watch('filters')
+  @debounce(500)
+  async watchFilters () {
+    await this.fetchTask()
   }
 }
 </script>

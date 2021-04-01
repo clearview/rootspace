@@ -74,7 +74,7 @@ export default defineComponent({
     ))
 
     const getUsername = (member: UserResource) => (
-      member.firstName + ' ' + member.lastName
+      (member.firstName + ' ' + member.lastName).trim()
     )
 
     const isSelected = (member: UserResource) => (
