@@ -28,7 +28,6 @@
         <mono-icon
           v-if="isSelected(tag)"
           name="check"
-          class="member-check"
         />
       </div>
     </div>

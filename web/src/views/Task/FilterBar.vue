@@ -7,26 +7,29 @@
     <div class="filter-fields">
       <div class="filter-field">
         <mono-icon name="user" />
-        <member-chips
-          v-if="memberSelected.length > 0"
-          class="filter-field-value"
-          :list="memberSelected"
-        />
         <inline-modal>
-          <button class="filter-field-add">
-            <mono-icon name="plus" />
-          </button>
-
-          <template #modal>
-            <member-select
-              v-model="memberSelected"
-              :list="memberList"
+          <template #trigger="{ active }">
+            <member-chips
+              v-if="!isEmpty(memberSelected)"
+              class="filter-field-value"
+              :list="memberSelected"
             />
+            <button
+              class="filter-field-add"
+              :class="{ active }"
+            >
+              <mono-icon name="plus" />
+            </button>
           </template>
+
+          <member-select
+            v-model="memberSelected"
+            :list="memberList"
+          />
         </inline-modal>
 
         <button
-          v-if="memberSelected.length > 0"
+          v-if="!isEmpty(memberSelected)"
           class="filter-field-clear"
           @click="memberSelected = []"
         >
@@ -36,27 +39,30 @@
 
       <div class="filter-field">
         <mono-icon name="tag" />
-        <tag-chips
-          v-if="tagSelected.length > 0"
-          class="filter-field-value"
-          :list="tagSelected"
-        />
         <inline-modal>
-          <button class="filter-field-add">
-            <mono-icon name="plus" />
-          </button>
-
-          <template #modal>
-            <tag-select
-              v-model="tagSelected"
-              :list="tagList"
-              :selected="tagSelected"
+          <template #trigger="{ active }">
+            <tag-chips
+              v-if="!isEmpty(tagSelected)"
+              class="filter-field-value"
+              :list="tagSelected"
             />
+            <button
+              class="filter-field-add"
+              :class="{ active }"
+            >
+              <mono-icon name="plus" />
+            </button>
           </template>
+
+          <tag-select
+            v-model="tagSelected"
+            :list="tagList"
+            :selected="tagSelected"
+          />
         </inline-modal>
 
         <button
-          v-if="tagSelected.length > 0"
+          v-if="!isEmpty(tagSelected)"
           class="filter-field-clear"
           @click="tagSelected = []"
         >
@@ -66,8 +72,32 @@
 
       <div class="filter-field">
         <mono-icon name="calendar" />
-        <button class="filter-field-add">
-          <mono-icon name="plus" />
+        <inline-modal>
+          <template #trigger="{ active }">
+            <div
+              v-if="!isEmpty(dateSelected)"
+              class="filter-field-value"
+            >
+              {{dateSelected.label}}
+            </div>
+            <button
+              v-if="isEmpty(dateSelected)"
+              class="filter-field-add"
+              :class="{ active }"
+            >
+              <mono-icon name="plus" />
+            </button>
+          </template>
+
+          <date-select v-model="dateSelected" />
+        </inline-modal>
+
+        <button
+          v-if="!isEmpty(dateSelected)"
+          class="filter-field-clear"
+          @click="dateSelected = []"
+        >
+          <mono-icon name="close" />
         </button>
       </div>
     </div>
@@ -87,12 +117,14 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType, ref, watchEffect } from '@vue/composition-api'
+import { isEmpty } from 'lodash'
 
 import { InlineModal } from '@/components/modal'
 import MemberChips from './MemberChips.vue'
 import MemberSelect from './MemberSelect.vue'
 import TagChips from './TagChips.vue'
 import TagSelect from './TagSelect.vue'
+import DateSelect from './DateSelect.vue'
 
 import { TagResource, UserResource } from '@/types/resource'
 
@@ -103,7 +135,8 @@ export default defineComponent({
     MemberChips,
     MemberSelect,
     TagChips,
-    TagSelect
+    TagSelect,
+    DateSelect
   },
   props: {
     value: {
@@ -118,12 +151,15 @@ export default defineComponent({
       default: () => ([])
     }
   },
-  setup (props, { emit }) {
+  setup (_, { emit }) {
     const memberSelected = ref<UserResource[]>([])
     const tagSelected = ref<TagResource[]>([])
+    const dateSelected = ref({})
+
     const fieldsEmpty = computed(() => (
-      memberSelected.value.length === 0 &&
-      tagSelected.value.length === 0
+      isEmpty(memberSelected.value) &&
+      isEmpty(tagSelected.value) &&
+      isEmpty(dateSelected.value)
     ))
 
     const clearAll = () => {
@@ -144,8 +180,10 @@ export default defineComponent({
     return {
       memberSelected,
       tagSelected,
+      dateSelected,
       fieldsEmpty,
-      clearAll
+      clearAll,
+      isEmpty
     }
   }
 })
@@ -200,9 +238,15 @@ export default defineComponent({
   background-color: #edeff3;
   border-radius: 50%;
   stroke-width: 1.5px;
+  transition: all 300ms;
 
   &:focus {
     outline: none;
+  }
+
+  &.active {
+    background-color: #ddf3ff;
+    color: #146493;
   }
 }
 
@@ -242,7 +286,7 @@ export default defineComponent({
   }
 
   &:disabled {
-    color: #95959A;
+    color: #95959a;
     cursor: default;
   }
 

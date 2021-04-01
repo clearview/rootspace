@@ -2,19 +2,25 @@
   <div class="wrapper">
     <div
       class="trigger"
-      @click="show = true"
+      @click="active = true"
     >
-      <slot name="default" />
+      <slot
+        name="trigger"
+        :active="active"
+      />
     </div>
 
-    <div v-if="show" class="modal">
+    <div
+      v-if="active"
+      class="modal"
+    >
       <div :class="['modal-content', align]">
-        <slot name="modal" />
+        <slot name="default" />
       </div>
 
       <div
         class="modal-backdrop"
-        @click="show = false"
+        @click="active = false"
       />
     </div>
   </div>
@@ -32,10 +38,10 @@ export default defineComponent({
     }
   },
   setup () {
-    const show = ref(false)
+    const active = ref(false)
 
     return {
-      show
+      active
     }
   }
 })
@@ -64,6 +70,11 @@ export default defineComponent({
   &.right {
     transform: translateX(-100%);
   }
+}
+
+.trigger {
+  display: flex;
+  flex-flow: row;
 }
 
 .modal-backdrop {
