@@ -52,7 +52,6 @@ export default defineComponent({
 .chip {
   border: 2px solid #ffffff;
   border-radius: 50%;
-  width: width
 }
 
 .chip + .chip {

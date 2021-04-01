@@ -98,6 +98,7 @@
       v-if="showFilter"
       v-model="filters"
       :member-list="memberList"
+      :tag-list="tags"
     />
 
     <div class="view--kanban" v-if="isKanban">
@@ -176,7 +177,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private memberList: Array<UserResource> = []
   private isSearching = false
   private isFetching = false
-  private showFilter = true // TODO: change back to false
+  private showFilter = false
 
   @Watch('boardId')
   async getSpaceMember () {

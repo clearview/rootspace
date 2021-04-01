@@ -36,8 +36,31 @@
 
       <div class="filter-field">
         <mono-icon name="tag" />
-        <button class="filter-field-add">
-          <mono-icon name="plus" />
+        <tag-chips
+          v-if="tagSelected.length > 0"
+          class="filter-field-value"
+          :list="tagSelected"
+        />
+        <inline-modal>
+          <button class="filter-field-add">
+            <mono-icon name="plus" />
+          </button>
+
+          <template #modal>
+            <tag-select
+              v-model="tagSelected"
+              :list="tagList"
+              :selected="tagSelected"
+            />
+          </template>
+        </inline-modal>
+
+        <button
+          v-if="tagSelected.length > 0"
+          class="filter-field-clear"
+          @click="tagSelected = []"
+        >
+          <mono-icon name="close" />
         </button>
       </div>
 
@@ -50,7 +73,7 @@
     </div>
 
     <div class="filter-actions">
-      <button class="filter-action">
+      <button class="filter-action" @click="clearAll">
         <mono-icon name="close" /> <span>Remove All</span>
       </button>
     </div>
@@ -63,31 +86,46 @@ import { defineComponent, PropType, ref } from '@vue/composition-api'
 import { InlineModal } from '@/components/modal'
 import MemberChips from './MemberChips.vue'
 import MemberSelect from './MemberSelect.vue'
+import TagChips from './TagChips.vue'
+import TagSelect from './TagSelect.vue'
 
-import { UserResource } from '@/types/resource'
+import { TagResource, UserResource } from '@/types/resource'
 
 export default defineComponent({
   name: 'FilterBar',
   components: {
+    InlineModal,
     MemberChips,
     MemberSelect,
-    InlineModal
+    TagChips,
+    TagSelect
   },
   props: {
     value: {
       type: Object as PropType<Record<string, any>>
     },
     memberList: {
-      type: Array as PropType<UserResource[]>
+      type: Array as PropType<UserResource[]>,
+      default: () => ([])
+    },
+    tagList: {
+      type: Array as PropType<TagResource[]>,
+      default: () => ([])
     }
   },
   setup () {
-    const showSelectMember = ref(true)
     const memberSelected = ref<UserResource[]>([])
+    const tagSelected = ref<TagResource[]>([])
+
+    const clearAll = () => {
+      memberSelected.value = []
+      tagSelected.value = []
+    }
 
     return {
-      showSelectMember,
-      memberSelected
+      memberSelected,
+      tagSelected,
+      clearAll
     }
   }
 })
