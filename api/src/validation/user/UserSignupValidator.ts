@@ -12,7 +12,7 @@ export class UserSignupValidator extends BaseValidator {
         validations.dbUnique(['User', 'user', 'email']),
       ],
       password: 'required|min:8|confirmed|compromisedPassword',
-      password_confirmation: 'required|min:8',
+      passwordConfirmation: 'required|min:8',
     }
   }
 }

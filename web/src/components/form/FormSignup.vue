@@ -134,7 +134,7 @@
         id="repeatpassword"
         type="password"
         placeholder="Enter your password again"
-        v-model.trim="$v.payload.password_confirmation.$model"
+        v-model.trim="$v.payload.passwordConfirmation.$model"
       />
       <legacy-icon
         class="icon is-right"
@@ -142,9 +142,9 @@
         size="1.5em"
       />
 
-      <template #feedback v-if="$v.payload.password_confirmation.$error">
+      <template #feedback v-if="$v.payload.passwordConfirmation.$error">
         <p
-          v-if="!$v.payload.password_confirmation.sameAsPassword"
+          v-if="!$v.payload.passwordConfirmation.sameAsPassword"
           class="feedback is-danger"
         >
           Passwords must be identical.
@@ -184,7 +184,7 @@ import { Component, Vue } from 'vue-property-decorator'
         required,
         minLength: minLength(8)
       },
-      password_confirmation: { // eslint-disable-line
+      passwordConfirmation: { // eslint-disable-line
         required,
         minLength: minLength(8),
         sameAsPassword: sameAs('password')
@@ -198,7 +198,7 @@ export default class FormSignup extends Vue {
     lastName: '',
     email: '',
     password: '',
-    password_confirmation: '' // eslint-disable-line
+    passwordConfirmation: '' // eslint-disable-line
   }
 
   submit (): void {

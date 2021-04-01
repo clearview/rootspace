@@ -5,7 +5,7 @@ export class PasswordChangeValidator extends BaseValidator {
     return {
       password: 'required',
       newPassword: 'required|min:8|confirmed|compromisedPassword',
-      newPassword_confirmation: 'required|min:8',
+      newPasswordConfirmation: 'required|min:8',
     }
   }
 }

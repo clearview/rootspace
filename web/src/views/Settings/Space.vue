@@ -187,7 +187,7 @@ export default class Space extends Vue {
       const viewSpaceUsersPending = await SpaceService.spaceUsersPending(id)
 
       if (viewSpaceUsers.data) {
-        viewSpaceUsers.data = viewSpaceUsers.data.map((item: { id: number, userToSpace: { role: number } }) => {
+        viewSpaceUsers.data = viewSpaceUsers.data.map((item: { id: number; userToSpace: { role: number } }) => {
           return {
             ...item,
             role: item.userToSpace.role,
@@ -270,7 +270,7 @@ export default class Space extends Vue {
     this.invitesAlert = value
   }
 
-  async addSpaceUser ({ email, role }: { email: string, role: number }) {
+  async addSpaceUser ({ email, role }: { email: string; role: number }) {
     try {
       this.isLoading = true
       this.loadingMessage = 'Add user to space...'

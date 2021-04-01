@@ -21,8 +21,8 @@ export class ValidationError extends Error {
     email: 'Email',
     password: 'Password',
     newPassword: 'New Password',
-    newPassword_confirmation: 'New Password Confirmation', // eslint-disable-line
-    password_confirmation: 'Password Confirmation' // eslint-disable-line
+    newPasswordConfirmation: 'New Password Confirmation', // eslint-disable-line
+    passwordConfirmation: 'Password Confirmation' // eslint-disable-line
   }
 
   static parser: ValidationParser = {

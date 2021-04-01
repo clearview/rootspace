@@ -3,10 +3,10 @@ export interface IUserCreateAttributes {
   lastName: string
   email: string
   password: string
-  password_confirmation: string
+  passwordConfirmation: string
 }
 
-export type IUserUpdateAttributes = Omit<Partial<IUserCreateAttributes>, 'password' | 'password_confirmation'>
+export type IUserUpdateAttributes = Omit<Partial<IUserCreateAttributes>, 'password' | 'passwordConfirmation'>
 
 export interface IPasswordChangeAttributes {
   password: string
