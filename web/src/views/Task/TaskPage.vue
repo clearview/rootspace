@@ -94,43 +94,11 @@
       </div>
     </header>
 
-    <div
-      class="filter"
+    <filter-bar
       v-if="showFilter"
-    >
-      <div class="filter--header">
-        <strong>Filters:</strong>
-      </div>
-
-      <div class="filter--body">
-        <div class="filter--field">
-          <mono-icon name="user" />
-          <button class="filter--field--add">
-            <mono-icon name="plus" />
-          </button>
-        </div>
-
-        <div class="filter--field">
-          <mono-icon name="tag" />
-          <button class="filter--field--add">
-            <mono-icon name="plus" />
-          </button>
-        </div>
-
-        <div class="filter--field">
-          <mono-icon name="calendar" />
-          <button class="filter--field--add">
-            <mono-icon name="plus" />
-          </button>
-        </div>
-      </div>
-
-      <div class="filter--action">
-        <button class="filter--action--item">
-          <mono-icon name="close" /> <span>Remove All</span>
-        </button>
-      </div>
-    </div>
+      v-model="filters"
+      :member-list="memberList"
+    />
 
     <div class="view--kanban" v-if="isKanban">
       <TaskGhost
@@ -176,6 +144,7 @@ import ListGhost from '@/components/ListGhost.vue'
 import { TaskSettings } from '@/store/modules/task/settings'
 import Tip from '@/components/Tip.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
+import FilterBar from './FilterBar.vue'
 
 import EventBus from '@/utils/eventBus'
 
@@ -191,7 +160,8 @@ import EventBus from '@/utils/eventBus'
     VSelect,
     VField,
     ButtonSwitch,
-    Avatar
+    Avatar,
+    FilterBar
   }
 })
 export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
@@ -206,7 +176,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private memberList: Array<UserResource> = []
   private isSearching = false
   private isFetching = false
-  private showFilter = false
+  private showFilter = true // TODO: change back to false
 
   @Watch('boardId')
   async getSpaceMember () {
@@ -382,7 +352,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 <style lang="postcss" scoped>
 .board {
   @apply flex flex-col h-full;
-  /* padding: 24px; */
   flex: 1 1 0;
   width: 0;
 }
@@ -480,71 +449,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 .action-group--view .action__active {
   background: #444754;
   color: white;
-}
-
-.filter {
-  display: flex;
-  flex-flow: row;
-  padding-bottom: 16px;
-  margin-left: 72px;
-  margin-right: 24px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #e0e2e7;
-}
-
-.filter--header {
-  display: flex;
-  flex: initial;
-}
-
-.filter--body {
-  display: flex;
-  flex-flow: row;
-  flex: 1;
-  align-items: center;
-  padding: 0 24px;
-}
-
-.filter--field {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  font-size: 16px;
-}
-
-.filter--field + .filter--field {
-  margin-left: 24px;
-}
-
-.filter--field--add {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-left: 10px;
-  background-color: #EDEFF3;
-  border-radius: 50%;
-  stroke-width: 1.5px;
-  outline: none;
-}
-
-.filter--action {
-  display: flex;
-  flex-flow: row;
-  flex: initial;
-  padding-left: 18px;
-  border-left: 1px solid #e0e2e7;
-}
-
-.filter--action--item {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-
-  span {
-    margin-left: 8px;
-  }
 }
 
 .view--kanban {
