@@ -1,15 +1,15 @@
 <template>
   <div class="list-entry">
     <div class="drag-handle">
-      <v-icon name="drag" viewbox="20"/>
+      <legacy-icon name="drag" viewbox="20"/>
     </div>
     <div class="input-box">
       <input class="input-field" type="text" placeholder="e.g Design UI Components on Sunday  at 11am #Personal">
       <div class="input-actions">
-        <v-icon name="attachment" viewbox="24"/>
-        <v-icon name="tag" viewbox="24"/>
-        <v-icon name="time" viewbox="24"/>
-        <v-icon name="user2" viewbox="24"/>
+        <legacy-icon name="attachment" viewbox="24"/>
+        <legacy-icon name="tag" viewbox="24"/>
+        <legacy-icon name="time" viewbox="24"/>
+        <legacy-icon name="user2" viewbox="24"/>
       </div>
     </div>
     <div class="actions" v-if="withActions">
@@ -21,13 +21,9 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from 'vue-property-decorator'
-import Icon from '@/components/icon/Icon.vue'
 
   @Component({
-    name: 'TaskListItem',
-    components: {
-      Icon
-    }
+    name: 'TaskListItem'
   })
 export default class TaskListItem extends Vue {
     @Prop({ type: Boolean, default: false })

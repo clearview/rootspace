@@ -3,49 +3,49 @@
     <template v-if="isExpanded">
       <NovadocMenuButton @click="api.addRowAfter"
                          @mouseover.native="toggleAddRowPreview(true)" @mouseout.native="toggleAddRowPreview(false)">
-        <v-icon name="row-add" viewbox="18 16" size="16"></v-icon> <span>Row</span>
+        <legacy-icon name="row-add" viewbox="18 16" size="16"></legacy-icon> <span>Row</span>
         <template #hover>
-          <v-icon name="add-green" viewbox="16 16" size="16"></v-icon> <span>Row</span>
+          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon> <span>Row</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuButton @click="api.addColumnAfter" no-margin
                          @mouseover.native="toggleAddColPreview(true)" @mouseout.native="toggleAddColPreview(false)">
-        <v-icon name="column-add" viewbox="18 16" size="16"></v-icon> <span>Column</span>
+        <legacy-icon name="column-add" viewbox="18 16" size="16"></legacy-icon> <span>Column</span>
         <template #hover>
-          <v-icon name="add-green" viewbox="16 16" size="16"></v-icon> <span>Column</span>
+          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon> <span>Column</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton @click="api.deleteRow"
                          @mouseover.native="toggleDelRowPreview(true)" @mouseout.native="toggleDelRowPreview(false)">
-        <v-icon name="row-remove" viewbox="18 16" size="16"></v-icon> <span>Row</span>
+        <legacy-icon name="row-remove" viewbox="18 16" size="16"></legacy-icon> <span>Row</span>
         <template #hover>
-          <v-icon name="remove-red" viewbox="16 16" size="16"></v-icon> <span>Row</span>
+          <legacy-icon name="remove-red" viewbox="16 16" size="16"></legacy-icon> <span>Row</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuButton @click="api.deleteColumn" no-margin
                          @mouseover.native="toggleDelColPreview(true)" @mouseout.native="toggleDelColPreview(false)">
-        <v-icon name="column-remove" viewbox="18 16" size="16"></v-icon> <span>Column</span>
+        <legacy-icon name="column-remove" viewbox="18 16" size="16"></legacy-icon> <span>Column</span>
         <template #hover>
-          <v-icon name="remove-red" viewbox="16 16" size="16"></v-icon> <span>Column</span>
+          <legacy-icon name="remove-red" viewbox="16 16" size="16"></legacy-icon> <span>Column</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton @click="api.mergeCells" no-margin>
-        <v-icon name="merge" viewbox="16 16" size="16"></v-icon> <span>Merge</span>
+        <legacy-icon name="merge" viewbox="16 16" size="16"></legacy-icon> <span>Merge</span>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton @click="makeStriped" no-margin class="striped-button" :class="{active: striped}">
-        <v-icon name="striped" viewbox="16 16" size="16"></v-icon> <span>Striped</span>
+        <legacy-icon name="striped" viewbox="16 16" size="16"></legacy-icon> <span>Striped</span>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton @click="api.deleteTable" @mouseover.native="markDeletion(true)" @mouseout.native="markDeletion(false)">
-        <v-icon name="trash-archive" viewbox="16" size="16"></v-icon> <span>Delete</span>
+        <legacy-icon name="trash-archive" viewbox="16" size="16"></legacy-icon> <span>Delete</span>
       </NovadocMenuButton>
     </template>
     <NovadocMenuButton @click="toggleExpand">
-      <v-icon v-if="!isExpanded" name="left" viewbox="32" size="16"></v-icon>
-      <v-icon v-else name="close" viewbox="32" size="16"></v-icon>
+      <legacy-icon v-if="!isExpanded" name="left" viewbox="32" size="16"></legacy-icon>
+      <legacy-icon v-else name="close" viewbox="32" size="16"></legacy-icon>
     </NovadocMenuButton>
   </NovadocMenu>
 </template>

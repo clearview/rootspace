@@ -12,10 +12,10 @@
     <div class="task-modal-body">
       <div class="close">
         <button class="btn btn-icon" @click="open">
-          <v-icon name="file" viewbox="32"/>
+          <legacy-icon name="file" viewbox="32"/>
         </button>
         <button class="btn btn-icon" @click="close">
-          <v-icon name="close" title="Close"/>
+          <legacy-icon name="close" title="Close"/>
         </button>
       </div>
       <img :src="src" alt="" class="image">

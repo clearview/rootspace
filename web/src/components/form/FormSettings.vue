@@ -12,7 +12,7 @@
         placeholder="Enter your first name"
         v-model.trim="$v.payload.firstName.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="user"
         size="1.5em"
@@ -49,7 +49,7 @@
         placeholder="Enter your last name"
         v-model.trim="$v.payload.lastName.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="user"
         size="1.5em"
@@ -87,7 +87,7 @@
         placeholder="Enter your email"
         v-model.trim="$v.payload.email.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="email"
         size="1.5em"

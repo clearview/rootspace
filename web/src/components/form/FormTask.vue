@@ -10,7 +10,7 @@
           :class="{'active': isKanban}"
           @click="payload.type = boardTypeKanban"
         >
-          <v-icon
+          <legacy-icon
             name="kanban"
             size="20px"
             viewbox="32"
@@ -27,7 +27,7 @@
           :class="{'active': !isKanban}"
           @click="payload.type = boardTypeList"
         >
-          <v-icon
+          <legacy-icon
             name="list"
             size="20px"
             viewbox="32"

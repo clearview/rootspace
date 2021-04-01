@@ -6,7 +6,7 @@
     <div class="tip" ref="tip" v-show="active">
       <div class="arrow"></div>
       <button class="btn btn-icon close" @click="$emit('close')">
-        <v-icon name="close"></v-icon>
+        <legacy-icon name="close"></legacy-icon>
       </button>
       <slot name="tip"></slot>
     </div>

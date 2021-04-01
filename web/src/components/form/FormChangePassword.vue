@@ -13,7 +13,7 @@
         placeholder="Enter current password"
         v-model.trim="$v.payload.password.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="lock"
         size="1.5em"
@@ -47,7 +47,7 @@
         placeholder="Enter new password"
         v-model.trim="$v.payload.newPassword.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="lock"
         size="1.5em"
@@ -82,7 +82,7 @@
         placeholder="Enter new password again"
         v-model.trim="$v.payload.newPassword_confirmation.$model"
       />
-        <v-icon
+        <legacy-icon
           class="icon is-right"
           name="lock"
           size="1.5em"

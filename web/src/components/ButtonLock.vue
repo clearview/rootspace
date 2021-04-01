@@ -1,6 +1,6 @@
 <template>
   <button @click="toggle" class="btn">
-    <v-icon
+    <legacy-icon
       name="unlock"
       size="2em"
       viewbox="36"

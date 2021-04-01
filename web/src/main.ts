@@ -10,7 +10,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import VIcon from '@/components/icon/Icon.vue'
+import LegacyIcon from '@/components/legacy/icon/Icon.vue'
+import { ColorIcon, MonoIcon } from '@/components/icon'
 
 import 'tippy.js/themes/light.css'
 import 'tippy.js/themes/light-border.css'
@@ -31,7 +32,9 @@ Vue.use(VueTippy, {
 Vue.use(PortalVue)
 
 // Register components
-Vue.component('v-icon', VIcon)
+Vue.component('legacy-icon', LegacyIcon)
+Vue.component('color-icon', ColorIcon)
+Vue.component('mono-icon', MonoIcon)
 Vue.component('tippy', TippyComponent)
 
 // Register directive

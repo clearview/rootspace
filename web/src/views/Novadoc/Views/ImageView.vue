@@ -14,21 +14,21 @@
         </NovadocMenuButton>
         <NovadocMenuSeparator></NovadocMenuSeparator>
         <NovadocMenuButton :active="node.attrs.align === 'left'" @click="align('left')">
-          <v-icon name="image-left" viewbox="16" size="16"></v-icon>
+          <legacy-icon name="image-left" viewbox="16" size="16"></legacy-icon>
           <span>Left</span>
         </NovadocMenuButton>
         <NovadocMenuButton :active="node.attrs.align === 'center'" @click="align('center')">
-          <v-icon name="image-center" viewbox="16" size="16"></v-icon>
+          <legacy-icon name="image-center" viewbox="16" size="16"></legacy-icon>
           <span>Center</span>
         </NovadocMenuButton>
         <NovadocMenuButton :active="node.attrs.align === 'right'" @click="align('right')"
                            no-margin>
-          <v-icon name="image-right" viewbox="16" size="16"></v-icon>
+          <legacy-icon name="image-right" viewbox="16" size="16"></legacy-icon>
           <span>Right</span>
         </NovadocMenuButton>
         <NovadocMenuSeparator></NovadocMenuSeparator>
         <NovadocMenuButton @click="remove">
-          <v-icon name="trash-archive" viewbox="16" size="16"></v-icon> Delete
+          <legacy-icon name="trash-archive" viewbox="16" size="16"></legacy-icon> Delete
         </NovadocMenuButton>
       </NovadocMenu>
       <img :src="node.attrs.src" :alt="node.attrs.alt" :class="`novadoc-image`" @click.self="focus">

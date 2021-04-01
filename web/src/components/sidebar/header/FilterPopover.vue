@@ -8,7 +8,7 @@
             <div class="member-name flex" :class="{selected : isSelectedTag(member)}">
               <avatar :size="24" :src="member.avatar && member.avatar.versions ? member.avatar.versions.default.location : ''" :username="memberName(member)"></avatar>
               <span class="self-center">{{ memberName(member) }}</span>
-              <span class="icon-checkmark"><v-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
+              <span class="icon-checkmark"><legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
             </div>
           </li>
         </ul>

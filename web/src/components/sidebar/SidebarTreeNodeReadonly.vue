@@ -10,12 +10,12 @@
         'is-folded': false
       }"
     >
-      <v-icon name="down2" viewbox="16"/>
+      <legacy-icon name="down2" viewbox="16"/>
     </div>
 
     <div class="tree-node-label overflow-hidden">
       <div class="tree-node-icon">
-        <v-icon viewbox="16" :name="iconName"/>
+        <legacy-icon viewbox="16" :name="iconName"/>
       </div>
       <label-editable
         class="tree-node-text truncate"
@@ -24,10 +24,10 @@
     </div>
     <div class="actions">
         <button class="btn btn-icon" @click="restore" v-tippy="{ placement : 'top',  arrow: true }" content="Restore">
-          <v-icon name="restore" size="16px" viewbox="16" title="Restore"/>
+          <legacy-icon name="restore" size="16px" viewbox="16" title="Restore"/>
         </button>
       <button class="btn btn-icon" @click="remove" v-tippy="{ placement : 'top',  arrow: true }" content="Delete">
-        <v-icon name="trash" size="16px" viewbox="30" title="Delete"/>
+        <legacy-icon name="trash" size="16px" viewbox="30" title="Delete"/>
       </button>
     </div>
   </div>

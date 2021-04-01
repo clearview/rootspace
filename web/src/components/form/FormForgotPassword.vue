@@ -14,7 +14,7 @@
         placeholder="Enter your email"
         v-model.trim="$v.payload.email.$model"
       />
-      <v-icon
+      <legacy-icon
         class="icon is-right"
         name="email"
       />

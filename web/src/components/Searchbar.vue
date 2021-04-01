@@ -1,6 +1,6 @@
 <template>
   <form class="flex flex-row flex-1" @submit.prevent="submit">
-    <v-icon
+    <legacy-icon
       name="search"
       size="1.5em"
       class="text-gray-400"

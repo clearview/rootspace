@@ -6,7 +6,7 @@
       </h4>
       <div class="close">
         <button class="btn btn-icon" @click="$emit('close')">
-          <v-icon name="close2" size="20px" viewbox="20" title="Close"/>
+          <legacy-icon name="close2" size="20px" viewbox="20" title="Close"/>
         </button>
       </div>
     </header>
@@ -56,7 +56,7 @@
           <div class="restore">
             <button class="btn btn-icon" @click="$emit('restore', entry)" v-tippy="{ placement : 'top',  arrow: true }"
                     content="Restore">
-              <v-icon name="restore" size="16px" viewbox="16" title="Restore"/>
+              <legacy-icon name="restore" size="16px" viewbox="16" title="Restore"/>
             </button>
           </div>
         </div>

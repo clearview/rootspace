@@ -9,7 +9,7 @@
         @input="titleBackbone = $event.target.innerText" @paste="handlePaste">{{itemCopy.title}}</div>
       <div class="item-actions">
         <button class="btn btn-link" @click="cancel">
-          <v-icon name="close" size="1.5rem" title="Close"/>
+          <legacy-icon name="close" size="1.5rem" title="Close"/>
         </button>
         <button v-if="isInputtingNewCard" class="btn btn-primary" @click="save" :disabled="!canSave">Add Card</button>
       </div>
@@ -35,12 +35,12 @@
               </li>
               <li v-if="item.attachments && item.attachments.length > 0">
                 <span class="icon">
-                  <v-icon name="attachment" viewbox="20" size="20px" :withTitle="false" content="Attachment(s)" v-tippy/>
+                  <legacy-icon name="attachment" viewbox="20" size="20px" :withTitle="false" content="Attachment(s)" v-tippy/>
                 </span>
               </li>
               <li v-if="item.taskComments.length > 0">
                 <span class="icon">
-                  <v-icon name="comment" viewbox="20" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
+                  <legacy-icon name="comment" viewbox="20" size="20px" :withTitle="false" content="Comment(s)" v-tippy/>
                 </span>
               </li>
             </ul>

@@ -7,14 +7,14 @@
     borderless>
     <template #default="{ hide }">
       <router-link :to="{name: 'SettingsAccount'}" class="action-line" @click.native="hide()">
-        <v-icon class="action-icon" name="user" viewbox="32" size="16px"></v-icon>
+        <legacy-icon class="action-icon" name="user" viewbox="32" size="16px"></legacy-icon>
         <div class="action-line-text" >
           My Account
         </div>
       </router-link>
       <permission role="admin">
         <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
-          <v-icon class="action-icon" name="space" viewbox="22" size="16px"></v-icon>
+          <legacy-icon class="action-icon" name="space" viewbox="22" size="16px"></legacy-icon>
           <div class="action-line-text">
             Space Settings
           </div>
@@ -23,7 +23,7 @@
     </template>
     <template #trigger="{ visible }">
       <span class="sidebar-icon">
-        <v-icon
+        <legacy-icon
           name="settings"
           size="16px"
           viewbox="30"
@@ -34,7 +34,7 @@
         Settings
       </span>
       <span class="more-menu collapse-hidden" :class="{'btn-link-primary': visible}">
-        <v-icon
+        <legacy-icon
           name="down2"
           size="20px"
           viewbox="16"

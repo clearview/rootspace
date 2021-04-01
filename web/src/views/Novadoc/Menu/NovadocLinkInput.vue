@@ -6,10 +6,10 @@
            @keydown.esc="$emit('cancel')" @keypress.prevent.enter="$emit('submit', href);href = ''">
     <div class="buttons">
       <NovadocMenuButton active @click="$emit('submit', href); href = ''">
-        <v-icon name="checkmark3" viewbox="16" size="16"></v-icon>
+        <legacy-icon name="checkmark3" viewbox="16" size="16"></legacy-icon>
       </NovadocMenuButton>
       <NovadocMenuButton @click="$emit('cancel')">
-        <v-icon name="close3" viewbox="16" size="16"></v-icon>
+        <legacy-icon name="close3" viewbox="16" size="16"></legacy-icon>
       </NovadocMenuButton>
     </div>
   </div>
