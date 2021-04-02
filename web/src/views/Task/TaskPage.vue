@@ -450,9 +450,10 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   display: flex;
   flex-flow: row;
   align-items: center;
-  padding: 8px;
+  padding: 6px 10px;
   border-radius: 4px;
   font-size: 14px;
+  line-height: 1;
   cursor: pointer;
   transition: all 300ms;
 
@@ -503,7 +504,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   .action--search--close {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: #F4F5F7;
     outline: none;
+    font-size: 12px;
+    stroke-width: 2px;
   }
 }
 
