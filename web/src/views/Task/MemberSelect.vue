@@ -24,6 +24,7 @@
       >
         <avatar
           :username="getUsername(member)"
+          :src="getImage(member)"
           :size="16"
           class="member-avatar"
         />
@@ -77,6 +78,10 @@ export default defineComponent({
       (member.firstName + ' ' + member.lastName).trim()
     )
 
+    const getImage = (member: UserResource) => (
+      member.avatar?.versions?.default?.location || ''
+    )
+
     const isSelected = (member: UserResource) => (
       props.selected.findIndex(x => x.id === member.id) >= 0
     )
@@ -100,6 +105,7 @@ export default defineComponent({
       keyword,
       filteredList,
       getUsername,
+      getImage,
       handleSelect,
       isSelected
     }
