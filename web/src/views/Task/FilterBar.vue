@@ -70,7 +70,8 @@
         </button>
       </div>
 
-      <div class="filter-field">
+      <!-- TODO: Enable this when the api is ready -->
+      <div v-if="false" class="filter-field">
         <mono-icon name="calendar" />
         <inline-modal>
           <template #trigger="{ active }">
