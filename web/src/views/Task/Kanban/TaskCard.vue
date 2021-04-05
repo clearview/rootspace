@@ -213,12 +213,12 @@ export default class TaskCard extends Vue {
       }
     }
 
-    formatDate (taskDate: string) {
-      return moment(String(taskDate)).format('DD.MM.YYYY')
+    formatDate (taskDate: Date | string) {
+      return moment(taskDate).format('DD.MM.YYYY')
     }
 
-    formatDateReadable (taskDate: string) {
-      return moment(String(taskDate)).format('MMMM Do, YYYY')
+    formatDateReadable (taskDate: Date | string) {
+      return moment(taskDate).format('MMMM Do, YYYY')
     }
 
     memberName (member: UserResource) {
