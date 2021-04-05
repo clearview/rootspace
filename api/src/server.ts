@@ -9,6 +9,7 @@ import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
 import { removeHeaders } from './middleware/HeadersMiddleware'
+import { removeWsHeaders } from './middleware/WsHeadersMiddleware'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
@@ -46,6 +47,8 @@ export default class Server {
       transformer: 'websockets',
       plugin: {'rooms': Rooms},
     })
+
+    this.wsServer.use('removeHeaders', removeWsHeaders)
 
     wsServerHooks(this.wsServer)
 
