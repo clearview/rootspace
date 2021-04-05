@@ -8,6 +8,7 @@ import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
+import { removeHeaders } from './middleware/HeadersMiddleware'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
@@ -35,6 +36,8 @@ export default class Server {
 
   constructor() {
     this.app = express()
+    this.app.use(removeHeaders)
+
     this.httpServer = http.createServer(this.app)
 
     this.wsServer = new Primus(this.httpServer, {
