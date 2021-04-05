@@ -397,6 +397,8 @@ export default class TaskLane extends Vue {
 .drag {
   cursor: grab;
   visibility: hidden;
+  font-size: 20px;
+  color: #a7b2cf;
 }
 .drag .stroke-current{
   stroke: none;
