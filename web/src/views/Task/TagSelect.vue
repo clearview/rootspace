@@ -10,25 +10,25 @@
 
     <div
       v-else
-      class="tags"
+      class="options"
     >
       <div
         v-for="tag in list"
         :key="tag.id"
-        class="tag"
+        class="option"
         @click="() => handleSelect(tag)"
       >
         <div
-          class="tag-name"
+          class="tag"
           :style="getStyle(tag.color)"
         >
-          {{tag.label}}
+          <span>{{tag.label}}</span>
+          <mono-icon
+            v-if="isSelected(tag)"
+            name="check"
+            class="tag-check"
+          />
         </div>
-
-        <mono-icon
-          v-if="isSelected(tag)"
-          name="check"
-        />
       </div>
     </div>
   </div>
@@ -116,12 +116,13 @@ export default defineComponent({
   font-size: 12px;
 }
 
-.tag {
+.options {
+  padding-bottom: 8px;
+}
+
+.option {
   display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 16px;
+  padding: 4px 16px;
   font-size: 13px;
   cursor: pointer;
 
@@ -130,11 +131,19 @@ export default defineComponent({
   }
 }
 
-.tag-name {
-  flex: initial;
+.tag {
+  display: flex;
+  flex-flow: row;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
   padding: 4px 8px;
   border-radius: 20px;
   font-size: 10px;
   font-weight: 700;
+}
+
+.tag-check {
+  stroke-width: 2px;
 }
 </style>

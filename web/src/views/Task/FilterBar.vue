@@ -71,7 +71,10 @@
       </div>
 
       <!-- TODO: Enable this when the api is ready -->
-      <div v-if="false" class="filter-field">
+      <div
+        v-if="false"
+        class="filter-field"
+      >
         <mono-icon name="calendar" />
         <inline-modal>
           <template #trigger="{ active }">
@@ -117,7 +120,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, watchEffect } from '@vue/composition-api'
+import { computed, defineComponent, PropType, ref, watch } from '@vue/composition-api'
 import { isEmpty } from 'lodash'
 
 import { InlineModal } from '@/components/modal'
@@ -128,6 +131,11 @@ import TagSelect from './TagSelect.vue'
 import DateSelect from './DateSelect.vue'
 
 import { TagResource, UserResource } from '@/types/resource'
+
+interface FilterValue {
+  tags: number[]
+  assignees: number[]
+}
 
 export default defineComponent({
   name: 'FilterBar',
@@ -141,7 +149,11 @@ export default defineComponent({
   },
   props: {
     value: {
-      type: Object as PropType<Record<string, any>>
+      type: Object as PropType<FilterValue>,
+      default: () => ({
+        tags: [],
+        assignees: []
+      })
     },
     memberList: {
       type: Array as PropType<UserResource[]>,
@@ -152,10 +164,36 @@ export default defineComponent({
       default: () => ([])
     }
   },
-  setup (_, { emit }) {
-    const memberSelected = ref<UserResource[]>([])
-    const tagSelected = ref<TagResource[]>([])
+  setup (props, { emit }) {
     const dateSelected = ref({})
+
+    const memberSelected = computed<UserResource[]>({
+      get () {
+        return props.memberList.filter((item) => (
+          item.id && props.value.assignees.includes(item.id)
+        ))
+      },
+      set (value) {
+        emit('input', {
+          ...props.value,
+          assignees: value.map((item) => item.id)
+        })
+      }
+    })
+
+    const tagSelected = computed<TagResource[]>({
+      get () {
+        return props.tagList.filter((item) => (
+          item.id && props.value.tags.includes(item.id)
+        ))
+      },
+      set (value) {
+        emit('input', {
+          ...props.value,
+          tags: value.map((item) => item.id)
+        })
+      }
+    })
 
     const fieldsEmpty = computed(() => (
       isEmpty(memberSelected.value) &&
@@ -164,19 +202,11 @@ export default defineComponent({
     ))
 
     const clearAll = () => {
-      memberSelected.value = []
-      tagSelected.value = []
-    }
-
-    watchEffect(() => {
-      const tags = tagSelected.value.map(x => x.id)
-      const assignees = memberSelected.value.map(x => x.id)
-
       emit('input', {
-        tags,
-        assignees
+        tags: [],
+        assignees: []
       })
-    })
+    }
 
     return {
       memberSelected,
@@ -262,6 +292,10 @@ export default defineComponent({
   color: #aab1c5;
   stroke-width: 2px;
 
+  &:hover {
+    color: #2C2B35;
+  }
+
   &:focus {
     outline: none;
   }
@@ -279,6 +313,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row;
   align-items: center;
+  font-size: 12px;
   font-weight: 700;
   stroke-width: 2px;
 

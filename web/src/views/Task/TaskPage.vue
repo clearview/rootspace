@@ -14,6 +14,7 @@
             class="action action--search"
             :class="{ 'action__active': searchVisible }"
             @click="searchVisible = true"
+            v-click-outside="closeSearch"
           >
             <mono-icon
               name="search"
@@ -28,12 +29,13 @@
                 type="text"
                 placeholder="Search"
                 v-model="search"
-                @keydown.esc="closeSearch"
+                @input="lazyFetchTask"
+                @keydown.esc="clearSearch"
               >
 
               <button
                 class="action--search--close"
-                @click.stop="closeSearch"
+                @click.stop="clearSearch"
               >
                 <mono-icon name="close" />
               </button>
@@ -111,7 +113,7 @@
       v-model="filters"
       :member-list="memberList"
       :tag-list="tags"
-      @input="(x) => filters = x"
+      @input="lazyFetchTask"
     />
 
     <div
@@ -238,13 +240,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return !this.$store.state.task.settings.seenViewTip
   }
 
-  async clearMembers (payload: boolean) {
-    if (payload) {
-      this.filters.assignees = []
-    }
-    await this.fetchTask()
-  }
-
   viewAsList () {
     this.$store.commit('task/settings/setData', (state: TaskSettings) => {
       if (!isNaN(state.viewAs as any)) {
@@ -279,6 +274,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('boardId')
   async clearAndFetchTask () {
+    this.searchVisible = false
+    this.filterVisible = false
     this.search = ''
     this.filters = {
       tags: [],
@@ -288,8 +285,14 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     await this.fetchTask()
   }
 
-  closeSearch () {
+  clearSearch () {
     this.search = ''
+    this.fetchTask()
+  }
+
+  closeSearch () {
+    if (this.search) return
+
     this.searchVisible = false
   }
 
@@ -328,6 +331,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     } catch { }
 
     this.isFetching = false
+  }
+
+  @debounce(500)
+  async lazyFetchTask () {
+    await this.fetchTask()
   }
 
   async resetFilters () {
@@ -373,13 +381,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     const getBgPosition = this.colors.indexOf(bgColor)
 
     return textColor[getBgPosition]
-  }
-
-  @Watch('filters')
-  @Watch('search')
-  @debounce(500)
-  async watchFilters () {
-    await this.fetchTask()
   }
 }
 </script>
@@ -440,7 +441,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     align-items: center;
   }
 
-  .action__active {
+  .action__active,
+  .action__active:hover {
     background: #444754;
     color: white;
   }
@@ -466,7 +468,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   margin-left: 4px;
 }
 
-.action__active {
+.action__active,
+.action__active:hover {
   background-color: #ddf3ff;
   color: #146493;
 }

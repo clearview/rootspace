@@ -23,8 +23,7 @@
         @click="() => handleSelect(member)"
       >
         <avatar
-          :username="getUsername(member)"
-          :src="getImage(member)"
+          :user="member"
           :size="16"
           class="member-avatar"
         />
@@ -43,7 +42,7 @@
 <script lang="ts">
 import { UserResource } from '@/types/resource'
 import { computed, defineComponent, PropType, ref } from '@vue/composition-api'
-import Avatar from 'vue-avatar'
+import Avatar from '@/components/Avatar.vue'
 
 export default defineComponent({
   name: 'MemberSelect',
@@ -78,10 +77,6 @@ export default defineComponent({
       (member.firstName + ' ' + member.lastName).trim()
     )
 
-    const getImage = (member: UserResource) => (
-      member.avatar?.versions?.default?.location || ''
-    )
-
     const isSelected = (member: UserResource) => (
       props.selected.findIndex(x => x.id === member.id) >= 0
     )
@@ -105,7 +100,6 @@ export default defineComponent({
       keyword,
       filteredList,
       getUsername,
-      getImage,
       handleSelect,
       isSelected
     }

@@ -1,18 +1,17 @@
 <template>
   <div class="chips">
     <avatar
-      v-for="(username, index) in usernames"
-      class="chip"
+      v-for="(user, index) in list"
       :key="index"
-      :username="username"
-      :size="size"
+      :user="user"
+      class="chip"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType } from '@vue/composition-api'
-import Avatar from 'vue-avatar'
+import { defineComponent, PropType } from '@vue/composition-api'
+import Avatar from '@/components/Avatar.vue'
 import { UserResource } from '@/types/resource'
 
 export default defineComponent({
@@ -24,19 +23,6 @@ export default defineComponent({
     list: {
       type: Array as PropType<UserResource[]>,
       default: () => ([])
-    },
-    size: {
-      type: Number,
-      default: 24
-    }
-  },
-  setup (props) {
-    const usernames = computed(() => props.list.map(
-      (item) => item.firstName + ' ' + item.lastName
-    ))
-
-    return {
-      usernames
     }
   }
 })
