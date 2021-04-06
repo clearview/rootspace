@@ -8,7 +8,7 @@
           </slot>
 
           <div class="close" @click="close">
-            <v-icon name="close" size="24" />
+            <legacy-icon viewbox="31" size="1rem" name="Close" title="Close"/>
           </div>
         </div>
 
