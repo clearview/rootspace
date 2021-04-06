@@ -8,7 +8,7 @@
           </slot>
 
           <div class="close" @click="close">
-            <legacy-icon viewbox="20" size="1rem" name="close2" title="Close"/>
+            <legacy-icon viewbox="31" size="1rem" name="Close" title="Close"/>
           </div>
         </div>
 
