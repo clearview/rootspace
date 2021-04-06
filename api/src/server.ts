@@ -8,7 +8,6 @@ import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
-import { removeHeaders } from './middleware/HeadersMiddleware'
 import { removeWsHeaders } from './middleware/WsHeadersMiddleware'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
@@ -37,7 +36,7 @@ export default class Server {
 
   constructor() {
     this.app = express()
-    this.app.use(removeHeaders)
+    this.app.set('x-powered-by', false)
 
     this.httpServer = http.createServer(this.app)
 
