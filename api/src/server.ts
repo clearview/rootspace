@@ -8,6 +8,7 @@ import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
+import { removeWsHeaders } from './middleware/WsHeadersMiddleware'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
 import { Ability } from '@casl/ability'
@@ -35,6 +36,8 @@ export default class Server {
 
   constructor() {
     this.app = express()
+    this.app.set('x-powered-by', false)
+
     this.httpServer = http.createServer(this.app)
 
     this.wsServer = new Primus(this.httpServer, {
@@ -43,6 +46,8 @@ export default class Server {
       transformer: 'websockets',
       plugin: {'rooms': Rooms},
     })
+
+    this.wsServer.use('removeHeaders', removeWsHeaders)
 
     wsServerHooks(this.wsServer)
 
