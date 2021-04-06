@@ -38,8 +38,6 @@ export class ContentPermissions {
   }
 
   has(permission: permission): boolean {
-    console.log(this.list)
-
     return this.list.has(permission)
   }
 

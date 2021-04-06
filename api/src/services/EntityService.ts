@@ -18,7 +18,6 @@ export class EntityService {
 
   getEntityByNameAndId<T>(name: string, id: number, options: IQueryOptions = {}): Promise<T | undefined> {
     name = this.convertEntityName(name)
-    console.log(name)
 
     const queryBuilder = getConnection()
       .getRepository<T>(name)
