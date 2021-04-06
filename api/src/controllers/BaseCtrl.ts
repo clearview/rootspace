@@ -1,6 +1,7 @@
 import { Request } from 'express'
 import { ResponseData } from '../response/data/ResponseData'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
+import { ResponseBody } from '../response/ResponseBody'
 import { SpaceUserRole } from '../types/spaceUser'
 
 export class BaseCtrl {
@@ -29,6 +30,10 @@ export class BaseCtrl {
   }
 
   protected responseData(input: object | object[] | string) {
-    return new ResponseData(input).data
+    return new ResponseData(input).getData()
+  }
+
+  protected responseBody(data: object | object[] | string) {
+    return new ResponseBody(data)
   }
 }

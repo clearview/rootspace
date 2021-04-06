@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm'
 import { ContentAccessRepository } from '../../database/repositories/ContentAccessRepository'
 import { ContentAccess } from '../../database/entities/ContentAccess'
-import { Service } from '../../services'
+import { Service } from '..'
 import { ContentAccessUpdateValue } from './values'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 

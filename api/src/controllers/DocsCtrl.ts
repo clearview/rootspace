@@ -3,10 +3,9 @@ import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { DocService } from '../services'
-import { ForbiddenError } from '@casl/ability'
-import { Actions, Subjects } from '../middleware/AuthMiddleware'
 import { FollowService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { contentPermissions, hasContentPermission } from '../services/content-access'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -20,9 +19,15 @@ export class DocsCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
 
-    res.send(this.responseData(doc))
+    const permissions = await contentPermissions(doc, req.user.id)
+    permissions.throwUnlessHas('view')
+
+    res.send(
+      this.responseBody(doc)
+        .with('contentAccess', permissions.getContentAccess())
+        .with('permissions', permissions.getList())
+    )
   }
 
   async history(req: Request, res: Response) {
@@ -33,8 +38,6 @@ export class DocsCtrl extends BaseCtrl {
   }
 
   async create(req: Request, res: Response) {
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Create, Subjects.Doc)
-
     const data = req.body.data
     await validateDocCreate(data)
 
@@ -45,7 +48,6 @@ export class DocsCtrl extends BaseCtrl {
     }
 
     const result = await this.docService.create(value)
-
     res.send(this.responseData(result))
   }
 
@@ -54,7 +56,7 @@ export class DocsCtrl extends BaseCtrl {
     await validateDocUpdate(data)
 
     const doc = await this.docService.requireById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, doc)
+    await hasContentPermission('update', doc, req.user.id)
 
     const value = DocUpdateValue.fromObject(data)
     const result = await this.docService.update(value, doc.id, req.user.id)
@@ -69,7 +71,7 @@ export class DocsCtrl extends BaseCtrl {
 
   async archive(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, doc)
+    await hasContentPermission('archive', doc, req.user.id)
 
     const result = await this.docService.archive(doc.id, req.user.id)
     res.send(this.responseData(result))
@@ -77,7 +79,7 @@ export class DocsCtrl extends BaseCtrl {
 
   async restore(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, doc)
+    await hasContentPermission('restore', doc, req.user.id)
 
     const result = await this.docService.restore(doc.id, req.user.id)
     res.send(this.responseData(result))
@@ -85,25 +87,24 @@ export class DocsCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, doc)
+    await hasContentPermission('delete', doc, req.user.id)
 
     const result = await this.docService.remove(doc.id, req.user.id)
     res.send(this.responseData(result))
   }
 
   async follow(req: Request, res: Response) {
-    const doc = await this.docService.getById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
+    const doc = await this.docService.requireById(Number(req.params.id))
+    await hasContentPermission('view', doc, req.user.id)
 
     const result = await this.followService.followFromRequest(req.user.id, doc)
     res.send(this.responseData(result))
   }
 
   async unfollow(req: Request, res: Response) {
-    const doc = await this.docService.getById(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, doc ? doc : Subjects.Doc)
-
+    const doc = await this.docService.requireById(Number(req.params.id))
     const result = await this.followService.unfollowFromRequest(req.user.id, doc)
+
     res.send(this.responseData(result))
   }
 }

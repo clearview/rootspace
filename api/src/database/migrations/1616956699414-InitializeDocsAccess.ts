@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm'
 import { ContentAccess } from '../entities/ContentAccess'
 import { Doc } from '../entities/Doc'
 import { ContentEntityName } from '../../types/content'
-import { ContentAccessType } from '../../components/content-access/ContentAccessType'
+import { ContentAccessType } from '../../services/content-access/ContentAccessType'
 import { ContentAccessRepository } from '../repositories/ContentAccessRepository'
 
 export class InitializeDocsAccess1616956699414 implements MigrationInterface {

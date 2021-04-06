@@ -1,6 +1,7 @@
 import { getConnection } from 'typeorm'
 import { ucFirst } from '../utils'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
+import { IQueryOptions } from '../types/query'
 
 export class EntityService {
   private static instance: EntityService
@@ -15,8 +16,9 @@ export class EntityService {
     return EntityService.instance
   }
 
-  getEntityByNameAndId<T>(name: string, id: number, options: any = {}): Promise<T | undefined> {
+  getEntityByNameAndId<T>(name: string, id: number, options: IQueryOptions = {}): Promise<T | undefined> {
     name = this.convertEntityName(name)
+    console.log(name)
 
     const queryBuilder = getConnection()
       .getRepository<T>(name)
@@ -30,8 +32,8 @@ export class EntityService {
     return queryBuilder.getOne()
   }
 
-  async requireEntityByNameAndId<T>(name: string, id: number): Promise<T> {
-    const entity = await this.getEntityByNameAndId<T>(name, id)
+  async requireEntityByNameAndId<T>(name: string, id: number, options: IQueryOptions = {}): Promise<T> {
+    const entity = await this.getEntityByNameAndId<T>(name, id, options)
 
     if (!entity) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
