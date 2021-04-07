@@ -194,6 +194,7 @@ export class ServiceFactory {
 
     this.docService = DocService.getInstance()
     this.docService.attachActivityObserver(this.getActivityService())
+    this.docService.attachActivityObserver(this.getContentAccessService())
 
     this.taskBoardService = TaskBoardService.getInstance()
     this.taskBoardService.attachActivityObserver(this.getActivityService())

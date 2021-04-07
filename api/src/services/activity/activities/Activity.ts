@@ -25,6 +25,10 @@ export abstract class Activity {
 
   abstract handler(): string
 
+  action(): string {
+    return this._action
+  }
+
   toObject(): IActivityObject {
     return this._toObject()
   }

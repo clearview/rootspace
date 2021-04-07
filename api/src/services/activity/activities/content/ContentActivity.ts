@@ -1,9 +1,9 @@
-import { IContentEntity } from './types'
 import { ActivityType } from '../types'
 import { ContentActions } from './actions'
 import { EntityActivity } from '../EntityActivity'
+import { ContentEntity } from '../../../../root/types'
 
-export abstract class ContentActivity<T extends IContentEntity> extends EntityActivity<T> {
+export abstract class ContentActivity<T extends ContentEntity> extends EntityActivity<T> {
   protected constructor(action: string, entityObject: T, actorId: number) {
     super(action, entityObject)
 

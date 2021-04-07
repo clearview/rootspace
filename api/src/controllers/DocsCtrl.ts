@@ -2,18 +2,22 @@ import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate } from '../validation/doc'
 import { DocCreateValue, DocUpdateValue } from '../values/doc'
-import { DocService } from '../services'
+import { ContentAccessService, DocService } from '../services'
 import { FollowService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { contentPermissions, hasContentPermission } from '../services/content-access'
+import { ContentAccessCreateValue, contentPermissions, hasContentPermission } from '../services/content-access'
+import { ContentEntityName } from '../types/content'
+import { ContentAccessType } from '../services/content-access/ContentAccessType'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
+  private contentAccessService: ContentAccessService
   private followService: FollowService
 
   constructor() {
     super()
     this.docService = ServiceFactory.getInstance().getDocService()
+    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
     this.followService = ServiceFactory.getInstance().getFollowService()
   }
 
@@ -47,8 +51,14 @@ export class DocsCtrl extends BaseCtrl {
       value = value.withNodeConfig(data.config)
     }
 
-    const result = await this.docService.create(value)
-    res.send(this.responseData(result))
+    const doc = await this.docService.create(value)
+    const permissions = await contentPermissions(doc, req.user.id)
+
+    res.send(
+      this.responseBody(doc)
+        .with('contentAccess', permissions.getContentAccess())
+        .with('permissions', permissions.getList())
+    )
   }
 
   async update(req: Request, res: Response) {

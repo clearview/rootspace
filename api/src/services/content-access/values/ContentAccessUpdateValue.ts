@@ -1,7 +1,7 @@
 import { EntityValue, attributes } from '../../../root/values'
 import { ContentAccessUpdateAttributes } from './types'
 
-export const attrs: ContentAccessUpdateAttributes = {
+const attrs: ContentAccessUpdateAttributes = {
   type: undefined,
   public: undefined,
 }

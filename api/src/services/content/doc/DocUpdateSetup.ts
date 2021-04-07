@@ -88,8 +88,6 @@ export class DocUpdateSetup {
       return false
     }
 
-    console.log('contentUpdated', this.contentUpdated)
-
     if (this.contentUpdated === false) {
       return false
     }
