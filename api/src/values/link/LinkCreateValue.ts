@@ -1,4 +1,4 @@
-import { EntityValue, attributes } from '../entity'
+import { EntityValue, attributes } from '../../root/values'
 import { ILinkCreateAttributes } from './types'
 
 export const LinkCreateAttributes: ILinkCreateAttributes = {

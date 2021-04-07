@@ -1,5 +1,3 @@
-import { isArray } from 'util'
-
 export class ResponseData {
   private _data: object | object[] | string
 
@@ -7,14 +5,14 @@ export class ResponseData {
     this._data = this.buildData(input)
   }
 
-  get data(): object | object[] | string {
+  getData(): object | object[] | string {
     return {
       data: this._data,
     }
   }
 
   private buildData(input: object | object[] | string): object | object[] | string {
-    if (!isArray(input)) {
+    if (!Array.isArray(input)) {
       return input
     }
 

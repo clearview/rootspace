@@ -1,7 +1,7 @@
+import { Entity } from '../../../root/types'
 import { Activity } from './Activity'
-import { IContentEntity } from './content/types'
 
-export abstract class EntityActivity<T extends IContentEntity> extends Activity {
+export abstract class EntityActivity<T extends Entity> extends Activity {
   protected _entity: T
   protected _entityAttributes = []
   protected _entityUpdateAttributes = []
@@ -16,6 +16,9 @@ export abstract class EntityActivity<T extends IContentEntity> extends Activity 
 
   abstract getEntityName(): string
 
+  entity(): T {
+    return this._entity
+  }
   protected _buildContext() {
     this._context = {
       entity: this._filterEntityAttributes(this._entity, this._entityAttributes),

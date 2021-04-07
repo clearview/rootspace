@@ -1,4 +1,4 @@
-import { BaseValidator } from '../BaseValidator'
+import { BaseValidator } from '../../root/validation/BaseValidator'
 
 export class FolderUpdateValidator extends BaseValidator {
   rules() {
