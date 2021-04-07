@@ -76,7 +76,7 @@ export class DocService extends NodeContentService {
     return this.getDocRevisionRepository().getByDocId(doc.id)
   }
 
-  async create(data: DocCreateValue): Promise<Doc & Node> {
+  async create(data: DocCreateValue): Promise<Doc> {
     let doc = this.getDocRepository().create()
 
     Object.assign(doc, data.attributes)
@@ -100,9 +100,11 @@ export class DocService extends NodeContentService {
     const node = await this.nodeService.create(value)
 
     doc = await this.getDocRepository().reload(doc)
+    Object.assign(doc, { node })
+
     await this.notifyActivity(DocActivity.created(doc, doc.userId))
 
-    return { ...doc, ...node }
+    return doc
   }
 
   async update(data: DocUpdateValue, id: number, actorId: number): Promise<Doc> {

@@ -21,6 +21,7 @@ import {
   EntityService,
   UserSettingService,
   TaskCommentService,
+  ContentAccessService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -174,6 +175,10 @@ export class ServiceFactory {
     return EntityService.getInstance()
   }
 
+  getContentAccessService() {
+    return ContentAccessService.getInstance()
+  }
+
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
     this.nodeService.attachActivityObserver(this.getActivityService())
@@ -189,6 +194,7 @@ export class ServiceFactory {
 
     this.docService = DocService.getInstance()
     this.docService.attachActivityObserver(this.getActivityService())
+    this.docService.attachActivityObserver(this.getContentAccessService())
 
     this.taskBoardService = TaskBoardService.getInstance()
     this.taskBoardService.attachActivityObserver(this.getActivityService())

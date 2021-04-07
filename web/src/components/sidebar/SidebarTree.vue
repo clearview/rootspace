@@ -411,7 +411,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         this.$store.commit('document/setDeferredParent', null)
         this.$router.replace({
           name: 'Novadoc',
-          params: { id: getDocument.data.contentId }
+          params: { id: getDocument.data.id }
         }).catch(() => {
           // Silent duplicate error
         })

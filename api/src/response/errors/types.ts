@@ -6,6 +6,7 @@ export enum HttpErrName {
   EntityDeleteFailed = 'entityDeleteFailed',
   EntityNotFound = 'entityNotFound',
   Unauthorized = 'unauthorized',
+  Forbidden = 'forbidden',
   NotAllowed = 'notAllowed',
   InvalidToken = 'invalidToken',
 }

@@ -1,5 +1,5 @@
 import { validations } from 'indicative/validator'
-import { BaseValidator } from '../BaseValidator'
+import { BaseValidator } from '../../root/validation/BaseValidator'
 
 export class UserSignupValidator extends BaseValidator {
   rules() {

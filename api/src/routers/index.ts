@@ -12,6 +12,7 @@ import { folderRouter } from './folderRouter'
 import { embedRouter } from './embedRouter'
 import { notificationRouter } from './notificationRouter'
 import { activityRouter } from './activityRouter'
+import { contentAccessRouter } from './contentAccessRouter'
 
 const routers = [
   defaultRouter,
@@ -29,6 +30,7 @@ const routers = [
   folderRouter,
   notificationRouter,
   activityRouter,
+  contentAccessRouter,
 ]
 
 export default routers

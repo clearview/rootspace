@@ -1,4 +1,4 @@
-import { EntityValue, attributes } from '../entity'
+import { EntityValue, attributes } from '../../root/values'
 import { IPasswordResetAttributes } from './types'
 
 export const PasswordResetAttributes: IPasswordResetAttributes = {
