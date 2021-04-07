@@ -39,19 +39,19 @@
       <Popover top="38px" :with-close="false" :borderless="true" @trigger="isContextOpen = $event" v-if="value.contentId !== 0">
         <template #default="{ hide }">
           <div class="action-line" @click.prevent.stop="hide();addNew()">
-            <legacy-icon class="action-icon" name="plus3" viewbox="16" size="16px"></legacy-icon>
+            <mono-icon class="action-icon" name="plus"/>
             <div class="action-line-text">
               Add new
             </div>
           </div>
           <div v-if="!isFavorited && !isFolder" class="action-line" @click.prevent.stop="hide();addToFavorites();">
-            <legacy-icon class="action-icon" name="star" size="16px"></legacy-icon>
+            <mono-icon class="action-icon" name="star"/>
             <div class="action-line-text">
               Add to Favorites
             </div>
           </div>
           <div v-if="isFavorited" class="action-line" @click.prevent.stop="hide();removeFromFavorites();">
-            <legacy-icon class="action-icon" name="remove-circle" size="16px"></legacy-icon>
+            <mono-icon class="action-icon" name="remove-circle"/>
             <div class="action-line-text">
               Remove from Favorites
             </div>
@@ -59,19 +59,19 @@
           <div>
             <div class="action-separator"></div>
             <div class="action-line" @click.prevent.stop="hide();rename();">
-              <legacy-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></legacy-icon>
+              <mono-icon class="action-icon" name="pencil"/>
               <div class="action-line-text">
                 Rename
               </div>
             </div>
             <div class="action-line" v-if="canEdit" @click.prevent.stop="hide();updateContent();">
-              <legacy-icon class="action-icon no-fill" name="edit2" viewbox="18" size="16px"></legacy-icon>
+              <mono-icon class="action-icon" name="pencil"/>
               <div class="action-line-text">
                 Edit
               </div>
             </div>
             <div class="action-line" @click.prevent.stop="hide();archive()">
-              <legacy-icon class="action-icon" name="archive" viewbox="16" size="16px"></legacy-icon>
+              <mono-icon class="action-icon" name="archive"/>
               <div class="action-line-text">
                 Archive
               </div>
@@ -345,6 +345,7 @@ export default class SidebarTreeNode extends Vue {
   color: #2C2B35;
   cursor: pointer;
   .action-icon {
+    font-size: 16px;
     color: #AAB1C5;
   }
 
