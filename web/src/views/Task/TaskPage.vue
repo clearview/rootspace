@@ -1,168 +1,176 @@
 <template>
-  <section class="task-board">
+  <section class="board">
     <header
       class="header"
       v-if="board || boardCache"
     >
-      <h3 class="header-title">
+      <h3 class="title">
         {{(board && board.title) || (boardCache && boardCache.title)}}
       </h3>
-      <div class="header-actions">
-        <div class="action action-search">
-          <legacy-icon
-            name="search"
-            class="action-search-icon"
-          />
-          <input
-            type="text"
-            class="action-search-input"
-            placeholder="Search"
-            v-model="search"
-            @keypress.enter="fetchTask"
+
+      <div class="actions">
+        <div class="action-group">
+          <div
+            class="action action--search"
+            :class="{ 'action__active': searchVisible }"
+            @click="searchVisible = true"
+            v-click-outside="closeSearch"
           >
-        </div>
-        <div class="action action-filter">
-          <Popover title="Filter" with-close position="bottom-end" :offset="16" :skid="16">
-            <template #default>
-              <div class="filters">
-                <div
-                  class="filter-field"
-                  v-if="tags"
-                >
-                  <label class="filter-field-label">Filter by tag</label>
-                  <v-select :reduce="(opt)=>opt.id" :options="tags" multiple  class="select grid filter-field-select"
-                            placeholder="Select Tag" v-model="filters.tags" @input="fetchTask">
-                    <template slot="option" slot-scope="option">
-                      <div class="tag-container">
-                        <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}">
-                          {{ option.label }}
-                        </div>
-                        <span class="icon-checkmark"><legacy-icon v-if="idExistsOn(filters.tags, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
-                      </div>
-                    </template>
-                    <template #selected-option-container="{ option}">
-                      <div class="tag-container">
-                        <div class="tag-color" :style="{background: option.color, color: textColor(option.color)}" @click="removeTag(option)">
-                          <span>{{ option.label }}</span>
-                        </div>
-                      </div>
-                    </template>
-                  </v-select>
-                </div>
-                <div
-                  class="filter-field"
-                  v-if="memberList"
-                >
-                  <label class="filter-field-label">Filter by member</label>
-                  <v-select :disabled="filters.unassigned" label="id" :filter-by="filterMember" clearable :reduce="(opt)=>opt.id" :options="memberList" multiple
-                            class="select filter-field-select" placeholder="Select Member" v-model="filters.assignees"
-                            @input="fetchTask">
-                    <template slot="option" slot-scope="option">
-                      <div class="member-option">
-                        <avatar :src="option.avatar && option.avatar.versions ? option.avatar.versions.default.location : ''" :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
-                        <span class="member-option-name" :class="{selected: idExistsOn(filters.assignees, option.id)}">{{ `${option.firstName}  ${option.lastName}`}}</span>
-                        <span class="icon-checkmark"><legacy-icon v-if="idExistsOn(filters.assignees, option.id)" size="9.33 6.67" name="checkmark" viewbox="12 9" /></span>
-                      </div>
-                    </template>
-                    <template #selected-option-container="{ option }">
-                      <div class="member-option-display" @click="removeMember(option)">
-                        <avatar :src="option.avatar && option.avatar.versions ? option.avatar.versions.default.location : ''" :size="32" :username="`${option.firstName}  ${option.lastName}`"></avatar>
-                      </div>
-                    </template>
-                  </v-select>
-                </div>
-                <div class="filter-field">
-                  <v-field
-                    inline
-                    border
-                    label="Non assigned tasks"
-                    align="right"
-                    class="mb-0"
-                  >
-                    <button-switch v-model="filters.unassigned" @input="clearMembers" />
-                  </v-field>
-                </div>
-                <div class="filter-action">
-                  <button
-                    class="btn btn-link"
-                    @click="resetFilters"
-                  >Reset Filters</button>
-                </div>
-              </div>
-            </template>
-            <template #trigger="{ visible }">
-              <div
-                class="action-wrapper"
-                :class="{'active': visible}"
+            <mono-icon
+              name="search"
+              class="action--icon"
+            />
+
+            <div
+              v-if="searchVisible"
+              class="action--body"
+            >
+              <input
+                type="text"
+                placeholder="Search"
+                v-model="search"
+                @input="lazyFetchTask"
+                @keydown.esc="clearSearch"
               >
-                <legacy-icon
-                  name="filter"
-                  class="action-filter-icon"
-                  size="1.5em"
-                />
-                <div class="action-label">
-                  Filter
-                </div>
-              </div>
-            </template>
-          </Popover>
+
+              <button
+                class="action--search--close"
+                @click.stop="clearSearch"
+              >
+                <mono-icon name="close" />
+              </button>
+            </div>
+          </div>
         </div>
-          <Tip :active="shouldShowTip" @close="markTipAsSeen">
+        <div class="action-group">
+          <div
+            class="action action--filter"
+            :class="{ 'action__active': filterVisible }"
+            @click="filterVisible = !filterVisible"
+          >
+            <mono-icon
+              name="filter"
+              class="action--icon"
+            />
+            <div class="action--body">
+              Filter
+            </div>
+          </div>
+
+          <div class="action action--archive action__disabled">
+            <mono-icon
+              name="archive"
+              class="action--icon"
+            />
+            <div class="action--body">
+              Archived
+            </div>
+          </div>
+        </div>
+        <div class="action-group action-group--view">
+          <Tip
+            :active="shouldShowTip"
+            @close="markTipAsSeen"
+          >
             <template #tip>
               You can change your view preference between Kanban Board or List using this button
             </template>
-            <div class="action action-type">
-              <div @click="viewAsList">
-                <legacy-icon
-                  name="list"
-                  size="2.5em"
-                  class="icon-circle"
-                  :class="{active: !isKanban}"
-                />
+
+            <div
+              class="action"
+              :class="{ 'action__active': isKanban }"
+              @click="viewAsBoard"
+            >
+              <mono-icon
+                name="board"
+                class="action--icon"
+              />
+              <div class="action-body">
+                Board
               </div>
-              <div @click="viewAsBoard">
-                <legacy-icon
-                  name="kanban"
-                  size="2.5em"
-                  class="icon-circle"
-                  :class="{active: isKanban}"
-                />
+            </div>
+
+            <div
+              class="action"
+              :class="{ 'action__active': !isKanban }"
+              @click="viewAsList"
+            >
+              <mono-icon
+                name="menu"
+                class="action--icon"
+              />
+              <div class="action--body">
+                List
               </div>
             </div>
           </Tip>
+        </div>
       </div>
     </header>
-    <main class="board" v-if="isKanban">
-      <TaskGhost v-if="isFetching" active></TaskGhost>
-      <BoardManager :can-drag="!isSearching" v-if="!isFetching && board" :board="board"/>
-    </main>
-    <main class="list" v-if="!isKanban">
-      <ListGhost v-if="isFetching" active></ListGhost>
-      <ListManager :can-drag="!isSearching" v-if="!isFetching && board" :board="board"/>
-    </main>
+
+    <filter-bar
+      v-if="filterVisible"
+      v-model="filters"
+      :member-list="memberList"
+      :tag-list="tags"
+      @input="lazyFetchTask"
+    />
+
+    <div
+      class="view--kanban"
+      v-if="isKanban"
+    >
+      <TaskGhost
+        v-if="isFetching"
+        active
+      />
+      <BoardManager
+        :can-drag="!isSearching"
+        v-if="!isFetching && board"
+        :board="board"
+      />
+    </div>
+
+    <div
+      class="view--list"
+      v-else
+    >
+      <ListGhost
+        v-if="isFetching"
+        active
+      />
+      <ListManager
+        :can-drag="!isSearching"
+        v-if="!isFetching && board"
+        :board="board"
+      />
+    </div>
   </section>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Watch } from 'vue-property-decorator'
-import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
-import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
-import Popover from '@/components/Popover.vue'
+import { debounce } from 'helpful-decorators'
 import VSelect from 'vue-select'
-import SpaceService from '@/services/space'
 import Avatar from 'vue-avatar'
+
+import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
+
+import SpaceService from '@/services/space'
+import SpaceMixin from '@/mixins/SpaceMixin'
+import PageMixin from '@/mixins/PageMixin'
+import { TaskSettings } from '@/store/modules/task/settings'
+import EventBus from '@/utils/eventBus'
+import FilterBar from './FilterBar.vue'
+
+import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
+import ListManager from '@/views/Task/List/ListManager.vue'
+import Popover from '@/components/Popover.vue'
 import TaskGhost from '@/components/TaskGhost.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-
-import SpaceMixin from '@/mixins/SpaceMixin'
-import PageMixin from '@/mixins/PageMixin'
 import ListGhost from '@/components/ListGhost.vue'
-import { TaskSettings } from '@/store/modules/task/settings'
 import Tip from '@/components/Tip.vue'
-import ListManager from '@/views/Task/List/ListManager.vue'
-
-import EventBus from '@/utils/eventBus'
 
 @Component({
   name: 'TaskPage',
@@ -176,7 +184,8 @@ import EventBus from '@/utils/eventBus'
     VSelect,
     VField,
     ButtonSwitch,
-    Avatar
+    Avatar,
+    FilterBar
   }
 })
 export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
@@ -191,6 +200,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private memberList: Array<UserResource> = []
   private isSearching = false
   private isFetching = false
+  private filterVisible = false
+  private searchVisible = false
 
   @Watch('boardId')
   async getSpaceMember () {
@@ -229,13 +240,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return !this.$store.state.task.settings.seenViewTip
   }
 
-  async clearMembers (payload: boolean) {
-    if (payload) {
-      this.filters.assignees = []
-    }
-    await this.fetchTask()
-  }
-
   viewAsList () {
     this.$store.commit('task/settings/setData', (state: TaskSettings) => {
       if (!isNaN(state.viewAs as any)) {
@@ -270,6 +274,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   @Watch('boardId')
   async clearAndFetchTask () {
+    this.searchVisible = false
+    this.filterVisible = false
     this.search = ''
     this.filters = {
       tags: [],
@@ -277,6 +283,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       unassigned: false
     }
     await this.fetchTask()
+  }
+
+  clearSearch () {
+    this.search = ''
+    this.fetchTask()
+  }
+
+  closeSearch () {
+    if (this.search) return
+
+    this.searchVisible = false
   }
 
   idExistsOn (array: number[], id: number) {
@@ -314,6 +331,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     } catch { }
 
     this.isFetching = false
+  }
+
+  @debounce(500)
+  async lazyFetchTask () {
+    await this.fetchTask()
   }
 
   async resetFilters () {
@@ -364,169 +386,150 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 </script>
 
 <style lang="postcss" scoped>
-.task-board {
+.board {
   @apply flex flex-col h-full;
   flex: 1 1 0;
   width: 0;
 }
 
-.board {
-  flex: 1 1 0;
-  overflow-x: scroll;
-  height: 0;
-}
-
 .header {
-  @apply flex flex-row px-6 py-2 items-center;
+  @apply flex flex-row items-center;
+  margin-left: 72px;
+  margin-right: 24px;
+  margin-top: 24px;
+  margin-bottom: 24px;
   background: #ffffff;
   color: theme("colors.gray.900");
-  border-bottom: solid 1px theme("colors.gray.100");
 }
 
-.header-title {
-  @apply text-lg;
-  flex: 1 1 auto;
+.title {
+  display: flex;
+  flex: 1 auto;
+  font-size: 24px;
+  font-weight: 700;
 }
 
-.header-actions {
-  @apply flex flex-row items-center;
-  flex: 0 0 auto;
+.actions {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  flex: 0 auto;
+}
+
+.action-group {
+  display: flex;
+  flex-flow: row;
+  padding: 0 8px;
+
+  &:first-child {
+    padding-left: 0;
+  }
+
+  &:last-child {
+    padding-right: 0;
+  }
+}
+
+.action-group + .action-group {
+  border-left: 1px solid #dee2ee;
+}
+
+.action-group--view {
+  >>> .target {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+  }
+
+  .action__active,
+  .action__active:hover {
+    background: #444754;
+    color: white;
+  }
 }
 
 .action {
-  @apply px-4;
-  border-right: solid 1px theme("colors.gray.100");
-}
-
-.action-search {
-  @apply flex flex-row items-center;
-}
-
-.action-search-icon {
-  flex: 0 0 auto;
-}
-
-.action-search-input {
-  @apply bg-transparent text-gray-400 px-2 py-2 outline-none w-auto;
-  border-bottom: solid 1px transparent;
-  flex: 1 1 auto;
-  width: 72px;
-  transition: all 0.3s ease;
-
-  &:focus,
-  &:hover,
-  &:active {
-    border-bottom: solid 1px rgba(theme("colors.white.default"), 0.3);
-  }
-  &:focus {
-    width: 128px;
-  }
-}
-
-.action-filter {
-  @apply flex flex-row items-center py-2;
-}
-
-.action-type {
-  @apply flex flex-row items-center;
-}
-
-.icon-circle {
-  @apply rounded-full p-2;
-  color: transparent;
-  stroke: theme("colors.gray.900");
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
+  transition: all 300ms;
 
-  &.active {
-    background: theme("colors.primary.default");
-    stroke: #fff;
+  &:hover {
+    background-color: #f4f5f7;
   }
 }
 
-.empty {
-  @apply m-4 p-4 rounded shadow text-center;
-  color: theme("colors.gray.800");
-  background: rgba(theme("colors.gray.100"), 0.25);
-}
-.action-wrapper {
-  @apply flex items-center;
-  cursor: pointer;
-  font-weight: 600;
-  &.active {
-    color: theme("colors.primary.default");
-  }
+.action + .action {
+  margin-left: 4px;
 }
 
-.filter-field {
-  @apply m-4 mt-0;
-  color: theme("colors.gray.900");
-  & ~ & {
-    @apply mb-4;
-  }
-  .tag-container{
-    @apply flex items-center;
-    .tag-color {
-      @apply py-1 px-2 rounded;
-      flex: 1 1 auto;
-      color: #fff;
-      text-transform: uppercase;
-      border: 1px solid #000;
-      font-weight: bold;
-      span {
-        flex: 1 1 auto;
-      }
-      .icon {
-        @apply ml-4;
-        cursor: pointer;
-        flex: 0 0 auto;
-        stroke: white;
-        opacity:0.75;
-        &:hover{
-          opacity: 1;
-        }
-      }
-    }
-    .icon-checkmark {
-      @apply ml-2;
-      width: 32px;
-    }
+.action__active,
+.action__active:hover {
+  background-color: #ddf3ff;
+  color: #146493;
+}
+
+.action__disabled {
+  pointer-events: none;
+  color: theme("colors.gray.400");
+}
+
+.action--icon {
+  margin-right: 4px;
+  font-size: 20px;
+}
+
+.action--search {
+  &.action__active {
+    width: 304px;
+    box-shadow: 0 0 2px 2px #8cd5ff;
+    border-radius: 4px;
+    background: white;
+    color: #444754;
   }
 
-  .member-option {
-    @apply flex items-center;
-    .member-option-name {
-      @apply ml-2;
-      flex: 1 1 auto;
-      font-weight: 600;
-      color: theme("colors.gray.800");
-      &.selected {
-        color: theme("colors.gray.900");
-      }
-    }
-    .icon-checkmark {
-      @apply ml-2;
-      width: 32px;
-    }
+  input {
+    width: 100%;
+    outline: none;
   }
 
-  .member-option-display {
-    @apply relative;
+  .action--body {
+    display: flex;
+    flex-flow: row;
+    position: relative;
+    width: 100%;
+    z-index: 110;
+  }
+
+  .action--search--close {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: #F4F5F7;
+    outline: none;
+    font-size: 12px;
+    stroke-width: 2px;
   }
 }
 
-.member-option {
-  @apply flex items-center;
-  span {
-    @apply ml-2;
-    flex: 1 1 auto;
-  }
-}
-.member-option-display {
+.view--kanban {
+  flex: 1;
+  overflow-x: auto;
+  padding-left: 72px;
 }
 
-.search-notice {
-  @apply mr-4 p-2 rounded;
-  background: theme("colors.danger.default");
-  color: white;
+.view--list {
+  flex: 1;
+  padding-left: 52px;
+  padding-bottom: 52px;
 }
 </style>

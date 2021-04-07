@@ -15,7 +15,6 @@
       </div>
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()">
-      <div class="color"></div>
       <div class="card-item">
         <div class="header">
           <div class="title" ref="cardTitle">
@@ -398,15 +397,6 @@ export default class TaskCard extends Vue {
        background: #F9FAFF;
        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
     }
-  }
-
-  .color {
-    @apply rounded;
-    background: theme("colors.gray.100");
-    width: 3px;
-    height: auto;
-    align-self: stretch;
-    flex: 0 0 auto;
   }
 
   .card-item {

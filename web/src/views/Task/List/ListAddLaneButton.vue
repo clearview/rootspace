@@ -1,52 +1,56 @@
 <template>
-  <button class="add-lane-button" @click="$emit('click')">
-    <legacy-icon class="add-lane-button-icon" name="plus" size="1.5rem"/>
-    <span class="add-lane-button-label"><slot></slot></span>
+  <button
+    :class="$style.container"
+    @click="$emit('click')"
+  >
+    <mono-icon
+      :class="$style.icon"
+      name="plus"
+    />
+    <span :class="$style.label">
+      <slot></slot>
+    </span>
   </button>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { defineComponent } from '@vue/composition-api'
 
-@Component({
+export default defineComponent({
   name: 'ListAddLaneButton'
 })
-export default class ListAddLaneButton extends Vue {
-}
 </script>
 
-<style lang="postcss" scoped>
+<style lang="postcss" module>
+.container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 11px 24px;
+  background: #F4F5F7;
+  outline: none;
+  transition: all 0.3s ease;
 
-  .add-lane-button {
-    @apply inline-flex items-center rounded outline-none;
-    padding: 8px 24px 8px 16px;
-    background: #F8F9FD;
-
-    color: theme("colors.gray.800");
-    transition: all 0.3s ease;
-
-    .stroke-current {
-
-    }
-
-    &-icon {
-      flex: 0 0 auto;
-    }
-
-    &-label {
-      flex: 0 0 auto;
-      margin-left: 4px;
-    }
-
-    &:hover {
-      background: #EFF1F6;
-      color: theme("colors.gray.900");
-    }
-
-    &:active {
-      background: theme("colors.gray.100");
-      color: theme("colors.gray.900");
-    }
+  &:hover {
+    background: #eff1f6;
+    color: theme("colors.gray.900");
   }
 
+  &:active {
+    background: theme("colors.gray.100");
+    color: theme("colors.gray.900");
+  }
+}
+
+.icon {
+  flex: 0;
+  font-size: 20px;
+  stroke-width: 2px;
+}
+
+.label {
+  flex: 1;
+  margin-left: 4px;
+}
 </style>

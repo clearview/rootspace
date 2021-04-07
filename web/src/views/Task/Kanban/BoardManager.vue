@@ -112,20 +112,20 @@ export default class BoardManager extends Vue {
   }
 
   .board-list {
-    @apply p-4;
+    /* @apply p-4; */
   }
 
   .board-kanban-draggable{
     @apply flex flex-row items-start h-full;
   }
   .board-kanban {
-    @apply flex flex-row items-start p-4 overflow-x-scroll h-full;
+    @apply flex flex-row items-start h-full;
   }
   .lane-input {
     @apply ml-4;
   }
   .board-transition-group {
-    @apply flex flex-row overflow-x-scroll items-start;
+    @apply flex flex-row items-start;
   }
 
   .lane-floating {
