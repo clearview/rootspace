@@ -3,6 +3,7 @@ export enum UploadType {
   SpaceLogo = 'spaceLogo',
   TaskAttachment = 'taskAttachment',
   DocContent = 'docContent',
+  Storage = 'storage'
 }
 
 export enum UploadEntity {
@@ -10,6 +11,7 @@ export enum UploadEntity {
   Space = 'Space',
   Task = 'Task',
   Doc = 'Doc',
+  Storage = 'Storage'
 }
 
 export interface IUploadImageSize {
