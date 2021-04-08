@@ -1,4 +1,4 @@
-import { EntityValue, attributes } from '../entity'
+import { EntityValue, attributes } from '../../root/values'
 import { IStorageUpdateAttributes } from './types'
 
 export const StorageUpdateAttributes: IStorageUpdateAttributes = {

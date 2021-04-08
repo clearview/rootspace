@@ -1,4 +1,4 @@
-import { EntityValue, attributes } from '../entity'
+import { EntityValue, attributes } from '../../root/values'
 import { IStorageCreateAttributes } from './types'
 
 export const StorageCreateAttributes: IStorageCreateAttributes = {
