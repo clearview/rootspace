@@ -66,15 +66,14 @@ export class UploadsCtrl extends BaseCtrl {
     const file = req.file
 
     await validateUpload(Object.assign({ ...data }, { file }))
-    
+
     data.entity = UploadTypeEntityMap.get(data.type)
 
-    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(
-      data.entity,
-      data.entityId
-    )
+    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(data.entity, data.entityId)
 
     this.isSpaceMember(req, entity.spaceId)
+
+    data.spaceId = entity.spaceId
 
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value, req.user.id)
