@@ -11,14 +11,14 @@ import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
 import { Task } from '../../database/entities/tasks/Task'
-import { EntityService } from '../index'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { Service } from '../Service'
-import { UploadValue } from '../../values/upload'
-import { IUploadImageConfig, IUploadImageSize, IUploadVersions, UploadType } from '../../types/upload'
-import { UploadImageConfig, UploadUniqueTypes } from './config'
+import { EntityService } from '../'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { TaskActivity } from '../activity/activities/content'
+import { UploadImageConfig, UploadUniqueTypes } from './config'
+import { UploadValue, UploadType } from '.'
+import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -67,12 +67,6 @@ export class UploadService extends Service {
   }
 
   async upload(data: UploadValue, actorId: number) {
-    const entity = await this.entityService.getEntityByNameAndId(data.attributes.entity, data.attributes.entityId)
-
-    if (!entity) {
-      throw clientError('Entity for upload not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
-    }
-
     let upload = await this.obtainUploadEntity(data)
 
     Object.assign(upload, data.attributes)
@@ -117,7 +111,7 @@ export class UploadService extends Service {
     return this.getUploadRepository().create()
   }
 
-  isUploadUniqueType(type: UploadType): boolean {
+  isUploadUniqueType(type: string): boolean {
     if (UploadUniqueTypes.includes(type)) {
       return true
     }
@@ -139,7 +133,7 @@ export class UploadService extends Service {
     )
   }
 
-  async createImageVersions(data: UploadValue): Promise<IUploadVersions | null> {
+  async createImageVersions(data: UploadValue): Promise<UploadVersions | null> {
     const cnfg = this.getUploadImageConfig(data.attributes.type)
 
     if (!cnfg) {
@@ -175,7 +169,7 @@ export class UploadService extends Service {
     )
   }
 
-  generateImage(file: any, size: IUploadImageSize): Promise<Buffer | null> {
+  generateImage(file: any, size: UploadImageSize): Promise<Buffer | null> {
     return new Promise((resolve, reject) => {
       sharp(file)
         .resize(size.width, size.height)
@@ -189,7 +183,7 @@ export class UploadService extends Service {
     })
   }
 
-  getUploadImageConfig(uploadType: UploadType): IUploadImageConfig | null {
+  getUploadImageConfig(uploadType: string): UploadImageConfigType | null {
     for (const cnfg of UploadImageConfig) {
       if (cnfg.type === uploadType) {
         return cnfg

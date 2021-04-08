@@ -3,7 +3,6 @@ import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
 import { Upload } from '../../entities/Upload'
-import { UploadEntity } from '../../../types/upload'
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {
@@ -55,7 +54,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
         Upload,
         'avatar',
         'avatar.entityId = createdBy.id AND avatar.entity = :avatarEntity',
-        { avatarEntity: UploadEntity.User }
+        { avatarEntity: Upload.entities.User }
       )
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndMapOne(
@@ -63,7 +62,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
         Upload,
         'assigneeAvatar',
         'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = :assigneeAvatarEntity',
-        { assigneeAvatarEntity: UploadEntity.User }
+        { assigneeAvatarEntity: Upload.entities.User }
       )
       .leftJoinAndMapMany(
         'task.attachments',

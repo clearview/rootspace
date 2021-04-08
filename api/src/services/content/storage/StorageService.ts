@@ -1,14 +1,14 @@
 import { getCustomRepository } from 'typeorm'
-import { StorageRepository } from '../../database/repositories/StorageRepository'
-import { Storage } from '../../database/entities/Storage'
-import { Node } from '../../database/entities/Node'
-import { StorageCreateValue, StorageUpdateValue } from '../../values/storage'
-import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
-import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { StorageActivity } from '../activity/activities/content'
-import { NodeService, NodeContentService } from '../'
-import { ServiceFactory } from '../factory/ServiceFactory'
+import { StorageRepository } from '../../../database/repositories/StorageRepository'
+import { Storage } from '../../../database/entities/Storage'
+import { Node } from '../../../database/entities/Node'
+import { StorageCreateValue, StorageUpdateValue } from './values'
+import { NodeCreateValue } from '../../../values/node'
+import { NodeType } from '../../../types/node'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
+import { StorageActivity } from '../../activity/activities/content'
+import { NodeService, NodeContentService } from '../..'
+import { ServiceFactory } from '../../factory/ServiceFactory'
 
 export class StorageService extends NodeContentService {
   private nodeService: NodeService
@@ -29,7 +29,7 @@ export class StorageService extends NodeContentService {
   }
 
   getNodeType(): NodeType {
-    return NodeType.Folder
+    return NodeType.Storage
   }
 
   getStorageRepository(): StorageRepository {
@@ -50,7 +50,7 @@ export class StorageService extends NodeContentService {
     return storage
   }
 
-  async create(data: StorageCreateValue): Promise<Node & Storage> {
+  async create(data: StorageCreateValue): Promise<Storage> {
     const storage = await this.getStorageRepository().save(data.attributes)
 
     let value = NodeCreateValue.fromObject({
@@ -58,7 +58,7 @@ export class StorageService extends NodeContentService {
       spaceId: storage.spaceId,
       contentId: storage.id,
       title: storage.title,
-      type: NodeType.Folder,
+      type: this.getNodeType(),
     })
 
     if (data.attributes.parentId) {
@@ -69,7 +69,7 @@ export class StorageService extends NodeContentService {
 
     await this.notifyActivity(StorageActivity.created(storage, storage.userId))
 
-    return { ...storage, ...node }
+    return Object.assign(storage, { node })
   }
 
   async update(data: StorageUpdateValue, id: number, actorId: number): Promise<Storage> {

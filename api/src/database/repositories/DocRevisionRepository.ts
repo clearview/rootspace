@@ -3,7 +3,6 @@ import { User } from '../entities/User'
 import { BaseRepository } from './BaseRepository'
 import { DocRevision } from '../entities/DocRevision'
 import { Upload } from '../entities/Upload'
-import { UploadEntity } from '../../types/upload'
 
 @EntityRepository(DocRevision)
 export class DocRevisionRepository extends BaseRepository<DocRevision> {
@@ -16,7 +15,7 @@ export class DocRevisionRepository extends BaseRepository<DocRevision> {
         Upload,
         'avatar',
         'avatar.entityId = revisionUser.id AND avatar.entity = :avatarEntity',
-        { avatarEntity: UploadEntity.User }
+        { avatarEntity: Upload.entities.User }
       )
       .orderBy('docRevision.revisionAt', 'DESC')
       .getMany()

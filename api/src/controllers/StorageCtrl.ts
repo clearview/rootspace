@@ -1,10 +1,14 @@
+import { ForbiddenError } from '@casl/ability'
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { StorageService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { validateStorageCreate, validateStorageUpdate } from '../validation/storage'
-import { StorageCreateValue, StorageUpdateValue } from '../values/storage'
-import { ForbiddenError } from '@casl/ability'
+import {
+  StorageCreateValue,
+  StorageUpdateValue,
+  validateStorageCreate,
+  validateStorageUpdate,
+} from '../services/content/storage'
 import { Actions } from '../middleware/AuthMiddleware'
 
 export class StorageCtrl extends BaseCtrl {
@@ -55,7 +59,7 @@ export class StorageCtrl extends BaseCtrl {
   async restore(req: Request, res: Response) {
     const id = Number(req.params.id)
 
-    const storage = await this.storageService.requireById(id, {withDeleted: true})
+    const storage = await this.storageService.requireById(id, { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, storage)
 
     const result = await this.storageService.restore(id, req.user.id)

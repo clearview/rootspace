@@ -1,7 +1,7 @@
-import { EntityValue, attributes } from '../../root/values'
-import { IUploadAttributes } from './types'
+import { EntityValue, attributes } from '../../../root/values'
+import { UploadAttributes } from './types'
 
-export const UploadAttributes: IUploadAttributes = {
+export const attrs: UploadAttributes = {
   userId: null,
   spaceId: null,
   entityId: null,
@@ -9,8 +9,8 @@ export const UploadAttributes: IUploadAttributes = {
   type: null,
 }
 
-@attributes(UploadAttributes)
-export class UploadValue extends EntityValue<IUploadAttributes> {
+@attributes(attrs)
+export class UploadValue extends EntityValue<UploadAttributes> {
   private _file: any = undefined
 
   get file(): any {
@@ -31,11 +31,11 @@ export class UploadValue extends EntityValue<IUploadAttributes> {
     return copy
   }
 
-  static fromObject(object: IUploadAttributes): UploadValue {
+  static fromObject(object: UploadAttributes): UploadValue {
     return new UploadValue(object)
   }
 
-  static fromObjectAndUserId(object: IUploadAttributes, userId: number): UploadValue {
+  static fromObjectAndUserId(object: UploadAttributes, userId: number): UploadValue {
     return UploadValue.fromObject(Object.assign({ ...object }, { userId }))
   }
 }

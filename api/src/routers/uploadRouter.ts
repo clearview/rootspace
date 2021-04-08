@@ -16,7 +16,6 @@ const upload = multer({
 router.post('/uploads', upload.single('file'), [
   mapRoute(UploadsCtrl, 'uploadUserAvatar'),
   mapRoute(UploadsCtrl, 'uploadSpaceLogo'),
-  mapRoute(UploadsCtrl, 'uploadStorage'),
   mapRoute(UploadsCtrl, 'upload'),
 ])
 
