@@ -128,6 +128,17 @@ export class TaskRepository extends BaseRepository<Task> {
       searchQuery.andWhere('tag.id IN (:...tags)', { tags: filterParam.tags })
     }
 
+    if (typeof filterParam?.dueDate !== 'undefined') {
+      searchQuery
+        .andWhere('task.dueDate IS NOT null')
+        .andWhere('task.dueDate >= :dueDateStart', {
+          dueDateStart: filterParam.dueDate.start
+        })
+        .andWhere('task.dueDate <= :dueDateEnd', {
+          dueDateEnd: filterParam.dueDate.end
+        })
+    }
+
     return searchQuery.getMany()
   }
 
