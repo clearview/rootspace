@@ -19,18 +19,7 @@ export class UploadsCtrl extends BaseCtrl {
       return next()
     }
 
-    const data = req.body
-    const file = req.file
-
-    await validateUpload(Object.assign({ ...data }, { file }))
-
-    data.entityId = data.spaceId
-    data.entity = UploadEntity.Space
-
-    const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
-    const upload = await this.uploadService.upload(value, req.user.id)
-
-    res.send(this.responseData(upload))
+    return this.validateAndUpload(req, res, next)
   }
 
   async uploadSpaceLogo(req: Request, res: Response, next: NextFunction) {
@@ -38,6 +27,10 @@ export class UploadsCtrl extends BaseCtrl {
       return next()
     }
 
+    return this.validateAndUpload(req, res, next)
+  }
+
+  async validateAndUpload(req: Request, res: Response, next: NextFunction) {
     const data = req.body
     const file = req.file
 
