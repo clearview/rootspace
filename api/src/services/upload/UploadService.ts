@@ -70,7 +70,7 @@ export class UploadService extends Service {
     const entity = await this.entityService.getEntityByNameAndId(data.attributes.entity, data.attributes.entityId)
 
     if (!entity) {
-      throw clientError('Entity for uplaod not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+      throw clientError('Entity for upload not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     let upload = await this.obtainUploadEntity(data)
