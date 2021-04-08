@@ -359,7 +359,7 @@ export default class TaskLane extends Vue {
     flex: 0 0 auto;
   }
 
-  .task-lane ~ .task-lane {
+  .task-lane + .task-lane {
     @apply ml-4;
   }
 

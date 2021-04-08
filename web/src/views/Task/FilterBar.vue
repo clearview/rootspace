@@ -120,7 +120,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, PropType, ref, watch } from '@vue/composition-api'
+import { computed, defineComponent, PropType, ref } from '@vue/composition-api'
 import { isEmpty } from 'lodash'
 
 import { InlineModal } from '@/components/modal'

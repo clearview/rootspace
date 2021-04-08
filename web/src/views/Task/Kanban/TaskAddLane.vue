@@ -27,6 +27,10 @@ export default defineComponent({
   width: 300px;
   max-height: 80vh;
   flex: 0 0 auto;
+
+  &:first-child {
+    margin-left: 0;
+  }
 }
 
 .button {

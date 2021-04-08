@@ -10,7 +10,7 @@
 
       <div class="actions">
         <div class="action-group">
-          <div
+          <label
             class="action action--search"
             :class="{ 'action__active': searchVisible }"
             @click="searchVisible = true"
@@ -34,13 +34,14 @@
               >
 
               <button
+                v-if="search"
                 class="action--search--close"
                 @click.stop="clearSearch"
               >
                 <mono-icon name="close" />
               </button>
             </div>
-          </div>
+          </label>
         </div>
         <div class="action-group">
           <div
@@ -120,13 +121,9 @@
       class="view--kanban"
       v-if="isKanban"
     >
-      <TaskGhost
-        v-if="isFetching"
-        active
-      />
       <BoardManager
-        :can-drag="!isSearching"
-        v-if="!isFetching && board"
+        :loading="firstLoad"
+        :can-drag="!filtered"
         :board="board"
       />
     </div>
@@ -135,13 +132,9 @@
       class="view--list"
       v-else
     >
-      <ListGhost
-        v-if="isFetching"
-        active
-      />
       <ListManager
-        :can-drag="!isSearching"
-        v-if="!isFetching && board"
+        :loading="firstLoad"
+        :can-drag="!filtered"
         :board="board"
       />
     </div>
@@ -166,19 +159,16 @@ import FilterBar from './FilterBar.vue'
 import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
 import Popover from '@/components/Popover.vue'
-import TaskGhost from '@/components/TaskGhost.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-import ListGhost from '@/components/ListGhost.vue'
 import Tip from '@/components/Tip.vue'
+import { some } from 'lodash'
 
 @Component({
   name: 'TaskPage',
   components: {
     ListManager,
     Tip,
-    ListGhost,
-    TaskGhost,
     BoardManager,
     Popover,
     VSelect,
@@ -198,19 +188,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   private boardCache: TaskBoardResource | null = null
   private memberList: Array<UserResource> = []
-  private isSearching = false
+  private firstLoad = true
   private isFetching = false
   private filterVisible = false
   private searchVisible = false
 
-  @Watch('boardId')
-  async getSpaceMember () {
-    try {
-      const id = this.activeSpace.id
-      const viewUserAtSpace = await SpaceService.spaceUsers(id)
-
-      this.memberList = viewUserAtSpace.data
-    } catch { }
+  private get filtered () {
+    return some([
+      this.search.length,
+      this.filters.tags.length,
+      this.filters.assignees.length
+    ])
   }
 
   get tags (): TagResource[] | null {
@@ -238,6 +226,31 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   get shouldShowTip (): boolean {
     return !this.$store.state.task.settings.seenViewTip
+  }
+
+  @Watch('boardId')
+  async fetchOnSwitchBoard () {
+    this.firstLoad = true
+
+    this.searchVisible = false
+    this.filterVisible = false
+    this.search = ''
+    this.filters = {
+      tags: [],
+      assignees: [],
+      unassigned: false
+    }
+    await this.fetchTask()
+  }
+
+  @Watch('boardId')
+  async getSpaceMember () {
+    try {
+      const id = this.activeSpace.id
+      const viewUserAtSpace = await SpaceService.spaceUsers(id)
+
+      this.memberList = viewUserAtSpace.data
+    } catch { }
   }
 
   viewAsList () {
@@ -272,19 +285,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     })
   }
 
-  @Watch('boardId')
-  async clearAndFetchTask () {
-    this.searchVisible = false
-    this.filterVisible = false
-    this.search = ''
-    this.filters = {
-      tags: [],
-      assignees: [],
-      unassigned: false
-    }
-    await this.fetchTask()
-  }
-
   clearSearch () {
     this.search = ''
     this.fetchTask()
@@ -310,14 +310,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
   async fetchTask () {
     this.isFetching = true
+
     try {
       await this.$store.dispatch('task/board/search', { boardId: this.boardId, search: this.search, filters: this.filters })
       await this.$store.dispatch('task/tag/fetch', null)
-      if (this.search.length > 0 || this.filters.assignees.length > 0 || this.filters.tags.length > 0) {
-        this.isSearching = true
-      } else {
-        this.isSearching = false
-      }
+
       if (this.board) {
         this.boardCache = this.board
 
@@ -331,6 +328,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     } catch { }
 
     this.isFetching = false
+    this.firstLoad = false
   }
 
   @debounce(500)
