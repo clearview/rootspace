@@ -88,6 +88,11 @@ const routes: Array<RouteConfig> = [
         path: '/embed/:id',
         name: 'Embed',
         component: () => import(/* webpackChunkName: "embed" */'../views/Embed.vue')
+      },
+      {
+        path: '/file',
+        name: 'File',
+        component: () => import(/* webpackChunkName: "files" */'../views/File/FilePage.vue')
       }
     ]
   },

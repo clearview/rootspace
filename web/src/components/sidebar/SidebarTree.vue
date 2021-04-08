@@ -218,7 +218,8 @@ enum MenuType {
   TASK = 'task',
   DOCUMENT = 'document',
   NOVADOC = 'novadoc',
-  EMBED = 'embed'
+  EMBED = 'embed',
+  FILE = 'file'
 }
 
 enum ModalType {
@@ -427,6 +428,32 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         }).catch(() => {
           // Silent duplicate error
         })
+      } catch { }
+
+      this.$emit('menu-selected', false)
+
+      return true
+    }
+
+    if (type === MenuType.FILE) {
+      try {
+        const payload = {
+          spaceId: this.activeSpace.id,
+          title: 'Untitled',
+          content: {},
+          access: 2,
+          isLocked: false,
+          config: {
+
+          }
+        }
+
+        this.$router.replace({
+          name: 'File'
+        })
+          .catch(() => {
+            // Silent duplicate error
+          })
       } catch { }
 
       this.$emit('menu-selected', false)

@@ -136,6 +136,33 @@
         />
       </span>
     </a>
+
+    <a
+      class="SelectNodeType-option"
+      @click="$emit('select', 'file')"
+    >
+      <div class="SelectNodeType-icon">
+        <legacy-icon
+          name="menu-document"
+          size="24px"
+          viewbox="24"
+        />
+      </div>
+
+      <div class="SelectNodeType-desc">
+        <h5>File</h5>
+        <p>Add a file anything you’d like.</p>
+      </div>
+
+      <span class="arrow">
+        <legacy-icon
+          name="down2"
+          size="20px"
+          viewbox="16"
+          class="text-gray-400"
+        />
+      </span>
+    </a>
   </div>
 </template>
 

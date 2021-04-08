@@ -21,7 +21,8 @@ enum MenuType {
   LINK = 'link',
   TASK = 'task',
   DOCUMENT = 'document',
-  EMBED = 'embed'
+  EMBED = 'embed',
+  FILE = 'file'
 }
 
 @Component({
