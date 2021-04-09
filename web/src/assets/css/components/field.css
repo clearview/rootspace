@@ -48,6 +48,10 @@
 }
 
 .input {
+  .is-disabled & {
+    @apply text-gray-400;
+  }
+
   .has-addon & {
     @apply rounded-tr-none rounded-br-none;
   }

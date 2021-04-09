@@ -79,6 +79,7 @@
       label="Email"
       name="email"
       has-icon-right
+      :disabled="emailReadonly"
     >
       <input
         class="input"
@@ -153,6 +154,7 @@
 </template>
 
 <script lang="ts">
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
 
 import { PasswordResource } from '@/types/resource'
@@ -162,8 +164,6 @@ import Modal from '@/components/legacy/Modal.vue'
 import FormChangePassword from '@/components/form/FormChangePassword.vue'
 import UserService from '@/services/user'
 import Alert from '@/components/Alert.vue'
-
-import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
   name: 'FormSettings',
@@ -183,6 +183,9 @@ import { Vue, Component } from 'vue-property-decorator'
 })
 
 export default class FormSettings extends Vue {
+  @Prop(Boolean)
+  private readonly emailReadonly!: boolean
+
   private loadingMessage = 'Update Password...'
   private isLoading = false;
 
