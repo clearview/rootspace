@@ -219,7 +219,7 @@ enum MenuType {
   DOCUMENT = 'document',
   NOVADOC = 'novadoc',
   EMBED = 'embed',
-  FILE = 'file'
+  FILES = 'files'
 }
 
 enum ModalType {
@@ -435,7 +435,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       return true
     }
 
-    if (type === MenuType.FILE) {
+    if (type === MenuType.FILES) {
       try {
         const payload = {
           spaceId: this.activeSpace.id,
@@ -449,7 +449,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         }
 
         this.$router.replace({
-          name: 'File'
+          name: 'Files'
         })
           .catch(() => {
             // Silent duplicate error

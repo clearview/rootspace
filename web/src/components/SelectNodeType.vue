@@ -139,7 +139,7 @@
 
     <a
       class="SelectNodeType-option"
-      @click="$emit('select', 'file')"
+      @click="$emit('select', 'files')"
     >
       <div class="SelectNodeType-icon">
         <legacy-icon
