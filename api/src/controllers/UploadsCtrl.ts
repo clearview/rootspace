@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { User } from '../database/entities/User'
 import { Space } from '../database/entities/Space'
-import { UploadType, UploadEntity, validateUpload, UploadValue } from '../services/upload'
+import { UploadType, UploadEntity, validateUpload, UploadValue, UploadUpdateValue } from '../services/upload'
 import { UploadTypeEntityMap } from '../services/upload/config'
 import { ContentEntity } from '../root/types'
 import { EntityService, UploadService } from '../services'
@@ -70,7 +70,6 @@ export class UploadsCtrl extends BaseCtrl {
     data.entity = UploadTypeEntityMap.get(data.type)
 
     const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(data.entity, data.entityId)
-
     this.isSpaceMember(req, entity.spaceId)
 
     data.spaceId = entity.spaceId
@@ -82,17 +81,21 @@ export class UploadsCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const data = req.body.data
-    const result = await this.uploadService.update(data, id, req.user.id)
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+    this.isSpaceMember(req, upload.spaceId)
+
+    const value = UploadUpdateValue.fromObject(req.body.data)
+
+    const result = await this.uploadService.update(value, upload, req.user.id)
 
     res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const result = await this.uploadService.remove(id, req.user.id)
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+    this.isSpaceMember(req, upload.spaceId)
 
+    const result = await this.uploadService.remove(upload, req.user.id)
     res.send(this.responseData(result))
   }
 }

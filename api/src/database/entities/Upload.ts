@@ -36,6 +36,9 @@ export class Upload {
   @Column('varchar', { nullable: true })
   filename: string
 
+  @Column('varchar', { nullable: true })
+  name: string
+
   @Column('json', { nullable: true })
   versions: object
 

@@ -1,41 +1,42 @@
 import { EntityValue, attributes } from '../../../root/values'
 import { UploadAttributes } from './types'
 
-export const attrs: UploadAttributes = {
+const attrs: UploadAttributes = {
   userId: null,
   spaceId: null,
   entityId: null,
   entity: null,
   type: null,
+  name: null,
 }
 
 @attributes(attrs)
 export class UploadValue extends EntityValue<UploadAttributes> {
   private _file: any = undefined
 
-  get file(): any {
+  get file(): Express.Multer.File {
     return this._file
   }
 
-  withFile(file: any): UploadValue {
+  withFile(file: any) {
     const copy = this.copy()
     copy._file = file
 
     return copy
   }
 
-  private copy(): UploadValue {
+  private copy() {
     const copy = new UploadValue({ ...this.attributes })
     copy._file = this._file
 
     return copy
   }
 
-  static fromObject(object: UploadAttributes): UploadValue {
+  static fromObject(object: UploadAttributes) {
     return new UploadValue(object)
   }
 
-  static fromObjectAndUserId(object: UploadAttributes, userId: number): UploadValue {
+  static fromObjectAndUserId(object: UploadAttributes, userId: number) {
     return UploadValue.fromObject(Object.assign({ ...object }, { userId }))
   }
 }
