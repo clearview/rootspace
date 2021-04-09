@@ -1,5 +1,5 @@
 import { ForbiddenError } from '@casl/ability'
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { StorageService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
@@ -9,7 +9,7 @@ import {
   validateStorageCreate,
   validateStorageUpdate,
 } from '../services/content/storage'
-import { Actions } from '../middleware/AuthMiddleware'
+import { Actions, Subjects } from '../middleware/AuthMiddleware'
 
 export class StorageCtrl extends BaseCtrl {
   private storageService: StorageService
@@ -17,6 +17,13 @@ export class StorageCtrl extends BaseCtrl {
   constructor() {
     super()
     this.storageService = ServiceFactory.getInstance().getStorageService()
+  }
+
+  async view(req: Request, res: Response) {
+    const storage = await this.storageService.getByIdWithUploads(Number(req.params.id))
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, storage ? storage : Subjects.Storage)
+
+    res.send(this.responseData(storage))
   }
 
   async create(req: Request, res: Response) {

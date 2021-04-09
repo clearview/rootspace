@@ -40,6 +40,10 @@ export class StorageService extends NodeContentService {
     return this.getStorageRepository().getById(id, options)
   }
 
+  getByIdWithUploads(id: number, options: any = {}): Promise<Storage | undefined> {
+    return this.getStorageRepository().getByIdWithUploads(id, options)
+  }
+
   async requireById(id: number, options: any = {}): Promise<Storage> {
     const storage = await this.getById(id, options)
 
