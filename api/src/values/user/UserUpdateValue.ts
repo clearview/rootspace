@@ -3,8 +3,7 @@ import { IUserUpdateAttributes } from './types'
 
 export const UserUpdateAttributes: IUserUpdateAttributes = {
   firstName: undefined,
-  lastName: undefined,
-  email: undefined,
+  lastName: undefined
 }
 
 @attributes(UserUpdateAttributes)
