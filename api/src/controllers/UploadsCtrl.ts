@@ -81,6 +81,14 @@ export class UploadsCtrl extends BaseCtrl {
     res.send(this.responseData(upload))
   }
 
+  async update(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const data = req.body.data
+    const result = await this.uploadService.update(data, id, req.user.id)
+
+    res.send(this.responseData(result))
+  }
+
   async delete(req: Request, res: Response) {
     const id = Number(req.params.id)
     const result = await this.uploadService.remove(id, req.user.id)

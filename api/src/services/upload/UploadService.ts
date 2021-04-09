@@ -19,6 +19,7 @@ import { TaskActivity } from '../activity/activities/content'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadValue, UploadType } from '.'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
+import { UploadUpdateValue } from '../../values/upload'
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -94,6 +95,17 @@ export class UploadService extends Service {
       const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
       await this.notifyActivity(TaskActivity.attachmentAdded(task, upload, actorId))
     }
+
+    return upload
+  }
+
+  async update(data: UploadUpdateValue, id: number, actorId: number): Promise<Upload> {
+    let upload = await this.requireUploadById(id)
+
+    Object.assign(upload, data)
+
+    upload = await this.getUploadRepository().save(upload)
+    upload = await this.getUploadRepository().reload(upload)
 
     return upload
   }
