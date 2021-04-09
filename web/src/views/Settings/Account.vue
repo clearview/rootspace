@@ -1,31 +1,40 @@
 <template>
   <div>
-    <Alert v-model="account.alert"/>
+    <Alert v-model="account.alert" />
     <div class="account">
       <div class="col-left">
         <div class="user-avatar">
-          <UploadableImage width="109px" height="109px" radius="1000px" type="userAvatar"
-                          edit-offset="0px"
-                          key="avatar"
-                          :upload="currentUser.avatar"
-                          @uploaded="refreshWhoami">
+          <UploadableImage
+            width="109px"
+            height="109px"
+            radius="1000px"
+            type="userAvatar"
+            edit-offset="0px"
+            key="avatar"
+            :upload="currentUser.avatar"
+            @uploaded="refreshWhoami"
+          >
             <template #fallback>
-              <avatar :size="109" :username="`${currentUser.firstName} ${currentUser.lastName}`"></avatar>
+              <avatar
+                :size="109"
+                :username="`${currentUser.firstName} ${currentUser.lastName}`"
+              />
             </template>
           </UploadableImage>
         </div>
       </div>
       <div class="col-right">
         <form-settings
+          email-readonly
+          ref="account"
           @submit-account="updateAccount"
-          ref="account"/>
+        />
       </div>
     </div>
 
     <Loading :loading="isLoading">
       <p>{{ loadingMessage }}</p>
     </Loading>
-
   </div>
 </template>
 
@@ -90,7 +99,7 @@ export default class Account extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .account {
   @apply flex flex-row my-4;
 
@@ -101,6 +110,5 @@ export default class Account extends Vue {
   .col-right {
     @apply flex flex-col py-2 w-4/6;
   }
-
 }
 </style>

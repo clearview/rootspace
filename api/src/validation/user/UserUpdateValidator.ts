@@ -1,4 +1,3 @@
-import { validations } from 'indicative/validator'
 import { BaseValidator } from '../../root/validation/BaseValidator'
 
 export class UserUpdateValidator extends BaseValidator {
@@ -12,11 +11,7 @@ export class UserUpdateValidator extends BaseValidator {
   rules() {
     return {
       firstName: 'accepted',
-      lastName: 'accepted',
-      email: [
-        validations.email(),
-        validations.dbUnique(['User', 'user', 'email', this.userId]),
-      ],
+      lastName: 'accepted'
     }
   }
 }
