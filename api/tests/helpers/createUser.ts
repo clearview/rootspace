@@ -1,7 +1,7 @@
 import * as faker from 'faker'
 import { User } from '../../src/database/entities/User'
 import { UserService } from '../../src/services'
-import { UserAuthProvider } from '../../src/values/user/UserAuthProvider'
+import { UserAuthProvider } from '../../src/types/user'
 
 async function createUser(email: string, password: string): Promise<User> {
     return UserService.getInstance().signup({
