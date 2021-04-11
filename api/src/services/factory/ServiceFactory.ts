@@ -22,6 +22,7 @@ import {
   UserSettingService,
   TaskCommentService,
   ContentAccessService,
+  StorageService
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -32,6 +33,7 @@ export class ServiceFactory {
   private docService: DocService
   private embedService: EmbedService
   private taskBoardService: TaskBoardService
+  private storageService: StorageService
 
   private constructor() {}
 
@@ -179,6 +181,14 @@ export class ServiceFactory {
     return ContentAccessService.getInstance()
   }
 
+  getStorageService() {
+    if (!this.storageService) {
+      this.initNodeContentServices()
+    }
+
+    return this.storageService
+  }
+
   private initNodeContentServices() {
     this.nodeService = NodeService.getInstance()
     this.nodeService.attachActivityObserver(this.getActivityService())
@@ -199,6 +209,9 @@ export class ServiceFactory {
     this.taskBoardService = TaskBoardService.getInstance()
     this.taskBoardService.attachActivityObserver(this.getActivityService())
 
+    this.storageService = StorageService.getInstance()
+    this.storageService.attachActivityObserver(this.getActivityService())
+
     const mediator = new NodeContentMediator(this.nodeService)
 
     mediator.addContentService(this.folderService)
@@ -206,5 +219,6 @@ export class ServiceFactory {
     mediator.addContentService(this.docService)
     mediator.addContentService(this.embedService)
     mediator.addContentService(this.taskBoardService)
+    mediator.addContentService(this.storageService)
   }
 }

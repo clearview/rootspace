@@ -1,8 +1,10 @@
-import { UploadType, IUploadImageConfig } from '../../types/upload'
+import { UploadImageConfigType } from './types'
+import { UploadEntity } from './UploadEntity'
+import { UploadType } from './UploadType'
 
 export const UploadUniqueTypes = [UploadType.UserAvatar, UploadType.SpaceLogo]
 
-export const UploadImageConfig: IUploadImageConfig[] = [
+export const UploadImageConfig: UploadImageConfigType[] = [
   {
     type: UploadType.UserAvatar,
     sizes: [
@@ -39,3 +41,11 @@ export const UploadImageConfig: IUploadImageConfig[] = [
     ],
   },
 ]
+
+export const UploadTypeEntityMap = new Map<string, string>([
+  [UploadType.UserAvatar, UploadEntity.User],
+  [UploadType.SpaceLogo, UploadEntity.Space],
+  [UploadType.TaskAttachment, UploadEntity.Task],
+  [UploadType.DocContent, UploadEntity.Doc],
+  [UploadType.Storage, UploadEntity.Storage],
+])

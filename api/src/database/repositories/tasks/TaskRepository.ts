@@ -2,7 +2,6 @@ import { Brackets, EntityRepository } from 'typeorm'
 import { Task } from '../../entities/tasks/Task'
 import { BaseRepository } from '../BaseRepository'
 import { Upload } from '../../entities/Upload'
-import { UploadEntity } from '../../../types/upload'
 
 @EntityRepository(Task)
 export class TaskRepository extends BaseRepository<Task> {
@@ -62,7 +61,7 @@ export class TaskRepository extends BaseRepository<Task> {
         Upload,
         'avatar',
         'avatar.entityId = createdBy.id AND avatar.entity = :avatarEntity',
-        { avatarEntity: UploadEntity.User }
+        { avatarEntity: Upload.entities.User }
       )
       .leftJoinAndSelect('task.assignees', 'assignee')
       .leftJoinAndMapOne(
@@ -70,7 +69,7 @@ export class TaskRepository extends BaseRepository<Task> {
         Upload,
         'assigneeAvatar',
         'assigneeAvatar.entityId = assignee.id and assigneeAvatar.entity = :assigneeAvatarEntity',
-        { assigneeAvatarEntity: UploadEntity.User }
+        { assigneeAvatarEntity: Upload.entities.User }
       )
       .leftJoinAndMapMany(
         'task.attachments',

@@ -7,6 +7,7 @@ export enum NodeType {
   Document = 'doc',
   Embed = 'embed',
   TaskBoard = 'taskBoard',
+  Storage = 'storage',
 }
 
 export interface INodeConfig {

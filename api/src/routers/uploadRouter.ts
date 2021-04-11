@@ -19,6 +19,7 @@ router.post('/uploads', upload.single('file'), [
   mapRoute(UploadsCtrl, 'upload'),
 ])
 
+router.patch('/uploads/:id', mapRoute(UploadsCtrl, 'update'))
 router.delete('/uploads/:id', mapRoute(UploadsCtrl, 'delete'))
 
 export { router as uploadRouter }
