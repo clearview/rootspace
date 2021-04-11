@@ -1,5 +1,7 @@
+import { Request, Response } from 'express'
+
 export function removeWsHeaders() {
-  return (req, res) => {
+  return (req: Request, res: Response) => {
     res.removeHeader('Server')
   }
 }

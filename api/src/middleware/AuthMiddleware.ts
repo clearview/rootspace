@@ -16,7 +16,8 @@ export enum Subjects {
     'Link' = 'Link',
     'TaskBoard' = 'TaskBoard',
     'TaskList' = 'TaskList',
-    'Task' = 'Task'
+    'Task' = 'Task',
+    'Storage' = 'Storage'
 }
 
 export const authenticate = passport.authenticate('jwt', {session: false})

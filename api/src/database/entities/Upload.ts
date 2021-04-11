@@ -1,8 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, AfterLoad } from 'typeorm'
-import { IUploadVersions } from '../../types/upload'
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity('uploads')
 export class Upload {
+  static entities = {
+    User: 'User',
+    Space: 'Space',
+    Task: 'Task',
+    Doc: 'Doc',
+    Storage: 'Storage',
+  }
+
   @PrimaryGeneratedColumn()
   id: number
 
@@ -29,8 +36,11 @@ export class Upload {
   @Column('varchar', { nullable: true })
   filename: string
 
+  @Column('varchar', { nullable: true })
+  name: string
+
   @Column('json', { nullable: true })
-  versions: IUploadVersions
+  versions: object
 
   @Column('varchar')
   mimetype: string
