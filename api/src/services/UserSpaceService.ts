@@ -22,8 +22,8 @@ export class UserSpaceService {
     return getCustomRepository(UserToSpaceRepository)
   }
 
-  getByUserId(userId: number): Promise<UserToSpace[]> {
-    return this.getUserToSpaceRepository().getByUserId(userId)
+  getByUserId(userId: number, filter: { active?: boolean } = {}): Promise<UserToSpace[]> {
+    return this.getUserToSpaceRepository().getByUserId(userId, filter)
   }
 
   getByUserIdAndSpaceId(userId: number, spaceId: number, filter: { active?: boolean } = {}): Promise<UserToSpace> {

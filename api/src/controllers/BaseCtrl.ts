@@ -11,7 +11,7 @@ export class BaseCtrl {
     }
 
     if (throwError) {
-      throw clientError('Space not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+      throw clientError('Not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
     return false

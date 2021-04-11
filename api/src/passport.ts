@@ -145,7 +145,7 @@ passport.use(
 
     const spaces = new Map<number, number>()
 
-    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id)) {
+    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id, {active: true})) {
       spaces.set(userSpace.spaceId, userSpace.role)
     }
 
