@@ -6,22 +6,22 @@
                          v-slot="{ commands, isActive, getMarkAttrs, /*getNodeAttrs, focused*/ }">
           <div class="menu-bar">
             <NovadocMenuButton @click="commands.bold" :active="isActive.bold()">
-              <v-icon name="bold" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="bold" viewbox="16" size="16"></legacy-icon>
             </NovadocMenuButton>
             <NovadocMenuButton @click="commands.italic" :active="isActive.italic()">
-              <v-icon name="italic" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="italic" viewbox="16" size="16"></legacy-icon>
             </NovadocMenuButton>
             <NovadocMenuButton @click="commands.underline" :active="isActive.underline()">
-              <v-icon name="underline" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="underline" viewbox="16" size="16"></legacy-icon>
             </NovadocMenuButton>
             <NovadocMenuButton @click="commands.strike" :active="isActive.strike()">
-              <v-icon name="strike" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="strike" viewbox="16" size="16"></legacy-icon>
             </NovadocMenuButton>
 
             <MenuGroup :value="getMarkAttrs('link').href"  :show-arrow="false"
                        v-tippy="{ placement : 'top',  arrow: true }" content="Link" v-if="!isActive.link()">
               <template #default>
-                <v-icon name="link2" viewbox="16" size="16"></v-icon>
+                <legacy-icon name="link2" viewbox="16" size="16"></legacy-icon>
               </template>
               <template #options="{ hide }">
                 <NovadocLinkInput @cancel="hide()" @submit="commands.link({href: $event});hide();"></NovadocLinkInput>
@@ -29,11 +29,11 @@
             </MenuGroup>
 
             <NovadocMenuButton @click="commands.link({})" :active="isActive.link()" v-if="isActive.link()">
-              <v-icon name="unlink" viewbox="16" size="16"></v-icon>
+              <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
             </NovadocMenuButton>
 
             <NovadocMenuButton @click="commands.blockquote" :active="isActive.blockquote()">
-              <v-icon viewbox="16" name="quote" size="16"></v-icon>
+              <legacy-icon viewbox="16" name="quote" size="16"></legacy-icon>
             </NovadocMenuButton>
             <NovadocMenuButton @click="commands.code" :active="isActive.code()">
               <TerminalIcon size="16"></TerminalIcon>
@@ -43,7 +43,7 @@
               <ListIcon size="16"></ListIcon>
             </NovadocMenuButton>
             <NovadocMenuButton @click="commands.ordered_list" :active="getCurrentActiveNode(2) === 'ordered_list'">
-              <v-icon name="ordered-list" viewbox="16" size="16" class="fill-as-stroke"></v-icon>
+              <legacy-icon name="ordered-list" viewbox="16" size="16" class="fill-as-stroke"></legacy-icon>
             </NovadocMenuButton>
           </div>
         </editor-menu-bar>
