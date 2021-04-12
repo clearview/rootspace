@@ -18,7 +18,7 @@
     </div>
     <div v-if="!isInputtingNewCard" class="card" @click="openModal()" :class="{opacite}">
       <div class="drag">
-        <legacy-icon name="drag" size="20px" viewbox="20"></legacy-icon>
+        <mono-icon name="drag"/>
       </div>
       <div class="color"></div>
       <div class="card-item" ref="cardItem">
@@ -392,6 +392,8 @@ export default class ListCard extends Vue {
     margin-left: 8px;
     cursor: grab;
     visibility: hidden;
+    font-size: 20px;
+    color: #a7b2cf;
   }
   .drag .stroke-current{
     stroke: none;
