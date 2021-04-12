@@ -8,9 +8,9 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'TaskGhost'
+  name: 'ListGhost'
 })
-export default class TaskGhost extends Vue {
+export default class ListGhost extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly active!: boolean;
 
@@ -21,7 +21,9 @@ export default class TaskGhost extends Vue {
 
 <style lang="postcss" scoped>
   .ghost {
-    @apply p-8;
+    /* @apply pr-8; */
+    padding-right: 24px;
+    padding-left: 24px;
     animation: haunt 0.5s ease infinite alternate;
     display: none;
   }
@@ -32,11 +34,11 @@ export default class TaskGhost extends Vue {
 
   .ghost-color {
     background: repeating-linear-gradient(
-      90deg,
+      0deg,
       theme('colors.gray.100'),
-      theme('colors.gray.100') 280px,
-      #fff 280px,
-      #fff 320px
+      theme('colors.gray.100') 40px,
+      #fff 40px,
+      #fff 60px
     );
   }
 

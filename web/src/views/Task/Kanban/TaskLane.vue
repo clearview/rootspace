@@ -43,7 +43,7 @@
             </div>
           </template>
           <template #trigger="{ visible }">
-            <button class="btn btn-link" :class="{'btn-link-primary': visible}">
+            <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
               <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
             </button>
           </template>
@@ -349,7 +349,6 @@ export default class TaskLane extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-
   .flip-list-move {
     transition: transform 0.5s;
   }
@@ -360,7 +359,7 @@ export default class TaskLane extends Vue {
     flex: 0 0 auto;
   }
 
-  .task-lane ~ .task-lane {
+  .task-lane + .task-lane {
     @apply ml-4;
   }
 
@@ -374,7 +373,9 @@ export default class TaskLane extends Vue {
   }
 
   .header {
-    @apply flex items-center mb-2;
+    @apply flex items-center;
+    margin-bottom: 16px;
+
     &.with-shadow{
       box-shadow: 0 8px 12px -8px rgba(0,0,0,.15);
       z-index: 50;
@@ -392,6 +393,12 @@ export default class TaskLane extends Vue {
     font-weight: bold;
     color: theme("colors.gray.900");
     flex: 1 1 auto;
+  }
+
+  .btn-menu {
+    padding: 0;
+    height: auto;
+    background-color: transparent;
   }
 
   .btn-link {
@@ -414,7 +421,7 @@ export default class TaskLane extends Vue {
   }
 
   .list-input {
-    @apply rounded p-4 rounded;
+    @apply p-4 rounded;
     background: rgba(theme("colors.gray.100"), 0.25);
   }
 
@@ -464,7 +471,7 @@ export default class TaskLane extends Vue {
     opacity:0.5;
   }
   .ghost-floating {
-    @apply shadow shadow-xl;
+    @apply shadow-xl;
     opacity: 1 !important;
     transform: rotate(-5deg);
   }
@@ -478,7 +485,7 @@ export default class TaskLane extends Vue {
   }
 
   .drag-block {
-    @apply p-2 fixed z-50 rounded shadow shadow-lg;
+    @apply p-2 fixed z-50 rounded shadow-lg;
     animation: shake 0.5s ease, fadeOut 0.5s 2.5s ease-out;
     background: theme("colors.danger.default");
     color: #fff;

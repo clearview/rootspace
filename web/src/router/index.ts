@@ -55,22 +55,22 @@ const routes: Array<RouteConfig> = [
       {
         path: '/taskboard/:id',
         name: 'TaskPage',
-        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task')
       },
       {
         path: '/taskboard/:id/item/:item/:slug?',
         name: 'TaskPageWithItem',
-        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task')
       },
       {
         path: '/tasklist/:id',
         name: 'ListLane.vue',
-        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task')
       },
       {
         path: '/tasklist/:id/item/:item/:slug?',
         name: 'TaskListWithItem',
-        component: () => import(/* webpackChunkName: "task-page" */'../views/Task/TaskPage.vue')
+        component: () => import(/* webpackChunkName: "task-page" */'../views/Task')
       },
       {
         path: '/link/:id',
