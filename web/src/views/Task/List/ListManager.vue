@@ -1,5 +1,6 @@
 <template>
-  <div class="list-manager">
+  <list-ghost v-if="loading" active/>
+  <div v-else class="list-manager">
     <div class="empty" v-if="orderedLanes.length === 0 && !isInputtingNewList">
       You don't have any lists, start by making one.
       <div class="add-empty">
@@ -29,22 +30,26 @@ import Draggable from 'vuedraggable'
 
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { TaskBoardResource, TaskListResource } from '@/types/resource'
-import ListLane from '@/views/Task/List/ListLane.vue'
-import TaskAddLane from '@/views/Task/Kanban/TaskAddLane.vue'
 import { Optional } from '@/types/core'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
+import ListLane from '@/views/Task/List/ListLane.vue'
+import TaskAddLane from '@/views/Task/Kanban/TaskAddLane.vue'
 import ListAddLaneButton from '@/views/Task/List/ListAddLaneButton.vue'
+import ListGhost from './ListGhost.vue'
 
 @Component({
   name: 'ListManager',
-  components: { ListAddLaneButton, TaskAddLane, ListLane, Draggable }
+  components: { ListAddLaneButton, TaskAddLane, ListLane, ListGhost, Draggable }
 })
 export default class ListManager extends Vue {
-    @Prop({ type: Object, required: true })
+    @Prop({ type: Object })
     private readonly board!: TaskBoardResource;
 
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
+
+    @Prop({ type: Boolean })
+    private readonly loading!: boolean
 
     private readonly lists!: TaskListResource[];
     private isInputtingNewList = false
@@ -120,8 +125,9 @@ export default class ListManager extends Vue {
   }
 
   .list-manager {
-    padding: 40px 20px;
+    /* padding: 40px 20px; */
   }
+
   .list-lane-draggable {
     margin-bottom: 38px;
   }
