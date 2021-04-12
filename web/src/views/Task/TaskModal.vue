@@ -73,7 +73,7 @@
             <span class="description-title-placeholder">Description</span>
             <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <ProseInput :read-only="!isEditingDescription" v-model="editDescription" @save="saveDescription" @cancel="cancelDescription"></ProseInput>
+          <ProseInput :read-only="!isEditingDescription" v-model="description" @save="saveDescription" @cancel="cancelDescription"></ProseInput>
         </div>
         <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
           <div class="attachments-label">
@@ -254,7 +254,7 @@ export default class TaskModal extends Vue {
     @Inject('modal')
     modal!: ModalInjectedContext
 
-    private editDescription = JSON.parse(this.item.description as string)
+    private editDescription = {}
     private itemCopy = { ...this.item }
     private descriptionCopy = { ...this.itemCopy }
     private isEditingDescription = false
@@ -360,7 +360,6 @@ export default class TaskModal extends Vue {
 
     cancelDescription () {
       this.isEditingDescription = false
-      this.editDescription = JSON.parse(this.item.description as string)
     }
 
     commentHandler (e: any) {
@@ -536,6 +535,25 @@ export default class TaskModal extends Vue {
       const iconState = this.isShowAllAttachment ? 'up' : 'down'
 
       return iconState
+    }
+
+    get description () {
+      const raw = this.item.description
+
+      let result
+      try {
+        if (!raw || typeof raw !== 'string') throw new Error()
+
+        result = JSON.parse(raw)
+      } catch (e) {
+        result = raw || ''
+      }
+
+      return result
+    }
+
+    set description (value: Record<string, any>) {
+      this.editDescription = value
     }
 
     attachmentState () {
