@@ -7,6 +7,7 @@ import {
   TaskListResource,
   TaskItemResource,
   DocumentResource,
+  FilesResource,
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
@@ -90,6 +91,10 @@ export interface OptionState {
 
 export interface DocumentState {
   payload: DocumentResource[];
+  deferredParent: NodeResource | null;
+}
+export interface FilesState {
+  payload: FilesResource[];
   deferredParent: NodeResource | null;
 }
 

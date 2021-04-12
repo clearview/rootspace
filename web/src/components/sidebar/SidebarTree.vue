@@ -68,6 +68,7 @@
             @submit-link="addLink"
             @submit-embed="addEmbed"
             @submit-task="addTask"
+            @submit-files="addFiles"
             @select="select">
           </component>
         </div>
@@ -186,6 +187,7 @@ import FolderMenu from '@/components/sidebar/menu/FolderMenu.vue'
 import LinkMenu from '@/components/sidebar/menu/LinkMenu.vue'
 import EmbedMenu from '@/components/sidebar/menu/EmbedMenu.vue'
 import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
+import FilesMenu from '@/components/sidebar/menu/FilesMenu.vue'
 
 import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
@@ -197,6 +199,7 @@ import FavoriteNode from '@/components/sidebar/FavoriteNode.vue'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import FormFiles from '@/components/form/FormFiles.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
 
 import DocumentService from '@/services/document'
@@ -208,6 +211,7 @@ enum NodeType {
   Doc = 'doc',
   Task = 'taskBoard',
   Embed = 'embed',
+  Files = 'files',
   Folder = 'folder'
 }
 
@@ -245,9 +249,11 @@ enum ModalType {
     LinkMenu,
     EmbedMenu,
     TaskMenu,
+    FilesMenu,
     FormLink,
     FormTask,
-    FormEmbed
+    FormEmbed,
+    FormFiles
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
@@ -344,6 +350,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       case MenuType.TASK:
         return 'task-menu'
 
+      case MenuType.FILES:
+        return 'files-menu'
+
       case MenuType.EMBED:
         return 'embed-menu'
 
@@ -435,32 +444,6 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       return true
     }
 
-    if (type === MenuType.FILES) {
-      try {
-        const payload = {
-          spaceId: this.activeSpace.id,
-          title: 'Untitled',
-          content: {},
-          access: 2,
-          isLocked: false,
-          config: {
-
-          }
-        }
-
-        this.$router.replace({
-          name: 'Files'
-        })
-          .catch(() => {
-            // Silent duplicate error
-          })
-      } catch { }
-
-      this.$emit('menu-selected', false)
-
-      return true
-    }
-
     this.setActiveMenu(true, type)
   }
 
@@ -536,6 +519,34 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       if (res.contentId) {
         await this.$router.push({
           name: 'TaskPage',
+          params: {
+            id: res.contentId.toString()
+          }
+        })
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addFiles (data: TaskBoardResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        (data as any).parentId = this.deferredParent.id
+      }
+      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+      if (res.contentId) {
+        await this.$router.push({
+          name: 'Files',
           params: {
             id: res.contentId.toString()
           }
