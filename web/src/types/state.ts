@@ -44,6 +44,7 @@ export interface AuthState {
 }
 
 export interface TreeState {
+  focusedList: NodeResource[];
   list: NodeResource[];
   favorites: NodeResource[];
   folded: {
