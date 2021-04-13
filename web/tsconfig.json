@@ -18,7 +18,8 @@
     ],
     "paths": {
       "@/*": [
-        "src/*"
+        "src/*",
+        "__storybook/*"
       ]
     },
     "lib": [
@@ -32,6 +33,9 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "__storybook/**/*.ts",
+    "__storybook/**/*.tsx",
+    "__storybook/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
   ],

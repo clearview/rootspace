@@ -18,6 +18,7 @@ const TreeModule: Module<TreeState, RootState> = {
     return {
       list: [],
       favorites: [],
+      focusedList: [],
       folded: {},
       touched: {}
     }
@@ -38,6 +39,9 @@ const TreeModule: Module<TreeState, RootState> = {
     },
     setFavorites (state, favorites) {
       state.favorites = favorites
+    },
+    setFocusedList (state, list) {
+      state.focusedList = list
     },
     updateNode (state, payload: {compareFn: (node: NodeResource) => boolean; fn: (node: NodeResource) => NodeResource}) {
       const looper = (nodes: NodeResource[]) => {
@@ -77,6 +81,14 @@ const TreeModule: Module<TreeState, RootState> = {
       const res = await TreeService.fetchFavoritesBySpace(params.spaceId)
 
       commit('setFavorites', res.data)
+    },
+
+    async setFocusedList ({ commit }, data: NodeResource) {
+      commit('setFocusedList', [data])
+    },
+
+    async clearFocusedList ({ commit }) {
+      commit('setFocusedList', [])
     },
 
     async update (_, data: NodeResource) {

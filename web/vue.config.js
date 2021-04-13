@@ -26,7 +26,7 @@ module.exports = {
 
     // copy the options from the original ForkTsCheckerWebpackPlugin
     // instance and add the memoryLimit property
-    const forkTsCheckerOptions = existingForkTsChecker.options
+    const forkTsCheckerOptions = existingForkTsChecker ? existingForkTsChecker.options : {}
     forkTsCheckerOptions.memoryLimit = process.env.VUE_MEMORY_LIMIT || 2048
 
     config.plugins.push(new ForkTsCheckerWebpackPlugin(forkTsCheckerOptions))

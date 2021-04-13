@@ -50,6 +50,12 @@
               Add to Favorites
             </div>
           </div>
+          <div v-if="!isFocusMode" class="action-line" @click.prevent.stop="hide();addToFocusedList();">
+            <mono-icon class="action-icon" name="crosshair"></mono-icon>
+            <div class="action-line-text">
+              Focus View
+            </div>
+          </div>
           <div v-if="isFavorited" class="action-line" @click.prevent.stop="hide();removeFromFavorites();">
             <mono-icon class="action-icon" name="remove-circle"/>
             <div class="action-line-text">
@@ -196,6 +202,11 @@ export default class SidebarTreeNode extends Vue {
     return this.type === NodeType.Folder
   }
 
+  get isFocusMode (): boolean {
+    const tree = this.$store.state.tree
+    return tree.focusedList.length ? tree.focusedList[0].id === this.payload.id : false
+  }
+
   get iconName (): string {
     if (!this.folded && this.type === NodeType.Folder) {
       return 'folder-open'
@@ -299,6 +310,10 @@ export default class SidebarTreeNode extends Vue {
 
   addToFavorites () {
     this.$emit('node:addToFavorites', this.path, this.payload)
+  }
+
+  addToFocusedList () {
+    this.$emit('node:addToFocusedList', this.payload)
   }
 
   removeFromFavorites () {
