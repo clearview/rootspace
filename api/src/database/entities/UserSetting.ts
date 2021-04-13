@@ -32,7 +32,7 @@ export class UserSetting {
   space: Space
 
   @Column({ type: 'jsonb', default: '{}' })
-  data: UIData
+  ui: UIData
 
   @Column({ type: 'jsonb', default: '{}' })
   preferences: Preferences
