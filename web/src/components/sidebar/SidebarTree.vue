@@ -3,9 +3,15 @@
     <div class="h-full overflow-auto">
       <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
 
+      <a class="btn-outlined" v-if="isFocusMode" @click="showFullTree">
+        <mono-icon name="restore" />Show full Tree
+      </a>
+
       <FavoriteNode
+        v-if="!isFocusMode"
         ref="favoriteNode"
         @restore="refresh"
+        @node:addToFocusedList="addToFocusedList"
         @content:update="updateContent"
         @node:update="updateNodeFromFavorites"
         @node:archive="archiveNode"
@@ -14,7 +20,7 @@
         @node:addNew="addNewNode"
       />
 
-      <sidebar-title v-if="favorites.length">Main</sidebar-title>
+      <sidebar-title v-if="favorites.length && !isFocusMode">Main</sidebar-title>
       <tree
         v-if="treeData.length > 0"
         edge-scroll
@@ -43,6 +49,7 @@
           @node:update="updateNode"
           @node:archive="archiveNode"
           @node:addToFavorites="addToFavorites"
+          @node:addToFocusedList="addToFocusedList"
           @node:removeFromFavorites="removeFromFavorites"
           @node:fold:toggle="toggleNodeFold"
           @node:addNew="addNewNode"
@@ -286,6 +293,11 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   // Computed
 
+  get isFocusMode (): boolean {
+    const tree = this.$store.state.tree
+    return !!tree.focusedList.length
+  }
+
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
   }
@@ -299,7 +311,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
   get treeData (): Node[] {
     const state = this.$store.state.tree
-    const list = [...state.list]
+    const list = state.focusedList.length ? [...state.focusedList] : [...state.list]
 
     walkTreeData(list, (node, index, parent, path) => {
       const key = path.join('.')
@@ -627,6 +639,14 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     } catch { }
   }
 
+  async showFullTree () {
+    await this.$store.dispatch('tree/clearFocusedList')
+  }
+
+  async addToFocusedList (node: Node) {
+    await this.$store.dispatch('tree/setFocusedList', node)
+  }
+
   async addToFavorites (path: number[], node: Node) {
     try {
       await this.$store.dispatch('tree/addToFavorites', node)
@@ -859,6 +879,24 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     >>> .list-menu  {
       padding-bottom: 16px;
     }
+  }
+}
+
+.btn-outlined {
+  border: solid 1px theme('colors.gray.100');
+  border-radius: 3px;
+  border-radius: 3px;
+  display: flex;
+  margin: 0 16px 16px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  .icon {
+    margin-right: 10px;
   }
 }
 </style>
