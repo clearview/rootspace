@@ -1,15 +1,14 @@
 import { getCustomRepository } from 'typeorm'
 import { ContentAccessRepository } from '../../database/repositories/ContentAccessRepository'
 import { ContentAccess } from '../../database/entities/ContentAccess'
+import { Node } from '../../database/entities/Node'
 import { ContentAccessCreateValue, ContentAccessUpdateValue } from './values'
 import { ContentAccessType } from './ContentAccessType'
 import { ContentEntity } from '../../root/types'
-import { Activity, EntityActivity, ActivityType } from '../activity/activities'
-import { ContentActions } from '../activity/activities/content/actions'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { IActivityObserver } from '../contracts'
+import { ContentEntityNames, NodeTypeEntityNameMap } from '../../root/constants'
 
-export class ContentAccessService implements IActivityObserver {
+export class ContentAccessService {
   private static instance: ContentAccessService
 
   static getInstance() {
@@ -22,34 +21,6 @@ export class ContentAccessService implements IActivityObserver {
 
   private getRepository(): ContentAccessRepository {
     return getCustomRepository(ContentAccessRepository)
-  }
-
-  async activityNotification(activity: Activity): Promise<void> {
-    if (activity.type() !== ActivityType.Content) {
-      return
-    }
-
-    const contentActivity = activity as EntityActivity<ContentEntity>
-
-    if (contentActivity.action() === ContentActions.Created) {
-      const entity = contentActivity.entity()
-
-      await this.create(
-        ContentAccessCreateValue.fromObject({
-          spaceId: entity.spaceId,
-          ownerId: entity.userId,
-          entityId: entity.id,
-          entity: contentActivity.getEntityName(),
-          type: ContentAccessType.Open,
-          public: false,
-        })
-      )
-    }
-
-    if (contentActivity.action() === ContentActions.Deleted) {
-      const contentAccess = await this.getForEntity(contentActivity.entity().id, contentActivity.getEntityName())
-      await this.remove(contentAccess)
-    }
   }
 
   getById(id: number): Promise<ContentAccess> {
@@ -66,8 +37,38 @@ export class ContentAccessService implements IActivityObserver {
     throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
   }
 
-  getForEntity(entityId: number, entity: string): Promise<ContentAccess> {
-    return this.getRepository().getForEntity(entityId, entity)
+  getForEntity(entity: ContentEntity): Promise<ContentAccess> {
+    const entityName = entity.constructor.name
+
+    if (ContentEntityNames.has(entityName) === false) {
+      throw new Error('Invalid content entity name')
+    }
+
+    return this.getRepository().getByEntityIdAndName(entity.id, entityName)
+  }
+
+  async requireForEntity(entity: ContentEntity): Promise<ContentAccess> {
+    const contentAccess = (await this.getForEntity(entity)) ?? this.createDefault(entity)
+    return contentAccess
+  }
+
+  async createDefault(entity: ContentEntity): Promise<ContentAccess> {
+    const entityName = entity.constructor.name
+
+    if (ContentEntityNames.has(entityName) === false) {
+      throw new Error('Invalid content entity name')
+    }
+
+    return this.create(
+      ContentAccessCreateValue.fromObject({
+        spaceId: entity.spaceId,
+        ownerId: entity.userId,
+        entityId: entity.id,
+        entity: entityName,
+        type: ContentAccessType.Open,
+        public: false,
+      })
+    )
   }
 
   async create(data: ContentAccessCreateValue): Promise<ContentAccess> {
@@ -93,5 +94,10 @@ export class ContentAccessService implements IActivityObserver {
 
     const access = contentAccess as ContentAccess
     return this.getRepository().remove(access)
+  }
+
+  async removeForEntity(entity: ContentEntity): Promise<ContentAccess> {
+    const contentAccess = await this.getForEntity(entity)
+    return this.remove(contentAccess)
   }
 }

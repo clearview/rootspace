@@ -3,7 +3,7 @@ import { LinkRepository } from '../../database/repositories/LinkRepository'
 import { Link } from '../../database/entities/Link'
 import { Node } from '../../database/entities/Node'
 import { LinkCreateValue, LinkUpdateValue } from '../../values/link'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { NodeCreateValue } from '../../values/node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
@@ -29,7 +29,7 @@ export class LinkService extends NodeContentService {
     return LinkService.instance
   }
 
-  getNodeType(): NodeType {
+  getNodeType(): string {
     return NodeType.Link
   }
 

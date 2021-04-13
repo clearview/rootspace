@@ -2,7 +2,6 @@ import { Node } from '../../database/entities/Node'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentUpdate } from './NodeContentUpdate'
-import { NodeType } from '../../types/node'
 
 export class NodeContentMediator {
   private nodeService: NodeService
@@ -52,22 +51,22 @@ export class NodeContentMediator {
 
   async contentUpdated(
     contentId: number,
-    nodeType: NodeType,
+    nodeType: string,
     actorId: number,
     data: INodeContentUpdate
   ): Promise<void> {
     return this.nodeService.contentUpdated(contentId, nodeType, actorId, data)
   }
 
-  async contentArchived(contentId: number, nodeType: NodeType, actorId: number): Promise<void> {
+  async contentArchived(contentId: number, nodeType: string, actorId: number): Promise<void> {
     return this.nodeService.contentArchived(contentId, nodeType, actorId)
   }
 
-  async contentRestored(contentId: number, nodeType: NodeType, actorId: number): Promise<void> {
+  async contentRestored(contentId: number, nodeType: string, actorId: number): Promise<void> {
     return this.nodeService.contentRestored(contentId, nodeType, actorId)
   }
 
-  async contentRemoved(contentId: number, nodeType: NodeType, actorId: number): Promise<void> {
+  async contentRemoved(contentId: number, nodeType: string, actorId: number): Promise<void> {
     return this.nodeService.contentRemoved(contentId, nodeType, actorId)
   }
 }

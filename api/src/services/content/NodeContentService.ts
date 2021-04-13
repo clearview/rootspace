@@ -1,6 +1,6 @@
 import { Node } from '../../database/entities/Node'
 import { Service } from '../Service'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { NodeContentMediator } from './NodeContentMediator'
 
 export abstract class NodeContentService extends Service {
@@ -10,7 +10,7 @@ export abstract class NodeContentService extends Service {
     this.nodeContentMediator = mediator
   }
 
-  abstract getNodeType(): NodeType
+  abstract getNodeType(): string
 
   async nodeUpdated(node: Node, actorId: number): Promise<void> {
     return

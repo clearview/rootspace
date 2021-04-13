@@ -4,7 +4,7 @@ import { Folder } from '../../database/entities/Folder'
 import { Node } from '../../database/entities/Node'
 import { FolderCreateValue, FolderUpdateValue } from '../../values/folder'
 import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { FolderActivity } from '../activity/activities/content'
 import { NodeService, NodeContentService } from '../'
@@ -28,7 +28,7 @@ export class FolderService extends NodeContentService {
     return FolderService.instance
   }
 
-  getNodeType(): NodeType {
+  getNodeType(): string {
     return NodeType.Folder
   }
 

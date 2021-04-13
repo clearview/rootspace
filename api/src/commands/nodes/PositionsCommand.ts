@@ -3,7 +3,7 @@ import db from '../../db'
 import { getConnection, getCustomRepository, UpdateResult } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 
 export class PositionsCommand {
   static async run() {

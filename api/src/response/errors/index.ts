@@ -20,3 +20,4 @@ export function unauthorized() {
 export function validationFailed(message: string, fields: any, statusCode: HttpStatusCode = HttpStatusCode.BadRequest) {
   return new HttpValidationError(message, fields, statusCode)
 }
+

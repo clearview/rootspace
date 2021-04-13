@@ -4,7 +4,7 @@ import { Storage } from '../../../database/entities/Storage'
 import { Node } from '../../../database/entities/Node'
 import { StorageCreateValue, StorageUpdateValue } from './values'
 import { NodeCreateValue } from '../../../values/node'
-import { NodeType } from '../../../types/node'
+import { NodeType } from '../../../root/constants'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { StorageActivity } from '../../activity/activities/content'
 import { NodeService, NodeContentService } from '../..'
@@ -28,7 +28,7 @@ export class StorageService extends NodeContentService {
     return StorageService.instance
   }
 
-  getNodeType(): NodeType {
+  getNodeType(): string {
     return NodeType.Storage
   }
 

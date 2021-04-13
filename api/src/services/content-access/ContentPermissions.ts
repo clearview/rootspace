@@ -4,6 +4,7 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { SpaceUserRole } from '../../types/spaceUser'
 import { ContentAccessType } from './ContentAccessType'
 import { ServiceFactory } from '../factory/ServiceFactory'
+import { ContentEntity } from '../../root/types'
 
 type permission = 'view' | 'update' | 'archive' | 'restore' | 'delete'
 
@@ -120,10 +121,10 @@ export class ContentPermissions {
   }
 }
 
-export const contentPermissions = async (entity: any, userId?: number): Promise<ContentPermissions> => {
+export const contentPermissions = async (entity: ContentEntity, userId?: number): Promise<ContentPermissions> => {
   const contentAccess = await ServiceFactory.getInstance()
     .getContentAccessService()
-    .getForEntity(entity.id, entity.constructor.name)
+    .requireForEntity(entity)
 
   const spaceUser = !userId
     ? null

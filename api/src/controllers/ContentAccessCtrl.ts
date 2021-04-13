@@ -1,23 +1,30 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { ContentAccessService, validateContentAccessUpdate } from '../services/content-access'
+import { validateContentAccessUpdate } from '../services/content-access'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 import { ContentAccessUpdateValue } from '../services/content-access'
+import { EntityService, ContentAccessService } from '../services'
+import { ContentEntity } from '../root/types'
 
 export class ContentAccessCtrl extends BaseCtrl {
-  protected contentAccessService: ContentAccessService
+  private contentAccessService: ContentAccessService
+  private entityService: EntityService
 
   constructor() {
     super()
     this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
+    this.entityService = ServiceFactory.getInstance().getEntityService()
   }
 
   async view(req: Request, res: Response) {
     const entityId = Number(req.params.entityId)
-    const entity = req.params.entity
+    const entityName = req.params.entity
 
-    const result = await this.contentAccessService.getForEntity(entityId, entity)
+    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(entityName, entityId)
+    this.isSpaceMember(req, entity.spaceId)
+
+    const result = await this.contentAccessService.getForEntity(entity)
     res.send(this.responseData(result))
   }
 
@@ -26,9 +33,12 @@ export class ContentAccessCtrl extends BaseCtrl {
     await validateContentAccessUpdate(data)
 
     const entityId = Number(req.params.entityId)
-    const entity = req.params.entity
+    const entityName = req.params.entity
 
-    const contentAccess = await this.contentAccessService.getForEntity(entityId, entity)
+    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(entityName, entityId)
+    this.isSpaceMember(req, entity.spaceId)
+
+    const contentAccess = await this.contentAccessService.getForEntity(entity)
 
     if (contentAccess.ownerId !== req.user.id) {
       throw clientError('Not allowed', HttpErrName.Forbidden, HttpStatusCode.Forbidden)

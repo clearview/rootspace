@@ -3,19 +3,22 @@ import { BaseCtrl } from './BaseCtrl'
 import { NodeUpdateValue } from '../values/node'
 import { validateNodeUpdate } from '../validation/node'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { NodeService, FavoriteService, EntityService } from '../services'
+import { NodeService, FavoriteService, EntityService, ContentAccessService } from '../services'
 import { hasContentPermission } from '../services/content-access'
+import { ContentEntity } from '../root/types'
 
 export class NodeCtrl extends BaseCtrl {
   private nodeService: NodeService
   private favoriteService: FavoriteService
   private entityService: EntityService
+  private contentAccessService: ContentAccessService
 
   constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
     this.favoriteService = ServiceFactory.getInstance().getFavoriteService()
     this.entityService = ServiceFactory.getInstance().getEntityService()
+    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
   }
 
   async update(req: Request, res: Response) {
@@ -63,9 +66,13 @@ export class NodeCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
-    const entity = await this.entityService.requireEntityByNameAndId(node.type, node.contentId, { withDeleted: true })
+    
+    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(node.type, node.contentId, {
+      withDeleted: true,
+    })
 
     await hasContentPermission('delete', entity, req.user.id)
+    await this.contentAccessService.removeForEntity(entity)
 
     const result = await this.nodeService.remove(node.id, req.user.id)
     res.send(this.responseData(result))

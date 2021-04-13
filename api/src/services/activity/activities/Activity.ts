@@ -25,7 +25,7 @@ export abstract class Activity {
 
   abstract handler(): string
 
-  action(): string {
+  getAction(): string {
     return this._action
   }
 

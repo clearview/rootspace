@@ -5,20 +5,18 @@ import { DocCreateValue, DocUpdateValue } from '../values/doc'
 import { ContentAccessService, DocService } from '../services'
 import { FollowService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { ContentAccessCreateValue, contentPermissions, hasContentPermission } from '../services/content-access'
-import { ContentEntityName } from '../types/content'
-import { ContentAccessType } from '../services/content-access/ContentAccessType'
+import { contentPermissions, hasContentPermission } from '../services/content-access'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
-  private contentAccessService: ContentAccessService
   private followService: FollowService
+  private contentAccessService: ContentAccessService
 
   constructor() {
     super()
     this.docService = ServiceFactory.getInstance().getDocService()
-    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
     this.followService = ServiceFactory.getInstance().getFollowService()
+    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
   }
 
   async view(req: Request, res: Response) {
@@ -52,6 +50,8 @@ export class DocsCtrl extends BaseCtrl {
     }
 
     const doc = await this.docService.create(value)
+    await this.contentAccessService.createDefault(doc)
+
     const permissions = await contentPermissions(doc, req.user.id)
 
     res.send(
@@ -98,6 +98,8 @@ export class DocsCtrl extends BaseCtrl {
   async delete(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
     await hasContentPermission('delete', doc, req.user.id)
+
+    await this.contentAccessService.removeForEntity(doc)
 
     const result = await this.docService.remove(doc.id, req.user.id)
     res.send(this.responseData(result))

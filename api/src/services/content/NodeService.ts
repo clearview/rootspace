@@ -2,7 +2,7 @@ import { getCustomRepository, getTreeRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { Node } from '../../database/entities/Node'
 import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { INodeContentUpdate } from './NodeContentUpdate'
 import { NodeContentMediator } from './NodeContentMediator'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
@@ -44,7 +44,7 @@ export class NodeService extends Service {
     return node
   }
 
-  getNodeByContentId(contentId: number, type: NodeType, options: any = {}): Promise<Node | undefined> {
+  getNodeByContentId(contentId: number, type: string, options: any = {}): Promise<Node | undefined> {
     return this.getNodeRepository().getByContentIdAndType(contentId, type, options)
   }
 
@@ -158,7 +158,7 @@ export class NodeService extends Service {
     return updatedNode
   }
 
-  async contentUpdated(contentId: number, type: NodeType, actorId: number, data: INodeContentUpdate): Promise<void> {
+  async contentUpdated(contentId: number, type: string, actorId: number, data: INodeContentUpdate): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
@@ -257,7 +257,7 @@ export class NodeService extends Service {
     return node
   }
 
-  async contentArchived(contentId: number, type: NodeType, actorId: number): Promise<void> {
+  async contentArchived(contentId: number, type: string, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type)
 
     if (!node) {
@@ -311,7 +311,7 @@ export class NodeService extends Service {
     return node
   }
 
-  async contentRestored(contentId: number, type: NodeType, actorId: number): Promise<void> {
+  async contentRestored(contentId: number, type: string, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type, {
       withDeleted: true,
     })
@@ -379,7 +379,7 @@ export class NodeService extends Service {
     return node
   }
 
-  async contentRemoved(contentId: number, type: NodeType, actorId: number): Promise<void> {
+  async contentRemoved(contentId: number, type: string, actorId: number): Promise<void> {
     const node = await this.getNodeByContentId(contentId, type, {
       withDeleted: true,
     })

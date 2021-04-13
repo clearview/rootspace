@@ -16,7 +16,7 @@ export abstract class EntityActivity<T extends Entity> extends Activity {
 
   abstract getEntityName(): string
 
-  entity(): T {
+  getEntity(): T {
     return this._entity
   }
   protected _buildContext() {

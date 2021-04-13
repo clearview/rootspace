@@ -6,7 +6,7 @@ import { Doc } from '../../../database/entities/Doc'
 import { DocRevision } from '../../../database/entities/DocRevision'
 import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
 import { NodeCreateValue } from '../../../values/node'
-import { NodeType } from '../../../types/node'
+import { NodeType } from '../../../root/constants'
 import { NodeService, NodeContentService } from '../../index'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
@@ -39,8 +39,8 @@ export class DocService extends NodeContentService {
     return getCustomRepository(DocRevisionRepository)
   }
 
-  getNodeType(): NodeType {
-    return NodeType.Document
+  getNodeType(): string {
+    return NodeType.Doc
   }
 
   async getById(id: number, options: any = {}): Promise<Doc | undefined> {
@@ -89,7 +89,7 @@ export class DocService extends NodeContentService {
       spaceId: doc.spaceId,
       contentId: doc.id,
       title: doc.title,
-      type: NodeType.Document,
+      type: NodeType.Doc,
       config: data.nodeConfig,
     })
 

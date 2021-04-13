@@ -10,7 +10,7 @@ import {
   TreeParent,
   TreeChildren,
 } from 'typeorm'
-import { NodeType, INodeConfig } from '../../types/node'
+import { INodeConfig } from '../../types/node'
 
 @Entity('nodes')
 @Tree('nested-set')
@@ -46,7 +46,7 @@ export class Node {
   title: string
 
   @Column('varchar', { length: 20 })
-  type: NodeType
+  type: string
 
   @Column('json', { nullable: true })
   config: INodeConfig
@@ -54,12 +54,12 @@ export class Node {
   @Column('integer', { default: 0 })
   position: number
 
-  @CreateDateColumn({ type: 'timestamptz'})
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date
 
-  @UpdateDateColumn({ type: 'timestamptz'})
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
 
-  @DeleteDateColumn({ type: 'timestamptz'})
+  @DeleteDateColumn({ type: 'timestamptz' })
   public deletedAt: Date
 }

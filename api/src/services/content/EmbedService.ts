@@ -4,7 +4,7 @@ import { Embed } from '../../database/entities/Embed'
 import { Node } from '../../database/entities/Node'
 import { EmbedCreateValue, EmbedUpdateValue } from '../../values/embed'
 import { NodeCreateValue } from '../../values/node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { NodeService } from './NodeService'
 import { NodeContentService } from './NodeContentService'
 import { ServiceFactory } from '../factory/ServiceFactory'
@@ -29,7 +29,7 @@ export class EmbedService extends NodeContentService {
     return EmbedService.instance
   }
 
-  getNodeType(): NodeType {
+  getNodeType(): string {
     return NodeType.Embed
   }
 

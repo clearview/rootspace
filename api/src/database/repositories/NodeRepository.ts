@@ -1,6 +1,6 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm'
 import { Node } from '../entities/Node'
-import { NodeType } from '../../types/node'
+import { NodeType } from '../../root/constants'
 import { Favorite } from '../entities/Favorite'
 
 @EntityRepository(Node)
@@ -19,7 +19,7 @@ export class NodeRepository extends Repository<Node> {
     return query.getOne()
   }
 
-  getByContentIdAndType(contentId: number, type: NodeType, options: any = {}) {
+  getByContentIdAndType(contentId: number, type: string, options: any = {}) {
     const query = this.createQueryBuilder('node').where('node.contentId = :contentId AND type = :type', {
       contentId,
       type,
