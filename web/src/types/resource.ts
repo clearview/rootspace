@@ -23,6 +23,13 @@ export interface LinkResource {
   newTab: boolean;
   parentId?: number;
 }
+export interface FilesResource extends ApiResource {
+  id: number;
+  userId: number | null;
+  spaceId: number | null;
+  title: string;
+  type: string;
+}
 
 /**
  * @deprecated
@@ -130,13 +137,7 @@ export interface TaskBoardResource extends ApiResource {
   taskLists: TaskListResource[];
   isPublic: boolean;
 }
-export interface FilesResource extends ApiResource {
-  userId: number | null;
-  spaceId: number | null;
-  title: string;
-  slug: string | null;
-  attachments: NewUploadResource[] | null;
-}
+
 export interface SignupResource {
   firstName: string;
   lastName: string;

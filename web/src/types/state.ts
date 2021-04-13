@@ -31,6 +31,7 @@ export interface RootState {
   nav: SidebarState;
   sidebar: SidebarState;
   task: TaskState;
+  files: FilesState;
   option: OptionState;
   space: SpaceState;
   tree: TreeState;
@@ -56,6 +57,10 @@ export interface TreeState {
 
 export interface LinkState {
   item: LinkResource | null;
+}
+
+export interface FilesState {
+  item: FilesResource | null;
 }
 
 export interface TaskState {

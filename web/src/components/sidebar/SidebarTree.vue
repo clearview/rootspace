@@ -176,6 +176,7 @@ import {
 import {
   LinkResource,
   TaskBoardResource,
+  FilesResource,
   SpaceResource,
   NodeResource
 } from '@/types/resource'
@@ -532,14 +533,14 @@ export default class SidebarTree extends Mixins(ModalMixin) {
     this.$emit('menu-selected', false)
   }
 
-  async addFiles (data: TaskBoardResource) {
+  async addFiles (data: FilesResource) {
     this.activeMenu.loading = true
 
     try {
       if (this.deferredParent && this.deferredPath) {
         (data as any).parentId = this.deferredParent.id
       }
-      const res = await this.$store.dispatch('task/board/create', data) as NodeResource
+      const res = await this.$store.dispatch('files/create', data) as NodeResource
       await this.fetchTree()
       if (this.deferredPath) {
         this.openNodeFold(this.deferredPath)

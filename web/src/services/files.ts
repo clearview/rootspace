@@ -1,102 +1,44 @@
 import api from '@/utils/api'
 
+import { FilesResource } from '@/types/resource'
+
+export interface FetchParams {
+  spaceId: number;
+  limit: number;
+  offset: number;
+  sort: {
+    [field: string]: string;
+  };
+}
+
 export default class FilesService {
-  static async create (data: object) {
-    try {
-      const res = await api.post('storages', { data })
+  static async fetch ({ spaceId, ...params }: FetchParams) {
+    const res = await api.get(`storages/${spaceId}`, { params })
 
-      return res
-    } catch (error) {
-      let err = error
-      if (error.response) {
-        const body = {
-          code: error.response.status,
-          message: error.response.data
-        }
-        err = body
-      }
-      throw err
-    }
+    return res.data
   }
 
-  static async history (id: string | number) {
-    try {
-      const { data } = await api.get(`storages/${id}/history`)
+  static async create (data: FilesResource) {
+    const res = await api.post('storages', { data })
 
-      return data
-    } catch (error) {
-      let err = error
-
-      if (error.response) {
-        const body = {
-          code: error.response.status,
-          data: error.response.data
-        }
-        err = body
-      }
-
-      throw err
-    }
+    return res.data
   }
 
-  static async view (id: string) {
-    try {
-      const { data } = await api.get(`storages/${id}`)
+  static async view (id: number) {
+    const res = await api.get(`storages/${id}`)
 
-      return data
-    } catch (error) {
-      let err = error
-
-      if (error.response) {
-        const body = {
-          code: error.response.status,
-          data: error.response.data
-        }
-        err = body
-      }
-
-      throw err
-    }
+    return res.data
   }
 
-  static async update (id: string, data: object) {
-    try {
-      const res = await api.patch(`storages/${id}`, { data })
+  static async update (id: number, data: FilesResource) {
+    const res = await api.patch(`storages/${id}`, { data })
 
-      return res
-    } catch (error) {
-      let err = error
-
-      if (error.response) {
-        const body = {
-          code: error.response.status,
-          message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
-          fields: error.response.data.error.fields
-        }
-        err = body
-      }
-
-      throw err
-    }
+    return res.data
   }
 
   static async destroy (id: number) {
-    try {
-      const res = await api.delete(`storages/${id}`)
-      return res
-    } catch (error) {
-      let err = error
+    const res = await api.delete(`storages/${id}`)
 
-      if (error.response) {
-        const body = {
-          code: error.response.status,
-          message: (error.response.status === 401) ? error.response.data : error.response.data.error.message,
-          fields: error.response.data.error.fields
-        }
-        err = body
-      }
-
-      throw err
-    }
+    return res.data
   }
 }

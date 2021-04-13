@@ -1,31 +1,41 @@
 import { Module } from 'vuex'
 
-import { RootState, DocumentState } from '@/types/state'
-import { DocumentResource } from '@/types/resource'
+import { RootState, FilesState } from '@/types/state'
+import { FilesResource } from '@/types/resource'
 
-import FilesService from '@/services/document'
+import FilesService from '@/services/files'
 
-const FilesModule: Module<DocumentState, RootState> = {
+const FilesModule: Module<FilesState, RootState> = {
   namespaced: true,
 
   state () {
     return {
-      payload: [],
-      deferredParent: null
+      item: null
     }
   },
 
   mutations: {
-    setPayload (state, payload) {
-      state.payload = payload
-    },
-    setDeferredParent (state, payload) {
-      state.deferredParent = payload
+    setItem (state, view) {
+      state.item = view
     }
   },
 
   actions: {
-    async destroy (_, data: DocumentResource) {
+    async view ({ commit }, id: number) {
+      const { data } = await FilesService.view(id)
+
+      commit('setItem', data)
+    },
+
+    async create (_, data: FilesResource) {
+      return await FilesService.create(data)
+    },
+
+    async update (_, data: FilesResource) {
+      await FilesService.update(data.id, data)
+    },
+
+    async destroy (_, data: FilesResource) {
       if (!data.id) {
         throw new Error('ID is not defined')
       }
