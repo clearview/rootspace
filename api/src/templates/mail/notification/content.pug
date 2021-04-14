@@ -1,4 +1,6 @@
 extends ../layout/main
 block content
     h3 #{message}.
-    p #{taskUrl}
+    a(href=`${entityUrl}`, class="button") View content
+    p If the button above does not work, copy and paste the URL below into your browser:
+    a(href=`${entityUrl}`, class="link") #{entityUrl}
