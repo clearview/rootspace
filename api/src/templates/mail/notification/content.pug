@@ -1,6 +1,9 @@
 extends ../layout/main
 block content
     h3 #{message}.
-    a(href=`${entityUrl}`, class="button") View content
+    if notificationContent
+        p Content:
+        blockquote #{notificationContent}
+    a(href=`${entityUrl}`, class="button") View in Root
     p If the button above does not work, copy and paste the URL below into your browser:
     a(href=`${entityUrl}`, class="link") #{entityUrl}

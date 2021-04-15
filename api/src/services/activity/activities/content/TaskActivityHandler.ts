@@ -5,6 +5,7 @@ import { Task } from '../../../../database/entities/tasks/Task'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './ContentActivityData'
 import { ContentActions, TaskActions } from './actions'
+import { TaskCommentService } from '../../../content/tasks'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {
   private constructor(data: IContentActivityData) {
@@ -73,8 +74,9 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
       if ((await this.userEmailNotifications(follow.userId)) === true) {
         const user = await this.userService.getUserById(follow.userId)
         const message = this.getNotificationMessage(user)
+        const content = await this.getNotificationContent()
 
-        await this.sendNotificationEmail(user, message, entityUrl)
+        await this.sendNotificationEmail(user, message, entityUrl, content)
       }
     }
   }
@@ -85,7 +87,7 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     const title = context.entity.title
 
     if (this.activity.action === TaskActions.Assignee_Added && user.id === context.assignee.id) {
-      return `${actor.fullName()} assigneed you to task ${title}`
+      return `${actor.fullName()} assigned you to task ${title}`
     }
 
     if (this.activity.action === TaskActions.Assignee_Removed && user.id === context.assignee.id) {
@@ -101,8 +103,8 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
       [TaskActions.List_Moved]: `${actor.fullName()} moved task ${title} from '${context.fromList?.title}' to '${
         context.toList?.title
       }'`,
-      [TaskActions.Comment_Created]: `${actor.fullName()} commented task ${title}`,
-      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullName ??
+      [TaskActions.Comment_Created]: `${actor.fullName()} commented on task ${title}`,
+      [TaskActions.Assignee_Added]: `${actor.fullName()} assigned ${context.assignee?.fullName ??
         ''} to task ${title}`,
       [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
         ''} from task ${title}`,
@@ -115,5 +117,17 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     }
 
     return `${actor.fullName()} updated task ${title}`
+  }
+
+  private async getNotificationContent(): Promise<string|null> {
+    const context = this.activity.context as any
+
+    if (context.comment) {
+      const commentId = context.comment.id
+      const comment = await TaskCommentService.getInstance().getTaskCommentRepository().findOne(commentId)
+      return comment.content
+    }
+
+    return null
   }
 }

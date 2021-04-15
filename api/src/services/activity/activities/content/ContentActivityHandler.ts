@@ -85,8 +85,8 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
     return false
   }
 
-  protected async sendNotificationEmail(user: User, message: string, entityUrl: string): Promise<void> {
-    const content = pug.renderFile(this.mailTemplate, { message, entityUrl })
+  protected async sendNotificationEmail(user: User, message: string, entityUrl: string, notificationContent?: string): Promise<void> {
+    const content = pug.renderFile(this.mailTemplate, { message, entityUrl, notificationContent })
     await this.mailService.sendMail(user.email, message, content)
   }
 }

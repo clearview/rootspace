@@ -59,7 +59,7 @@ export class TaskBoardActivityHandler extends ContentActivityHandler<TaskBoard> 
     const title = context.entity.title
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created taks board ${title}}`,
+      [ContentActions.Created]: `${actor.fullName()} created task board ${title}}`,
       [ContentActions.Updated]: `${actor.fullName()} updated task board ${title}`,
       [ContentActions.Archived]: `${actor.fullName()} archived task board ${title}`,
       [ContentActions.Restored]: `${actor.fullName()} restored task board ${title}`,
