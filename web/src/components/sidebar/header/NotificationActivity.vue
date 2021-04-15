@@ -69,30 +69,40 @@
         </div>
         <div class="notification-activity-content">
           <div class="task-notifications content-lists" v-if="state === 'notifications'">
-            <div class="empty-list" v-if="notifications.length === 0">
-              No notifications
+            <div v-if="loadingNotifications">
+              <ActivityListLoader v-for="index in 2" :key="index"></ActivityListLoader>
             </div>
-            <ActivityList v-for="notif in notifications" :activity="notif" :key="notif.id" @click.native="markRead(notif, hide)"></ActivityList>
-            <div class="view-more" v-if="!peakNotif">
-              <div class="view-more-content" @click="loadMoreNotifications">
-              <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
-              <span class="more-label">
-                View More
-              </span>
+            <div v-else>
+              <div class="empty-list" v-if="notifications.length === 0">
+                No notifications
+              </div>
+              <ActivityList v-for="notif in notifications" :activity="notif" :key="notif.id" @click.native="markRead(notif, hide)"></ActivityList>
+              <div class="view-more" v-if="!peakNotif">
+                <div class="view-more-content" @click="loadMoreNotifications">
+                <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
+                <span class="more-label">
+                  View More
+                </span>
+                </div>
               </div>
             </div>
           </div>
           <div class="task-activities content-lists" v-if="state === 'activities'">
-            <div class="empty-list" v-if="activities.length === 0">
-              No activities
+            <div v-if="loadingActivities">
+              <ActivityListLoader v-for="index in 2" :key="index"></ActivityListLoader>
             </div>
-            <ActivityList v-for="act in activities" :activity="act" :key="act.id" @click.native="shouldHide(act, hide)"></ActivityList>
-            <div class="view-more" v-if="!peakAct">
-              <div class="view-more-content" @click="loadMoreActivities">
-              <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
-              <span class="more-label">
-                View More
-              </span>
+            <div v-else>
+              <div class="empty-list" v-if="activities.length === 0">
+                No activities
+              </div>
+              <ActivityList v-for="act in activities" :activity="act" :key="act.id" @click.native="shouldHide(act, hide)"></ActivityList>
+              <div class="view-more" v-if="!peakAct">
+                <div class="view-more-content" @click="loadMoreActivities">
+                <legacy-icon class="more-icon" name="down" viewbox="32" size="20px"></legacy-icon>
+                <span class="more-label">
+                  View More
+                </span>
+                </div>
               </div>
             </div>
           </div>
@@ -129,6 +139,7 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 import Popover from '@/components/Popover.vue'
 import ActivityList from '@/components/sidebar/header/ActivityList.vue'
+import ActivityListLoader from '@/components/sidebar/header/ActivityListLoader.vue'
 import FilterPopover from '@/components/sidebar/header/FilterPopover.vue'
 import { ActivityResource, TaskActivityResource, UserResource } from '@/types/resource'
 import api from '@/utils/api'
@@ -138,6 +149,7 @@ import api from '@/utils/api'
   components: {
     Popover,
     ActivityList,
+    ActivityListLoader,
     FilterPopover
   }
 })
@@ -154,6 +166,8 @@ export default class SidebarHeaderNotifActivity extends Vue {
   private peakNotif = false
   private filters = []
   private mineOnly = false
+  private loadingActivities = false;
+  private loadingNotifications = false;
 
   @Watch('collapseState')
   async watchCollapseState (value: boolean) {
@@ -234,12 +248,14 @@ export default class SidebarHeaderNotifActivity extends Vue {
   }
 
   async fetchNotifications () {
+    this.loadingNotifications = true
     this.offsetNotif = 0
     const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
       `notifications/space/${currentSpace.id}?type=content&offset=${this.offsetNotif}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.notifications = res.data.data
+    this.loadingNotifications = false
     if (res.data.data.length === 0) {
       this.peakNotif = true
       this.state = 'activities'
@@ -247,12 +263,14 @@ export default class SidebarHeaderNotifActivity extends Vue {
   }
 
   async fetchActivities () {
+    this.loadingActivities = true
     this.offsetAct = 0
     const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
       `activities/space/${currentSpace.id}?type=content&offset=${this.offsetAct}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.activities = res.data.data
+    this.loadingActivities = false
     if (res.data.data.length === 0) {
       this.peakAct = true
     }
