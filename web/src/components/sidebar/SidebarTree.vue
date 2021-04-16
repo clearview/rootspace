@@ -545,11 +545,11 @@ export default class SidebarTree extends Mixins(ModalMixin) {
       if (this.deferredPath) {
         this.openNodeFold(this.deferredPath)
       }
-      if (res.contentId) {
+      if (res.data.node.contentId) {
         await this.$router.push({
           name: 'Files',
           params: {
-            id: res.contentId.toString()
+            id: res.data.node.contentId.toString()
           }
         })
       }
