@@ -1,9 +1,8 @@
 extends ../layout/main
 block content
-    h3 #{message}.
+    h3 !{title}.
     if notificationContent
         p Content:
         blockquote #{notificationContent}
-    a(href=`${entityUrl}`, class="link") View in Root
     p If the link above link does not work, copy and paste the following URL below into your browser:
     p #{entityUrl}
