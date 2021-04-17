@@ -23,6 +23,8 @@ export class EmbedCtrl extends BaseCtrl {
     const data = req.body.data
     await validateEmbedCreate(data)
 
+    this.isSpaceMember(req, data.spaceId)
+
     const value = EmbedCreateValue.fromObjectAndUserId(data, req.user.id)
     const embed = await this.embedService.create(value)
 
@@ -43,9 +45,10 @@ export class EmbedCtrl extends BaseCtrl {
   }
 
   async archive(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const result = await this.embedService.archive(id, req.user.id)
+    const embed = await this.embedService.requireEmbedById(Number(req.params.id))
+    this.isSpaceMember(req, embed.spaceId)
 
+    const result = await this.embedService.archive(embed.id, req.user.id)
     res.send(this.responseData(result))
   }
 
