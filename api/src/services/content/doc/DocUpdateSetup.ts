@@ -1,5 +1,5 @@
-import { DocUpdateValue } from '../../../values/doc'
 import { Doc } from '../../../database/entities/Doc'
+import { DocUpdateValue } from './values'
 
 // seconds
 const revisonIdleTime = 0

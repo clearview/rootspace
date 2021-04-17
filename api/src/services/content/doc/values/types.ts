@@ -1,4 +1,4 @@
-export interface IDocCreateAttributes {
+export interface DocCreateAttributes {
   userId: number
   spaceId: number
   title: string
@@ -9,4 +9,4 @@ export interface IDocCreateAttributes {
   parentId?: number
 }
 
-export type IDocUpdateAttributes = Omit<Partial<IDocCreateAttributes>, 'userId' | 'spaceId'>
+export type DocUpdateAttributes = Omit<Partial<DocCreateAttributes>, 'userId' | 'spaceId'>

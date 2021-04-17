@@ -1,6 +1,6 @@
 import { validations } from 'indicative/validator'
-import { BaseValidator } from '../../root/validation/BaseValidator'
-import { DocAccess } from '../../types/doc'
+import { BaseValidator } from '../../../../root/validation'
+import { DocAccess } from '../../../../types/doc'
 
 export class DocCreateValidator extends BaseValidator {
   rules() {

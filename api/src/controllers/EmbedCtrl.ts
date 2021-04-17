@@ -1,11 +1,8 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
+import { validateEmbedCreate, validateEmbedUpdate, EmbedCreateValue, EmbedUpdateValue } from '../services/content/embed'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { EmbedService } from '../services'
-import { validateEmbedCreate, validateEmbedUpdate } from '../validation/embed'
-import { EmbedCreateValue, EmbedUpdateValue } from '../values/embed'
-import { Actions } from '../middleware/AuthMiddleware'
-import { ForbiddenError } from '@casl/ability'
 
 export class EmbedCtrl extends BaseCtrl {
   private embedService: EmbedService
@@ -17,8 +14,7 @@ export class EmbedCtrl extends BaseCtrl {
 
   async view(req: Request, res: Response) {
     const embed = await this.embedService.requireEmbedById(Number(req.params.id))
-
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, embed)
+    this.isSpaceMember(req, embed.spaceId)
 
     res.send(this.responseData(embed))
   }
@@ -34,15 +30,16 @@ export class EmbedCtrl extends BaseCtrl {
   }
 
   async update(req: Request, res: Response) {
-    const id = Number(req.params.id)
     const data = req.body.data
-
     await validateEmbedUpdate(data)
 
-    const value = EmbedUpdateValue.fromObject(data)
-    const embed = await this.embedService.update(value, id, req.user.id)
+    const embed = await this.embedService.requireEmbedById(Number(req.params.id))
+    this.isSpaceMember(req, embed.spaceId)
 
-    res.send(this.responseData(embed))
+    const value = EmbedUpdateValue.fromObject(data)
+    const result = await this.embedService.update(value, embed.id, req.user.id)
+
+    res.send(this.responseData(result))
   }
 
   async archive(req: Request, res: Response) {
@@ -53,15 +50,18 @@ export class EmbedCtrl extends BaseCtrl {
   }
 
   async restore(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const result = await this.embedService.restore(id, req.user.id)
+    const embed = await this.embedService.requireEmbedById(Number(req.params.id))
+    this.isSpaceMember(req, embed.spaceId)
 
+    const result = await this.embedService.restore(embed.id, req.user.id)
     res.send(this.responseData(result))
   }
 
   async delete(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const emebd = await this.embedService.remove(id, req.user.id)
-    res.send(this.responseData(emebd))
+    const embed = await this.embedService.requireEmbedById(Number(req.params.id))
+    this.isSpaceMember(req, embed.spaceId)
+
+    const result = await this.embedService.remove(embed.id, req.user.id)
+    res.send(this.responseData(result))
   }
 }

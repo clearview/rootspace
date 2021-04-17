@@ -4,7 +4,7 @@ import { DocRevisionRepository } from '../../../database/repositories/DocRevisio
 import { Node } from '../../../database/entities/Node'
 import { Doc } from '../../../database/entities/Doc'
 import { DocRevision } from '../../../database/entities/DocRevision'
-import { DocCreateValue, DocUpdateValue } from '../../../values/doc'
+import { DocCreateValue, DocUpdateValue } from './values'
 import { NodeCreateValue } from '../../../values/node'
 import { NodeType } from '../../../root/constants'
 import { NodeService, NodeContentService } from '../../index'

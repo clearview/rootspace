@@ -1,4 +1,4 @@
-export interface IEmbedCreateAttributes {
+export interface EmbedCreateAttributes {
   readonly userId: number
   readonly spaceId: number
   readonly title: string
@@ -7,7 +7,4 @@ export interface IEmbedCreateAttributes {
   readonly parentId?: number
 }
 
-export type IEmbedUpdateAttributes = Omit<
-  Partial<IEmbedCreateAttributes>,
-  'userId' | 'spaceId'
->
+export type EmbedUpdateAttributes = Omit<Partial<EmbedCreateAttributes>, 'userId' | 'spaceId'>

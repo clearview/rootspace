@@ -1,7 +1,7 @@
-import { EntityValue, attributes } from '../../root/values'
-import { IDocCreateAttributes } from './types'
+import { EntityValue, attributes } from '../../../../root/values'
+import { DocCreateAttributes } from './types'
 
-export const DocCreateAttributes: IDocCreateAttributes = {
+const attrs: DocCreateAttributes = {
   userId: null,
   spaceId: null,
   title: null,
@@ -12,11 +12,11 @@ export const DocCreateAttributes: IDocCreateAttributes = {
   parentId: null,
 }
 
-@attributes(DocCreateAttributes)
-export class DocCreateValue extends EntityValue<IDocCreateAttributes> {
+@attributes(attrs)
+export class DocCreateValue extends EntityValue<DocCreateAttributes> {
   private _nodeConfig: any = undefined
 
-  static fromObject(data: IDocCreateAttributes) {
+  static fromObject(data: DocCreateAttributes) {
     return new DocCreateValue(data)
   }
 
@@ -38,10 +38,7 @@ export class DocCreateValue extends EntityValue<IDocCreateAttributes> {
     return copy
   }
 
-  static fromObjectAndUserId(
-    object: Omit<IDocCreateAttributes, 'userId'>,
-    userId: number
-  ) {
+  static fromObjectAndUserId(object: Omit<DocCreateAttributes, 'userId'>, userId: number) {
     return DocCreateValue.fromObject(Object.assign(object, { userId }))
   }
 }

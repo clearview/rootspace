@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { validateDocCreate, validateDocUpdate } from '../validation/doc'
-import { DocCreateValue, DocUpdateValue } from '../values/doc'
-import { ContentAccessService, DocService } from '../services'
-import { FollowService } from '../services'
-import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { validateDocCreate, validateDocUpdate, DocCreateValue, DocUpdateValue } from '../services/content/doc'
 import { contentPermissions, hasContentPermission } from '../services/content-access'
+import { ContentAccessService, DocService, FollowService } from '../services'
+import { ServiceFactory } from '../services/factory/ServiceFactory'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService

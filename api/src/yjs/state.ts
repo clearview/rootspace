@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 import * as Y from 'yjs'
 import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { DocUpdateValue } from '../values/doc'
+import { DocUpdateValue } from '../services/content/doc'
 
 interface StateAction {
   name: string
