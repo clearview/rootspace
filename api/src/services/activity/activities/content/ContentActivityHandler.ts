@@ -86,7 +86,22 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
   }
 
   protected async sendNotificationEmail(user: User, message: string, entityUrl: string, notificationContent?: string): Promise<void> {
-    const content = pug.renderFile(this.mailTemplate, { message, entityUrl, notificationContent })
-    await this.mailService.sendMail(user.email, message, content)
+    const title = ContentActivityHandler.addLink(message, entityUrl)
+    const content = pug.renderFile(this.mailTemplate, { title, entityUrl, notificationContent })
+
+    const subject = ContentActivityHandler.removePlaceholders(message)
+    await this.mailService.sendMail(user.email, subject, content)
+  }
+
+  private static removePlaceholders(message: string): string {
+    return message.replace('[', '').replace(']', '')
+  }
+
+  private static addLink(message: string, url: string): string {
+    const regex = /\[(.*?)\]/i
+    const title = regex.exec(message)
+    const link = `<a href="${url}">${title[1]}</a>`
+
+    return message.replace(title[0], link)
   }
 }
