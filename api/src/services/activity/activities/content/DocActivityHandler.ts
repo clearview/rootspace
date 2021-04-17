@@ -59,17 +59,17 @@ export class DocActivityHandler extends ContentActivityHandler<Doc> {
     const title = context.entity.title
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created document ${title}}`,
-      [ContentActions.Updated]: `${actor.fullName()} updated document ${title}`,
-      [ContentActions.Archived]: `${actor.fullName()} archived document ${title}`,
-      [ContentActions.Restored]: `${actor.fullName()} restored document ${title}`,
-      [ContentActions.Deleted]: `${actor.fullName()} deleted document ${title}`,
+      [ContentActions.Created]: `${actor.fullName()} created document [${title}]`,
+      [ContentActions.Updated]: `${actor.fullName()} updated document [${title}]`,
+      [ContentActions.Archived]: `${actor.fullName()} archived document [${title}]`,
+      [ContentActions.Restored]: `${actor.fullName()} restored document [${title}]`,
+      [ContentActions.Deleted]: `${actor.fullName()} deleted document [${title}]`,
     }
 
     if (messages.hasOwnProperty(this.activity.action)) {
       return messages[this.activity.action]
     }
 
-    return `${actor.fullName()} updated document ${title}`
+    return `${actor.fullName()} updated document [${title}]`
   }
 }

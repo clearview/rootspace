@@ -87,36 +87,36 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     const title = context.entity.title
 
     if (this.activity.action === TaskActions.Assignee_Added && user.id === context.assignee.id) {
-      return `${actor.fullName()} assigned you to task ${title}`
+      return `${actor.fullName()} assigned you to task [${title}]`
     }
 
     if (this.activity.action === TaskActions.Assignee_Removed && user.id === context.assignee.id) {
-      return `${actor.fullName()} removed you from task ${title}`
+      return `${actor.fullName()} removed you from task [${title}]`
     }
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created task ${title}}`,
-      [ContentActions.Updated]: `${actor.fullName()} updated task ${title}`,
-      [ContentActions.Archived]: `${actor.fullName()} archived task ${title}`,
-      [ContentActions.Restored]: `${actor.fullName()} restored task ${title}`,
-      [ContentActions.Deleted]: `${actor.fullName()} deleted task ${title}`,
-      [TaskActions.List_Moved]: `${actor.fullName()} moved task ${title} from '${context.fromList?.title}' to '${
+      [ContentActions.Created]: `${actor.fullName()} created task [${title}]`,
+      [ContentActions.Updated]: `${actor.fullName()} updated task [${title}]`,
+      [ContentActions.Archived]: `${actor.fullName()} archived task [${title}]`,
+      [ContentActions.Restored]: `${actor.fullName()} restored task [${title}]`,
+      [ContentActions.Deleted]: `${actor.fullName()} deleted task [${title}]`,
+      [TaskActions.List_Moved]: `${actor.fullName()} moved task [${title}] from '${context.fromList?.title}' to '${
         context.toList?.title
       }'`,
-      [TaskActions.Comment_Created]: `${actor.fullName()} commented on task ${title}`,
+      [TaskActions.Comment_Created]: `${actor.fullName()} commented on task [${title}]`,
       [TaskActions.Assignee_Added]: `${actor.fullName()} assigned ${context.assignee?.fullName ??
-        ''} to task ${title}`,
+        ''} to task [${title}]`,
       [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
-        ''} from task ${title}`,
-      [TaskActions.Tag_Added]: `${actor.fullName()} added tag ${context.tag?.label} to task ${title}`,
-      [TaskActions.Tag_Removed]: `${actor.fullName()} removed tag ${context.tag?.label} from task ${title}`,
+        ''} from task [${title}]`,
+      [TaskActions.Tag_Added]: `${actor.fullName()} added tag ${context.tag?.label} to task [${title}]`,
+      [TaskActions.Tag_Removed]: `${actor.fullName()} removed tag ${context.tag?.label} from task [${title}]`,
     }
 
     if (messages.hasOwnProperty(this.activity.action)) {
       return messages[this.activity.action]
     }
 
-    return `${actor.fullName()} updated task ${title}`
+    return `${actor.fullName()} updated task [${title}]`
   }
 
   private async getNotificationContent(): Promise<string|null> {

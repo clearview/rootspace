@@ -59,17 +59,17 @@ export class TaskBoardActivityHandler extends ContentActivityHandler<TaskBoard> 
     const title = context.entity.title
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created task board ${title}}`,
-      [ContentActions.Updated]: `${actor.fullName()} updated task board ${title}`,
-      [ContentActions.Archived]: `${actor.fullName()} archived task board ${title}`,
-      [ContentActions.Restored]: `${actor.fullName()} restored task board ${title}`,
-      [ContentActions.Deleted]: `${actor.fullName()} deleted task board ${title}`,
+      [ContentActions.Created]: `${actor.fullName()} created task board [${title}]`,
+      [ContentActions.Updated]: `${actor.fullName()} updated task board [${title}]`,
+      [ContentActions.Archived]: `${actor.fullName()} archived task board [${title}]`,
+      [ContentActions.Restored]: `${actor.fullName()} restored task board [${title}]`,
+      [ContentActions.Deleted]: `${actor.fullName()} deleted task board [${title}]`,
     }
 
     if (messages.hasOwnProperty(this.activity.action)) {
       return messages[this.activity.action]
     }
 
-    return `${actor.fullName()} updated task list ${title}`
+    return `${actor.fullName()} updated task list [${title}]`
   }
 }

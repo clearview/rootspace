@@ -59,17 +59,17 @@ export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {
     const title = context.entity.title
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created task list ${title}}`,
-      [ContentActions.Updated]: `${actor.fullName()} updated task list ${title}`,
-      [ContentActions.Archived]: `${actor.fullName()} archived task list ${title}`,
-      [ContentActions.Restored]: `${actor.fullName()} restored task list ${title}`,
-      [ContentActions.Deleted]: `${actor.fullName()} deleted task list ${title}`,
+      [ContentActions.Created]: `${actor.fullName()} created task list [${title}]`,
+      [ContentActions.Updated]: `${actor.fullName()} updated task list [${title}]`,
+      [ContentActions.Archived]: `${actor.fullName()} archived task list [${title}]`,
+      [ContentActions.Restored]: `${actor.fullName()} restored task list [${title}]`,
+      [ContentActions.Deleted]: `${actor.fullName()} deleted task list [${title}]`,
     }
 
     if (messages.hasOwnProperty(this.activity.action)) {
       return messages[this.activity.action]
     }
 
-    return `${actor.fullName()} updated task list ${title}`
+    return `${actor.fullName()} updated task list [${title}]`
   }
 }
