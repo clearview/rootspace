@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
-import { validateSpaceCreate, validateSpaceUpdate } from '../validation/space'
+import { validateSpaceCreate, validateSpaceUpdate, SpaceCreateValue, SpaceUpdateValue } from '../services/space'
 import { clientError, HttpErrName } from '../response/errors'
 import { SpaceFacade, InviteFacade } from '../services/facade'
 

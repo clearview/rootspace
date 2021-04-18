@@ -1,12 +1,12 @@
 import { Space } from '../../database/entities/Space'
 import { UserToSpace } from '../../database/entities/UserToSpace'
-import { SpaceCreateValue, SpaceUpdateValue } from '../../values/space'
+import { Node } from '../../database/entities/Node'
+import { SpaceCreateValue, SpaceUpdateValue } from '../space'
 import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { Node } from '../../database/entities/Node'
 import { SpaceUserRole } from '../../types/spaceUser'
-import { SpaceUserUpdateValue } from '../../values/spaceUser'
+import { SpaceUserUpdateValue } from '../user-space/values'
 
 export class SpaceFacade {
   private spaceService: SpaceService

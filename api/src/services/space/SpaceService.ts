@@ -1,8 +1,8 @@
 import { getCustomRepository } from 'typeorm'
-import { SpaceRepository } from '../database/repositories/SpaceRepository'
-import { Space } from '../database/entities/Space'
-import { SpaceCreateValue, SpaceUpdateValue } from '../values/space'
-import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
+import { SpaceRepository } from '../../database/repositories/SpaceRepository'
+import { Space } from '../../database/entities/Space'
+import { SpaceCreateValue, SpaceUpdateValue } from './values'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 
 export class SpaceService {
   private static instance: SpaceService

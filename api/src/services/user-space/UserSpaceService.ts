@@ -1,9 +1,9 @@
 import { getCustomRepository } from 'typeorm'
-import { UserToSpaceRepository } from '../database/repositories/UserToSpaceRepository'
-import { UserToSpace } from '../database/entities/UserToSpace'
-import { clientError, HttpErrName } from '../response/errors'
-import { SpaceUserUpdateValue } from '../values/spaceUser'
-import { SpaceUserRole } from '../types/spaceUser'
+import { UserToSpaceRepository } from '../../database/repositories/UserToSpaceRepository'
+import { UserToSpace } from '../../database/entities/UserToSpace'
+import { clientError, HttpErrName } from '../../response/errors'
+import { SpaceUserUpdateValue } from './values'
+import { SpaceUserRole } from '../../types/spaceUser'
 
 export class UserSpaceService {
   private constructor() {}

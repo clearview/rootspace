@@ -3,8 +3,7 @@ import { BaseCtrl } from './BaseCtrl'
 import { UserService, UserSpaceService } from '../services'
 import { SpaceFacade } from '../services/facade'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { SpaceUserUpdateValue } from '../values/spaceUser'
-import { validateSpaceUserUpdate } from '../validation/spaceUser'
+import { validateSpaceUserUpdate, SpaceUserUpdateValue } from '../services/user-space'
 
 export class SpaceUsersCtrl extends BaseCtrl {
   private spaceFacade: SpaceFacade
