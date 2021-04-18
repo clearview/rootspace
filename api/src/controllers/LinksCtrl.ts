@@ -1,12 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { LinkCreateValue, LinkUpdateValue } from '../values/link'
-import { validateLinkCreate, validateLinkUpdate } from '../validation/link'
-import { LinkService } from '../services/content/LinkService'
+import { LinkCreateValue, LinkUpdateValue, validateLinkCreate, validateLinkUpdate } from '../services/content/link'
+import { LinkService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
-import { Actions } from '../middleware/AuthMiddleware'
-import { ForbiddenError } from '@casl/ability'
 
 export class LinksCtrl extends BaseCtrl {
   protected linkSrvice: LinkService
@@ -16,62 +12,59 @@ export class LinksCtrl extends BaseCtrl {
     this.linkSrvice = ServiceFactory.getInstance().getLinkservice()
   }
 
-  public async view(req: Request, res: Response, next: NextFunction) {
-    const link = await this.linkSrvice.getLinkById(Number(req.params.id))
+  public async view(req: Request, res: Response) {
+    const link = await this.linkSrvice.requireLinkById(Number(req.params.id))
+    this.isSpaceMember(req, link.spaceId)
 
-    if (!link) {
-      throw clientError('Not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
-    }
-
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, link)
-
-    const resData = this.responseData(link)
-    res.send(resData)
+    res.send(this.responseData(link))
   }
 
-  public async create(req: Request, res: Response, next: NextFunction) {
+  public async create(req: Request, res: Response) {
     const data = req.body.data
     await validateLinkCreate(data)
 
+    this.isSpaceMember(req, data.spaceId)
+
     const value = LinkCreateValue.fromObjectAndUserId(data, req.user.id)
 
-    const link = await this.linkSrvice.create(value)
-    const resData = this.responseData(link)
-
-    res.send(resData)
+    const result = await this.linkSrvice.create(value)
+    res.send(this.responseData(result))
   }
 
-  public async update(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
+  public async update(req: Request, res: Response) {
     const data = req.body.data
-
     await validateLinkUpdate(data)
 
-    const value = LinkUpdateValue.fromObject(data)
-    const link = await this.linkSrvice.update(value, id, req.user.id)
+    const link = await this.linkSrvice.requireLinkById(Number(req.params.id))
+    this.isSpaceMember(req, link.spaceId)
 
-    const resData = this.responseData(link)
-    res.send(resData)
+    const value = LinkUpdateValue.fromObject(data)
+    const result = await this.linkSrvice.update(value, link.id, req.user.id)
+
+    res.send(this.responseData(result))
   }
 
   async archive(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const result = await this.linkSrvice.archive(id, req.user.id)
+    const link = await this.linkSrvice.requireLinkById(Number(req.params.id))
+    this.isSpaceMember(req, link.spaceId)
 
+    const result = await this.linkSrvice.archive(link.id, req.user.id)
     res.send(this.responseData(result))
   }
 
   async restore(req: Request, res: Response) {
-    const id = Number(req.params.id)
-    const result = await this.linkSrvice.restore(id, req.user.id)
+    const link = await this.linkSrvice.requireLinkById(Number(req.params.id))
+    this.isSpaceMember(req, link.spaceId)
 
+    const result = await this.linkSrvice.restore(link.id, req.user.id)
     res.send(this.responseData(result))
   }
 
-  public async delete(req: Request, res: Response, next: NextFunction) {
-    const id = Number(req.params.id)
-    const link = await this.linkSrvice.remove(id, req.user.id)
+  public async delete(req: Request, res: Response) {
+    const link = await this.linkSrvice.requireLinkById(Number(req.params.id))
+    this.isSpaceMember(req, link.spaceId)
 
-    res.send(this.responseData(link))
+    const result = await this.linkSrvice.remove(link.id, req.user.id)
+    res.send(this.responseData(result))
   }
 }

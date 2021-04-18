@@ -1,4 +1,4 @@
-import { LinkCreateValidator } from '../link/LinkCreateValidator'
+import { LinkCreateValidator } from './LinkCreateValidator'
 import { LinkUpdateValidator } from './LinkUpdateValidator'
 
 export function validateLinkCreate(input: object): Promise<any> {
