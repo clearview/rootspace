@@ -1,5 +1,5 @@
 import { Node } from '../../database/entities/Node'
-import { NodeService } from './NodeService'
+import { NodeService } from './node/NodeService'
 import { NodeContentService } from './NodeContentService'
 import { INodeContentUpdate } from './NodeContentUpdate'
 

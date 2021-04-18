@@ -1,17 +1,17 @@
-import { EntityValue, attributes } from '../../root/values'
-import { INodeCreateAttributes } from './types'
+import { EntityValue, attributes } from '../../../../root/values'
+import { NodeCreateAttributes } from './types'
 
-export const LinkCreateAttributes: INodeCreateAttributes = {
+const attrs: NodeCreateAttributes = {
   userId: null,
   spaceId: null,
   contentId: null,
   title: null,
   type: null,
-  config: null
+  config: null,
 }
 
-@attributes(LinkCreateAttributes)
-export class NodeCreateValue extends EntityValue<INodeCreateAttributes> {
+@attributes(attrs)
+export class NodeCreateValue extends EntityValue<NodeCreateAttributes> {
   private _parent: number = undefined
   private _position: number = undefined
 
@@ -43,14 +43,11 @@ export class NodeCreateValue extends EntityValue<INodeCreateAttributes> {
     return copy
   }
 
-  static fromObject(object: INodeCreateAttributes): NodeCreateValue {
+  static fromObject(object: NodeCreateAttributes): NodeCreateValue {
     return new NodeCreateValue(object)
   }
 
-  static fromObjectAndUserId(
-    object: Omit<INodeCreateAttributes, 'userId'>,
-    userId: number
-  ): NodeCreateValue {
+  static fromObjectAndUserId(object: Omit<NodeCreateAttributes, 'userId'>, userId: number): NodeCreateValue {
     return NodeCreateValue.fromObject(Object.assign(object, { userId }))
   }
 }

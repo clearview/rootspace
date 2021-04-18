@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { NodeUpdateValue } from '../values/node'
-import { validateNodeUpdate } from '../validation/node'
+import { NodeUpdateValue } from '../services/content/node/values'
+import { validateNodeUpdate } from '../services/content/node'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { NodeService, FavoriteService, EntityService, ContentAccessService } from '../services'
 import { hasContentPermission } from '../services/content-access'
@@ -66,7 +66,7 @@ export class NodeCtrl extends BaseCtrl {
 
   async delete(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
-    
+
     const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(node.type, node.contentId, {
       withDeleted: true,
     })

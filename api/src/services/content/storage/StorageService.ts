@@ -3,7 +3,7 @@ import { StorageRepository } from '../../../database/repositories/StorageReposit
 import { Storage } from '../../../database/entities/Storage'
 import { Node } from '../../../database/entities/Node'
 import { StorageCreateValue, StorageUpdateValue } from './values'
-import { NodeCreateValue } from '../../../values/node'
+import { NodeCreateValue } from '../node/values'
 import { NodeType } from '../../../root/constants'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { StorageActivity } from '../../activity/activities/content'

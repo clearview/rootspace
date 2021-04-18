@@ -1,4 +1,4 @@
-export interface INodeCreateAttributes {
+export type NodeCreateAttributes = {
   readonly userId: number
   readonly spaceId: number
   readonly contentId: number
@@ -7,7 +7,4 @@ export interface INodeCreateAttributes {
   readonly config?: Record<string, any>
 }
 
-export type INodeUpdateAttributes = Pick<
-  Partial<INodeCreateAttributes>,
-  'title'
->
+export type NodeUpdateAttributes = Pick<Partial<NodeCreateAttributes>, 'title'>

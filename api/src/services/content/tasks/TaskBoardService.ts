@@ -9,7 +9,7 @@ import { NodeType } from '../../../root/constants'
 import { ServiceFactory } from '../../factory/ServiceFactory'
 import { NodeContentService } from '../NodeContentService'
 import { NodeService, TaskListService } from '../../'
-import { NodeCreateValue } from '../../../values/node'
+import { NodeCreateValue } from '../node/values'
 import { HttpErrName, HttpStatusCode, clientError } from '../../../response/errors'
 import { TaskBoardActivity } from '../../activity/activities/content/TaskBoardActivity'
 

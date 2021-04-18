@@ -3,7 +3,7 @@ import { FolderRepository } from '../../../database/repositories/FolderRepositor
 import { Folder } from '../../../database/entities/Folder'
 import { Node } from '../../../database/entities/Node'
 import { FolderCreateValue, FolderUpdateValue } from './values'
-import { NodeCreateValue } from '../../../values/node'
+import { NodeCreateValue } from '../node/values'
 import { NodeType } from '../../../root/constants'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { FolderActivity } from '../../activity/activities/content'

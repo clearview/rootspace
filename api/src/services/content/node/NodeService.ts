@@ -1,13 +1,13 @@
 import { getCustomRepository, getTreeRepository } from 'typeorm'
-import { NodeRepository } from '../../database/repositories/NodeRepository'
-import { Node } from '../../database/entities/Node'
-import { NodeCreateValue, NodeUpdateValue } from '../../values/node'
-import { NodeType } from '../../root/constants'
-import { INodeContentUpdate } from './NodeContentUpdate'
-import { NodeContentMediator } from './NodeContentMediator'
-import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { Service } from '../Service'
-import { NodeActivity } from '../activity/activities/space'
+import { NodeRepository } from '../../../database/repositories/NodeRepository'
+import { Node } from '../../../database/entities/Node'
+import { NodeCreateValue, NodeUpdateValue } from './values'
+import { NodeType } from '../../../root/constants'
+import { INodeContentUpdate } from '../NodeContentUpdate'
+import { NodeContentMediator } from '../NodeContentMediator'
+import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
+import { Service } from '../../Service'
+import { NodeActivity } from '../../activity/activities/space'
 
 export class NodeService extends Service {
   private nodeContentMediator: NodeContentMediator

@@ -1,12 +1,12 @@
-import { EntityValue, attributes } from '../../root/values'
-import { INodeUpdateAttributes } from './types'
+import { EntityValue, attributes } from '../../../../root/values'
+import { NodeUpdateAttributes } from './types'
 
-export const NodeUpdateAttributes: INodeUpdateAttributes = {
+const attrs: NodeUpdateAttributes = {
   title: undefined,
 }
 
-@attributes(NodeUpdateAttributes)
-export class NodeUpdateValue extends EntityValue<INodeUpdateAttributes> {
+@attributes(attrs)
+export class NodeUpdateValue extends EntityValue<NodeUpdateAttributes> {
   private _parent: number = undefined
   private _position: number = undefined
 
@@ -38,7 +38,7 @@ export class NodeUpdateValue extends EntityValue<INodeUpdateAttributes> {
     return copy
   }
 
-  static fromObject(data: INodeUpdateAttributes) {
+  static fromObject(data: NodeUpdateAttributes) {
     return new NodeUpdateValue(data)
   }
 }
