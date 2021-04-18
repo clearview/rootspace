@@ -1,4 +1,4 @@
-export interface FolderCreateAttributes {
+export type FolderCreateAttributes = {
   readonly userId: number
   readonly spaceId: number
   readonly title: string

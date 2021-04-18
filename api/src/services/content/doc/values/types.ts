@@ -1,4 +1,4 @@
-export interface DocCreateAttributes {
+export type DocCreateAttributes = {
   userId: number
   spaceId: number
   title: string

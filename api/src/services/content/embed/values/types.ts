@@ -1,4 +1,4 @@
-export interface EmbedCreateAttributes {
+export type EmbedCreateAttributes = {
   readonly userId: number
   readonly spaceId: number
   readonly title: string

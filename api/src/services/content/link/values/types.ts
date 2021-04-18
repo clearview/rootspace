@@ -1,4 +1,4 @@
-export interface LinkCreateAttributes {
+export type LinkCreateAttributes = {
   readonly userId: number
   readonly spaceId: number
   readonly title: string
