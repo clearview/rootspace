@@ -23,6 +23,11 @@ html
                 text-align: center;
             }
 
+            .title {
+                padding: 0 0 40px 0;
+                font-size: 16px;
+            }
+
             .header {
                 display: flex;
                 align-items: center;
@@ -39,10 +44,8 @@ html
                 margin-bottom: 8px;
             }
 
-            .link {
-                display: block;
-                margin: 32px 0;
-                opacity: 0.75;
+            .note {
+                padding-top: 40px;
             }
     body
         section(class="email")
@@ -51,4 +54,4 @@ html
                 block content
             footer(class="footer")
                 span This email was sent automatically by Root |
-                span Copyright &copy; #{new Date().getFullYear()} Root. All rights reserved.
+                span  Copyright &copy; #{new Date().getFullYear()} Root. All rights reserved.
