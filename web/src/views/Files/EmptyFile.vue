@@ -26,6 +26,7 @@ export default {
 
 <style lang="postcss" scoped>
 .empty-file {
+  @apply flex items-center justify-center;
   height: calc(100vh - 44px);
   display: flex;
   flex-direction: column;

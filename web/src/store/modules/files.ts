@@ -8,12 +8,6 @@ import FilesService from '@/services/files'
 const FilesModule: Module<FilesState, RootState> = {
   namespaced: true,
 
-  state () {
-    return {
-      item: null
-    }
-  },
-
   mutations: {
     setItem (state, view) {
       state.item = view
