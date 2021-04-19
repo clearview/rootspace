@@ -76,7 +76,7 @@ export class Task {
   @Column('varchar')
   slug: string
 
-  @Column({ name: 'data', type: 'jsonb', default: '{}' })
+  @Column({ type: 'jsonb', default: '{}' })
   description: object | object[]
 
   @Column('integer', { nullable: true })
