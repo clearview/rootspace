@@ -202,11 +202,6 @@ import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
@@ -228,7 +223,6 @@ import ProseInput from '@/components/prose-input/ProseInput.vue'
     Modal,
     Field,
     Avatar,
-    quillEditor,
     ImageViewer
   },
   filters: {
