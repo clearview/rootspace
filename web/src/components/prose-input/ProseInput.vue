@@ -238,6 +238,7 @@ export default {
 <style lang="postcss">
 .prose-input .ProseMirror {
   outline: none;
+  font-size: 12px;
 
   a {
     text-decoration: underline;
@@ -258,7 +259,6 @@ export default {
   code {
     background: #dedede;
     padding: 4px;
-    font-size: 12px;
   }
 
 }
