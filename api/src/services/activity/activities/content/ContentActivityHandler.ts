@@ -13,10 +13,9 @@ import {
 } from '../../../'
 import { IContentActivityData } from './ContentActivityData'
 import { IActivityHandler } from '../ActivityHandler'
+import { ContentActions, TaskActions } from './actions'
 
 export abstract class ContentActivityHandler<T> implements IActivityHandler {
-  protected mailTemplate = `${process.cwd()}/src/templates/mail/notification/content.pug`
-
   protected activityService: ActivityService
   protected userService: UserService
   protected userSettingsService: UserSettingService
@@ -85,23 +84,12 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
     return false
   }
 
-  protected async sendNotificationEmail(user: User, message: string, entityUrl: string, notificationContent?: string): Promise<void> {
-    const title = ContentActivityHandler.addLink(message, entityUrl)
-    const content = pug.renderFile(this.mailTemplate, { title, entityUrl, notificationContent })
-
-    const subject = ContentActivityHandler.removePlaceholders(message)
+  protected async sendNotificationEmail(user: User, subject: string, activity: Activity, entityUrl: string, notificationContent?: string): Promise<void> {
+    const content = pug.renderFile(ContentActivityHandler.mailTemplate(activity), { activity, entityUrl, notificationContent })
     await this.mailService.sendMail(user.email, subject, content)
   }
 
-  private static removePlaceholders(message: string): string {
-    return message.replace('[', '').replace(']', '')
-  }
-
-  private static addLink(message: string, url: string): string {
-    const regex = /\[(.*?)\]/i
-    const title = regex.exec(message)
-    const link = `<a href="${url}">${title[1]}</a>`
-
-    return message.replace(title[0], link)
+  private static mailTemplate(activity: Activity): string {
+    return `${process.cwd()}/src/templates/mail/notification/${activity.entity.toLowerCase()}/${activity.action.toLowerCase()}.pug`
   }
 }
