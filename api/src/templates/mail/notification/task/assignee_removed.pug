@@ -1,7 +1,7 @@
 extends ../../layout/main
 block content
     p(class="title") #[strong #{activity.actor.fullName()}]
-        |  removed #{activity.context.assignee?.fullName ?? ''}
+        |  removed #[strong #{activity.context.assignee ? activity.context.assignee.fullName : ''}]
         |  from task #[a(href=`${entityUrl}`) #[strong #{activity.context.entity.title}]]
     if notificationContent
         p Content:
