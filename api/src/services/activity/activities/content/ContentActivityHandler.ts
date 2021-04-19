@@ -13,7 +13,6 @@ import {
 } from '../../../'
 import { IContentActivityData } from './ContentActivityData'
 import { IActivityHandler } from '../ActivityHandler'
-import { ContentActions, TaskActions } from './actions'
 
 export abstract class ContentActivityHandler<T> implements IActivityHandler {
   protected activityService: ActivityService
