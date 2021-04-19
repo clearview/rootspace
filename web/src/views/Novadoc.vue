@@ -868,7 +868,7 @@ export default {
         }
       },
       canBeBold (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+        if (focused && !this.readOnly) {
           return true
         }
         if (this.isCellSelection() && focused && !this.readOnly) {
@@ -876,7 +876,7 @@ export default {
         }
       },
       canBeItalic (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+        if (focused && !this.readOnly) {
           return true
         }
         if (this.isCellSelection() && focused && !this.readOnly) {
@@ -884,7 +884,7 @@ export default {
         }
       },
       canBeUnderline (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+        if (focused && !this.readOnly) {
           return true
         }
         if (this.isCellSelection() && focused && !this.readOnly) {
@@ -892,7 +892,7 @@ export default {
         }
       },
       canBeStrikethrough (isActive, focused) {
-        if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+        if (focused && !this.readOnly) {
           return true
         }
         if (this.isCellSelection() && focused && !this.readOnly) {
