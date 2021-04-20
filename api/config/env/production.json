@@ -1,6 +1,6 @@
 {
   "uploadDir": "/tmp",
-  "domain": "https://root.clearviewdev.io",
+  "domain": "https://rootspace.app",
   "cron": {
     "markOverdueTask": {
       "className": "MarkOverdueTasks",
