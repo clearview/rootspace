@@ -22,12 +22,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Ref } from 'vue-property-decorator'
+import { Component, Mixins, Ref, Prop } from 'vue-property-decorator'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
 import EmptyFileView from '@/views/Files/EmptyFile.vue'
+import { FilesResource } from '../../types/resource'
 
 @Component({
   components: {
@@ -49,7 +50,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   captureDragFile () {
-    console.log('oke')
     if (!this.isUploading) {
       this.isCapturingFile = true
     }
@@ -73,11 +73,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i)
         if (file) {
-          // await this.$store.dispatch('task/item/upload', {
-          //   task: this.itemCopy,
-          //   file
-          // })
-          console.log(file)
+          await this.$store.dispatch('files/upload', {
+            item: 'tes',
+            file
+          })
         }
       }
       this.isUploading = false

@@ -30,6 +30,11 @@ export interface FilesResource extends ApiResource {
   title: string;
   type: string;
 }
+export interface FilesItemResource extends ApiResource {
+  userId: number | null;
+  spaceId: number | null;
+  attachments: NewUploadResource[] | null;
+}
 
 /**
  * @deprecated
@@ -57,7 +62,7 @@ export interface NewUploadResource {
   path: string;
   size: number;
   spaceId: number;
-  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo';
+  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo' | 'storage';
   updatedAt: Date;
   userId: number;
   versions: {
