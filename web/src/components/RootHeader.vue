@@ -6,7 +6,7 @@
       alt="Root Logo"
       class="object-contain"
     />
-    <h1 class="pl-2">RootApp</h1>
+    <h1 class="pl-2">Rootspace</h1>
   </header>
 </template>
 

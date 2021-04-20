@@ -10,7 +10,7 @@
           @/assets/images/logo-inverse@2x.png 2x
         "
       />
-      <h1 class="pl-2">RootApp</h1>
+      <h1 class="pl-2">Rootspace</h1>
     </header>
 
     <div class="content">

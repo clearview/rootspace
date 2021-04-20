@@ -28,7 +28,7 @@
     </div>
 
     <v-loading :loading="isLoading">
-      <p>Creating RootApp Account ...</p>
+      <p>Creating Rootspace account...</p>
     </v-loading>
   </layout-public>
 </template>

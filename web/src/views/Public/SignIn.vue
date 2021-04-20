@@ -27,7 +27,7 @@
     </div>
 
     <v-loading :loading="isLoading">
-      <p>Login to RootApp...</p>
+      <p>Login to Rootspace...</p>
     </v-loading>
   </layout-public>
 </template>
