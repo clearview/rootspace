@@ -54,12 +54,20 @@ export default {
   }
   hr {
     align-self: stretch;
-    border: 1px dashed #AAB1C5;
+    border: 0px;
+    height: 1px;
+    background: -webkit-linear-gradient(left, #FFFFFF, #AAB1C5, #FFFFFF); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(right, #FFFFFF, #AAB1C5, #FFFFFF); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(right, #FFFFFF, #AAB1C5, #FFFFFF); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(to right, #FFFFFF, #AAB1C5, #FFFFFF); /* Standard syntax (must be last) */
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   &.selected {
     hr {
-      border: dashed 1px #146493;
+      background: linear-gradient(to right, #FFFFFF, #AAB1C5);
+      background-color: #AAB1C5;
     }
   }
 }
