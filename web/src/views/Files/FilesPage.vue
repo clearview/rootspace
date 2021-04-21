@@ -16,7 +16,24 @@
       </h3>
     </header>
     <div class="content">
-      <emptyFileView />
+      <div class="empty-file">
+        <div class="content">
+          <img src="@/assets/images/file-empty.svg" alt="Empty File" class="illustration">
+          <h3 class="title">
+            Add your first file
+          </h3>
+          <h4 class="subtitle">
+            You can drag and drop or click on the button below
+          </h4>
+          <div class="actions">
+            <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
+            <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
+              <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+              Upload File
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -27,12 +44,11 @@ import { Component, Mixins, Ref, Prop } from 'vue-property-decorator'
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
-import EmptyFileView from '@/views/Files/EmptyFile.vue'
 import { FilesResource } from '../../types/resource'
 
 @Component({
   components: {
-    EmptyFileView
+    // EmptyFileView
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
@@ -41,6 +57,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   private isUploading = false
   private isCapturingFile = false
+
+  pickFile () {
+    this.attachmentFileRef.click()
+  }
 
   async created () {
     await this.$nextTick()
@@ -69,6 +89,23 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     this.isCapturingFile = false
     const files = e.dataTransfer?.files
     if (files && files.length > 0) {
+      this.isUploading = true
+      for (let i = 0; i < files.length; i++) {
+        const file = files.item(i)
+        if (file) {
+          await this.$store.dispatch('files/upload', {
+            item: 'tes',
+            file
+          })
+        }
+      }
+      this.isUploading = false
+    }
+  }
+
+  async handleAttachFile () {
+    const files = this.attachmentFileRef.files
+    if (files) {
       this.isUploading = true
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i)
@@ -135,5 +172,48 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 .header-actions {
   @apply flex flex-row items-center;
   flex: 0 0 auto;
+}
+
+.attachment-file {
+  @apply hidden;
+}
+
+.empty-file {
+  @apply flex items-center justify-center;
+  height: calc(100vh - 44px);
+  display: flex;
+  flex-direction: column;
+  .content {
+    @apply flex items-center justify-center flex-col;
+    flex: 1 1 auto;
+  }
+  .title {
+    margin-top: 56.53px;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 18px;
+    line-height: 21px;
+    text-align: center;
+    color: #2C2B35;
+  }
+  .subtitle {
+    margin-top: 9px;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 16.71px;
+    text-align: center;
+    color: #2C2B35;
+  }
+  .actions {
+    margin-top: 24px;
+    .btn-upload {
+      border-color: #8CD5FF;
+      background: #8CD5FF;
+      color: #2C2B35;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
 }
 </style>

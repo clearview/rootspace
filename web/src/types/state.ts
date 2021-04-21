@@ -59,11 +59,6 @@ export interface TreeState {
 export interface LinkState {
   item: LinkResource | null;
 }
-
-export interface FilesState {
-  item: FilesResource | null;
-}
-
 export interface TaskState {
   board: TaskBoardState;
   list: TaskListState;

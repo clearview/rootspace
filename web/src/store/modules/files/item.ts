@@ -1,10 +1,10 @@
 import { Module } from 'vuex'
 
-import { RootState, FilesState } from '@/types/state'
-import { FilesResource, NewUploadResource } from '@/types/resource'
+import { RootState, FilesItemState } from '@/types/state'
+import { FilesItemResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
 
-const FilesItemModule: Module<FilesState, RootState> = {
+const FilesItemModule: Module<FilesItemState, RootState> = {
   namespaced: true,
 
   mutations: {
@@ -14,7 +14,7 @@ const FilesItemModule: Module<FilesState, RootState> = {
   },
 
   actions: {
-    async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File }) {
+    async upload ({ commit, rootGetters }, payload: { item: FilesItemResource, file: File }) {
       const activeSpace = rootGetters['space/activeSpace']
       
       console.log('activeSpace : ', activeSpace)
