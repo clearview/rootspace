@@ -1,7 +1,7 @@
 <template>
   <Popover
     :with-close="false"
-    :offset="-24"
+    :offset="collapseState ? 0 : -24"
     @trigger="notificationActivityTrigger"
     position="right"
     class="settings-contextmenu header activities-header"
