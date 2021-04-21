@@ -5,10 +5,3 @@ declare module '*.vue' {
 
   export default Vue
 }
-
-// declare module 'he-tree-vue'
-declare module 'vue-click-outside'
-declare module 'vue-avatar'
-declare module 'vue-tippy'
-declare module 'vue-tippy/dist/vue-tippy.esm'
-declare module 'sanitize-html'

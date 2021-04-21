@@ -73,7 +73,7 @@
             <span class="description-title-placeholder">Description</span>
             <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <ProseInput :read-only="!isEditingDescription" v-model="description" @save="saveDescription" @cancel="cancelDescription"></ProseInput>
+          <Editor :read-only="!isEditingDescription" v-model="description" @save="saveDescription" @cancel="cancelDescription"></Editor>
         </div>
         <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
           <div class="attachments-label">
@@ -206,12 +206,12 @@ import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
-import ProseInput from '@/components/prose-input/ProseInput.vue'
+import Editor from '@/components/editor'
 
 @Component({
   name: 'TaskModal',
   components: {
-    ProseInput,
+    Editor,
     TaskActivities,
     TaskAttachmentView,
     DueDatePopover,

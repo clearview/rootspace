@@ -31,5 +31,8 @@ module.exports = {
 
     config.plugins.push(new ForkTsCheckerWebpackPlugin(forkTsCheckerOptions))
   },
-  chainWebpack: config => config.resolve.symlinks(false)
+  chainWebpack: config => config.resolve.symlinks(false),
+  transpileDependencies: [
+    /[\\/]node_modules[\\/]tiptap.*/
+  ]
 }
