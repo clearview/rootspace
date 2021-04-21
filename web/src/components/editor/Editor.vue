@@ -287,9 +287,8 @@ export default defineComponent({
     padding-right: 8px;
   }
 }
-</style>
-<style lang="postcss">
-.editor .ProseMirror {
+
+.content >>> .ProseMirror {
   outline: none;
   font-size: 12px;
 
@@ -314,14 +313,14 @@ export default defineComponent({
     background: #dedede;
     padding: 4px;
   }
-}
 
-.editor .content *.is-empty:nth-child(1)::before,
-.editor .content *.is-empty:nth-child(2)::before {
-  content: attr(data-empty-text);
-  float: left;
-  color: #aaa;
-  pointer-events: none;
-  height: 0;
+  *.is-empty:nth-child(1)::before,
+  *.is-empty:nth-child(2)::before {
+    content: attr(data-empty-text);
+    float: left;
+    color: #aaa;
+    pointer-events: none;
+    height: 0;
+  }
 }
 </style>
