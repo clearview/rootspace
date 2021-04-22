@@ -29,6 +29,7 @@ export interface FilesResource extends ApiResource {
   spaceId: number | null;
   title: string;
   type: string;
+  uploads: NewUploadResource[] | null;
 }
 export interface FilesItemResource extends ApiResource {
   userId: number | null;

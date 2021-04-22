@@ -9,16 +9,16 @@ const FilesModule: Module<FilesState, RootState> = {
   namespaced: true,
 
   mutations: {
-    setItem (state, view) {
-      state.item = view
+    setCurrent (state, data) {
+      state.current = data
     }
   },
 
   actions: {
     async view ({ commit }, id: number) {
-      const { data } = await FilesService.view(id)
+      const res = await FilesService.view(id)
 
-      commit('setItem', data)
+      commit('setCurrent', res?.data)
     },
 
     async create (_, data: FilesResource) {
@@ -53,10 +53,10 @@ const FilesModule: Module<FilesState, RootState> = {
       formData.append('spaceId', activeSpace.id)
       commit('setProcessing', true)
       const res = await api.post('/uploads', formData)
-      // if (!params.task.attachments) {
-      //   params.task.attachments = []
-      // }
-      // params.task.attachments.push(res.data.data)
+      if (!payload.item.uploads) {
+        payload.item.uploads = []
+      }
+      payload.item.uploads.push(res.data.data)
       commit('setProcessing', false)
       return res
     }

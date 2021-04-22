@@ -95,8 +95,8 @@ export interface DocumentState {
   deferredParent: NodeResource | null;
 }
 export interface FilesState {
-  payload: FilesResource[];
-  deferredParent: NodeResource | null;
+  data: FilesResource[];
+  current: FilesResource | null;
 }
 export interface FilesItemState {
   data: FilesItemResource[];

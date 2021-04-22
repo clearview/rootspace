@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Ref, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
@@ -57,6 +57,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   private isUploading = false
   private isCapturingFile = false
+  private isFetching = false
+
+  get id () {
+    return Number(this.$route.params.id)
+  }
 
   pickFile () {
     this.attachmentFileRef.click()
@@ -94,7 +99,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         const file = files.item(i)
         if (file) {
           await this.$store.dispatch('files/upload', {
-            item: 'tes',
+            item: this.files,
             file
           })
         }
@@ -111,13 +116,40 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         const file = files.item(i)
         if (file) {
           await this.$store.dispatch('files/upload', {
-            item: 'tes',
+            item: this.files,
             file
           })
         }
       }
       this.isUploading = false
     }
+  }
+
+  get files (): FilesResource | null {
+    return this.$store.state.files.current
+  }
+
+  async fetchFiles () {
+    this.isFetching = true
+    try {
+      await this.$store.dispatch('files/view', this.id)
+      if (this.files) {
+        if (!this.pageReady) {
+          await this.activateSpace(this.files.spaceId)
+        }
+
+        this.pageReady = true
+      }
+    } catch { }
+  }
+
+  @Watch('id', { immediate: true })
+  async watchId (id: number) {
+    await this.$store.dispatch('files/view', id)
+  }
+
+  async mounted () {
+    await this.fetchFiles()
   }
 }
 </script>
