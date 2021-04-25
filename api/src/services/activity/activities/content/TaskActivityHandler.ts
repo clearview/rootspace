@@ -5,10 +5,15 @@ import { Task } from '../../../../database/entities/tasks/Task'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './ContentActivityData'
 import { ContentActions, TaskActions } from './actions'
+import { TaskCommentService } from '../../../'
+import { ServiceFactory } from '../../../factory/ServiceFactory'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {
+  private taskCommentService: TaskCommentService
+
   private constructor(data: IContentActivityData) {
     super(data)
+    this.taskCommentService = ServiceFactory.getInstance().getTaskCommentService()
   }
 
   async process(): Promise<void> {
@@ -72,20 +77,21 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     for (const follow of follows) {
       if ((await this.userEmailNotifications(follow.userId)) === true) {
         const user = await this.userService.getUserById(follow.userId)
-        const message = this.getNotificationMessage(user)
+        const subject = this.getSubjectMessage(user)
+        const content = await this.getNotificationContent()
 
-        await this.sendNotificationEmail(user, message, entityUrl)
+        await this.sendNotificationEmail(user, subject, this.activity, entityUrl, content)
       }
     }
   }
 
-  private getNotificationMessage(user: User): string {
+  private getSubjectMessage(user: User): string {
     const actor = this.activity.actor
     const context = this.activity.context as any
     const title = context.entity.title
 
     if (this.activity.action === TaskActions.Assignee_Added && user.id === context.assignee.id) {
-      return `${actor.fullName()} assigneed you to task ${title}`
+      return `${actor.fullName()} assigned you to task ${title}`
     }
 
     if (this.activity.action === TaskActions.Assignee_Removed && user.id === context.assignee.id) {
@@ -93,7 +99,7 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     }
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created task ${title}}`,
+      [ContentActions.Created]: `${actor.fullName()} created task ${title}`,
       [ContentActions.Updated]: `${actor.fullName()} updated task ${title}`,
       [ContentActions.Archived]: `${actor.fullName()} archived task ${title}`,
       [ContentActions.Restored]: `${actor.fullName()} restored task ${title}`,
@@ -101,8 +107,8 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
       [TaskActions.List_Moved]: `${actor.fullName()} moved task ${title} from '${context.fromList?.title}' to '${
         context.toList?.title
       }'`,
-      [TaskActions.Comment_Created]: `${actor.fullName()} commented task ${title}`,
-      [TaskActions.Assignee_Added]: `${actor.fullName()} assigneed ${context.assignee?.fullName ??
+      [TaskActions.Comment_Created]: `${actor.fullName()} commented on task ${title}`,
+      [TaskActions.Assignee_Added]: `${actor.fullName()} assigned ${context.assignee?.fullName ??
         ''} to task ${title}`,
       [TaskActions.Assignee_Removed]: `${actor.fullName()} removed ${context.assignee?.fullName ??
         ''} from task ${title}`,
@@ -115,5 +121,17 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
     }
 
     return `${actor.fullName()} updated task ${title}`
+  }
+
+  private async getNotificationContent(): Promise<string|null> {
+    if (this.activity.action === TaskActions.Comment_Created) {
+      const context = this.activity.context as any
+      const commentId = context.comment.id
+      const comment = await this.taskCommentService.getById(commentId)
+
+      return comment.content
+    }
+
+    return null
   }
 }
