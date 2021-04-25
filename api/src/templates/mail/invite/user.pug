@@ -2,6 +2,6 @@ extends ../layout/main
 block content
     h3 Space Invitation
     p #[strong #{sender.firstName}] invited you to join #[strong #{space.title}] space on Root.
-    a(href=`${inviteUrl}`, class="button") Accept invitation
-    p If the button above does not work, copy and paste the URL below into your browser:
-    a(href=`${inviteUrl}`, class="link") #{inviteUrl}
+    a(href=`${inviteUrl}`) Accept invitation
+    p If the above link does not work, copy and paste the following URL below into your browser:
+    p #{inviteUrl}

@@ -1,0 +1,11 @@
+extends ../../layout/main
+block content
+    p(class="title") #[strong #{activity.actor.fullName()}]
+        |  moved task #[a(href=`${entityUrl}`) #[strong #{activity.context.entity.title}]]
+        |  from #[strong #{activity.context.fromList.title}]
+        |  to #[strong #{activity.context.toList.title}]
+    if notificationContent
+        p Content:
+        blockquote #{notificationContent}
+    p(class="note") If the link above link does not work, copy and paste the following URL below into your browser:
+    p #{entityUrl}
