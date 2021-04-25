@@ -5,11 +5,15 @@ import { Task } from '../../../../database/entities/tasks/Task'
 import { ContentActivityHandler } from './ContentActivityHandler'
 import { IContentActivityData } from './ContentActivityData'
 import { ContentActions, TaskActions } from './actions'
-import { TaskCommentService } from '../../../content/tasks'
+import { TaskCommentService } from '../../../'
+import { ServiceFactory } from '../../../factory/ServiceFactory'
 
 export class TaskActivityHandler extends ContentActivityHandler<Task> {
+  private taskCommentService: TaskCommentService
+
   private constructor(data: IContentActivityData) {
     super(data)
+    this.taskCommentService = ServiceFactory.getInstance().getTaskCommentService()
   }
 
   async process(): Promise<void> {
@@ -120,11 +124,11 @@ export class TaskActivityHandler extends ContentActivityHandler<Task> {
   }
 
   private async getNotificationContent(): Promise<string|null> {
-    const context = this.activity.context as any
-
-    if (context.comment) {
+    if (this.activity.action === TaskActions.Comment_Created) {
+      const context = this.activity.context as any
       const commentId = context.comment.id
-      const comment = await TaskCommentService.getInstance().getTaskCommentRepository().findOne(commentId)
+      const comment = await this.taskCommentService.getById(commentId)
+
       return comment.content
     }
 
