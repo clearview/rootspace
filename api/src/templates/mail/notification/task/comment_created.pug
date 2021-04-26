@@ -3,7 +3,7 @@ block content
     p(class="title") #[strong #{activity.actor.fullName()}]
         |  commented on task #[a(href=`${entityUrl}`) #[strong #{activity.context.entity.title}]]
     if notificationContent
-        p Content:
+        p Comment:
         blockquote #{notificationContent}
     p(class="note") If the link above link does not work, copy and paste the following URL below into your browser:
     p #{entityUrl}

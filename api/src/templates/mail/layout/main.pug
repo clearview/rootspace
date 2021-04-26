@@ -6,16 +6,13 @@ html
                 margin: 0;
                 padding: 0;
                 font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                color: #444754;
+                color: #414141;
             }
 
             .content {
-                padding: 24px 40px;
+                padding: 10px 40px 10px 40px;
                 box-sizing: border-box;
-                font-size: 14px;
-                margin: 20px auto;
-                background: #FFFFFF;
-                border-radius: 4px;
+                font-size: 12px;
             }
 
             .header {
@@ -24,14 +21,8 @@ html
             }
 
             .title {
-                padding: 0 0 40px 0;
-                font-size: 16px;
-            }
-
-            .header {
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                margin: 5px 0 5px 0;
+                font-size: 14px;
             }
 
             .footer {
@@ -45,13 +36,12 @@ html
             }
 
             .note {
-                padding-top: 40px;
+                padding-top: 20px;
             }
     body
         section(class="email")
-            header(class="header")
             main(class="content")
                 block content
             footer(class="footer")
-                span This email was sent automatically by Root |
-                span  Copyright &copy; #{new Date().getFullYear()} Root. All rights reserved.
+                span This email was sent automatically by Rootspace |
+                span  Copyright &copy; #{new Date().getFullYear()} Rootspace. All rights reserved.
