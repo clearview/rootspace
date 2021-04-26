@@ -8,9 +8,15 @@ import FilesService from '@/services/files'
 const FilesModule: Module<FilesState, RootState> = {
   namespaced: true,
 
+  state () {
+    return {
+      item: null
+    }
+  },
+
   mutations: {
-    setCurrent (state, data) {
-      state.current = data
+    setItem (state, data) {
+      state.item = data
     }
   },
 
@@ -18,7 +24,7 @@ const FilesModule: Module<FilesState, RootState> = {
     async view ({ commit }, id: number) {
       const res = await FilesService.view(id)
 
-      commit('setCurrent', res?.data)
+      commit('setItem', res.data)
     },
 
     async create (_, data: FilesResource) {
@@ -48,7 +54,7 @@ const FilesModule: Module<FilesState, RootState> = {
 
       const formData = new FormData()
       formData.append('file', payload.file)
-      formData.append('entityId', '1')
+      formData.append('entityId', payload.item.id.toString())
       formData.append('type', 'storage')
       formData.append('spaceId', activeSpace.id)
       commit('setProcessing', true)

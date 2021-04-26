@@ -16,6 +16,7 @@
       </h3>
     </header>
     <div class="content">
+      New item {{ files }}
       <div class="empty-file">
         <div class="content">
           <img src="@/assets/images/file-empty.svg" alt="Empty File" class="illustration">
@@ -40,6 +41,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
+import { Optional } from '@/types/core'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
@@ -126,7 +128,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   get files (): FilesResource | null {
-    return this.$store.state.files.current
+    return this.$store.state.files.item
   }
 
   async fetchFiles () {
