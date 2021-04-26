@@ -9,7 +9,6 @@ import {
   Link,
   ListItem,
   OrderedList,
-  Placeholder,
   Strike,
   TrailingNode,
   Underline
@@ -51,9 +50,6 @@ export function createEditor ({
     new TrailingNode({
       node: 'paragraph',
       notAfter: ['paragraph']
-    }),
-    new Placeholder({
-      showOnlyWhenEditable: false
     }),
     new TabEater()
   ]

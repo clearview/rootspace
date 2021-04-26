@@ -184,7 +184,7 @@ export default defineComponent({
       default: false
     },
     value: {
-      type: Object,
+      type: [Object, String],
       default: () => ({})
     }
   },
@@ -269,11 +269,13 @@ export default defineComponent({
   border: solid 1px #ccc;
   border-radius: 0 0 4px 4px;
   padding: 8px;
+  min-height: 18em;
 }
 .readOnly {
   .content {
     border: none;
     padding: 8px 0;
+    min-height: 0;
   }
 }
 
@@ -290,7 +292,7 @@ export default defineComponent({
 
 .content >>> .ProseMirror {
   outline: none;
-  font-size: 12px;
+  font-size: 14px;
 
   a {
     text-decoration: underline;
