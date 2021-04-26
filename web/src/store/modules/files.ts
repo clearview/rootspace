@@ -51,7 +51,9 @@ const FilesModule: Module<FilesState, RootState> = {
       if (!activeSpace) {
         throw new Error('Not in an active space')
       }
-
+      if (!payload.item.id) {
+        throw new Error('Invalid files ID')
+      }
       const formData = new FormData()
       formData.append('file', payload.file)
       formData.append('entityId', payload.item.id.toString())

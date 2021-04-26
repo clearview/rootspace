@@ -1,5 +1,5 @@
 <template>
-  <section class="file-page" @dragenter="captureDragFile">
+  <section class="file-page" @dragenter="captureDragFile" v-if="files">
     <div class="file-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
       <div class="file-drag-content">
         <legacy-icon
@@ -12,12 +12,21 @@
     </div>
     <header class="header">
       <h3 class="header-title">
-        Files
+        Files <span>({{ files.uploads.length }})</span>
       </h3>
+      <div class="header-action" v-if="files.uploads.length !== 0">
+        <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
+        <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
+          <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+          Upload File
+        </button>
+      </div>
     </header>
     <div class="content">
-      New item {{ files }}
-      <div class="empty-file">
+      <div class="files-wrapper" v-if="files.uploads.length !== 0">
+        <FileItem :item="files" />
+      </div>
+      <div class="empty-file" v-else>
         <div class="content">
           <img src="@/assets/images/file-empty.svg" alt="Empty File" class="illustration">
           <h3 class="title">
@@ -42,6 +51,7 @@
 <script lang="ts">
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { Optional } from '@/types/core'
+import FileItem from '@/views/Files/FileItem.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
@@ -50,7 +60,7 @@ import { FilesResource } from '../../types/resource'
 
 @Component({
   components: {
-    // EmptyFileView
+    FileItem
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
@@ -203,9 +213,15 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   flex: 1 1 auto;
 }
 
-.header-actions {
+.header-action {
   @apply flex flex-row items-center;
   flex: 0 0 auto;
+  .btn-upload {
+    border-color: #8CD5FF;
+    background: #8CD5FF;
+    color: #2C2B35;
+    padding: .469rem 1rem;
+  }
 }
 
 .attachment-file {
