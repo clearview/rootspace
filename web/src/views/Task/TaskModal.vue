@@ -73,7 +73,12 @@
             <span class="description-title-placeholder">Description</span>
             <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <Editor :read-only="!isEditingDescription" v-model="description" @save="saveDescription" @cancel="cancelDescription"></Editor>
+          <Editor
+            :readonly="!isEditingDescription"
+            v-model="description"
+            @save="saveDescription"
+            @cancel="cancelDescription"
+          />
         </div>
         <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
           <div class="attachments-label">
@@ -248,9 +253,7 @@ export default class TaskModal extends Vue {
     @Inject('modal')
     modal!: ModalInjectedContext
 
-    private editDescription = {}
     private itemCopy = { ...this.item }
-    private descriptionCopy = { ...this.itemCopy }
     private isEditingDescription = false
     private commentInput = ''
     private isUploading = false
@@ -260,22 +263,6 @@ export default class TaskModal extends Vue {
     private isCapturingFile = false
     private isShowAllAttachment = false
     private attachmentIndex: number|null = null
-    private toolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['link'],
-
-      ['blockquote', 'code-block'],
-
-      [{ list: 'ordered' }, { list: 'bullet' }]
-    ]
-
-    private editorOption = {
-      modules: {
-        toolbar: this.toolbarOptions
-      },
-      theme: 'snow',
-      placeholder: 'Write a description...'
-    }
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
@@ -343,12 +330,13 @@ export default class TaskModal extends Vue {
       this.attachmentIndex = index
     }
 
-    async saveDescription () {
+    async saveDescription (description: object) {
       await this.$store.dispatch('task/item/update', {
         id: this.item.id,
-        description: this.editDescription
+        description
       })
-      this.itemCopy.description = this.editDescription
+
+      this.itemCopy.description = description
       this.isEditingDescription = false
     }
 
@@ -544,10 +532,6 @@ export default class TaskModal extends Vue {
       }
 
       return result
-    }
-
-    set description (value: Record<string, any>) {
-      this.editDescription = value
     }
 
     attachmentState () {

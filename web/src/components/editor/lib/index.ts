@@ -9,6 +9,7 @@ import {
   Link,
   ListItem,
   OrderedList,
+  Placeholder,
   Strike,
   TrailingNode,
   Underline
@@ -21,9 +22,9 @@ import ListMerger from './ListMerger'
 import TabEater from './TabEater'
 
 interface CreateEditorParams {
-  content: Record<string, any>
+  content: string | Record<string, any>
   editable: boolean
-  onUpdate(context: any): void
+  onUpdate?(context: any): void
 }
 
 export function createEditor ({
@@ -31,6 +32,7 @@ export function createEditor ({
   editable,
   onUpdate
 }: CreateEditorParams) {
+  console.log(content)
   const extensions = [
     new Paragraph(),
     new TextColor(),
@@ -51,6 +53,7 @@ export function createEditor ({
       node: 'paragraph',
       notAfter: ['paragraph']
     }),
+    new Placeholder(),
     new TabEater()
   ]
 

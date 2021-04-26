@@ -1,17 +1,17 @@
 <template>
   <div
     class="editor"
-    :class="{readOnly}"
+    :class="{readonly}"
   >
     <header
       class="header"
-      v-if="!readOnly"
+      v-if="!readonly"
     >
       <div class="menu">
         <editor-menu-bar
           ref="menuBar"
           :editor="editor"
-          v-slot="{ commands, isActive, getMarkAttrs, /*getNodeAttrs, focused*/ }"
+          v-slot="{ commands, isActive, getMarkAttrs }"
         >
           <div class="menu-bar">
             <MenuButton
@@ -138,17 +138,17 @@
     </div>
     <footer
       class="footer"
-      v-if="!readOnly"
+      v-if="!readonly"
     >
       <button
         class="btn btn-link"
-        @click="$emit('cancel')"
+        @click="cancel"
       >
         Cancel
       </button>
       <button
         class="btn btn-link-primary"
-        @click="$emit('save', editor.getJSON())"
+        @click="save"
       >
         Save
       </button>
@@ -179,7 +179,7 @@ export default defineComponent({
     ListIcon
   },
   props: {
-    readOnly: {
+    readonly: {
       type: Boolean,
       default: false
     },
@@ -197,6 +197,18 @@ export default defineComponent({
       }
     }
 
+    const cancel = () => {
+      editor.value.setContent(props.value)
+
+      emit('cancel')
+    }
+
+    const save = () => {
+      const content = editor.value.getJSON()
+
+      emit('save', content)
+    }
+
     const getCurrentActiveNode = (depth = 1) => {
       const sel = editor.value.state.selection
       if (sel) {
@@ -210,7 +222,7 @@ export default defineComponent({
     // Watch
 
     watch(
-      () => props.readOnly,
+      () => props.readonly,
       (val) => {
         if (editor.value) {
           editor.value.setOptions({
@@ -226,10 +238,7 @@ export default defineComponent({
       destroyEditor()
       editor.value = createEditor({
         content: props.value,
-        editable: !props.readOnly,
-        onUpdate: ({ getJSON }) => {
-          emit('input', getJSON())
-        }
+        editable: !props.readonly
       })
     })
 
@@ -239,6 +248,8 @@ export default defineComponent({
 
     return {
       editor,
+      cancel,
+      save,
       getCurrentActiveNode
     }
   }
@@ -271,7 +282,8 @@ export default defineComponent({
   padding: 8px;
   min-height: 18em;
 }
-.readOnly {
+
+.readonly {
   .content {
     border: none;
     padding: 8px 0;
@@ -316,8 +328,7 @@ export default defineComponent({
     padding: 4px;
   }
 
-  *.is-empty:nth-child(1)::before,
-  *.is-empty:nth-child(2)::before {
+  .is-editor-empty::before {
     content: attr(data-empty-text);
     float: left;
     color: #aaa;
