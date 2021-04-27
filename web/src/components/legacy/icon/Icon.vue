@@ -122,6 +122,8 @@ import IconStriped from './IconStriped.vue'
 import IconAddGreen from './IconAddGreen.vue'
 import IconRemoveRed from './IconRemoveRed.vue'
 import IconCheckmark3 from './IconCheckmark3.vue'
+import IconFilePdf from './IconFilePdf.vue'
+import IconFileDefault from './IconFileDefault.vue'
 
 @Component({
   name: 'Icon',
@@ -232,7 +234,9 @@ import IconCheckmark3 from './IconCheckmark3.vue'
     IconStriped,
     IconAddGreen,
     IconRemoveRed,
-    IconCheckmark3
+    IconCheckmark3,
+    IconFilePdf,
+    IconFileDefault
   }
 })
 export default class Icon extends Vue {

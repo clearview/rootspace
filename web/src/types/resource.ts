@@ -30,6 +30,7 @@ export interface FilesResource extends ApiResource {
   title: string;
   type: string;
   uploads: NewUploadResource[] | null;
+  user: UserResource | null;
 }
 
 /**
