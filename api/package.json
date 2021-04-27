@@ -109,11 +109,11 @@
     "nodemailer": "^6.4.8",
     "supertest": "^4.0.2",
     "testcontainers": "^2.10.0",
-    "ts-jest": "^26.1.0",
+    "ts-jest": "^26.5.5",
     "ts-node": "^8.8.1",
     "ts-node-dev": "^1.0.0-pre.44",
     "tslint": "^6.1.1",
-    "typescript": "^3.9.5"
+    "typescript": "^4.2.4"
   },
   "husky": {
     "hooks": {
