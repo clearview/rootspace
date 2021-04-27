@@ -47,7 +47,7 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
     })
   }
 
-  abstract async process(): Promise<void>
+  abstract process(): Promise<void>
 
   protected getFollows() {
     return this.followService.getFollowsForActivity(this.activity)

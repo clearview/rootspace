@@ -47,8 +47,6 @@ export default class Server {
       plugin: {'rooms': Rooms},
     })
 
-    this.wsServer.use('removeHeaders', removeWsHeaders)
-
     wsServerHooks(this.wsServer)
 
     this.app.use(httpRequestContext.middleware())
