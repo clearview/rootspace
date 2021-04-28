@@ -1,4 +1,3 @@
-export * from './types'
 export * from './UserUpdateValue'
 export * from './PasswordChangeValue'
 export * from './PasswordSetValue'

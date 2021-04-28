@@ -1,4 +1,4 @@
-import { ISignupProvider } from '../../types/user'
+import { ISignupProvider } from '../../../types/user'
 import { UserSignupValidator } from './UserSignupValidator'
 import { UserUpdateValidator } from './UserUpdateValidator'
 import { PasswordChangeValidator } from './PasswordChangeValidator'

@@ -1,6 +1,6 @@
 export * from './Service'
 export * from './space/SpaceService'
-export * from './UserService'
+export * from './user/UserService'
 export * from './UserSettingService'
 export * from './user-space/UserSpaceService'
 export * from './invite/InviteService'

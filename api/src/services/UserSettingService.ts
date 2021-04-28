@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm'
 import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
 import { UserSettingRepository } from '../database/repositories/UserSettingRepository'
 import { UserSetting } from '../database/entities/UserSetting'
-import { UserService } from './UserService'
+import { UserService } from './user/UserService'
 
 export class UserSettingService {
   private userService: UserService

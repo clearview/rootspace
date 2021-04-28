@@ -1,26 +1,26 @@
 import bcrypt from 'bcryptjs'
-import { hashPassword } from '../utils'
+import { hashPassword } from '../../utils'
 import { validate as uuidValidate } from 'uuid'
 import { CallbackFunction } from 'ioredis'
 import { getCustomRepository } from 'typeorm'
-import { PasswordResetRepository } from '../database/repositories/PasswordResetRepository'
-import { UserRepository } from '../database/repositories/UserRepository'
-import { User } from '../database/entities/User'
-import { PasswordReset } from '../database/entities/PasswordReset'
-import { ISignupProvider } from '../types/user'
+import { PasswordResetRepository } from '../../database/repositories/PasswordResetRepository'
+import { UserRepository } from '../../database/repositories/UserRepository'
+import { User } from '../../database/entities/User'
+import { PasswordReset } from '../../database/entities/PasswordReset'
+import { ISignupProvider } from '../../types/user'
 import {
   UserUpdateValue,
   PasswordChangeValue,
   PasswordSetValue,
   PasswordRecoveryValue,
   PasswordResetValue,
-} from '../values/user'
-import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../response/errors'
-import { UserAuthProvider } from '../types/user'
-import { IQueryOptions } from '../types/query'
-import { Service } from './Service'
-import { UserActivitiy } from './activity/activities/user/'
-import { PasswordResetActivity } from './activity/activities/app'
+} from './values'
+import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../../response/errors'
+import { UserAuthProvider } from '../../types/user'
+import { IQueryOptions } from '../../types/query'
+import { Service } from '../Service'
+import { UserActivitiy } from '../activity/activities/user'
+import { PasswordResetActivity } from '../activity/activities/app'
 
 export class UserService extends Service {
   private static instance: UserService

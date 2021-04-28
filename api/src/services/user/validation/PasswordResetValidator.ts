@@ -1,4 +1,4 @@
-import { BaseValidator } from '../../root/validation/BaseValidator'
+import { BaseValidator } from '../../../root/validation/BaseValidator'
 
 export class PasswordResetValidator extends BaseValidator {
   rules() {

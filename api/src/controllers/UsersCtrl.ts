@@ -12,14 +12,12 @@ import {
   validatePasswordRecovery,
   validatePasswordReset,
   validatePasswordSet,
-} from '../validation/user'
-import {
   UserUpdateValue,
   PasswordChangeValue,
   PasswordRecoveryValue,
   PasswordResetValue,
   PasswordSetValue,
-} from '../values/user'
+} from '../services/user'
 import { UserAuthProvider } from '../types/user'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
