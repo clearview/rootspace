@@ -3,8 +3,3 @@ export const InviteSendStatus = {
   Suspended: 'suspended',
   Member: 'member',
 }
-
-export interface Invite {
-  email: string,
-  role: number
-}

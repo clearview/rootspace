@@ -1,12 +1,12 @@
 import { getCustomRepository } from 'typeorm'
-import { InviteRepository } from '../database/repositories/InviteRepository'
-import { Invite } from '../database/entities/Invite'
-import { Space } from '../database/entities/Space'
-import { User } from '../database/entities/User'
-import { Service } from './Service'
-import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
-import { UserActivitiy } from './activity/activities/user'
-import { IQueryOptions } from '../types/query'
+import { InviteRepository } from '../../database/repositories/InviteRepository'
+import { Invite } from '../../database/entities/Invite'
+import { Space } from '../../database/entities/Space'
+import { User } from '../../database/entities/User'
+import { Service } from '../Service'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
+import { UserActivitiy } from '../activity/activities/user'
+import { IQueryOptions } from '../../types/query'
 
 export class InviteService extends Service {
   private static instance: InviteService

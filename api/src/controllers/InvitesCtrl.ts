@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { InviteService } from '../services'
-import { validateInviteAccept, validateInviteCreate } from '../validation/invite'
+import { validateInviteAccept, validateInviteCreate } from '../services/invite'
 import { InviteFacade } from '../services/facade'
 
 export class InvitesCtrl extends BaseCtrl {
