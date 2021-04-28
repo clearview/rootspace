@@ -6,10 +6,10 @@ import { ContentAccessType } from './ContentAccessType'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { ContentEntity } from '../../root/types'
 
-type permission = 'view' | 'update' | 'archive' | 'restore' | 'delete'
+type permissionType = 'view' | 'update' | 'archive' | 'restore' | 'delete'
 
 export class ContentPermissions {
-  private defined = new Set<permission>(['view', 'update', 'archive', 'restore', 'delete'])
+  private defined = new Set<permissionType>(['view', 'update', 'archive', 'restore', 'delete'])
   private list = new Set<string>()
 
   private contentAccess: ContentAccess
@@ -38,11 +38,11 @@ export class ContentPermissions {
     return Array.from(this.list)
   }
 
-  has(permission: permission): boolean {
+  has(permission: permissionType): boolean {
     return this.list.has(permission)
   }
 
-  throwUnlessHas(permission: permission) {
+  throwUnlessHas(permission: permissionType) {
     if (this.has(permission) === false) {
       throw clientError('Content action forbidden', HttpErrName.Forbidden, HttpStatusCode.Forbidden)
     }
@@ -135,7 +135,7 @@ export const contentPermissions = async (entity: ContentEntity, userId?: number)
   return new ContentPermissions(contentAccess, spaceUser)
 }
 
-export const hasContentPermission = async (permission: permission, entity: any, userId?: number) => {
+export const hasContentPermission = async (permission: permissionType, entity: any, userId?: number) => {
   const permissions = await contentPermissions(entity, userId)
   permissions.throwUnlessHas(permission)
 }

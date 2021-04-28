@@ -79,7 +79,7 @@ class StateQueue extends EventEmitter {
       try {
         await save(action.docName, action.userId, data.state, data.json)
       } catch (error) {
-        console.log(error)
+        console.log(error) // tslint:disable-line
       } finally {
         this.run(docName)
       }
@@ -93,7 +93,7 @@ class StateQueue extends EventEmitter {
       try {
         await restore(action.docName, action.userId, data.revisionId)
       } catch (error) {
-        console.log(error)
+        console.log(error) // tslint:disable-line
       } finally {
         this.run(docName)
       }
@@ -147,10 +147,10 @@ export const onRestore = (docName: string, userId: number, revisionId: number, y
   const action: StateAction = {
     name: 'restore',
     lock: true,
-    docName: docName,
-    userId: userId,
+    docName,
+    userId,
     data: {
-      revisionId: revisionId,
+      revisionId,
     },
   }
 
@@ -175,8 +175,8 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
   const action: StateAction = {
     name: 'save',
     lock: false,
-    docName: docName,
-    userId: userId,
+    docName,
+    userId,
     data: {
       state: Y.encodeStateAsUpdate(ydoc),
       json: yDocToProsemirrorJSON(ydoc),
@@ -235,6 +235,6 @@ export const persistence = {
     console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
 
     updates.delete(docName)
-    console.log('state updates', updates)
+    console.log('state updates', updates) // tslint:disable-line
   },
 }

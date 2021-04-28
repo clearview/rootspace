@@ -16,10 +16,9 @@ import { Service } from '../Service'
 import { EntityService } from '../'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { TaskActivity } from '../activity/activities/content'
-import { UploadValue, UploadUpdateValue, UploadType,  } from '.'
+import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
-
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -88,7 +87,7 @@ export class UploadService extends Service {
     upload.mimetype = data.file.mimetype
     upload.size = data.file.size
 
-    if(!data.attributes.name){
+    if (!data.attributes.name) {
       upload.name = path.parse(upload.filename).name
     }
 
@@ -103,10 +102,8 @@ export class UploadService extends Service {
     return upload
   }
 
-  async update(data: UploadUpdateValue, id: number, actorId: number): Promise<Upload>
-  async update(data: UploadUpdateValue, uplaod: Upload, actorId: number): Promise<Upload>
-  async update(data: UploadUpdateValue, what: number | Upload, actorId: number): Promise<Upload> {
-    const upload = typeof what === 'number' ? await this.requireUploadById(what) : what
+  async update(data: UploadUpdateValue, target: number | Upload, actorId: number): Promise<Upload> {
+    const upload = typeof target === 'number' ? await this.requireUploadById(target) : target
 
     Object.assign(upload, data.attributes)
     await this.getUploadRepository().save(upload)
@@ -209,10 +206,8 @@ export class UploadService extends Service {
     return null
   }
 
-  async remove(id: number, actorId: number): Promise<Upload>
-  async remove(upload: Upload, actorId: number): Promise<Upload>
-  async remove(what: number | Upload, actorId: number): Promise<Upload> {
-    const upload = typeof what === 'number' ? await this.requireUploadById(what) : what
+  async remove(target: number | Upload, actorId: number): Promise<Upload> {
+    const upload = typeof target === 'number' ? await this.requireUploadById(target) : target
     await this.removeUploadFiles(upload)
 
     // TO DO: implement other upload types activities

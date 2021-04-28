@@ -22,7 +22,7 @@ import {
   UserSettingService,
   TaskCommentService,
   ContentAccessService,
-  StorageService
+  StorageService,
 } from '../'
 import { NodeContentMediator } from '../content/NodeContentMediator'
 
@@ -204,7 +204,7 @@ export class ServiceFactory {
 
     this.docService = DocService.getInstance()
     this.docService.attachActivityObserver(this.getActivityService())
-    
+
     this.taskBoardService = TaskBoardService.getInstance()
     this.taskBoardService.attachActivityObserver(this.getActivityService())
 

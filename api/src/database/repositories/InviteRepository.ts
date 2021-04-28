@@ -56,7 +56,7 @@ export class InviteRepository extends Repository<Invite> {
       .where('invite.email = :email', { email })
       .andWhere('invite.spaceId = :spaceId', { spaceId })
 
-    if (filter.accepted != undefined) {
+    if (filter.accepted !== undefined) {
       query.andWhere('invite.accepted = :accepted', { accepted: filter.accepted })
     }
 

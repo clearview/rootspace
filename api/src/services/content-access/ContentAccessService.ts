@@ -84,15 +84,8 @@ export class ContentAccessService {
     return contentAccess
   }
 
-  async remove(contentAccess: number): Promise<ContentAccess>
-  async remove(contentAccess: ContentAccess): Promise<ContentAccess>
-  async remove(contentAccess: any): Promise<ContentAccess> {
-    if (typeof contentAccess === 'number') {
-      const access = await this.getById(contentAccess)
-      return this.getRepository().remove(access)
-    }
-
-    const access = contentAccess as ContentAccess
+  async remove(target: number | ContentAccess): Promise<ContentAccess> {
+    const access = typeof target === 'number' ? await this.getById(target) : target
     return this.getRepository().remove(access)
   }
 
