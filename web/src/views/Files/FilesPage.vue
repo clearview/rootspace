@@ -124,12 +124,21 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     const files = this.attachmentFileRef.files
     if (files) {
       this.isUploading = true
+      const myUploadProgress = (myFileId) => (progress) => {
+        const percentage = Math.floor((progress.loaded * 100) / progress.total)
+        console.log(myFileId)
+        console.log(percentage)
+      }
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i)
+        const config = {
+          onUploadProgress: myUploadProgress(files[i])
+        }
         if (file) {
           await this.$store.dispatch('files/upload', {
             item: this.files,
-            file
+            file,
+            config
           })
         }
       }

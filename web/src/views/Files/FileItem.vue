@@ -3,11 +3,11 @@
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
       <div class="file-item" v-for="(file, index) in item.uploads" :key="index">
         <div class="icon-thumbnail">
-          <legacy-icon class="stroke-0" size="65" viewbox="65" :name="fileIcon(file.mimetype)" />
+          <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(file.mimetype)" />
         </div>
         <div class="content">
           <h3>{{ file.filename }}</h3>
-          Added by User • {{ formatDate(file.createdAt) }} • {{ file.size | formatFileSize }}
+          Added by {{ file.userId }} • {{ formatDate(file.createdAt) }} • {{ file.size | formatFileSize }}
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@ import moment from 'moment'
 
 export default class FileItem extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly item!: Optional<FilesResource>
+  private readonly item!:FilesResource
 
   formatDate (fileDate: Date | string) {
     return moment(fileDate).format('MMM DD, YYYY')
@@ -60,6 +60,8 @@ export default class FileItem extends Vue {
     switch (type) {
       case 'application/pdf':
         return 'filePdf'
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'fileDocx'
       default:
         return 'fileDefault'
     }

@@ -8,7 +8,6 @@ import {
   TaskItemResource,
   DocumentResource,
   FilesResource,
-  FilesItemResource,
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
@@ -96,12 +95,8 @@ export interface DocumentState {
 }
 export interface FilesState {
   item: FilesResource | null;
+  processing: boolean;
 }
-export interface FilesItemState {
-  data: FilesItemResource[];
-  current: FilesItemResource | null;
-}
-
 export interface SpaceState {
   activeIndex: number;
   list: SpaceResource[];

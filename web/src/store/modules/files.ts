@@ -10,13 +10,17 @@ const FilesModule: Module<FilesState, RootState> = {
 
   state () {
     return {
-      item: null
+      item: [],
+      processing: false
     }
   },
 
   mutations: {
     setItem (state, data) {
       state.item = data
+    },
+    setProcessing (state, payload: boolean): void {
+      state.processing = payload
     }
   },
 
@@ -43,10 +47,8 @@ const FilesModule: Module<FilesState, RootState> = {
       await FilesService.destroy(data.id)
     },
 
-    async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File }) {
+    async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File, config: any }) {
       const activeSpace = rootGetters['space/activeSpace']
-      console.log('activeSpace : ', activeSpace)
-      console.log('Payload : ', payload)
 
       if (!activeSpace) {
         throw new Error('Not in an active space')
@@ -60,7 +62,7 @@ const FilesModule: Module<FilesState, RootState> = {
       formData.append('type', 'storage')
       formData.append('spaceId', activeSpace.id)
       commit('setProcessing', true)
-      const res = await api.post('/uploads', formData)
+      const res = await api.post('/uploads', formData, payload.config)
       if (!payload.item.uploads) {
         payload.item.uploads = []
       }
