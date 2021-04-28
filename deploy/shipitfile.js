@@ -27,7 +27,7 @@ module.exports = shipit => {
     },
     production: {
       deployTo: '/srv/root',
-      servers: 'rut@root.clearviewdev.io',
+      servers: 'rut@rootspace.app',
       branch: 'master',
       pm2: {
         json: '/srv/root/current/api/pm2/production.json'
