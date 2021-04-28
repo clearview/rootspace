@@ -3,7 +3,7 @@ import { FavoriteRepository } from '../../database/repositories/FavoriteReposito
 import { Favorite } from '../../database/entities/Favorite'
 import { Node } from '../../database/entities/Node'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { NodeType } from '../../root/constants'
+import { NodeType } from '../../shared/constants'
 
 export class FavoriteService {
   private static instance: FavoriteService

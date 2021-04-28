@@ -3,7 +3,7 @@ import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { InviteSendStatus, InviteData } from '../invite'
-import { IQueryOptions } from '../../types/query'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -25,7 +25,7 @@ export class InviteFacade {
   getInvitesBySpaceId(
     spaceId: number,
     filter: { accepted?: boolean } = { accepted: false },
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     return this.inviteService.getBySpaceId(spaceId, filter, options)
   }

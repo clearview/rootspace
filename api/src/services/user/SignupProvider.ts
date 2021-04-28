@@ -1,4 +1,4 @@
-export interface ISignupProvider {
+export type SignupProvider = {
   firstName: string
   lastName: string
   email: string
@@ -7,9 +7,4 @@ export interface ISignupProvider {
   authProvider: string
   active: boolean
   emailConfirmed?: boolean
-}
-
-export enum UserAuthProvider {
-  LOCAL = 'local',
-  GOOGLE = 'google',
 }

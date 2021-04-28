@@ -5,8 +5,7 @@ import { SpaceCreateValue, SpaceUpdateValue } from '../space'
 import { SpaceService, UserSpaceService, NodeService, UserService } from '../'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { SpaceUserRole } from '../../types/spaceUser'
-import { SpaceUserUpdateValue } from '../user-space/values'
+import { SpaceUserRole, SpaceUserUpdateValue } from '../user-space'
 
 export class SpaceFacade {
   private spaceService: SpaceService

@@ -6,7 +6,7 @@ import { ContentAccessCreateValue, ContentAccessUpdateValue } from './values'
 import { ContentAccessType } from './ContentAccessType'
 import { ContentEntity } from '../../root/types'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { ContentEntityNames, NodeTypeEntityNameMap } from '../../root/constants'
+import { ContentEntityNames, NodeTypeEntityNameMap } from '../../shared/constants'
 
 export class ContentAccessService {
   private static instance: ContentAccessService

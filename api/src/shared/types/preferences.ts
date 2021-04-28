@@ -1,4 +1,4 @@
-import { UserSetting } from '../database/entities/UserSetting'
+import { UserSetting } from '../../database/entities/UserSetting'
 import { Notifications } from './preferences/notifications'
 
 export class Preferences {

@@ -1,4 +1,3 @@
-import { ISignupProvider } from '../../../types/user'
 import { UserSignupValidator } from './UserSignupValidator'
 import { UserUpdateValidator } from './UserUpdateValidator'
 import { PasswordChangeValidator } from './PasswordChangeValidator'
@@ -6,7 +5,7 @@ import { PasswordRecoveryValidator } from './PasswordRecoveryValidator'
 import { PasswordResetValidator } from './PasswordResetValidator'
 import { PasswordSetValidator } from './PasswordSetValidator'
 
-export function validateUserSignup(input: ISignupProvider): Promise<any> {
+export function validateUserSignup(input: object): Promise<any> {
   return new UserSignupValidator().validate(input)
 }
 

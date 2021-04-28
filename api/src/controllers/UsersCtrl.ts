@@ -17,8 +17,8 @@ import {
   PasswordRecoveryValue,
   PasswordResetValue,
   PasswordSetValue,
+  UserAuthProvider,
 } from '../services/user'
-import { UserAuthProvider } from '../types/user'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class UsersCtrl extends BaseCtrl {

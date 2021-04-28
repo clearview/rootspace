@@ -1,6 +1,6 @@
 import { EntityRepository, Repository, UpdateResult } from 'typeorm'
 import { Node } from '../entities/Node'
-import { NodeType } from '../../root/constants'
+import { NodeType } from '../../shared/constants'
 import { Favorite } from '../entities/Favorite'
 
 @EntityRepository(Node)

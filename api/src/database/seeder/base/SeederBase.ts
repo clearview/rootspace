@@ -3,7 +3,7 @@ import { User } from '../../entities/User'
 import { Space } from '../../entities/Space'
 import { UserToSpace } from '../../entities/UserToSpace'
 import { Node } from '../../entities/Node'
-import { NodeType } from '../../../root/constants'
+import { NodeType } from '../../../shared/constants'
 
 export class SeederBase {
   public factory: Factory

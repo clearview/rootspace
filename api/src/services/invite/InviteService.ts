@@ -6,7 +6,7 @@ import { User } from '../../database/entities/User'
 import { Service } from '../Service'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { UserActivitiy } from '../activity/activities/user'
-import { IQueryOptions } from '../../types/query'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 export class InviteService extends Service {
   private static instance: InviteService
@@ -46,7 +46,7 @@ export class InviteService extends Service {
     spaceId: number,
     senderId: number,
     filter: any = {},
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     return this.getInviteRepository().getInvites(email, spaceId, senderId, filter, options)
   }
@@ -68,7 +68,7 @@ export class InviteService extends Service {
   getBySpaceId(
     spaceId: number,
     filter: { accepted?: boolean } = { accepted: false },
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     return this.getInviteRepository().getBySpaceId(spaceId, filter, options)
   }
@@ -77,7 +77,7 @@ export class InviteService extends Service {
     email: string,
     spaceId: number,
     filter: { accepted: boolean } = { accepted: false },
-    options: IQueryOptions
+    options: QueryOptions
   ): Promise<Invite[]> {
     return this.getInviteRepository().getByEmailAndSpaceId(email, spaceId, filter, options)
   }

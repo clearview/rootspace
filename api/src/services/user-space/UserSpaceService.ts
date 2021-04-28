@@ -3,7 +3,7 @@ import { UserToSpaceRepository } from '../../database/repositories/UserToSpaceRe
 import { UserToSpace } from '../../database/entities/UserToSpace'
 import { clientError, HttpErrName } from '../../response/errors'
 import { SpaceUserUpdateValue } from './values'
-import { SpaceUserRole } from '../../types/spaceUser'
+import { SpaceUserRole } from './SpaceUserRole'
 
 export class UserSpaceService {
   private constructor() {}

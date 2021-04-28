@@ -1,10 +1,10 @@
 import { ContentAccess } from '../../database/entities/ContentAccess'
 import { UserToSpace } from '../../database/entities/UserToSpace'
-import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { SpaceUserRole } from '../../types/spaceUser'
+import { SpaceUserRole } from '../user-space'
 import { ContentAccessType } from './ContentAccessType'
-import { ServiceFactory } from '../factory/ServiceFactory'
 import { ContentEntity } from '../../root/types'
+import { ServiceFactory } from '../factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 
 type permissionType = 'view' | 'update' | 'archive' | 'restore' | 'delete'
 

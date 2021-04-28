@@ -7,17 +7,17 @@ import { PasswordResetRepository } from '../../database/repositories/PasswordRes
 import { UserRepository } from '../../database/repositories/UserRepository'
 import { User } from '../../database/entities/User'
 import { PasswordReset } from '../../database/entities/PasswordReset'
-import { ISignupProvider } from '../../types/user'
 import {
   UserUpdateValue,
   PasswordChangeValue,
   PasswordSetValue,
   PasswordRecoveryValue,
   PasswordResetValue,
-} from './values'
+  SignupProvider,
+  UserAuthProvider,
+} from './'
 import { HttpErrName, HttpStatusCode, clientError, unauthorized } from '../../response/errors'
-import { UserAuthProvider } from '../../types/user'
-import { IQueryOptions } from '../../types/query'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 import { Service } from '../Service'
 import { UserActivitiy } from '../activity/activities/user'
 import { PasswordResetActivity } from '../activity/activities/app'
@@ -45,11 +45,11 @@ export class UserService extends Service {
     return this.getUserRepository().getBySpaceId(spaceId)
   }
 
-  getUserById(id: number, options: IQueryOptions = {}): Promise<User | undefined> {
+  getUserById(id: number, options: QueryOptions = {}): Promise<User | undefined> {
     return this.getUserRepository().getById(id, options)
   }
 
-  async requireUserById(id: number, options: IQueryOptions = {}): Promise<User> {
+  async requireUserById(id: number, options: QueryOptions = {}): Promise<User> {
     const user = await this.getUserById(id, options)
 
     if (!user) {
@@ -59,11 +59,11 @@ export class UserService extends Service {
     return user
   }
 
-  getUserByEmail(email: string, options: IQueryOptions = {}): Promise<User | undefined> {
+  getUserByEmail(email: string, options: QueryOptions = {}): Promise<User | undefined> {
     return this.getUserRepository().getByEmail(email, options)
   }
 
-  async requireUserByEmail(email: string, options: IQueryOptions = {}): Promise<User> {
+  async requireUserByEmail(email: string, options: QueryOptions = {}): Promise<User> {
     const user = await this.getUserByEmail(email, options)
 
     if (!user) {
@@ -106,7 +106,7 @@ export class UserService extends Service {
     return await this.getUserRepository().save(user)
   }
 
-  async signup(data: ISignupProvider, sendEmailConfirmation: boolean = true): Promise<User> {
+  async signup(data: SignupProvider, sendEmailConfirmation: boolean = true): Promise<User> {
     let user = new User()
     user.firstName = data.firstName
     user.lastName = data.lastName

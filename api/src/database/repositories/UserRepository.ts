@@ -2,7 +2,7 @@ import { EntityRepository, Repository, SelectQueryBuilder, getConnection } from 
 import { User } from '../entities/User'
 import { UserToSpace } from '../entities/UserToSpace'
 import { Upload } from '../entities/Upload'
-import { IQueryOptions } from '../../types/query'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -24,7 +24,7 @@ export class UserRepository extends Repository<User> {
     return queryBuilder.getMany()
   }
 
-  async getById(id: number, options: IQueryOptions = {}): Promise<User> {
+  async getById(id: number, options: QueryOptions = {}): Promise<User> {
     const queryBuilder = this.createQueryBuilder('user')
 
     if (options.addSelect) {
@@ -40,7 +40,7 @@ export class UserRepository extends Repository<User> {
     return queryBuilder.getOne()
   }
 
-  getByEmail(email: string, options: IQueryOptions = {}): Promise<User> {
+  getByEmail(email: string, options: QueryOptions = {}): Promise<User> {
     const queryBuilder = this.createQueryBuilder('user').where('LOWER(user.email) = :email', {
       email: email.toLowerCase(),
     })

@@ -3,7 +3,7 @@ import { Factory, Seeder } from 'typeorm-seeding'
 import { SeederBase } from '../base/SeederBase'
 import { Doc } from '../../entities/Doc'
 import { Node } from '../../entities/Node'
-import { NodeType } from '../../../root/constants'
+import { NodeType } from '../../../shared/constants'
 
 export default class DocsSeeder implements Seeder {
   protected base: SeederBase

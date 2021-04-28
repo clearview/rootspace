@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm'
 import { Invite } from '../entities/Invite'
-import { IQueryOptions } from '../../types/query'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 @EntityRepository(Invite)
 export class InviteRepository extends Repository<Invite> {
@@ -28,7 +28,7 @@ export class InviteRepository extends Repository<Invite> {
     spaceId: number,
     senderId: number,
     filter: any = {},
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     const queryBuilder = this.createQueryBuilder('invite')
       .where('invite.email = :email', { email })
@@ -50,7 +50,7 @@ export class InviteRepository extends Repository<Invite> {
     email: string,
     spaceId: number,
     filter: { accepted: boolean } = { accepted: false },
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     const query = this.createQueryBuilder('invite')
       .where('invite.email = :email', { email })
@@ -70,7 +70,7 @@ export class InviteRepository extends Repository<Invite> {
   getBySpaceId(
     spaceId: number,
     filter: { accepted?: boolean } = { accepted: false },
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     const query = this.createQueryBuilder('invite')
       .distinctOn(['invite.email'])

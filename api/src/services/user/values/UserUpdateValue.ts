@@ -1,14 +1,14 @@
 import { EntityValue, attributes } from '../../../root/values'
-import { IUserUpdateAttributes } from './types'
+import { UserUpdateAttributes } from './types'
 
-export const UserUpdateAttributes: IUserUpdateAttributes = {
+const attrs: UserUpdateAttributes = {
   firstName: undefined,
-  lastName: undefined
+  lastName: undefined,
 }
 
-@attributes(UserUpdateAttributes)
-export class UserUpdateValue extends EntityValue<IUserUpdateAttributes> {
-  static fromObject(data: IUserUpdateAttributes) {
+@attributes(attrs)
+export class UserUpdateValue extends EntityValue<UserUpdateAttributes> {
+  static fromObject(data: UserUpdateAttributes) {
     return new UserUpdateValue(data)
   }
 }
