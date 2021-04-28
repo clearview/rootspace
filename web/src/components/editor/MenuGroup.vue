@@ -5,7 +5,7 @@
       <div class="text">
         <slot :value="value"></slot>
       </div>
-      <div class="icon" v-if="showArrow">
+      <div class="menu-icon" v-if="showArrow">
         <legacy-icon name="down2" viewbox="16" size="16"></legacy-icon>
       </div>
     </div>
@@ -133,7 +133,7 @@ export default class MenuGroup extends Vue {
     line-height: 14px;
     color: #2C2B35;
   }
-  .icon {
+  .menu-icon {
     margin-left: 8px;
     flex: 0 0 auto;
   }

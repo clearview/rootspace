@@ -18,41 +18,31 @@
               @click="commands.bold"
               :active="isActive.bold()"
             >
-              <legacy-icon
-                name="bold"
-                viewbox="16"
-                size="16"
-              />
+              <mono-icon name="bold"/>
             </MenuButton>
             <MenuButton
               @click="commands.italic"
               :active="isActive.italic()"
             >
-              <legacy-icon
-                name="italic"
-                viewbox="16"
-                size="16"
-              />
+              <mono-icon name="italic"/>
             </MenuButton>
             <MenuButton
               @click="commands.underline"
               :active="isActive.underline()"
             >
-              <legacy-icon
-                name="underline"
-                viewbox="16"
-                size="16"
-              />
+              <mono-icon name="underline"/>
             </MenuButton>
             <MenuButton
               @click="commands.strike"
               :active="isActive.strike()"
             >
-              <legacy-icon
-                name="strike"
-                viewbox="16"
-                size="16"
-              />
+              <mono-icon name="strikethrough"/>
+            </MenuButton>
+            <MenuButton
+              @click="commands.code"
+              :active="isActive.code()"
+            >
+              <mono-icon name="code"/>
             </MenuButton>
 
             <MenuGroup
@@ -63,11 +53,7 @@
               v-if="!isActive.link()"
             >
               <template #default>
-                <legacy-icon
-                  name="link2"
-                  viewbox="16"
-                  size="16"
-                />
+                <mono-icon name="link"/>
               </template>
               <template #options="{ hide }">
                 <LinkInput
@@ -82,46 +68,33 @@
               :active="isActive.link()"
               v-if="isActive.link()"
             >
-              <legacy-icon
-                name="unlink"
-                viewbox="16"
-                size="16"
-              />
+              <mono-icon name="unlink"/>
             </MenuButton>
 
             <MenuButton
               @click="commands.blockquote"
               :active="isActive.blockquote()"
             >
-              <legacy-icon
-                viewbox="16"
-                name="quote"
-                size="16"
-              />
+              <mono-icon name="quote"/>
             </MenuButton>
             <MenuButton
-              @click="commands.code"
-              :active="isActive.code()"
+              @click="commands.code_block"
+              :active="isActive.code_block()"
             >
-              <TerminalIcon size="16"></TerminalIcon>
+              <mono-icon name="code-block"/>
             </MenuButton>
 
             <MenuButton
               @click="commands.bullet_list"
               :active="getCurrentActiveNode(2) === 'bullet_list'"
             >
-              <ListIcon size="16"></ListIcon>
+              <mono-icon name="bullet-list"/>
             </MenuButton>
             <MenuButton
               @click="commands.ordered_list"
               :active="getCurrentActiveNode(2) === 'ordered_list'"
             >
-              <legacy-icon
-                name="ordered-list"
-                viewbox="16"
-                size="16"
-                class="fill-as-stroke"
-              />
+              <mono-icon name="numbering-list"/>
             </MenuButton>
           </div>
         </editor-menu-bar>
@@ -159,7 +132,6 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref, watch } from '@vue/composition-api'
 import { EditorContent, EditorMenuBar } from 'tiptap'
-import { ListIcon, TerminalIcon } from 'vue-feather-icons'
 
 import MenuGroup from './MenuGroup.vue'
 import MenuButton from './MenuButton.vue'
@@ -174,9 +146,7 @@ export default defineComponent({
     EditorContent,
     EditorMenuBar,
     MenuGroup,
-    LinkInput,
-    TerminalIcon,
-    ListIcon
+    LinkInput
   },
   props: {
     readonly: {
@@ -325,7 +295,22 @@ export default defineComponent({
 
   code {
     background: #dedede;
-    padding: 4px;
+    padding: 0 4px;
+  }
+
+  pre {
+    padding: .7rem 1rem;
+    border-radius: 5px;
+    background: #2C2B35;
+    color: #fff;
+    font-size: .8rem;
+    overflow-x: auto;
+  }
+
+  pre code {
+    display: block;
+    padding: 0;
+    background: transparent;
   }
 
   .is-editor-empty::before {
