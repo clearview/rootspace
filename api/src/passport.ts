@@ -188,11 +188,11 @@ function verifyJWTPayload(payload: any, done: VerifiedCallback) {
   }
 }
 
-passport.serializeUser((user, done) => {
+passport.serializeUser((user, done: any) => {
   done(null, user)
 })
 
-passport.deserializeUser((user, done) => {
+passport.deserializeUser((user, done: any) => {
   done(null, user)
 })
 
