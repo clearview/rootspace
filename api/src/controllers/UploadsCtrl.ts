@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
+import { Upload } from '../database/entities/Upload'
 import { User } from '../database/entities/User'
 import { Space } from '../database/entities/Space'
 import { UploadType, UploadEntity, validateUpload, UploadValue, UploadUpdateValue } from '../services/upload'
@@ -7,6 +8,7 @@ import { UploadTypeEntityMap } from '../services/upload/config'
 import { ContentEntity } from '../root/types'
 import { EntityService, UploadService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class UploadsCtrl extends BaseCtrl {
   private uploadService: UploadService
@@ -58,7 +60,7 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value, req.user.id)
 
-    res.send(this.responseData(upload))
+    res.send(this.responseBody(upload))
   }
 
   async upload(req: Request, res: Response) {
@@ -77,7 +79,7 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadValue.fromObjectAndUserId(data, req.user.id).withFile(file)
     const upload = await this.uploadService.upload(value, req.user.id)
 
-    res.send(this.responseData(upload))
+    res.send(this.responseBody(upload))
   }
 
   async update(req: Request, res: Response) {
@@ -87,15 +89,41 @@ export class UploadsCtrl extends BaseCtrl {
     const value = UploadUpdateValue.fromObject(req.body.data)
 
     const result = await this.uploadService.update(value, upload, req.user.id)
-
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
   }
 
   async delete(req: Request, res: Response) {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+
+    if (upload.type === UploadType.UserAvatar) {
+      await this.deleteUserAvatar(req, res, upload)
+      return
+    }
+
+    if (upload.type === UploadType.SpaceLogo) {
+      await this.deleteSpaceLogo(req, res, upload)
+      return
+    }
+
     this.isSpaceMember(req, upload.spaceId)
 
     const result = await this.uploadService.remove(upload, req.user.id)
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
+  }
+
+  private async deleteUserAvatar(req: Request, res: Response, upload: Upload) {
+    if (req.user.id !== upload.userId) {
+      throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    const result = await this.uploadService.remove(upload, req.user.id)
+    res.send(this.responseBody(result))
+  }
+
+  private async deleteSpaceLogo(req: Request, res: Response, upload: Upload) {
+    this.isSpaceAdmin(req, upload.spaceId)
+
+    const result = await this.uploadService.remove(upload, req.user.id)
+    res.send(this.responseBody(result))
   }
 }
