@@ -2,7 +2,7 @@
   <portal to="default">
     <div class="modal">
       <div class="p-4 bg-white rounded-lg" v-if="loading">
-        <v-icon v-if="loading" name="loading" size="5em" viewbox="100"/>
+        <legacy-icon v-if="loading" name="loading" size="5em" viewbox="100"/>
       </div>
 
       <div class="modal-inner" v-else>
