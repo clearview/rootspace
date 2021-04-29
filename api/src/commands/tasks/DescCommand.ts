@@ -31,6 +31,7 @@ const onlyHTMLDescription = (task: Task) => {
   let result = false
 
   try {
+    // @ts-ignore
     JSON.parse(task.description)
   } catch (e) {
     result = true
@@ -59,11 +60,10 @@ export class DescCommand {
         if (task.description) {
           const dom = new JSDOM(`<div>${task.description}</div>`)
           const doc = DOMParser.fromSchema(schema).parse(dom.window.document.body.firstElementChild)
-
-          task.description = JSON.stringify(
-            doc.toJSON()
-          )
+          // @ts-ignore
+          task.description = JSON.stringify(doc.toJSON())
         } else {
+          // @ts-ignore
           task.description = JSON.stringify({})
         }
 
