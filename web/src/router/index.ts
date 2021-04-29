@@ -57,7 +57,10 @@ const routes: Array<RouteConfig> = [
       {
         path: '/doc/:id?/:slug?',
         name: 'Novadoc',
-        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
+        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue'),
+        meta: {
+          noAuth: true
+        }
       },
       {
         path: '/taskboard/:id',
@@ -158,6 +161,14 @@ const routes: Array<RouteConfig> = [
     path: '/forbidden',
     name: 'Forbidden',
     component: () => import(/* webpackChunkName: "forbidden" */ '../views/Forbidden.vue')
+  },
+  {
+    path: '/public/doc/:publicId?',
+    name: 'Novadoc',
+    component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue'),
+    meta: {
+      noAuth: true
+    }
   },
   {
     path: '*',
