@@ -47,6 +47,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
 import { find } from 'lodash'
 import SpaceService from '@/services/space'
 import UserService from '@/services/user'
+import UserPreferenceService from '@/services/userPreference'
 import { SpaceResource, SpaceRoleResource, InvitationRoleResource } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
@@ -110,6 +111,13 @@ export default class Space extends Vue {
         id: this.activeSpace.id,
         title: data.title,
         invites: data.invites
+      })
+
+      await UserPreferenceService.update({
+        spaceId: this.activeSpace.id,
+        data: {
+          receiveEmail: this.emailNotifications
+        }
       })
 
       this.space.alert = {
@@ -323,6 +331,12 @@ export default class Space extends Vue {
     } finally {
       this.isLoading = false
     }
+  }
+
+  async created () {
+    const data = await UserPreferenceService.fetch(this.activeSpace.id)
+
+    this.emailNotifications = data.receiveEmail
   }
 
   async mounted () {
