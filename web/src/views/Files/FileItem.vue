@@ -1,9 +1,35 @@
 <template>
   <div class="file-item-wrapper p-5" v-if="item">
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-      <div class="file-item" v-for="(file, index) in item.uploads" :key="index">
+      <div class="file-item" v-for="(file, index) in item.uploads" :key="index" @click="downloadFile(file.location)">
         <div class="icon-thumbnail">
           <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(file.mimetype)" />
+          <div class="download-wrapper">
+            <span class="download-file">
+              <legacy-icon
+                name="download"
+                size="28px"
+                viewbox="16"
+              />
+            </span>
+          </div>
+          <div class="action-wrapper">
+            <Popover :z-index="1001" top="38px" :with-close="false" position="bottom-start">>
+              <template #default>
+                <div class="action-line">
+                  <legacy-icon class="action-icon" name="download" viewbox="16" size="16px"></legacy-icon>
+                  <div class="action-line-text" @click="downloadFile(file.location)">
+                    Download
+                  </div>
+                </div>
+              </template>
+              <template #trigger="{ visible }">
+                <button class="btn btn-link" :class="{'btn-link-primary': visible}">
+                  <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+                </button>
+              </template>
+            </Popover>
+          </div>
         </div>
         <div class="content">
           <h3>{{ file.filename }}</h3>
@@ -19,9 +45,13 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { FilesResource } from '@/types/resource'
 import { Optional } from '@/types/core'
 import moment from 'moment'
+import Popover from '@/components/Popover.vue'
 
 @Component({
   name: 'FileItem',
+  components: {
+    Popover
+  },
   filters: {
     formatFileSize (num: number) {
       if (typeof num !== 'number' || isNaN(num)) {
@@ -56,6 +86,10 @@ export default class FileItem extends Vue {
     return moment(fileDate).format('MMM DD, YYYY')
   }
 
+  downloadFile (url: string) {
+    window.open(url, '_blank')
+  }
+
   fileIcon (type: string) {
     switch (type) {
       case 'application/pdf':
@@ -74,9 +108,32 @@ export default class FileItem extends Vue {
   @apply flex flex-col;
   border: 1px solid #DEE2EE;
   border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: #F8F8FB;
+    .download-wrapper, .action-wrapper {
+      display: flex;
+    }
+  }
+}
+.download-wrapper {
+  @apply flex-wrap justify-center content-center w-full h-full absolute;
+  display: none;
+  background: #F8F8FB;
+  .download-file { /* TODO : Change download icon color */
+    background: #DDF3FF;
+    padding: 16px 40px;
+    border-radius: 34px;
+  }
+}
+.action-wrapper {
+  @apply absolute;
+  display: none;
+  top: -10px;
+  right: -10px;
 }
 .icon-thumbnail {
-  @apply flex flex-wrap justify-center content-center;
+  @apply flex flex-wrap justify-center content-center relative;
   height: 150px;
 }
 .content {
