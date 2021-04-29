@@ -28,9 +28,9 @@
     "prosemirror-keymap": "^1.1.4",
     "sanitize-html": "^2.1.0",
     "tailwindcss": "^1.2.0",
-    "tiptap": "^1.30.0",
-    "tiptap-commands": "^1.15.0",
-    "tiptap-extensions": "^1.33.2",
+    "tiptap": "^1.32.2",
+    "tiptap-commands": "^1.17.1",
+    "tiptap-extensions": "^1.35.2",
     "url-parse": "^1.4.7",
     "v-calendar": "^1.0.8",
     "vue": "^2.6.11",
@@ -38,7 +38,6 @@
     "vue-click-outside": "^1.1.0",
     "vue-content-loader": "^0.2",
     "vue-feather-icons": "^5.1.0",
-    "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.1.6",
     "vue-select": "^3.10.0",
     "vue-tippy": "^4.5.1",
@@ -62,7 +61,6 @@
     "@types/js-cookie": "^2.2.6",
     "@types/lodash": "^4.14.150",
     "@types/node": "^13.11.1",
-    "@types/quill": "^2.0.3",
     "@types/url-parse": "^1.4.3",
     "@types/vue-feather-icons": "^5.0.1",
     "@types/vue-select": "^2.5.0",
@@ -99,7 +97,7 @@
     "vue-template-compiler": "^2.6.11"
   },
   "resolutions": {
-    "prosemirror-model": "1.9.1"
+    "prosemirror-model": "1.13.1"
   },
   "husky": {
     "hooks": {
