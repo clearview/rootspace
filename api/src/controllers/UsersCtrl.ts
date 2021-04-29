@@ -70,12 +70,11 @@ export class UsersCtrl extends BaseCtrl {
   }
 
   async authGoogleCallback(req: Request, res: Response) {
-    const user = req.user
-
-    const token = jwt.sign({ id: user }, config.jwt.accessToken.secretKey, {
+    const token = jwt.sign({ id: req.user.id }, config.jwt.accessToken.secretKey, {
       expiresIn: config.jwt.accessToken.expiresIn,
     })
-    const refreshToken = jwt.sign({ id: user.id }, config.jwt.refreshToken.secretKey, {
+
+    const refreshToken = jwt.sign({ id: req.user.id }, config.jwt.refreshToken.secretKey, {
       expiresIn: config.jwt.refreshToken.expiresIn,
     })
 

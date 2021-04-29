@@ -1,23 +1,77 @@
 import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
-import passport from 'passport'
+import { Request } from 'express'
 import * as Sentry from '@sentry/node'
+import bcrypt from 'bcryptjs'
+import passport from 'passport'
 import passportGoogleOauth from 'passport-google-oauth'
 import passportLocal from 'passport-local'
-import bcrypt from 'bcryptjs'
-import { Request } from 'express'
-import { UserService, UserSpaceService } from './services'
-import { unauthorized } from './response/errors'
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions, VerifiedCallback } from 'passport-jwt'
+import { UserService, UserSpaceService } from './services'
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
 import { ServiceFactory } from './services/factory/ServiceFactory'
 import { UserAuthProvider } from './services/user'
 import { UserActivitiy } from './services/activity/activities/user'
+import { unauthorized } from './response/errors'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
 const LocalStrategy = passportLocal.Strategy
 const googleCallbackURL = config.domain + config.google.callbackPath
+
+const jwtOptions: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.jwt.accessToken.secretKey,
+  passReqToCallback: true,
+}
+
+const jwtRefreshOptions: StrategyOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: config.jwt.refreshToken.secretKey,
+  passReqToCallback: true,
+}
+
+const verifyJWTPayload = async (payload: any, done: VerifiedCallback) => {
+  const userId = payload.id
+  const tokenExpiryTimestamp = Number(payload.exp)
+
+  if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
+    return done(null, false, { message: 'Invalid payload' })
+  }
+
+  const expirationDate = new Date(tokenExpiryTimestamp * 1000)
+
+  if (expirationDate < new Date()) {
+    return done(null, false, { message: 'Token expired' })
+  }
+}
+
+const getUser = async (userId: number) => {
+  const user = await UserService.getInstance().getUserById(userId)
+  const spaces = new Map<number, number>()
+
+  for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id, { active: true })) {
+    spaces.set(userSpace.spaceId, userSpace.role)
+  }
+
+  const { can, cannot, rules } = new AbilityBuilder()
+
+  // User can manage any subject they own
+  can(Actions.Manage, Subjects.All, { userId: user.id })
+
+  // User can manage any subject from the space they have access to
+  can(Actions.Manage, Subjects.All, { spaceId: { $in: Array.from(spaces.keys()) } })
+
+  // User can not manage subjects outside spaces they belong to
+  cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: Array.from(spaces.keys()) } }).because(
+    'Access to space is not allowed'
+  )
+
+  // @ts-ignore
+  const ability = new Ability<[Actions, Subjects]>(rules)
+
+  return { ...user, spaces, ability }
+}
 
 passport.use(
   new GoogleStrategy(
@@ -48,12 +102,12 @@ passport.use(
             false
           )
 
-        return done(null, newUser.id)
+        return done(null, newUser)
       }
 
       await activityService.activityNotification(UserActivitiy.login(user))
 
-      return done(null, user.id)
+      return done(null, user)
     }
   )
 )
@@ -99,39 +153,11 @@ passport.use(
   )
 )
 
-const jwtRefreshOptions: StrategyOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwt.refreshToken.secretKey,
-  passReqToCallback: true,
-}
-
-passport.use(
-  'refreshToken',
-  new JwtStrategy(jwtRefreshOptions, async (req: any, payload: any, done: VerifiedCallback) => {
-    const userId = payload.id
-    verifyJWTPayload(payload, done)
-
-    const user = await UserService.getInstance().getUserById(userId)
-    if (user) {
-      return done(null, user)
-    }
-
-    return done(null, false, { message: 'Wrong token' })
-  })
-)
-
-const jwtOptions: StrategyOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: config.jwt.accessToken.secretKey,
-  passReqToCallback: true,
-}
-
 passport.use(
   new JwtStrategy(jwtOptions, async (req: Request, payload: any, done: VerifiedCallback) => {
-    const userId = payload.id
     verifyJWTPayload(payload, done)
 
-    const user = await UserService.getInstance().getUserById(userId)
+    const user = await getUser(payload.id)
 
     if (!user) {
       return done(null, false, { message: 'Wrong token' })
@@ -143,56 +169,31 @@ passport.use(
       })
     }
 
-    const spaces = new Map<number, number>()
-
-    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id, { active: true })) {
-      spaces.set(userSpace.spaceId, userSpace.role)
-    }
-
-    const { can, cannot, rules } = new AbilityBuilder()
-
-    // User can manage any subject they own
-    can(Actions.Manage, Subjects.All, { userId: user.id })
-
-    // User can manage any subject from the space they have access to
-    can(Actions.Manage, Subjects.All, { spaceId: { $in: Array.from(spaces.keys()) } })
-
-    // User can not manage subjects outside spaces they belong to
-    cannot(Actions.Manage, Subjects.All, { spaceId: { $nin: Array.from(spaces.keys()) } }).because(
-      'Access to space is not allowed'
-    )
-
-    // @ts-ignore
-    const ability = new Ability<[Actions, Subjects]>(rules)
-
-    const requestUser = { ...user, spaces, ability }
-
-    httpRequestContext.set('user', user)
-
-    return done(null, requestUser)
+    return done(null, user)
   })
 )
 
-function verifyJWTPayload(payload: any, done: VerifiedCallback) {
-  const userId = payload.id
-  const tokenExpiryTimestamp = Number(payload.exp)
+passport.use(
+  'refreshToken',
+  new JwtStrategy(jwtRefreshOptions, async (req: any, payload: any, done: VerifiedCallback) => {
+    verifyJWTPayload(payload, done)
 
-  if (typeof userId !== 'number' || !tokenExpiryTimestamp || tokenExpiryTimestamp === 0) {
-    return done(null, false, { message: 'Invalid payload' })
-  }
+    const user = await getUser(payload.id)
 
-  const expirationDate = new Date(tokenExpiryTimestamp * 1000)
+    if (user) {
+      return done(null, user)
+    }
 
-  if (expirationDate < new Date()) {
-    return done(null, false, { message: 'Token expired' })
-  }
-}
+    return done(null, false, { message: 'Wrong token' })
+  })
+)
 
-passport.serializeUser((user, done) => {
-  done(null, user)
+passport.serializeUser((user: Express.User, done) => {
+  done(null, user.id)
 })
 
-passport.deserializeUser((user, done) => {
+passport.deserializeUser(async (id: number, done) => {
+  const user = await getUser(id)
   done(null, user)
 })
 
