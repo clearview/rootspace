@@ -73,22 +73,12 @@
             <span class="description-title-placeholder">Description</span>
             <legacy-icon name="edit" size="1rem" viewbox="32"/>
           </div>
-          <div
-            :class="{
-              'description-input': true,
-              'is-disabled': !isEditingDescription
-            }"
-          >
-            <quill-editor
-              :options="editorOption"
-              :disabled="!isEditingDescription"
-              v-model="descriptionCopy.description"
-            />
-            <div class="description-input-actions">
-              <span class="cancel" @click="cancelDescription">Cancel</span>
-              <span class="save" @click="saveDescription">Save</span>
-            </div>
-          </div>
+          <Editor
+            :readonly="!isEditingDescription"
+            v-model="description"
+            @save="saveDescription"
+            @cancel="cancelDescription"
+          />
         </div>
         <div class="task-attachments" v-if="item.attachments && item.attachments.length > 0">
           <div class="attachments-label">
@@ -217,19 +207,16 @@ import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
-import 'quill/dist/quill.bubble.css'
-
-import { quillEditor } from 'vue-quill-editor'
 import TaskActivities from '@/views/Task/TaskActivities.vue'
 import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
+import Editor from '@/components/editor'
 
 @Component({
   name: 'TaskModal',
   components: {
+    Editor,
     TaskActivities,
     TaskAttachmentView,
     DueDatePopover,
@@ -241,7 +228,6 @@ import { ModalInjectedContext, ProfileModal } from '@/components/modal'
     Modal,
     Field,
     Avatar,
-    quillEditor,
     ImageViewer
   },
   filters: {
@@ -268,7 +254,6 @@ export default class TaskModal extends Vue {
     modal!: ModalInjectedContext
 
     private itemCopy = { ...this.item }
-    private descriptionCopy = { ...this.itemCopy }
     private isEditingDescription = false
     private commentInput = ''
     private isUploading = false
@@ -278,22 +263,6 @@ export default class TaskModal extends Vue {
     private isCapturingFile = false
     private isShowAllAttachment = false
     private attachmentIndex: number|null = null
-    private toolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['link'],
-
-      ['blockquote', 'code-block'],
-
-      [{ list: 'ordered' }, { list: 'bullet' }]
-    ]
-
-    private editorOption = {
-      modules: {
-        toolbar: this.toolbarOptions
-      },
-      theme: 'snow',
-      placeholder: 'Write a description...'
-    }
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
@@ -361,18 +330,18 @@ export default class TaskModal extends Vue {
       this.attachmentIndex = index
     }
 
-    async saveDescription () {
+    async saveDescription (description: object) {
       await this.$store.dispatch('task/item/update', {
         id: this.item.id,
-        description: this.descriptionCopy.description
+        description
       })
-      this.itemCopy.description = this.descriptionCopy.description
+
+      this.itemCopy.description = description
       this.isEditingDescription = false
     }
 
     cancelDescription () {
       this.isEditingDescription = false
-      this.descriptionCopy.description = this.itemCopy.description
     }
 
     commentHandler (e: any) {
@@ -548,6 +517,21 @@ export default class TaskModal extends Vue {
       const iconState = this.isShowAllAttachment ? 'up' : 'down'
 
       return iconState
+    }
+
+    get description () {
+      const raw = this.item.description
+
+      let result
+      try {
+        if (!raw || typeof raw !== 'string') throw new Error()
+
+        result = JSON.parse(raw)
+      } catch (e) {
+        result = raw || ''
+      }
+
+      return result
     }
 
     attachmentState () {

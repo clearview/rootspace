@@ -9,7 +9,7 @@ import { TaskBoard } from '../../entities/tasks/TaskBoard'
 define(Task, (faker: typeof Faker, context: any) => {
   const task = new Task()
   task.title = faker.lorem.lines(1)
-  task.description = faker.lorem.sentence()
+  task.description = {}
   task.status = faker.random.boolean() === true ? TaskStatus.Closed : TaskStatus.Open
   task.dueDate = faker.random.boolean() === true ? faker.date.future(1) : null
   task.user = context.user ? context.user : factory(User)() as any
