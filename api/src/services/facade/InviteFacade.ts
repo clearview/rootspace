@@ -2,8 +2,8 @@ import { InviteService, SpaceService, UserService, UserSpaceService } from '../'
 import { Invite } from '../../database/entities/Invite'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ServiceFactory } from '../factory/ServiceFactory'
-import { InviteSendStatus, Invite as InviteType } from '../../types/invite'
-import { IQueryOptions } from '../../types/query'
+import { InviteSendStatus, InviteData } from '../invite'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 export class InviteFacade {
   private inviteService: InviteService
@@ -25,12 +25,12 @@ export class InviteFacade {
   getInvitesBySpaceId(
     spaceId: number,
     filter: { accepted?: boolean } = { accepted: false },
-    options: IQueryOptions = {}
+    options: QueryOptions = {}
   ): Promise<Invite[]> {
     return this.inviteService.getBySpaceId(spaceId, filter, options)
   }
 
-  async sendToEmails(invites: InviteType[], spaceId: number, senderId: number): Promise<object[]> {
+  async sendToEmails(invites: InviteData[], spaceId: number, senderId: number): Promise<object[]> {
     const result: object[] = []
     const space = await this.spaceService.requireSpaceById(spaceId)
 

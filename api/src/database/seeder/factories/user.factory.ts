@@ -1,7 +1,7 @@
 import * as Faker from 'faker'
 import { define } from 'typeorm-seeding'
 import { User } from '../../entities/User'
-import { UserAuthProvider } from '../../../types/user'
+import { UserAuthProvider } from '../../../services/user'
 
 define(User, (faker: typeof Faker) => {
   const gender = faker.random.number(1)

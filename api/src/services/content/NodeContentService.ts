@@ -1,6 +1,6 @@
 import { Node } from '../../database/entities/Node'
 import { Service } from '../Service'
-import { NodeType } from '../../root/constants'
+import { NodeType } from '../../shared/constants'
 import { NodeContentMediator } from './NodeContentMediator'
 
 export abstract class NodeContentService extends Service {

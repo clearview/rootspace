@@ -12,15 +12,13 @@ import {
   validatePasswordRecovery,
   validatePasswordReset,
   validatePasswordSet,
-} from '../validation/user'
-import {
   UserUpdateValue,
   PasswordChangeValue,
   PasswordRecoveryValue,
   PasswordResetValue,
   PasswordSetValue,
-} from '../values/user'
-import { UserAuthProvider } from '../types/user'
+  UserAuthProvider,
+} from '../services/user'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class UsersCtrl extends BaseCtrl {

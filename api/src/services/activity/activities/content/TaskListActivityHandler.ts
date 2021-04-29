@@ -46,20 +46,20 @@ export class TaskListActivityHandler extends ContentActivityHandler<TaskList> {
     for (const follow of follows) {
       if ((await this.userEmailNotifications(follow.userId)) === true) {
         const user = await this.userService.getUserById(follow.userId)
-        const message = this.getNotificationMessage()
+        const subject = this.getSubjectMessage()
 
-        await this.sendNotificationEmail(user, message, entityUrl)
+        await this.sendNotificationEmail(user, subject, this.activity, entityUrl)
       }
     }
   }
 
-  private getNotificationMessage(): string {
+  private getSubjectMessage(): string {
     const actor = this.activity.actor
     const context = this.activity.context as any
     const title = context.entity.title
 
     const messages = {
-      [ContentActions.Created]: `${actor.fullName()} created task list ${title}}`,
+      [ContentActions.Created]: `${actor.fullName()} created task list ${title}`,
       [ContentActions.Updated]: `${actor.fullName()} updated task list ${title}`,
       [ContentActions.Archived]: `${actor.fullName()} archived task list ${title}`,
       [ContentActions.Restored]: `${actor.fullName()} restored task list ${title}`,

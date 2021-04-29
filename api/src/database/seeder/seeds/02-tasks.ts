@@ -8,7 +8,7 @@ import { TaskList } from '../../entities/tasks/TaskList'
 import { Task } from '../../entities/tasks/Task'
 import { TaskComment } from '../../entities/tasks/TaskComment'
 import { Node } from '../../entities/Node'
-import { NodeType } from '../../../root/constants'
+import { NodeType } from '../../../shared/constants'
 
 export default class TasksSeeder implements Seeder {
   protected base: SeederBase

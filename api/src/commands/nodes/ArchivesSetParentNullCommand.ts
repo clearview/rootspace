@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import db from '../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
-import { NodeType } from '../../root/constants'
+import { NodeType } from '../../shared/constants'
 
 export class ArchivesSetParentNullCommand {
   static async run() {

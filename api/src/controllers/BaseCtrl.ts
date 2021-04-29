@@ -2,7 +2,7 @@ import { Request } from 'express'
 import { ResponseData } from '../response/data/ResponseData'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 import { ResponseBody } from '../response/ResponseBody'
-import { SpaceUserRole } from '../types/spaceUser'
+import { SpaceUserRole } from '../services/user-space/SpaceUserRole'
 
 export class BaseCtrl {
   protected isSpaceMember(req: Request, spaceId: number, throwError: boolean = true): boolean {

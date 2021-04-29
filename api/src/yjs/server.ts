@@ -77,7 +77,7 @@ const reqDocName = (req: Http.IncomingMessage) => {
 const waitingConns = new Map<UserWebSocket, Http.IncomingMessage>()
 
 const connWait = (conn: UserWebSocket, req: Http.IncomingMessage) => {
-  console.log('connWait user', conn.user.id, reqDocName(req))
+  console.log('connWait user', conn.user.id, reqDocName(req)) // tslint:disable-line
   conn.on('close', () => {
     waitingConnOnClose(conn, req)
   })
@@ -87,7 +87,7 @@ const connWait = (conn: UserWebSocket, req: Http.IncomingMessage) => {
 }
 
 const waitingConnOnClose = (conn: UserWebSocket, req: Http.IncomingMessage) => {
-  console.log('waitingConnOnClose user', conn.user.id, reqDocName(req))
+  console.log('waitingConnOnClose user', conn.user.id, reqDocName(req)) // tslint:disable-line
   waitingConns.delete(conn)
 }
 

@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
-import { Preferences } from '../../types/preferences'
+import { Preferences } from '../../shared/types/preferences'
 
 @Entity('user_settings')
 export class UserSetting {

@@ -3,7 +3,7 @@ import db from '../../db'
 import { getConnection, getCustomRepository } from 'typeorm'
 import { NodeRepository } from '../../database/repositories/NodeRepository'
 import { FolderRepository } from '../../database/repositories/FolderRepository'
-import { NodeType } from '../../root/constants'
+import { NodeType } from '../../shared/constants'
 import { Folder } from '../../database/entities/Folder'
 
 export class CreateFoldersEntries {

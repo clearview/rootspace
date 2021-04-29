@@ -12,7 +12,7 @@ import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions, VerifiedCallback 
 import { Ability, AbilityBuilder } from '@casl/ability'
 import { Actions, Subjects } from './middleware/AuthMiddleware'
 import { ServiceFactory } from './services/factory/ServiceFactory'
-import { UserAuthProvider } from './types/user'
+import { UserAuthProvider } from './services/user'
 import { UserActivitiy } from './services/activity/activities/user'
 
 const GoogleStrategy = passportGoogleOauth.OAuth2Strategy
@@ -145,7 +145,7 @@ passport.use(
 
     const spaces = new Map<number, number>()
 
-    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id, {active: true})) {
+    for (const userSpace of await UserSpaceService.getInstance().getByUserId(user.id, { active: true })) {
       spaces.set(userSpace.spaceId, userSpace.role)
     }
 

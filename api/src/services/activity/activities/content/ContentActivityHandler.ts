@@ -15,8 +15,6 @@ import { IContentActivityData } from './ContentActivityData'
 import { IActivityHandler } from '../ActivityHandler'
 
 export abstract class ContentActivityHandler<T> implements IActivityHandler {
-  protected mailTemplate = `${process.cwd()}/src/templates/mail/notification/content.pug`
-
   protected activityService: ActivityService
   protected userService: UserService
   protected userSettingsService: UserSettingService
@@ -49,7 +47,7 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
     })
   }
 
-  abstract async process(): Promise<void>
+  abstract process(): Promise<void>
 
   protected getFollows() {
     return this.followService.getFollowsForActivity(this.activity)
@@ -85,8 +83,12 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
     return false
   }
 
-  protected async sendNotificationEmail(user: User, message: string, entityUrl: string): Promise<void> {
-    const content = pug.renderFile(this.mailTemplate, { message, entityUrl })
-    await this.mailService.sendMail(user.email, message, content)
+  protected async sendNotificationEmail(user: User, subject: string, activity: Activity, entityUrl: string, notificationContent?: string): Promise<void> {
+    const content = pug.renderFile(ContentActivityHandler.mailTemplate(activity), { activity, entityUrl, notificationContent })
+    await this.mailService.sendMail(user.email, subject, content)
+  }
+
+  private static mailTemplate(activity: Activity): string {
+    return `${process.cwd()}/src/templates/mail/notification/${activity.entity.toLowerCase()}/${activity.action.toLowerCase()}.pug`
   }
 }

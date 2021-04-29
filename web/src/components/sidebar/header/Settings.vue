@@ -1,7 +1,7 @@
 <template>
   <Popover top="38px"
     :with-close="false"
-    :offset="-24"
+    :offset="collapseState ? 0 : -24"
     position="right-start"
     class="settings-contextmenu header settings-header"
     borderless>
@@ -152,7 +152,6 @@ export default class SidebarHeaderSettings extends Vue {
 
     height: 40px;
     padding: 8px;
-    min-width: 232px;
   }
 }
 </style>
