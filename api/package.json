@@ -120,9 +120,6 @@
   "resolutions": {
     "prosemirror-model": "1.14.0"
   },
-  "resolutions": {
-    "prosemirror-model": "1.14.0"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "yarn tslint",
