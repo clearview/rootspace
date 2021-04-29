@@ -249,3 +249,10 @@ export interface DocRevisionResource {
   user: UserResource;
   userId: number;
 }
+
+export enum DocPermission {
+  open = 'open',
+  private = 'private',
+  public = 'public',
+  restricted = 'restricted'
+}
