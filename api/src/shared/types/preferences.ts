@@ -1,12 +1,12 @@
-export interface UIData {
-  activePage: string,
-  sidebarCollapse: boolean,
-  sidebarSize: number,
-  treeFolded: object,
-  taskViewAs: object,
-  taskSeenViewTip: boolean
-}
+import { UserSetting } from '../../database/entities/UserSetting'
+import { Notifications } from './preferences/notifications'
 
-export interface Preferences {
-  receiveEmail: boolean
+export class Preferences {
+  notifications: Notifications
+
+   constructor(userSetting: UserSetting) {
+     const userPreferences = userSetting.preferences
+
+     Object.assign(this, userPreferences)
+  }
 }
