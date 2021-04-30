@@ -25,5 +25,6 @@ router.get('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'view'))
 router.get('/spaces/:spaceId/whoami', mapRoute(SpaceUsersCtrl, 'whoami'))
 router.patch('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'update'))
 router.delete('/spaces/:spaceId/users/:userId', mapRoute(SpaceUsersCtrl, 'remove'))
+router.delete('/spaces/:spaceId/me', mapRoute(SpaceUsersCtrl, 'leaveSpace'))
 
 export { router as spaceRouter }
