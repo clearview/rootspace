@@ -8,7 +8,7 @@ import {
 } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
-import { UIData, Preferences } from '../../shared/types/preferences'
+import { Preferences } from '../../shared/types/preferences'
 
 @Entity('user_settings')
 export class UserSetting {
@@ -31,10 +31,7 @@ export class UserSetting {
   @Index()
   space: Space
 
-  @Column({ type: 'jsonb', default: '{}' })
-  ui: UIData
-
-  @Column({ type: 'jsonb', default: '{}' })
+  @Column({ name: 'data', type: 'jsonb', default: '{}' })
   preferences: Preferences
 
   @CreateDateColumn({ type: 'timestamptz'})

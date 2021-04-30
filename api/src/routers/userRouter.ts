@@ -47,16 +47,9 @@ router.get('/password/reset/verify/:token', mapRoute(UsersCtrl, 'verifyPasswordR
 router.post('/users/password/reset', mapRoute(UsersCtrl, 'passwordReset'))
 
 router
-  .route('/users/settings/ui/:spaceId?')
-  .get(authenticate, mapRoute(UsersCtrl, 'getUiData'))
-  .patch(authenticate, mapRoute(UsersCtrl, 'setUiData'))
-
-router.route('/users/settings/preferences/:spaceId?')
-  .get(authenticate, mapRoute(UsersCtrl, 'getPreferences'))
-  .patch(authenticate, mapRoute(UsersCtrl, 'setPreferences'))
-
-router
   .route('/users/settings/:spaceId?')
-  .get(authenticate, mapRoute(UsersCtrl, 'getSettings'))
+  .get(authenticate, mapRoute(UsersCtrl, 'settings'))
+  .post(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
+  .put(authenticate, mapRoute(UsersCtrl, 'updateSettings'))
 
 export { router as userRouter }
