@@ -20,7 +20,6 @@ import {
   UserAuthProvider,
 } from '../services/user'
 import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
-import { UserSetting } from '../database/entities/UserSetting'
 
 export class UsersCtrl extends BaseCtrl {
   private userService: UserService
@@ -203,7 +202,7 @@ export class UsersCtrl extends BaseCtrl {
     res.send(this.responseData({ result }))
   }
 
-  async getSettings(req: Request, res: Response) {
+  async settings(req: Request, res: Response) {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
 
@@ -212,40 +211,12 @@ export class UsersCtrl extends BaseCtrl {
     res.send(settings)
   }
 
-  async getUiData(req: Request, res: Response) {
-    const userId = Number(req.user.id)
-    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
-
-    const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
-
-    res.send(setting.ui)
-  }
-
-  async setUiData(req: Request, res: Response) {
+  async updateSettings(req: Request, res: Response) {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
     const data = req.body
 
-    const updatedSettings = await this.userSettingsService.updateSettingsUi(userId, spaceId, data)
-
-    res.send(updatedSettings)
-  }
-
-  async getPreferences(req: Request, res: Response) {
-    const userId = Number(req.user.id)
-    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
-
-    const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
-
-    res.send(setting.preferences)
-  }
-
-  async setPreferences(req: Request, res: Response) {
-    const userId = Number(req.user.id)
-    const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
-    const data = req.body
-
-    const updatedSettings = await this.userSettingsService.updateSettingsPreferences(userId, spaceId, data)
+    const updatedSettings = await this.userSettingsService.updateSettings(userId, spaceId, data)
 
     res.send(updatedSettings)
   }
