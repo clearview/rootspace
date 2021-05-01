@@ -76,11 +76,22 @@ export default class TaskActivity extends Vue {
     const name = nodeRouteNames[this.activity.entity]
     const params: Dictionary<string> = {}
 
-    if (entityId && this.activity.entity !== 'Task') {
-      params.id = entityId.toString()
-    } else if (this.activity.entity === 'Task') {
-      params.id = context.entity.boardId.toString()
-      params.item = entityId.toString()
+    switch (this.activity.entity) {
+      case 'Task': {
+        params.id = context.entity.boardId.toString()
+        params.slug = context.entity.slug.toString()
+        params.item = entityId.toString()
+        break
+      }
+      case 'Doc': {
+        params.id = entityId.toString()
+        params.slug = context.entity.slug.toString()
+        break
+      }
+      default: {
+        params.id = entityId.toString()
+        break
+      }
     }
 
     return { name, params }
