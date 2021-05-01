@@ -9,8 +9,8 @@ export class DocActivity extends ContentActivity<Doc> {
   constructor(action: string, entity: Doc, actorId: number) {
     super(action, entity, actorId)
 
-    this._entityAttributes = ['id', 'title']
-    this._entityUpdateAttributes = ['id', 'title']
+    this._entityAttributes = ['id', 'title', 'slug']
+    this._entityUpdateAttributes = ['id', 'title', 'slug']
   }
 
   getEntityName(): string {

@@ -11,8 +11,8 @@ export class TaskActivity extends ContentActivity<Task> {
   constructor(action: string, task: Task, actorId: number) {
     super(action, task, actorId)
 
-    this._entityAttributes = ['id', 'boardId', 'title', 'dueDate']
-    this._entityUpdateAttributes = ['title', 'description', 'dueDate']
+    this._entityAttributes = ['id', 'boardId', 'title', 'slug', 'dueDate']
+    this._entityUpdateAttributes = ['title', 'slug', 'description', 'dueDate']
   }
 
   getEntityName(): string {
