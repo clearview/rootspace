@@ -443,6 +443,7 @@
         </div>
       </editor-menu-bar>
       <div
+        v-if="currentUser"
         class="editor-context-menu"
         v-show="doc"
       >
@@ -1079,7 +1080,7 @@ export default {
       this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
       this.provider.awareness.setLocalStateField('user', {
         color: '#333',
-        name: this.currentUser.firstName
+        name: this.currentUser?.firstName
       })
 
       const wsAuthenticate = () => {
@@ -1155,7 +1156,7 @@ export default {
       this.initProvider()
 
       this.editor = new Editor({
-        editable: !this.isLocked && false,
+        editable: !this.isLocked,
         extensions: [
           new Novaschema(),
           new ParagraphMerger(),
@@ -1432,9 +1433,17 @@ export default {
       }
     },
     async fetchUsers () {
+      if (!this.currentUser) {
+        return
+      }
+
       return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
     },
     async fetchReferences () {
+      if (!this.currentUser) {
+        return
+      }
+
       return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
     },
     getTextDisplayType (isActive) {
@@ -1536,7 +1545,7 @@ export default {
         if (this.provider) {
           this.provider.awareness.setLocalStateField('user', {
             color: '#333',
-            name: this.currentUser.firstName
+            name: this.currentUser?.firstName
           })
         }
         const res = await DocumentService.view(id)
@@ -1552,7 +1561,7 @@ export default {
           this.title = ''
           this.$refs.title.focus()
         }
-        if (!this.pageReady) {
+        if (!this.pageReady && this.currentUser) {
           await this.activateSpace(res.data.spaceId)
         }
         this.autoResizeTitle()
@@ -1723,9 +1732,11 @@ export default {
       async handler () {
         this.closeHistory()
         await this.load()
-        await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-        if (!this.pageReady) {
-          await this.activateSpace(this.activeSpace.id)
+        if (this.currentUser && this.activeSpace) {
+          await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+          if (!this.pageReady) {
+            await this.activateSpace(this.activeSpace.id)
+          }
         }
         this.pageReady = true
       }
@@ -1923,6 +1934,7 @@ export default {
   box-sizing: border-box;
   align-items: center;
   transition: all 0.15s ease;
+  min-height: 57px;
 
   &.scrolled {
     border-bottom: solid 1px #E0E2E7;

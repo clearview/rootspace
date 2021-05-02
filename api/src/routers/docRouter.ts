@@ -4,7 +4,7 @@ import { DocsCtrl } from '../controllers/DocsCtrl'
 import PromiseRouter from 'express-promise-router'
 
 const router = PromiseRouter()
-router.use(authenticate)
+// router.use(authenticate)
 
 router.get('/docs/:id', mapRoute(DocsCtrl, 'view'))
 router.get('/docs/:id/history', mapRoute(DocsCtrl, 'history'))

@@ -23,7 +23,7 @@ export class DocsCtrl extends BaseCtrl {
 
     const doc = await this.docService.requireById(id)
 
-    const permissions = await contentPermissions(doc, req.user.id)
+    const permissions = await contentPermissions(doc, req.user?.id)
     permissions.throwUnlessHas('view')
 
     res.send(
