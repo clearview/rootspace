@@ -1630,12 +1630,9 @@ export default {
         component: DocsShareModal,
         attrs: {
           id: this.id,
-          currentPermission: this.contentAccess.type,
-          onChangePermission: (permission) => {
-            this.contentAccess = {
-              ...this.contentAccess,
-              type: permission
-            }
+          contentAccess: this.contentAccess,
+          onChangeContentAccess: (contentAccess) => {
+            this.contentAccess = contentAccess
           }
         }
       })

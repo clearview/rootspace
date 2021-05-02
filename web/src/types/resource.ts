@@ -250,9 +250,12 @@ export interface DocRevisionResource {
   userId: number;
 }
 
-export enum DocPermission {
+enum DocPermissionType {
   open = 'open',
   private = 'private',
-  public = 'public',
-  restricted = 'restricted'
+  restricted = 'restricted',
+}
+export interface DocContentAccess {
+  type: DocPermissionType;
+  public: boolean;
 }

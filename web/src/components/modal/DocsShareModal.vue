@@ -49,7 +49,6 @@
         </label>
       </div>
     </div>
-    permission: {{ currentPermission }}
     <div class="share-footer">
       <button :disabled="submitting" @click="updatePermission" class="btn btn-primary">Share</button>
     </div>
@@ -66,20 +65,27 @@ export default defineComponent({
   },
   props: {
     id: Number,
-    currentPermission: String,
-    onChangePermission: Function
+    contentAccess: Object,
+    onChangeContentAccess: Function
   },
   setup (props, context) {
-    const permission = ref(props.currentPermission || 'open')
+    const { contentAccess } = props
+    const permission = ref(contentAccess?.public ? 'public' : contentAccess?.type || 'open')
     const submitting = ref(false)
 
     const updatePermission = async () => {
       submitting.value = true
       try {
-        await api.put(`content/access/Doc/${props.id}`, { data: { type: permission.value, public: permission.value === 'public' } })
+        const isPublic = permission.value === 'public'
+        const type = isPublic ? 'open' : permission.value
+
+        await api.put(`content/access/Doc/${props.id}`, { data: { type, public: isPublic } })
         submitting.value = false
-        if (props.onChangePermission) {
-          props.onChangePermission(permission.value)
+        if (props.onChangeContentAccess) {
+          props.onChangeContentAccess({
+            type,
+            public: isPublic
+          })
         }
         context.emit('close')
       } catch (error) {
