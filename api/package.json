@@ -7,11 +7,11 @@
   "license": "Unlicensed",
   "private": true,
   "scripts": {
-    "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc --project tsconfig.json",
     "postbuild": "rsync -r ./src/templates/ ./dist/templates/",
-    "dev:debug": "ts-node-dev --inspect=0.0.0.0:9229 --respawn src/index.ts",
+    "dev": "ts-node --files src/index.ts",
+    "dev:debug": "ts-node-dev --files --inspect=0.0.0.0:9229 --respawn src/index.ts",
     "queue:process": "ts-node-dev --inspect=0.0.0.0:9230 --respawn src/queueActivityProcessor.ts",
     "queue:cron": "ts-node-dev --inspect=0.0.0.0:9231 --respawn src/queueCronProcessor.ts",
     "y-websocket": "ts-node-dev --inspect=0.0.0.0:9232 --respawn src/yjs/run.ts",

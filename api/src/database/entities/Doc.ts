@@ -19,6 +19,9 @@ export class Doc {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column('varchar')
+  publicId: string
+
   @Column('integer')
   userId: number
 

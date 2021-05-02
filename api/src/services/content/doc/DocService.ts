@@ -43,11 +43,11 @@ export class DocService extends NodeContentService {
     return NodeType.Doc
   }
 
-  async getById(id: number, options: any = {}): Promise<Doc | undefined> {
-    return this.getDocRepository().findOne(id, options)
+  async getById(id: number | string, options: any = {}): Promise<Doc | undefined> {
+    return this.getDocRepository().getById(id, options)
   }
 
-  async requireById(id: number, options: any = {}): Promise<Doc> {
+  async requireById(id: number | string, options: any = {}): Promise<Doc> {
     const doc = await this.getById(id, options)
 
     if (!doc) {
