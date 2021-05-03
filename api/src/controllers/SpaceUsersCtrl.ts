@@ -63,4 +63,9 @@ export class SpaceUsersCtrl extends BaseCtrl {
     const result = await this.spaceFacade.removeSpaceUser(userId, spaceId)
     res.send(this.responseData(result))
   }
+
+  async leaveSpace(req: Request, res: Response) {
+    const result = await this.spaceFacade.removeSpaceUser(req.user.id, Number(req.params.spaceId))
+    res.send(this.responseData(result))
+  }
 }
