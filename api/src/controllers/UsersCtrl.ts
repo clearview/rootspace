@@ -216,9 +216,13 @@ export class UsersCtrl extends BaseCtrl {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
 
-    const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
+    try {
+      const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
 
-    res.send(setting.ui)
+      res.send(setting.ui)
+    } catch {
+      res.send({ data: {} })
+    }
   }
 
   async setUiData(req: Request, res: Response) {
@@ -235,9 +239,13 @@ export class UsersCtrl extends BaseCtrl {
     const userId = Number(req.user.id)
     const spaceId = req.params?.spaceId ? Number(req.params?.spaceId) : null
 
-    const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
+    try {
+      const setting: UserSetting = await this.userSettingsService.getSettings(userId, spaceId)
 
-    res.send(setting.preferences)
+      res.send(setting.preferences)
+    } catch {
+      res.send({ data: {} })
+    }
   }
 
   async setPreferences(req: Request, res: Response) {
