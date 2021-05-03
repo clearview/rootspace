@@ -19,7 +19,7 @@
         v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }"
         v-show="doc"
       >
-        <div class="editor-toolbar">
+        <div v-if="!isReadonly" class="editor-toolbar">
           <MenuGroup
             big
             value="Normal Text"
@@ -473,6 +473,7 @@
               </div>
             </div>
             <div
+              v-if="!isReadonly"
               class="action-line"
               @click="hide();toggleLocked()"
             >
@@ -490,7 +491,7 @@
                 Lock
               </div>
             </div>
-            <div class="action-line" @click="hide();share()">
+            <div v-if="!isReadonly" class="action-line" @click="hide();share()">
               <mono-icon name="share"></mono-icon>
               <div class="action-line-text">
                 Share
@@ -498,6 +499,7 @@
             </div>
             <div class="action-separator"></div>
             <div
+              v-if="!isReadonly"
               class="action-line danger"
               @click="hide();deleteNovadoc()"
             >
@@ -1156,7 +1158,7 @@ export default {
       this.initProvider()
 
       this.editor = new Editor({
-        editable: !this.isReadonly,
+        editable: this.isEditable,
         extensions: [
           new Novaschema(),
           new ParagraphMerger(),
@@ -1202,7 +1204,7 @@ export default {
             emptyEditorClass: 'is-editor-empty',
             emptyNodeClass: 'is-empty',
             emptyNodeText: () => {
-              if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
+              if ((this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) || this.isReadonly) {
                 return ''
               }
               return 'Write something…'
@@ -1688,7 +1690,7 @@ export default {
         this.isHistoryVisible = false
         this.isPreviewing = false
         this.editor.setOptions({
-          editable: !this.isReadonly
+          editable: this.isEditable
         })
       }
     },
@@ -1763,7 +1765,7 @@ export default {
       async handler () {
         if (this.editor) {
           this.editor.setOptions({
-            editable: !this.isReadonly
+            editable: this.isEditable
           })
         }
       }
@@ -1872,7 +1874,15 @@ export default {
       ]
     },
     isReadonly () {
-      return this.isLocked
+      const isOwner = this.contentAccess.ownerId === this.currentUser?.id
+      const isAdmin = this.activeSpace.role === 0
+
+      return (this.contentAccess.type === 'restricted' && !isOwner && !isAdmin) ||
+        (this.contentAccess.type === 'private' && !isOwner) ||
+        (this.contentAccess.public && !this.currentUser)
+    },
+    isEditable () {
+      return !this.isLocked && !this.isReadonly
     }
   }
 
@@ -1938,7 +1948,7 @@ export default {
   border-bottom: solid 1px #E0E2E7;
   padding: 12px 24px;
   box-sizing: border-box;
-  align-items: center;
+  align-items: flex-start;
   transition: all 0.15s ease;
   min-height: 57px;
 
@@ -1964,8 +1974,7 @@ export default {
     display: flex;
     align-items: center;
     @media only screen and (max-width: 1300px){
-      align-self: flex-start;
-      margin-left: 32px;
+
     }
 
     .lock-indicator {

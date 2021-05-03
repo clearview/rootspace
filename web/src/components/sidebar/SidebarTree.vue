@@ -1,7 +1,7 @@
 <template>
   <div class="h-full w-full relative" ref="scrollContainer">
     <div class="h-full overflow-auto">
-      <sidebar-empty-tree v-if="treeData.length === 0" @addNew="addNewEmpty()"/>
+      <sidebar-empty-tree v-if="!(treeData.length || favorites.length)" @addNew="addNewEmpty()"/>
 
       <a class="btn-outlined" v-if="isFocusMode" @click="showFullTree">
         <mono-icon name="restore" />Show full Tree
@@ -303,10 +303,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   }
 
   get favorites (): Node[] {
-    const state = this.$store.state.tree
-    const favorites = [...state.favorites]
-
-    return favorites
+    return this.$store.state.tree.favorites
   }
 
   get treeData (): Node[] {

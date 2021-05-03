@@ -88,9 +88,9 @@ export default class TreeService {
         const res = await api.get(`content/access/Doc/${item.contentId}`)
         item.contentAccess = res.data.data
 
-        console.log(user)
-
-        const hasAccess = item.contentAccess?.type === 'open' || item.contentAccess?.type === 'restricted' || item.contentAccess?.public || item.contentAccess?.ownerId === user.id
+        const hasAccess = item.contentAccess?.type === 'open' ||
+          item.contentAccess?.type === 'restricted' ||
+          item.contentAccess?.public || item.contentAccess?.ownerId === user.id
 
         if (hasAccess) {
           newList.push(item)
