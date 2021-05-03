@@ -96,6 +96,7 @@ export interface DocumentState {
 export interface FilesState {
   item: FilesResource | null;
   processing: boolean;
+  viewAs: number;
 }
 export interface SpaceState {
   activeIndex: number;

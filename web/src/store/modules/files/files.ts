@@ -10,14 +10,18 @@ const FilesModule: Module<FilesState, RootState> = {
 
   state () {
     return {
-      item: [],
-      processing: false
+      item: null,
+      processing: false,
+      viewAs: 2
     }
   },
 
   mutations: {
     setItem (state, data) {
       state.item = data
+    },
+    setViewAs (state, payload: number) {
+      state.viewAs = payload
     },
     setProcessing (state, payload: boolean): void {
       state.processing = payload

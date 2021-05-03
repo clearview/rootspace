@@ -12,18 +12,42 @@
     </div>
     <header class="header">
       <h3 class="header-title">
-        Files <span>({{ files.uploads.length }})</span>
+        Files <span v-if="files.uploads">({{ files.uploads.length }})</span>
       </h3>
-      <div class="header-action" v-if="files.uploads.length !== 0">
-        <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
-        <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-          <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
-          Upload File
-        </button>
+      <div class="actions" v-if="files.uploads && files.uploads.length > 0">
+        <div class="action-group action-group--view">
+          <div
+            class="action"
+            :class="{ 'action__active': isList }"
+            @click="viewAsList"
+          >
+            <mono-icon name="menu" class="action--icon" />
+            <div class="action--body">
+              List
+            </div>
+          </div>
+          <div
+            class="action"
+            :class="{ 'action__active': !isList }"
+            @click="viewAsGrid"
+          >
+            <mono-icon name="menu" class="action--icon" />
+            <div class="action--body">
+              Grid
+            </div>
+          </div>
+        </div>
+        <div class="action-group">
+          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
+          <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
+            <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+            Upload File
+          </button>
+        </div>
       </div>
     </header>
     <div class="content">
-      <div class="files-wrapper" v-if="files.uploads.length !== 0">
+      <div class="files-wrapper" v-if="files.uploads && files.uploads.length > 0">
         <FileItem :item="files" />
       </div>
       <div class="empty-file" v-else>
@@ -55,8 +79,9 @@ import FileItem from '@/views/Files/FileItem.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
+import { FilesSettings } from '@/store/modules/files/settings'
 
-import { FilesResource } from '../../types/resource'
+import { FilesResource, FilesViewType } from '../../types/resource'
 
 @Component({
   components: {
@@ -73,6 +98,21 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   get id () {
     return Number(this.$route.params.id)
+  }
+
+  get files (): FilesResource | null {
+    return this.$store.state.files.item
+  }
+
+  get isList (): boolean {
+    return this.prefferedView === FilesViewType.List
+  }
+
+  get prefferedView (): FilesViewType {
+    if (!this.$store.state.files.viewAs[this.id]) {
+      return FilesViewType.List
+    }
+    return this.$store.state.files.viewAs[this.id] ?? FilesViewType.Grid
   }
 
   pickFile () {
@@ -98,6 +138,32 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   prepareDragFile (e: DragEvent) {
     e.preventDefault()
+  }
+
+  viewAsList () {
+    this.$store.commit('files/setViewAs', (state: FilesSettings) => {
+      if (!isNaN(state.viewAs as any)) {
+        state.viewAs = {}
+      }
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.id]: FilesViewType.List
+      }
+    })
+  }
+
+  viewAsGrid () {
+    this.$store.commit('files/setViewAs', (state: FilesSettings) => {
+      if (!isNaN(state.viewAs as any)) {
+        state.viewAs = {}
+      }
+
+      state.viewAs = {
+        ...state.viewAs,
+        [this.id]: FilesViewType.Grid
+      }
+    })
   }
 
   async processDragFile (e: DragEvent) {
@@ -144,10 +210,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
       }
       this.isUploading = false
     }
-  }
-
-  get files (): FilesResource | null {
-    return this.$store.state.files.item
   }
 
   async fetchFiles () {
@@ -222,14 +284,59 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   flex: 1 1 auto;
 }
 
-.header-action {
-  @apply flex flex-row items-center;
-  flex: 0 0 auto;
+.actions {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  flex: 0 auto;
+}
+
+.action {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 300ms;
+
+  &:hover {
+    background-color: #f4f5f7;
+  }
+}
+
+.action-group {
+  display: flex;
+  flex-flow: row;
+  padding: 0 8px;
   .btn-upload {
     border-color: #8CD5FF;
     background: #8CD5FF;
     color: #2C2B35;
     padding: .469rem 1rem;
+  }
+  &:first-child {
+    padding-left: 0;
+  }
+
+  &:last-child {
+    padding-right: 0;
+  }
+}
+
+.action-group--view {
+  >>> .target {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+  }
+
+  .action__active,
+  .action__active:hover {
+    background: #444754;
+    color: white;
   }
 }
 

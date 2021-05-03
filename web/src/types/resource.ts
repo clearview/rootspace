@@ -86,6 +86,11 @@ export enum TaskBoardType {
   Kanban = 2
 }
 
+export enum FilesViewType {
+  List = 1,
+  Grid = 2
+}
+
 export interface TagResource extends Omit<ApiResource, 'createdAt' | 'updatedAt'> {
   board: TaskBoardResource | null;
   label: string;
