@@ -11,6 +11,7 @@ export interface NodeResource {
   created: string;
   updated: string;
   children: NodeResource[];
+  contentAccess?: DocContentAccess
 }
 
 export interface LinkResource {
@@ -258,4 +259,5 @@ enum DocPermissionType {
 export interface DocContentAccess {
   type: DocPermissionType;
   public: boolean;
+  ownerId: number;
 }

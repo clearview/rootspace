@@ -99,4 +99,8 @@ export default class DocumentService {
       throw err
     }
   }
+
+  static async getPermission (contentId: number) {
+    return await api.get(`content/access/Doc/${contentId}`)
+  }
 }

@@ -818,7 +818,7 @@
           @blur="isTitleFocused = false"
           @keyup="debouncedSaveTitleOnly"
           @keypress.enter="handleTitleEnter"
-          :readonly="isLocked"
+          :readonly="isReadonly"
         ></textarea>
         <hr class="title-separator">
         <EditorContent
@@ -1156,7 +1156,7 @@ export default {
       this.initProvider()
 
       this.editor = new Editor({
-        editable: !this.isLocked,
+        editable: !this.isReadonly,
         extensions: [
           new Novaschema(),
           new ParagraphMerger(),
@@ -1320,6 +1320,9 @@ export default {
     },
     focusBubble () {
       this.isBubbleFocused = true
+    },
+    canEdit () {
+      return true
     },
     canInsertImage (isActive, focused) {
       if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
@@ -1685,7 +1688,7 @@ export default {
         this.isHistoryVisible = false
         this.isPreviewing = false
         this.editor.setOptions({
-          editable: !this.isLocked
+          editable: !this.isReadonly
         })
       }
     },
@@ -1760,7 +1763,7 @@ export default {
       async handler () {
         if (this.editor) {
           this.editor.setOptions({
-            editable: !this.isLocked
+            editable: !this.isReadonly
           })
         }
       }
@@ -1867,6 +1870,9 @@ export default {
           class: 'green'
         }
       ]
+    },
+    isReadonly () {
+      return this.isLocked
     }
   }
 
