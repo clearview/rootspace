@@ -67,8 +67,14 @@ export class UserSpaceService {
     return this.getUserToSpaceRepository().save(userToSpace)
   }
 
-  async remove(userId: number, spaceId: number): Promise<UserToSpace> {
-    const userToSpace = await this.getByUserIdAndSpaceId(userId, spaceId, { active: true })
+  async remove(entity: UserToSpace): Promise<UserToSpace>
+  async remove(userId: number, spaceId: number): Promise<UserToSpace>
+  async remove(entityOrId: UserToSpace | number, spaceId?: number): Promise<UserToSpace> {
+    const userToSpace =
+      typeof entityOrId === 'number'
+        ? await this.getByUserIdAndSpaceId(entityOrId, spaceId, { active: true })
+        : entityOrId
+
     userToSpace.active = false
 
     return this.getUserToSpaceRepository().save(userToSpace)
