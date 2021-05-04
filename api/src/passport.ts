@@ -1,4 +1,3 @@
-import httpRequestContext from 'http-request-context'
 import { config } from 'node-config-ts'
 import { Request } from 'express'
 import * as Sentry from '@sentry/node'

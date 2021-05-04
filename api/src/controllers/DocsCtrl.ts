@@ -18,7 +18,10 @@ export class DocsCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response) {
-    const doc = await this.docService.requireById(Number(req.params.id))
+    let id: number | string = req.params.id
+    id = isNaN(Number(id)) ? id : Number(id)
+
+    const doc = await this.docService.requireById(id)
 
     const permissions = await contentPermissions(doc, req.user.id)
     permissions.throwUnlessHas('view')
