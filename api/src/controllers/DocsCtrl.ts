@@ -1,9 +1,10 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate, DocCreateValue, DocUpdateValue } from '../services/content/doc'
 import { contentPermissions, hasContentPermission } from '../services/content-access'
 import { ContentAccessService, DocService, FollowService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
@@ -17,13 +18,34 @@ export class DocsCtrl extends BaseCtrl {
     this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
   }
 
-  async view(req: Request, res: Response) {
+  async publicView(req: Request, res: Response, next: NextFunction) {
     let id: number | string = req.params.id
     id = isNaN(Number(id)) ? id : Number(id)
 
-    const doc = await this.docService.requireById(id)
+    if (typeof id === 'number') {
+      return next()
+    }
 
+    const doc = await this.docService.requireById(id)
+    const permissions = await contentPermissions(doc)
+
+    if (permissions.has('view') === false) {
+      throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    permissions.throwUnlessHas('view')
+
+    res.send(
+      this.responseBody(doc)
+        .with('contentAccess', permissions.getContentAccess())
+        .with('permissions', permissions.getList())
+    )
+  }
+  async authenticatedView(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const doc = await this.docService.requireById(id)
     const permissions = await contentPermissions(doc, req.user?.id)
+
     permissions.throwUnlessHas('view')
 
     res.send(
