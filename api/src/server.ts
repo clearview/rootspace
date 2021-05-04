@@ -8,26 +8,11 @@ import * as http from 'http'
 import cors from 'cors'
 import routers from './routers'
 import passport from './passport'
-import { removeWsHeaders } from './middleware/WsHeadersMiddleware'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
-import { Ability } from '@casl/ability'
 import { WebSocketsService } from './services'
 import Primus = require('primus')
 import Rooms = require('primus-rooms')
-
-declare global {
-  namespace Express {
-    interface User {
-      id: number
-      firstName: string
-      lastName: string
-      email: string
-      ability: Ability
-      spaces: Map<number, number>
-    }
-  }
-}
 
 export default class Server {
   app: Application
@@ -44,7 +29,7 @@ export default class Server {
       pathname: config.ws.path,
       parser: 'JSON',
       transformer: 'websockets',
-      plugin: {'rooms': Rooms},
+      plugin: { rooms: Rooms },
     })
 
     wsServerHooks(this.wsServer)

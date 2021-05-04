@@ -12,6 +12,7 @@ import { ServiceFactory } from '../../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../../response/errors'
 import { DocActivity } from '../../activity/activities/content'
 import { DocUpdateSetup } from './DocUpdateSetup'
+import { publicId } from '../../../root/helpers'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -43,11 +44,11 @@ export class DocService extends NodeContentService {
     return NodeType.Doc
   }
 
-  async getById(id: number, options: any = {}): Promise<Doc | undefined> {
-    return this.getDocRepository().findOne(id, options)
+  async getById(id: number | string, options: any = {}): Promise<Doc | undefined> {
+    return this.getDocRepository().getById(id, options)
   }
 
-  async requireById(id: number, options: any = {}): Promise<Doc> {
+  async requireById(id: number | string, options: any = {}): Promise<Doc> {
     const doc = await this.getById(id, options)
 
     if (!doc) {
@@ -80,6 +81,8 @@ export class DocService extends NodeContentService {
     let doc = this.getDocRepository().create()
 
     Object.assign(doc, data.attributes)
+
+    doc.publicId = publicId()
     doc.revision = 1
 
     doc = await this.getDocRepository().save(doc)
