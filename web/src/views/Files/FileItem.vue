@@ -12,14 +12,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { FilesResource } from '@/types/resource'
-import Popover from '@/components/Popover.vue'
 import FileListView from '@/views/Files/FileListView.vue'
 import FileGridView from '@/views/Files/FileGridView.vue'
 
 @Component({
   name: 'FileItem',
   components: {
-    Popover,
     FileListView,
     FileGridView
   }

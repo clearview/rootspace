@@ -41,10 +41,14 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { FilesResource } from '@/types/resource'
+import Popover from '@/components/Popover.vue'
 import moment from 'moment'
 
 @Component({
   name: 'FileGridView',
+  components: {
+    Popover
+  },
   filters: {
     formatFileSize (num: number) {
       if (typeof num !== 'number' || isNaN(num)) {

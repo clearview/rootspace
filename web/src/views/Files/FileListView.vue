@@ -1,18 +1,49 @@
 <template>
-  <div class="grid grid-cols-1 gap-4" v-if="file">
-    <div class="file-item" v-for="(file, index) in file.uploads" :key="index">
+  <div class="grid grid-cols-1" v-if="file">
+    <div class="file-item"
+         v-for="(file, index) in file.uploads"
+         :key="index"
+         @mouseover="showAction(index)"
+         @mouseleave="showAction(null)"
+         :class="{ 'hovered' : indexHovered == index }">
       <div class="file-item--icon">
         <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(file.mimetype)" />
       </div>
       <div class="file-item--content">
         <h3>{{ file.filename }}</h3>
-        Added by {{ file.userId }} • {{ formatDate(file.createdAt) }} • {{ file.size | formatFileSize }}
+        Added by • {{ formatDate(file.createdAt) }} • {{ file.size | formatFileSize }}
       </div>
       <div class="file-item--action">
         <div class="download-file" @click="downloadFile(file.location)">
           <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
         </div>
       </div>
+      <Popover class="flex"
+               top="38px"
+              :offset="10"
+              :with-close="false"
+              @mouseover="showAction(index)"
+              @mouseleave="showAction(null)"
+              @trigger="handleMenuTrigger">
+        <template #default="{  }">
+          <div class="action-line">
+            <legacy-icon class="action-icon" name="copy" viewbox="18" size="18px"></legacy-icon>
+            <div class="action-line-text">Copy link</div>
+          </div>
+          <div class="action-separator"></div>
+          <div class="action-line danger">
+            <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
+            <div class="action-line-text">
+              Archive
+            </div>
+          </div>
+        </template>
+        <template #trigger="{ visible }">
+          <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
+            <legacy-icon name="vertical-ellipsis" viewbox="20" size="1.25rem"/>
+          </button>
+        </template>
+      </Popover>
     </div>
   </div>
 </template>
@@ -21,9 +52,13 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { FilesResource } from '@/types/resource'
 import moment from 'moment'
+import Popover from '@/components/Popover.vue'
 
 @Component({
   name: 'FileListView',
+  components: {
+    Popover
+  },
   filters: {
     formatFileSize (num: number) {
       if (typeof num !== 'number' || isNaN(num)) {
@@ -51,8 +86,22 @@ import moment from 'moment'
 })
 
 export default class FileListView extends Vue {
+  private indexHovered = null
+
   @Prop({ type: Object, required: true })
   private readonly file!:FilesResource
+
+  showAction (value: number) {
+    this.indexHovered = value
+  }
+
+  handleMenuTrigger (visible: boolean) {
+    if (visible) {
+      this.$emit('drag:disable')
+    } else {
+      this.$emit('drag:enable')
+    }
+  }
 
   formatDate (fileDate: Date | string) {
     return moment(fileDate).format('MMM DD, YYYY')
@@ -82,10 +131,9 @@ h3 {
   font-weight: bold;
 }
 .file-item {
-  @apply flex flex-row p-5 items-center;
-  border-bottom: 1px solid #DEE2EE;
-  cursor: pointer;
-  &:hover {
+  @apply flex flex-row p-5 items-center relative;
+  border-bottom: 1px solid #F8F8FB;
+  &.hovered {
     border-radius: 4px;
     background: #F8F8FB;
     border-bottom: 1px solid #F8F8FB;
@@ -108,5 +156,45 @@ h3 {
   &:hover {
     background: #DDF3FF;
   }
+}
+.popover-container {
+  @apply absolute;
+  top: -16px;
+  right: 18px;
+}
+.btn-menu {
+  height: auto;
+  padding: 5px;
+  background: white;
+  border: 1px solid #AAB1C5 !important;
+  border-radius: 4px;
+}
+.action-line {
+  @apply flex items-center py-2 px-4 my-1 relative;
+  font-size: 13px;
+  font-weight: 600;
+  width: 168px;
+  color: theme("colors.gray.900");
+  stroke-width: 3px;
+  cursor: pointer;
+  &:hover{
+    background: #F0F2F5;
+    .action-submenu {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  &.danger {
+    color: theme("colors.danger.default");
+  }
+}
+.action-line-text {
+  @apply ml-2;
+  flex: 1 1 auto;
+}
+.action-separator{
+  @apply my-1;
+  height:1px;
+  background: theme("colors.gray.100");
 }
 </style>
