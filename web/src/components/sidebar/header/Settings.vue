@@ -7,19 +7,33 @@
     borderless>
     <template #default="{ hide }">
       <router-link :to="{name: 'SettingsAccount'}" class="action-line" @click.native="hide()">
-        <legacy-icon class="action-icon" name="user" viewbox="32" size="16px"></legacy-icon>
+        <mono-icon class="action-icon" name="user" />
         <div class="action-line-text" >
           My Account
         </div>
       </router-link>
       <permission role="admin">
         <router-link :to="{name: 'SettingsSpace'}" class="action-line" @click.native="hide()">
-          <legacy-icon class="action-icon" name="space" viewbox="22" size="16px"></legacy-icon>
+          <mono-icon class="action-icon" name="space" />
           <div class="action-line-text">
-            Space Settings
+            Space Info
           </div>
         </router-link>
       </permission>
+      <permission role="admin">
+        <router-link :to="{name: 'SettingsMembers'}" class="action-line" @click.native="hide()">
+          <mono-icon class="action-icon" name="space" />
+          <div class="action-line-text">
+            Space Members
+          </div>
+        </router-link>
+      </permission>
+      <router-link :to="{name: 'SettingsNotification'}" class="action-line" @click.native="hide()">
+        <mono-icon class="action-icon" name="bell"/>
+        <div class="action-line-text" >
+          Space Notification
+        </div>
+      </router-link>
     </template>
     <template #trigger="{ visible }">
       <span class="sidebar-icon">
@@ -116,9 +130,8 @@ export default class SidebarHeaderSettings extends Vue {
   font-weight: 500;
   font-size: 14px;
   line-height: 16px;
-  width: 168px;
+  min-width: 168px;
   color: #2C2B35;
-  stroke-width: 3px;
   cursor: pointer;
 
   &:hover{

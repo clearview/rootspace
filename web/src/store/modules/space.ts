@@ -177,7 +177,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
       if (index !== state.activeIndex) {
         commit('setActiveIndex', index)
 
-        await api.put('/users/settings/ui/', { activeIndex: index })
+        await api.patch('/users/settings/ui/', { activeIndex: index })
       }
     },
 

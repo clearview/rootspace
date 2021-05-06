@@ -8,10 +8,18 @@
           <router-link :to="{name: 'SettingsAccount'}">My Account</router-link>
         </li>
         <permission role="admin">
-          <li  :class="{ active: $route.name === 'SettingsSpace' }">
-            <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
+          <li :class="{ active: $route.name === 'SettingsSpace' }">
+            <router-link :to="{name: 'SettingsSpace'}">Space Info</router-link>
           </li>
         </permission>
+        <permission role="admin">
+          <li :class="{ active: $route.name === 'SettingsMembers' }">
+            <router-link :to="{name: 'SettingsMembers'}">Space Members</router-link>
+          </li>
+        </permission>
+        <li :class="{ active: $route.name === 'SettingsNotification' }">
+          <router-link :to="{name: 'SettingsNotification'}">Space Notification</router-link>
+        </li>
       </ul>
 
       <div class="settings-content">

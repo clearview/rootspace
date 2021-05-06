@@ -33,10 +33,17 @@ const routes: Array<RouteConfig> = [
           {
             path: 'space',
             name: 'SettingsSpace',
-            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue'),
-            meta: {
-              roles: [0]
-            }
+            component: () => import(/* webpackChunkName: "settings-space" */ '../views/Settings/Space.vue')
+          },
+          {
+            path: 'space/members',
+            name: 'SettingsMembers',
+            component: () => import(/* webpackChunkName: "settings-space-members" */ '../views/Settings/SpaceMembers.vue')
+          },
+          {
+            path: 'space/notification',
+            name: 'SettingsNotification',
+            component: () => import(/* webpackChunkName: "settings-space-notification" */ '../views/Settings/SpaceNotification.vue')
           }
         ]
       },
