@@ -12,7 +12,7 @@ const FilesModule: Module<FilesState, RootState> = {
     return {
       item: null,
       processing: false,
-      viewAs: 2
+      viewAs: 0
     }
   },
 
@@ -21,6 +21,7 @@ const FilesModule: Module<FilesState, RootState> = {
       state.item = data
     },
     setViewAs (state, payload: number) {
+      console.log(payload)
       state.viewAs = payload
     },
     setProcessing (state, payload: boolean): void {

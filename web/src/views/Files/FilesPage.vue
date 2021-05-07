@@ -31,7 +31,12 @@
             :class="{ 'action__active': !isList }"
             @click="viewAsGrid"
           >
-            <mono-icon name="menu" class="action--icon" />
+            <legacy-icon
+              name="grid"
+              size="16px"
+              viewbox="16"
+              class="flex flex-none text-gray-400"
+            />
             <div class="action--body">
               Grid
             </div>
@@ -109,10 +114,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   get prefferedView (): FilesViewType {
-    if (!this.$store.state.files.viewAs[this.id]) {
-      return FilesViewType.List
-    }
-    return this.$store.state.files.viewAs[this.id] ?? FilesViewType.Grid
+    return this.$store.state.files.viewAs
   }
 
   pickFile () {
@@ -141,29 +143,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   viewAsList () {
-    this.$store.commit('files/setViewAs', (state: FilesSettings) => {
-      if (!isNaN(state.viewAs as any)) {
-        state.viewAs = {}
-      }
-
-      state.viewAs = {
-        ...state.viewAs,
-        [this.id]: FilesViewType.List
-      }
-    })
+    this.$store.commit('files/setViewAs', 1)
   }
 
   viewAsGrid () {
-    this.$store.commit('files/setViewAs', (state: FilesSettings) => {
-      if (!isNaN(state.viewAs as any)) {
-        state.viewAs = {}
-      }
-
-      state.viewAs = {
-        ...state.viewAs,
-        [this.id]: FilesViewType.Grid
-      }
-    })
+    this.$store.commit('files/setViewAs', 2)
   }
 
   async processDragFile (e: DragEvent) {
@@ -315,7 +299,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     border-color: #8CD5FF;
     background: #8CD5FF;
     color: #2C2B35;
-    padding: .469rem 1rem;
+    padding: .3rem 1rem;
   }
   &:first-child {
     padding-left: 0;
@@ -323,20 +307,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   &:last-child {
     padding-right: 0;
-  }
-}
-
-.action-group--view {
-  >>> .target {
-    display: flex;
-    flex-flow: row;
-    align-items: center;
-  }
-
-  .action__active,
-  .action__active:hover {
-    background: #444754;
-    color: white;
   }
 }
 
