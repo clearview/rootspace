@@ -29,7 +29,7 @@
         </div>
         <div class="col-right">
           <h4 class="title">Space Information</h4>
-          <form-space
+          <form-space-info
             @submit="submit"
             :value="payload"
             :is-edit="true"
@@ -43,15 +43,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { find } from 'lodash'
-import SpaceService from '@/services/space'
-import UserService from '@/services/user'
-import UserPreferenceService from '@/services/userPreference'
-import { SpaceResource, SpaceRoleResource, InvitationRoleResource } from '@/types/resource'
+import { Vue, Component } from 'vue-property-decorator'
+import { SpaceResource } from '@/types/resource'
 import store from '@/store'
 import Alert from '@/components/Alert.vue'
-import FormSpace from '@/components/form/FormSpace.vue'
+import FormSpaceInfo from '@/components/form/FormSpaceInfo.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import UploadableImage from '@/components/UploadableImage.vue'
 import Loading from '@/components/Loading.vue'
@@ -64,7 +60,7 @@ import { Permission } from '@/components/access'
     Loading,
     UploadableImage,
     ButtonSwitch,
-    FormSpace,
+    FormSpaceInfo,
     Alert,
     Permission
   }
