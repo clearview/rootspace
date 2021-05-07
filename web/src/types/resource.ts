@@ -251,13 +251,13 @@ export interface DocRevisionResource {
   userId: number;
 }
 
-enum DocPermissionType {
+enum DocAccessType {
   open = 'open',
   private = 'private',
   restricted = 'restricted',
 }
 export interface DocContentAccess {
-  type: DocPermissionType;
+  type: DocAccessType;
   public: boolean;
   ownerId: number;
 }
