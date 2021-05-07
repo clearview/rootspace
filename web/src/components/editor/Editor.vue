@@ -250,7 +250,6 @@ export default defineComponent({
   border: solid 1px #ccc;
   border-radius: 0 0 4px 4px;
   padding: 8px;
-  min-height: 18em;
 }
 
 .readonly {
@@ -275,6 +274,7 @@ export default defineComponent({
 .content >>> .ProseMirror {
   outline: none;
   font-size: 14px;
+  min-height: 18em;
 
   a {
     text-decoration: underline;

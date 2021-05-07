@@ -56,16 +56,3 @@ pre.ql-syntax {
   padding: 5px 10px;
   border-radius: 3px;
 }
-
-/* FF fix for content editable */
-@-moz-document url-prefix() {
-  [contenteditable='true']:before {
-    content: "\feff ";
-  }
-}
-
-.title-editable, .task-modal-title-editable {
-  &[contenteditable='true']:before {
-    content: "\feff ";
-  }
-}
