@@ -11,6 +11,15 @@
       </div>
       <div class="file-item--content">
         <h3>{{ file.filename }}</h3>
+        <h3>
+          <label-editable
+            class="truncate"
+            v-model="file.filename"
+            v-if="!isRenaming"
+          />
+          <input ref="input" type="text" class="field node-input" v-show="isRenaming" placeholder="Node name" :value="file.filename"
+            @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
+        </h3>
         Added by • {{ formatDate(file.createdAt) }} • {{ file.size | formatFileSize }}
       </div>
       <div class="file-item--action">
@@ -18,17 +27,22 @@
           <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
         </div>
       </div>
-      <Popover class="flex"
-               top="38px"
-              :offset="10"
-              :with-close="false"
-              @mouseover="showAction(index)"
-              @mouseleave="showAction(null)"
-              @trigger="handleMenuTrigger">
-        <template #default="{  }">
-          <div class="action-line">
-            <legacy-icon class="action-icon" name="copy" viewbox="18" size="18px"></legacy-icon>
+      <Popover
+        class="flex"
+        top="38px"
+        :offset="10"
+        :with-close="false"
+        @mouseover="showAction(index)"
+        @mouseleave="showAction(null)"
+        @trigger="handleMenuTrigger">
+        <template #default="{ hide }">
+          <div class="action-line" @click.prevent.stop="copyURL(file.location);hide();">
+            <legacy-icon class="action-icon" name="copy" viewbox="16" size="18px"></legacy-icon>
             <div class="action-line-text">Copy link</div>
+          </div>
+          <div class="action-line" @click.prevent.stop="hide();rename();">
+            <mono-icon class="action-icon" name="pencil"/>
+            <div class="action-line-text">Rename</div>
           </div>
           <div class="action-separator"></div>
           <div class="action-line danger">
@@ -49,15 +63,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
 import { FilesResource } from '@/types/resource'
 import moment from 'moment'
 import Popover from '@/components/Popover.vue'
+import LabelEditable from '@/components/LabelEditable.vue'
 
 @Component({
   name: 'FileListView',
   components: {
-    Popover
+    Popover,
+    LabelEditable
   },
   filters: {
     formatFileSize (num: number) {
@@ -87,9 +103,13 @@ import Popover from '@/components/Popover.vue'
 
 export default class FileListView extends Vue {
   private indexHovered = null
+  private isRenaming = false
 
   @Prop({ type: Object, required: true })
   private readonly file!:FilesResource
+
+  @Ref('input')
+  private readonly inputRef!: HTMLInputElement;
 
   showAction (value: number) {
     this.indexHovered = value
@@ -120,6 +140,17 @@ export default class FileListView extends Vue {
       default:
         return 'fileDefault'
     }
+  }
+
+  rename () {
+    this.isRenaming = true
+    Vue.nextTick(() => {
+      this.inputRef.focus()
+    })
+  }
+
+  async copyURL (url: string) {
+    await navigator.clipboard.writeText(url) // TODO : Add a feedback if the URL is copied
   }
 }
 </script>
@@ -155,6 +186,12 @@ h3 {
   border-radius: 24px;
   &:hover {
     background: #DDF3FF;
+  }
+}
+.action-line {
+  .action-icon {
+    fill: none;
+    stroke-width: 1.5px;
   }
 }
 .popover-container {
