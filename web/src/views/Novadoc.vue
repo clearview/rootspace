@@ -1644,6 +1644,7 @@ export default {
         component: DocsShareModal,
         attrs: {
           id: this.id,
+          publicId: this.doc.publicId,
           contentAccess: this.contentAccess,
           onChangeContentAccess: (contentAccess) => {
             this.contentAccess = contentAccess

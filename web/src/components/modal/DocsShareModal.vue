@@ -11,7 +11,7 @@
         <label for="radio-share-open">
           <b>Open</b>
           <div class="desc">
-            anyone in space can view, edit and delete
+            Anyone in space can view, edit and delete
           </div>
         </label>
       </div>
@@ -22,7 +22,7 @@
         <label for="radio-share-restricted">
           <b>Restricted</b>
           <div class="desc">
-            anyone in space can view, only the owner of doc and admin can edit and delete
+            Anyone in space can view, only the owner of doc and admin can edit and delete
           </div>
         </label>
       </div>
@@ -33,7 +33,7 @@
         <label for="radio-share-private">
           <b>Private</b>
           <div class="desc">
-            no one but the owner can view, edit, delete
+            No one but the owner can view, edit, delete
           </div>
         </label>
       </div>
@@ -44,8 +44,9 @@
         <label for="radio-share-public">
           <b>Public</b>
           <div class="desc">
-            doc is accessible outside of the Root for view
+            Doc is accessible outside of the Root for view
           </div>
+          <pre id="public-url" v-show="permission === 'public'">{{ publicUrl }}</pre>
         </label>
       </div>
     </div>
@@ -65,6 +66,7 @@ export default defineComponent({
   },
   props: {
     id: Number,
+    publicId: String,
     contentAccess: Object,
     onChangeContentAccess: Function
   },
@@ -72,6 +74,7 @@ export default defineComponent({
     const { contentAccess } = props
     const permission = ref(contentAccess?.public ? 'public' : contentAccess?.type || 'open')
     const submitting = ref(false)
+    const publicUrl = `${window.location.origin}/doc/${props.publicId}`
 
     const updatePermission = async () => {
       submitting.value = true
@@ -94,8 +97,9 @@ export default defineComponent({
     }
 
     return {
-      submitting,
       permission,
+      publicUrl,
+      submitting,
       updatePermission
     }
   }
@@ -112,7 +116,7 @@ export default defineComponent({
       margin-right: 10px;
     }
 
-    .desc {
+    .desc, #public-url {
       font-size: 12px;
     }
 
@@ -129,5 +133,13 @@ export default defineComponent({
     .btn {
       width: 130px;
     }
+  }
+
+  #public-url {
+    display: block;
+    margin-top: 10px;
+    opacity: 0.8;
+    background-color: #F6F8FA;
+    padding: 16px;
   }
 </style>
