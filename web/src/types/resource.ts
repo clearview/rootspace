@@ -33,6 +33,15 @@ export interface FilesResource extends ApiResource {
   user: UserResource[] | null;
 }
 
+export interface FilesItemResource extends ApiResource {
+  id: number;
+  userId: number | null;
+  spaceId: number | null;
+  filename: string;
+  name: string;
+  user: UserResource[] | null;
+}
+
 /**
  * @deprecated
  */
