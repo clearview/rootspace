@@ -89,7 +89,7 @@ export default class FormSpace extends Vue {
       this.titleInputRef.focus()
     }
 
-    @Watch('value')
+    @Watch('value', { immediate: true })
     watchValue (newVal: any) {
       this.payload = {
         title: newVal.title
