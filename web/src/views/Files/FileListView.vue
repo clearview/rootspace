@@ -1,21 +1,25 @@
 <template>
   <div
+    v-if="fileCopy"
     class="file-item"
     @mouseover="showAction(index)"
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
-    <div class="file-item--icon">
+    <div class="file-item--thumbnail" v-if="isFileImage">
+      <img :src="fileCopy.location" :alt="fileCopy.id">
+    </div>
+    <div class="file-item--icon" v-else>
       <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
     </div>
     <div class="file-item--content">
       <h3>
         <label-editable
           class="truncate"
-          v-model="fileCopy.filename"
+          v-model="fileCopy.name"
           v-if="!isRenaming"
         />
       </h3>
-      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.filename"
+      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
       <div v-if="!isRenaming">
         Added by • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
@@ -110,6 +114,10 @@ export default class FileListView extends Vue {
   private isActionOpened = false
   private fileCopy = { ...this.file }
 
+  get isFileImage () {
+    return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(this.fileCopy.mimetype) !== -1
+  }
+
   showAction (value: number) {
     this.indexHovered = value
   }
@@ -189,6 +197,16 @@ h3 {
     .file-item--action {
       display: flex;
     }
+  }
+}
+.file-item--thumbnail {
+  cursor: pointer;
+  @apply mr-6;
+  img {
+    @apply rounded;
+    width: 57px;
+    height: 44px;
+    object-fit: cover;
   }
 }
 .file-item--icon {

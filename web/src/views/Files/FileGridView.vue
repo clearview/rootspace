@@ -1,10 +1,12 @@
 <template>
   <div class="file-item"
+    v-if="fileCopy"
     @mouseover="showAction(index)"
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
     <div class="icon-thumbnail">
-      <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
+      <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
+      <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
       <div class="download-wrapper">
         <span class="download-file" @click="downloadFile(fileCopy.location)">
           <legacy-icon
@@ -48,11 +50,11 @@
       <h3>
         <label-editable
           class="truncate"
-          v-model="fileCopy.filename"
+          v-model="fileCopy.name"
           v-if="!isRenaming"
         />
       </h3>
-      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.filename"
+      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
       Added by • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
     </div>
@@ -112,6 +114,10 @@ export default class FileListView extends Vue {
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }
+
+  get isFileImage () {
+    return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(this.fileCopy.mimetype) !== -1
+  }
 
   showAction (value: number) {
     this.indexHovered = value
@@ -223,6 +229,12 @@ export default class FileListView extends Vue {
 .icon-thumbnail {
   @apply flex flex-wrap justify-center content-center relative;
   height: 150px;
+  img {
+    @apply rounded-t;
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
 }
 .content {
   @apply p-5;
