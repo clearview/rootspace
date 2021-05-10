@@ -1,18 +1,21 @@
 <template>
   <div class="file-item-wrapper p-5 pt-10" v-if="item">
     <div class="grid grid-cols-1" v-if="isList">
-       <div v-for="(file, index) in item.uploads"
-         :key="index">
+       <div v-for="(file, index) in item.uploads" :key="index">
         <file-list-view
           :file="file"
           :index="index"
         />
        </div>
     </div>
-    <file-grid-view
-      :file="item"
-      v-else
-    />
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" v-else>
+      <div v-for="(file, index) in item.uploads" :key="index">
+        <file-grid-view
+          :file="file"
+          :index="index"
+        />
+      </div>
+    </div>
   </div>
 </template>
 

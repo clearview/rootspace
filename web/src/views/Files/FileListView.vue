@@ -15,7 +15,7 @@
           v-if="!isRenaming"
         />
       </h3>
-      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="Node name" :value="fileCopy.filename"
+      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.filename"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
       <div v-if="!isRenaming">
         Added by • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}

@@ -17,25 +17,30 @@
       <div class="actions" v-if="files.uploads && files.uploads.length > 0">
         <div class="action-group action-group--view">
           <div
-            class="action"
-            :class="{ 'action__active': isList }"
+            class="action mr-3"
+            :class="{ 'action--active': isList }"
             @click="viewAsList"
           >
-            <mono-icon name="menu" class="action--icon" />
+            <legacy-icon
+              name="list"
+              size="20px"
+              viewbox="32"
+              class="icon-list mr-1"
+            />
             <div class="action--body">
               List
             </div>
           </div>
           <div
             class="action"
-            :class="{ 'action__active': !isList }"
+            :class="{ 'action--active': !isList }"
             @click="viewAsGrid"
           >
             <legacy-icon
               name="grid"
               size="16px"
               viewbox="16"
-              class="flex flex-none text-gray-400"
+              class="icon-grid mr-1"
             />
             <div class="action--body">
               Grid
@@ -45,7 +50,7 @@
         <div class="action-group">
           <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
           <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-            <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+            <legacy-icon class="mr-2" name="plus2" size="13"  viewbox="15" />
             Upload File
           </button>
         </div>
@@ -284,10 +289,13 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   font-size: 14px;
   line-height: 1;
   cursor: pointer;
-  transition: all 300ms;
-
+  height: 32px;
   &:hover {
     background-color: #f4f5f7;
+  }
+  &.action--active {
+    background: #444754;
+    color: white;
   }
 }
 
@@ -300,6 +308,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     background: #8CD5FF;
     color: #2C2B35;
     padding: .3rem 1rem;
+    height: 32px;
   }
   &:first-child {
     padding-left: 0;
