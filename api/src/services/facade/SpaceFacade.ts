@@ -20,16 +20,19 @@ export class SpaceFacade {
     this.nodeService = ServiceFactory.getInstance().getNodeService()
   }
 
-  getTree(spaceId: number): Promise<Node[]> {
-    return this.nodeService.getTreeBySpaceId(spaceId)
+  async getTree(spaceId: number, userId: number): Promise<Node[]> {
+    const spaceUser = await this.userSpaceService.requireByUserIdAndSpaceId(userId, spaceId, { active: true })
+    return this.nodeService.getSpaceTree(spaceId, spaceUser)
   }
 
-  getArchiveTree(spaceId: number): Promise<Node[]> {
-    return this.nodeService.getArchiveTreeBySpaceId(spaceId)
+  async getArchiveTree(spaceId: number, userId: number): Promise<Node[]> {
+    const spaceUser = await this.userSpaceService.requireByUserIdAndSpaceId(userId, spaceId, { active: true })
+    return this.nodeService.getSpaceArchiveTree(spaceId, spaceUser)
   }
 
-  deleteArchive(spaceId: number, actorId: number): Promise<Node[]> {
-    return this.nodeService.deleteArchivedBySpaceId(spaceId, actorId)
+  async deleteArchive(spaceId: number, actorId: number): Promise<Node[]> {
+    const spaceUser = await this.userSpaceService.requireByUserIdAndSpaceId(actorId, spaceId, { active: true })
+    return this.nodeService.deleteArchivedBySpaceId(spaceId, spaceUser)
   }
 
   getUserSpaces(userId: number): Promise<Space[]> {

@@ -3,29 +3,24 @@ import { BaseCtrl } from './BaseCtrl'
 import { NodeUpdateValue } from '../services/content/node/values'
 import { validateNodeUpdate } from '../services/content/node'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
-import { NodeService, FavoriteService, EntityService, ContentAccessService } from '../services'
-import { hasContentPermission } from '../services/content-access'
-import { ContentEntity } from '../root/types'
+import { NodeService, FavoriteService } from '../services'
+import { hasNodePermission } from '../services/content-access'
 
 export class NodeCtrl extends BaseCtrl {
   private nodeService: NodeService
   private favoriteService: FavoriteService
-  private entityService: EntityService
-  private contentAccessService: ContentAccessService
 
   constructor() {
     super()
     this.nodeService = ServiceFactory.getInstance().getNodeService()
     this.favoriteService = ServiceFactory.getInstance().getFavoriteService()
-    this.entityService = ServiceFactory.getInstance().getEntityService()
-    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
   }
 
   async update(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id))
-    const entity = await this.entityService.requireEntityByNameAndId(node.type, node.contentId)
 
-    await hasContentPermission('update', entity, req.user.id)
+    this.nodeService.verifyUpdate(node)
+    await hasNodePermission('update', node, req.user.id)
 
     const data = req.body.data
     await validateNodeUpdate(data)
@@ -46,9 +41,9 @@ export class NodeCtrl extends BaseCtrl {
 
   async archive(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id))
-    const entity = await this.entityService.requireEntityByNameAndId(node.type, node.contentId)
 
-    await hasContentPermission('archive', entity, req.user.id)
+    this.nodeService.verifyArchive(node)
+    await hasNodePermission('archive', node, req.user.id)
 
     const resutl = await this.nodeService.archive(node.id, req.user.id)
     res.send(this.responseData(resutl))
@@ -56,9 +51,9 @@ export class NodeCtrl extends BaseCtrl {
 
   async restore(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
-    const entity = await this.entityService.requireEntityByNameAndId(node.type, node.contentId, { withDeleted: true })
 
-    await hasContentPermission('restore', entity, req.user.id)
+    this.nodeService.verifyRestore(node)
+    await hasNodePermission('restore', node, req.user.id)
 
     const result = await this.nodeService.restore(node.id, req.user.id)
     res.send(this.responseData(result))
@@ -67,12 +62,8 @@ export class NodeCtrl extends BaseCtrl {
   async delete(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id), null, { withDeleted: true })
 
-    const entity = await this.entityService.requireEntityByNameAndId<ContentEntity>(node.type, node.contentId, {
-      withDeleted: true,
-    })
-
-    await hasContentPermission('delete', entity, req.user.id)
-    await this.contentAccessService.removeForEntity(entity)
+    this.nodeService.verifyRemove(node)
+    await hasNodePermission('delete', node, req.user.id)
 
     const result = await this.nodeService.remove(node.id, req.user.id)
     res.send(this.responseData(result))
@@ -80,9 +71,7 @@ export class NodeCtrl extends BaseCtrl {
 
   async addToFavorites(req: Request, res: Response) {
     const node = await this.nodeService.requireNodeById(Number(req.params.id))
-    const entity = await this.entityService.requireEntityByNameAndId(node.type, node.contentId)
-
-    await hasContentPermission('view', entity, req.user.id)
+    await hasNodePermission('view', node, req.user.id)
 
     const result = await this.favoriteService.addNode(node, req.user.id)
     res.send(this.responseData(result))

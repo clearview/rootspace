@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, Index, OneToOne, JoinColumn } from 'typeorm'
+import { Node } from './Node'
 
 @Entity('content_access')
 export class ContentAccess {
@@ -13,6 +14,10 @@ export class ContentAccess {
 
   @Column('integer')
   @Index()
+  nodeId: number
+
+  @Column('integer')
+  @Index()
   entityId: number
 
   @Column('varchar')
@@ -24,4 +29,11 @@ export class ContentAccess {
 
   @Column('boolean')
   public: boolean
+
+  @OneToOne(
+    () => Node,
+    (node) => node.contentAccess
+  )
+  @JoinColumn()
+  node: Node
 }
