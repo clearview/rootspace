@@ -12,7 +12,7 @@ export class NodeSubscriber implements EntitySubscriberInterface<Node> {
     const node = event.entity
 
     if (node.parent) {
-      node.position = (await getCustomRepository(NodeRepository).getNodeMaxPosition(node.parent.id)) + 1
+      node.position = (await getCustomRepository(NodeRepository).countParentChildrens(node.parent.id)) + 1
     }
   }
 }

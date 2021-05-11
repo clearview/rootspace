@@ -1,4 +1,5 @@
-export * from './ContentAccessService'
 export * from './values'
 export * from './validation'
+export * from './ContentAccessService'
 export * from './ContentPermissions'
+export * from './ContentAccessType'
