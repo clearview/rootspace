@@ -44,7 +44,7 @@
           <div class="action-line-text">Rename</div>
         </div>
         <div class="action-separator"></div>
-        <div class="action-line danger">
+        <div class="action-line danger" @click.prevent.stop="hide();deleteFileActionConfirm();">
           <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
           <div class="action-line-text">
             Delete
@@ -57,13 +57,26 @@
         </button>
       </template>
     </Popover>
+    <v-modal
+      title="Delete File"
+      :visible="deleteFile.visible"
+      confirmText="Yes"
+      @cancel="deleteFile.visible = false"
+      @confirm="deleteFileAction(fileCopy)"
+      portal="secondary"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to delete this file?
+      </div>
+    </v-modal>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
-import { FilesResource } from '@/types/resource'
+import { FilesResource, FilesItemResource } from '@/types/resource'
 import moment from 'moment'
+import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
 
@@ -71,7 +84,8 @@ import LabelEditable from '@/components/LabelEditable.vue'
   name: 'FileListView',
   components: {
     Popover,
-    LabelEditable
+    LabelEditable,
+    VModal
   },
   filters: {
     formatFileSize (num: number) {
@@ -113,6 +127,11 @@ export default class FileListView extends Vue {
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }
+  private deleteFile: any = {
+    visible: false,
+    id: null,
+    alert: null
+  }
 
   get isFileImage () {
     return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(this.fileCopy.mimetype) !== -1
@@ -128,6 +147,15 @@ export default class FileListView extends Vue {
     } else {
       this.isActionOpened = false
     }
+  }
+
+  deleteFileActionConfirm () {
+    this.deleteFile.visible = true
+  }
+
+  async deleteFileAction (file: FilesItemResource) {
+    this.deleteFile.visible = false
+    await this.$store.dispatch('files/destroy', file.id)
   }
 
   formatDate (fileDate: Date | string) {

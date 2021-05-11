@@ -45,12 +45,13 @@ const FilesModule: Module<FilesState, RootState> = {
       return res
     },
 
-    async destroy (_, data: FilesResource) {
-      if (!data.id) {
+    async destroy (_, id: FilesItemResource) {
+      if (!id) {
         throw new Error('ID is not defined')
       }
 
-      await FilesService.destroy(data.id)
+      const res = await api.delete(`/uploads/${id}`)
+      return res
     },
 
     async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File, config: any }) {
