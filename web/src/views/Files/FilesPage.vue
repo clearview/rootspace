@@ -15,6 +15,40 @@
         Files <span v-if="files.uploads">({{ files.uploads.length }})</span>
       </h3>
       <div class="actions" v-if="files.uploads && files.uploads.length > 0">
+        <div class="action-group">
+          <label
+            class="action action--search"
+            :class="{ 'action__active': searchVisible }"
+            @click="searchVisible = true"
+            v-click-outside="closeSearch"
+          >
+            <mono-icon
+              name="search"
+              class="action--icon"
+            />
+
+            <div
+              v-if="searchVisible"
+              class="action--body"
+            >
+              <input
+                type="text"
+                placeholder="Search"
+                v-model="search"
+                @input="lazyFetchFiles"
+                @keydown.esc="clearSearch"
+              >
+
+              <button
+                v-if="search"
+                class="action--search--close"
+                @click.stop="clearSearch"
+              >
+                <mono-icon name="close" />
+              </button>
+            </div>
+          </label>
+        </div>
         <div class="action-group action-group--view">
           <div
             class="action mr-3"
@@ -84,6 +118,7 @@
 
 <script lang="ts">
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
+import { debounce } from 'helpful-decorators'
 import { Optional } from '@/types/core'
 import FileItem from '@/views/Files/FileItem.vue'
 
@@ -105,6 +140,8 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   private isUploading = false
   private isCapturingFile = false
   private isFetching = false
+  private search = ''
+  private searchVisible = false
 
   get id () {
     return Number(this.$route.params.id)
@@ -124,13 +161,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   pickFile () {
     this.attachmentFileRef.click()
-  }
-
-  async created () {
-    await this.$nextTick()
-
-    this.pageTitle = null
-    this.pageReady = true
   }
 
   captureDragFile () {
@@ -153,6 +183,24 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   viewAsGrid () {
     this.$store.commit('files/setViewAs', 2)
+  }
+
+  clearSearch () {
+    this.search = ''
+    this.fetchFiles()
+  }
+
+  closeSearch () {
+    if (this.search) return
+
+    this.searchVisible = false
+  }
+
+  async created () {
+    await this.$nextTick()
+
+    this.pageTitle = null
+    this.pageReady = true
   }
 
   async refresh () {
@@ -217,6 +265,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         this.pageReady = true
       }
     } catch { }
+  }
+
+  @debounce(500)
+  async lazyFetchFiles () {
+    await this.fetchFiles()
   }
 
   @Watch('id', { immediate: true })
@@ -320,6 +373,43 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   &:last-child {
     padding-right: 0;
+  }
+}
+
+.action--search {
+  &.action__active {
+    width: 304px;
+    box-shadow: 0 0 2px 2px #8cd5ff;
+    border-radius: 4px;
+    background: white;
+    color: #444754;
+  }
+
+  input {
+    width: 100%;
+    outline: none;
+  }
+
+  .action--body {
+    display: flex;
+    flex-flow: row;
+    position: relative;
+    width: 100%;
+    z-index: 110;
+  }
+
+  .action--search--close {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    background-color: #F4F5F7;
+    outline: none;
+    font-size: 12px;
+    stroke-width: 2px;
   }
 }
 

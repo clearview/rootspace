@@ -36,10 +36,10 @@ export interface FilesResource extends ApiResource {
 export interface FilesItemResource extends ApiResource {
   id: number;
   userId: number | null;
+  user: UserResource | null;
   spaceId: number | null;
   filename: string;
   name: string;
-  user: UserResource[] | null;
 }
 
 /**
