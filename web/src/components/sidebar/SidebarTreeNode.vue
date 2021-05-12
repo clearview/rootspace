@@ -217,13 +217,17 @@ export default class SidebarTreeNode extends Vue {
   get to (): Location {
     const { contentId } = this.payload
 
+    let name = nodeRouteNames[this.type] as string
+    if (this.value.config?.novaDoc === true) {
+      name = 'Novadoc'
+    }
     const params: Dictionary<string> = {}
 
     if (contentId) {
       params.id = contentId.toString()
     }
 
-    return { name: 'Novadoc', params }
+    return { name, params }
   }
 
   get wrapper (): WrapperConfig {
