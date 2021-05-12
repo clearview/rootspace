@@ -5,6 +5,7 @@
         <file-list-view
           :file="file"
           :index="index"
+          @deleted="refreshParent"
         />
        </div>
     </div>
@@ -13,6 +14,7 @@
         <file-grid-view
           :file="file"
           :index="index"
+          @deleted="refreshParent"
         />
       </div>
     </div>
@@ -43,6 +45,10 @@ export default class FileItem extends Vue {
 
   get prefferedView (): FilesViewType {
     return this.$store.state.files.viewAs
+  }
+
+  refreshParent () {
+    this.$emit('deleted')
   }
 }
 </script>

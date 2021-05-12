@@ -4,6 +4,7 @@ import { RootState, FilesState } from '@/types/state'
 import { FilesResource, FilesItemResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
 import FilesService from '@/services/files'
+import UploadService from '@/services/upload'
 
 const FilesModule: Module<FilesState, RootState> = {
   namespaced: true,
@@ -41,8 +42,7 @@ const FilesModule: Module<FilesState, RootState> = {
     },
 
     async update (_, payload: { id: number, data: FilesItemResource }) {
-      const res = await api.patch(`/uploads/${payload.id}`, payload)
-      return res
+      return await UploadService.update(payload.id, payload.data)
     },
 
     async destroy (_, id: FilesItemResource) {
@@ -50,8 +50,7 @@ const FilesModule: Module<FilesState, RootState> = {
         throw new Error('ID is not defined')
       }
 
-      const res = await api.delete(`/uploads/${id}`)
-      return res
+      return await UploadService.destroy(id)
     },
 
     async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File, config: any }) {

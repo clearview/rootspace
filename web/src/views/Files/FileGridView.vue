@@ -158,6 +158,7 @@ export default class FileListView extends Vue {
   async deleteFileAction (file: FilesItemResource) {
     this.deleteFile.visible = false
     await this.$store.dispatch('files/destroy', file.id)
+    this.$emit('deleted')
   }
 
   formatDate (fileDate: Date | string) {
@@ -269,6 +270,7 @@ export default class FileListView extends Vue {
   @apply p-5;
 }
 h3 {
+  @apply truncate;
   font-size: 1rem;
   font-weight: bold;
 }

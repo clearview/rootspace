@@ -58,7 +58,7 @@
     </header>
     <div class="content">
       <div class="files-wrapper" v-if="files.uploads && files.uploads.length > 0">
-        <FileItem :item="files" />
+        <FileItem :item="files" @deleted="refresh" />
       </div>
       <div class="empty-file" v-else>
         <div class="content">
@@ -153,6 +153,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   viewAsGrid () {
     this.$store.commit('files/setViewAs', 2)
+  }
+
+  async refresh () {
+    await this.fetchFiles()
   }
 
   async processDragFile (e: DragEvent) {
