@@ -218,7 +218,7 @@ export default class SidebarTreeNode extends Vue {
     const { contentId } = this.payload
 
     let name = nodeRouteNames[this.type] as string
-    if (this.value.config?.novaDoc === true) {
+    if (this.payload.type === 'doc') {
       name = 'Novadoc'
     }
     const params: Dictionary<string> = {}
