@@ -22,7 +22,7 @@
       <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
       <div v-if="!isRenaming">
-        Added by • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+        Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
     <div class="download-file" @click="downloadFile(fileCopy.location)"  v-if="!isRenaming">

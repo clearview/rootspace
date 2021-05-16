@@ -4,6 +4,7 @@ import { RootState, FilesState } from '@/types/state'
 import { FilesResource, FilesItemResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
 import FilesService from '@/services/files'
+import UserService from '@/services/user'
 import UploadService from '@/services/upload'
 
 const FilesModule: Module<FilesState, RootState> = {
@@ -34,6 +35,13 @@ const FilesModule: Module<FilesState, RootState> = {
     async view ({ commit }, id: number) {
       const res = await FilesService.view(id)
 
+      const uploadLists = res.data.uploads
+      // Loop to get the user detail
+      for (let i = 0; i < uploadLists.length; i++) {
+        const uploadItem = uploadLists[i]
+        const resUser = await UserService.getProfile(uploadItem.userId)
+        uploadItem.username = `${resUser.firstName} ${resUser.lastName}`
+      }
       commit('setItem', res.data)
     },
 

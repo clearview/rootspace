@@ -56,7 +56,7 @@
       </h3>
       <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
-      Added by • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+      Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
     </div>
     <v-modal
       title="Delete File"

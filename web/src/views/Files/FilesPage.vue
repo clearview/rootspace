@@ -126,7 +126,7 @@ import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import { FilesSettings } from '@/store/modules/files/settings'
 
-import { FilesResource, FilesViewType } from '../../types/resource'
+import { FilesResource, FilesViewType, FilesItemResource } from '../../types/resource'
 
 @Component({
   components: {
@@ -147,7 +147,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     return Number(this.$route.params.id)
   }
 
-  get files (): FilesResource | null {
+  get files (): FilesItemResource | null {
     return this.$store.state.files.item
   }
 
