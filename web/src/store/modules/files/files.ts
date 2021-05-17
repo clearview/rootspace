@@ -53,7 +53,7 @@ const FilesModule: Module<FilesState, RootState> = {
       return await UploadService.update(payload.id, payload.data)
     },
 
-    async destroy (_, id: FilesItemResource) {
+    async destroy (_, id: number) {
       if (!id) {
         throw new Error('ID is not defined')
       }
