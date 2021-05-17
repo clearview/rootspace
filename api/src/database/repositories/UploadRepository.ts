@@ -1,4 +1,5 @@
 import { Brackets, EntityRepository } from 'typeorm'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 import { UploadsFilter } from '../../shared/types/UploadsFilter'
 import { Upload } from '../entities/Upload'
 import { BaseRepository } from './BaseRepository'
@@ -12,7 +13,12 @@ export class UploadRepository extends BaseRepository<Upload> {
       .getOne()
   }
 
-  getUploadsByEntity(entity: string, entityId: number, filter: UploadsFilter = {}): Promise<Upload[]> {
+  getUploadsByEntity(
+    entity: string,
+    entityId: number,
+    filter: UploadsFilter = {},
+    options: QueryOptions = {}
+  ): Promise<Upload[]> {
     const query = this.createQueryBuilder('upload')
       .where('upload.entityId = :entityId', { entityId })
       .andWhere('upload.entity = :entity', { entity })
@@ -24,6 +30,14 @@ export class UploadRepository extends BaseRepository<Upload> {
           qb.orWhere('upload.filename ILIKE :filename', { filename: `%${filter.search}%` })
         })
       )
+    }
+
+    if (options.offset) {
+      query.offset(options.offset)
+    }
+
+    if (options.limit) {
+      query.limit(options.limit)
     }
 
     return query.getMany()

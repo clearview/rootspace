@@ -10,6 +10,7 @@ import {
 } from '../services/content/storage'
 import { UploadEntity } from '../services/upload'
 import { UploadsFilter } from '../shared/types/UploadsFilter'
+import { QueryOptions } from '../shared/types/DBQueryOptions'
 
 export class StorageCtrl extends BaseCtrl {
   private storageService: StorageService
@@ -33,12 +34,21 @@ export class StorageCtrl extends BaseCtrl {
     this.isSpaceMember(req, storage.spaceId)
 
     const filter: UploadsFilter = {}
+    const options: QueryOptions = {}
 
     if (req.query.search) {
       filter.search = String(req.query.search)
     }
 
-    const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter)
+    if (req.query.offset) {
+      options.offset = Number(req.query.offset)
+    }
+
+    if (req.query.limit) {
+      options.limit = Number(req.query.limit)
+    }
+
+    const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter, options)
     res.send(this.responseBody(files))
   }
 

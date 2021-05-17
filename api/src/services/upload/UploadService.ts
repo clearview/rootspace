@@ -20,6 +20,7 @@ import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
 import { UploadsFilter } from '../../shared/types/UploadsFilter'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -67,8 +68,13 @@ export class UploadService extends Service {
     return this.getUploadRepository().getUploadByEntity(entity, entityId)
   }
 
-  getUploadsByEntity(entityId: number, entity: string, filter: UploadsFilter = {}): Promise<Upload[]> {
-    return this.getUploadRepository().getUploadsByEntity(entity, entityId, filter)
+  getUploadsByEntity(
+    entityId: number,
+    entity: string,
+    filter: UploadsFilter = {},
+    options: QueryOptions = {}
+  ): Promise<Upload[]> {
+    return this.getUploadRepository().getUploadsByEntity(entity, entityId, filter, options)
   }
 
   async upload(data: UploadValue, actorId: number) {
