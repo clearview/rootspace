@@ -19,6 +19,7 @@ import { TaskActivity } from '../activity/activities/content'
 import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
+import { UploadsFilter } from '../../shared/types/UploadsFilter'
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -63,7 +64,11 @@ export class UploadService extends Service {
   }
 
   getUploadByEntity(entityId: number, entity: string): Promise<Upload | undefined> {
-    return this.getUploadRepository().getByEntity(entity, entityId)
+    return this.getUploadRepository().getUploadByEntity(entity, entityId)
+  }
+
+  getUploadsByEntity(entityId: number, entity: string, filter: UploadsFilter = {}): Promise<Upload[]> {
+    return this.getUploadRepository().getUploadsByEntity(entity, entityId, filter)
   }
 
   async upload(data: UploadValue, actorId: number) {

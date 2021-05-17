@@ -1,7 +1,6 @@
-import { ForbiddenError } from '@casl/ability'
-import { NextFunction, Request, Response } from 'express'
+import { Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
-import { StorageService } from '../services'
+import { StorageService, UploadService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import {
   StorageCreateValue,
@@ -9,21 +8,38 @@ import {
   validateStorageCreate,
   validateStorageUpdate,
 } from '../services/content/storage'
-import { Actions, Subjects } from '../middleware/AuthMiddleware'
+import { UploadEntity } from '../services/upload'
+import { UploadsFilter } from '../shared/types/UploadsFilter'
 
 export class StorageCtrl extends BaseCtrl {
   private storageService: StorageService
+  private uploadService: UploadService
 
   constructor() {
     super()
     this.storageService = ServiceFactory.getInstance().getStorageService()
+    this.uploadService = ServiceFactory.getInstance().getUploadService()
   }
 
   async view(req: Request, res: Response) {
     const storage = await this.storageService.getByIdWithUploads(Number(req.params.id))
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, storage ? storage : Subjects.Storage)
+    this.isSpaceMember(req, storage.spaceId)
 
-    res.send(this.responseData(storage))
+    res.send(this.responseBody(storage))
+  }
+
+  async files(req: Request, res: Response) {
+    const storage = await this.storageService.requireById(Number(req.params.id))
+    this.isSpaceMember(req, storage.spaceId)
+
+    const filter: UploadsFilter = {}
+
+    if (req.query.search) {
+      filter.search = String(req.query.search)
+    }
+
+    const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter)
+    res.send(this.responseBody(files))
   }
 
   async create(req: Request, res: Response) {
@@ -33,9 +49,9 @@ export class StorageCtrl extends BaseCtrl {
     this.isSpaceMember(req, data.spaceId)
 
     const value = StorageCreateValue.fromObjectAndUserId(data, Number(req.user.id))
-
     const result = await this.storageService.create(value)
-    res.send(this.responseData(result))
+
+    res.send(this.responseBody(result))
   }
 
   async update(req: Request, res: Response) {
@@ -45,42 +61,41 @@ export class StorageCtrl extends BaseCtrl {
     await validateStorageUpdate(data)
 
     const storage = await this.storageService.requireById(id)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Update, storage)
+    this.isSpaceMember(req, storage.spaceId)
 
     const value = StorageUpdateValue.fromObject(data)
 
     const result = await this.storageService.update(value, id, req.user.id)
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
   }
 
   async archive(req: Request, res: Response) {
     const id = Number(req.params.id)
 
     const storage = await this.storageService.requireById(id)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, storage)
+    this.isSpaceMember(req, storage.spaceId)
 
     const result = await this.storageService.archive(id, req.user.id)
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
   }
 
   async restore(req: Request, res: Response) {
     const id = Number(req.params.id)
 
     const storage = await this.storageService.requireById(id, { withDeleted: true })
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, storage)
+    this.isSpaceMember(req, storage.spaceId)
 
     const result = await this.storageService.restore(id, req.user.id)
-
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
   }
 
   async delete(req: Request, res: Response) {
     const id = Number(req.params.id)
 
     const storage = await this.storageService.requireById(id)
-    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Delete, storage)
+    this.isSpaceMember(req, storage.spaceId)
 
     const result = await this.storageService.remove(id, req.user.id)
-    res.send(this.responseData(result))
+    res.send(this.responseBody(result))
   }
 }
