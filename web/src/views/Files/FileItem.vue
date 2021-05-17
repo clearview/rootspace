@@ -17,6 +17,24 @@
           @deleted="refreshParent"
         />
       </div>
+      <div class="file-item" v-if="isUploading">
+        <div class="progress-wrapper">
+          <radial-progress-bar
+            :diameter="111"
+            :completedSteps="tempFile.progress"
+            innerStrokeColor="#dee2ee"
+            startColor="#8cd5ff"
+            stopColor="#8cd5ff"
+            :strokeWidth="5"
+            :innerStrokeWidth="5"
+            :totalSteps="100" >
+            <span>{{ tempFile.progress }} %</span>
+          </radial-progress-bar>
+        </div>
+        <div class="content">
+          {{ tempFile.name }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,6 +42,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { FilesResource, FilesViewType } from '@/types/resource'
+import RadialProgressBar from 'vue-radial-progress'
 import FileListView from '@/views/Files/FileListView.vue'
 import FileGridView from '@/views/Files/FileGridView.vue'
 
@@ -31,13 +50,20 @@ import FileGridView from '@/views/Files/FileGridView.vue'
   name: 'FileItem',
   components: {
     FileListView,
-    FileGridView
+    FileGridView,
+    RadialProgressBar
   }
 })
 
 export default class FileItem extends Vue {
   @Prop({ type: Object, required: true })
   private readonly item!:FilesResource
+
+  @Prop({ type: Boolean, required: true })
+  private readonly isUploading
+
+  @Prop({ type: Object, required: true })
+  private readonly tempFile
 
   get isList (): boolean {
     return this.prefferedView === FilesViewType.List
@@ -54,4 +80,17 @@ export default class FileItem extends Vue {
 </script>
 
 <style lang="postcss" scoped>
+.file-item {
+  @apply flex flex-col;
+  border: 1px solid #DEE2EE;
+  border-radius: 4px;
+  .progress-wrapper {
+    @apply flex flex-wrap justify-center content-center w-full h-full;
+  }
+  .content {
+    @apply p-5 truncate;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+}
 </style>

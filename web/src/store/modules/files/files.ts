@@ -80,7 +80,6 @@ const FilesModule: Module<FilesState, RootState> = {
       if (!payload.item.uploads) {
         payload.item.uploads = []
       }
-      payload.item.uploads.push(res.data.data)
       commit('setProcessing', false)
       return res
     }

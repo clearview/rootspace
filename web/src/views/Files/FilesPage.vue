@@ -92,7 +92,7 @@
     </header>
     <div class="content">
       <div class="files-wrapper" v-if="files.uploads && files.uploads.length > 0">
-        <FileItem :item="files" @deleted="refresh" />
+        <FileItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
       </div>
       <div class="empty-file" v-else>
         <div class="content">
@@ -142,6 +142,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   private isFetching = false
   private search = ''
   private searchVisible = false
+  private tempFile = {}
 
   get id () {
     return Number(this.$route.params.id)
@@ -231,10 +232,12 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     const files = this.attachmentFileRef.files
     if (files) {
       this.isUploading = true
-      const myUploadProgress = (myFileId) => (progress) => {
+      const myUploadProgress = (myFile) => (progress) => {
         const percentage = Math.floor((progress.loaded * 100) / progress.total)
-        console.log(myFileId)
-        console.log(percentage)
+        this.tempFile = {
+          name: myFile.name,
+          progress: percentage
+        }
       }
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i)
@@ -249,6 +252,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
           })
         }
       }
+      await this.fetchFiles()
       this.isUploading = false
     }
   }
