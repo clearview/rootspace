@@ -76,7 +76,7 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
       return true
     }
 
-    if (settings.preferences.notifications?.email === true || 1) {
+    if (settings.preferences.receiveEmail === true) {
       return true
     }
 

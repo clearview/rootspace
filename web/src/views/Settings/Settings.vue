@@ -8,10 +8,18 @@
           <router-link :to="{name: 'SettingsAccount'}">My Account</router-link>
         </li>
         <permission role="admin">
-          <li  :class="{ active: $route.name === 'SettingsSpace' }">
-            <router-link :to="{name: 'SettingsSpace'}">Space</router-link>
+          <li :class="{ active: $route.name === 'SettingsSpace' }">
+            <router-link :to="{name: 'SettingsSpace'}">Space Info</router-link>
           </li>
         </permission>
+        <permission role="admin">
+          <li :class="{ active: $route.name === 'SettingsMembers' }">
+            <router-link :to="{name: 'SettingsMembers'}">Members</router-link>
+          </li>
+        </permission>
+        <li :class="{ active: $route.name === 'SettingsNotifications' }">
+          <router-link :to="{name: 'SettingsNotifications'}">Notifications</router-link>
+        </li>
       </ul>
 
       <div class="settings-content">
@@ -119,7 +127,7 @@ export default class Settings extends Mixins(PageMixin) {
   }
 
   .settings-content {
-
+    padding-left: 1.2rem;
   }
 
 </style>
