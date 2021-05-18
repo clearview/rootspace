@@ -3,7 +3,7 @@
     <Alert v-model="alertData" />
     <div class="field">
       <button-switch v-model="payload.receiveEmail" @input="submit" />
-      <div class="label">Recieve email notification</div>
+      <div class="label">Recieve email notifications</div>
     </div>
   </div>
   <div v-else>

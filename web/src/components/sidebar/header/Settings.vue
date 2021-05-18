@@ -28,10 +28,10 @@
           </div>
         </router-link>
       </permission>
-      <router-link :to="{name: 'SettingsNotification'}" class="action-line" @click.native="hide()">
+      <router-link :to="{name: 'SettingsNotifications'}" class="action-line" @click.native="hide()">
         <mono-icon class="action-icon" name="bell"/>
         <div class="action-line-text" >
-          Notification
+          Notifications
         </div>
       </router-link>
     </template>

@@ -41,9 +41,9 @@ const routes: Array<RouteConfig> = [
             component: () => import(/* webpackChunkName: "settings-space-members" */ '../views/Settings/SpaceMembers.vue')
           },
           {
-            path: 'space/notification',
-            name: 'SettingsNotification',
-            component: () => import(/* webpackChunkName: "settings-space-notification" */ '../views/Settings/SpaceNotification.vue')
+            path: 'space/notifications',
+            name: 'SettingsNotifications',
+            component: () => import(/* webpackChunkName: "settings-space-notification" */ '../views/Settings/SpaceNotifications.vue')
           }
         ]
       },
