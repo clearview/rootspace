@@ -32,7 +32,21 @@ export class UserSettingService {
     return this.getUserSettingRepository().getOne(userId, spaceId)
   }
 
-  async updateSettings(userId: number, spaceId?: number, data?: any): Promise<UserSetting> {
+  async updateSettingsUi(userId: number, spaceId?: number, data?: any): Promise<UserSetting> {
+    let settings = await this.getSettings(userId, spaceId)
+
+    if (!settings) {
+      settings = await this.createSettings(userId, spaceId, data)
+    }
+
+    settings.ui = data
+
+    settings = await this.getUserSettingRepository().save(settings)
+
+    return settings
+  }
+
+  async updateSettingsPreferences(userId: number, spaceId?: number, data?: any): Promise<UserSetting> {
     let settings = await this.getSettings(userId, spaceId)
 
     if (!settings) {
@@ -55,7 +69,12 @@ export class UserSettingService {
     }
 
     if (data) {
-      settings.preferences = data
+      settings.ui = data.ui
+      delete data.ui
+    }
+
+    if (data?.preferences) {
+      settings.preferences = data.preferences
     }
 
     return this.getUserSettingRepository().save(settings)

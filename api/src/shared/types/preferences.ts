@@ -1,12 +1,12 @@
-import { UserSetting } from '../../database/entities/UserSetting'
-import { Notifications } from './preferences/notifications'
+export interface UIData {
+  activePage: string,
+  sidebarCollapse: boolean,
+  sidebarSize: number,
+  treeFolded: object,
+  taskViewAs: object,
+  taskSeenViewTip: boolean
+}
 
-export class Preferences {
-  notifications: Notifications
-
-   constructor(userSetting: UserSetting) {
-     const userPreferences = userSetting.preferences
-
-     Object.assign(this, userPreferences)
-  }
+export interface Preferences {
+  receiveEmail: boolean
 }

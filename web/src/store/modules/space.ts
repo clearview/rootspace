@@ -3,6 +3,7 @@ import { get, isEmpty } from 'lodash'
 
 import { RootState, SpaceState } from '@/types/state'
 import SpaceService from '@/services/space'
+import UserUISettingService from '@/services/userUISetting'
 import { SpaceResource, SpaceSettingResource } from '@/types/resource'
 
 import api from '@/utils/api'
@@ -134,7 +135,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
     },
 
     async initSetting ({ commit, dispatch, state, getters }) {
-      const { data } = await api.get('/users/settings/')
+      const data = await UserUISettingService.fetch()
       const activeIndex = get(data, 'preferences.activeIndex', 0)
 
       if (activeIndex !== state.activeIndex) {
@@ -147,8 +148,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
     async fetchSetting ({ commit, getters }, id: number) {
       const index = getters.getIndex(id)
 
-      const res = await api.get('/users/settings/' + id)
-      const data = get(res, 'data.preferences', {})
+      const data = await UserUISettingService.fetch()
 
       commit('updateSettingsItem', { index, data })
 
@@ -162,9 +162,11 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
       commit('updateSettingsItem', { index, data: payload.data })
 
-      const res = await api.put('/users/settings/' + payload.id, getters.getSettingByIndex(index))
+      const data = await UserUISettingService.update({
+        data: getters.getSettingByIndex(index)
+      })
 
-      return res.data
+      return data
     },
 
     async activate ({ commit, dispatch, state, getters }, id: number) {
@@ -175,7 +177,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
       if (index !== state.activeIndex) {
         commit('setActiveIndex', index)
 
-        await api.put('/users/settings/', { activeIndex: index })
+        await api.patch('/users/settings/ui/', { activeIndex: index })
       }
     },
 
