@@ -7,7 +7,7 @@ import {
   TaskListResource,
   TaskItemResource,
   DocumentResource,
-  FilesResource,
+  StorageResource,
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
@@ -31,7 +31,7 @@ export interface RootState {
   nav: SidebarState;
   sidebar: SidebarState;
   task: TaskState;
-  files: FilesState;
+  files: StorageState;
   option: OptionState;
   space: SpaceState;
   tree: TreeState;
@@ -93,8 +93,8 @@ export interface DocumentState {
   payload: DocumentResource[];
   deferredParent: NodeResource | null;
 }
-export interface FilesState {
-  item: FilesResource | null;
+export interface StorageState {
+  item: StorageResource | null;
   processing: boolean;
   viewAs: number;
 }

@@ -1,15 +1,15 @@
 <template>
   <form-menu
     class="form-menu"
-    title="Files"
-    @add="$refs.formFiles.submit()"
+    title="Storage"
+    @add="$refs.formStorage.submit()"
     @back="$emit('select', 'index')"
-    description="Please enter name to create a files">
+    description="Please enter name to create a storage">
     <template>
-      <form-files
-        @submit="addFiles"
+      <form-storage
+        @submit="addStorage"
         :space="activeSpace.id"
-        ref="formFiles"
+        ref="formStorage"
       />
     </template>
   </form-menu>
@@ -19,7 +19,7 @@
 import { Vue, Component } from 'vue-property-decorator'
 
 import FormMenu from '@/components/form/FormMenu.vue'
-import FormFiles from '@/components/form/FormFiles.vue'
+import FormStorage from '@/components/form/FormStorage.vue'
 
 import {
   SpaceResource,
@@ -27,20 +27,20 @@ import {
 } from '@/types/resource'
 
 @Component({
-  name: 'FilesMenu',
+  name: 'StorageMenu',
   components: {
     FormMenu,
-    FormFiles
+    FormStorage
   }
 })
 
-export default class FilesMenu extends Vue {
+export default class StorageMenu extends Vue {
   get activeSpace (): SpaceResource {
     return this.$store.getters['space/activeSpace']
   }
 
-  addFiles (data: NodeResource) {
-    this.$emit('submit-files', data)
+  addStorage (data: NodeResource) {
+    this.$emit('submit-storage', data)
   }
 }
 </script>

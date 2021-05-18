@@ -1,6 +1,6 @@
 import api from '@/utils/api'
 
-import { FilesResource } from '@/types/resource'
+import { StorageResource } from '@/types/resource'
 
 export interface FetchParams {
   spaceId: number;
@@ -11,14 +11,14 @@ export interface FetchParams {
   };
 }
 
-export default class FilesService {
+export default class StorageService {
   static async fetch ({ spaceId, ...params }: FetchParams) {
-    const res = await api.get(`storages/${spaceId}`, { params })
+    const res = await api.get(`storages/${spaceId}/files`, { params })
 
     return res.data
   }
 
-  static async create (data: FilesResource) {
+  static async create (data: StorageResource) {
     const res = await api.post('storages', { data })
 
     return res.data
@@ -30,7 +30,7 @@ export default class FilesService {
     return res.data
   }
 
-  static async update (id: number, data: FilesResource) {
+  static async update (id: number, data: StorageResource) {
     const res = await api.patch(`storages/${id}`, { data })
 
     return res.data

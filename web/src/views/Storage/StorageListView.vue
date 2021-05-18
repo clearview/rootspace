@@ -1,52 +1,17 @@
 <template>
-  <div class="file-item"
+  <div
     v-if="fileCopy"
+    class="file-item"
     @mouseover="showAction(index)"
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
-    <div class="icon-thumbnail">
-      <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
-      <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
-      <div class="download-wrapper">
-        <span class="download-file" @click="downloadFile(fileCopy.location)">
-          <legacy-icon
-            name="download"
-            size="28px"
-            viewbox="16"
-          />
-        </span>
-      </div>
-      <Popover
-        class="file-item--action"
-        top="38px"
-        :offset="10"
-        :with-close="false"
-        @trigger="handleMenuTrigger">
-        <template #default="{ hide }">
-          <div class="action-line" @click.prevent.stop="copyURL(fileCopy.location);hide();">
-            <legacy-icon class="action-icon" name="copy" viewbox="16" size="18px"></legacy-icon>
-            <div class="action-line-text">Copy link</div>
-          </div>
-          <div class="action-line" @click.prevent.stop="hide();rename();">
-            <mono-icon class="action-icon" name="pencil"/>
-            <div class="action-line-text">Rename</div>
-          </div>
-          <div class="action-separator"></div>
-          <div class="action-line danger" @click.prevent.stop="hide();deleteFileActionConfirm();">
-            <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
-            <div class="action-line-text">
-              Delete
-            </div>
-          </div>
-        </template>
-        <template #trigger="{ visible }">
-          <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
-            <legacy-icon name="vertical-ellipsis" viewbox="20" size="1.25rem"/>
-          </button>
-        </template>
-      </Popover>
+    <div class="file-item--thumbnail" v-if="isFileImage">
+      <img :src="fileCopy.location" :alt="fileCopy.id">
     </div>
-    <div class="content">
+    <div class="file-item--icon" v-else>
+      <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
+    </div>
+    <div class="file-item--content">
       <h3>
         <label-editable
           class="truncate"
@@ -56,8 +21,42 @@
       </h3>
       <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
-      Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+      <div v-if="!isRenaming">
+        Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+      </div>
     </div>
+    <div class="download-file" @click="downloadFile(fileCopy.location)"  v-if="!isRenaming">
+      <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
+    </div>
+    <Popover
+      class="file-item--action"
+      top="38px"
+      :offset="10"
+      :with-close="false"
+      @trigger="handleMenuTrigger">
+      <template #default="{ hide }">
+        <div class="action-line" @click.prevent.stop="copyURL(fileCopy.location);hide();">
+          <legacy-icon class="action-icon" name="copy" viewbox="16" size="18px"></legacy-icon>
+          <div class="action-line-text">Copy link</div>
+        </div>
+        <div class="action-line" @click.prevent.stop="hide();rename();">
+          <mono-icon class="action-icon" name="pencil"/>
+          <div class="action-line-text">Rename</div>
+        </div>
+        <div class="action-separator"></div>
+        <div class="action-line danger" @click.prevent.stop="hide();deleteFileActionConfirm();">
+          <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
+          <div class="action-line-text">
+            Delete
+          </div>
+        </div>
+      </template>
+      <template #trigger="{ visible }">
+        <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
+          <legacy-icon name="vertical-ellipsis" viewbox="20" size="1.25rem"/>
+        </button>
+      </template>
+    </Popover>
     <v-modal
       title="Delete File"
       :visible="deleteFile.visible"
@@ -75,15 +74,14 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
-import { FilesResource, NewUploadResource } from '@/types/resource'
-
+import { StorageResource, NewUploadResource } from '@/types/resource'
+import moment from 'moment'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
-import moment from 'moment'
 
 @Component({
-  name: 'FileGridView',
+  name: 'StorageListView',
   components: {
     Popover,
     LabelEditable,
@@ -115,9 +113,9 @@ import moment from 'moment'
   }
 })
 
-export default class FileListView extends Vue {
+export default class StorageListView extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly file!:FilesResource
+  private readonly file!:StorageResource
 
   @Prop({ type: Number, required: true })
   private readonly index!: number;
@@ -157,8 +155,7 @@ export default class FileListView extends Vue {
 
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
-    await this.$store.dispatch('files/destroy', file.id)
-    this.$emit('deleted')
+    await this.$store.dispatch('storage/destroy', file.id)
   }
 
   formatDate (fileDate: Date | string) {
@@ -194,7 +191,7 @@ export default class FileListView extends Vue {
     } else {
       this.fileCopy.name = title.replace(/\s+/g, '-').replace(/\.[^/.]+$/, '')
       this.fileCopy.filename = title.replace(/\s+/g, '-')
-      await this.$store.dispatch('files/update', {
+      await this.$store.dispatch('storage/update', {
         id: this.fileCopy.id,
         data: {
           name: this.fileCopy.name,
@@ -212,27 +209,40 @@ export default class FileListView extends Vue {
 </script>
 
 <style lang="postcss" scoped>
+h3 {
+  @apply mb-2;
+  font-size: 1rem;
+  font-weight: bold;
+}
 .file-item {
-  @apply flex flex-col;
-  border: 1px solid #DEE2EE;
-  border-radius: 4px;
+  @apply flex flex-row p-5 items-center relative;
+  border-bottom: 1px solid #F8F8FB;
+  padding-right: 80px;
   &.hovered {
+    border-radius: 4px;
     background: #F8F8FB;
-    .download-wrapper, .file-item--action {
+    border-bottom: 1px solid #F8F8FB;
+    .file-item--action {
       display: flex;
     }
   }
 }
-.download-wrapper {
-  @apply flex-wrap justify-center content-center w-full h-full absolute;
-  display: none;
-  background: #F8F8FB;
-  .download-file { /* TODO : Change download icon color */
-    background: #DDF3FF;
-    padding: 16px 40px;
-    border-radius: 34px;
-    cursor: pointer;
+.file-item--thumbnail {
+  cursor: pointer;
+  @apply mr-6;
+  img {
+    @apply rounded;
+    width: 57px;
+    height: 44px;
+    object-fit: cover;
   }
+}
+.file-item--icon {
+  @apply mr-6;
+}
+.file-item--content {
+  @apply flex flex-col mr-auto w-full;
+  font-size: .813rem;
 }
 .file-item--action {
   display: none;
@@ -250,29 +260,13 @@ export default class FileListView extends Vue {
   border: 1px solid #AAB1C5;
   height: 32px;
 }
-.action-wrapper {
-  @apply absolute;
-  display: none;
-  top: -10px;
-  right: -10px;
-}
-.icon-thumbnail {
-  @apply flex flex-wrap justify-center content-center relative;
-  height: 150px;
-  img {
-    @apply rounded-t;
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
+.download-file {
+  background: #EDEFF3;
+  padding: 12.5px 20px;
+  border-radius: 24px;
+  &:hover {
+    background: #DDF3FF;
   }
-}
-.content {
-  @apply p-5;
-}
-h3 {
-  @apply truncate;
-  font-size: 1rem;
-  font-weight: bold;
 }
 .action-line {
   .action-icon {

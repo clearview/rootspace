@@ -92,7 +92,7 @@
     </header>
     <div class="content">
       <div class="files-wrapper" v-if="files.uploads && files.uploads.length > 0">
-        <FileItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
+        <StorageItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
       </div>
       <div class="empty-file" v-else>
         <div class="content">
@@ -119,18 +119,16 @@
 <script lang="ts">
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
-import { Optional } from '@/types/core'
-import FileItem from '@/views/Files/FileItem.vue'
+import StorageItem from '@/views/Storage/StorageItem.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
-import { FilesSettings } from '@/store/modules/files/settings'
 
-import { FilesResource, FilesViewType } from '../../types/resource'
+import { StorageResource, StorageViewType } from '../../types/resource'
 
 @Component({
   components: {
-    FileItem
+    StorageItem
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
@@ -148,16 +146,16 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     return Number(this.$route.params.id)
   }
 
-  get files (): FilesResource | null {
-    return this.$store.state.files.item
+  get files (): StorageResource | null {
+    return this.$store.state.storage.item
   }
 
   get isList (): boolean {
-    return this.prefferedView === FilesViewType.List
+    return this.prefferedView === StorageViewType.List
   }
 
-  get prefferedView (): FilesViewType {
-    return this.$store.state.files.viewAs
+  get prefferedView (): StorageViewType {
+    return this.$store.state.storage.viewAs
   }
 
   pickFile () {
@@ -179,11 +177,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   viewAsList () {
-    this.$store.commit('files/setViewAs', 1)
+    this.$store.commit('storage/setViewAs', 1)
   }
 
   viewAsGrid () {
-    this.$store.commit('files/setViewAs', 2)
+    this.$store.commit('storage/setViewAs', 2)
   }
 
   clearSearch () {
@@ -218,7 +216,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
       for (let i = 0; i < files.length; i++) {
         const file = files.item(i)
         if (file) {
-          await this.$store.dispatch('files/upload', {
+          await this.$store.dispatch('storage/upload', {
             item: this.files,
             file
           })
@@ -245,7 +243,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
           onUploadProgress: myUploadProgress(files[i])
         }
         if (file) {
-          await this.$store.dispatch('files/upload', {
+          await this.$store.dispatch('storage/upload', {
             item: this.files,
             file,
             config
@@ -260,7 +258,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   async fetchFiles () {
     this.isFetching = true
     try {
-      await this.$store.dispatch('files/view', this.id)
+      await this.$store.dispatch('storage/view', this.id)
       if (this.files) {
         if (!this.pageReady) {
           await this.activateSpace(this.files.spaceId)
@@ -279,7 +277,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   @Watch('id', { immediate: true })
   async watchId (id: number) {
-    await this.$store.dispatch('files/view', id)
+    await this.$store.dispatch('storage/view', id)
   }
 
   async mounted () {

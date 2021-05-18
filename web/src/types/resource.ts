@@ -23,7 +23,7 @@ export interface LinkResource {
   newTab: boolean;
   parentId?: number;
 }
-export interface FilesResource extends ApiResource {
+export interface StorageResource extends ApiResource {
   id: number;
   userId: number | null;
   spaceId: number | null;
@@ -86,7 +86,7 @@ export enum TaskBoardType {
   Kanban = 2
 }
 
-export enum FilesViewType {
+export enum StorageViewType {
   List = 1,
   Grid = 2
 }

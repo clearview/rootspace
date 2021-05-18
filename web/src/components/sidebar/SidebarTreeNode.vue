@@ -121,7 +121,7 @@ export enum NodeType {
   Task = 'taskBoard',
   Folder = 'folder',
   Embed = 'embed',
-  Storage = 'files'
+  Storage = 'storage'
 }
 
 export const nodeRouteNames = {
@@ -130,7 +130,7 @@ export const nodeRouteNames = {
   novaDoc: 'Novadoc',
   taskBoard: 'TaskPage',
   embed: 'Embed',
-  storage: 'Files',
+  storage: 'Storage',
   folder: ''
 } as const
 

@@ -3,12 +3,12 @@
     class="flex flex-col flex-1"
     @submit.prevent="submit"
   >
-    <v-field label="Files Name">
+    <v-field label="Storage Name">
       <input
         ref="initialInput"
         type="text"
         class="input"
-        placeholder="Enter files name"
+        placeholder="Enter storage name"
         v-model="payload.title"
       >
     </v-field>
@@ -34,7 +34,7 @@ import VField from '@/components/Field.vue'
 import { Component, Prop, Ref } from 'vue-property-decorator'
 
 @Component({
-  name: 'FormFiles',
+  name: 'FormStorage',
   components: {
     ButtonSwitch,
     VField
@@ -45,7 +45,7 @@ import { Component, Prop, Ref } from 'vue-property-decorator'
     }
   }
 })
-export default class FormFiles extends Vue {
+export default class FormStorage extends Vue {
   @Prop({ type: Object, default: () => ({}) })
   private readonly value!: any;
 

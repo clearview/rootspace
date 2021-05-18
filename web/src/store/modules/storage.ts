@@ -1,13 +1,13 @@
 import { Module } from 'vuex'
 
-import { RootState, FilesState } from '@/types/state'
-import { FilesResource, NewUploadResource } from '@/types/resource'
+import { RootState, StorageState } from '@/types/state'
+import { StorageResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
-import FilesService from '@/services/files'
+import StorageService from '@/services/storage'
 import UserService from '@/services/user'
 import UploadService from '@/services/upload'
 
-const FilesModule: Module<FilesState, RootState> = {
+const FilesModule: Module<StorageState, RootState> = {
   namespaced: true,
 
   state () {
@@ -33,7 +33,7 @@ const FilesModule: Module<FilesState, RootState> = {
 
   actions: {
     async view ({ commit }, id: number) {
-      const res = await FilesService.view(id)
+      const res = await StorageService.view(id)
 
       const uploadLists = res.data.uploads
       // Loop to get the user detail
@@ -45,8 +45,8 @@ const FilesModule: Module<FilesState, RootState> = {
       commit('setItem', res.data)
     },
 
-    async create (_, data: FilesResource) {
-      return await FilesService.create(data)
+    async create (_, data: StorageResource) {
+      return await StorageService.create(data)
     },
 
     async update (_, payload: { id: number, data: NewUploadResource }) {
@@ -61,7 +61,7 @@ const FilesModule: Module<FilesState, RootState> = {
       return await UploadService.destroy(id)
     },
 
-    async upload ({ commit, rootGetters }, payload: { item: FilesResource, file: File, config: any }) {
+    async upload ({ commit, rootGetters }, payload: { item: StorageResource, file: File, config: any }) {
       const activeSpace = rootGetters['space/activeSpace']
 
       if (!activeSpace) {

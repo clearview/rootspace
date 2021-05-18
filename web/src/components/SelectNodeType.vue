@@ -139,7 +139,7 @@
 
     <a
       class="SelectNodeType-option"
-      @click="$emit('select', 'files')"
+      @click="$emit('select', 'storage')"
     >
       <div class="SelectNodeType-icon">
         <legacy-icon
@@ -150,8 +150,8 @@
       </div>
 
       <div class="SelectNodeType-desc">
-        <h5>File</h5>
-        <p>Add a file anything you’d like.</p>
+        <h5>Storage</h5>
+        <p>Add a storage anything you’d like.</p>
       </div>
 
       <span class="arrow">
