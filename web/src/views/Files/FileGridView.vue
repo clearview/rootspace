@@ -75,7 +75,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
-import { FilesResource, FilesItemResource } from '@/types/resource'
+import { FilesResource, NewUploadResource } from '@/types/resource'
 
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
@@ -155,7 +155,7 @@ export default class FileListView extends Vue {
     this.deleteFile.visible = true
   }
 
-  async deleteFileAction (file: FilesItemResource) {
+  async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
     await this.$store.dispatch('files/destroy', file.id)
     this.$emit('deleted')

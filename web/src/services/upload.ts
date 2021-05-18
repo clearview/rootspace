@@ -1,6 +1,6 @@
 import api from '@/utils/api'
 
-import { FilesItemResource } from '@/types/resource'
+import { NewUploadResource } from '@/types/resource'
 
 export interface FetchParams {
   spaceId: number;
@@ -12,13 +12,13 @@ export interface FetchParams {
 }
 
 export default class UploadService {
-  static async create (data: FilesItemResource) {
+  static async create (data: NewUploadResource) {
     const res = await api.post('uploads', { data })
 
     return res.data
   }
 
-  static async update (id: number, data: FilesItemResource) {
+  static async update (id: number, data: NewUploadResource) {
     const res = await api.patch(`uploads/${id}`, { data })
 
     return res.data

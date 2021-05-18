@@ -1,7 +1,7 @@
 import { Module } from 'vuex'
 
 import { RootState, FilesState } from '@/types/state'
-import { FilesResource, FilesItemResource, NewUploadResource } from '@/types/resource'
+import { FilesResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
 import FilesService from '@/services/files'
 import UserService from '@/services/user'
@@ -49,7 +49,7 @@ const FilesModule: Module<FilesState, RootState> = {
       return await FilesService.create(data)
     },
 
-    async update (_, payload: { id: number, data: FilesItemResource }) {
+    async update (_, payload: { id: number, data: NewUploadResource }) {
       return await UploadService.update(payload.id, payload.data)
     },
 
