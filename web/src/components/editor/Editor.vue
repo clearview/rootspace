@@ -252,14 +252,6 @@ export default defineComponent({
   padding: 8px;
 }
 
-.readonly {
-  .content {
-    border: none;
-    padding: 8px 0;
-    min-height: 0;
-  }
-}
-
 .footer {
   display: flex;
   align-items: center;
@@ -319,6 +311,17 @@ export default defineComponent({
     color: #aaa;
     pointer-events: none;
     height: 0;
+  }
+}
+
+.readonly {
+  .content {
+    border: none;
+    padding: 8px 0;
+  }
+
+  .content >>> .ProseMirror {
+    min-height: 0;
   }
 }
 </style>
