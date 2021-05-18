@@ -1,48 +1,65 @@
 <template>
-  <form class="form" @submit.prevent="submit">
-    <v-field label="Recieve email notification" name="spacename" inline>
-      <button-switch v-model="payload.receiveEmail"/>
-    </v-field>
-
-    <div class="form-action">
-      <button
-        class="btn btn-primary"
-        type="submit"
-      >
-        Save
-      </button>
+  <div v-if="ready">
+    <Alert v-model="alertData" />
+    <div class="field">
+      <button-switch v-model="payload.receiveEmail" @input="submit" />
+      <div class="label">Recieve email notification</div>
     </div>
-  </form>
+  </div>
+  <div v-else>
+    Loading...
+  </div>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from '@vue/composition-api'
 import UserPreferenceService from '@/services/userPreference'
+import Alert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
-import VField from '@/components/Field.vue'
+
+interface AlertData {
+  type: 'success' | 'danger'
+  message: string
+}
 
 export default defineComponent({
   components: {
-    ButtonSwitch,
-    VField
+    Alert,
+    ButtonSwitch
   },
   setup (_, ctx) {
     const activeSpace = computed(() => ctx.root.$store.getters['space/activeSpace'] || {})
+    const ready = ref(false)
+    const alertData = ref<AlertData>()
     const payload = ref({
       receiveEmail: true
     })
 
     const submit = async () => {
-      await UserPreferenceService.update({
-        spaceId: activeSpace.value.id,
-        data: { ...payload.value }
-      })
+      try {
+        await UserPreferenceService.update({
+          spaceId: activeSpace.value.id,
+          data: { ...payload.value }
+        })
+
+        alertData.value = {
+          type: 'success',
+          message: 'Your setting has been saved'
+        }
+      } catch (e) {
+        alertData.value = {
+          type: 'danger',
+          message: e.message
+        }
+      }
     }
 
     onMounted(async () => {
       const preference = await UserPreferenceService.fetch(activeSpace.value.id)
 
-      if (preference.receiveEmail !== undefined) {
+      ready.value = true
+
+      if (preference && preference.receiveEmail !== undefined) {
         payload.value = {
           ...payload.value,
           receiveEmail: preference.receiveEmail
@@ -51,6 +68,8 @@ export default defineComponent({
     })
 
     return {
+      alertData,
+      ready,
       payload,
       submit
     }
@@ -59,13 +78,17 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.form >>> .control {
-  justify-content: flex-end;
+>>> .alert {
+  margin-bottom: 2em;
 }
 
-.form-action {
+.field {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  flex-flow: row;
+  align-items: center;
+
+  .label {
+    margin-left: 1em;
+  }
 }
 </style>

@@ -14,11 +14,11 @@
         </permission>
         <permission role="admin">
           <li :class="{ active: $route.name === 'SettingsMembers' }">
-            <router-link :to="{name: 'SettingsMembers'}">Space Members</router-link>
+            <router-link :to="{name: 'SettingsMembers'}">Members</router-link>
           </li>
         </permission>
         <li :class="{ active: $route.name === 'SettingsNotification' }">
-          <router-link :to="{name: 'SettingsNotification'}">Space Notification</router-link>
+          <router-link :to="{name: 'SettingsNotification'}">Notification</router-link>
         </li>
       </ul>
 

@@ -24,14 +24,14 @@
         <router-link :to="{name: 'SettingsMembers'}" class="action-line" @click.native="hide()">
           <mono-icon class="action-icon" name="space" />
           <div class="action-line-text">
-            Space Members
+            Members
           </div>
         </router-link>
       </permission>
       <router-link :to="{name: 'SettingsNotification'}" class="action-line" @click.native="hide()">
         <mono-icon class="action-icon" name="bell"/>
         <div class="action-line-text" >
-          Space Notification
+          Notification
         </div>
       </router-link>
     </template>
