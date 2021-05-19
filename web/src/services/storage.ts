@@ -2,18 +2,12 @@ import api from '@/utils/api'
 
 import { StorageResource } from '@/types/resource'
 
-export interface FetchParams {
-  spaceId: number;
-  limit: number;
-  offset: number;
-  sort: {
-    [field: string]: string;
-  };
+export interface SearchParams {
+  search: string;
 }
-
 export default class StorageService {
-  static async fetchItem (spaceId: number, params?: FetchParams) {
-    const res = await api.get(`storages/${spaceId}/files`, { params })
+  static async fetchItem (id: number, params?: SearchParams) {
+    const res = await api.get(`storages/${id}/files`, { params })
 
     return res.data
   }

@@ -277,7 +277,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   async fetchFiles () {
     this.isFetching = true
     try {
-      await this.$store.dispatch('storage/fetch', { id: this.id })
+      await this.$store.dispatch('storage/fetch', { id: this.id, search: this.search })
       if (this.files) {
         if (!this.pageReady) {
           await this.activateSpace(this.files.spaceId)

@@ -6,8 +6,9 @@ import api from '@/utils/api'
 import StorageService from '@/services/storage'
 import UserService from '@/services/user'
 import UploadService from '@/services/upload'
-interface FetchParams {
+type StorageContext = {
   id: number;
+  search: string;
 }
 
 const FilesModule: Module<StorageState, RootState> = {
@@ -44,17 +45,21 @@ const FilesModule: Module<StorageState, RootState> = {
       commit('setInfo', res.data)
     },
 
-    async fetch ({ commit }, params: FetchParams) {
-      const res = await StorageService.fetchItem(params.id)
+    async fetch ({ commit }, params: { id: number; search: string; }) {
+      const res = await api.get(`storages/${params.id}/files`, {
+        params: { search: params.search }
+      })
+      console.log('tes', res?.data.data)
+      // const res = await StorageService.fetchItem(params.id, search)
 
-      const uploadLists = res.data
+      const uploadLists = res?.data.data
       // Loop to get the user detail
       for (let i = 0; i < uploadLists.length; i++) {
         const uploadItem = uploadLists[i]
         const resUser = await UserService.getProfile(uploadItem.userId)
         uploadItem.username = `${resUser.firstName} ${resUser.lastName}`
       }
-      commit('setItem', res.data)
+      commit('setItem', res?.data.data)
     },
 
     async create (_, data: StorageResource) {
