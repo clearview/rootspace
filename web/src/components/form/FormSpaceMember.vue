@@ -337,7 +337,6 @@ export default class FormSpace extends Vue {
   }
 
   openProfile (user: UserResource) {
-    console.log(user)
     this.modal.open({
       component: ProfileModal,
       attrs: {

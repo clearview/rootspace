@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from '@vue/composition-api'
+import { computed, defineComponent, onMounted, ref, watch } from '@vue/composition-api'
 import UserPreferenceService from '@/services/userPreference'
 import Alert from '@/components/Alert.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
@@ -54,7 +54,7 @@ export default defineComponent({
       }
     }
 
-    onMounted(async () => {
+    const fetch = async () => {
       const preference = await UserPreferenceService.fetch(activeSpace.value.id)
 
       ready.value = true
@@ -65,7 +65,14 @@ export default defineComponent({
           receiveEmail: preference.receiveEmail
         }
       }
-    })
+    }
+
+    watch(
+      () => ctx.root.$store.state.space.activeIndex,
+      () => fetch()
+    )
+
+    onMounted(() => fetch())
 
     return {
       alertData,
