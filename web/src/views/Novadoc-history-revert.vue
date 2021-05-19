@@ -581,7 +581,7 @@ export default {
         const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
         if (!wsProviderUrl) {
-          console.log('process.env.VUE_APP_YWS_URL is missing')
+          throw new Error('process.env.VUE_APP_YWS_URL is missing')
         }
 
         this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)

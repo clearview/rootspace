@@ -12,7 +12,7 @@ export default class UserUISetting {
     try {
       const res = await api.get('users/settings/ui' + (spaceId || ''))
 
-      return res.data.data
+      return res.data
     } catch {
       return {}
     }
@@ -23,9 +23,9 @@ export default class UserUISetting {
     data
   }: UserUISettingUpdateData): Promise<SettingData> {
     try {
-      const res = await api.patch('users/settings/ui/' + (spaceId || ''), { data })
+      const res = await api.patch('users/settings/ui/' + (spaceId || ''), data)
 
-      return res.data.data.ui
+      return res.data.ui
     } catch {
       return {}
     }
