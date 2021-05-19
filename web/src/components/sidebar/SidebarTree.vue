@@ -820,9 +820,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
   async created () {
     this.socket = Primus.connect(this.$store.state.auth.token)
     this.socket.on('data', throttle(
-      (data) => {
-        console.log(data.spaceId)
-
+      () => {
         this.fetch()
 
         if (this.archiveNodeRef) {
