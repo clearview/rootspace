@@ -96,14 +96,12 @@ export class TaskRepository extends BaseRepository<Task> {
       .orderBy('comment.createdAt', 'DESC')
 
     if (searchParam) {
+      const search = searchParam.match(/\b(\w+)\b/g).join(' | ')
+
       searchQuery.andWhere(
         new Brackets((qb) => {
-          qb.where('LOWER(task.title) LIKE :searchParam', {
-            searchParam: `%${searchParam.toLowerCase()}%`,
-          })
-            .orWhere('LOWER(task.description) LIKE :searchParam', {
-              searchParam: `%${searchParam.toLowerCase()}%`,
-            })
+          qb.where('to_tsvector(task.title) @@ to_tsquery(:search)', { search })
+            .orWhere('to_tsvector(task.description) @@ to_tsquery(:search)', { search })
             .orWhere('task.id IS NULL')
         })
       )
@@ -131,10 +129,10 @@ export class TaskRepository extends BaseRepository<Task> {
       searchQuery
         .andWhere('task.dueDate IS NOT null')
         .andWhere('task.dueDate >= :dueDateStart', {
-          dueDateStart: filterParam.dueDate.start
+          dueDateStart: filterParam.dueDate.start,
         })
         .andWhere('task.dueDate <= :dueDateEnd', {
-          dueDateEnd: filterParam.dueDate.end
+          dueDateEnd: filterParam.dueDate.end,
         })
     }
 
