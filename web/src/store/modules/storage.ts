@@ -6,10 +6,6 @@ import api from '@/utils/api'
 import StorageService from '@/services/storage'
 import UserService from '@/services/user'
 import UploadService from '@/services/upload'
-type StorageContext = {
-  id: number;
-  search: string;
-}
 
 const FilesModule: Module<StorageState, RootState> = {
   namespaced: true,
