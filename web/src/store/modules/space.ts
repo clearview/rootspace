@@ -136,7 +136,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
 
     async initSetting ({ commit, dispatch, state, getters }) {
       const data = await UserUISettingService.fetch()
-      const activeIndex = get(data, 'preferences.activeIndex', 0)
+      const activeIndex = get(data, 'activeIndex', 0)
 
       if (activeIndex !== state.activeIndex) {
         commit('setActiveIndex', activeIndex)
@@ -177,7 +177,11 @@ const SpaceModule: Module<SpaceState, RootState> = {
       if (index !== state.activeIndex) {
         commit('setActiveIndex', index)
 
-        await api.patch('/users/settings/ui/', { activeIndex: index })
+        await UserUISettingService.update({
+          data: {
+            activeIndex: index
+          }
+        })
       }
     },
 
