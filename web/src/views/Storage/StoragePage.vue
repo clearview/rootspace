@@ -1,5 +1,5 @@
 <template>
-  <section class="file-page" @dragenter="captureDragFile" v-if="files">
+  <section class="file-page" @dragenter="captureDragFile" v-if="storageInfo && files">
     <div class="file-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
       <div class="file-drag-content">
         <legacy-icon
@@ -11,10 +11,10 @@
       </div>
     </div>
     <header class="header">
-      <h3 class="header-title">
-        Files <span v-if="files.uploads">({{ files.uploads.length }})</span>
+      <h3 class="header-title" v-if="files">
+        {{ storageInfo.title }} ({{ files.length }})
       </h3>
-      <div class="actions" v-if="files.uploads && files.uploads.length > 0">
+      <div class="actions" v-if="files && files.length > 0">
         <div class="action-group">
           <label
             class="action action--search"
@@ -91,7 +91,7 @@
       </div>
     </header>
     <div class="content">
-      <div class="files-wrapper" v-if="files.uploads && files.uploads.length > 0">
+      <div class="files-wrapper" v-if="files && files.length > 0">
         <StorageItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
       </div>
       <div class="empty-file" v-else>
@@ -144,6 +144,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   get id () {
     return Number(this.$route.params.id)
+  }
+
+  get storageInfo (): StorageResource | null {
+    return this.$store.state.storage.info
   }
 
   get files (): StorageResource | null {
@@ -255,15 +259,29 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     }
   }
 
+  async fetchStorageInfo () {
+    this.isFetching = true
+    try {
+      await this.$store.dispatch('storage/info', this.id)
+      if (this.storageInfo) {
+        if (!this.pageReady) {
+          await this.activateSpace(this.storageInfo.spaceId)
+        }
+        this.pageTitle = this.storageInfo.title
+        this.pageReady = true
+      }
+    } catch { }
+    this.isFetching = false
+  }
+
   async fetchFiles () {
     this.isFetching = true
     try {
-      await this.$store.dispatch('storage/view', this.id)
+      await this.$store.dispatch('storage/fetch', { id: this.id })
       if (this.files) {
         if (!this.pageReady) {
           await this.activateSpace(this.files.spaceId)
         }
-        this.pageTitle = this.files.title
         this.pageReady = true
       }
     } catch { }
@@ -277,10 +295,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   @Watch('id', { immediate: true })
   async watchId (id: number) {
-    await this.$store.dispatch('storage/view', id)
+    await this.$store.dispatch('storage/fetch', { id: this.id })
   }
 
   async mounted () {
+    await this.fetchStorageInfo()
     await this.fetchFiles()
   }
 }

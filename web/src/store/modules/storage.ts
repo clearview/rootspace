@@ -6,12 +6,16 @@ import api from '@/utils/api'
 import StorageService from '@/services/storage'
 import UserService from '@/services/user'
 import UploadService from '@/services/upload'
+interface FetchParams {
+  id: number;
+}
 
 const FilesModule: Module<StorageState, RootState> = {
   namespaced: true,
 
   state () {
     return {
+      info: null,
       item: null,
       processing: false,
       viewAs: 0
@@ -19,6 +23,9 @@ const FilesModule: Module<StorageState, RootState> = {
   },
 
   mutations: {
+    setInfo (state, data) {
+      state.info = data
+    },
     setItem (state, data) {
       state.item = data
     },
@@ -32,10 +39,15 @@ const FilesModule: Module<StorageState, RootState> = {
   },
 
   actions: {
-    async view ({ commit }, id: number) {
+    async info ({ commit }, id: number) {
       const res = await StorageService.view(id)
+      commit('setInfo', res.data)
+    },
 
-      const uploadLists = res.data.uploads
+    async fetch ({ commit }, params: FetchParams) {
+      const res = await StorageService.fetchItem(params.id)
+
+      const uploadLists = res.data
       // Loop to get the user detail
       for (let i = 0; i < uploadLists.length; i++) {
         const uploadItem = uploadLists[i]

@@ -31,7 +31,7 @@ export interface RootState {
   nav: SidebarState;
   sidebar: SidebarState;
   task: TaskState;
-  files: StorageState;
+  storage: StorageState;
   option: OptionState;
   space: SpaceState;
   tree: TreeState;
@@ -94,6 +94,7 @@ export interface DocumentState {
   deferredParent: NodeResource | null;
 }
 export interface StorageState {
+  info: StorageResource | null;
   item: StorageResource | null;
   processing: boolean;
   viewAs: number;

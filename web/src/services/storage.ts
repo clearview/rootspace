@@ -12,7 +12,7 @@ export interface FetchParams {
 }
 
 export default class StorageService {
-  static async fetch ({ spaceId, ...params }: FetchParams) {
+  static async fetchItem (spaceId: number, params?: FetchParams): Promise<Response> {
     const res = await api.get(`storages/${spaceId}/files`, { params })
 
     return res.data

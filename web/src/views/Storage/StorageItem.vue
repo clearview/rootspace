@@ -1,7 +1,7 @@
 <template>
   <div class="file-item-wrapper p-5 pt-10" v-if="item">
     <div class="grid grid-cols-1" v-if="isList">
-       <div v-for="(file, index) in item.uploads" :key="index">
+       <div v-for="(file, index) in item" :key="index">
         <storageListView
           :file="file"
           :index="index"
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" v-else>
-      <div v-for="(file, index) in item.uploads" :key="index">
+      <div v-for="(file, index) in item" :key="index">
         <storageGridView
           :file="file"
           :index="index"
@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { StorageResource, StorageViewType } from '@/types/resource'
+import { NewUploadResource, StorageViewType } from '@/types/resource'
 import RadialProgressBar from 'vue-radial-progress'
 import StorageListView from '@/views/Storage/StorageListView.vue'
 import StorageGridView from '@/views/Storage/StorageGridView.vue'
@@ -74,8 +74,8 @@ import StorageGridView from '@/views/Storage/StorageGridView.vue'
 })
 
 export default class StorageItem extends Vue {
-  @Prop({ type: Object, required: true })
-  private readonly item!:StorageResource
+  @Prop({ type: Array, required: true })
+  private readonly item!:NewUploadResource
 
   @Prop({ type: Boolean, required: true })
   private readonly isUploading
