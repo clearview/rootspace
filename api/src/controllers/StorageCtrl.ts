@@ -23,7 +23,7 @@ export class StorageCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response) {
-    const storage = await this.storageService.getByIdWithUploads(Number(req.params.id))
+    const storage = await this.storageService.requireById(Number(req.params.id))
     this.isSpaceMember(req, storage.spaceId)
 
     res.send(this.responseBody(storage))
