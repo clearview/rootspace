@@ -33,7 +33,6 @@ export function createEditor ({
   editable,
   onUpdate
 }: CreateEditorParams) {
-  console.log(content)
   const extensions = [
     new Paragraph(),
     new TextColor(),
