@@ -20,6 +20,7 @@ export class UploadRepository extends BaseRepository<Upload> {
     options: QueryOptions = {}
   ): Promise<Upload[]> {
     const query = this.createQueryBuilder('upload')
+      .leftJoinAndSelect('upload.user', 'user')
       .where('upload.entityId = :entityId', { entityId })
       .andWhere('upload.entity = :entity', { entity })
 
