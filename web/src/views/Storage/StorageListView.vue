@@ -53,7 +53,7 @@
       </template>
       <template #trigger="{ visible }">
         <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
-          <legacy-icon name="vertical-ellipsis" viewbox="20" size="1.25rem"/>
+          <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
         </button>
       </template>
     </Popover>

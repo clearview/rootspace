@@ -14,7 +14,7 @@
       <h3 class="header-title" v-if="files">
         {{ storageInfo.title }} ({{ files.length }})
       </h3>
-      <div class="actions" v-if="files && files.length > 0">
+      <div class="actions" v-if="files && totalData > 0">
         <div class="action-group">
           <label
             class="action action--search"
@@ -91,10 +91,10 @@
       </div>
     </header>
     <div class="content">
-      <div class="files-wrapper" v-if="files && files.length > 0">
+      <div class="files-wrapper" v-if="storageInfo && totalData > 0">
         <StorageItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
       </div>
-      <div class="empty-file" v-else>
+      <div class="empty-file" v-else-if="search === ''">
         <div class="content">
           <img src="@/assets/images/file-empty.svg" alt="Empty File" class="illustration">
           <h3 class="title">
@@ -124,7 +124,7 @@ import StorageItem from '@/views/Storage/StorageItem.vue'
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 
-import { StorageResource, StorageViewType } from '../../types/resource'
+import { StorageResource, StorageViewType, NewUploadResource } from '../../types/resource'
 
 @Component({
   components: {
@@ -150,8 +150,12 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     return this.$store.state.storage.info
   }
 
-  get files (): StorageResource | null {
+  get files (): NewUploadResource | null {
     return this.$store.state.storage.item
+  }
+
+  get totalData (): NewUploadResource | null {
+    return this.$store.state.storage.totalData
   }
 
   get isList (): boolean {

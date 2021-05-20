@@ -14,6 +14,7 @@ const FilesModule: Module<StorageState, RootState> = {
       info: null,
       item: null,
       processing: false,
+      totalData: 0,
       viewAs: 0
     }
   },
@@ -26,8 +27,10 @@ const FilesModule: Module<StorageState, RootState> = {
       state.item = data
     },
     setViewAs (state, payload: number) {
-      console.log(payload)
       state.viewAs = payload
+    },
+    setTotalData (state, data) {
+      state.totalData = data.length
     },
     setProcessing (state, payload: boolean): void {
       state.processing = payload
@@ -44,6 +47,9 @@ const FilesModule: Module<StorageState, RootState> = {
       const res = await api.get(`storages/${params.id}/files`, {
         params: { search: params.search }
       })
+      if (!params.search) {
+        commit('setTotalData', res?.data.data)
+      }
       commit('setItem', res?.data.data)
     },
 

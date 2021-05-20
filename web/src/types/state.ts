@@ -97,6 +97,7 @@ export interface StorageState {
   info: StorageResource | null;
   item: StorageResource | null;
   processing: boolean;
+  totalData: number;
   viewAs: number;
 }
 export interface SpaceState {
