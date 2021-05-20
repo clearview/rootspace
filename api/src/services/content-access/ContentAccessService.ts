@@ -2,13 +2,16 @@ import { getCustomRepository } from 'typeorm'
 import { ContentAccessRepository } from '../../database/repositories/ContentAccessRepository'
 import { ContentAccess } from '../../database/entities/ContentAccess'
 import { Node } from '../../database/entities/Node'
+import { NodeContentMediator } from '../content/NodeContentMediator'
 import { ContentAccessCreateValue, ContentAccessUpdateValue } from './values'
-import { ContentAccessType } from './ContentAccessType'
-import { ContentEntity } from '../../root/types'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { ContentEntityNames, NodeTypeEntityNameMap } from '../../shared/constants'
+import { ContentEntity } from '../../root/types'
+import { ContentEntityNames, NodeContentType, NodeType, NodeTypeEntityNameMap } from '../../shared/constants'
+import { ContentAccessType } from './ContentAccessType'
 
 export class ContentAccessService {
+  private nodeContentMediator: NodeContentMediator
+
   private static instance: ContentAccessService
 
   static getInstance() {
@@ -17,6 +20,10 @@ export class ContentAccessService {
     }
 
     return ContentAccessService.instance
+  }
+
+  setMediator(mediator: NodeContentMediator) {
+    this.nodeContentMediator = mediator
   }
 
   private getRepository(): ContentAccessRepository {
@@ -31,7 +38,21 @@ export class ContentAccessService {
     const contentAccess = this.getById(id)
 
     if (contentAccess) {
-      return this.getRepository().findOne(id)
+      return contentAccess
+    }
+
+    throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+  }
+
+  getByNodeId(nodeId: number): Promise<ContentAccess> {
+    return this.getRepository().getByNodeId(nodeId)
+  }
+
+  async requireByNodeId(nodeId: number): Promise<ContentAccess> {
+    const contentAccess = await this.getByNodeId(nodeId)
+
+    if (contentAccess) {
+      return contentAccess
     }
 
     throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
@@ -44,27 +65,27 @@ export class ContentAccessService {
       throw new Error('Invalid content entity name')
     }
 
-    return this.getRepository().getByEntityIdAndName(entity.id, entityName)
+    return this.getRepository().getByEntityIdAndEntity(entity.id, entityName)
   }
 
   async requireForEntity(entity: ContentEntity): Promise<ContentAccess> {
-    const contentAccess = (await this.getForEntity(entity)) ?? this.createDefault(entity)
-    return contentAccess
-  }
+    const contentAccess = await this.getForEntity(entity)
 
-  async createDefault(entity: ContentEntity): Promise<ContentAccess> {
-    const entityName = entity.constructor.name
-
-    if (ContentEntityNames.has(entityName) === false) {
-      throw new Error('Invalid content entity name')
+    if (contentAccess) {
+      return contentAccess
     }
 
-    return this.create(
+    throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+  }
+
+  async nodeCreated(node: Node, parent: Node): Promise<void> {
+    await this.create(
       ContentAccessCreateValue.fromObject({
-        spaceId: entity.spaceId,
-        ownerId: entity.userId,
-        entityId: entity.id,
-        entity: entityName,
+        spaceId: node.spaceId,
+        ownerId: node.userId,
+        nodeId: node.id,
+        entityId: node.contentId,
+        entity: NodeTypeEntityNameMap.get(node.type),
         type: ContentAccessType.Open,
         public: false,
       })
@@ -79,18 +100,42 @@ export class ContentAccessService {
     const contentAccess = await this.requireById(id)
 
     Object.assign(contentAccess, data.attributes)
+
     await this.getRepository().save(contentAccess)
+    // await this.nodeContentMediator.contentAccessUpdated(contentAccess)
 
     return contentAccess
   }
 
-  async remove(target: number | ContentAccess): Promise<ContentAccess> {
-    const access = typeof target === 'number' ? await this.getById(target) : target
-    return this.getRepository().remove(access)
+  async nodeAccessUpdated(node: Node, descendants: Node[], contentAccess?: ContentAccess): Promise<void> {
+    const access = contentAccess ?? (await this.requireByNodeId(node.id))
+    const ids = descendants.map((descendant) => descendant.id)
+
+    await this.getRepository().updateByNodeIds(ids, {
+      type: access.type,
+      public: access.public,
+    })
   }
 
-  async removeForEntity(entity: ContentEntity): Promise<ContentAccess> {
-    const contentAccess = await this.getForEntity(entity)
-    return this.remove(contentAccess)
+  async nodeMoved(node: Node, toParent: Node, descendants: Node[]): Promise<void> {
+    const updateSet = {
+      type: ContentAccessType.Open,
+      public: false,
+    }
+
+    if (toParent.type === NodeType.Private) {
+      updateSet.type = ContentAccessType.Private
+    }
+
+    if (Object.values(NodeContentType).includes(toParent.type)) {
+      const contentAccess = await this.requireByNodeId(toParent.id)
+      updateSet.type = contentAccess.type
+      updateSet.public = contentAccess.public
+    }
+
+    const ids = [node.id]
+    ids.push(...descendants.map((descendant) => descendant.id))
+
+    await this.getRepository().updateByNodeIds(ids, updateSet)
   }
 }

@@ -1,6 +1,6 @@
 import api from '@/utils/api'
 
-import { NodeResource } from '@/types/resource'
+import { NodeResource, UserResource } from '@/types/resource'
 
 export interface FetchParams {
   spaceId: number;
@@ -12,7 +12,7 @@ export interface FetchParams {
 }
 
 interface Response {
-  data: NodeResource;
+  data: Array<NodeResource>;
 }
 
 export default class TreeService {
@@ -74,5 +74,49 @@ export default class TreeService {
     const res = await api.post('folders', { data })
 
     return res.data
+  }
+
+  static async filterUnauthorizedDoc (list: Array<NodeResource>, user: UserResource | null) {
+    const newList = []
+    for (let i = 0; i < list.length; i++) {
+      const item = { ...list[i] }
+      if (item.children) {
+        item.children = await this.filterUnauthorizedDoc(item.children, user)
+      }
+
+      if (item.type === 'doc' && user) {
+        const res = await api.get(`content/access/Doc/${item.contentId}`)
+        item.contentAccess = res.data.data
+
+        const hasAccess = item.contentAccess?.type === 'open' ||
+          item.contentAccess?.type === 'restricted' ||
+          item.contentAccess?.public || item.contentAccess?.ownerId === user.id
+
+        if (hasAccess) {
+          newList.push(item)
+        }
+      } else {
+        newList.push(item)
+      }
+    }
+
+    return newList
+  }
+
+  static hideDocs (list: Array<NodeResource>): Array<NodeResource> {
+    const newList = []
+    for (let i = 0; i < list.length; i++) {
+      const item = { ...list[i] }
+
+      if (item.children) {
+        item.children = this.hideDocs(item.children)
+      }
+
+      if (item.type !== 'doc') {
+        newList.push(item)
+      }
+    }
+
+    return newList
   }
 }

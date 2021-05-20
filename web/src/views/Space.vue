@@ -1,5 +1,5 @@
 <template>
-  <layout-main v-if="hasSpace">
+  <layout-main>
     <router-view />
   </layout-main>
 </template>
@@ -44,7 +44,15 @@ export default class Space extends Mixins(SpaceMixin) {
     })
   }
 
+  get currentUser () {
+    return this.$store.state.auth.user
+  }
+
   async created () {
+    if (!this.currentUser) {
+      return
+    }
+
     try {
       if (!this.hasSpace) {
         await this.$router.replace({ name: 'SpaceInit' })

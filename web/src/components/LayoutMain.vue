@@ -1,6 +1,7 @@
 <template>
   <div class="layout">
     <sidebar
+      v-if="currentUser"
       class="pane-left"
       :style="sidebarStyle"
       :noanimate="resizing"
@@ -46,6 +47,10 @@ export default class LayoutMain extends Vue {
     }
   }
 
+  get currentUser () {
+    return this.$store.state.auth.user
+  }
+
   start (e: MouseEvent) {
     e.preventDefault()
 
@@ -76,7 +81,7 @@ export default class LayoutMain extends Vue {
     this.end = this.end.bind(this)
     this.resize = throttle(this.resize.bind(this), 15)
 
-    if (!this.$store.state.auth.user.emailConfirmed) {
+    if (this.currentUser && !this.currentUser.emailConfirmed) {
       this.alert = {
         type: 'secondary',
         message: 'Please remember to verify your email address',

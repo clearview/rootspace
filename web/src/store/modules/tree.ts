@@ -71,16 +71,22 @@ const TreeModule: Module<TreeState, RootState> = {
   },
 
   actions: {
-    async fetch ({ commit }, params: FetchParams) {
+    async fetch ({ commit, rootState }, params: FetchParams) {
       const res = await TreeService.fetchBySpace(params.spaceId)
 
-      commit('setList', res.data)
+      // commit('setList', TreeService.hideDocs(res.data))
+
+      const newList = await TreeService.filterUnauthorizedDoc(res.data, rootState.auth.user)
+      commit('setList', newList)
     },
 
-    async fetchFavorites ({ commit }, params: FetchParams) {
+    async fetchFavorites ({ commit, rootState }, params: FetchParams) {
       const res = await TreeService.fetchFavoritesBySpace(params.spaceId)
 
-      commit('setFavorites', res.data)
+      // commit('setFavorites', TreeService.hideDocs(res.data))
+
+      const newFavorites = await TreeService.filterUnauthorizedDoc(res.data, rootState.auth.user)
+      commit('setFavorites', newFavorites)
     },
 
     async setFocusedList ({ commit }, data: NodeResource) {

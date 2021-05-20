@@ -57,7 +57,10 @@ const routes: Array<RouteConfig> = [
       {
         path: '/doc/:id?/:slug?',
         name: 'Novadoc',
-        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
+        component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue'),
+        meta: {
+          noAuth: true
+        }
       },
       {
         path: '/taskboard/:id',
