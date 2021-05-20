@@ -4,7 +4,6 @@ import { RootState, StorageState } from '@/types/state'
 import { StorageResource, NewUploadResource } from '@/types/resource'
 import api from '@/utils/api'
 import StorageService from '@/services/storage'
-import UserService from '@/services/user'
 import UploadService from '@/services/upload'
 
 const FilesModule: Module<StorageState, RootState> = {
@@ -45,16 +44,6 @@ const FilesModule: Module<StorageState, RootState> = {
       const res = await api.get(`storages/${params.id}/files`, {
         params: { search: params.search }
       })
-      console.log('tes', res?.data.data)
-      // const res = await StorageService.fetchItem(params.id, search)
-
-      const uploadLists = res?.data.data
-      // Loop to get the user detail
-      for (let i = 0; i < uploadLists.length; i++) {
-        const uploadItem = uploadLists[i]
-        const resUser = await UserService.getProfile(uploadItem.userId)
-        uploadItem.username = `${resUser.firstName} ${resUser.lastName}`
-      }
       commit('setItem', res?.data.data)
     },
 
@@ -81,7 +70,7 @@ const FilesModule: Module<StorageState, RootState> = {
         throw new Error('Not in an active space')
       }
       if (!payload.item.id) {
-        throw new Error('Invalid files ID')
+        throw new Error('Invalid storage ID')
       }
       const formData = new FormData()
       formData.append('file', payload.file)

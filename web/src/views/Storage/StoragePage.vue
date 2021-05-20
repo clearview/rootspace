@@ -221,7 +221,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         const file = files.item(i)
         if (file) {
           await this.$store.dispatch('storage/upload', {
-            item: this.files,
+            item: this.storageInfo,
             file
           })
         }
@@ -248,7 +248,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         }
         if (file) {
           await this.$store.dispatch('storage/upload', {
-            item: this.files,
+            item: this.storageInfo,
             file,
             config
           })

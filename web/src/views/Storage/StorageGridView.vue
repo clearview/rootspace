@@ -41,7 +41,7 @@
         </template>
         <template #trigger="{ visible }">
           <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
-            <legacy-icon name="vertical-ellipsis" viewbox="20" size="1.25rem"/>
+            <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
           </button>
         </template>
       </Popover>
@@ -56,7 +56,7 @@
       </h3>
       <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
         @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
-      Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+      Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
     </div>
     <v-modal
       title="Delete File"
