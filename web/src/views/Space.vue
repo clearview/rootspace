@@ -1,5 +1,5 @@
 <template>
-  <layout-main>
+  <layout-main v-if="hasSpace">
     <router-view />
   </layout-main>
 </template>
