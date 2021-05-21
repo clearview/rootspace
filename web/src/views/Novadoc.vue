@@ -1917,6 +1917,10 @@ export default {
 
 <style lang="postcss" scoped>
 
+#app > div > .page {
+  padding: 0 152px;
+}
+
 .color-combo {
   padding: 6px;
   border-radius: 4px;
