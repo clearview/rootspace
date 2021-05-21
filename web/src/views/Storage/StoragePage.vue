@@ -238,7 +238,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     const files = this.attachmentFileRef.files
     if (files) {
       this.isUploading = true
-      const myUploadProgress = (myFile) => (progress) => {
+      const myUploadProgress = (myFile: any) => (progress: any) => {
         const percentage = Math.floor((progress.loaded * 100) / progress.total)
         this.tempFile = {
           name: myFile.name,
@@ -267,7 +267,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     this.isFetching = true
     try {
       await this.$store.dispatch('storage/info', this.id)
-      if (this.storageInfo) {
+      if (this.storageInfo && this.storageInfo.spaceId) {
         if (!this.pageReady) {
           await this.activateSpace(this.storageInfo.spaceId)
         }
