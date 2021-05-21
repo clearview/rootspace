@@ -28,7 +28,7 @@
             <div class="action-line-text">Copy link</div>
           </div>
           <div class="action-line" @click.prevent.stop="hide();rename();">
-            <mono-icon class="action-icon" name="pencil"/>
+            <legacy-icon class="action-icon" name="pencil" viewbox="16" size="18px"></legacy-icon>
             <div class="action-line-text">Rename</div>
           </div>
           <div class="action-separator"></div>
@@ -40,7 +40,7 @@
           </div>
         </template>
         <template #trigger="{ visible }">
-          <button class="btn btn-menu" :class="{'btn-link-primary': visible}">
+          <button class="btn btn-menu" :class="{'btn-menu--opened': visible}">
             <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
           </button>
         </template>
@@ -296,11 +296,21 @@ h3 {
   background: white;
   border: 1px solid #AAB1C5 !important;
   border-radius: 4px;
+  &:focus {
+    box-shadow: none;
+  }
+  &.btn-menu--opened {
+    background: #DDF3FF;
+    border: 1px solid #DDF3FF !important;
+    box-shadow: none;
+    svg {
+      fill: #146493;
+    }
+  }
 }
 .action-line {
   @apply flex items-center py-2 px-4 my-1 relative;
   font-size: 13px;
-  font-weight: 600;
   width: 168px;
   color: theme("colors.gray.900");
   stroke-width: 3px;

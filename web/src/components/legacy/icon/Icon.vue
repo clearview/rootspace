@@ -126,6 +126,7 @@ import IconFilePdf from './IconFilePdf.vue'
 import IconFileDefault from './IconFileDefault.vue'
 import IconFileDocx from './IconFileDocx.vue'
 import IconCopy from './IconCopy.vue'
+import IconPencil from './IconPencil.vue'
 
 @Component({
   name: 'Icon',
@@ -240,7 +241,8 @@ import IconCopy from './IconCopy.vue'
     IconFilePdf,
     IconFileDefault,
     IconFileDocx,
-    IconCopy
+    IconCopy,
+    IconPencil
   }
 })
 export default class Icon extends Vue {
