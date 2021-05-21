@@ -73,8 +73,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Ref } from 'vue-property-decorator'
-import { StorageResource, NewUploadResource } from '@/types/resource'
+import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
+import { NewUploadResource } from '@/types/resource'
 import moment from 'moment'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
@@ -115,7 +115,7 @@ import LabelEditable from '@/components/LabelEditable.vue'
 
 export default class StorageListView extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly file!:StorageResource
+  private readonly file!: NewUploadResource
 
   @Prop({ type: Number, required: true })
   private readonly index!: number;
@@ -123,7 +123,7 @@ export default class StorageListView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = null
+  private indexHovered = 0
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }
@@ -155,7 +155,8 @@ export default class StorageListView extends Vue {
 
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
-    await this.$store.dispatch('storage/destroy', file.id)
+    this.$emit('delete', file.id)
+    // await this.$store.dispatch('storage/destroy', file.id)
   }
 
   formatDate (fileDate: Date | string) {
@@ -204,6 +205,11 @@ export default class StorageListView extends Vue {
 
   async copyURL (url: string) {
     await navigator.clipboard.writeText(url) // TODO : Add a feedback if the URL is copied
+  }
+
+  @Watch('file')
+  watchFile (file: NewUploadResource) {
+    this.fileCopy = { ...file }
   }
 }
 </script>

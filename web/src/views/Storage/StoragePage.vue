@@ -92,7 +92,12 @@
     </header>
     <div class="content">
       <div class="files-wrapper" v-if="storageInfo && totalData > 0">
-        <StorageItem :item="files" :isUploading="isUploading" :tempFile='tempFile' @deleted="refresh" />
+        <StorageItem
+          :item="files"
+          :isUploading="isUploading"
+          :tempFile='tempFile'
+          @file:delete="handleDeleteFile"
+        />
       </div>
       <div class="empty-file" v-else-if="search === ''">
         <div class="content">
@@ -261,6 +266,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
       await this.fetchFiles()
       this.isUploading = false
     }
+  }
+
+  async handleDeleteFile (id: number) {
+    await this.$store.dispatch('storage/destroy', id)
+    await this.fetchFiles()
   }
 
   async fetchStorageInfo () {

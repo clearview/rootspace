@@ -55,6 +55,8 @@ export interface NewUploadResource {
   entity: 'Task';
   entityId: number;
   id: number;
+  name: string;
+  filename: string;
   mimetype: string;
   path: string;
   size: number;

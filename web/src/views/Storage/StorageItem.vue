@@ -5,7 +5,7 @@
         <storageListView
           :file="file"
           :index="index"
-          @deleted="refreshParent"
+          @delete="handleDelete"
         />
        </div>
        <div class="temp-file-item list-view" v-if="isUploading">
@@ -32,7 +32,7 @@
         <storageGridView
           :file="file"
           :index="index"
-          @deleted="refreshParent"
+          @delete="handleDelete"
         />
       </div>
       <div class="temp-file-item grid-view" v-if="isUploading">
@@ -78,10 +78,10 @@ export default class StorageItem extends Vue {
   private readonly item!:NewUploadResource
 
   @Prop({ type: Boolean, required: true })
-  private readonly isUploading
+  private readonly isUploading!: boolean
 
   @Prop({ type: Object, required: true })
-  private readonly tempFile
+  private readonly tempFile!: NewUploadResource
 
   get isList (): boolean {
     return this.prefferedView === StorageViewType.List
@@ -91,8 +91,8 @@ export default class StorageItem extends Vue {
     return this.$store.state.storage.viewAs
   }
 
-  refreshParent () {
-    this.$emit('deleted')
+  handleDelete (id: number) {
+    this.$emit('file:delete', id)
   }
 }
 </script>
