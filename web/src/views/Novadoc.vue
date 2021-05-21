@@ -6,7 +6,7 @@
     <header
       class="page-header"
       :class="{scrolled: pageScrolled}"
-      v-if="!isPublic"
+      v-if="!isPublicView"
     >
       <div
         class="editor-toolbar m-0 w-full"
@@ -546,7 +546,7 @@
         <editor-menu-bubble
           :editor="editor"
           v-slot="{ isActive, commands, menu, getMarkAttrs }"
-          v-if="!isPublic"
+          v-if="!isPublicView"
         >
           <div>
             <div
@@ -1022,7 +1022,8 @@ export default {
       nodeNameChangesListener: null,
       isMouseDown: false,
       isPreviewing: false,
-      contentAccess: {}
+      contentAccess: {},
+      permissions: []
     }
   },
   beforeDestroy () {
@@ -1229,7 +1230,9 @@ export default {
           content: []
         }
       })
-
+      this.initPreviewEditor()
+    },
+    initPreviewEditor () {
       this.previewEditor = new Editor({
         editable: false,
         extensions: [
@@ -1547,8 +1550,7 @@ export default {
       window.open(attr.href, '_blank')
     },
     async load () {
-      const isPublic = !!this.$route.params.publicId
-      if (isPublic) {
+      if (this.isPublicView) {
         this.loadPublicDocument()
       } else {
         this.loadEditableDocument()
@@ -1560,9 +1562,10 @@ export default {
       this.doc = res.data
 
       this.contentAccess = res.contentAccess
+      this.permissions = res.permissions
       this.pageTitle = res.data.title
       this.title = res.data.title.trim()
-      this.initEditor()
+      this.initPreviewEditor()
       this.isPreviewing = true
       this.previewEditor.setContent(res.data.content)
     },
@@ -1578,6 +1581,7 @@ export default {
       const res = await DocumentService.view(id)
       this.doc = res.data
       this.contentAccess = res.contentAccess
+      this.permissions = res.permissions
       this.pageTitle = res.data.title
       this.title = res.data.title.trim()
       this.isLocked = res.data.isLocked
@@ -1896,19 +1900,14 @@ export default {
         }
       ]
     },
-    isPublic () {
+    isPublicView () {
       return !!this.$route.params.publicId
     },
     isReadonly () {
-      const isOwner = this.contentAccess.ownerId === this.currentUser?.id
-      const isAdmin = this.activeSpace.role === 0
-
-      return (this.contentAccess.type === 'restricted' && !isOwner && !isAdmin) ||
-        (this.contentAccess.type === 'private' && !isOwner) ||
-        (this.contentAccess.public && !this.currentUser)
+      return this.permissions.length === 1 && this.permissions[0] === 'view'
     },
     isEditable () {
-      return !this.isLocked && !this.isReadonly && !this.isPublic
+      return !this.isLocked && !this.isReadonly && !this.isPublicView
     }
   }
 
