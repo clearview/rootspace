@@ -54,7 +54,7 @@
           </template>
           <template #trigger="{ visible }">
             <button class="btn btn-link-primary" :class="{'btn-link-primary': visible}">
-              {{ visible }} <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+              <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
             </button>
           </template>
         </Popover>
