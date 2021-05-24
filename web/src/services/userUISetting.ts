@@ -10,7 +10,7 @@ interface UserUISettingUpdateData {
 export default class UserUISetting {
   static async fetch (spaceId?: number): Promise<SettingData> {
     try {
-      const res = await api.get('users/settings/ui' + (spaceId || ''))
+      const res = await api.get('users/settings/ui/' + (spaceId || ''))
 
       return res.data
     } catch {
