@@ -1,6 +1,6 @@
 <template>
   <section class="file-page" @dragenter="captureDragFile" v-if="storageInfo && files">
-    <div class="file-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
+    <div class="file-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="handleDroppedFile">
       <div class="file-drag-content">
         <legacy-icon
           name="upload"
@@ -82,7 +82,7 @@
           </div>
         </div>
         <div class="action-group">
-          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
+          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleSubmitFile" multiple>
           <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
             <legacy-icon class="mr-2" name="plus2" size="13"  viewbox="15" />
             Upload File
@@ -109,7 +109,7 @@
             You can drag and drop or click on the button below
           </h4>
           <div class="actions">
-            <input type="file" ref="attachmentFile" class="attachment-file" @input="handleAttachFile" multiple>
+            <input type="file" ref="attachmentFile" class="attachment-file" @input="handleSubmitFile" multiple>
             <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
               <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
               Upload File
@@ -219,58 +219,55 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await this.fetchFiles()
   }
 
-  async processDragFile (e: DragEvent) {
+  async handleDroppedFile (e: DragEvent) {
     e.preventDefault()
     e.stopPropagation()
+
     this.isCapturingFile = false
     const files = e.dataTransfer?.files
-    if (files && files.length > 0) {
-      this.isUploading = true
-      for (let i = 0; i < files.length; i++) {
-        const file = files.item(i)
-        if (file) {
-          await this.$store.dispatch('storage/upload', {
-            item: this.storageInfo,
-            file
-          })
-        }
-      }
-      this.isUploading = false
+
+    if (files) {
+      await this.uploadFiles(files)
     }
   }
 
-  async handleAttachFile () {
+  async handleSubmitFile () {
     const files = this.attachmentFileRef.files
+
     if (files) {
-      this.isUploading = true
-      const myUploadProgress = (myFile: any) => (progress: any) => {
-        const percentage = Math.floor((progress.loaded * 100) / progress.total)
-        this.tempFile = {
-          name: myFile.name,
-          progress: percentage
-        }
-      }
-      for (let i = 0; i < files.length; i++) {
-        const file = files.item(i)
-        const config = {
-          onUploadProgress: myUploadProgress(files[i])
-        }
-        if (file) {
-          await this.$store.dispatch('storage/upload', {
-            item: this.storageInfo,
-            file,
-            config
-          })
-        }
-      }
-      await this.fetchFiles()
-      this.isUploading = false
+      await this.uploadFiles(files)
     }
   }
 
   async handleDeleteFile (id: number) {
     await this.$store.dispatch('storage/destroy', id)
     await this.fetchFiles()
+  }
+
+  async uploadFiles (files: FileList) {
+    if (!files) return
+
+    this.isUploading = true
+
+    const process = Array.from(files).map(
+      (file) => this.$store.dispatch('storage/upload', {
+        file,
+        item: this.storageInfo,
+        config: {
+          onUploadProgress: (progress: any) => {
+            this.tempFile = {
+              name: file.name,
+              progress: Math.round((progress.loaded * 100) / progress.total)
+            }
+          }
+        }
+      })
+    )
+
+    await Promise.all(process)
+    await this.fetchFiles()
+
+    this.isUploading = false
   }
 
   async fetchStorageInfo () {
