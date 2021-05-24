@@ -498,7 +498,7 @@
                 Share
               </div>
             </div>
-            <div class="action-separator"></div>
+            <div v-if="!isReadonly" class="action-separator"></div>
             <div
               v-if="!isReadonly"
               class="action-line danger"
@@ -848,6 +848,7 @@
           :doc="doc"
           :preview="preview"
           :id="id"
+          :isReadonly="isReadonly"
           @close="closeHistory"
           @preview="showPreview"
           @restore="restore"
