@@ -19,10 +19,18 @@
           v-if="!isRenaming"
         />
       </h3>
-      <input ref="input" type="text" class="field file-input" v-show="isRenaming" placeholder="File name" :value="fileCopy.name"
-        @blur="saveFileName" @keydown.enter="$event.target.blur()" @keydown.esc="isRenaming = false">
+      <div class="input-group action-button" v-show="isRenaming">
+        <input ref="input" type="text" class="field file-input" placeholder="File name" :value="fileCopy.name"
+          @keydown.enter="saveFileName" @keydown.esc="isRenaming = false">
+        <button class="btn btn-action" @click.stop="saveFileName">
+          <legacy-icon name="checkmark3" viewbox="16" size="26px 21px" title="Save"/>
+        </button>
+        <button class="btn btn-action" @click="isRenaming = false">
+          <legacy-icon name="close" size="26px 21px" title="Cancel"/>
+        </button>
+      </div>
       <div v-if="!isRenaming">
-        Added by {{ fileCopy.username }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+        Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
     <div class="download-file" @click="downloadFile(fileCopy.location)"  v-if="!isRenaming">
@@ -253,14 +261,30 @@ h3 {
 .file-item--action {
   display: none;
 }
+.input-group {
+  border: 0;
+  &.action-button {
+    .btn-action {
+      width: 32px;
+      height: 32px;
+      padding: 2px;
+      border-radius: 50%;
+      background-color: transparent;
+      border: none;
+      &:hover {
+        background-color: #d4ecfa;
+      }
+    }
+  }
+}
 .file-input {
+  flex-grow: 1;
   outline: none;
   padding: 5px 4px 6px 4px;
-  margin: 4px 4px 4px -4px;
+  margin-right: 30px;
   font-weight: 500;
   line-height: 0;
   color: #2C2B35;
-  width: 100%;
   box-sizing: border-box;
   border-radius: 4px;
   border: 1px solid #AAB1C5;
