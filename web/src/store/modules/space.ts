@@ -148,7 +148,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
     async fetchSetting ({ commit, getters }, id: number) {
       const index = getters.getIndex(id)
 
-      const data = await UserUISettingService.fetch()
+      const data = await UserUISettingService.fetch(id)
 
       commit('updateSettingsItem', { index, data })
 
@@ -163,6 +163,7 @@ const SpaceModule: Module<SpaceState, RootState> = {
       commit('updateSettingsItem', { index, data: payload.data })
 
       const data = await UserUISettingService.update({
+        spaceId: payload.id,
         data: getters.getSettingByIndex(index)
       })
 
