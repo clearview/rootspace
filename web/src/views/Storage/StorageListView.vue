@@ -66,7 +66,7 @@
       portal="secondary"
     >
       <div class="modal-body text-center">
-        Are you sure you want to delete this file?
+        Are you sure you want to delete this file? <span class="font-semibold">{{ fileCopy.name }}</span>
       </div>
     </v-modal>
   </div>
