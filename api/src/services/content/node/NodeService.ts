@@ -11,7 +11,7 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../../response/erro
 import { Service } from '../../Service'
 import { NodeActivity } from '../../activity/activities/space'
 import { ContentAccessType, ContentPermissions } from '../../content-access'
-import { buildTree, sortTree } from './tree'
+import { buildTree } from './tree'
 
 export class NodeService extends Service {
   private nodeContentMediator: NodeContentMediator
@@ -95,9 +95,7 @@ export class NodeService extends Service {
       Object.assign(node, { persmisions: persmisions.getList() })
     }
 
-    let tree = buildTree(nodes, root)
-    tree = sortTree(tree)
-
+    const tree = buildTree(nodes, root)
     return tree
   }
 
@@ -110,9 +108,7 @@ export class NodeService extends Service {
       Object.assign(node, { persmisions: persmisions.getList() })
     }
 
-    let tree = buildTree(nodes, archiveNode)
-    tree = sortTree(nodes)
-
+    const tree = buildTree(nodes, archiveNode)
     return tree
   }
 
@@ -231,7 +227,7 @@ export class NodeService extends Service {
     let updatedNode = await this.getNodeById(node.id)
 
     Object.assign(updatedNode, data.attributes)
-    await this.getRepository().save(updatedNode)
+    updatedNode = await this.getRepository().save(updatedNode)
 
     if (data.parent !== undefined) {
       updatedNode = await this.updateNodeParent(updatedNode, data.parent)
@@ -250,16 +246,16 @@ export class NodeService extends Service {
     const fromParentId = node.parentId
     const fromPosition = node.position
 
-    if (toParentId === fromParentId) {
-      return node
-    }
-
     const toParent = toParentId
       ? await this.getNodeById(toParentId, node.spaceId)
       : await this.getRootNodeBySpaceId(node.spaceId)
 
     if (toParent === undefined) {
       throw clientError('Cant not find node ' + toParentId)
+    }
+
+    if (node.parentId === toParent.id) {
+      return node
     }
 
     if (node.id === toParentId) {
@@ -273,7 +269,7 @@ export class NodeService extends Service {
     // const descendants = await this.getRepository().getDescendants(node.id)
 
     node.parent = toParent
-    node.position = await this.getNodeNextPosition(node)
+    node.position = await this.getNodeNextPosition(toParent)
     node = await getTreeRepository(Node).save(node)
 
     await this.getRepository().decreasePositions(fromParentId, fromPosition)
@@ -289,9 +285,8 @@ export class NodeService extends Service {
 
     const parent = await this.requireNodeById(node.parentId)
 
-    const maxPosition = await this.getChildMaxPosition(parent)
     const minPosition = await this.getChildMinPosition(parent)
-
+    const maxPosition = await this.getChildMaxPosition(parent)
     const fromPosition = node.position
 
     if (toPosition > maxPosition) {
@@ -316,19 +311,21 @@ export class NodeService extends Service {
 
   private async getNodeNextPosition(node: Node): Promise<number> {
     let position = await this.getChildMaxPosition(node)
-    return ++position
+    position++
+    return position
   }
 
-  private getChildMaxPosition(node: Node): Promise<number> {
+  private async getChildMaxPosition(node: Node): Promise<number> {
     return this.getRepository().countParentChildrens(node.id)
   }
 
   private async getChildMinPosition(node: Node): Promise<number> {
     if (node.type !== NodeType.Root) {
-      return 0
+      return 1
     }
 
-    return this.getRepository().countPrivateNodes(node.id)
+    const position = await this.getRepository().countPrivateNodes(node.id)
+    return position + 1
   }
 
   async archive(id: number, actorId: number): Promise<Node> {

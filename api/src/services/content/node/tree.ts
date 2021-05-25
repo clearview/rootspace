@@ -13,7 +13,7 @@ export const buildTree = (nodes: Node[], root: Node): Node[] => {
     node.children = buildChildrenTree(node, nodes)
   }
 
-  return tree
+  return sortTree(tree)
 }
 
 export const buildChildrenTree = (parent: Node, nodes: Node[]) => {
