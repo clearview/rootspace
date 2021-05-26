@@ -430,6 +430,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   .action--body {
+    margin-left: 8px;
     display: flex;
     flex-flow: row;
     position: relative;
