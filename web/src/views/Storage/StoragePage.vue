@@ -124,6 +124,7 @@
 <script lang="ts">
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
+import { throttle } from 'lodash'
 import StorageItem from '@/views/Storage/StorageItem.vue'
 
 import PageMixin from '@/mixins/PageMixin'
@@ -254,12 +255,12 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         file,
         item: this.storageInfo,
         config: {
-          onUploadProgress: (progress: any) => {
+          onUploadProgress: throttle((progress: Record<string, any>) => {
             this.tempFile = {
               name: file.name,
-              progress: Math.round((progress.loaded * 100) / progress.total)
+              progress: Math.round(progress.loaded / progress.total * 97) || 1
             }
-          }
+          }, 300)
         }
       })
     )
@@ -268,6 +269,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await this.fetchFiles()
 
     this.isUploading = false
+    this.tempFile = {
+      name: '',
+      progress: 0
+    }
   }
 
   async fetchStorageInfo () {
