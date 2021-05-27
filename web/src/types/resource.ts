@@ -208,6 +208,7 @@ export interface SpaceSettingResource {
   treeFolded: Record<string, boolean>;
   taskViewAs: Record<number, TaskBoardType>;
   taskSeenViewTip: boolean;
+  storageViewAs: number;
 }
 
 export interface UserResource {

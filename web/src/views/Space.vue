@@ -22,7 +22,7 @@ export default class Space extends Mixins(SpaceMixin) {
   redirection = true
 
   get setting (): SpaceSettingResource {
-    const { sidebar, tree, task } = this.$store.state
+    const { sidebar, tree, task, storage } = this.$store.state
 
     return {
       activePage: this.$route.path,
@@ -30,7 +30,8 @@ export default class Space extends Mixins(SpaceMixin) {
       sidebarSize: sidebar.size || 0,
       treeFolded: tree.folded || {},
       taskViewAs: task.settings.viewAs || {},
-      taskSeenViewTip: task.settings.seenViewTip || false
+      taskSeenViewTip: task.settings.seenViewTip || false,
+      storageViewAs: storage.viewAs
     }
   }
 
@@ -42,6 +43,7 @@ export default class Space extends Mixins(SpaceMixin) {
       state.viewAs = data.taskViewAs || {}
       state.seenViewTip = data.taskSeenViewTip || false
     })
+    this.$store.commit('storage/setViewAs', data.storageViewAs)
   }
 
   async created () {
