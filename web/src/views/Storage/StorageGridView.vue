@@ -167,7 +167,6 @@ export default class StorageGridView extends Vue {
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
     this.$emit('delete', file.id)
-    // await this.$store.dispatch('storage/destroy', file.id)
   }
 
   formatDate (fileDate: Date | string) {

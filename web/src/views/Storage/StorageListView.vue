@@ -33,9 +33,9 @@
         Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
-    <div class="download-file" @click="downloadFile(fileCopy.location)"  v-if="!isRenaming">
+    <a :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
       <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
-    </div>
+    </a>
     <Popover
       class="file-item--action"
       top="38px"
@@ -164,15 +164,10 @@ export default class StorageListView extends Vue {
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
     this.$emit('delete', file.id)
-    // await this.$store.dispatch('storage/destroy', file.id)
   }
 
   formatDate (fileDate: Date | string) {
     return moment(fileDate).format('MMM DD, YYYY')
-  }
-
-  downloadFile (url: string) {
-    window.open(url, '_blank')
   }
 
   fileIcon (type: string) {
