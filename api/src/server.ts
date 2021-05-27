@@ -10,7 +10,7 @@ import routers from './routers'
 import passport from './passport'
 import { errorHandler } from './middleware/ErrorMiddleware'
 import { wsServerHooks } from './middleware/WsMiddleware'
-import { WebSocketsService } from './services'
+import { WebSocketService } from './services'
 import Primus = require('primus')
 import Rooms = require('primus-rooms')
 
@@ -39,7 +39,7 @@ export default class Server {
   }
 
   async bootstrap() {
-    WebSocketsService.initFromWebSocketServer(this.wsServer)
+    WebSocketService.initialize(this.wsServer)
 
     if (config.env === 'production') {
       Sentry.init({ dsn: config.sentry.dsn })

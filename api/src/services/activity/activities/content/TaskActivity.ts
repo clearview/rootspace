@@ -6,6 +6,7 @@ import { Upload } from '../../../../database/entities/Upload'
 import { User } from '../../../../database/entities/User'
 import { ContentActivity } from './ContentActivity'
 import { ContentActions, TaskActions } from './actions'
+import { entityRoomName, RoomEntityName } from '../../../web-socket'
 
 export class TaskActivity extends ContentActivity<Task> {
   constructor(action: string, task: Task, actorId: number) {
@@ -21,6 +22,14 @@ export class TaskActivity extends ContentActivity<Task> {
 
   handler(): string {
     return 'TaskActivityHandler'
+  }
+
+  push(): boolean {
+    return true
+  }
+
+  pushTo(): string {
+    return entityRoomName(this._entity.spaceId, RoomEntityName.TaskBoard, this._entity.boardId)
   }
 
   static created(entity: Task, actorId: number): TaskActivity {

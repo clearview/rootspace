@@ -4,8 +4,7 @@ import Primus = require('primus')
 import Spark = require('primus-rooms')
 import { UserService, UserSpaceService } from '../services'
 import { Request } from 'express'
-import { WsInAction, WsInMessage } from '../ws/WsInMessage'
-import { Room, RoomType } from '../ws/'
+import { WsInAction, WsInMessage, Room, RoomType } from '../services/web-socket'
 
 export enum WsEvent {
   'Error' = 'error',
