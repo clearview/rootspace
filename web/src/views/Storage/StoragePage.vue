@@ -11,10 +11,10 @@
       </div>
     </div>
     <header class="header">
-      <h3 class="header-title" v-if="files">
+      <h3 class="header-title">
         {{ storageInfo.title }} ({{ files.length }})
       </h3>
-      <div class="actions" v-if="files && totalData > 0">
+      <div class="actions" v-if="totalData > 0">
         <div class="action-group">
           <label
             class="action action--search"
@@ -91,7 +91,7 @@
       </div>
     </header>
     <div class="content">
-      <div class="files-wrapper" v-if="storageInfo && totalData > 0">
+      <div class="files-wrapper" v-if="totalData > 0 || tempFile.progress">
         <StorageItem
           :item="files"
           :isUploading="isUploading"
@@ -111,7 +111,7 @@
           <div class="actions">
             <input type="file" ref="attachmentFile" class="attachment-file" @input="handleSubmitFile" multiple>
             <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-              <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+              <mono-icon class="icon is-left" name="plus"/>
               Upload File
             </button>
           </div>
