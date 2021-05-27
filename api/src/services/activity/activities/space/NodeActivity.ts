@@ -1,5 +1,5 @@
 import { Node } from '../../../../database/entities/Node'
-import { entityRoomName } from '../../../../ws'
+import { entityRoomName } from '../../../web-socket'
 import { EntityActivity } from '../EntityActivity'
 import { ActivityType } from '../types'
 import { NodeActions } from './actions'
