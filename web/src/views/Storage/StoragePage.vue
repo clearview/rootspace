@@ -310,9 +310,9 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   @Watch('id', { immediate: true })
-  async watchId (id: number) {
-    await this.$store.dispatch('storage/fetch', { id: id })
-    await this.$store.dispatch('storage/info', id)
+  async watchId () {
+    await this.fetchStorageInfo()
+    await this.fetchFiles()
   }
 
   async mounted () {
