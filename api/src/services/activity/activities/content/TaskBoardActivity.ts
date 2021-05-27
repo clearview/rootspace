@@ -1,6 +1,7 @@
 import { TaskBoard } from '../../../../database/entities/tasks/TaskBoard'
 import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
+import { entityRoomName, RoomEntityName } from '../../../web-socket'
 
 export class TaskBoardActivity extends ContentActivity<TaskBoard> {
   constructor(action: string, entity: TaskBoard, actorId: number) {
@@ -16,6 +17,14 @@ export class TaskBoardActivity extends ContentActivity<TaskBoard> {
 
   handler(): string {
     return 'TaskBoardActivityHandler'
+  }
+
+  push(): boolean {
+    return true
+  }
+
+  pushTo(): string {
+    return entityRoomName(this._entity.spaceId, RoomEntityName.TaskBoard, this._entity.id)
   }
 
   static created(entity: TaskBoard, actorId: number) {

@@ -1,13 +1,14 @@
 import { TaskList } from '../../../../database/entities/tasks/TaskList'
 import { ContentActivity } from './ContentActivity'
 import { ContentActions } from './actions'
+import { entityRoomName, RoomEntityName } from '../../../web-socket'
 
 export class TaskListActivity extends ContentActivity<TaskList> {
   constructor(action: string, entity: TaskList, actorId: number) {
     super(action, entity, actorId)
 
-    this._entityAttributes = ['id', 'title']
-    this._entityUpdateAttributes = ['title']
+    this._entityAttributes = ['id', 'title', 'position']
+    this._entityUpdateAttributes = ['title', 'position']
   }
 
   getEntityName(): string {
@@ -16,6 +17,14 @@ export class TaskListActivity extends ContentActivity<TaskList> {
 
   handler(): string {
     return 'TaskListActivityHandler'
+  }
+
+  push(): boolean {
+    return true
+  }
+
+  pushTo(): string {
+    return entityRoomName(this._entity.spaceId, RoomEntityName.TaskBoard, this._entity.boardId)
   }
 
   static created(entity: TaskList, actorId: number) {

@@ -1,14 +1,12 @@
-import { RoomEntity } from './RoomEntity'
 import { RoomType } from './RoomType'
-
-type ValueOfRoomType<T> = T[keyof T]
-// ValueOfRoomType<typeof RoomType>
+import { RoomEntityName } from './RoomEntityName'
 
 export class Room {
   name: string
   type: string
   spaceId: number
   entityName: string
+  entityId: number
 
   constructor(roomName: string) {
     this.name = roomName
@@ -19,7 +17,7 @@ export class Room {
     return this.name
   }
 
-  getType(): ValueOfRoomType<typeof RoomType> {
+  getType(): string {
     return this.type
   }
 
@@ -40,6 +38,10 @@ export class Room {
     if (this.type === RoomType.Entity) {
       this.spaceId = this.parseSpaceId(parts[1])
       this.entityName = this.parseEntityName(parts[2])
+
+      if (parts.length === 4) {
+        this.entityId = this.parseEntityId(parts[3])
+      }
     }
   }
 
@@ -52,7 +54,7 @@ export class Room {
       return RoomType.Space
     }
 
-    if (parts.length === 3) {
+    if (parts.length === 3 || parts.length === 4) {
       return RoomType.Entity
     }
 
@@ -69,14 +71,24 @@ export class Room {
   }
 
   private parseEntityName(name: string): string {
-    for (const key in RoomEntity) {
-      if (Object.prototype.hasOwnProperty.call(RoomEntity, key)) {
-        if (name === RoomEntity[key]) {
+    for (const key in RoomEntityName) {
+      if (Object.prototype.hasOwnProperty.call(RoomEntityName, key)) {
+        if (name === RoomEntityName[key]) {
           return name
         }
       }
     }
 
     throw Error('Invalid room name')
+  }
+
+  private parseEntityId(value: string): number {
+    const id = Number(value)
+
+    if (isNaN(id) === true) {
+      throw Error('Invalid entity id')
+    }
+
+    return id
   }
 }
