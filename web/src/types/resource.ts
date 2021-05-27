@@ -57,6 +57,7 @@ export interface NewUploadResource {
   id: number;
   name: string;
   filename: string;
+  location: string;
   mimetype: string;
   path: string;
   size: number;

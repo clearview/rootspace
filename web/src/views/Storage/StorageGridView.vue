@@ -8,13 +8,13 @@
       <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
       <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
       <div class="download-wrapper">
-        <span class="download-file" @click="downloadFile(fileCopy.location)">
+        <a :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
           <legacy-icon
             name="download"
             size="28px"
             viewbox="16"
           />
-        </span>
+        </a>
       </div>
       <Popover
         class="file-item--action"
@@ -83,6 +83,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
+import Axios from 'axios'
 import { NewUploadResource } from '@/types/resource'
 
 import VModal from '@/components/legacy/Modal.vue'
@@ -171,10 +172,6 @@ export default class StorageGridView extends Vue {
 
   formatDate (fileDate: Date | string) {
     return moment(fileDate).format('MMM DD, YYYY')
-  }
-
-  downloadFile (url: string) {
-    window.open(url, '_blank')
   }
 
   fileIcon (type: string) {
