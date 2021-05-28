@@ -1,14 +1,10 @@
 <template>
-  <div class="file-item-wrapper p-5 pt-10" v-if="item">
-    <div class="grid grid-cols-1" v-if="isList">
-       <div v-for="(file, index) in item" :key="index">
-        <storageListView
-          :file="file"
-          :index="index"
-          @delete="handleDelete"
-        />
-       </div>
-       <div class="temp-file-item list-view" v-if="isUploading">
+  <div class="p-5 pt-10" v-if="item">
+    <div class="collection collection__list" v-if="isList">
+      <div v-for="(file, index) in item" :key="index" class="item">
+        <storageListView :file="file" :index="index" @delete="handleDelete" />
+      </div>
+      <div class="temp-file-item list-view" v-if="isUploading">
         <div class="progress-wrapper">
           <radial-progress-bar
             :diameter="70"
@@ -18,7 +14,8 @@
             stopColor="#8cd5ff"
             :strokeWidth="5"
             :innerStrokeWidth="5"
-            :totalSteps="100" >
+            :totalSteps="100"
+          >
             <span>{{ tempFile.progress }} %</span>
           </radial-progress-bar>
         </div>
@@ -27,13 +24,9 @@
         </div>
       </div>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" v-else>
-      <div v-for="(file, index) in item" :key="index">
-        <storageGridView
-          :file="file"
-          :index="index"
-          @delete="handleDelete"
-        />
+    <div class="collection collection__grid" v-else>
+      <div v-for="(file, index) in item" :key="index" class="item">
+        <storageGridView :file="file" :index="index" @delete="handleDelete" />
       </div>
       <div class="temp-file-item grid-view" v-if="isUploading">
         <div class="progress-wrapper">
@@ -45,7 +38,8 @@
             stopColor="#8cd5ff"
             :strokeWidth="5"
             :innerStrokeWidth="5"
-            :totalSteps="100" >
+            :totalSteps="100"
+          >
             <span>{{ tempFile.progress }} %</span>
           </radial-progress-bar>
         </div>
@@ -72,16 +66,15 @@ import StorageGridView from '@/views/Storage/StorageGridView.vue'
     RadialProgressBar
   }
 })
-
 export default class StorageItem extends Vue {
   @Prop({ type: Array, required: true })
-  private readonly item!:NewUploadResource
+  private readonly item!: NewUploadResource;
 
   @Prop({ type: Boolean, required: true })
-  private readonly isUploading!: boolean
+  private readonly isUploading!: boolean;
 
   @Prop({ type: Object, required: true })
-  private readonly tempFile!: NewUploadResource
+  private readonly tempFile!: NewUploadResource;
 
   get isList (): boolean {
     return this.prefferedView === StorageViewType.List
@@ -98,12 +91,26 @@ export default class StorageItem extends Vue {
 </script>
 
 <style lang="postcss" scoped>
+.collection {
+  display: grid;
+}
+
+.collection__list {
+  grid-template-columns: repeat(1, minmax(300px, 1fr));
+  gap: 0;
+}
+
+.collection__grid {
+  grid-template-columns: repeat(auto-fill, 318px);
+  gap: 19px;
+}
+
 .temp-file-item {
   @apply flex;
   border-radius: 4px;
   &.grid-view {
     @apply flex-col;
-    border: 1px solid #DEE2EE;
+    border: 1px solid #dee2ee;
     .progress-wrapper {
       @apply flex flex-wrap justify-center content-center w-full h-full;
     }
@@ -115,7 +122,7 @@ export default class StorageItem extends Vue {
   }
   &.list-view {
     @apply flex-row;
-    border-bottom: 1px solid #F8F8FB;
+    border-bottom: 1px solid #f8f8fb;
     .progress-wrapper {
       @apply flex flex-wrap justify-center content-center p-4;
     }
