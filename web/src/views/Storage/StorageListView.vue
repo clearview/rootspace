@@ -6,7 +6,8 @@
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
     <div class="file-item--thumbnail" v-if="isFileImage">
-      <img :src="fileCopy.location" :alt="fileCopy.id">
+      <storageImageViewer v-model="fileIndex" :image="fileCopy.location" @close="closePreview" @delete="deleteFileActionConfirm()" />
+      <img :src="fileCopy.location" :alt="fileCopy.id" @click="handleFileClick(index)">
     </div>
     <div class="file-item--icon" v-else>
       <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
@@ -87,13 +88,15 @@ import moment from 'moment'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
+import StorageImageViewer from '@/components/StorageImageViewer.vue'
 
 @Component({
   name: 'StorageListView',
   components: {
     Popover,
     LabelEditable,
-    VModal
+    VModal,
+    StorageImageViewer
   },
   filters: {
     formatFileSize (num: number) {
@@ -135,6 +138,7 @@ export default class StorageListView extends Vue {
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }
+  private fileIndex: number|null = null
   private deleteFile: any = {
     visible: false,
     id: null,
@@ -149,6 +153,14 @@ export default class StorageListView extends Vue {
     this.indexHovered = value
   }
 
+  handleFileClick (index: number|null) {
+    this.fileIndex = index
+  }
+
+  closePreview () {
+    this.fileIndex = null
+  }
+
   handleMenuTrigger (visible: boolean) {
     if (visible) {
       this.isActionOpened = true
@@ -158,6 +170,7 @@ export default class StorageListView extends Vue {
   }
 
   deleteFileActionConfirm () {
+    this.closePreview()
     this.deleteFile.visible = true
   }
 
