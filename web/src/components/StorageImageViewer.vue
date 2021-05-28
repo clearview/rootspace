@@ -62,7 +62,6 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Model } from 'vue-property-decorator'
-import { NewUploadResource } from '@/types/resource'
 
 import Modal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
