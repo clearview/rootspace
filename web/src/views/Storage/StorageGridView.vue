@@ -8,13 +8,21 @@
       <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
       <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
       <div class="download-wrapper">
-        <a :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
+        <a v-if="!isFileImage" :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
           <legacy-icon
             name="download"
             size="28px"
             viewbox="16"
           />
         </a>
+        <div v-else class="download-file" @click="handleFileClick(index)">
+          <storageImageViewer v-model="fileIndex" :image="fileCopy.location" @close="closePreview" @delete="deleteFileActionConfirm()" />
+          <legacy-icon
+            name="download"
+            size="28px"
+            viewbox="16"
+          />
+        </div>
       </div>
       <Popover
         class="file-item--action"
@@ -83,12 +91,12 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
-import Axios from 'axios'
 import { NewUploadResource } from '@/types/resource'
 
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
+import StorageImageViewer from '@/components/StorageImageViewer.vue'
 import moment from 'moment'
 
 @Component({
@@ -96,7 +104,8 @@ import moment from 'moment'
   components: {
     Popover,
     LabelEditable,
-    VModal
+    VModal,
+    StorageImageViewer
   },
   filters: {
     formatFileSize (num: number) {
@@ -138,6 +147,7 @@ export default class StorageGridView extends Vue {
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }
+  private fileIndex: number|null = null
   private deleteFile: any = {
     visible: false,
     id: null,
@@ -152,6 +162,14 @@ export default class StorageGridView extends Vue {
     this.indexHovered = value
   }
 
+  handleFileClick (index: number|null) {
+    this.fileIndex = index
+  }
+
+  closePreview () {
+    this.fileIndex = null
+  }
+
   handleMenuTrigger (visible: boolean) {
     if (visible) {
       this.isActionOpened = true
@@ -161,6 +179,7 @@ export default class StorageGridView extends Vue {
   }
 
   deleteFileActionConfirm () {
+    this.closePreview()
     this.deleteFile.visible = true
   }
 
