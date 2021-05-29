@@ -21,3 +21,6 @@ export function validationFailed(message: string, fields: any, statusCode: HttpS
   return new HttpValidationError(message, fields, statusCode)
 }
 
+export function serverError(message: string = 'Internal Server Error') {
+  return new HttpError(message, HttpErrName.ServerError, HttpStatusCode.ServerError)
+}

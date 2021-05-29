@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction, response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { Upload } from '../database/entities/Upload'
 import { User } from '../database/entities/User'
@@ -18,6 +18,17 @@ export class UploadsCtrl extends BaseCtrl {
     super()
     this.uploadService = ServiceFactory.getInstance().getUploadService()
     this.entityService = ServiceFactory.getInstance().getEntityService()
+  }
+
+  async download(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+
+    this.uploadService
+      .getStream(upload)
+      .on('error', (err) => {
+        res.status(500).json(this.responseError(err))
+      })
+      .pipe(res)
   }
 
   async uploadUserAvatar(req: Request, res: Response, next: NextFunction) {
