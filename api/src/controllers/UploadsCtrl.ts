@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { Upload } from '../database/entities/Upload'
 import { User } from '../database/entities/User'
@@ -22,6 +22,9 @@ export class UploadsCtrl extends BaseCtrl {
 
   async download(req: Request, res: Response) {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+
+    res.setHeader('Content-disposition', 'attachment; filename=' + upload.filename)
+    res.setHeader('Content-type', upload.mimetype)
 
     this.uploadService
       .getStream(upload)
