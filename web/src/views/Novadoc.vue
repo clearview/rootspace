@@ -215,7 +215,7 @@
           <div class="menu-separator"></div>
           <MenuGroup
             value="#000"
-            v-if="canBeTextColored(isActive, true)"
+            :disabled="!canBeBgColored(isActive, focused)"
             :show-arrow="false"
             v-tippy="{ placement : 'top',  arrow: true }"
             content="Text Color"
