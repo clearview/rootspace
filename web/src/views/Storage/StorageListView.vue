@@ -6,8 +6,8 @@
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
     <div class="file-item--thumbnail" v-if="isFileImage">
-      <storageImageViewer v-model="fileIndex" :image="fileCopy.location" @close="closePreview" @delete="deleteFileActionConfirm()" />
-      <img :src="fileCopy.location" :alt="fileCopy.id" @click="handleFileClick(index)">
+      <storageImageViewer v-model="fileIndex" :image="fileCopy" @close="closePreview" @delete="deleteFileActionConfirm()" />
+      <img :src="fileCopy.versions.thumbnail.location" :alt="fileCopy.id" @click="handleFileClick(index)">
     </div>
     <div class="file-item--icon" v-else>
       <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
