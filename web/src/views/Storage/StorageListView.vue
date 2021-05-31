@@ -34,7 +34,7 @@
         Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
-    <a :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
+    <a target="_blank" class="download-file" @click.prevent="handleDownload(fileCopy)">
       <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
     </a>
     <Popover
@@ -221,6 +221,10 @@ export default class StorageListView extends Vue {
 
   async copyURL (url: string) {
     await navigator.clipboard.writeText(url) // TODO : Add a feedback if the URL is copied
+  }
+
+  handleDownload (file: NewUploadResource) {
+    this.$emit('download', file)
   }
 
   @Watch('file')

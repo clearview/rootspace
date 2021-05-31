@@ -8,7 +8,7 @@
       <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
       <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
       <div class="download-wrapper">
-        <a v-if="!isFileImage" :href="fileCopy.location" :download="fileCopy.filename" target="_blank" class="download-file">
+        <a v-if="!isFileImage" :download="fileCopy.filename" target="_blank" class="download-file" @click.prevent="handleDownload(fileCopy)">
           <legacy-icon
             name="download"
             size="28px"
@@ -230,6 +230,10 @@ export default class StorageGridView extends Vue {
 
   async copyURL (url: string) {
     await navigator.clipboard.writeText(url) // TODO : Add a feedback if the URL is copied
+  }
+
+  handleDownload (file: NewUploadResource) {
+    this.$emit('download', file)
   }
 
   @Watch('file')

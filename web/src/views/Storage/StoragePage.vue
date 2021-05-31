@@ -91,12 +91,14 @@
       </div>
     </header>
     <div class="content">
+      <loading :loading="isDownloading">Downloading...</loading>
       <div class="files-wrapper" v-if="totalData > 0 || tempFile.progress">
         <StorageItem
           :item="files"
           :isUploading="isUploading"
           :tempFile='tempFile'
           @file:delete="handleDeleteFile"
+          @file:download="handleDownloadFile"
         />
       </div>
       <div class="empty-file" v-else-if="search === ''">
@@ -125,16 +127,20 @@
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
 import { throttle } from 'lodash'
-import StorageItem from '@/views/Storage/StorageItem.vue'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
+import UploadService from '@/services/upload'
 
-import { StorageResource, StorageViewType, NewUploadResource } from '../../types/resource'
+import StorageItem from '@/views/Storage/StorageItem.vue'
+import Loading from '@/components/Loading.vue'
+
+import { StorageResource, StorageViewType, NewUploadResource } from '@/types/resource'
 
 @Component({
   components: {
-    StorageItem
+    StorageItem,
+    Loading
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
@@ -142,6 +148,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   private readonly attachmentFileRef!: HTMLInputElement
 
   private isUploading = false
+  private isDownloading = false
   private isCapturingFile = false
   private isFetching = false
   private search = ''
@@ -243,6 +250,21 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   async handleDeleteFile (id: number) {
     await this.$store.dispatch('storage/destroy', id)
     await this.fetchFiles()
+  }
+
+  async handleDownloadFile (file: NewUploadResource) {
+    this.isDownloading = true
+
+    const a = document.createElement('a')
+    const data = await UploadService.download(file.id)
+
+    a.href = URL.createObjectURL(data)
+    a.download = file.filename
+    a.click()
+
+    URL.revokeObjectURL(a.href)
+
+    this.isDownloading = false
   }
 
   async uploadFiles (files: FileList) {

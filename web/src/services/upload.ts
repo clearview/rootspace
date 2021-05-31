@@ -29,4 +29,12 @@ export default class UploadService {
 
     return res.data
   }
+
+  static async download (id: number) {
+    const res = await api.get(`uploads/${id}/download`, {
+      responseType: 'blob'
+    })
+
+    return res.data
+  }
 }

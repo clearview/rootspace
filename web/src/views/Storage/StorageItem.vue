@@ -2,7 +2,7 @@
   <div class="p-5 pt-10" v-if="item">
     <div class="collection collection__list" v-if="isList">
       <div v-for="(file, index) in item" :key="index" class="item">
-        <storageListView :file="file" :index="index" @delete="handleDelete" />
+        <storageListView :file="file" :index="index" @delete="handleDelete" @download="handleDownload" />
       </div>
       <div class="temp-file-item list-view" v-if="isUploading">
         <div class="progress-wrapper">
@@ -26,7 +26,7 @@
     </div>
     <div class="collection collection__grid" v-else>
       <div v-for="(file, index) in item" :key="index" class="item">
-        <storageGridView :file="file" :index="index" @delete="handleDelete" />
+        <storageGridView :file="file" :index="index" @delete="handleDelete" @download="handleDownload" />
       </div>
       <div class="temp-file-item grid-view" v-if="isUploading">
         <div class="progress-wrapper">
@@ -86,6 +86,10 @@ export default class StorageItem extends Vue {
 
   handleDelete (id: number) {
     this.$emit('file:delete', id)
+  }
+
+  handleDownload (file: NewUploadResource) {
+    this.$emit('file:download', file)
   }
 }
 </script>
