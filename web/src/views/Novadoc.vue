@@ -546,7 +546,7 @@
         <editor-menu-bubble
           :editor="editor"
           v-slot="{ isActive, commands, menu, getMarkAttrs }"
-          v-if="!isPublicView"
+          v-if="!isPublicView && !isReadonly"
         >
           <div>
             <div
