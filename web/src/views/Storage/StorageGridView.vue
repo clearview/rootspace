@@ -5,7 +5,7 @@
     @mouseleave="showAction(null)"
     :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
     <div class="icon-thumbnail">
-      <img :src="fileCopy.location" :alt="fileCopy.id" v-if="isFileImage">
+      <img :src="fileCopy.versions.preview.location" :alt="fileCopy.id" v-if="isFileImage">
       <legacy-icon v-else class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
       <div class="download-wrapper">
         <a v-if="!isFileImage" :download="fileCopy.filename" target="_blank" class="download-file" @click.prevent="handleDownload(fileCopy)">
@@ -16,7 +16,7 @@
           />
         </a>
         <div v-else class="download-file" @click="handleFileClick(index)">
-          <storageImageViewer v-model="fileIndex" :image="fileCopy.location" @close="closePreview" @delete="deleteFileActionConfirm()" />
+          <storageImageViewer v-model="fileIndex" :image="fileCopy" @close="closePreview" @delete="deleteFileActionConfirm()" />
           <legacy-icon
             name="download"
             size="28px"
@@ -143,7 +143,7 @@ export default class StorageGridView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = 0
+  private indexHovered = null
   private isRenaming = false
   private isActionOpened = false
   private fileCopy = { ...this.file }

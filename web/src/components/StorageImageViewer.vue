@@ -22,21 +22,18 @@
           />
         </span>
         <div class="image-container">
-          <div class="image-nav">
-            <div class="image-box">
-              <img :src="image">
-            </div>
+          <div class="image-box">
+            <img :src="image.versions.preview.location">
           </div>
-
           <div class="title">
             <p v-if="image">
-              {{ image | formatAttachmentName }}
+              {{ image.name }}
             </p>
             <Popover :z-index="2001" :offset="10" :with-close="false" position="right-start" class="modal-action">
               <template #default="{}">
                 <div class="action-line">
                   <legacy-icon class="action-icon" name="download" viewbox="16" size="16px"></legacy-icon>
-                  <div class="action-line-text" @click="open(image)">
+                  <div class="action-line-text" @click="open(image.location)">
                     Download
                   </div>
                 </div>
@@ -71,19 +68,13 @@ import Popover from '@/components/Popover.vue'
   components: {
     Modal,
     Popover
-  },
-  filters: {
-    formatAttachmentName (location: string) {
-      const splits = location.split('/')
-      return splits[splits.length - 1]
-    }
   }
 })
 export default class ImageViewer extends Vue {
   @Model('change', { type: Number }) readonly index!: number
 
-  @Prop({ type: String })
-  private readonly image!: String;
+  @Prop({ type: Object })
+  private readonly image: Object
 
   @Emit('close')
   close () {
@@ -119,27 +110,26 @@ export default class ImageViewer extends Vue {
 
   .close {
     @apply fixed;
-
+    background-color: rgb(255 255 255 / 20%);
+    cursor: pointer;
+    border-radius: 50px;
+    color: #FFF;
+    width: 48px;
+    height: 48px;
     top: 40px;
     right: 40px;
-
     svg {
       margin: 7px 0 0 8px;
+    }
+    &:hover {
+      background-color: rgb(255 255 255 / 40%);
     }
   }
 
   .image-container {
-    .image-nav {
-      @apply flex items-center;
-
-      width: 943px;
-      height: 600px;
-
-      .image-box {
-        @apply mx-6 items-center flex;
-        width: 800px;
-        height: 600px;
-
+    @apply flex flex-col items-center;
+    .image-box {
+        @apply items-center flex;
         img {
           cursor: pointer;
           margin: 0 auto;
@@ -148,7 +138,6 @@ export default class ImageViewer extends Vue {
           max-height: 600px;
         }
       }
-    }
 
     .title {
       @apply flex justify-center;
