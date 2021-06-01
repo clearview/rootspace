@@ -1,18 +1,19 @@
 <template>
   <div class="p-5 pt-10" v-if="item">
-    <div class="collection collection__list" v-if="isList">
+    <div :class="classNames">
       <div v-for="(file, index) in item" :key="index" class="item">
-        <list-item
+        <component
+          :is="itemComponent"
           :file="file"
           :index="index"
           @delete="handleDelete"
           @download="handleDownload"
         />
       </div>
-      <div class="temp-file-item list-view" v-if="isUploading">
-        <div class="progress-wrapper">
+      <div class="item item__placeholder" v-if="isUploading">
+        <div class="progress">
           <radial-progress-bar
-            :diameter="70"
+            :diameter="isList ? 55 : 110"
             :completedSteps="tempFile.progress"
             innerStrokeColor="#dee2ee"
             startColor="#8cd5ff"
@@ -25,36 +26,7 @@
           </radial-progress-bar>
         </div>
         <div class="content">
-          {{ tempFile.name }}
-        </div>
-      </div>
-    </div>
-    <div class="collection collection__grid" v-else>
-      <div v-for="(file, index) in item" :key="index" class="item">
-        <grid-item
-          :file="file"
-          :index="index"
-          @delete="handleDelete"
-          @download="handleDownload"
-        />
-      </div>
-      <div class="temp-file-item grid-view" v-if="isUploading">
-        <div class="progress-wrapper">
-          <radial-progress-bar
-            :diameter="111"
-            :completedSteps="tempFile.progress"
-            innerStrokeColor="#dee2ee"
-            startColor="#8cd5ff"
-            stopColor="#8cd5ff"
-            :strokeWidth="5"
-            :innerStrokeWidth="5"
-            :totalSteps="100"
-          >
-            <span>{{ tempFile.progress }} %</span>
-          </radial-progress-bar>
-        </div>
-        <div class="content">
-          {{ tempFile.name }}
+          <strong>{{ tempFile.name }}</strong>
         </div>
       </div>
     </div>
@@ -87,11 +59,25 @@ export default class StorageItem extends Vue {
   private readonly tempFile!: NewUploadResource;
 
   get isList (): boolean {
-    return this.prefferedView === StorageViewType.List
+    return this.viewType === StorageViewType.List
   }
 
-  get prefferedView (): StorageViewType {
+  get viewType (): StorageViewType {
     return this.$store.state.storage.viewAs
+  }
+
+  get classNames () {
+    return {
+      collection: true,
+      collection__list: this.viewType === StorageViewType.List,
+      collection__grid: this.viewType === StorageViewType.Grid
+    }
+  }
+
+  get itemComponent () {
+    return this.isList
+      ? 'list-item'
+      : 'grid-item'
   }
 
   handleDelete (id: number) {
@@ -112,11 +98,43 @@ export default class StorageItem extends Vue {
 .collection__list {
   grid-template-columns: repeat(1, minmax(300px, 1fr));
   gap: 0;
+
+  .item.item__placeholder {
+    display: flex;
+    flex-flow: row;
+    padding: 1.25rem;
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .content {
+      padding: 1.25em;
+    }
+  }
 }
 
 .collection__grid {
-  grid-template-columns: repeat(auto-fill, 318px);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 19px;
+
+  .item.item__placeholder {
+    border: 1px solid #dee2ee;
+    border-radius: 4px;
+
+    .progress {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 150px;
+    }
+
+    .content {
+      padding: 1.25em;
+    }
+  }
 }
 
 .temp-file-item {
