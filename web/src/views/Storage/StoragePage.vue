@@ -1,43 +1,41 @@
 <template>
-  <section class="file-page" @dragenter="captureDragFile" v-if="storageInfo && files">
-    <div class="file-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="handleDroppedFile">
+  <section
+    class="file-page"
+    @dragenter="captureDragFile"
+    v-if="storageInfo && files"
+  >
+    <div
+      class="file-drag-capture"
+      v-if="isCapturingFile"
+      @dragover="prepareDragFile"
+      @dragleave="releaseDragFile"
+      @drop="handleDroppedFile"
+    >
       <div class="file-drag-content">
-        <legacy-icon
-          name="upload"
-          size="32px"
-          viewbox="32"
-        />
+        <legacy-icon name="upload" size="32px" viewbox="32" />
         Upload your file here!
       </div>
     </div>
     <header class="header">
-      <h3 class="header-title">
-        {{ storageInfo.title }} ({{ files.length }})
-      </h3>
+      <h3 class="header-title">{{ storageInfo.title }} ({{ files.length }})</h3>
       <div class="actions" v-if="totalData > 0">
         <div class="action-group">
           <label
             class="action action--search"
-            :class="{ 'action__active': searchVisible }"
+            :class="{ action__active: searchVisible }"
             @click="searchVisible = true"
             v-click-outside="closeSearch"
           >
-            <mono-icon
-              name="search"
-              class="action--icon"
-            />
+            <mono-icon name="search" class="action--icon" />
 
-            <div
-              v-if="searchVisible"
-              class="action--body"
-            >
+            <div v-if="searchVisible" class="action--body">
               <input
                 type="text"
                 placeholder="Search"
                 v-model="search"
                 @input="lazyFetchFiles"
                 @keydown.esc="clearSearch"
-              >
+              />
 
               <button
                 v-if="search"
@@ -61,9 +59,7 @@
               viewbox="32"
               class="icon-list mr-1"
             />
-            <div class="action--body">
-              List
-            </div>
+            <div class="action--body">List</div>
           </div>
           <div
             class="action"
@@ -76,15 +72,24 @@
               viewbox="16"
               class="icon-grid mr-1"
             />
-            <div class="action--body">
-              Grid
-            </div>
+            <div class="action--body">Grid</div>
           </div>
         </div>
         <div class="action-group">
-          <input type="file" ref="attachmentFile" class="attachment-file" @input="handleSubmitFile" multiple>
-          <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-            <legacy-icon class="mr-2" name="plus2" size="13"  viewbox="15" />
+          <input
+            type="file"
+            ref="attachmentFile"
+            class="attachment-file"
+            @input="handleSubmitFile"
+            multiple
+          />
+          <button
+            class="btn btn-upload"
+            @click="pickFile"
+            :disabled="isUploading"
+            :class="{ uploading: isUploading }"
+          >
+            <legacy-icon class="mr-2" name="plus2" size="13" viewbox="15" />
             Upload File
           </button>
         </div>
@@ -93,27 +98,40 @@
     <div class="content">
       <loading :loading="isDownloading">Downloading...</loading>
       <div class="files-wrapper" v-if="totalData > 0 || tempFile.progress">
-        <StorageItem
+        <storage-collection
           :item="files"
           :isUploading="isUploading"
-          :tempFile='tempFile'
+          :tempFile="tempFile"
           @file:delete="handleDeleteFile"
           @file:download="handleDownloadFile"
         />
       </div>
       <div class="empty-file" v-else-if="search === ''">
         <div class="content">
-          <img src="@/assets/images/file-empty.svg" alt="Empty File" class="illustration">
-          <h3 class="title">
-            Add your first file
-          </h3>
+          <img
+            src="@/assets/images/file-empty.svg"
+            alt="Empty File"
+            class="illustration"
+          />
+          <h3 class="title">Add your first file</h3>
           <h4 class="subtitle">
             You can drag and drop or click on the button below
           </h4>
           <div class="actions">
-            <input type="file" ref="attachmentFile" class="attachment-file" @input="handleSubmitFile" multiple>
-            <button class="btn btn-upload" @click="pickFile" :disabled="isUploading" :class="{ 'uploading': isUploading }">
-              <mono-icon class="icon is-left" name="plus"/>
+            <input
+              type="file"
+              ref="attachmentFile"
+              class="attachment-file"
+              @input="handleSubmitFile"
+              multiple
+            />
+            <button
+              class="btn btn-upload"
+              @click="pickFile"
+              :disabled="isUploading"
+              :class="{ uploading: isUploading }"
+            >
+              <mono-icon class="icon is-left" name="plus" />
               Upload File
             </button>
           </div>
@@ -132,28 +150,32 @@ import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import UploadService from '@/services/upload'
 
-import StorageItem from '@/views/Storage/StorageItem.vue'
+import StorageCollection from '@/views/Storage/StorageCollection.vue'
 import Loading from '@/components/Loading.vue'
 
-import { StorageResource, StorageViewType, NewUploadResource } from '@/types/resource'
+import {
+  StorageResource,
+  StorageViewType,
+  NewUploadResource
+} from '@/types/resource'
 
 @Component({
   components: {
-    StorageItem,
+    StorageCollection,
     Loading
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
   @Ref('attachmentFile')
-  private readonly attachmentFileRef!: HTMLInputElement
+  private readonly attachmentFileRef!: HTMLInputElement;
 
-  private isUploading = false
-  private isDownloading = false
-  private isCapturingFile = false
-  private isFetching = false
-  private search = ''
-  private searchVisible = false
-  private tempFile = {}
+  private isUploading = false;
+  private isDownloading = false;
+  private isCapturingFile = false;
+  private isFetching = false;
+  private search = '';
+  private searchVisible = false;
+  private tempFile = {};
 
   get id () {
     return Number(this.$route.params.id)
@@ -272,15 +294,16 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
     this.isUploading = true
 
-    const process = Array.from(files).map(
-      (file) => this.$store.dispatch('storage/upload', {
+    const process = Array.from(files).map((file) =>
+      this.$store.dispatch('storage/upload', {
         file,
         item: this.storageInfo,
         config: {
           onUploadProgress: throttle((progress: Record<string, any>) => {
             this.tempFile = {
               name: file.name,
-              progress: Math.round(progress.loaded / progress.total * 97) || 1
+              progress:
+                Math.round((progress.loaded / progress.total) * 97) || 1
             }
           }, 300)
         }
@@ -308,21 +331,24 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
         this.pageTitle = this.storageInfo.title
         this.pageReady = true
       }
-    } catch { }
+    } catch {}
     this.isFetching = false
   }
 
   async fetchFiles () {
     this.isFetching = true
     try {
-      await this.$store.dispatch('storage/fetch', { id: this.id, search: this.search })
+      await this.$store.dispatch('storage/fetch', {
+        id: this.id,
+        search: this.search
+      })
       if (this.files) {
         if (!this.pageReady) {
           await this.activateSpace(this.files.spaceId)
         }
         this.pageReady = true
       }
-    } catch { }
+    } catch {}
     this.isFetching = false
   }
 
@@ -422,10 +448,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   flex-flow: row;
   padding: 0 8px;
   .btn-upload {
-    border-color: #8CD5FF;
-    background: #8CD5FF;
-    color: #2C2B35;
-    padding: .3rem 1rem;
+    border-color: #8cd5ff;
+    background: #8cd5ff;
+    color: #2c2b35;
+    padding: 0.3rem 1rem;
     height: 32px;
   }
   &:first-child {
@@ -468,7 +494,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     width: 21px;
     height: 21px;
     border-radius: 50%;
-    background-color: #F4F5F7;
+    background-color: #f4f5f7;
     outline: none;
     font-size: 12px;
     stroke-width: 2px;
@@ -495,7 +521,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     font-size: 18px;
     line-height: 21px;
     text-align: center;
-    color: #2C2B35;
+    color: #2c2b35;
   }
   .subtitle {
     margin-top: 9px;
@@ -504,14 +530,14 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     font-size: 14px;
     line-height: 16.71px;
     text-align: center;
-    color: #2C2B35;
+    color: #2c2b35;
   }
   .actions {
     margin-top: 24px;
     .btn-upload {
-      border-color: #8CD5FF;
-      background: #8CD5FF;
-      color: #2C2B35;
+      border-color: #8cd5ff;
+      background: #8cd5ff;
+      color: #2c2b35;
       padding-left: 1rem;
       padding-right: 1rem;
     }

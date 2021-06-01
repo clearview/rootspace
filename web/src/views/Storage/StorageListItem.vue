@@ -4,13 +4,28 @@
     class="file-item"
     @mouseover="showAction(index)"
     @mouseleave="showAction(null)"
-    :class="{ 'hovered' : indexHovered == index || isRenaming || isActionOpened }">
+    :class="{ hovered: indexHovered == index || isRenaming || isActionOpened }"
+  >
     <div class="file-item--thumbnail" v-if="isFileImage">
-      <storageImageViewer v-model="fileIndex" :image="fileCopy" @close="closePreview" @delete="deleteFileActionConfirm()" />
-      <img :src="fileCopy.versions.thumbnail.location" :alt="fileCopy.id" @click="handleFileClick(index)">
+      <storageImageViewer
+        v-model="fileIndex"
+        :image="fileCopy"
+        @close="closePreview"
+        @delete="deleteFileActionConfirm()"
+      />
+      <img
+        :src="fileCopy.versions.thumbnail.location"
+        :alt="fileCopy.id"
+        @click="handleFileClick(index)"
+      />
     </div>
     <div class="file-item--icon" v-else>
-      <legacy-icon class="stroke-0" size="4.1em" viewbox="65" :name="fileIcon(fileCopy.mimetype)" />
+      <legacy-icon
+        class="stroke-0"
+        size="4.1em"
+        viewbox="65"
+        :name="fileIcon(fileCopy.mimetype)"
+      />
     </div>
     <div class="file-item--content">
       <h3>
@@ -21,48 +36,98 @@
         />
       </h3>
       <div class="input-group action-button" v-show="isRenaming">
-        <input ref="input" type="text" class="field file-input" placeholder="File name" :value="fileCopy.name"
-          @keydown.enter="saveFileName" @keydown.esc="isRenaming = false">
+        <input
+          ref="input"
+          type="text"
+          class="field file-input"
+          placeholder="File name"
+          :value="fileCopy.name"
+          @keydown.enter="saveFileName"
+          @keydown.esc="isRenaming = false"
+        />
         <button class="btn btn-action" @click.stop="saveFileName">
-          <legacy-icon name="checkmark3" viewbox="16" size="26px 21px" title="Save"/>
+          <legacy-icon
+            name="checkmark3"
+            viewbox="16"
+            size="26px 21px"
+            title="Save"
+          />
         </button>
         <button class="btn btn-action" @click="isRenaming = false">
-          <legacy-icon name="close" size="26px 21px" title="Cancel"/>
+          <legacy-icon name="close" size="26px 21px" title="Cancel" />
         </button>
       </div>
       <div v-if="!isRenaming">
-        Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} • {{ formatDate(fileCopy.createdAt) }} • {{ fileCopy.size | formatFileSize }}
+        Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} •
+        {{ formatDate(fileCopy.createdAt) }} •
+        {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
-    <a target="_blank" class="download-file" @click.prevent="handleDownload(fileCopy)">
-      <legacy-icon class="action-icon" name="download" viewbox="19" size="19px"></legacy-icon>
+    <a
+      target="_blank"
+      class="download-file"
+      @click.prevent="handleDownload(fileCopy)"
+    >
+      <legacy-icon
+        class="action-icon"
+        name="download"
+        viewbox="19"
+        size="19px"
+      ></legacy-icon>
     </a>
     <Popover
       class="file-item--action"
       top="38px"
       :offset="10"
       :with-close="false"
-      @trigger="handleMenuTrigger">
+      @trigger="handleMenuTrigger"
+    >
       <template #default="{ hide }">
-        <div class="action-line" @click.prevent.stop="copyURL(fileCopy.location);hide();">
-          <legacy-icon class="action-icon" name="copy" viewbox="16" size="18px"></legacy-icon>
+        <div
+          class="action-line"
+          @click.prevent.stop="
+            copyURL(fileCopy.location);
+            hide();
+          "
+        >
+          <legacy-icon
+            class="action-icon"
+            name="copy"
+            viewbox="16"
+            size="18px"
+          ></legacy-icon>
           <div class="action-line-text">Copy link</div>
         </div>
-        <div class="action-line" @click.prevent.stop="hide();rename();">
-          <legacy-icon class="action-icon" name="pencil" viewbox="16" size="18px"></legacy-icon>
+        <div
+          class="action-line"
+          @click.prevent.stop="
+            hide();
+            rename();
+          "
+        >
+          <legacy-icon
+            class="action-icon"
+            name="pencil"
+            viewbox="16"
+            size="18px"
+          ></legacy-icon>
           <div class="action-line-text">Rename</div>
         </div>
         <div class="action-separator"></div>
-        <div class="action-line danger" @click.prevent.stop="hide();deleteFileActionConfirm();">
+        <div
+          class="action-line danger"
+          @click.prevent.stop="
+            hide();
+            deleteFileActionConfirm();
+          "
+        >
           <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
-          <div class="action-line-text">
-            Delete
-          </div>
+          <div class="action-line-text">Delete</div>
         </div>
       </template>
       <template #trigger="{ visible }">
-        <button class="btn btn-menu" :class="{'btn-menu--opened': visible}">
-          <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px"/>
+        <button class="btn btn-menu" :class="{ 'btn-menu--opened': visible }">
+          <legacy-icon name="vertical-ellipsis" viewbox="20" size="20px" />
         </button>
       </template>
     </Popover>
@@ -75,7 +140,8 @@
       portal="secondary"
     >
       <div class="modal-body text-center">
-        Are you sure you want to delete this file? <span class="font-semibold">{{ fileCopy.name }}</span>
+        Are you sure you want to delete this file?
+        <span class="font-semibold">{{ fileCopy.name }}</span>
       </div>
     </v-modal>
   </div>
@@ -91,7 +157,7 @@ import LabelEditable from '@/components/LabelEditable.vue'
 import StorageImageViewer from '@/components/StorageImageViewer.vue'
 
 @Component({
-  name: 'StorageListView',
+  name: 'StorageListItem',
   components: {
     Popover,
     LabelEditable,
@@ -115,7 +181,10 @@ import StorageImageViewer from '@/components/StorageImageViewer.vue'
         return (neg ? '-' : '') + num + ' B'
       }
 
-      const exponent = Math.min(Math.floor(Math.log(num) / Math.log(1000)), units.length - 1)
+      const exponent = Math.min(
+        Math.floor(Math.log(num) / Math.log(1000)),
+        units.length - 1
+      )
       num = +(num / Math.pow(1000, exponent)).toFixed(2) * 1
       const unit = units[exponent]
 
@@ -123,10 +192,9 @@ import StorageImageViewer from '@/components/StorageImageViewer.vue'
     }
   }
 })
-
 export default class StorageListView extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly file!: NewUploadResource
+  private readonly file!: NewUploadResource;
 
   @Prop({ type: Number, required: true })
   private readonly index!: number;
@@ -134,26 +202,30 @@ export default class StorageListView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = 0
-  private isRenaming = false
-  private isActionOpened = false
-  private fileCopy = { ...this.file }
-  private fileIndex: number|null = null
+  private indexHovered = 0;
+  private isRenaming = false;
+  private isActionOpened = false;
+  private fileCopy = { ...this.file };
+  private fileIndex: number | null = null;
   private deleteFile: any = {
     visible: false,
     id: null,
     alert: null
-  }
+  };
 
   get isFileImage () {
-    return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(this.fileCopy.mimetype) !== -1
+    return (
+      ['image/jpg', 'image/jpeg', 'image/png'].indexOf(
+        this.fileCopy.mimetype
+      ) !== -1
+    )
   }
 
   showAction (value: number) {
     this.indexHovered = value
   }
 
-  handleFileClick (index: number|null) {
+  handleFileClick (index: number | null) {
     this.fileIndex = index
   }
 
@@ -242,12 +314,12 @@ h3 {
 }
 .file-item {
   @apply flex flex-row p-5 items-center relative;
-  border-bottom: 1px solid #F8F8FB;
+  border-bottom: 1px solid #f8f8fb;
   padding-right: 80px;
   &.hovered {
     border-radius: 4px;
-    background: #F8F8FB;
-    border-bottom: 1px solid #F8F8FB;
+    background: #f8f8fb;
+    border-bottom: 1px solid #f8f8fb;
     .file-item--action {
       display: flex;
     }
@@ -268,7 +340,7 @@ h3 {
 }
 .file-item--content {
   @apply flex flex-col mr-auto w-full;
-  font-size: .813rem;
+  font-size: 0.813rem;
 }
 .file-item--action {
   display: none;
@@ -296,18 +368,18 @@ h3 {
   margin-right: 30px;
   font-weight: 500;
   line-height: 0;
-  color: #2C2B35;
+  color: #2c2b35;
   box-sizing: border-box;
   border-radius: 4px;
-  border: 1px solid #AAB1C5;
+  border: 1px solid #aab1c5;
   height: 32px;
 }
 .download-file {
-  background: #EDEFF3;
+  background: #edeff3;
   padding: 12.5px 20px;
   border-radius: 24px;
   &:hover {
-    background: #DDF3FF;
+    background: #ddf3ff;
   }
 }
 .action-line {
@@ -325,14 +397,14 @@ h3 {
   height: auto;
   padding: 5px;
   background: white;
-  border: 1px solid #AAB1C5 !important;
+  border: 1px solid #aab1c5 !important;
   border-radius: 4px;
   &:focus {
     box-shadow: none;
   }
   &.btn-menu--opened {
-    background: #DDF3FF;
-    border: 1px solid #DDF3FF !important;
+    background: #ddf3ff;
+    border: 1px solid #ddf3ff !important;
     box-shadow: none;
     svg {
       fill: #146493;
@@ -346,8 +418,8 @@ h3 {
   color: theme("colors.gray.900");
   stroke-width: 3px;
   cursor: pointer;
-  &:hover{
-    background: #F0F2F5;
+  &:hover {
+    background: #f0f2f5;
     .action-submenu {
       visibility: visible;
       opacity: 1;
@@ -361,9 +433,9 @@ h3 {
   @apply ml-2;
   flex: 1 1 auto;
 }
-.action-separator{
+.action-separator {
   @apply my-1;
-  height:1px;
+  height: 1px;
   background: theme("colors.gray.100");
 }
 </style>

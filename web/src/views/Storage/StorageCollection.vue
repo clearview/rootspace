@@ -2,7 +2,12 @@
   <div class="p-5 pt-10" v-if="item">
     <div class="collection collection__list" v-if="isList">
       <div v-for="(file, index) in item" :key="index" class="item">
-        <storageListView :file="file" :index="index" @delete="handleDelete" @download="handleDownload" />
+        <list-item
+          :file="file"
+          :index="index"
+          @delete="handleDelete"
+          @download="handleDownload"
+        />
       </div>
       <div class="temp-file-item list-view" v-if="isUploading">
         <div class="progress-wrapper">
@@ -26,7 +31,12 @@
     </div>
     <div class="collection collection__grid" v-else>
       <div v-for="(file, index) in item" :key="index" class="item">
-        <storageGridView :file="file" :index="index" @delete="handleDelete" @download="handleDownload" />
+        <grid-item
+          :file="file"
+          :index="index"
+          @delete="handleDelete"
+          @download="handleDownload"
+        />
       </div>
       <div class="temp-file-item grid-view" v-if="isUploading">
         <div class="progress-wrapper">
@@ -55,14 +65,14 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { NewUploadResource, StorageViewType } from '@/types/resource'
 import RadialProgressBar from 'vue-radial-progress'
-import StorageListView from '@/views/Storage/StorageListView.vue'
-import StorageGridView from '@/views/Storage/StorageGridView.vue'
+import ListItem from '@/views/Storage/StorageListItem.vue'
+import GridItem from '@/views/Storage/StorageGridItem.vue'
 
 @Component({
-  name: 'StorageItem',
+  name: 'StorageCollection',
   components: {
-    StorageListView,
-    StorageGridView,
+    ListItem,
+    GridItem,
     RadialProgressBar
   }
 })
