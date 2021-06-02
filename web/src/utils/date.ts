@@ -53,14 +53,14 @@ export function formatRelativeTo (from: Date, to: Date) {
     return 'Few mins ago'
   }
   if (mins < 60) {
-    return `${mins}mins ago`
+    return `${mins} mins ago`
   }
   const hours = msToHour(to.getTime() - from.getTime())
   if (hours < 2) {
     return 'an hour ago'
   }
   if (hours < 24) {
-    return `${hours}h ago`
+    return `${hours} hours ago`
   }
   const days = msToDay(to.getTime() - from.getTime())
   if (days < 2) {
