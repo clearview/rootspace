@@ -6,6 +6,16 @@ import { BaseRepository } from './BaseRepository'
 
 @EntityRepository(Upload)
 export class UploadRepository extends BaseRepository<Upload> {
+  getUploadById(id: number, filter = {}, options: QueryOptions = {}): Promise<Upload | undefined> {
+    const query = this.createQueryBuilder('upload').where('upload.id = :id', { id })
+
+    if (options.withDeleted === true) {
+      query.withDeleted()
+    }
+
+    return query.getOne()
+  }
+
   getUploadByEntity(entity: string, entityId: number): Promise<Upload | undefined> {
     return this.createQueryBuilder('upload')
       .where('upload.entityId = :entityId', { entityId })

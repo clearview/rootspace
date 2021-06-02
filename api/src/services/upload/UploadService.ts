@@ -50,12 +50,12 @@ export class UploadService extends Service {
     return getCustomRepository(UploadRepository)
   }
 
-  getUploadById(id: number): Promise<Upload | undefined> {
-    return this.getUploadRepository().findOne(id)
+  getUploadById(id: number, filter = {}, options: QueryOptions = {}): Promise<Upload | undefined> {
+    return this.getUploadRepository().getUploadById(id, filter, options)
   }
 
-  async requireUploadById(id: number): Promise<Upload> {
-    const upload = await this.getUploadById(id)
+  async requireUploadById(id: number, filter = {}, options: QueryOptions = {}): Promise<Upload> {
+    const upload = await this.getUploadById(id, filter, options)
 
     if (!upload) {
       throw clientError('Can not find uplaod id ' + id, HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
@@ -222,18 +222,33 @@ export class UploadService extends Service {
     return null
   }
 
-  async remove(target: number | Upload, actorId: number): Promise<Upload> {
-    const upload = typeof target === 'number' ? await this.requireUploadById(target) : target
-    await this.removeUploadFiles(upload)
+  async archive(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload = typeof idOrUpload === 'number' ? await this.requireUploadById(idOrUpload) : idOrUpload
 
-    // TO DO: implement other upload types activities
     if (upload.type === UploadType.TaskAttachment) {
-      if (upload.type === UploadType.TaskAttachment) {
-        const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
-        await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
-      }
+      const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
+      await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
     }
 
+    return this.getUploadRepository().softRemove(upload)
+  }
+
+  async restore(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload =
+      typeof idOrUpload === 'number'
+        ? await this.requireUploadById(idOrUpload, null, { withDeleted: true })
+        : idOrUpload
+
+    return this.getUploadRepository().recover(upload)
+  }
+
+  async remove(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload =
+      typeof idOrUpload === 'number'
+        ? await this.requireUploadById(idOrUpload, null, { withDeleted: true })
+        : idOrUpload
+
+    await this.removeUploadFiles(upload)
     return this.getUploadRepository().remove(upload)
   }
 
