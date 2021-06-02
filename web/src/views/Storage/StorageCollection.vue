@@ -10,11 +10,11 @@
           @download="handleDownload"
         />
       </div>
-      <div class="item item__placeholder" v-if="isUploading">
+      <div v-for="(item, index) in tempItems" :key="index" class="item item__placeholder">
         <div class="progress">
           <radial-progress-bar
             :diameter="isList ? 55 : 110"
-            :completedSteps="tempFile.progress"
+            :completedSteps="item.progress"
             innerStrokeColor="#dee2ee"
             startColor="#8cd5ff"
             stopColor="#8cd5ff"
@@ -22,11 +22,11 @@
             :innerStrokeWidth="5"
             :totalSteps="100"
           >
-            <span>{{ tempFile.progress }} %</span>
+            <span>{{ item.progress }} %</span>
           </radial-progress-bar>
         </div>
         <div class="content">
-          <strong>{{ tempFile.name }}</strong>
+          <strong>{{ item.name }}</strong>
         </div>
       </div>
     </div>
@@ -35,10 +35,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { NewUploadResource, StorageViewType } from '@/types/resource'
 import RadialProgressBar from 'vue-radial-progress'
 import ListItem from '@/views/Storage/StorageListItem.vue'
 import GridItem from '@/views/Storage/StorageGridItem.vue'
+
+import { NewUploadResource, StorageViewType } from '@/types/resource'
 
 @Component({
   name: 'StorageCollection',
@@ -55,8 +56,8 @@ export default class StorageItem extends Vue {
   @Prop({ type: Boolean, required: true })
   private readonly isUploading!: boolean;
 
-  @Prop({ type: Object, required: true })
-  private readonly tempFile!: NewUploadResource;
+  @Prop({ type: Array, required: true })
+  private readonly tempItems!: Record<string, any>[];
 
   get isList (): boolean {
     return this.viewType === StorageViewType.List

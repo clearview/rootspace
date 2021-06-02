@@ -2,9 +2,9 @@
   <div
     class="file-item"
     v-if="fileCopy"
-    @mouseover="showAction(index)"
-    @mouseleave="showAction(null)"
-    :class="{ hovered: indexHovered == index || isRenaming || isActionOpened }"
+    :class="{
+      isActive: isRenaming || isActionOpened
+    }"
   >
     <div class="icon-thumbnail">
       <img
@@ -202,7 +202,6 @@ export default class StorageGridView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = 0;
   private isRenaming = false;
   private isActionOpened = false;
   private fileCopy = { ...this.file };
@@ -219,10 +218,6 @@ export default class StorageGridView extends Vue {
         this.fileCopy.mimetype
       ) !== -1
     )
-  }
-
-  showAction (value: number) {
-    this.indexHovered = value
   }
 
   handleFileClick (index: number | null) {
@@ -311,7 +306,9 @@ export default class StorageGridView extends Vue {
   @apply flex flex-col;
   border: 1px solid #dee2ee;
   border-radius: 4px;
-  &.hovered {
+
+  &:hover,
+  &.isActive {
     background: #f8f8fb;
     .download-wrapper,
     .file-item--action {

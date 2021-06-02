@@ -2,9 +2,9 @@
   <div
     v-if="fileCopy"
     class="file-item"
-    @mouseover="showAction(index)"
-    @mouseleave="showAction(null)"
-    :class="{ hovered: indexHovered == index || isRenaming || isActionOpened }"
+    :class="{
+      isActive: isRenaming || isActionOpened
+    }"
   >
     <div class="file-item--thumbnail" v-if="isFileImage">
       <storageImageViewer
@@ -202,7 +202,6 @@ export default class StorageListView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = null;
   private isRenaming = false;
   private isActionOpened = false;
   private fileCopy = { ...this.file };
@@ -219,10 +218,6 @@ export default class StorageListView extends Vue {
         this.fileCopy.mimetype
       ) !== -1
     )
-  }
-
-  showAction (value: number) {
-    this.indexHovered = value
   }
 
   handleFileClick (index: number | null) {
@@ -316,7 +311,9 @@ h3 {
   @apply flex flex-row p-5 items-center relative;
   border-bottom: 1px solid #f8f8fb;
   padding-right: 80px;
-  &.hovered {
+
+  &:hover,
+  &.isActive {
     border-radius: 4px;
     background: #f8f8fb;
     border-bottom: 1px solid #f8f8fb;

@@ -97,11 +97,11 @@
     </header>
     <div class="content">
       <loading :loading="isDownloading">Downloading...</loading>
-      <div class="files-wrapper" v-if="totalData > 0 || tempFile.progress">
+      <div class="files-wrapper" v-if="totalData > 0 || tempItems.length">
         <storage-collection
           :item="files"
           :isUploading="isUploading"
-          :tempFile="tempFile"
+          :tempItems="tempItems"
           @file:delete="handleDeleteFile"
           @file:download="handleDownloadFile"
         />
@@ -175,7 +175,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   private isFetching = false;
   private search = '';
   private searchVisible = false;
-  private tempFile = {};
+  private tempItems = [] as Record<string, any>[]
 
   get id () {
     return Number(this.$route.params.id)
@@ -294,17 +294,21 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
     this.isUploading = true
 
-    const process = Array.from(files).map((file) =>
+    const process = Array.from(files).map((file, index) =>
       this.$store.dispatch('storage/upload', {
         file,
         item: this.storageInfo,
         config: {
           onUploadProgress: throttle((progress: Record<string, any>) => {
-            this.tempFile = {
+            const items = [...this.tempItems]
+
+            items[index] = {
               name: file.name,
               progress:
                 Math.round((progress.loaded / progress.total) * 97) || 1
             }
+
+            this.tempItems = items
           }, 300)
         }
       })
@@ -314,10 +318,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await this.fetchFiles()
 
     this.isUploading = false
-    this.tempFile = {
-      name: '',
-      progress: 0
-    }
+    this.tempItems = []
   }
 
   async fetchStorageInfo () {
