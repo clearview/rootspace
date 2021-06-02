@@ -145,10 +145,11 @@
 import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
 import { throttle } from 'lodash'
+import StreamSaver from 'streamsaver'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
-import UploadService from '@/services/upload'
+import { baseURL } from '@/utils/api'
 
 import StorageCollection from '@/views/Storage/StorageCollection.vue'
 import Loading from '@/components/Loading.vue'
@@ -275,18 +276,39 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   async handleDownloadFile (file: NewUploadResource) {
+    const url = baseURL(`/uploads/${file.id}/download`)
+    const fileStream = StreamSaver.createWriteStream(file.filename)
+    const config = {
+      headers: {
+        Authorization: `Bearer ${this.$store.state.auth.token}`
+      }
+    }
+
     this.isDownloading = true
-
-    const a = document.createElement('a')
-    const data = await UploadService.download(file.id)
-
-    a.href = URL.createObjectURL(data)
-    a.download = file.filename
-    a.click()
-
-    URL.revokeObjectURL(a.href)
-
+    const res = await fetch(url, config)
     this.isDownloading = false
+
+    if (!res.body || res.status >= 300) return
+
+    const readableStream = res.body
+
+    // more optimized
+    if (window.WritableStream && readableStream.pipeTo) {
+      return readableStream.pipeTo(fileStream)
+    }
+
+    const writer = fileStream.getWriter()
+    const reader = res.body.getReader()
+
+    async function pump (): Promise<void> {
+      const res = await reader.read()
+
+      res.done
+        ? writer.close()
+        : writer.write(res.value).then(pump)
+    }
+
+    await pump()
   }
 
   async uploadFiles (files: FileList) {

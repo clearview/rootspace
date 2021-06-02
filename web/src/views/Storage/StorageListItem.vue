@@ -3,7 +3,7 @@
     v-if="fileCopy"
     class="file-item"
     :class="{
-      isActive: isRenaming || isActionOpened
+      isActive: isRenaming || isActionOpened,
     }"
   >
     <div class="file-item--thumbnail" v-if="isFileImage">
@@ -64,16 +64,23 @@
       </div>
     </div>
     <a
+      v-if="!isFileImage"
+      :download="fileCopy.filename"
       target="_blank"
       class="download-file"
       @click.prevent="handleDownload(fileCopy)"
     >
-      <legacy-icon
-        class="action-icon"
-        name="download"
-        viewbox="19"
-        size="19px"
-      ></legacy-icon>
+      <legacy-icon name="download" size="28px" viewbox="16" />
+    </a>
+    <a href="#" v-else class="download-file" @click.prevent.stop="handleFileClick(index)">
+      <storage-image-viewer
+        v-model="fileIndex"
+        :image="fileCopy"
+        @close="closePreview"
+        @remove="deleteFileActionConfirm"
+        @download="handleDownload"
+      />
+      <mono-icon name="eye" :style="{ fontSize: '28px' }" />
     </a>
     <Popover
       class="file-item--action"
@@ -213,11 +220,7 @@ export default class StorageListView extends Vue {
   };
 
   get isFileImage () {
-    return (
-      ['image/jpg', 'image/jpeg', 'image/png'].indexOf(
-        this.fileCopy.mimetype
-      ) !== -1
-    )
+    return this.fileCopy.mimetype.startsWith('image')
   }
 
   handleFileClick (index: number | null) {
@@ -291,6 +294,7 @@ export default class StorageListView extends Vue {
   }
 
   handleDownload (file: NewUploadResource) {
+    console.log(file)
     this.$emit('download', file)
   }
 

@@ -31,16 +31,16 @@
             </p>
             <Popover :z-index="2001" :offset="10" :with-close="false" position="right-start" class="modal-action">
               <template #default="{}">
-                <div class="action-line">
+                <div class="action-line" @click="download">
                   <legacy-icon class="action-icon" name="download" viewbox="16" size="16px"></legacy-icon>
-                  <div class="action-line-text" @click="open(image.location)">
+                  <div class="action-line-text">
                     Download
                   </div>
                 </div>
                 <div class="action-separator"></div>
-                <div class="action-line danger">
+                <div class="action-line danger" @click="remove">
                   <legacy-icon class="action-icon" name="archive" viewbox="16" size="16px"></legacy-icon>
-                  <div class="action-line-text" @click="deleteFile">
+                  <div class="action-line-text">
                     Delete
                   </div>
                 </div>
@@ -58,10 +58,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Model } from 'vue-property-decorator'
+import { Component, Prop, Vue, Model } from 'vue-property-decorator'
 
 import Modal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
+import type { NewUploadResource } from '@/types/resource'
 
 @Component({
   name: 'StorageImageViewer',
@@ -74,20 +75,18 @@ export default class ImageViewer extends Vue {
   @Model('change', { type: Number }) readonly index!: number
 
   @Prop({ type: Object })
-  private readonly image: Object
+  private readonly image!: NewUploadResource
 
-  @Emit('close')
   close () {
-    this.$emit('close')
+    this.$emit('close', this.image)
   }
 
-  @Emit('delete')
-  deleteFile () {
-    this.$emit('delete')
+  remove () {
+    this.$emit('remove', this.image)
   }
 
-  open (src: string) {
-    window.open(src, '_blank')
+  download () {
+    this.$emit('download', this.image)
   }
 
   get visible () {

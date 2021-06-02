@@ -14,6 +14,7 @@
   "dependencies": {
     "@adityapurwa/he-tree-vue": "2.0.14",
     "@popperjs/core": "^2.4.4",
+    "@types/streamsaver": "^2.0.0",
     "@vue/composition-api": "^1.0.0-rc.1",
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
@@ -27,6 +28,7 @@
     "postcss-import": "^12.0.1",
     "prosemirror-keymap": "^1.1.4",
     "sanitize-html": "^2.1.0",
+    "streamsaver": "^2.0.5",
     "tailwindcss": "^1.2.0",
     "tiptap": "^1.32.2",
     "tiptap-commands": "^1.17.1",

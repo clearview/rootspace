@@ -30,13 +30,14 @@
           <legacy-icon name="download" size="28px" viewbox="16" />
         </a>
         <div v-else class="download-file" @click="handleFileClick(index)">
-          <storageImageViewer
+          <storage-image-viewer
             v-model="fileIndex"
             :image="fileCopy"
             @close="closePreview"
-            @delete="deleteFileActionConfirm()"
+            @delete="deleteFileActionConfirm"
+            @download="handleDownload"
           />
-          <legacy-icon name="download" size="28px" viewbox="16" />
+          <mono-icon name="eye" :style="{ fontSize: '28px' }" />
         </div>
       </div>
       <Popover
@@ -213,11 +214,7 @@ export default class StorageGridView extends Vue {
   };
 
   get isFileImage () {
-    return (
-      ['image/jpg', 'image/jpeg', 'image/png'].indexOf(
-        this.fileCopy.mimetype
-      ) !== -1
-    )
+    return this.fileCopy.mimetype.startsWith('image')
   }
 
   handleFileClick (index: number | null) {

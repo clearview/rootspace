@@ -10,7 +10,7 @@
           @download="handleDownload"
         />
       </div>
-      <div v-for="(item, index) in tempItems" :key="index" class="item item__placeholder">
+      <div v-for="(item, index) in tempItems" :key="-(index + 1)" class="item item__placeholder">
         <div class="progress">
           <radial-progress-bar
             :diameter="isList ? 55 : 110"
