@@ -202,7 +202,7 @@ export default class StorageListView extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private indexHovered = 0;
+  private indexHovered = null;
   private isRenaming = false;
   private isActionOpened = false;
   private fileCopy = { ...this.file };
