@@ -396,6 +396,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 <style lang="postcss" scoped>
 .content {
   @apply flex flex-col;
+  overflow: auto;
 }
 
 .file-page {
