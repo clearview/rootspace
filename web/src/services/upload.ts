@@ -24,8 +24,14 @@ export default class UploadService {
     return res.data
   }
 
-  static async destroy (id: number) {
-    const res = await api.delete(`uploads/${id}`)
+  static async archive (id: number) {
+    const res = await api.post(`uploads/${id}/archive`)
+
+    return res.data
+  }
+
+  static async restore (id: number) {
+    const res = await api.post(`uploads/${id}/restore`)
 
     return res.data
   }

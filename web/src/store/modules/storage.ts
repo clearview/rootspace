@@ -66,7 +66,15 @@ const FilesModule: Module<StorageState, RootState> = {
         throw new Error('ID is not defined')
       }
 
-      return await UploadService.destroy(id)
+      return await UploadService.archive(id)
+    },
+
+    async restore (_, id: number) {
+      if (!id) {
+        throw new Error('ID is not defined')
+      }
+
+      return await UploadService.restore(id)
     },
 
     async upload ({ commit, rootGetters }, payload: { item: StorageResource, file: File, config: any }) {
