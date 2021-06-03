@@ -34,7 +34,7 @@
             v-model="fileIndex"
             :image="fileCopy"
             @close="closePreview"
-            @delete="deleteFileActionConfirm"
+            @remove="deleteFileActionConfirm"
             @download="handleDownload"
           />
           <mono-icon name="eye" :style="{ fontSize: '28px' }" />
@@ -288,6 +288,7 @@ export default class StorageGridView extends Vue {
   }
 
   handleDownload (file: NewUploadResource) {
+    this.closePreview()
     this.$emit('download', file)
   }
 

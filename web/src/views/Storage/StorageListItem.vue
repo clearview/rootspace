@@ -7,11 +7,12 @@
     }"
   >
     <div class="file-item--thumbnail" v-if="isFileImage">
-      <storageImageViewer
+      <storage-image-viewer
         v-model="fileIndex"
         :image="fileCopy"
         @close="closePreview"
-        @delete="deleteFileActionConfirm()"
+        @remove="deleteFileActionConfirm"
+        @download="handleDownload"
       />
       <img
         :src="fileCopy.versions.thumbnail.location"
@@ -65,23 +66,21 @@
     </div>
     <a
       v-if="!isFileImage"
-      :download="fileCopy.filename"
-      target="_blank"
+      href="#"
       class="download-file"
       @click.prevent="handleDownload(fileCopy)"
     >
       <legacy-icon name="download" size="28px" viewbox="16" />
     </a>
-    <a href="#" v-else class="download-file" @click.prevent.stop="handleFileClick(index)">
-      <storage-image-viewer
-        v-model="fileIndex"
-        :image="fileCopy"
-        @close="closePreview"
-        @remove="deleteFileActionConfirm"
-        @download="handleDownload"
-      />
+    <a
+      v-else
+      href="#"
+      class="download-file"
+      @click.prevent="handleFileClick(index)"
+    >
       <mono-icon name="eye" :style="{ fontSize: '28px' }" />
     </a>
+
     <Popover
       class="file-item--action"
       top="38px"
@@ -294,7 +293,7 @@ export default class StorageListView extends Vue {
   }
 
   handleDownload (file: NewUploadResource) {
-    console.log(file)
+    this.closePreview()
     this.$emit('download', file)
   }
 

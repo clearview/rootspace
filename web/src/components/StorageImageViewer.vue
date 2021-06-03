@@ -102,7 +102,7 @@ export default class ImageViewer extends Vue {
   }
 
   .image {
-    @apply rounded shadow shadow-lg;
+    @apply rounded shadow-lg;
     max-width: 80vw;
     max-height: 80vh;
   }
