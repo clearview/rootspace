@@ -3,6 +3,7 @@ import VueRouter, { RouteConfig } from 'vue-router'
 import store from '@/store'
 import api from '@/utils/api'
 import Space from '@/views/Space.vue'
+import Novadoc from '@/views/Novadoc.vue'
 
 Vue.use(VueRouter)
 
@@ -55,7 +56,7 @@ const routes: Array<RouteConfig> = [
         }
       },
       {
-        path: '/doc/:id?/:slug?',
+        path: '/doc/:id(\\d+)/:slug?',
         name: 'Novadoc',
         component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue')
       },
@@ -160,9 +161,9 @@ const routes: Array<RouteConfig> = [
     component: () => import(/* webpackChunkName: "forbidden" */ '../views/Forbidden.vue')
   },
   {
-    path: '/public/doc/:publicId?',
-    name: 'Novadoc',
-    component: () => import(/* webpackChunkName: "document" */ '../views/Novadoc.vue'),
+    path: '/doc/:id',
+    name: 'PublicDocument',
+    component: Novadoc,
     meta: {
       noAuth: true
     }

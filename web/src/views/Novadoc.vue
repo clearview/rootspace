@@ -1558,8 +1558,8 @@ export default {
       }
     },
     async loadPublicDocument () {
-      const { publicId } = this.$route.params
-      const res = await DocumentService.view(publicId)
+      const { id } = this.$route.params
+      const res = await DocumentService.view(id)
       this.doc = res.data
 
       this.contentAccess = res.contentAccess
@@ -1810,7 +1810,8 @@ export default {
       return this.$store.state.auth.user
     },
     id () {
-      return this.$route.params.publicId || Number(this.$route.params.id) || 0
+      const { id } = this.$route.params
+      return isNaN(id) ? id : Number(id) || 0
     },
     textColors () {
       return [
@@ -1902,10 +1903,11 @@ export default {
       ]
     },
     isPublicView () {
-      return !!this.$route.params.publicId
+      return isNaN(this.id)
     },
     isReadonly () {
-      return this.permissions.length === 1 && this.permissions[0] === 'view'
+      const isLoadingPermission = this.permissions.length === 0
+      return isLoadingPermission || (this.permissions.length === 1 && this.permissions[0] === 'view')
     },
     isEditable () {
       return !this.isLocked && !this.isReadonly && !this.isPublicView

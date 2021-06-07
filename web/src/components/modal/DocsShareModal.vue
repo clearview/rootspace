@@ -98,7 +98,7 @@ export default defineComponent({
     const isPublic = ref(contentAccess?.public)
     const isSubmittingPublicPermission = ref(false)
     const isSubmittingUpdatePermission = ref(false)
-    const publicUrl = `${window.location.origin}/public/doc/${props.publicId}`
+    const publicUrl = `${window.location.origin}/doc/${props.publicId}`
     const copiedToClipboard = ref(false)
     const publicUrlIcon = ref('copy')
 
