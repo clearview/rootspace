@@ -492,7 +492,7 @@
                 Lock
               </div>
             </div>
-            <div v-if="!isReadonly" class="action-line" @click="hide();share()">
+            <div v-if="!isReadonly && (isOwner || isAdmin)" class="action-line" @click="hide();share()">
               <mono-icon name="share"></mono-icon>
               <div class="action-line-text">
                 Share
@@ -1901,6 +1901,12 @@ export default {
           class: 'green'
         }
       ]
+    },
+    isOwner () {
+      return this.contentAccess.ownerId === this.currentUser.id
+    },
+    isAdmin () {
+      return this.activeSpace.role === 0
     },
     isPublicView () {
       return isNaN(this.id)
