@@ -385,11 +385,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await this.fetchStorageInfo()
     await this.fetchFiles()
   }
-
-  async mounted () {
-    await this.fetchStorageInfo()
-    await this.fetchFiles()
-  }
 }
 </script>
 
