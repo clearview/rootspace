@@ -1,15 +1,6 @@
 <template>
   <div class="p-5 pt-10" v-if="item">
     <div :class="classNames">
-      <div v-for="(file, index) in item" :key="index" class="item">
-        <component
-          :is="itemComponent"
-          :file="file"
-          :index="index"
-          @delete="handleDelete"
-          @download="handleDownload"
-        />
-      </div>
       <div v-for="(item, index) in tempItems" :key="-(index + 1)" class="item item__placeholder">
         <div class="progress">
           <radial-progress-bar
@@ -28,6 +19,15 @@
         <div class="content">
           <strong>{{ item.name }}</strong>
         </div>
+      </div>
+      <div v-for="(file, index) in item" :key="index" class="item">
+        <component
+          :is="itemComponent"
+          :file="file"
+          :index="index"
+          @delete="handleDelete"
+          @download="handleDownload"
+        />
       </div>
     </div>
   </div>
