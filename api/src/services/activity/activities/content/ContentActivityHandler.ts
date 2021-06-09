@@ -76,15 +76,25 @@ export abstract class ContentActivityHandler<T> implements IActivityHandler {
       return true
     }
 
-    if (settings.preferences.receiveEmail === true) {
+    if (settings.preferences.receiveEmail === undefined || settings.preferences.receiveEmail === true) {
       return true
     }
 
     return false
   }
 
-  protected async sendNotificationEmail(user: User, subject: string, activity: Activity, entityUrl: string, notificationContent?: string): Promise<void> {
-    const content = pug.renderFile(ContentActivityHandler.mailTemplate(activity), { activity, entityUrl, notificationContent })
+  protected async sendNotificationEmail(
+    user: User,
+    subject: string,
+    activity: Activity,
+    entityUrl: string,
+    notificationContent?: string
+  ): Promise<void> {
+    const content = pug.renderFile(ContentActivityHandler.mailTemplate(activity), {
+      activity,
+      entityUrl,
+      notificationContent,
+    })
     await this.mailService.sendMail(user.email, subject, content)
   }
 
