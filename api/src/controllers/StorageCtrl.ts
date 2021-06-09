@@ -34,7 +34,12 @@ export class StorageCtrl extends BaseCtrl {
     this.isSpaceMember(req, storage.spaceId)
 
     const filter: UploadsFilter = {}
-    const options: QueryOptions = {}
+    const options: QueryOptions = {
+      orderBy: {
+        sort: 'createdAt',
+        order: 'DESC'
+      }
+    }
 
     if (req.query.search) {
       filter.search = String(req.query.search)

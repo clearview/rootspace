@@ -51,6 +51,10 @@ export class UploadRepository extends BaseRepository<Upload> {
       query.limit(options.limit)
     }
 
+    if (options.orderBy) {
+      query.orderBy(`upload.${options.orderBy.sort}`, options.orderBy.order)
+    }
+
     return query.getMany()
   }
 }
