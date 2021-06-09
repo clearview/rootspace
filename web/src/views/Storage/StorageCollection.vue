@@ -134,6 +134,8 @@ export default class StorageItem extends Vue {
 
     .content {
       padding: 1.25em;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }
