@@ -79,7 +79,7 @@
 import { ContentLoader } from 'vue-content-loader'
 import { defineComponent, ref } from '@vue/composition-api'
 import BaseModal from '@/components/modal/BaseModal.vue'
-import api from '@/utils/api'
+import axios from 'axios'
 
 export default defineComponent({
   components: {
@@ -93,6 +93,16 @@ export default defineComponent({
     onChangeContentAccess: Function
   },
   setup (props, context) {
+    // create local api instance to handle error locally
+    // work around to fix auto redirect to the forbidden page
+    const token = context.root.$store.state.auth.token
+    const api = axios.create({
+      baseURL: process.env.VUE_APP_API_URL,
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
     const { contentAccess } = props
     const permission = ref(contentAccess?.type)
     const isPublic = ref(contentAccess?.public)
@@ -117,13 +127,23 @@ export default defineComponent({
 
     const updateAccessPermission = async () => {
       isSubmittingUpdatePermission.value = true
-      await updatePermission()
-      context.emit('close')
+      try {
+        await updatePermission()
+        context.emit('close')
+      } catch (e) {
+        context.root.$toast.error(e.message)
+      }
+      isSubmittingUpdatePermission.value = false
     }
 
     const updatePublicPermission = async () => {
       isSubmittingPublicPermission.value = true
-      await updatePermission()
+      try {
+        await updatePermission()
+      } catch (e) {
+        context.root.$toast.error(e.message)
+        isPublic.value = false
+      }
       isSubmittingPublicPermission.value = false
     }
 
