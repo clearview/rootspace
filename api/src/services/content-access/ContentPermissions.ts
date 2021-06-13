@@ -63,16 +63,16 @@ export class ContentPermissions {
       return false
     }
 
+    if (this.isUserContentOwner() === true) {
+      return true
+    }
+
     if (this.contentAccess.type === ContentAccessType.Open) {
       return this.isUserSpaceMember()
     }
 
     if (this.contentAccess.type === ContentAccessType.Restricted) {
       return this.isUserSpaceMember()
-    }
-
-    if (this.contentAccess.type === ContentAccessType.Private) {
-      return this.isUserContentOwner()
     }
 
     return false
@@ -83,16 +83,20 @@ export class ContentPermissions {
       return this.isUserSpaceMember()
     }
 
+    if (!this.spaceUser) {
+      return false
+    }
+
+    if (this.isUserContentOwner() === true) {
+      return true
+    }
+
     if (this.contentAccess.type === ContentAccessType.Open) {
       return this.isUserSpaceMember()
     }
 
     if (this.contentAccess.type === ContentAccessType.Restricted) {
       return this.isUserSpaceAdmin()
-    }
-
-    if (this.contentAccess.type === ContentAccessType.Private) {
-      return this.isUserContentOwner()
     }
 
     return false
