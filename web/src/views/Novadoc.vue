@@ -6,6 +6,7 @@
     <header
       class="page-header"
       :class="{scrolled: pageScrolled}"
+      v-if="!isPublicView"
     >
       <div
         class="editor-toolbar m-0 w-full"
@@ -19,7 +20,7 @@
         v-slot="{ commands, isActive, getMarkAttrs, getNodeAttrs, focused }"
         v-show="doc"
       >
-        <div class="editor-toolbar">
+        <div v-if="!isReadonly" class="editor-toolbar">
           <MenuGroup
             big
             value="Normal Text"
@@ -214,7 +215,7 @@
           <div class="menu-separator"></div>
           <MenuGroup
             value="#000"
-            v-if="canBeTextColored(isActive, true)"
+            :disabled="!canBeBgColored(isActive, focused)"
             :show-arrow="false"
             v-tippy="{ placement : 'top',  arrow: true }"
             content="Text Color"
@@ -443,12 +444,13 @@
         </div>
       </editor-menu-bar>
       <div
+        v-if="currentUser"
         class="editor-context-menu"
         v-show="doc"
       >
         <div
           class="lock-indicator"
-          v-if="readOnly"
+          v-if="isLocked"
         >
           <legacy-icon name="lock"></legacy-icon>
         </div>
@@ -472,13 +474,14 @@
               </div>
             </div>
             <div
+              v-if="!isReadonly"
               class="action-line"
-              @click="hide();toggleReadOnly()"
+              @click="hide();toggleLocked()"
             >
               <legacy-icon name="lock"></legacy-icon>
               <div
                 class="action-line-text"
-                v-if="readOnly"
+                v-if="isLocked"
               >
                 Unlock
               </div>
@@ -489,8 +492,15 @@
                 Lock
               </div>
             </div>
-            <div class="action-separator"></div>
+            <div v-if="!isReadonly && (isOwner || isAdmin)" class="action-line" @click="hide();share()">
+              <mono-icon name="share"></mono-icon>
+              <div class="action-line-text">
+                Share
+              </div>
+            </div>
+            <div v-if="!isReadonly" class="action-separator"></div>
             <div
+              v-if="!isReadonly"
               class="action-line danger"
               @click="hide();deleteNovadoc()"
             >
@@ -536,12 +546,13 @@
         <editor-menu-bubble
           :editor="editor"
           v-slot="{ isActive, commands, menu, getMarkAttrs }"
+          v-if="!isPublicView && !isReadonly"
         >
           <div>
             <div
               class="link-bubble bubble"
               ref="linkBubble"
-              v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !readOnly"
+              v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !isLocked"
               :style="getBubblePosition()"
               @mousedown.stop.prevent="consume"
             >
@@ -811,7 +822,7 @@
           @blur="isTitleFocused = false"
           @keyup="debouncedSaveTitleOnly"
           @keypress.enter="handleTitleEnter"
-          :readonly="readOnly"
+          :readonly="isReadonly"
         ></textarea>
         <hr class="title-separator">
         <EditorContent
@@ -822,8 +833,8 @@
         ></EditorContent>
         <EditorContent
           key="preview"
-          class="preview"
           v-show="isPreviewing"
+          class="preview"
           :editor="previewEditor"
         ></EditorContent>
       </div>
@@ -837,6 +848,7 @@
           :doc="doc"
           :preview="preview"
           :id="id"
+          :isReadonly="isReadonly"
           @close="closeHistory"
           @preview="showPreview"
           @restore="restore"
@@ -937,6 +949,7 @@ import ToolbarGhost from '@/components/ToolbarGhost'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
 import ListMerger from '@/views/Novadoc/ListMerger'
 import TabEater from '@/views/Novadoc/TabEater'
+import { DocsShareModal } from '@/components/modal'
 
 const wsMessageType = {
   authenticate: 10,
@@ -984,6 +997,7 @@ export default {
     ImageIcon,
     Popover
   },
+  inject: ['modal'],
   data () {
     const debouncedSaveTitleOnly = debounce(() => {
       this.saveTitleOnly(this.title)
@@ -1000,7 +1014,7 @@ export default {
         href: null
       },
       title: '',
-      readOnly: false,
+      isLocked: false,
       isHistoryVisible: false,
       debouncedSaveTitleOnly: debouncedSaveTitleOnly,
       pageScrolled: false,
@@ -1008,7 +1022,9 @@ export default {
       isTitleFocused: false,
       nodeNameChangesListener: null,
       isMouseDown: false,
-      isPreviewing: false
+      isPreviewing: false,
+      contentAccess: {},
+      permissions: []
     }
   },
   beforeDestroy () {
@@ -1070,7 +1086,7 @@ export default {
       this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
       this.provider.awareness.setLocalStateField('user', {
         color: '#333',
-        name: this.currentUser.firstName
+        name: this.currentUser?.firstName
       })
 
       const wsAuthenticate = () => {
@@ -1146,7 +1162,7 @@ export default {
       this.initProvider()
 
       this.editor = new Editor({
-        editable: !this.readOnly,
+        editable: this.isEditable,
         extensions: [
           new Novaschema(),
           new ParagraphMerger(),
@@ -1192,7 +1208,7 @@ export default {
             emptyEditorClass: 'is-editor-empty',
             emptyNodeClass: 'is-empty',
             emptyNodeText: () => {
-              if (this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) {
+              if ((this.editor && this.editor.state.doc.content && this.editor.state.doc.content.content.length > 1) || this.isReadonly) {
                 return ''
               }
               return 'Write something…'
@@ -1215,7 +1231,9 @@ export default {
           content: []
         }
       })
-
+      this.initPreviewEditor()
+    },
+    initPreviewEditor () {
       this.previewEditor = new Editor({
         editable: false,
         extensions: [
@@ -1311,8 +1329,11 @@ export default {
     focusBubble () {
       this.isBubbleFocused = true
     },
+    canEdit () {
+      return true
+    },
     canInsertImage (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
@@ -1320,100 +1341,100 @@ export default {
       commands.showReference()
     },
     canInsertReference (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
     canInsertLine (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
     canBeLinked (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
     canBeBold (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeItalic (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeUnderline (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeStrikethrough (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeInlineCode (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
     canBeAligned (isActive, focused) {
-      if (isActive.paragraph() && focused && !this.readOnly) {
+      if (isActive.paragraph() && focused && !this.isLocked) {
         return true
       }
     },
     canBeTextColored (isActive, focused) {
-      if (isActive.paragraph() && focused && !this.readOnly) {
+      if (isActive.paragraph() && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeBgColored (isActive, focused) {
-      if (isActive.paragraph() && focused && !this.readOnly) {
+      if (isActive.paragraph() && focused && !this.isLocked) {
         return true
       }
-      if (this.isCellSelection() && focused && !this.readOnly) {
+      if (this.isCellSelection() && focused && !this.isLocked) {
         return true
       }
     },
     canBeConvertedToList (isActive, focused) {
-      if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.readOnly) {
+      if ((isActive.paragraph({ level: 0 }) || isActive.bullet_list() || isActive.ordered_list() || isActive.todo_list()) && focused && !this.isLocked) {
         return true
       }
     },
     canBeConvertedToQuote (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked) {
         return true
       }
     },
     canBeConvertedToCodeBlock (isActive, focused) {
-      if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused && !this.readOnly) {
+      if ((isActive.paragraph({ level: 0 }) || isActive.code_block()) && focused && !this.isLocked) {
         return true
       }
     },
     canChangeTextType (isActive, focused) {
-      if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused && !this.readOnly) {
+      if (isActive.paragraph() && !isActive.bullet_list() && !isActive.ordered_list() && !isActive.todo_list() && focused && !this.isLocked) {
         return true
       }
     },
     canCreateTable (isActive, focused) {
-      if (isActive.paragraph({ level: 0 }) && focused && !this.readOnly && !isActive.table()) {
+      if (isActive.paragraph({ level: 0 }) && focused && !this.isLocked && !isActive.table()) {
         return true
       }
     },
@@ -1423,9 +1444,17 @@ export default {
       }
     },
     async fetchUsers () {
+      if (!this.currentUser) {
+        return
+      }
+
       return (await api.get('spaces/' + this.activeSpace.id + '/users')).data.data
     },
     async fetchReferences () {
+      if (!this.currentUser) {
+        return
+      }
+
       return (await api.get('spaces/' + this.activeSpace.id + '/tree')).data.data
     },
     getTextDisplayType (isActive) {
@@ -1522,39 +1551,60 @@ export default {
       window.open(attr.href, '_blank')
     },
     async load () {
-      const id = this.$route.params.id
-      if (id) {
-        if (this.provider) {
-          this.provider.awareness.setLocalStateField('user', {
-            color: '#333',
-            name: this.currentUser.firstName
-          })
-        }
-        const res = await DocumentService.view(id)
-        this.doc = res.data
-        this.pageTitle = res.data.title
-        this.title = res.data.title.trim()
-        this.readOnly = res.data.isLocked
-        this.setSlug(res.data.slug)
-        // Phantom emptiness detected
-        if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
-          this.pageTitle = 'Untitled'
-          this.title = ''
-          this.$refs.title.focus()
-        }
-        if (!this.pageReady) {
-          await this.activateSpace(res.data.spaceId)
-        }
-        this.autoResizeTitle()
-
-        if (this.title.trim().length === 0) {
-          this.$nextTick(() => {
-            this.$refs.title.focus()
-          })
-        }
-
-        this.initEditor()
+      if (this.isPublicView) {
+        this.loadPublicDocument()
+      } else {
+        this.loadEditableDocument()
       }
+    },
+    async loadPublicDocument () {
+      const { id } = this.$route.params
+      const res = await DocumentService.view(id)
+      this.doc = res.data
+
+      this.contentAccess = res.contentAccess
+      this.permissions = res.permissions
+      this.pageTitle = res.data.title
+      this.title = res.data.title.trim()
+      this.initPreviewEditor()
+      this.isPreviewing = true
+      this.previewEditor.setContent(res.data.content)
+    },
+    async loadEditableDocument () {
+      const { id } = this.$route.params
+
+      if (this.provider) {
+        this.provider.awareness.setLocalStateField('user', {
+          color: '#333',
+          name: this.currentUser?.firstName
+        })
+      }
+      const res = await DocumentService.view(id)
+      this.doc = res.data
+      this.contentAccess = res.contentAccess
+      this.permissions = res.permissions
+      this.pageTitle = res.data.title
+      this.title = res.data.title.trim()
+      this.isLocked = res.data.isLocked
+      this.setSlug(res.data.slug)
+      // Phantom emptiness detected
+      if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
+        this.pageTitle = 'Untitled'
+        this.title = ''
+        this.$refs.title.focus()
+      }
+      if (!this.pageReady && this.currentUser) {
+        await this.activateSpace(res.data.spaceId)
+      }
+      this.autoResizeTitle()
+
+      if (this.title.trim().length === 0) {
+        this.$nextTick(() => {
+          this.$refs.title.focus()
+        })
+      }
+
+      this.initEditor()
     },
     autoResizeTitle () {
       this.$nextTick(() => {
@@ -1603,18 +1653,35 @@ export default {
         this.loading = false
       }
     },
-    async toggleReadOnly () {
-      this.readOnly = !this.readOnly
+    async toggleLocked () {
+      this.isLocked = !this.isLocked
       this.isHistoryVisible = false
       await this.createUpdateDocument({
-        isLocked: this.readOnly
+        isLocked: this.isLocked
       })
-      if (this.readOnly) {
+      if (this.isLocked) {
         this.showPreview(null)
       } else {
         this.closeHistory()
       }
     },
+    share () {
+      this.modal.open({
+        component: DocsShareModal,
+        attrs: {
+          id: this.id,
+          publicId: this.doc.publicId,
+          contentAccess: this.contentAccess,
+          onChangeContentAccess: (contentAccess) => {
+            this.contentAccess = {
+              ...this.contentAccess,
+              ...contentAccess
+            }
+          }
+        }
+      })
+    },
+
     showHistory () {
       this.preview = null
       this.isHistoryVisible = true
@@ -1646,6 +1713,7 @@ export default {
       } else {
         this.preview = revision
       }
+
       this.previewEditor.setContent(this.preview.content)
     },
     closeHistory () {
@@ -1653,7 +1721,7 @@ export default {
         this.isHistoryVisible = false
         this.isPreviewing = false
         this.editor.setOptions({
-          editable: !this.readOnly
+          editable: this.isEditable
         })
       }
     },
@@ -1669,7 +1737,7 @@ export default {
       }
     },
     canShowBubble (isActive, menu) {
-      return !this.readOnly && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() &&
+      return !this.isLocked && menu.isActive && !this.isTitleFocused && !isActive.code_block() && !isActive.image() &&
         !isActive.table() && !isActive.divider() && !this.isMouseDown
     },
     openLink (url) {
@@ -1700,9 +1768,11 @@ export default {
       async handler () {
         this.closeHistory()
         await this.load()
-        await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
-        if (!this.pageReady) {
-          await this.activateSpace(this.activeSpace.id)
+        if (this.currentUser && this.activeSpace) {
+          await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+          if (!this.pageReady) {
+            await this.activateSpace(this.activeSpace.id)
+          }
         }
         this.pageReady = true
       }
@@ -1722,11 +1792,11 @@ export default {
         }
       })
     },
-    readOnly: {
+    isLocked: {
       async handler () {
         if (this.editor) {
           this.editor.setOptions({
-            editable: !this.readOnly
+            editable: this.isEditable
           })
         }
       }
@@ -1743,7 +1813,8 @@ export default {
       return this.$store.state.auth.user
     },
     id () {
-      return Number(this.$route.params.id) || 0
+      const { id } = this.$route.params
+      return isNaN(id) ? id : Number(id) || 0
     },
     textColors () {
       return [
@@ -1833,6 +1904,22 @@ export default {
           class: 'green'
         }
       ]
+    },
+    isOwner () {
+      return this.contentAccess.ownerId === this.currentUser.id
+    },
+    isAdmin () {
+      return this.activeSpace.role === 0
+    },
+    isPublicView () {
+      return isNaN(this.id)
+    },
+    isReadonly () {
+      const isLoadingPermission = this.permissions.length === 0
+      return isLoadingPermission || (this.permissions.length === 1 && this.permissions[0] === 'view')
+    },
+    isEditable () {
+      return !this.isLocked && !this.isReadonly && !this.isPublicView
     }
   }
 
@@ -1840,6 +1927,11 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+
+#app > div > .page {
+  padding: 0 152px;
+}
+
 .color-combo {
   padding: 6px;
   border-radius: 4px;
@@ -1851,18 +1943,17 @@ export default {
   width: 160px;
 
   &.white {
-    border: 1px solid #e0e2e7;
+    border: 1px solid #E0E2E7;
   }
-  &:not(.white) {
+  &:not(.white){
     border: 2px solid transparent;
   }
-  &:hover,
-  &.active {
+  &:hover, &.active {
     &.white {
       border: 1px solid #bcbfc8;
     }
     &.red {
-      border: 2px solid #ffb6b6;
+      border: 2px solid #FFB6B6;
     }
     &.yellow {
       border: 2px solid #c7c879;
@@ -1884,7 +1975,6 @@ export default {
 .page {
   position: relative;
   display: flex;
-  width: 0;
   flex: 1 1 auto;
   flex-direction: column;
 }
@@ -1895,14 +1985,15 @@ export default {
   background: #fff;
   z-index: 1;
   width: 100%;
-  border-bottom: solid 1px #e0e2e7;
+  border-bottom: solid 1px #E0E2E7;
   padding: 12px 24px;
   box-sizing: border-box;
-  align-items: center;
+  align-items: flex-start;
   transition: all 0.15s ease;
+  min-height: 57px;
 
   &.scrolled {
-    border-bottom: solid 1px #e0e2e7;
+    border-bottom: solid 1px #E0E2E7;
   }
 
   .editor-toolbar {
@@ -1911,7 +2002,7 @@ export default {
     display: flex;
     align-items: center;
     font-size: 12px;
-    @media only screen and (max-width: 1300px) {
+    @media only screen and (max-width: 1300px){
       flex: 1 1 auto;
       flex-wrap: wrap;
     }
@@ -1922,15 +2013,14 @@ export default {
     margin-left: auto;
     display: flex;
     align-items: center;
-    @media only screen and (max-width: 1300px) {
-      align-self: flex-start;
-      margin-left: 32px;
+    @media only screen and (max-width: 1300px){
+
     }
 
     .lock-indicator {
       border-radius: 4px;
-      background: #ffe0e0;
-      color: #d64141;
+      background: #FFE0E0;
+      color: #D64141;
       padding: 8px;
       margin-right: 8px;
     }
@@ -1943,7 +2033,7 @@ export default {
       &.show {
         .menu-btn {
           color: #146493;
-          background: #ddf3ff;
+          background: #DDF3FF;
           box-shadow: none;
           .stroke-current {
             color: #146493;
@@ -1952,29 +2042,27 @@ export default {
       }
     }
   }
+
 }
 
 .page-history {
   width: 304px;
   height: 100%;
-  background: #f8f8fb;
+  background: #F8F8FB;
   flex: 0 0 auto;
   display: flex;
 }
 
 .page-editor {
   margin: 0 auto;
-  flex: 1 1 auto;
-  height: 0;
   width: 100%;
   position: relative;
   display: flex;
+  height: 100vh;
 }
 
 .paper {
-  margin: auto;
-  flex: 1 1 auto;
-  height: 100%;
+  width: 100%;
   padding: 40px 0;
   overflow-y: scroll;
   position: relative;
@@ -1983,7 +2071,7 @@ export default {
 .menu-separator {
   width: 1px;
   height: 24px;
-  background: #e0e2e7;
+  background: #E0E2E7;
   margin: 0 8px;
   margin-block: auto;
   display: inline-block;
@@ -2000,7 +2088,7 @@ export default {
   margin-right: 4px;
 
   &.no-margin {
-    margin-right: 0;
+    margin-right: 0
   }
 
   &-big {
@@ -2016,12 +2104,11 @@ export default {
   }
 
   &:hover {
-    background: #f4f5f7;
+    background: #F4F5F7;
   }
 
-  &.active,
-  &:active {
-    background: #ddf3ff;
+  &.active, &:active {
+    background: #DDF3FF;
     color: #146493;
   }
 
@@ -2047,6 +2134,7 @@ export default {
   justify-content: center;
 
   .check {
+
   }
 
   &:hover {
@@ -2054,15 +2142,13 @@ export default {
   }
 }
 
-.bg-color,
-.text-color {
+.bg-color, .text-color {
   //padding: 2px 4px;
   box-sizing: border-box;
   font-size: 12px;
 }
 
-.bg-color-display,
-.text-color-display {
+.bg-color-display, .text-color-display {
   width: 12px;
   height: 12px;
   border-radius: 4px;
@@ -2075,14 +2161,13 @@ export default {
   @apply flex items-center py-2 px-4 my-1;
   min-width: 168px;
   color: theme("colors.gray.900");
-  stroke-width: 3px;
   cursor: pointer;
   font-weight: 600;
   font-size: 13px;
   line-height: 16px;
 
   &:hover {
-    background: #f0f2f5;
+    background: #F0F2F5;
   }
 
   &.danger {
@@ -2103,7 +2188,7 @@ export default {
 }
 
 .editor-title-input {
-  color: #2c2b35;
+  color: #2C2B35;
   font-weight: bold;
   font-size: 36px;
   line-height: 43px;
@@ -2121,7 +2206,7 @@ export default {
   position: absolute;
   z-index: 5;
   .bubble-wrap {
-    background: #ffffff;
+    background: #FFFFFF;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
     border-radius: 4px;
     padding: 4px;
@@ -2136,7 +2221,7 @@ export default {
 }
 
 .title-separator {
-  border: 1px solid #edeff3;
+  border: 1px solid #EDEFF3;
   margin: 24px 16vw;
 }
 
@@ -2149,438 +2234,429 @@ export default {
   color: #444754;
 }
 </style>
-<style lang="postcss" scoped>
->>> {
-  .ProseMirror {
-    margin: auto;
-    padding: 0 16vw 128px 16vw;
-    outline: none;
-    -moz-user-select: text;
-    -khtml-user-select: text;
-    -webkit-user-select: text;
-    -o-user-select: text;
+<style lang="postcss">
+.ProseMirror {
+  margin: auto;
+  padding: 0 16vw 128px 16vw;
+  outline: none;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -o-user-select: text;
+
+}
+
+.ProseMirror > .ProseMirror-yjs-cursor:first-child {
+  margin-top: 16px;
+}
+
+.ProseMirror-yjs-cursor {
+  position: absolute;
+  height: 1em;
+  word-break: normal;
+  pointer-events: none;
+  opacity: 0.8;
+  margin-left: -6px;
+}
+
+.ProseMirror-yjs-cursor::after {
+  content: ' ';
+  display: block;
+  position: absolute;
+  top: -5px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #333;
+  transform: rotate(45deg);
+}
+
+.ProseMirror-yjs-cursor > div {
+  position: relative;
+  top: -24px;
+  font-size: 13px;
+  border-radius: 2px;
+  line-height: normal;
+  user-select: none;
+  color: white;
+  padding: 4px;
+}
+
+.ProseMirror {
+
+  font-size: 16px;
+  color: #2C2B35;
+
+  &.resize-cursor {
+    cursor: col-resize;
   }
 
-  .ProseMirror > .ProseMirror-yjs-cursor:first-child {
-    margin-top: 16px;
+  .novadoc-title {
+    font-size: 2.4em;
   }
 
-  .ProseMirror-yjs-cursor {
-    position: absolute;
-    height: 1em;
-    word-break: normal;
-    pointer-events: none;
-    opacity: 0.8;
-    margin-left: -6px;
+  h1, h2, h3 {
+    margin: 0;
   }
 
-  .ProseMirror-yjs-cursor::after {
-    content: " ";
-    display: block;
-    position: absolute;
-    top: -5px;
-    left: 6px;
-    width: 8px;
-    height: 8px;
-    background: #333;
-    transform: rotate(45deg);
+  h1 {
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 36px;
+    margin-top: 40px;
   }
 
-  .ProseMirror-yjs-cursor > div {
-    position: relative;
-    top: -24px;
-    font-size: 13px;
-    border-radius: 2px;
-    line-height: normal;
-    user-select: none;
-    color: white;
-    padding: 4px;
+  h2 {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 29px;
+    margin-top: 32px;
   }
 
-  .ProseMirror {
+  h3 {
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    margin-top: 24px;
+  }
+
+  p {
     font-size: 16px;
-    color: #2c2b35;
-
-    &.resize-cursor {
-      cursor: col-resize;
+    line-height: 20px;
+    margin-top: 16px;
+    font-weight: 400;
+    & + p {
+      margin-top: 8px;
     }
-
-    .novadoc-title {
-      font-size: 2.4em;
-    }
-
-    h1,
-    h2,
-    h3 {
-      margin: 0;
-    }
-
-    h1 {
-      font-weight: 700;
-      font-size: 30px;
-      line-height: 36px;
+    & + h1,
+    & + h2,
+    & + h3 {
       margin-top: 40px;
     }
+  }
 
-    h2 {
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 29px;
-      margin-top: 32px;
+  br {
+    height: 24px;
+  }
+
+  ul {
+    list-style: disc;
+    ul {
+      list-style: circle;
+    }
+    & + ul,
+    & + ol {
+      margin-top: 40px;
+    }
+  }
+
+  ol {
+    list-style: decimal;
+    & + ul,
+    & + ol {
+      margin-top: 40px;
+    }
+  }
+
+  ul {
+    li {
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
+    }
+  }
+
+  ol {
+    li {
+      line-height: 19px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+      margin-left: 24px;
+      padding-left: 8px;
+      li {
+        margin-left: 24px;
+      }
+    }
+  }
+
+  a {
+    text-decoration: underline;
+    color: #146493;
+  }
+
+  blockquote {
+    background: #F8F8FB;
+    border-radius: 12px;
+    border: none;
+    padding: 16px 12px;
+    position: relative;
+    margin: 24px 0;
+
+    > p:first-child {
+      margin-top: 0;
+    }
+  }
+
+  code {
+    padding: 2px;
+    background: #2C2B35;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #fff;
+  }
+
+  p:first-child, h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child {
+    margin-top: inherit;
+  }
+
+  table {
+    width: 100%;
+    max-width: 100%;
+    margin: 48px 0;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border-radius: 4px;
+    border-style: hidden;
+    box-shadow: 0 0 0 1px #DEE2EE;
+    position: relative;
+
+    &.striped:not(.deletion) tr:nth-of-type(2n) td {
+      background: #F4F5F7;
     }
 
-    h3 {
-      font-weight: 700;
-      font-size: 20px;
-      line-height: 24px;
-      margin-top: 24px;
+    &.deletion {
+      box-shadow: 0 0 0 1px #D64141;
+      tr{
+        background: #FFE0E0;
+        td {
+          border: 1px solid #D64141;
+          border-top: none;
+        }
+      }
     }
 
     p {
-      font-size: 16px;
-      line-height: 20px;
-      margin-top: 16px;
+      font-size: 14px;
+      line-height: 17px;
       font-weight: 400;
-      & + p {
-        margin-top: 8px;
-      }
-      & + h1,
-      & + h2,
-      & + h3 {
-        margin-top: 40px;
-      }
     }
 
-    br {
-      height: 24px;
-    }
-
-    ul {
-      list-style: disc;
-      ul {
-        list-style: circle;
+    tr {
+      &:hover td {
+        background: #F4F5F7;
       }
-      & + ul,
-      & + ol {
-        margin-top: 40px;
-      }
-    }
-
-    ol {
-      list-style: decimal;
-      & + ul,
-      & + ol {
-        margin-top: 40px;
-      }
-    }
-
-    ul {
-      li {
-        line-height: 19px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        margin-left: 24px;
-        padding-left: 8px;
-      }
-    }
-
-    ol {
-      li {
-        line-height: 19px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        margin-left: 24px;
-        padding-left: 8px;
-        li {
-          margin-left: 24px;
-        }
-      }
-    }
-
-    a {
-      text-decoration: underline;
-      color: #146493;
-    }
-
-    blockquote {
-      background: #f8f8fb;
-      border-radius: 12px;
-      border: none;
-      padding: 16px 12px;
-      position: relative;
-      margin: 24px 0;
-
-      > p:first-child {
-        margin-top: 0;
-      }
-    }
-
-    code {
-      padding: 2px;
-      background: #2c2b35;
-      border-radius: 4px;
-      font-size: 0.8em;
-      color: #fff;
-    }
-
-    p:first-child,
-    h1:first-child,
-    h2:first-child,
-    h3:first-child,
-    h4:first-child,
-    h5:first-child,
-    h6:first-child {
-      margin-top: inherit;
-    }
-
-    table {
-      width: 100%;
-      max-width: 100%;
-      margin: 48px 0;
-      border-spacing: 0;
-      border-collapse: collapse;
-      border-radius: 4px;
-      border-style: hidden;
-      box-shadow: 0 0 0 1px #dee2ee;
-      position: relative;
-
-      &.striped:not(.deletion) tr:nth-of-type(2n) td {
-        background: #f4f5f7;
-      }
-
-      &.deletion {
-        box-shadow: 0 0 0 1px #d64141;
-        tr {
-          background: #ffe0e0;
-          td {
-            border: 1px solid #d64141;
-            border-top: none;
-          }
-        }
-      }
-
-      p {
-        font-size: 14px;
-        line-height: 17px;
-        font-weight: 400;
-      }
-
-      tr {
-        &:hover td {
-          background: #f4f5f7;
-        }
-        td {
-          border: solid 1px #dee2ee;
-          padding: 8px;
-          position: relative;
-
-          &.selectedCell {
-            background: #def;
-          }
-        }
-      }
-
-      tbody tr td {
-        border-top: none;
-        border-right: none;
-      }
-
-      .column-resize-handle {
-        background: #ccca;
-        width: 4px;
-        height: 100%;
-        top: 0;
-        right: -2px;
-        position: absolute;
-      }
-    }
-
-    ul[data-type="todo_list"] {
-      padding-left: 0;
-      margin-left: 0;
-    }
-
-    li[data-type="todo_item"] {
-      display: flex;
-      flex-direction: row;
-      margin: 8px 0;
-      padding-left: 0;
-
-      & {
-        margin-bottom: 0;
-      }
-    }
-
-    .todo-checkbox {
-      border: 1px solid #aab1c5;
-      height: 20px;
-      width: 20px;
-      box-sizing: border-box;
-      margin-right: 8px;
-      user-select: none;
-      -webkit-user-select: none;
-      cursor: pointer;
-      border-radius: 6px;
-      background-color: transparent;
-      transition: 0.4s background;
-    }
-
-    .todo-content {
-      flex: 1;
-
-      &[contenteditable="true"]::before {
-        content: none;
-      }
-
-      > p:last-of-type {
-        margin-bottom: 0;
-      }
-
-      > ul[data-type="todo_list"] {
-        margin: 0;
-      }
-    }
-
-    li[data-done="true"] {
-      > .todo-content {
-        > p {
-          text-decoration: line-through;
-          opacity: 0.85;
-          color: #777b81;
-        }
-      }
-
-      > .todo-checkbox {
-        border: 1px solid #8cd5ff;
-        background-color: #8cd5ff;
+      td {
+        border: solid 1px #DEE2EE;
+        padding: 8px;
         position: relative;
-        &::before {
-          position: absolute;
-          content: "";
-          display: block;
-          width: 12px;
-          height: 6px;
-          border-left: solid 2px #2c2b35;
-          border-bottom: solid 2px #2c2b35;
-          top: 5px;
-          left: 4px;
-          transform: rotate(-45deg);
+
+        &.selectedCell {
+          background: #def;
         }
       }
     }
 
-    li[data-done="false"] {
-      text-decoration: none;
+    tbody tr td {
+      border-top: none;
+      border-right: none;
     }
 
-    ul,
-    ol {
-      margin-top: 16px;
-      margin-bottom: 16px;
+    .column-resize-handle {
+      background: #ccca;
+      width: 4px;
+      height: 100%;
+      top: 0;
+      right: -2px;
+      position: absolute;
+    }
+  }
 
-      ul,
-      ol {
-        margin-top: 8px;
+  ul[data-type="todo_list"] {
+    padding-left: 0;
+    margin-left: 0;
+  }
+
+  li[data-type="todo_item"] {
+    display: flex;
+    flex-direction: row;
+    margin: 8px 0;
+    padding-left: 0;
+
+    & {
+      margin-bottom: 0;
+    }
+  }
+
+  .todo-checkbox {
+    border: 1px solid #AAB1C5;
+    height: 20px;
+    width: 20px;
+    box-sizing: border-box;
+    margin-right: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: pointer;
+    border-radius: 6px;
+    background-color: transparent;
+    transition: 0.4s background;
+  }
+
+  .todo-content {
+    flex: 1;
+
+    &[contenteditable='true']::before {
+      content: none;
+    }
+
+    > p:last-of-type {
+      margin-bottom: 0;
+    }
+
+    > ul[data-type="todo_list"] {
+      margin: 0;
+    }
+  }
+
+  li[data-done="true"] {
+    > .todo-content {
+      > p {
+        text-decoration: line-through;
+        opacity: 0.85;
+        color: #777B81;
       }
     }
 
-    .novadoc-mention {
-      color: #146493;
-      font-weight: bolder;
-      padding: 4px;
-      border-radius: 4px;
-
-      &.ProseMirror-selectednode {
-        background: #ddd;
-        color: #333;
-      }
-    }
-
-    pre > code {
-      display: block;
-      padding: 16px;
-      background: #1c1c1d;
-      border-radius: 12px;
-      font-size: 16px;
-      color: #e5e4ec;
-      margin: 40px 0;
-
-      .hljs {
+    > .todo-checkbox {
+      border: 1px solid #8CD5FF;
+      background-color: #8CD5FF;
+      position: relative;
+      &::before {
+        position: absolute;
+        content: '';
         display: block;
-        overflow-x: auto;
-        padding: 0.5em;
-        background: #f8f8fb;
-      }
-
-      .hljs-keyword,
-      .hljs-selector-tag,
-      .hljs-literal,
-      .hljs-section,
-      .hljs-link {
-        color: #8be9fd;
-      }
-
-      .hljs-function .hljs-keyword {
-        color: #ff79c6;
-      }
-
-      .hljs,
-      .hljs-subst {
-        color: #f8f8f2;
-      }
-
-      .hljs-title,
-      .hljs-name,
-      .hljs-type,
-      .hljs-attribute,
-      .hljs-symbol,
-      .hljs-bullet,
-      .hljs-addition,
-      .hljs-variable,
-      .hljs-template-tag,
-      .hljs-template-variable {
-        color: #de3f79;
-      }
-
-      .hljs-string {
-        color: #edd70b;
-      }
-      .hljs-attr {
-        color: #93d128;
-      }
-
-      .hljs-comment,
-      .hljs-quote,
-      .hljs-deletion,
-      .hljs-meta {
-        color: #6272a4;
-      }
-
-      .hljs-keyword,
-      .hljs-selector-tag,
-      .hljs-literal,
-      .hljs-title,
-      .hljs-section,
-      .hljs-doctag,
-      .hljs-type,
-      .hljs-name,
-      .hljs-strong {
-        font-weight: bold;
-      }
-
-      .hljs-emphasis {
-        font-style: italic;
+        width: 12px;
+        height: 6px;
+        border-left: solid 2px  #2C2B35;
+        border-bottom: solid 2px  #2C2B35;
+        top: 5px;
+        left: 4px;
+        transform: rotate(-45deg);
       }
     }
   }
 
-  .page-editor *.is-empty:nth-child(1)::before,
-  .page-editor *.is-empty:nth-child(2)::before {
-    content: attr(data-empty-text);
-    float: left;
-    color: #aaa;
-    pointer-events: none;
-    height: 0;
+  li[data-done="false"] {
+    text-decoration: none;
   }
+
+  ul, ol {
+    margin-top: 16px;
+    margin-bottom: 16px;
+
+    ul, ol {
+      margin-top: 8px;
+    }
+  }
+
+  .novadoc-mention {
+    color: #146493;
+    font-weight: bolder;
+    padding: 4px;
+    border-radius: 4px;
+
+    &.ProseMirror-selectednode {
+      background: #ddd;
+      color: #333;
+    }
+  }
+
+  pre > code {
+    display: block;
+    padding: 16px;
+    background: #1c1c1d;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #e5e4ec;
+    margin: 40px 0;
+
+    .hljs {
+      display: block;
+      overflow-x: auto;
+      padding: 0.5em;
+      background: #F8F8FB;
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-literal,
+    .hljs-section,
+    .hljs-link {
+      color: #8be9fd;
+    }
+
+    .hljs-function .hljs-keyword {
+      color: #ff79c6;
+    }
+
+    .hljs,
+    .hljs-subst {
+      color: #f8f8f2;
+    }
+
+    .hljs-title,
+    .hljs-name,
+    .hljs-type,
+    .hljs-attribute,
+    .hljs-symbol,
+    .hljs-bullet,
+    .hljs-addition,
+    .hljs-variable,
+    .hljs-template-tag,
+    .hljs-template-variable {
+      color: #de3f79;
+    }
+
+    .hljs-string {
+      color: #edd70b;
+    }
+    .hljs-attr {
+      color: #93d128;
+    }
+
+    .hljs-comment,
+    .hljs-quote,
+    .hljs-deletion,
+    .hljs-meta {
+      color: #6272a4;
+    }
+
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-literal,
+    .hljs-title,
+    .hljs-section,
+    .hljs-doctag,
+    .hljs-type,
+    .hljs-name,
+    .hljs-strong {
+      font-weight: bold;
+    }
+
+    .hljs-emphasis {
+      font-style: italic;
+    }
+  }
+
+}
+
+.page-editor *.is-empty:nth-child(1)::before,
+.page-editor *.is-empty:nth-child(2)::before {
+  content: attr(data-empty-text);
+  float: left;
+  color: #aaa;
+  pointer-events: none;
+  height: 0;
 }
 </style>

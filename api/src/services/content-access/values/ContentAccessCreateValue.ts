@@ -4,6 +4,7 @@ import { ContentAccessCreateAttributes } from './types'
 const attrs: ContentAccessCreateAttributes = {
   spaceId: null,
   ownerId: null,
+  nodeId: null,
   entityId: null,
   entity: null,
   type: null,

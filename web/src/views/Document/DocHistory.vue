@@ -53,7 +53,7 @@
           </div>
         </div>
         <div class="entry-right">
-          <div class="restore">
+          <div v-if="!isReadonly" class="restore">
             <button class="btn btn-icon" @click="$emit('restore', entry)" v-tippy="{ placement : 'top',  arrow: true }"
                     content="Restore">
               <legacy-icon name="restore" size="16px" viewbox="16" title="Restore"/>
@@ -92,6 +92,9 @@ export default class DocHistory extends Vue {
 
   @Prop({ type: Object, required: false })
   private readonly doc!: DocumentResource;
+
+  @Prop({ type: Boolean, required: false, default: false })
+  private readonly isReadonly!: boolean;
 
   @Prop(Object)
   private readonly preview?: DocRevisionResource;

@@ -40,7 +40,7 @@ export class ContentAccessCtrl extends BaseCtrl {
 
     const contentAccess = await this.contentAccessService.getForEntity(entity)
 
-    if (contentAccess.ownerId !== req.user.id) {
+    if (contentAccess.ownerId !== req.user.id && !this.isSpaceAdmin(req, entity.spaceId)) {
       throw clientError('Not allowed', HttpErrName.Forbidden, HttpStatusCode.Forbidden)
     }
 

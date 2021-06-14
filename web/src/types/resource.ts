@@ -11,6 +11,7 @@ export interface NodeResource {
   created: string;
   updated: string;
   children: NodeResource[];
+  contentAccess?: DocContentAccess
 }
 
 export interface LinkResource {
@@ -248,4 +249,15 @@ export interface DocRevisionResource {
   spaceId: number;
   user: UserResource;
   userId: number;
+}
+
+enum DocAccessType {
+  open = 'open',
+  private = 'private',
+  restricted = 'restricted',
+}
+export interface DocContentAccess {
+  type: DocAccessType;
+  public: boolean;
+  ownerId: number;
 }

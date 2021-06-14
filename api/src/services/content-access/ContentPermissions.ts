@@ -5,6 +5,7 @@ import { ContentAccessType } from './ContentAccessType'
 import { ContentEntity } from '../../root/types'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
+import { Node } from '../../database/entities/Node'
 
 type permissionType = 'view' | 'update' | 'archive' | 'restore' | 'delete'
 
@@ -15,13 +16,14 @@ export class ContentPermissions {
   private contentAccess: ContentAccess
   private spaceUser: UserToSpace
 
-  constructor(contentAccess: ContentAccess, spaceUSer?: UserToSpace) {
+  constructor(contentAccess: ContentAccess, spaceUser?: UserToSpace) {
     this.contentAccess = contentAccess
-    this.spaceUser = spaceUSer
+    this.spaceUser = spaceUser
 
     this.defined.forEach((action) => {
       if (action === 'view' && this.view() === true) {
         this.list.add(action)
+        return
       }
 
       if (this.default() === true) {
@@ -53,12 +55,16 @@ export class ContentPermissions {
       return this.isUserSpaceMember()
     }
 
-    if (this.contentAccess.public) {
+    if (this.contentAccess.public === true) {
       return true
     }
 
     if (!this.spaceUser) {
       return false
+    }
+
+    if (this.isUserContentOwner() === true) {
+      return true
     }
 
     if (this.contentAccess.type === ContentAccessType.Open) {
@@ -67,10 +73,6 @@ export class ContentPermissions {
 
     if (this.contentAccess.type === ContentAccessType.Restricted) {
       return this.isUserSpaceMember()
-    }
-
-    if (this.contentAccess.type === ContentAccessType.Private) {
-      return this.isUserContentOwner()
     }
 
     return false
@@ -81,16 +83,20 @@ export class ContentPermissions {
       return this.isUserSpaceMember()
     }
 
+    if (!this.spaceUser) {
+      return false
+    }
+
+    if (this.isUserContentOwner() === true) {
+      return true
+    }
+
     if (this.contentAccess.type === ContentAccessType.Open) {
       return this.isUserSpaceMember()
     }
 
     if (this.contentAccess.type === ContentAccessType.Restricted) {
       return this.isUserSpaceAdmin()
-    }
-
-    if (this.contentAccess.type === ContentAccessType.Private) {
-      return this.isUserContentOwner()
     }
 
     return false
@@ -121,6 +127,30 @@ export class ContentPermissions {
   }
 }
 
+export const hasNodePermission = async (permission: permissionType, node: Node, userId?: number) => {
+  const permissions = await nodePermissions(node, userId)
+  permissions.throwUnlessHas(permission)
+}
+
+export const hasContentPermission = async (permission: permissionType, entity: ContentEntity, userId?: number) => {
+  const permissions = await contentPermissions(entity, userId)
+  permissions.throwUnlessHas(permission)
+}
+
+export const nodePermissions = async (node: Node, userId?: number): Promise<ContentPermissions> => {
+  const contentAccess = await ServiceFactory.getInstance()
+    .getContentAccessService()
+    .requireByNodeId(node.id)
+
+  const spaceUser = !userId
+    ? null
+    : await ServiceFactory.getInstance()
+        .getUserSpaceService()
+        .getByUserIdAndSpaceId(userId, node.spaceId, { active: true })
+
+  return new ContentPermissions(contentAccess, spaceUser)
+}
+
 export const contentPermissions = async (entity: ContentEntity, userId?: number): Promise<ContentPermissions> => {
   const contentAccess = await ServiceFactory.getInstance()
     .getContentAccessService()
@@ -133,9 +163,4 @@ export const contentPermissions = async (entity: ContentEntity, userId?: number)
         .getByUserIdAndSpaceId(userId, entity.spaceId, { active: true })
 
   return new ContentPermissions(contentAccess, spaceUser)
-}
-
-export const hasContentPermission = async (permission: permissionType, entity: any, userId?: number) => {
-  const permissions = await contentPermissions(entity, userId)
-  permissions.throwUnlessHas(permission)
 }

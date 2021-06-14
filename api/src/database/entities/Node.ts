@@ -9,7 +9,10 @@ import {
   Tree,
   TreeParent,
   TreeChildren,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm'
+import { ContentAccess } from './ContentAccess'
 
 @Entity('nodes')
 @Tree('nested-set')
@@ -58,4 +61,10 @@ export class Node {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   public deletedAt: Date
+
+  @OneToOne(
+    () => ContentAccess,
+    (contentAccess) => contentAccess.node
+  )
+  contentAccess: ContentAccess
 }

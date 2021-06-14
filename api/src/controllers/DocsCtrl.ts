@@ -1,29 +1,49 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { BaseCtrl } from './BaseCtrl'
 import { validateDocCreate, validateDocUpdate, DocCreateValue, DocUpdateValue } from '../services/content/doc'
 import { contentPermissions, hasContentPermission } from '../services/content-access'
-import { ContentAccessService, DocService, FollowService } from '../services'
+import { DocService, FollowService } from '../services'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
+import { clientError, HttpErrName, HttpStatusCode } from '../response/errors'
 
 export class DocsCtrl extends BaseCtrl {
   private docService: DocService
   private followService: FollowService
-  private contentAccessService: ContentAccessService
 
   constructor() {
     super()
     this.docService = ServiceFactory.getInstance().getDocService()
     this.followService = ServiceFactory.getInstance().getFollowService()
-    this.contentAccessService = ServiceFactory.getInstance().getContentAccessService()
   }
 
-  async view(req: Request, res: Response) {
+  async publicView(req: Request, res: Response, next: NextFunction) {
     let id: number | string = req.params.id
     id = isNaN(Number(id)) ? id : Number(id)
 
-    const doc = await this.docService.requireById(id)
+    if (typeof id === 'number') {
+      return next()
+    }
 
-    const permissions = await contentPermissions(doc, req.user.id)
+    const doc = await this.docService.requireById(id)
+    const permissions = await contentPermissions(doc)
+
+    if (permissions.has('view') === false) {
+      throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
+    }
+
+    permissions.throwUnlessHas('view')
+
+    res.send(
+      this.responseBody(doc)
+        .with('contentAccess', permissions.getContentAccess())
+        .with('permissions', permissions.getList())
+    )
+  }
+  async authenticatedView(req: Request, res: Response) {
+    const id = Number(req.params.id)
+    const doc = await this.docService.requireById(id)
+    const permissions = await contentPermissions(doc, req.user?.id)
+
     permissions.throwUnlessHas('view')
 
     res.send(
@@ -51,8 +71,6 @@ export class DocsCtrl extends BaseCtrl {
     }
 
     const doc = await this.docService.create(value)
-    await this.contentAccessService.createDefault(doc)
-
     const permissions = await contentPermissions(doc, req.user.id)
 
     res.send(
@@ -99,8 +117,6 @@ export class DocsCtrl extends BaseCtrl {
   async delete(req: Request, res: Response) {
     const doc = await this.docService.requireById(Number(req.params.id), { withDeleted: true })
     await hasContentPermission('delete', doc, req.user.id)
-
-    await this.contentAccessService.removeForEntity(doc)
 
     const result = await this.docService.remove(doc.id, req.user.id)
     res.send(this.responseData(result))
