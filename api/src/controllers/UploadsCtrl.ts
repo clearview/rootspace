@@ -114,6 +114,14 @@ export class UploadsCtrl extends BaseCtrl {
     res.send(this.responseBody(result))
   }
 
+  async trash(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+    await this.authorize(req, upload)
+
+    const result = await this.uploadService.archive(upload, req.user.id)
+    res.send(this.responseBody(result))
+  }
+
   async restore(req: Request, res: Response) {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id), null, { withDeleted: true })
     await this.authorize(req, upload)

@@ -43,15 +43,20 @@ export class UploadRepository extends BaseRepository<Upload> {
       )
     }
 
-    if (options.offset) {
+    if (filter.trashed === true) {
+      query.andWhere('upload.deletedAt IS NOT NULL')
+      query.withDeleted()
+    }
+
+    if (options.offset !== undefined) {
       query.offset(options.offset)
     }
 
-    if (options.limit) {
+    if (options.limit !== undefined) {
       query.limit(options.limit)
     }
 
-    if (options.orderBy) {
+    if (options.orderBy !== undefined) {
       query.orderBy(`upload.${options.orderBy.sort}`, options.orderBy.order)
     }
 

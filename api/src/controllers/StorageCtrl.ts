@@ -37,8 +37,8 @@ export class StorageCtrl extends BaseCtrl {
     const options: QueryOptions = {
       orderBy: {
         sort: 'createdAt',
-        order: 'DESC'
-      }
+        order: 'DESC',
+      },
     }
 
     if (req.query.search) {
@@ -54,6 +54,19 @@ export class StorageCtrl extends BaseCtrl {
     }
 
     const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter, options)
+    res.send(this.responseBody(files))
+  }
+
+  async trash(req: Request, res: Response) {
+    const storage = await this.storageService.requireById(Number(req.params.id))
+    this.isSpaceMember(req, storage.spaceId)
+
+    const files = await this.uploadService.getUploadsByEntity(
+      storage.id,
+      UploadEntity.Storage,
+      { trashed: true },
+      { withDeleted: true }
+    )
     res.send(this.responseBody(files))
   }
 
