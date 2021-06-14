@@ -1673,7 +1673,10 @@ export default {
           publicId: this.doc.publicId,
           contentAccess: this.contentAccess,
           onChangeContentAccess: (contentAccess) => {
-            this.contentAccess = contentAccess
+            this.contentAccess = {
+              ...this.contentAccess,
+              ...contentAccess
+            }
           }
         }
       })
