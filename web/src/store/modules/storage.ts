@@ -66,7 +66,7 @@ const FilesModule: Module<StorageState, RootState> = {
         throw new Error('ID is not defined')
       }
 
-      return await UploadService.archive(id)
+      return await UploadService.trash(id)
     },
 
     async restore (_, id: number) {

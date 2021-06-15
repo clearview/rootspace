@@ -24,8 +24,8 @@ export default class UploadService {
     return res.data
   }
 
-  static async archive (id: number) {
-    const res = await api.post(`uploads/${id}/archive`)
+  static async trash (id: number) {
+    const res = await api.post(`uploads/${id}/trash`)
 
     return res.data
   }

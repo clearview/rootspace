@@ -96,12 +96,9 @@
             hide();
           "
         >
-          <legacy-icon
-            class="action-icon"
-            name="copy"
-            viewbox="16"
-            size="18px"
-          ></legacy-icon>
+          <div class="action-line-icon">
+            <mono-icon name="copy"/>
+          </div>
           <div class="action-line-text">Copy link</div>
         </div>
         <div
@@ -111,12 +108,9 @@
             rename();
           "
         >
-          <legacy-icon
-            class="action-icon"
-            name="pencil"
-            viewbox="16"
-            size="18px"
-          ></legacy-icon>
+          <div class="action-line-icon">
+            <mono-icon name="pencil" />
+          </div>
           <div class="action-line-text">Rename</div>
         </div>
         <div class="action-separator"></div>
@@ -127,8 +121,10 @@
             deleteFileActionConfirm();
           "
         >
-          <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
-          <div class="action-line-text">Delete</div>
+          <div class="action-line-icon">
+            <mono-icon name="trash" />
+          </div>
+          <div class="action-line-text">Trash</div>
         </div>
       </template>
       <template #trigger="{ visible }">
@@ -416,7 +412,6 @@ h3 {
   font-size: 13px;
   width: 168px;
   color: theme("colors.gray.900");
-  stroke-width: 3px;
   cursor: pointer;
   &:hover {
     background: #f0f2f5;
@@ -428,6 +423,9 @@ h3 {
   &.danger {
     color: theme("colors.danger.default");
   }
+}
+.action-line-icon {
+  font-size: 18px;
 }
 .action-line-text {
   @apply ml-2;
