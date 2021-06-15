@@ -1,14 +1,18 @@
 import { ContentEntityName } from './ContentEntityName'
 
-export const NodeType = {
-  Root: 'root',
-  Archive: 'archive',
+export const NodeContentType = {
   Folder: 'folder',
   Link: 'link',
   Doc: 'doc',
   Embed: 'embed',
   Storage: 'storage',
   TaskBoard: 'taskBoard',
+}
+export const NodeType = {
+  Root: 'root',
+  Archive: 'archive',
+  Private: 'private',
+  ...NodeContentType,
 }
 
 export const NodeTypeEntityNameMap = new Map<string, string>([

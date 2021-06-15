@@ -1,8 +1,7 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm'
+import { MigrationInterface, QueryRunner, Table, TableForeignKey, TableIndex } from 'typeorm'
 
-export class ContentAccessTable1616945614137 implements MigrationInterface {
-  name = 'ContentAccessTable1616945614137'
-
+export class ContentAccessTable1620253476777 implements MigrationInterface {
+  name = 'ContentAccessTable1620253476777'
   public async up(queryRunner: QueryRunner): Promise<void> {
     const table = new Table({
       name: 'content_access',
@@ -20,6 +19,10 @@ export class ContentAccessTable1616945614137 implements MigrationInterface {
         },
         {
           name: 'ownerId',
+          type: 'int',
+        },
+        {
+          name: 'nodeId',
           type: 'int',
         },
         {
@@ -42,8 +45,28 @@ export class ContentAccessTable1616945614137 implements MigrationInterface {
       ],
     })
 
-    table.addIndex(new TableIndex({ columnNames: ['entityId'] }))
-    table.addIndex(new TableIndex({ columnNames: ['entity'] }))
+    table.addIndex(new TableIndex({ columnNames: ['nodeId'], isUnique: true }))
+    table.addIndex(new TableIndex({ columnNames: ['entityId', 'entity'], isUnique: true }))
+
+    table.addForeignKey(
+      new TableForeignKey({
+        columnNames: ['spaceId'],
+        referencedTableName: 'spaces',
+        referencedColumnNames: ['id'],
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      })
+    )
+
+    table.addForeignKey(
+      new TableForeignKey({
+        columnNames: ['nodeId'],
+        referencedTableName: 'nodes',
+        referencedColumnNames: ['id'],
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      })
+    )
 
     await queryRunner.createTable(table, true, true, true)
   }

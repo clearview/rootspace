@@ -23,7 +23,7 @@ export class SpacesCtrl extends BaseCtrl {
     const spaceId = Number(req.params.id)
     this.isSpaceMember(req, spaceId)
 
-    const nodes = await this.spaceFacade.getTree(spaceId)
+    const nodes = await this.spaceFacade.getTree(spaceId, req.user.id)
     const data = this.responseData(nodes)
 
     res.send(data)
@@ -33,7 +33,7 @@ export class SpacesCtrl extends BaseCtrl {
     const spaceId = Number(req.params.id)
     this.isSpaceMember(req, spaceId)
 
-    const nodes = await this.spaceFacade.getArchiveTree(spaceId)
+    const nodes = await this.spaceFacade.getArchiveTree(spaceId, req.user.id)
     const result = this.responseData(nodes)
 
     res.send(this.responseData(result))

@@ -12,7 +12,7 @@ export interface FetchParams {
 }
 
 interface Response {
-  data: NodeResource;
+  data: Array<NodeResource>;
 }
 
 export default class TreeService {

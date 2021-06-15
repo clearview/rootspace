@@ -2,6 +2,7 @@ import { Command } from 'commander'
 import { PositionsCommand } from './PositionsCommand'
 import { ArchivesSetParentNullCommand } from './ArchivesSetParentNullCommand'
 import { CreateFoldersEntries } from './CreateFoldersEntries'
+import { CreateContentAccess } from './CreateContentAccess'
 
 export function nodeCommands() {
   const commands = new Command('node').description('Node related commands')
@@ -25,6 +26,13 @@ export function nodeCommands() {
     .description('Create nodes folders table entries')
     .action(async () => {
       await CreateFoldersEntries.run()
+    })
+
+  commands
+    .command('create-content-access')
+    .description('Create content access table entries for nodes')
+    .action(async () => {
+      await CreateContentAccess.run()
     })
 
   return commands

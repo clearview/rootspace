@@ -35,10 +35,7 @@ import SidebarTitle from '@/components/sidebar/SidebarTitle.vue'
 })
 export default class FavoriteNode extends Vue {
   get favorites (): Node[] {
-    const state = this.$store.state.tree
-    const favorites = [...state.favorites]
-
-    return favorites
+    return this.$store.state.tree.favorites
   }
 }
 </script>

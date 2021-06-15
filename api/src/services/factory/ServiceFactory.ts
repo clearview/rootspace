@@ -34,6 +34,7 @@ export class ServiceFactory {
   private embedService: EmbedService
   private taskBoardService: TaskBoardService
   private storageService: StorageService
+  private contentAccessService: ContentAccessService
 
   private constructor() {}
 
@@ -178,7 +179,11 @@ export class ServiceFactory {
   }
 
   getContentAccessService() {
-    return ContentAccessService.getInstance()
+    if (!this.contentAccessService) {
+      this.initNodeContentServices()
+    }
+
+    return this.contentAccessService
   }
 
   getStorageService() {
@@ -211,7 +216,9 @@ export class ServiceFactory {
     this.storageService = StorageService.getInstance()
     this.storageService.attachActivityObserver(this.getActivityService())
 
-    const mediator = new NodeContentMediator(this.nodeService)
+    this.contentAccessService = ContentAccessService.getInstance()
+
+    const mediator = new NodeContentMediator(this.nodeService, this.contentAccessService)
 
     mediator.addContentService(this.folderService)
     mediator.addContentService(this.linkService)
