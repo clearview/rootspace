@@ -45,6 +45,10 @@ export class StorageCtrl extends BaseCtrl {
       filter.search = String(req.query.search)
     }
 
+    if (req.query.trashed) {
+      filter.trashed = Boolean(req.query.trashed)
+    }
+
     if (req.query.offset) {
       options.offset = Number(req.query.offset)
     }
