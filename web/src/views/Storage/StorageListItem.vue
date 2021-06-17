@@ -70,7 +70,7 @@
       class="download-file"
       @click.prevent="handleDownload(fileCopy)"
     >
-      <legacy-icon name="download" size="28px" viewbox="16" />
+      <mono-icon name="download" />
     </a>
     <a
       v-else
@@ -78,7 +78,7 @@
       class="download-file"
       @click.prevent="handleFileClick(index)"
     >
-      <mono-icon name="eye" :style="{ fontSize: '28px' }" />
+      <mono-icon name="eye" />
     </a>
 
     <Popover

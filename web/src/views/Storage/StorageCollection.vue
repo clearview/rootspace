@@ -1,5 +1,5 @@
 <template>
-  <div class="p-5 pt-10" v-if="item">
+  <div class="my-10" v-if="item">
     <div :class="classNames">
       <div v-for="(item, index) in tempItems" :key="-(index + 1)" class="item item__placeholder">
         <div class="progress">

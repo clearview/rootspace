@@ -1,23 +1,26 @@
 <template>
   <section
-    class="file-page"
+    class="page"
     @dragenter="captureDragFile"
     v-if="storageInfo && files"
   >
     <div
-      class="file-drag-capture"
+      class="upload-overlay"
       v-if="isCapturingFile"
       @dragover="prepareDragFile"
       @dragleave="releaseDragFile"
       @drop="handleDroppedFile"
     >
-      <div class="file-drag-content">
-        <legacy-icon name="upload" size="32px" viewbox="32" />
+      <div class="upload-overlay--content">
+        <mono-icon name="cloud-upload" class="upload-overlay--icon" />
         Upload your file here!
       </div>
     </div>
+
     <header class="header">
-      <h3 class="header-title">{{ storageInfo.title }} ({{ files.length }})</h3>
+      <h3 class="header-title">
+        {{ storageInfo.title }} <span>({{ files.length }})</span>
+      </h3>
       <div class="actions" v-if="totalData > 0">
         <div class="action-group">
           <label
@@ -47,10 +50,21 @@
             </div>
           </label>
         </div>
-        <div class="action-group action-group--view">
+        <div class="action-group action-group--trash">
+          <button
+            class="action"
+            :class="{
+              'action__active': showDeletedOnly
+            }"
+            @click="showDeletedOnly = !showDeletedOnly"
+          >
+            <mono-icon name="trash" class="mr-1"/> Trash
+          </button>
+        </div>
+        <div class="action-group">
           <div
             class="action mr-3"
-            :class="{ 'action--active': isList }"
+            :class="{ 'action__active': isList }"
             @click="viewAsList"
           >
             <legacy-icon
@@ -63,7 +77,7 @@
           </div>
           <div
             class="action"
-            :class="{ 'action--active': !isList }"
+            :class="{ 'action__active': !isList }"
             @click="viewAsGrid"
           >
             <legacy-icon
@@ -176,7 +190,8 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   private isFetching = false;
   private search = '';
   private searchVisible = false;
-  private tempItems = [] as Record<string, any>[]
+  private showDeletedOnly = false;
+  private tempItems = [] as Record<string, any>[];
 
   get id () {
     return Number(this.$route.params.id)
@@ -385,30 +400,41 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await this.fetchStorageInfo()
     await this.fetchFiles()
   }
+
+  @Watch('showDeletedOnly')
+  @debounce(500)
+  async watchDeletedOnly (value: boolean) {
+    this.search = ''
+    this.searchVisible = false
+
+    if (value) {
+      // fetch deleted file
+    } else {
+      await this.fetchStorageInfo()
+      await this.fetchFiles()
+    }
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
-.content {
-  @apply flex flex-col;
-  overflow: auto;
-}
-
-.file-page {
+.page {
   @apply flex flex-col h-full relative;
-  flex: 1 1 0;
-  width: 0;
+  width: 100%;
+  padding: 0 72px;
 }
 
-.file-drag-capture {
+.upload-overlay {
   @apply z-50 absolute flex flex-col;
   color: theme("colors.gray.900");
   top: 0;
+  left: 0;
   width: 100%;
-  height: 100vh;
-  padding: 3rem;
+  height: 100%;
+  padding: 56px 72px;
   background: #fff;
-  .file-drag-content {
+
+  .upload-overlay--content {
     @apply flex items-center justify-center text-3xl flex-col;
     width: 100%;
     height: 100%;
@@ -418,22 +444,29 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     box-sizing: border-box;
     border-radius: 4px;
     background: #eef8ff;
-    svg {
-      color: #8cd5ff;
-    }
+  }
+
+  .upload-overlay--icon {
+    color: #8cd5ff;
+    font-size: 64px;
   }
 }
 
 .header {
-  @apply flex flex-row px-6 py-2 items-center;
+  @apply flex flex-row items-center justify-between;
+  padding: 18px 0;
   background: #ffffff;
   color: theme("colors.gray.900");
   border-bottom: solid 1px theme("colors.gray.100");
 }
 
 .header-title {
-  @apply text-lg;
-  flex: 1 1 auto;
+  font-size: 24px;
+  font-weight: 700;
+
+  span {
+    font-weight: 400;
+  }
 }
 
 .actions {
@@ -453,10 +486,12 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   line-height: 1;
   cursor: pointer;
   height: 32px;
+
   &:hover {
     background-color: #f4f5f7;
   }
-  &.action--active {
+
+  &.action__active {
     background: #444754;
     color: white;
   }
@@ -466,6 +501,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   display: flex;
   flex-flow: row;
   padding: 0 8px;
+
   .btn-upload {
     border-color: #8cd5ff;
     background: #8cd5ff;
@@ -473,12 +509,19 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     padding: 0.3rem 1rem;
     height: 32px;
   }
+
   &:first-child {
     padding-left: 0;
   }
 
   &:last-child {
     padding-right: 0;
+  }
+
+  &.action-group--trash {
+    border: 1px solid #dee2ee;
+    border-top-style: none;
+    border-bottom-style: none;
   }
 }
 
@@ -551,14 +594,19 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     text-align: center;
     color: #2c2b35;
   }
+
   .actions {
     margin-top: 24px;
+
+    .btn {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
     .btn-upload {
       border-color: #8cd5ff;
       background: #8cd5ff;
       color: #2c2b35;
-      padding-left: 1rem;
-      padding-right: 1rem;
     }
   }
 }

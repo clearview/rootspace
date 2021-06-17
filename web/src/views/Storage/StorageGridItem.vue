@@ -27,7 +27,7 @@
           class="download-file"
           @click.prevent="handleDownload(fileCopy)"
         >
-          <legacy-icon name="download" size="28px" viewbox="16" />
+          <mono-icon name="download" />
         </a>
         <div v-else class="download-file" @click="handleFileClick(index)">
           <storage-image-viewer
@@ -37,7 +37,7 @@
             @remove="deleteFileActionConfirm"
             @download="handleDownload"
           />
-          <mono-icon name="eye" :style="{ fontSize: '28px' }" />
+          <mono-icon name="eye" />
         </div>
       </div>
       <Popover
@@ -316,8 +316,10 @@ export default class StorageGridView extends Vue {
   @apply flex-wrap justify-center content-center w-full h-full absolute;
   display: none;
   background: #f8f8fb;
+
   .download-file {
-    /* TODO : Change download icon color */
+    font-size: 18px;
+    color: #146493;
     background: #ddf3ff;
     padding: 16px 40px;
     border-radius: 34px;
