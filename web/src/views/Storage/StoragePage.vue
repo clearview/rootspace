@@ -21,7 +21,7 @@
       <h3 class="header-title">
         {{ storageInfo.title }} <span>({{ files.length }})</span>
       </h3>
-      <div class="actions" v-if="totalData > 0">
+      <div class="actions" v-if="!isEmpty">
         <div class="action-group">
           <label
             class="action action--search"
@@ -102,6 +102,7 @@
             @click="pickFile"
             :disabled="isUploading"
             :class="{ uploading: isUploading }"
+            v-if="!showDeletedOnly"
           >
             <legacy-icon class="mr-2" name="plus2" size="13" viewbox="15" />
             Upload File
@@ -110,17 +111,9 @@
       </div>
     </header>
     <div class="content">
+      <loading :loading="isFetching">Loading...</loading>
       <loading :loading="isDownloading">Downloading...</loading>
-      <div class="files-wrapper" v-if="totalData > 0 || tempItems.length">
-        <storage-collection
-          :item="files"
-          :isUploading="isUploading"
-          :tempItems="tempItems"
-          @file:delete="handleDeleteFile"
-          @file:download="handleDownloadFile"
-        />
-      </div>
-      <div class="empty-file" v-else-if="search === ''">
+      <div class="empty-file" v-if="isEmpty">
         <div class="content">
           <img
             src="@/assets/images/file-empty.svg"
@@ -150,6 +143,16 @@
             </button>
           </div>
         </div>
+      </div>
+      <div class="files-wrapper" v-else>
+        <storage-collection
+          :item="files"
+          :isUploading="isUploading"
+          :tempItems="tempItems"
+          @file:delete="handleDeleteFile"
+          @file:download="handleDownloadFile"
+          @file:restore="handleRestore"
+        />
       </div>
     </div>
   </section>
@@ -205,7 +208,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     return this.$store.state.storage.item
   }
 
-  get totalData (): NewUploadResource | null {
+  get totalData (): number {
     return this.$store.state.storage.totalData
   }
 
@@ -215,6 +218,10 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   get prefferedView (): StorageViewType {
     return this.$store.state.storage.viewAs
+  }
+
+  get isEmpty () {
+    return !(this.totalData || this.tempItems.length || this.search || this.showDeletedOnly)
   }
 
   pickFile () {
@@ -326,6 +333,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     await pump()
   }
 
+  async handleRestore (file: NewUploadResource) {
+    await this.$store.dispatch('storage/restore', file.id)
+    await this.fetchFiles()
+  }
+
   async uploadFiles (files: FileList) {
     if (!files) return
 
@@ -378,7 +390,8 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     try {
       await this.$store.dispatch('storage/fetch', {
         id: this.id,
-        search: this.search
+        search: this.search,
+        deleted: this.showDeletedOnly
       })
       if (this.files) {
         if (!this.pageReady) {
@@ -403,16 +416,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   @Watch('showDeletedOnly')
   @debounce(500)
-  async watchDeletedOnly (value: boolean) {
+  async watchDeletedOnly () {
     this.search = ''
     this.searchVisible = false
 
-    if (value) {
-      // fetch deleted file
-    } else {
-      await this.fetchStorageInfo()
-      await this.fetchFiles()
-    }
+    await this.fetchFiles()
   }
 }
 </script>

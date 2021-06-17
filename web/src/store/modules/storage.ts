@@ -6,6 +6,12 @@ import api from '@/utils/api'
 import StorageService from '@/services/storage'
 import UploadService from '@/services/upload'
 
+interface FetchParams {
+  id: number;
+  search: string;
+  deleted: boolean
+}
+
 const FilesModule: Module<StorageState, RootState> = {
   namespaced: true,
 
@@ -43,9 +49,12 @@ const FilesModule: Module<StorageState, RootState> = {
       commit('setInfo', res.data)
     },
 
-    async fetch ({ commit }, params: { id: number; search: string; }) {
+    async fetch ({ commit }, params: FetchParams) {
       const res = await api.get(`storages/${params.id}/files`, {
-        params: { search: params.search }
+        params: {
+          search: params.search || undefined,
+          trashed: params.deleted || undefined
+        }
       })
       if (!params.search) {
         commit('setTotalData', res?.data.data)

@@ -48,43 +48,56 @@
         @trigger="handleMenuTrigger"
       >
         <template #default="{ hide }">
-          <div
-            class="action-line"
-            @click.prevent.stop="
-              copyURL(fileCopy.location);
-              hide();
-            "
-          >
-            <div class="action-line-icon">
-              <mono-icon name="copy" />
+          <template v-if="!fileCopy.deletedAt">
+            <div
+              class="action-line"
+              @click.prevent.stop="
+                copyURL(fileCopy.location);
+                hide();
+              "
+            >
+              <div class="action-line-icon">
+                <mono-icon name="copy" />
+              </div>
+              <div class="action-line-text">Copy link</div>
             </div>
-            <div class="action-line-text">Copy link</div>
-          </div>
-          <div
-            class="action-line"
-            @click.prevent.stop="
-              hide();
-              rename();
-            "
-          >
-            <div class="action-line-icon">
-              <mono-icon name="pencil" />
+            <div
+              class="action-line"
+              @click.prevent.stop="
+                hide();
+                rename();
+              "
+            >
+              <div class="action-line-icon">
+                <mono-icon name="pencil" />
+              </div>
+              <div class="action-line-text">Rename</div>
             </div>
-            <div class="action-line-text">Rename</div>
-          </div>
-          <div class="action-separator"></div>
-          <div
-            class="action-line danger"
-            @click.prevent.stop="
-              hide();
-              deleteFileActionConfirm();
-            "
-          >
-            <div class="action-line-icon">
-              <mono-icon name="trash" />
+            <div class="action-separator"></div>
+            <div
+              class="action-line danger"
+              @click.prevent.stop="
+                hide();
+                deleteFileActionConfirm();
+              "
+            >
+              <div class="action-line-icon">
+                <mono-icon name="trash" />
+              </div>
+              <div class="action-line-text">Trash</div>
             </div>
-            <div class="action-line-text">Trash</div>
-          </div>
+          </template>
+          <template v-else>
+            <div
+              class="action-line"
+              @click.prevent.stop="restoreFile({ hide })"
+            >
+              <div class="action-line-icon">
+                <mono-icon name="restore" />
+              </div>
+              <div class="action-line-text">Put Back</div>
+            </div>
+          </template>
         </template>
         <template #trigger="{ visible }">
           <button class="btn btn-menu" :class="{ 'btn-menu--opened': visible }">
@@ -237,6 +250,11 @@ export default class StorageGridView extends Vue {
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
     this.$emit('delete', file.id)
+  }
+
+  restoreFile (menu: any) {
+    menu.hide()
+    this.$emit('restore', this.fileCopy)
   }
 
   formatDate (fileDate: Date | string) {

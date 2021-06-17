@@ -27,6 +27,7 @@
           :index="index"
           @delete="handleDelete"
           @download="handleDownload"
+          @restore="handleRestore"
         />
       </div>
     </div>
@@ -87,6 +88,10 @@ export default class StorageItem extends Vue {
 
   handleDownload (file: NewUploadResource) {
     this.$emit('file:download', file)
+  }
+
+  handleRestore (file: NewUploadResource) {
+    this.$emit('file:restore', file)
   }
 }
 </script>
