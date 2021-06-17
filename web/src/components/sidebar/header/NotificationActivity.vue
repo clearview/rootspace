@@ -186,14 +186,23 @@ export default class SidebarHeaderNotifActivity extends Vue {
     }
   }
 
+  @Watch('currentSpace')
+  resetNotificationsActivities () {
+    this.activities = []
+    this.notifications = []
+  }
+
+  get currentSpace () {
+    return this.$store.getters['space/activeSpace'] || {}
+  }
+
   private activities: TaskActivityResource[] = [];
   private notifications: TaskActivityResource[] = [];
 
   async loadMoreActivities () {
     this.offsetAct += this.LIMIT
-    const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
-      `activities/space/${currentSpace.id}?type=content&offset=${this.offsetAct}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
+      `activities/space/${this.currentSpace.id}?type=content&offset=${this.offsetAct}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.activities = this.activities.concat(res.data.data)
     if (res.data.data.length === 0) {
@@ -203,9 +212,8 @@ export default class SidebarHeaderNotifActivity extends Vue {
 
   async loadMoreNotifications () {
     this.offsetNotif += this.LIMIT
-    const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
-      `notifications/space/${currentSpace.id}?type=content&offset=${this.offsetNotif}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
+      `notifications/space/${this.currentSpace.id}?type=content&offset=${this.offsetNotif}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.notifications = this.notifications.concat(res.data.data)
     if (res.data.data.length === 0) {
@@ -250,9 +258,8 @@ export default class SidebarHeaderNotifActivity extends Vue {
   async fetchNotifications () {
     this.loadingNotifications = true
     this.offsetNotif = 0
-    const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
-      `notifications/space/${currentSpace.id}?type=content&offset=${this.offsetNotif}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
+      `notifications/space/${this.currentSpace.id}?type=content&offset=${this.offsetNotif}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.notifications = res.data.data
     this.loadingNotifications = false
@@ -265,9 +272,8 @@ export default class SidebarHeaderNotifActivity extends Vue {
   async fetchActivities () {
     this.loadingActivities = true
     this.offsetAct = 0
-    const currentSpace = this.$store.getters['space/activeSpace'] || {}
     const res = await api.get(
-      `activities/space/${currentSpace.id}?type=content&offset=${this.offsetAct}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
+      `activities/space/${this.currentSpace.id}?type=content&offset=${this.offsetAct}&limit=${this.LIMIT}&${this.entityParameters}&${this.userIdParameter}`
     )
     this.activities = res.data.data
     this.loadingActivities = false
@@ -281,10 +287,8 @@ export default class SidebarHeaderNotifActivity extends Vue {
   }
 
   async markAllSeen () {
-    const currentSpace = this.$store.getters['space/activeSpace'] || {}
-
     await api.patch(
-      `notifications/seen/space/${currentSpace.id}`
+      `notifications/seen/space/${this.currentSpace.id}`
     )
     this.fetchNotifications()
   }
