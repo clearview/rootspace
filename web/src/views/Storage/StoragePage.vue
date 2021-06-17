@@ -163,6 +163,7 @@ import { Component, Mixins, Ref, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
 import { throttle } from 'lodash'
 import StreamSaver from 'streamsaver'
+import * as ponyfill from 'web-streams-polyfill/ponyfill'
 
 import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
@@ -176,6 +177,8 @@ import {
   StorageViewType,
   NewUploadResource
 } from '@/types/resource'
+
+StreamSaver.WritableStream = ponyfill.WritableStream
 
 @Component({
   components: {
