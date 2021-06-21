@@ -146,7 +146,7 @@ export default class DocHistory extends Vue {
 
 .content {
   flex: 1 1 auto;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .title {
