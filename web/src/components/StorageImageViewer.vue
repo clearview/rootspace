@@ -37,9 +37,17 @@
                     Download
                   </div>
                 </div>
+
                 <div class="action-separator"></div>
-                <div class="action-line danger" @click="remove">
-                  <legacy-icon class="action-icon" name="archive" viewbox="16" size="16px"></legacy-icon>
+
+                <div class="action-line" @click="restore" v-if="image.deletedAt">
+                  <mono-icon name="restore" class="action-line-icon"/>
+                  <div class="action-line-text">
+                    Put Back
+                  </div>
+                </div>
+                <div class="action-line danger" @click="remove" v-else>
+                  <mono-icon name="trash" class="action-line-icon"/>
                   <div class="action-line-text">
                     Delete
                   </div>
@@ -83,6 +91,10 @@ export default class ImageViewer extends Vue {
 
   remove () {
     this.$emit('remove', this.image)
+  }
+
+  restore () {
+    this.$emit('restore', this.image)
   }
 
   download () {
@@ -164,6 +176,11 @@ export default class ImageViewer extends Vue {
     &.danger {
       color: theme("colors.danger.default");
     }
+  }
+
+  .action-line-icon {
+    font-size: 16px;
+    stroke-width: 2px;
   }
 
   .action-line-text {

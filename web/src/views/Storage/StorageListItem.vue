@@ -12,6 +12,7 @@
         :image="fileCopy"
         @close="closePreview"
         @remove="deleteFileActionConfirm"
+        @restore="restoreFile"
         @download="handleDownload"
       />
       <img
@@ -125,7 +126,7 @@
             <div class="action-line-icon">
               <mono-icon name="trash" />
             </div>
-            <div class="action-line-text">Trash</div>
+            <div class="action-line-text">Delete</div>
           </div>
         </template>
         <template v-else>
@@ -258,7 +259,14 @@ export default class StorageListView extends Vue {
   }
 
   restoreFile (menu: any) {
-    menu.hide()
+    if (menu.hide) {
+      menu.hide()
+    }
+
+    if (this.fileIndex) {
+      this.closePreview()
+    }
+
     this.$emit('restore', this.fileCopy)
   }
 

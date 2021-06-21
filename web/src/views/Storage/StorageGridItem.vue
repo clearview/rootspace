@@ -35,6 +35,7 @@
             :image="fileCopy"
             @close="closePreview"
             @remove="deleteFileActionConfirm"
+            @restore="restoreFile"
             @download="handleDownload"
           />
           <mono-icon name="eye" />
@@ -84,7 +85,7 @@
               <div class="action-line-icon">
                 <mono-icon name="trash" />
               </div>
-              <div class="action-line-text">Trash</div>
+              <div class="action-line-text">Delete</div>
             </div>
           </template>
           <template v-else>
@@ -253,7 +254,14 @@ export default class StorageGridView extends Vue {
   }
 
   restoreFile (menu: any) {
-    menu.hide()
+    if (menu.hide) {
+      menu.hide()
+    }
+
+    if (this.fileIndex) {
+      this.closePreview()
+    }
+
     this.$emit('restore', this.fileCopy)
   }
 
