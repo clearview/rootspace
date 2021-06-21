@@ -543,300 +543,302 @@
         ref="paper"
         @mousedown.self="focusToEditor($event, true)"
       >
-        <editor-menu-bubble
-          :editor="editor"
-          v-slot="{ isActive, commands, menu, getMarkAttrs }"
-          v-if="!isPublicView && !isReadonly"
-        >
-          <div>
-            <div
-              class="link-bubble bubble"
-              ref="linkBubble"
-              v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !isLocked"
-              :style="getBubblePosition()"
-              @mousedown.stop.prevent="consume"
-            >
-              <div class="bubble-wrap">
-                <MenuGroup
-                  :value="getMarkAttrs('link').href"
-                  :show-arrow="false"
-                >
-                  <template #default>
-                    <legacy-icon
-                      name="link-edit"
-                      viewbox="16"
-                      size="16"
-                      v-tippy="{ placement : 'top',  arrow: true }"
-                      content="Edit Link"
-                    ></legacy-icon>
-                  </template>
-                  <template #options="{ hide }">
-                    <NovadocLinkInput
-                      @cancel="hide()"
-                      @submit="commands.link({href: $event});hide();"
-                      :value="getMarkAttrs('link').href"
-                    ></NovadocLinkInput>
-                  </template>
-                </MenuGroup>
-                <NovadocMenuButton
-                  @click="commands.link({})"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Unlink"
-                  no-margin
-                >
-                  <legacy-icon
-                    name="unlink"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </NovadocMenuButton>
-                <NovadocMenuSeparator></NovadocMenuSeparator>
-                <NovadocMenuButton
-                  @click="openLink(getMarkAttrs('link').href)"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  :content="getMarkAttrs('link').href"
-                >
-                  <legacy-icon
-                    name="open-link"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </NovadocMenuButton>
-              </div>
-            </div>
-            <div
-              class="bubble"
-              ref="bubble"
-              :style="getBubblePosition()"
-              @mousedown.stop.prevent="consume"
-            >
+        <div class="paper-content">
+          <editor-menu-bubble
+            :editor="editor"
+            v-slot="{ isActive, commands, menu, getMarkAttrs }"
+            v-if="!isPublicView && !isReadonly"
+          >
+            <div>
               <div
-                class="bubble-wrap"
-                v-if="canShowBubble(isActive, menu)"
+                class="link-bubble bubble"
+                ref="linkBubble"
+                v-if="!canShowBubble(isActive, menu) && isActive.link() && !isCellSelection() && !isLocked"
+                :style="getBubblePosition()"
+                @mousedown.stop.prevent="consume"
               >
-                <button
-                  class="menu"
-                  :class="{ 'active': isActive.bold() }"
-                  v-if="canBeBold(isActive, true)"
-                  @click="commands.bold"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Bold"
-                >
-                  <legacy-icon
-                    name="bold"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </button>
-                <button
-                  class="menu"
-                  :class="{ 'active': isActive.italic() }"
-                  v-if="canBeItalic(isActive, true)"
-                  @click="commands.italic"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Italic"
-                >
-                  <legacy-icon
-                    name="italic"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </button>
-                <button
-                  class="menu"
-                  :class="{ 'active': isActive.underline() }"
-                  v-if="canBeUnderline(isActive, true)"
-                  @click="commands.underline"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Underline"
-                >
-                  <legacy-icon
-                    name="underline"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </button>
-                <button
-                  class="menu"
-                  :class="{ 'active': isActive.strike() }"
-                  v-if="canBeStrikethrough(isActive, true)"
-                  @click="commands.strike"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Strikethrough"
-                >
-                  <span>
+                <div class="bubble-wrap">
+                  <MenuGroup
+                    :value="getMarkAttrs('link').href"
+                    :show-arrow="false"
+                  >
+                    <template #default>
+                      <legacy-icon
+                        name="link-edit"
+                        viewbox="16"
+                        size="16"
+                        v-tippy="{ placement : 'top',  arrow: true }"
+                        content="Edit Link"
+                      ></legacy-icon>
+                    </template>
+                    <template #options="{ hide }">
+                      <NovadocLinkInput
+                        @cancel="hide()"
+                        @submit="commands.link({href: $event});hide();"
+                        :value="getMarkAttrs('link').href"
+                      ></NovadocLinkInput>
+                    </template>
+                  </MenuGroup>
+                  <NovadocMenuButton
+                    @click="commands.link({})"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Unlink"
+                    no-margin
+                  >
                     <legacy-icon
-                      name="strike"
+                      name="unlink"
                       viewbox="16"
                       size="16"
                     ></legacy-icon>
-                  </span>
-                </button>
-                <button
-                  class="menu"
-                  :class="{ 'active': isActive.code() }"
-                  v-if="canBeInlineCode(isActive, true)"
-                  @click="commands.code"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Inline Code"
-                >
-                  <TerminalIcon size="16"></TerminalIcon>
-                </button>
-                <MenuGroup
-                  value="#000"
-                  v-if="canBeTextColored(isActive, true)"
-                  :show-arrow="false"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Text Color"
-                  :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''"
-                >
-                  <template #default>
+                  </NovadocMenuButton>
+                  <NovadocMenuSeparator></NovadocMenuSeparator>
+                  <NovadocMenuButton
+                    @click="openLink(getMarkAttrs('link').href)"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    :content="getMarkAttrs('link').href"
+                  >
                     <legacy-icon
-                      name="text-color"
+                      name="open-link"
                       viewbox="16"
                       size="16"
-                      :style="{ color: getMarkAttrs('text_color').color }"
                     ></legacy-icon>
-                  </template>
-                  <template #options="{select, hide}">
-                    <div class="color-blocks text-color-blocks">
-                      <div
-                        v-for="textColor in textColors"
-                        :key="textColor.color"
-                        class="color-block"
-                        :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
-                        @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()"
-                      >
-                        <legacy-icon
-                          v-if="textColor.color === getMarkAttrs('text_color').color"
-                          name="checkmark3"
-                          viewbox="16"
-                          size="16"
-                          class="check"
-                          :style="{color: blackOrWhite(textColor.color)}"
-                        ></legacy-icon>
+                  </NovadocMenuButton>
+                </div>
+              </div>
+              <div
+                class="bubble"
+                ref="bubble"
+                :style="getBubblePosition()"
+                @mousedown.stop.prevent="consume"
+              >
+                <div
+                  class="bubble-wrap"
+                  v-if="canShowBubble(isActive, menu)"
+                >
+                  <button
+                    class="menu"
+                    :class="{ 'active': isActive.bold() }"
+                    v-if="canBeBold(isActive, true)"
+                    @click="commands.bold"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Bold"
+                  >
+                    <legacy-icon
+                      name="bold"
+                      viewbox="16"
+                      size="16"
+                    ></legacy-icon>
+                  </button>
+                  <button
+                    class="menu"
+                    :class="{ 'active': isActive.italic() }"
+                    v-if="canBeItalic(isActive, true)"
+                    @click="commands.italic"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Italic"
+                  >
+                    <legacy-icon
+                      name="italic"
+                      viewbox="16"
+                      size="16"
+                    ></legacy-icon>
+                  </button>
+                  <button
+                    class="menu"
+                    :class="{ 'active': isActive.underline() }"
+                    v-if="canBeUnderline(isActive, true)"
+                    @click="commands.underline"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Underline"
+                  >
+                    <legacy-icon
+                      name="underline"
+                      viewbox="16"
+                      size="16"
+                    ></legacy-icon>
+                  </button>
+                  <button
+                    class="menu"
+                    :class="{ 'active': isActive.strike() }"
+                    v-if="canBeStrikethrough(isActive, true)"
+                    @click="commands.strike"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Strikethrough"
+                  >
+                    <span>
+                      <legacy-icon
+                        name="strike"
+                        viewbox="16"
+                        size="16"
+                      ></legacy-icon>
+                    </span>
+                  </button>
+                  <button
+                    class="menu"
+                    :class="{ 'active': isActive.code() }"
+                    v-if="canBeInlineCode(isActive, true)"
+                    @click="commands.code"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Inline Code"
+                  >
+                    <TerminalIcon size="16"></TerminalIcon>
+                  </button>
+                  <MenuGroup
+                    value="#000"
+                    v-if="canBeTextColored(isActive, true)"
+                    :show-arrow="false"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Text Color"
+                    :background="getMarkAttrs('text_color').color ===  '#EEEEEE' || getMarkAttrs('text_color').color ===  '#F5F5F5' || getMarkAttrs('text_color').color ===  '#FAFAFA' ? '#333' : ''"
+                  >
+                    <template #default>
+                      <legacy-icon
+                        name="text-color"
+                        viewbox="16"
+                        size="16"
+                        :style="{ color: getMarkAttrs('text_color').color }"
+                      ></legacy-icon>
+                    </template>
+                    <template #options="{select, hide}">
+                      <div class="color-blocks text-color-blocks">
+                        <div
+                          v-for="textColor in textColors"
+                          :key="textColor.color"
+                          class="color-block"
+                          :style="{background: textColor.color, border: `solid 1px ${textColor.border}`}"
+                          @click="select(textColor.color);hide();commands.text_color({color: textColor.color});hideBubble()"
+                        >
+                          <legacy-icon
+                            v-if="textColor.color === getMarkAttrs('text_color').color"
+                            name="checkmark3"
+                            viewbox="16"
+                            size="16"
+                            class="check"
+                            :style="{color: blackOrWhite(textColor.color)}"
+                          ></legacy-icon>
+                        </div>
                       </div>
-                    </div>
-                  </template>
-                </MenuGroup>
-                <MenuGroup
-                  value="#000"
-                  v-if="canBeBgColored(isActive, true)"
-                  :show-arrow="false"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Highlight Color"
-                  :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''"
-                  no-margin
-                >
-                  <template #default>
+                    </template>
+                  </MenuGroup>
+                  <MenuGroup
+                    value="#000"
+                    v-if="canBeBgColored(isActive, true)"
+                    :show-arrow="false"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Highlight Color"
+                    :background="getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : ''"
+                    no-margin
+                  >
+                    <template #default>
+                      <legacy-icon
+                        name="highlight"
+                        viewbox="16"
+                        size="16"
+                        :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"
+                      ></legacy-icon>
+                    </template>
+                    <template #options="{select, hide}">
+                      <div class="color-combo-title">
+                        select combination
+                      </div>
+                      <div
+                        class="color-combo"
+                        v-for="combo in colorCombinations"
+                        :key="combo.background"
+                        :style="{background: combo.background, color: combo.color}"
+                        :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']"
+                        @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color});hideBubble()"
+                      >
+                        {{combo.name}}
+                      </div>
+                    </template>
+                  </MenuGroup>
+                  <NovadocMenuSeparator v-if="canBeLinked(isActive, true)"></NovadocMenuSeparator>
+                  <MenuGroup
+                    :value="getMarkAttrs('link').href"
+                    :show-arrow="false"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Link"
+                    v-if="canBeLinked(isActive, true)"
+                  >
+                    <template #default>
+                      <legacy-icon
+                        name="edit2"
+                        viewbox="16"
+                        size="12"
+                        v-if="isActive.link()"
+                      ></legacy-icon>
+                      <legacy-icon
+                        v-else
+                        name="link2"
+                        viewbox="16"
+                        size="16"
+                      ></legacy-icon>
+                    </template>
+                    <template #options="{ hide }">
+                      <NovadocLinkInput
+                        @cancel="hide()"
+                        @submit="commands.link({href: $event});hide();"
+                        :value="getMarkAttrs('link').href"
+                      ></NovadocLinkInput>
+                    </template>
+                  </MenuGroup>
+                  <NovadocMenuButton
+                    @click="commands.link({})"
+                    v-if="isActive.link()"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    content="Unlink"
+                    no-margin
+                  >
                     <legacy-icon
-                      name="highlight"
+                      name="unlink"
                       viewbox="16"
                       size="16"
-                      :style="{background: getMarkAttrs('bg_color').color ? getMarkAttrs('bg_color').color : '', color: getMarkAttrs('bg_color').color ? getMarkAttrs('text_color').color : ''}"
                     ></legacy-icon>
-                  </template>
-                  <template #options="{select, hide}">
-                    <div class="color-combo-title">
-                      select combination
-                    </div>
-                    <div
-                      class="color-combo"
-                      v-for="combo in colorCombinations"
-                      :key="combo.background"
-                      :style="{background: combo.background, color: combo.color}"
-                      :class="[combo.class, getMarkAttrs('bg_color').color === combo.background ? 'active' : '']"
-                      @click="select(combo);hide();commands.bg_color({color: combo.background});commands.text_color({color: combo.color});hideBubble()"
-                    >
-                      {{combo.name}}
-                    </div>
-                  </template>
-                </MenuGroup>
-                <NovadocMenuSeparator v-if="canBeLinked(isActive, true)"></NovadocMenuSeparator>
-                <MenuGroup
-                  :value="getMarkAttrs('link').href"
-                  :show-arrow="false"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Link"
-                  v-if="canBeLinked(isActive, true)"
-                >
-                  <template #default>
+                  </NovadocMenuButton>
+                  <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
+                  <NovadocMenuButton
+                    @click="openLink(getMarkAttrs('link').href)"
+                    v-if="isActive.link()"
+                    v-tippy="{ placement : 'top',  arrow: true }"
+                    :content="getMarkAttrs('link').href"
+                  >
                     <legacy-icon
-                      name="edit2"
-                      viewbox="16"
-                      size="12"
-                      v-if="isActive.link()"
-                    ></legacy-icon>
-                    <legacy-icon
-                      v-else
-                      name="link2"
+                      name="open-link"
                       viewbox="16"
                       size="16"
                     ></legacy-icon>
-                  </template>
-                  <template #options="{ hide }">
-                    <NovadocLinkInput
-                      @cancel="hide()"
-                      @submit="commands.link({href: $event});hide();"
-                      :value="getMarkAttrs('link').href"
-                    ></NovadocLinkInput>
-                  </template>
-                </MenuGroup>
-                <NovadocMenuButton
-                  @click="commands.link({})"
-                  v-if="isActive.link()"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  content="Unlink"
-                  no-margin
-                >
-                  <legacy-icon
-                    name="unlink"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </NovadocMenuButton>
-                <NovadocMenuSeparator v-if="getMarkAttrs('link').href"></NovadocMenuSeparator>
-                <NovadocMenuButton
-                  @click="openLink(getMarkAttrs('link').href)"
-                  v-if="isActive.link()"
-                  v-tippy="{ placement : 'top',  arrow: true }"
-                  :content="getMarkAttrs('link').href"
-                >
-                  <legacy-icon
-                    name="open-link"
-                    viewbox="16"
-                    size="16"
-                  ></legacy-icon>
-                </NovadocMenuButton>
+                  </NovadocMenuButton>
+                </div>
               </div>
             </div>
-          </div>
-        </editor-menu-bubble>
-        <textarea
-          title="Title"
-          ref="title"
-          class="editor-title-input"
-          placeholder="Untitled"
-          v-model="title"
-          @focus="isTitleFocused = true"
-          @blur="isTitleFocused = false"
-          @keyup="debouncedSaveTitleOnly"
-          @keypress.enter="handleTitleEnter"
-          :readonly="isReadonly"
-        ></textarea>
-        <hr class="title-separator">
-        <EditorContent
-          key="editor"
-          v-show="!isPreviewing"
-          :editor="editor"
-          @mousedown.native="isMouseDown = true"
-        ></EditorContent>
-        <EditorContent
-          key="preview"
-          v-show="isPreviewing"
-          class="preview"
-          :editor="previewEditor"
-        ></EditorContent>
+          </editor-menu-bubble>
+          <textarea
+            title="Title"
+            ref="title"
+            class="editor-title-input"
+            placeholder="Untitled"
+            v-model="title"
+            @focus="isTitleFocused = true"
+            @blur="isTitleFocused = false"
+            @keyup="debouncedSaveTitleOnly"
+            @keypress.enter="handleTitleEnter"
+            :readonly="isReadonly"
+          ></textarea>
+          <hr class="title-separator">
+          <EditorContent
+            key="editor"
+            v-show="!isPreviewing"
+            :editor="editor"
+            @mousedown.native="isMouseDown = true"
+          ></EditorContent>
+          <EditorContent
+            key="preview"
+            v-show="isPreviewing"
+            class="preview"
+            :editor="previewEditor"
+          ></EditorContent>
+        </div>
       </div>
       <div
         class="page-history"
@@ -2054,18 +2056,23 @@ export default {
 }
 
 .page-editor {
-  margin: 0 auto;
   width: 100%;
   position: relative;
   display: flex;
-  height: 100vh;
+  flex: 1;
+  overflow: hidden;
 }
 
 .paper {
   width: 100%;
   padding: 40px 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   position: relative;
+}
+
+.paper-content {
+  width: 60%;
+  margin: 0 auto;
 }
 
 .menu-separator {
@@ -2143,7 +2150,6 @@ export default {
 }
 
 .bg-color, .text-color {
-  //padding: 2px 4px;
   box-sizing: border-box;
   font-size: 12px;
 }
@@ -2199,7 +2205,6 @@ export default {
   width: 100%;
   resize: none;
   height: auto;
-  padding: 0 16vw;
 }
 
 .bubble {
@@ -2222,7 +2227,7 @@ export default {
 
 .title-separator {
   border: 1px solid #EDEFF3;
-  margin: 24px 16vw;
+  margin: 24px 0;
 }
 
 .color-combo-title {
@@ -2237,7 +2242,6 @@ export default {
 <style lang="postcss">
 .ProseMirror {
   margin: auto;
-  padding: 0 16vw 128px 16vw;
   outline: none;
   -moz-user-select: text;
   -khtml-user-select: text;
