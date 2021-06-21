@@ -1,7 +1,7 @@
 <template>
   <base-modal :size="528" v-on="$listeners">
     <template #header>
-      <b>Sharing Options</b>
+      <b>Share Options</b>
     </template>
     <div class="share-body">
       <div class="share-item">
@@ -11,7 +11,7 @@
         <label for="radio-share-open">
           <b>Open</b>
           <div class="desc">
-            Anyone in space can view, edit and delete
+            Everyone in the Space can view, edit or delete this document.
           </div>
         </label>
       </div>
@@ -22,7 +22,7 @@
         <label for="radio-share-restricted">
           <b>Restricted</b>
           <div class="desc">
-            Anyone in space can view, only the owner of doc and admin can edit and delete
+            Everyone in the Space can view the document, only the owner of the document and Admin can edit or delete.
           </div>
         </label>
       </div>
@@ -57,7 +57,7 @@
         <label for="radio-share-public">
           <b>Public</b>
           <div class="desc">
-            Doc is accessible outside of the Root for view
+            The document is publicly accessible for viewing (Rootspace account is not required).
           </div>
         </label>
         <div id="public-url-loader" v-if="isSubmittingPublicPermission">
