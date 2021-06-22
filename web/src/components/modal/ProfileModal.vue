@@ -28,9 +28,9 @@ import { createNamespacedHelpers } from 'vuex-composition-helpers'
 import Avatar from 'vue-avatar'
 import Activities from '@/components/Activities.vue'
 import BaseModal from '@/components/modal/BaseModal.vue'
-import ActivityService from '@/services/activity.ts'
+import ActivityService from '@/services/activity'
 import UserService from '@/services/user'
-import { ActivityResource, UserResource } from '@/types/resource.ts'
+import { ActivityResource, UserResource } from '@/types/resource'
 
 const spaceStore = createNamespacedHelpers('space')
 
