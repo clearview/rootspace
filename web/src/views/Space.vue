@@ -10,6 +10,7 @@ import { isEqual } from 'lodash'
 import { debounce as Debounce } from 'helpful-decorators'
 import LayoutMain from '@/components/LayoutMain.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
+import PageMixin from '@/mixins/PageMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
 import { SpaceSettingResource } from '@/types/resource'
 
@@ -18,7 +19,7 @@ import { SpaceSettingResource } from '@/types/resource'
     LayoutMain
   }
 })
-export default class Space extends Mixins(SpaceMixin) {
+export default class Space extends Mixins(SpaceMixin, PageMixin) {
   redirection = true
 
   get setting (): SpaceSettingResource {
@@ -71,7 +72,10 @@ export default class Space extends Mixins(SpaceMixin) {
   async watchActiveSpaceId () {
     try {
       this.setting = this.activeSpaceSetting
-      await this.$router.push(this.activeSpaceSetting.activePage || '/')
+
+      if (this.pageReady) {
+        await this.$router.push(this.activeSpaceSetting.activePage || '/')
+      }
     } catch { }
   }
 

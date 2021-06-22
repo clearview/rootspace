@@ -354,6 +354,7 @@ export default class SidebarTreeNode extends Vue {
 }
 .action-line {
   @apply flex items-center py-2 px-4 my-1 relative;
+  min-width: 210px;
   font-weight: 500;
   font-size: 14px;
   line-height: 17px;
