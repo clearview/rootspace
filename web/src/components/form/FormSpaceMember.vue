@@ -95,7 +95,10 @@
       >
         <div class="flex flex-grow">
           <div
-            class="flex cursor-pointer"
+            class="flex"
+            :class="{
+              'cursor-pointer': list.accepted === undefined
+            }"
             @click="openProfile(list)"
           >
             <avatar
@@ -276,6 +279,8 @@ export default class FormSpace extends Vue {
       invites: []
     }
 
+    console.log(newVal.invites)
+
     this.invitationList = newVal.invites
   }
 
@@ -336,7 +341,9 @@ export default class FormSpace extends Vue {
     return member.email
   }
 
-  openProfile (user: UserResource) {
+  openProfile (user: any) {
+    if (user.accepted !== undefined) return
+
     this.modal.open({
       component: ProfileModal,
       attrs: {

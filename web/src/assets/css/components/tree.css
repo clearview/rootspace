@@ -62,7 +62,7 @@
     }
   }
   &.is-context-open {
-    background: #F8F9FD;
+    background: #EFF1F6;
   }
 }
 
@@ -129,7 +129,9 @@
     @apply block;
   }
 }
-.tree-node-content:hover {
+
+.tree-node-content:hover,
+.tree-node-content.is-context-open {
   .tree-node-actions {
     visibility: visible;
   }
