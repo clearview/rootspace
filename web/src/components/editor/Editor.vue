@@ -263,57 +263,6 @@ export default defineComponent({
   }
 }
 
-.content >>> .ProseMirror {
-  outline: none;
-  font-size: 14px;
-  min-height: 18em;
-
-  a {
-    text-decoration: underline;
-    color: #4574d3;
-  }
-
-  ol {
-    list-style: decimal;
-  }
-  ul {
-    list-style: circle;
-  }
-  ol,
-  ul {
-    margin-left: 24px;
-    margin-bottom: 8px;
-  }
-
-  code {
-    background: #dedede;
-    padding: 0 4px;
-  }
-
-  pre {
-    padding: .7rem 1rem;
-    border-radius: 5px;
-    background: #2C2B35;
-    color: #fff;
-    font-size: .8rem;
-    overflow-x: auto;
-  }
-
-  pre code {
-    display: block;
-    padding: 0;
-    background: transparent;
-  }
-
-  .is-editor-empty::before {
-    content: attr(data-empty-text);
-    float: left;
-    color: #aaa;
-    pointer-events: none;
-    height: 0;
-  }
-}
-
 .readonly {
   .content {
     border: none;
