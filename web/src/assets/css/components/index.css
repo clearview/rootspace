@@ -2,6 +2,7 @@
 
 @import './alert';
 @import './btn';
+@import './editor';
 @import './field';
 @import './input';
 /* @import './modal'; */
