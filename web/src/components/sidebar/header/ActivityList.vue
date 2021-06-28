@@ -78,14 +78,14 @@ export default class TaskActivity extends Vue {
 
     switch (this.activity.entity) {
       case 'Task': {
-        params.id = context.entity.boardId.toString()
-        params.slug = context.entity.slug.toString()
+        params.id = context.entity?.boardId?.toString()
+        params.slug = context.entity?.slug?.toString()
         params.item = entityId.toString()
         break
       }
       case 'Doc': {
         params.id = entityId.toString()
-        params.slug = context.entity.slug.toString()
+        params.slug = context.entity.slug?.toString()
         break
       }
       default: {
