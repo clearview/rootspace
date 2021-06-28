@@ -6,6 +6,7 @@
   -webkit-user-select: text;
   -o-user-select: text;
   font-size: 16px;
+  line-height: 1.2;
   color: #2C2B35;
 
   &.resize-cursor {
@@ -20,7 +21,6 @@
   h2,
   h3 {
     margin: 0;
-    /* line-height: 1.2; */
     font-weight: 700;
   }
 
@@ -34,6 +34,10 @@
   pre,
   blockquote {
     margin-bottom: 16px;
+
+    &:only-child {
+      margin-bottom: 0;
+    }
   }
 
   h1 {
