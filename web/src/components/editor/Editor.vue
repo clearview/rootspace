@@ -250,6 +250,10 @@ export default defineComponent({
   border: solid 1px #ccc;
   border-radius: 0 0 4px 4px;
   padding: 8px;
+
+  >>> .ProseMirror {
+    min-height: 18em;
+  }
 }
 
 .footer {
