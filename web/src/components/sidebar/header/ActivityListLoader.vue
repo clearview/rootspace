@@ -23,6 +23,5 @@ export default {
   height: 43px;
   box-sizing: content-box;
   overflow: hidden;
-  border-bottom: 1px solid theme('colors.gray.100');
 }
 </style>
