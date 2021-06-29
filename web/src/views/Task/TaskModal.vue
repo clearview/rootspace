@@ -174,9 +174,13 @@
         <div class="right-field">
           <div class="right-field-title">Actions</div>
           <div class="right-field-content">
-            <button class="archive-button" @click="archiveTask(itemCopy.id)">
-              <legacy-icon name="archive" viewbox="18" size="1rem"/>
+            <button class="archive-button" @click="archiveTask(itemCopy.id)" v-if="!boardEditDisabled">
+              <mono-icon name="archive"/>
               <span>Archive</span>
+            </button>
+            <button class="archive-button" @click="unarchiveTask(itemCopy.id)" v-else>
+              <mono-icon name="restore"/>
+              <span>Unrchive</span>
             </button>
           </div>
         </div>
@@ -186,7 +190,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Inject, InjectReactive, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
@@ -252,6 +256,9 @@ export default class TaskModal extends Vue {
 
     @Inject('modal')
     modal!: ModalInjectedContext
+
+    @InjectReactive()
+    private boardEditDisabled!: boolean
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false

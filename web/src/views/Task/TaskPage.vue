@@ -58,7 +58,11 @@
             </div>
           </div>
 
-          <div class="action action--archive action__disabled">
+          <div
+            class="action action--archive"
+            :class="{ 'action__active': filters.archived }"
+            @click="toggleArchived"
+          >
             <mono-icon
               name="archive"
               class="action--icon"
@@ -142,7 +146,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, ProvideReactive, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
 import VSelect from 'vue-select'
 import Avatar from 'vue-avatar'
@@ -183,7 +187,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private filters = {
     tags: [],
     assignees: [],
-    unassigned: false
+    unassigned: false,
+    archived: false
   }
 
   private boardCache: TaskBoardResource | null = null
@@ -197,8 +202,14 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return some([
       this.search.length,
       this.filters.tags.length,
-      this.filters.assignees.length
+      this.filters.assignees.length,
+      this.filters.archived
     ])
+  }
+
+  @ProvideReactive()
+  get boardEditDisabled () {
+    return this.filters.archived
   }
 
   get tags (): TagResource[] | null {
@@ -238,7 +249,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     this.filters = {
       tags: [],
       assignees: [],
-      unassigned: false
+      unassigned: false,
+      archived: false
     }
     await this.fetchTask()
   }
@@ -380,6 +392,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
     return textColor[getBgPosition]
   }
+
+  async toggleArchived () {
+    this.filters.archived = !this.filters.archived
+
+    await this.lazyFetchTask()
+  }
 }
 </script>
 
@@ -470,11 +488,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 .action__active:hover {
   background-color: #ddf3ff;
   color: #146493;
-}
-
-.action__disabled {
-  pointer-events: none;
-  color: theme("colors.gray.400");
 }
 
 .action--icon {

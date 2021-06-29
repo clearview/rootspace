@@ -73,7 +73,7 @@
                     @save="clearNewItem"
                     @cancel="clearNewItem"/>
         </main>
-        <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane">
+        <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane && !boardEditDisabled">
           <ListAddCardButton  @click="addCard">
             Add Card
           </ListAddCardButton>
@@ -90,7 +90,7 @@
 import Draggable from 'vuedraggable'
 import { uniq } from 'lodash'
 
-import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, InjectReactive, Prop, Ref, Vue } from 'vue-property-decorator'
 import Collapsible from '@/components/Collapsible.vue'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
@@ -138,6 +138,9 @@ export default class TaskLane extends Vue {
 
   @Ref('dragBlock')
   private readonly dragBlock!: HTMLDivElement;
+
+  @InjectReactive()
+  private boardEditDisabled!: boolean
 
   private isDragBlocked = false
 

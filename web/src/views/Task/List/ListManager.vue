@@ -18,7 +18,7 @@
               @save="clearNewList"
               @cancel="clearNewList"/>
     <div class="add-another-list">
-    <ListAddLaneButton @click="addList" v-if="childDragEnable && orderedLanes.length !== 0">
+    <ListAddLaneButton @click="addList" v-if="childDragEnable && orderedLanes.length !== 0 && !boardEditDisabled">
       Add List
     </ListAddLaneButton>
     </div>
@@ -28,7 +28,7 @@
 <script lang="ts">
 import Draggable from 'vuedraggable'
 
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, InjectReactive, Prop, Vue } from 'vue-property-decorator'
 import { TaskBoardResource, TaskListResource } from '@/types/resource'
 import { Optional } from '@/types/core'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
@@ -50,6 +50,9 @@ export default class ListManager extends Vue {
 
     @Prop({ type: Boolean })
     private readonly loading!: boolean
+
+    @InjectReactive()
+    private boardEditDisabled!: boolean
 
     private readonly lists!: TaskListResource[];
     private isInputtingNewList = false

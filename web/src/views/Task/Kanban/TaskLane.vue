@@ -69,7 +69,7 @@
                   @cancel="clearNewItem"/>
       </main>
       <footer class="footer">
-        <TaskAddCard v-if="!isInputtingNewItem" @click="addCard"/>
+        <TaskAddCard v-if="!isInputtingNewItem && !boardEditDisabled" @click="addCard"/>
       </footer>
     </div>
     <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
@@ -81,7 +81,7 @@
 <script lang="ts">
 import Draggable from 'vuedraggable'
 
-import { Component, Emit, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, InjectReactive, Prop, Ref, Vue } from 'vue-property-decorator'
 import { TaskItemResource, TaskItemStatus, TaskListResource } from '@/types/resource'
 import TaskCard from '@/views/Task/Kanban/TaskCard.vue'
 import { required } from 'vuelidate/lib/validators'
@@ -127,6 +127,9 @@ export default class TaskLane extends Vue {
 
     @Ref('dragBlock')
     private readonly dragBlock!: HTMLDivElement;
+
+    @InjectReactive()
+    private boardEditDisabled!: boolean
 
     private isDragBlocked = false
 
