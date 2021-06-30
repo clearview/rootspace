@@ -73,15 +73,12 @@
                     @save="clearNewItem"
                     @cancel="clearNewItem"/>
         </main>
-        <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane && !boardEditDisabled">
+        <footer class="footer" v-if="!isInputtingNewItem && !isEditingLane && !archivedView">
           <ListAddCardButton  @click="addCard">
             Add Card
           </ListAddCardButton>
         </footer>
       </Collapsible>
-    </div>
-    <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
-      It's not possible to move tasks and lists in search results
     </div>
   </div>
 </template>
@@ -100,6 +97,7 @@ import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 import ListAddCardButton from '@/views/Task/List/ListAddCardButton.vue'
 import ListCard from '@/views/Task/List/ListCard.vue'
+import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
 
 @Component({
   name: 'ListLane',
@@ -139,10 +137,11 @@ export default class TaskLane extends Vue {
   @Ref('dragBlock')
   private readonly dragBlock!: HTMLDivElement;
 
-  @InjectReactive()
-  private boardEditDisabled!: boolean
+  @InjectReactive(FilteredKey)
+  private readonly boardFiltered!: boolean
 
-  private isDragBlocked = false
+  @InjectReactive(ArchivedViewKey)
+  private readonly archivedView!: boolean
 
   private isInputting = this.defaultInputting
   private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
@@ -217,16 +216,11 @@ export default class TaskLane extends Vue {
   }
 
   private tryDrag (e: DragEvent) {
-    if (!this.canDrag) {
+    if (this.boardFiltered) {
       e.preventDefault()
-      if (!this.isDragBlocked) {
-        this.isDragBlocked = true
-        this.dragBlock.style.top = e.clientY - 5 + 'px'
-        this.dragBlock.style.left = e.clientX - 5 + 'px'
-        setTimeout(() => {
-          this.isDragBlocked = false
-        }, 3000)
-      }
+      e.stopPropagation()
+
+      this.$toast.error('Board edit is disabled')
     }
   }
 

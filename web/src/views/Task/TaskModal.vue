@@ -12,7 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!boardEditDisabled" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
+          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -28,7 +28,7 @@
       </div>
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
-      <div class="task-drag-capture" v-if="isCapturingFile && !boardEditDisabled" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
+      <div class="task-drag-capture" v-if="isCapturingFile && !archivedView" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
         <legacy-icon
           name="upload"
           size="32px"
@@ -37,7 +37,7 @@
         Drop a file to upload as attachment
       </div>
       <div class="task-left">
-        <div class="task-actions" v-if="!boardEditDisabled">
+        <div class="task-actions" v-if="!archivedView">
           <div class="action-label">
             Add To Card
           </div>
@@ -69,9 +69,9 @@
           </div>
         </div>
         <div class="task-description">
-          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true && !boardEditDisabled">
+          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true && !archivedView">
             <span class="description-title-placeholder">Description</span>
-            <legacy-icon name="edit" size="1rem" viewbox="32" v-if="!boardEditDisabled"/>
+            <legacy-icon name="edit" size="1rem" viewbox="32" v-if="!archivedView"/>
           </div>
           <Editor
             :readonly="!isEditingDescription"
@@ -104,7 +104,7 @@
         <div class="comment-separator"></div>
         <div class="comment-input">
           <textarea-autoresize
-            v-if="!boardEditDisabled"
+            v-if="!archivedView"
             placeholder="Write a comment…"
             class="comment-textarea"
             v-model="commentInput"
@@ -114,7 +114,7 @@
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
-        <div class="text-gray-400" v-else-if="boardEditDisabled">
+        <div class="text-gray-400" v-else-if="archivedView">
           No comments
         </div>
         <div class="comment-separator"></div>
@@ -148,7 +148,7 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!boardEditDisabled">
+                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!archivedView">
                   <template v-slot:trigger>
                     <li class="addmember-button" content="Add Member" v-tippy>
                       <span>
@@ -161,7 +161,7 @@
                   <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
-            <template v-if="boardEditDisabled">
+            <template v-if="archivedView">
               <span>None</span>
             </template>
             </div>
@@ -181,7 +181,7 @@
         <div class="right-field">
           <div class="right-field-title">Actions</div>
           <div class="right-field-content">
-            <button class="archive-button" @click="archiveTask(itemCopy.id)" v-if="!boardEditDisabled">
+            <button class="archive-button" @click="archiveTask(itemCopy.id)" v-if="!archivedView">
               <mono-icon name="archive"/>
               <span>Archive</span>
             </button>
@@ -223,6 +223,7 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
+import { ArchivedViewKey } from './injectionKeys'
 
 @Component({
   name: 'TaskModal',
@@ -264,8 +265,8 @@ export default class TaskModal extends Vue {
     @Inject('modal')
     modal!: ModalInjectedContext
 
-    @InjectReactive()
-    private boardEditDisabled!: boolean
+    @InjectReactive(ArchivedViewKey)
+    private archivedView!: boolean
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false

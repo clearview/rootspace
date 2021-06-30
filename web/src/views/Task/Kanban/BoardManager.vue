@@ -41,7 +41,7 @@
         @cancel="clearNewList"
       />
       <TaskAddLane
-        v-else-if="!boardEditDisabled"
+        v-else-if="!archivedView"
         @click="addList"
       />
     </div>
@@ -58,6 +58,7 @@ import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/re
 import TaskLane from './TaskLane.vue'
 import TaskAddLane from './TaskAddLane.vue'
 import TaskGhost from './TaskGhost.vue'
+import { ArchivedViewKey } from '../injectionKeys'
 
 @Component({
   name: 'BoardManager',
@@ -73,8 +74,8 @@ export default class BoardManager extends Vue {
   @Prop({ type: Boolean })
   private readonly loading!: boolean
 
-  @InjectReactive()
-  private boardEditDisabled!: boolean
+  @InjectReactive(ArchivedViewKey)
+  private archivedView!: boolean
 
   private readonly lists!: TaskListResource[];
   private isInputtingNewList = false

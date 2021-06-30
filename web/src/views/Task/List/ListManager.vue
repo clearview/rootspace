@@ -18,7 +18,7 @@
               @save="clearNewList"
               @cancel="clearNewList"/>
     <div class="add-another-list">
-    <ListAddLaneButton @click="addList" v-if="childDragEnable && orderedLanes.length !== 0 && !boardEditDisabled">
+    <ListAddLaneButton @click="addList" v-if="childDragEnable && orderedLanes.length !== 0 && !archivedView">
       Add List
     </ListAddLaneButton>
     </div>
@@ -36,6 +36,7 @@ import ListLane from '@/views/Task/List/ListLane.vue'
 import TaskAddLane from '@/views/Task/Kanban/TaskAddLane.vue'
 import ListAddLaneButton from '@/views/Task/List/ListAddLaneButton.vue'
 import ListGhost from './ListGhost.vue'
+import { ArchivedViewKey } from '../injectionKeys'
 
 @Component({
   name: 'ListManager',
@@ -51,8 +52,8 @@ export default class ListManager extends Vue {
     @Prop({ type: Boolean })
     private readonly loading!: boolean
 
-    @InjectReactive()
-    private boardEditDisabled!: boolean
+    @InjectReactive(ArchivedViewKey)
+    private archivedView!: boolean
 
     private readonly lists!: TaskListResource[];
     private isInputtingNewList = false

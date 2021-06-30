@@ -209,19 +209,19 @@ router.beforeEach(async (to, from, next) => {
 })
 
 // FIXME: It's feel a bit hacky. There should be a better way
-api.interceptors.response.use(value => {
-  return value
-}, error => {
-  if (error && error.response && error.response.status === 403) {
-    Vue.nextTick(() => {
-      router.replace('/forbidden').catch(() => null)
-    })
-  } else if (error && error.response && error.response.status === 404) {
-    Vue.nextTick(() => {
-      router.replace('/not-found').catch(() => null)
-    })
-  }
-  throw error
-})
+// api.interceptors.response.use(value => {
+//   return value
+// }, error => {
+//   if (error && error.response && error.response.status === 403) {
+//     Vue.nextTick(() => {
+//       router.replace('/forbidden').catch(() => null)
+//     })
+//   } else if (error && error.response && error.response.status === 404) {
+//     Vue.nextTick(() => {
+//       router.replace('/not-found').catch(() => null)
+//     })
+//   }
+//   throw error
+// })
 
 export default router
