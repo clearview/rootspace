@@ -12,7 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
+          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!boardEditDisabled" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -28,7 +28,7 @@
       </div>
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
-      <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
+      <div class="task-drag-capture" v-if="isCapturingFile && !boardEditDisabled" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
         <legacy-icon
           name="upload"
           size="32px"
@@ -37,7 +37,7 @@
         Drop a file to upload as attachment
       </div>
       <div class="task-left">
-        <div class="task-actions">
+        <div class="task-actions" v-if="!boardEditDisabled">
           <div class="action-label">
             Add To Card
           </div>
@@ -69,9 +69,9 @@
           </div>
         </div>
         <div class="task-description">
-          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true">
+          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true && !boardEditDisabled">
             <span class="description-title-placeholder">Description</span>
-            <legacy-icon name="edit" size="1rem" viewbox="32"/>
+            <legacy-icon name="edit" size="1rem" viewbox="32" v-if="!boardEditDisabled"/>
           </div>
           <Editor
             :readonly="!isEditingDescription"
@@ -104,6 +104,7 @@
         <div class="comment-separator"></div>
         <div class="comment-input">
           <textarea-autoresize
+            v-if="!boardEditDisabled"
             placeholder="Write a comment…"
             class="comment-textarea"
             v-model="commentInput"
@@ -113,6 +114,9 @@
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
+        <div class="text-gray-400" v-else-if="boardEditDisabled">
+          No comments
+        </div>
         <div class="comment-separator"></div>
         <TaskActivities :item="item"></TaskActivities>
       </div>
@@ -144,19 +148,22 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                  <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
-                    <template v-slot:trigger>
-                      <li class="addmember-button" content="Add Member" v-tippy>
-                        <span>
-                          <legacy-icon name="plus2" size="1rem" viewbox="16"/>
-                        </span>
-                      </li>
-                    </template>
-                  </MemberPopover>
+                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!boardEditDisabled">
+                  <template v-slot:trigger>
+                    <li class="addmember-button" content="Add Member" v-tippy>
+                      <span>
+                        <legacy-icon name="plus2" size="1rem" viewbox="16"/>
+                      </span>
+                    </li>
+                  </template>
+                </MemberPopover>
                 <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
                   <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
+            <template v-if="boardEditDisabled">
+              <span>None</span>
+            </template>
             </div>
           </div>
         </div>
@@ -178,7 +185,7 @@
               <mono-icon name="archive"/>
               <span>Archive</span>
             </button>
-            <button class="archive-button" @click="unarchiveTask(itemCopy.id)" v-else>
+            <button class="archive-button" @click="restoreTask(itemCopy.id)" v-else>
               <mono-icon name="restore"/>
               <span>Unrchive</span>
             </button>
@@ -561,6 +568,14 @@ export default class TaskModal extends Vue {
       })
     }
 
+    async restoreTask (taskId: number) {
+      this.close()
+
+      await this.$store.dispatch('task/item/restoreTask', {
+        taskId: taskId
+      })
+    }
+
     onUserProfileClose () {
       // Hack, wait a while in case any other process that update current item.
       // It's because this function will be triggered when user open another task modal.
@@ -714,7 +729,7 @@ export default class TaskModal extends Vue {
   }
 
   .task-description {
-    @apply my-6;
+    @apply mb-6;
   }
 
   .description-title {
@@ -899,6 +914,8 @@ export default class TaskModal extends Vue {
   }
 
   .task-actions {
+    @apply mb-6;
+
     .uploading {
       border-color: theme("colors.primary.default");
       color: theme("colors.primary.default");
