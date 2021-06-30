@@ -132,12 +132,17 @@
         :board="board"
       />
     </div>
+
+    <loading :loading="isFetching">
+      Loading...
+    </loading>
   </section>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, ProvideReactive, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
+import { some } from 'lodash'
 import VSelect from 'vue-select'
 import Avatar from 'vue-avatar'
 
@@ -156,7 +161,7 @@ import Popover from '@/components/Popover.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Tip from '@/components/Tip.vue'
-import { some } from 'lodash'
+import Loading from '@/components/Loading.vue'
 
 import { FilteredKey, ArchivedViewKey } from './injectionKeys'
 
@@ -171,7 +176,8 @@ import { FilteredKey, ArchivedViewKey } from './injectionKeys'
     VField,
     ButtonSwitch,
     Avatar,
-    FilterBar
+    FilterBar,
+    Loading
   }
 })
 export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
@@ -346,7 +352,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     this.firstLoad = false
   }
 
-  @debounce(500)
+  @debounce(100)
   async lazyFetchTask () {
     await this.fetchTask()
   }
