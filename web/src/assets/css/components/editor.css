@@ -1,28 +1,13 @@
 .ProseMirror {
-  margin: auto;
+  font-size: 16px;
+  line-height: 1.4;
   outline: none;
+  margin: auto;
+
   -moz-user-select: text;
   -khtml-user-select: text;
   -webkit-user-select: text;
   -o-user-select: text;
-  font-size: 16px;
-  line-height: 1.2;
-  color: #2C2B35;
-
-  &.resize-cursor {
-    cursor: col-resize;
-  }
-
-  .novadoc-title {
-    font-size: 2.4em;
-  }
-
-  h1,
-  h2,
-  h3 {
-    margin: 0;
-    font-weight: 700;
-  }
 
   h1,
   h2,
@@ -33,148 +18,59 @@
   ol,
   pre,
   blockquote {
-    margin-bottom: 16px;
+    margin-bottom: 1.25rem;
 
     &:only-child {
       margin-bottom: 0;
     }
   }
 
-  h1 {
-    font-size: 30px;
-  }
-
-  h2 {
-    font-size: 24px;
-  }
-
+  h1,
+  h2,
   h3 {
-    font-size: 20px;
+    margin-top: 2.5rem;
+    font-weight: 700;
   }
 
-  p {
-    font-weight: 400;
-  }
-
-  br {
-    height: 24px;
-  }
-
-  ul,
-  ol {
-    padding-left: 1.5em;
+  ul, ol {
+    padding-left: 2em;
   }
 
   ul {
     list-style: disc;
-
-    ul {
-      list-style: circle;
-    }
   }
 
   ol {
     list-style: decimal;
   }
 
-  a {
-    text-decoration: underline;
-    color: #146493;
-  }
-
-  code,
-  pre {
-    font-size:0.9em;
+  li + li {
+    margin-top: .8em;
   }
 
   code {
-    padding: 2px;
-    background: #2C2B35;
-    border-radius: 4px;
-    color: #fff;
+    display: inline-block;
+    padding: .125em;
+    border-radius: .25em;
+    background-color: #2C2B35;
+    font-size: 0.9em;
+    color: #FFFFFF;
+  }
+
+  blockquote,
+  pre > code {
+    padding: 17px 16px;
+    border-radius: 12px;
   }
 
   blockquote {
-    background: #F8F8FB;
-    border-radius: 12px;
+    background-color: #F8F8FB;
     border: none;
-    padding: 16px;
-    position: relative;
   }
 
   pre > code {
     display: block;
-    padding: 16px;
-    background: #1c1c1d;
-    border-radius: 12px;
-    color: #e5e4ec;
-
-    .hljs {
-      display: block;
-      overflow-x: auto;
-      padding: 0.5em;
-      background: #F8F8FB;
-    }
-
-    .hljs-keyword,
-    .hljs-selector-tag,
-    .hljs-literal,
-    .hljs-section,
-    .hljs-link {
-      color: #8be9fd;
-    }
-
-    .hljs-function .hljs-keyword {
-      color: #ff79c6;
-    }
-
-    .hljs,
-    .hljs-subst {
-      color: #f8f8f2;
-    }
-
-    .hljs-title,
-    .hljs-name,
-    .hljs-type,
-    .hljs-attribute,
-    .hljs-symbol,
-    .hljs-bullet,
-    .hljs-addition,
-    .hljs-variable,
-    .hljs-template-tag,
-    .hljs-template-variable {
-      color: #de3f79;
-    }
-
-    .hljs-string {
-      color: #edd70b;
-    }
-    .hljs-attr {
-      color: #93d128;
-    }
-
-    .hljs-comment,
-    .hljs-quote,
-    .hljs-deletion,
-    .hljs-meta {
-      color: #6272a4;
-    }
-
-    .hljs-keyword,
-    .hljs-selector-tag,
-    .hljs-literal,
-    .hljs-title,
-    .hljs-section,
-    .hljs-doctag,
-    .hljs-type,
-    .hljs-name,
-    .hljs-strong {
-      font-weight: bold;
-    }
-
-    .hljs-emphasis {
-      font-style: italic;
-    }
+    font-size: 1em;
   }
 
   table {
@@ -239,88 +135,59 @@
     }
   }
 
-  li[data-type="todo_item"] {
-    display: flex;
-    flex-direction: row;
-  }
+  ul[data-type="todo_list"] {
+    padding-left: 0;
 
-  .todo-checkbox {
-    border: 1px solid #AAB1C5;
-    height: 20px;
-    width: 20px;
-    box-sizing: border-box;
-    margin-right: 8px;
-    user-select: none;
-    -webkit-user-select: none;
-    cursor: pointer;
-    border-radius: 6px;
-    background-color: transparent;
-    transition: 0.4s background;
-  }
+    li {
+      display: flex;
+      flex-flow: row;
 
-  .todo-content {
-    flex: 1;
+      > .todo-checkbox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 20px;
+        width: 20px;
+        margin-right: 1em;
+        border: 1px solid #AAB1C5;
+        cursor: pointer;
+        border-radius: 6px;
+        background-color: transparent;
+        transition: 300ms ease;
 
-    &[contenteditable='true']::before {
-      content: none;
-    }
+        user-select: none;
+        -webkit-user-select: none;
 
-    > p:last-of-type {
-      margin-bottom: 0;
-    }
+        &::before {
+          content: '';
+          display: block;
+          width: 6px;
+          height: 12px;
+          border: solid 2px #2C2B35;
+          border-top: none;
+          border-left: none;
+          transform: rotate(45deg) translate(-30%, -12%);
+          opacity: 0;
 
-    > ul[data-type="todo_list"] {
-      margin: 0;
-    }
-  }
-
-  li[data-done="true"] {
-    > .todo-content {
-      > p {
-        text-decoration: line-through;
-        opacity: 0.85;
-        color: #777B81;
+          transition: 300ms ease;
+        }
       }
     }
 
-    > .todo-checkbox {
-      border: 1px solid #8CD5FF;
-      background-color: #8CD5FF;
-      position: relative;
-      &::before {
-        position: absolute;
-        content: '';
-        display: block;
-        width: 12px;
-        height: 6px;
-        border-left: solid 2px  #2C2B35;
-        border-bottom: solid 2px  #2C2B35;
-        top: 5px;
-        left: 4px;
-        transform: rotate(-45deg);
+    li[data-done="true"] {
+      > .todo-checkbox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #8CD5FF;
+        background-color: #8CD5FF;
+
+        &::before {
+          opacity: 1;
+        }
       }
     }
   }
-
-  li[data-done="false"] {
-    text-decoration: none;
-  }
-
-  .novadoc-mention {
-    color: #146493;
-    font-weight: bolder;
-    padding: 4px;
-    border-radius: 4px;
-
-    &.ProseMirror-selectednode {
-      background: #ddd;
-      color: #333;
-    }
-  }
-}
-
-.ProseMirror > .ProseMirror-yjs-cursor:first-child {
-  margin-top: 16px;
 }
 
 .ProseMirror-yjs-cursor {
@@ -330,27 +197,98 @@
   pointer-events: none;
   opacity: 0.8;
   margin-left: -6px;
+
+  &:first-child {
+    margin-top: 16px;
+  }
+
+  &::after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: -5px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    background: #333;
+    transform: rotate(45deg);
+  }
+
+  > div {
+    position: relative;
+    top: -24px;
+    font-size: 13px;
+    border-radius: 2px;
+    line-height: normal;
+    user-select: none;
+    color: white;
+    padding: 4px;
+  }
 }
 
-.ProseMirror-yjs-cursor::after {
-  content: ' ';
+.hljs {
   display: block;
-  position: absolute;
-  top: -5px;
-  left: 6px;
-  width: 8px;
-  height: 8px;
-  background: #333;
-  transform: rotate(45deg);
+  overflow-x: auto;
+  padding: 0.5em;
+  background: #F8F8FB;
 }
 
-.ProseMirror-yjs-cursor > div {
-  position: relative;
-  top: -24px;
-  font-size: 13px;
-  border-radius: 2px;
-  line-height: normal;
-  user-select: none;
-  color: white;
-  padding: 4px;
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: #8be9fd;
+}
+
+.hljs-function .hljs-keyword {
+  color: #ff79c6;
+}
+
+.hljs,
+.hljs-subst {
+  color: #f8f8f2;
+}
+
+.hljs-title,
+.hljs-name,
+.hljs-type,
+.hljs-attribute,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-template-variable {
+  color: #de3f79;
+}
+
+.hljs-string {
+  color: #edd70b;
+}
+.hljs-attr {
+  color: #93d128;
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #6272a4;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-title,
+.hljs-section,
+.hljs-doctag,
+.hljs-type,
+.hljs-name,
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  font-style: italic;
 }
