@@ -87,11 +87,12 @@
           <imageViewer
             v-model="attachmentIndex"
             :images="item.attachments"
+            :archivedView="archivedView"
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
             <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
-              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" :archivedView="archivedView" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">
@@ -223,7 +224,6 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
-import { ArchivedViewKey } from './injectionKeys'
 
 @Component({
   name: 'TaskModal',
@@ -256,6 +256,9 @@ export default class TaskModal extends Vue {
     @Prop({ type: Object, required: true })
     private readonly item!: TaskItemResource;
 
+    @Prop({ type: Boolean })
+    private archivedView!: boolean
+
     @Ref('attachmentFile')
     private readonly attachmentFileRef!: HTMLInputElement
 
@@ -264,9 +267,6 @@ export default class TaskModal extends Vue {
 
     @Inject('modal')
     modal!: ModalInjectedContext
-
-    @InjectReactive(ArchivedViewKey)
-    private archivedView!: boolean
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false

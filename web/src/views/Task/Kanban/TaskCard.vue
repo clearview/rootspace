@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-    <TaskModal v-if="showModal" @close="closeModal" :item="item" :visible="showModal"></TaskModal>
+    <TaskModal v-if="showModal" @close="closeModal" :item="item" :visible="showModal" :archivedView="archivedView"></TaskModal>
   </div>
 </template>
 
@@ -68,7 +68,7 @@ import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
-import { FilteredKey } from '../injectionKeys'
+import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
 
 @Component({
   name: 'TaskCard',
@@ -104,6 +104,9 @@ export default class TaskCard extends Vue {
 
     @InjectReactive(FilteredKey)
     private readonly boardFiltered!: boolean
+
+    @InjectReactive(ArchivedViewKey)
+    private archivedView!: boolean
 
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
