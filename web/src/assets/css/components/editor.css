@@ -100,6 +100,7 @@
     }
 
     p {
+      margin: 0;
       font-size: 14px;
       line-height: 17px;
       font-weight: 400;
@@ -126,12 +127,23 @@
     }
 
     .column-resize-handle {
-      background: #ccca;
-      width: 4px;
-      height: 100%;
-      top: 0;
-      right: -2px;
       position: absolute;
+      top: 0;
+      right: 0;
+      width: 15px;
+      height: 100%;
+      cursor: ew-resize;
+
+      &::after {
+        position: absolute;
+        top: 0;
+        right: -1px;
+        display: block;
+        content: ' ';
+        width: 2px;
+        height: 100%;
+        background: #ccca;
+      }
     }
   }
 
