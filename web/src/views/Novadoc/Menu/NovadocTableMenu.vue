@@ -1,57 +1,107 @@
 <template>
   <NovadocMenu class="novadoc-table-menu">
     <template v-if="isExpanded">
-      <NovadocMenuButton @click="api.addRowAfter"
-                         @mouseover.native="toggleAddRowPreview(true)" @mouseout.native="toggleAddRowPreview(false)">
-        <legacy-icon name="row-add" viewbox="18 16" size="16"></legacy-icon> <span>Row</span>
+      <NovadocMenuButton
+        @click="api.addRowAfter"
+        @mouseover.native="toggleAddRowPreview(true)"
+        @mouseout.native="toggleAddRowPreview(false)"
+      >
+        <legacy-icon name="row-add" viewbox="18 16" size="16"></legacy-icon>
+        <span>Row</span>
         <template #hover>
-          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon> <span>Row</span>
+          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon>
+          <span>Row</span>
         </template>
       </NovadocMenuButton>
-      <NovadocMenuButton @click="api.addColumnAfter" no-margin
-                         @mouseover.native="toggleAddColPreview(true)" @mouseout.native="toggleAddColPreview(false)">
-        <legacy-icon name="column-add" viewbox="18 16" size="16"></legacy-icon> <span>Column</span>
+      <NovadocMenuButton
+        @click="api.addColumnAfter"
+        no-margin
+        @mouseover.native="toggleAddColPreview(true)"
+        @mouseout.native="toggleAddColPreview(false)"
+      >
+        <legacy-icon name="column-add" viewbox="18 16" size="16"></legacy-icon>
+        <span>Column</span>
         <template #hover>
-          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon> <span>Column</span>
+          <legacy-icon name="add-green" viewbox="16 16" size="16"></legacy-icon>
+          <span>Column</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
-      <NovadocMenuButton @click="api.deleteRow"
-                         @mouseover.native="toggleDelRowPreview(true)" @mouseout.native="toggleDelRowPreview(false)">
-        <legacy-icon name="row-remove" viewbox="18 16" size="16"></legacy-icon> <span>Row</span>
+      <NovadocMenuButton
+        @click="api.deleteRow"
+        @mouseover.native="toggleDelRowPreview(true)"
+        @mouseout.native="toggleDelRowPreview(false)"
+      >
+        <legacy-icon name="row-remove" viewbox="18 16" size="16"></legacy-icon>
+        <span>Row</span>
         <template #hover>
-          <legacy-icon name="remove-red" viewbox="16 16" size="16"></legacy-icon> <span>Row</span>
+          <legacy-icon
+            name="remove-red"
+            viewbox="16 16"
+            size="16"
+          ></legacy-icon>
+          <span>Row</span>
         </template>
       </NovadocMenuButton>
-      <NovadocMenuButton @click="api.deleteColumn" no-margin
-                         @mouseover.native="toggleDelColPreview(true)" @mouseout.native="toggleDelColPreview(false)">
-        <legacy-icon name="column-remove" viewbox="18 16" size="16"></legacy-icon> <span>Column</span>
+      <NovadocMenuButton
+        @click="api.deleteColumn"
+        no-margin
+        @mouseover.native="toggleDelColPreview(true)"
+        @mouseout.native="toggleDelColPreview(false)"
+      >
+        <legacy-icon
+          name="column-remove"
+          viewbox="18 16"
+          size="16"
+        ></legacy-icon>
+        <span>Column</span>
         <template #hover>
-          <legacy-icon name="remove-red" viewbox="16 16" size="16"></legacy-icon> <span>Column</span>
+          <legacy-icon
+            name="remove-red"
+            viewbox="16 16"
+            size="16"
+          ></legacy-icon>
+          <span>Column</span>
         </template>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton @click="api.mergeCells" no-margin>
-        <legacy-icon name="merge" viewbox="16 16" size="16"></legacy-icon> <span>Merge</span>
+        <legacy-icon name="merge" viewbox="16 16" size="16"></legacy-icon>
+        <span>Merge</span>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
-      <NovadocMenuButton @click="makeStriped" no-margin class="striped-button" :class="{active: striped}">
-        <legacy-icon name="striped" viewbox="16 16" size="16"></legacy-icon> <span>Striped</span>
+      <NovadocMenuButton
+        @click="makeStriped"
+        no-margin
+        class="striped-button"
+        :class="{ active: striped }"
+      >
+        <legacy-icon name="striped" viewbox="16 16" size="16"></legacy-icon>
+        <span>Striped</span>
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
-      <NovadocMenuButton @click="api.deleteTable" @mouseover.native="markDeletion(true)" @mouseout.native="markDeletion(false)">
-        <legacy-icon name="trash-archive" viewbox="16" size="16"></legacy-icon> <span>Delete</span>
+      <NovadocMenuButton
+        @click="api.deleteTable"
+        @mouseover.native="markDeletion(true)"
+        @mouseout.native="markDeletion(false)"
+      >
+        <legacy-icon name="trash-archive" viewbox="16" size="16"></legacy-icon>
+        <span>Delete</span>
       </NovadocMenuButton>
     </template>
     <NovadocMenuButton @click="toggleExpand">
-      <legacy-icon v-if="!isExpanded" name="left" viewbox="32" size="16"></legacy-icon>
+      <legacy-icon
+        v-if="!isExpanded"
+        name="left"
+        viewbox="32"
+        size="16"
+      ></legacy-icon>
       <legacy-icon v-else name="close" viewbox="32" size="16"></legacy-icon>
     </NovadocMenuButton>
   </NovadocMenu>
 </template>
 
 <script>
-
 import NovadocMenu from '@/views/Novadoc/Menu/NovadocMenu'
 import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
 import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
@@ -79,6 +129,16 @@ export default {
     if (this.$el.closest('table')) {
       this.striped = this.$el.closest('table').classList.contains('striped')
     }
+  },
+  beforeDestroy () {
+    console.log('Destroy')
+    document
+      .querySelectorAll(
+        '.add-row-preview, .add-col-preview, .del-row-preview, .del-col-preview'
+      )
+      .forEach((el) => {
+        console.log(el)
+      })
   },
   methods: {
     toggleExpand () {
@@ -213,8 +273,7 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
-.table-menu-container{
-
+.table-menu-container {
 }
 .novadoc-table-menu {
   position: absolute;
@@ -224,7 +283,8 @@ export default {
   .fill-current {
     fill: transparent;
   }
-  &:active, &.active {
+  &:active,
+  &.active {
     .fill-current {
       fill: transparent;
     }
@@ -233,20 +293,23 @@ export default {
 
 .striped-button {
   .fill-current {
-    color: #AAB1C5;
+    color: #aab1c5;
   }
-  &.active .fill-current, &:active .fill-current {
+  &.active .fill-current,
+  &:active .fill-current {
     color: #146493;
   }
 }
 </style>
 <style lang="postcss">
-.add-row-preview, .add-col-preview {
+.add-row-preview,
+.add-col-preview {
   position: absolute;
   z-index: 100;
-  background: #8CD5FF;
+  background: #8cd5ff;
 }
-.del-row-preview, .del-col-preview {
+.del-row-preview,
+.del-col-preview {
   position: absolute;
   z-index: 100;
   background: rgba(226, 47, 47, 0.25);
