@@ -2,7 +2,7 @@
   <NovadocMenu class="novadoc-table-menu">
     <template v-if="isExpanded">
       <NovadocMenuButton
-        @click="api.addRowAfter"
+        @click="addRow"
         @mouseover.native="toggleAddRowPreview(true)"
         @mouseout.native="toggleAddRowPreview(false)"
       >
@@ -14,7 +14,7 @@
         </template>
       </NovadocMenuButton>
       <NovadocMenuButton
-        @click="api.addColumnAfter"
+        @click="addCol"
         no-margin
         @mouseover.native="toggleAddColPreview(true)"
         @mouseout.native="toggleAddColPreview(false)"
@@ -28,7 +28,7 @@
       </NovadocMenuButton>
       <NovadocMenuSeparator></NovadocMenuSeparator>
       <NovadocMenuButton
-        @click="api.deleteRow"
+        @click="removeRow"
         @mouseover.native="toggleDelRowPreview(true)"
         @mouseout.native="toggleDelRowPreview(false)"
       >
@@ -44,7 +44,7 @@
         </template>
       </NovadocMenuButton>
       <NovadocMenuButton
-        @click="api.deleteColumn"
+        @click="removeCol"
         no-margin
         @mouseover.native="toggleDelColPreview(true)"
         @mouseout.native="toggleDelColPreview(false)"
@@ -98,6 +98,13 @@
       ></legacy-icon>
       <legacy-icon v-else name="close" viewbox="32" size="16"></legacy-icon>
     </NovadocMenuButton>
+
+    <div
+      class="overlay"
+      ref="cellOverlay"
+      v-show="overlay.visible"
+      :style="overlay.style"
+    />
   </NovadocMenu>
 </template>
 
@@ -119,26 +126,47 @@ export default {
       isExpanded: false,
       striped: false,
       deletion: false,
-      addRowPreview: null,
-      delRowPreview: null,
-      addColPreview: null,
-      delColPreview: null
+      overlay: {
+        visible: false,
+        style: {
+          background: null,
+          top: null,
+          left: null,
+          width: null,
+          height: null
+        }
+      }
+    }
+  },
+  computed: {
+    tableElement () {
+      return this.$el.closest('table')
+    },
+    tableRowElement () {
+      const { selection } = this.editor.state
+
+      if (!selection) throw new Error('Selection is not found')
+
+      const pos = selection.$from.start(selection.$from.depth - 2)
+      const elm = this.editor.view.domAtPos(pos)
+
+      return elm.node
+    },
+    tableColElement () {
+      const { selection } = this.editor.state
+
+      if (!selection) throw new Error('Selection is not found')
+
+      const pos = selection.$from.start(selection.$from.depth - 1)
+      const elm = this.editor.view.domAtPos(pos)
+
+      return elm.node
     }
   },
   updated () {
     if (this.$el.closest('table')) {
       this.striped = this.$el.closest('table').classList.contains('striped')
     }
-  },
-  beforeDestroy () {
-    console.log('Destroy')
-    document
-      .querySelectorAll(
-        '.add-row-preview, .add-col-preview, .del-row-preview, .del-col-preview'
-      )
-      .forEach((el) => {
-        console.log(el)
-      })
   },
   methods: {
     toggleExpand () {
@@ -160,112 +188,102 @@ export default {
         this.$el.closest('table').classList.remove('deletion')
       }
     },
-    toggleAddRowPreview (value) {
-      if (value) {
-        const sel = this.editor.state.selection
-        if (sel) {
-          const { $from } = sel
-          const rowPos = $from.start($from.depth - 2)
-          const rowDom = this.editor.view.domAtPos(rowPos)
-          const dom = rowDom.node
-          const rect = dom.getBoundingClientRect()
-          if (!this.addRowPreview) {
-            this.addRowPreview = document.createElement('div')
-            this.addRowPreview.setAttribute('class', 'add-row-preview')
-            document.body.appendChild(this.addRowPreview)
+    addRow () {
+      this.api.addRowAfter()
+      this.toggleAddRowPreview(false)
+    },
+    removeRow () {
+      this.api.deleteRow()
+      this.toggleDelRowPreview(false)
+    },
+    addCol () {
+      this.api.addColumnAfter()
+      this.toggleAddColPreview(false)
+    },
+    removeCol () {
+      this.api.deleteColumn()
+      this.toggleDelColPreview(false)
+    },
+    toggleAddRowPreview (show) {
+      if (show) {
+        try {
+          const { x, y, width, height } = this.tableRowElement.getBoundingClientRect()
+
+          this.overlay = {
+            visible: true,
+            style: {
+              background: '#8cd5ff',
+              left: x + 'px',
+              top: y + height + 1 + 'px',
+              width: width + 'px',
+              height: 2 + 'px'
+            }
           }
-          this.addRowPreview.style.display = 'block'
-          this.addRowPreview.style.left = rect.x + 'px'
-          this.addRowPreview.style.top = rect.y + rect.height + 1 + 'px'
-          this.addRowPreview.style.width = rect.width + 'px'
-          this.addRowPreview.style.height = 2 + 'px'
-        }
+        } catch (e) { }
       } else {
-        if (this.addRowPreview) {
-          this.addRowPreview.style.display = 'none'
-        }
+        this.overlay.visible = false
       }
     },
-    toggleDelRowPreview (value) {
-      if (value) {
-        const sel = this.editor.state.selection
-        if (sel) {
-          const { $from } = sel
-          const rowPos = $from.start($from.depth - 2)
-          const rowDom = this.editor.view.domAtPos(rowPos)
-          const dom = rowDom.node
-          const rect = dom.getBoundingClientRect()
-          if (!this.delRowPreview) {
-            this.delRowPreview = document.createElement('div')
-            this.delRowPreview.setAttribute('class', 'del-row-preview')
-            document.body.appendChild(this.delRowPreview)
+    toggleDelRowPreview (show) {
+      if (show) {
+        try {
+          const { x, y, width, height } = this.tableRowElement.getBoundingClientRect()
+
+          this.overlay = {
+            visible: true,
+            style: {
+              background: '#E22F2F',
+              left: x + 'px',
+              top: y + 'px',
+              width: width + 'px',
+              height: height + 'px'
+            }
           }
-          this.delRowPreview.style.display = 'block'
-          this.delRowPreview.style.left = rect.x + 'px'
-          this.delRowPreview.style.top = rect.y + 'px'
-          this.delRowPreview.style.width = rect.width + 'px'
-          this.delRowPreview.style.height = rect.height + 'px'
-        }
+        } catch (e) { }
       } else {
-        if (this.delRowPreview) {
-          this.delRowPreview.style.display = 'none'
-        }
+        this.overlay.visible = false
       }
     },
-    toggleAddColPreview (value) {
-      if (value) {
-        const sel = this.editor.state.selection
-        if (sel) {
-          const { $from } = sel
-          const colPos = $from.start($from.depth - 1)
-          const colDom = this.editor.view.domAtPos(colPos)
-          const dom = colDom.node
-          const table = dom.closest('table')
-          const rect = dom.getBoundingClientRect()
-          const tableRect = table.getBoundingClientRect()
-          if (!this.addColPreview) {
-            this.addColPreview = document.createElement('div')
-            this.addColPreview.setAttribute('class', 'add-col-preview')
-            document.body.appendChild(this.addColPreview)
+    toggleAddColPreview (show) {
+      if (show) {
+        try {
+          const { y, height } = this.tableElement.getBoundingClientRect()
+          const { x, width } = this.tableColElement.getBoundingClientRect()
+
+          this.overlay = {
+            visible: true,
+            style: {
+              background: '#8cd5ff',
+              left: x + width + 1 + 'px',
+              top: y + 'px',
+              width: 2 + 'px',
+              height: height + 'px'
+            }
           }
-          this.addColPreview.style.display = 'block'
-          this.addColPreview.style.left = rect.x + rect.width + 1 + 'px'
-          this.addColPreview.style.top = tableRect.y + 'px'
-          this.addColPreview.style.width = 2 + 'px'
-          this.addColPreview.style.height = tableRect.height + 'px'
-        }
+        } catch (e) { }
       } else {
-        if (this.addColPreview) {
-          this.addColPreview.style.display = 'none'
-        }
+        this.overlay.visible = false
       }
     },
-    toggleDelColPreview (value) {
-      if (value) {
-        const sel = this.editor.state.selection
-        if (sel) {
-          const { $from } = sel
-          const colPos = $from.start($from.depth - 1)
-          const colDom = this.editor.view.domAtPos(colPos)
-          const dom = colDom.node
-          const table = dom.closest('table')
-          const rect = dom.getBoundingClientRect()
-          const tableRect = table.getBoundingClientRect()
-          if (!this.delColPreview) {
-            this.delColPreview = document.createElement('div')
-            this.delColPreview.setAttribute('class', 'del-col-preview')
-            document.body.appendChild(this.delColPreview)
+    toggleDelColPreview (show) {
+      if (show) {
+        try {
+          const { y, height } = this.tableElement.getBoundingClientRect()
+          const { x, width } = this.tableColElement.getBoundingClientRect()
+
+          this.overlay = {
+            visible: true,
+            style: {
+              background: '#E22F2F',
+              left: x + 'px',
+              top: y + 'px',
+              width: width + 'px',
+              height: height + 'px'
+            }
           }
-          this.delColPreview.style.display = 'block'
-          this.delColPreview.style.left = rect.x + 'px'
-          this.delColPreview.style.top = tableRect.y + 'px'
-          this.delColPreview.style.width = rect.width + 'px'
-          this.delColPreview.style.height = tableRect.height + 'px'
-        }
+        } catch (e) { }
       } else {
-        if (this.delColPreview) {
-          this.delColPreview.style.display = 'none'
-        }
+        this.overlay.visible = false
       }
     }
   }
@@ -300,6 +318,12 @@ export default {
     color: #146493;
   }
 }
+
+.overlay {
+  position: fixed;
+  background: red;
+  opacity: .25;
+}
 </style>
 <style lang="postcss">
 .add-row-preview,
@@ -312,6 +336,6 @@ export default {
 .del-col-preview {
   position: absolute;
   z-index: 100;
-  background: rgba(226, 47, 47, 0.25);
+  background: rgb(226, 47, 47);
 }
 </style>
