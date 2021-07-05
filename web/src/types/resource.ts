@@ -163,6 +163,7 @@ export interface Invite {
 }
 
 export interface SpaceResource {
+  userId: number;
   id: number;
   invites: Invite[];
   role?: number;

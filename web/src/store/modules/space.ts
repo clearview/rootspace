@@ -124,6 +124,19 @@ const SpaceModule: Module<SpaceState, RootState> = {
       return res.data
     },
 
+    async leave ({ commit, dispatch, state, getters, rootState }) {
+      await api.delete(`/spaces/${getters.activeSpace.id}/me`)
+      let nextActiveSpace
+      for (let i = 0; i < state.list.length; i++) {
+        if (state.list[i].userId === rootState.auth?.user?.id) {
+          nextActiveSpace = state.list[i]
+        }
+      }
+
+      commit('setList', state.list.filter((item) => item.id !== getters.activeSpace.id))
+      dispatch('activate', nextActiveSpace?.id)
+    },
+
     async update ({ commit, getters }, data: SpaceResource) {
       const index = getters.getIndex(data.id)
 

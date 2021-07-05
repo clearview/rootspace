@@ -101,6 +101,17 @@
           <span>Add New Space</span>
         </button>
 
+        <div v-if="!isOwner" class="divider mx-4"></div>
+
+        <button
+          v-if="!isOwner"
+          class="SelectSpace-logout"
+          @click="leaveCurrentSpace"
+        >
+          <mono-icon name="close" class="icon" />
+          <span>Leave <b>{{ activeSpace.title }}</b></span>
+        </button>
+
         <div class="divider mx-4"></div>
 
         <button
@@ -169,6 +180,10 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
     return this.$store.state.auth.user || {}
   }
 
+  get isOwner (): boolean {
+    return this.$store.state.auth.user.id === this.activeSpace.userId
+  }
+
   @Watch('activeSpace')
   async watchActiveSpace (activeSpace: SpaceResource, prevActiveSpace: SpaceResource) {
     this.$nextTick(() => {
@@ -192,6 +207,16 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
     if (value) {
       this.optionsVisible = !value
     }
+  }
+
+  leaveCurrentSpace () {
+    window.app.confirm('Confirm', `Are you sure you want to leave "${this.activeSpace.title}" space`, async () => {
+      try {
+        await this.$store.dispatch('space/leave')
+      } catch (e) {
+        this.$toast.error('Oops! something went wrong')
+      }
+    })
   }
 
   toggleOptionsVisibility () {
