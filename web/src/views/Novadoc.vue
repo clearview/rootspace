@@ -2065,7 +2065,7 @@ export default {
 
 .paper {
   width: 100%;
-  padding: 40px 0;
+  padding: 40px 0 150px 0;
   overflow-y: auto;
   position: relative;
 }
