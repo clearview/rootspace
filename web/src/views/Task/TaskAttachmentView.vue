@@ -27,33 +27,43 @@
               Download
             </div>
           </div>
-          <div class="action-separator"></div>
 
-          <Popover :z-index="1010" sub :offset="20" :with-close="false" position="bottom-start" class="delete-attachment bottom">
-            <template #default="{ hide }">
-              <div class="delete-confirmation">
-                <h3>Delete File</h3>
+          <template v-if="!archivedView">
+            <div class="action-separator"></div>
 
-                <p>File is about to be permanently deleted...</p>
-                <p>Warning: You can’t undo this action.</p>
+            <Popover
+              sub
+              :z-index="1010"
+              :offset="20"
+              :with-close="false"
+              position="bottom-start"
+              class="delete-attachment bottom"
+            >
+              <template #default="{ hide }">
+                <div class="delete-confirmation">
+                  <h3>Delete File</h3>
 
-                <div class="delete-action">
-                  <p @click="hide();">Cancel</p>
-                  <button class="btn btn-primary" @click="handleMenu('delete')">
+                  <p>File is about to be permanently deleted...</p>
+                  <p>Warning: You can’t undo this action.</p>
+
+                  <div class="delete-action">
+                    <p @click="hide();">Cancel</p>
+                    <button class="btn btn-primary" @click="handleMenu('delete')">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </template>
+              <template #trigger="{ visible }">
+                <div class="action-line danger" :class="{'btn-link-primary': visible}">
+                  <legacy-icon name="archive" viewbox="16" size="16px"></legacy-icon>
+                  <div class="action-line-text">
                     Delete
-                  </button>
+                  </div>
                 </div>
-              </div>
-            </template>
-            <template #trigger="{ visible }">
-              <div class="action-line danger" :class="{'btn-link-primary': visible}">
-                <legacy-icon name="archive" viewbox="16" size="16px"></legacy-icon>
-                <div class="action-line-text">
-                  Delete
-                </div>
-              </div>
-            </template>
-          </Popover>
+              </template>
+            </Popover>
+          </template>
 
         </template>
         <template #trigger="{ visible }">
@@ -96,6 +106,9 @@ export default class TaskAttachmentView extends Vue {
 
     @Prop({ type: Number, required: true })
     private readonly index!: number;
+
+    @Prop({ type: Boolean })
+    private readonly archivedView!: boolean;
 
     private isShowImage = false
 

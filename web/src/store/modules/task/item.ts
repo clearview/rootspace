@@ -253,6 +253,24 @@ if (item.actions) {
 
     return res
   }
+  item.actions.restoreTask = async ({ commit }, params: { taskId: number }) => {
+    commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.filter(task => {
+            return !(task.id === params.taskId && list.id === task.listId)
+          })
+          return list
+        })
+      }
+    }, { root: true })
+
+    commit('setProcessing', true)
+    const res = await api.post(`tasks/task/${params.taskId}/restore`)
+    commit('setProcessing', false)
+
+    return res
+  }
 }
 
 export default item

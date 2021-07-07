@@ -94,4 +94,14 @@ export class TaskBoardCtrl extends BaseCtrl {
     const result = await this.taskBoardService.remove(taskBoard.id, req.user.id)
     res.send(result)
   }
+
+  async archived(req: Request, res: Response, next: NextFunction) {
+    const taskBoardId = Number(req.params.id)
+    const taskBoard = await this.taskBoardService.searchTaskBoard(Number(req.params.id), '', { archived: true })
+
+    ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Read, taskBoard)
+
+    const resData = this.responseData(taskBoard)
+    res.send(resData)
+  }
 }
