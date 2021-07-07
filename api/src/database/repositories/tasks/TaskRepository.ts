@@ -92,8 +92,8 @@ export class TaskRepository extends BaseRepository<Task> {
       .innerJoin('task.list', 'taskList')
       .innerJoin('taskList.board', 'taskBoard')
       .where('taskBoard.id = :taskBoardId', { taskBoardId })
-      .andWhere('task.deletedAt IS NULL')
       .orderBy('comment.createdAt', 'DESC')
+      .withDeleted()
 
     if (searchParam) {
       const search = searchParam.match(/\b(\w+)\b/g).join(' | ')
@@ -134,6 +134,12 @@ export class TaskRepository extends BaseRepository<Task> {
         .andWhere('task.dueDate <= :dueDateEnd', {
           dueDateEnd: filterParam.dueDate.end,
         })
+    }
+
+    if (filterParam?.archived === true) {
+      searchQuery.andWhere('task.deletedAt IS NOT NULL')
+    } else {
+      searchQuery.andWhere('task.deletedAt IS NULL')
     }
 
     return searchQuery.getMany()

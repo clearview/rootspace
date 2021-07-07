@@ -20,6 +20,14 @@ if (board.actions) {
     commit('setCurrent', res?.data.data)
     return res
   }
+
+  board.actions.archived = async ({ commit }, params: { boardId: number }) => {
+    commit('setFetching', true)
+    const res = await api.get(`tasks/board/${params.boardId}/archived`)
+    commit('setFetching', false)
+    commit('setCurrent', res?.data.data)
+    return res
+  }
 }
 
 export default board

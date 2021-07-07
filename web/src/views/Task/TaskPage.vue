@@ -4,9 +4,12 @@
       class="header"
       v-if="board || boardCache"
     >
-      <h3 class="title">
-        {{(board && board.title) || (boardCache && boardCache.title)}}
-      </h3>
+      <div class="title">
+        <h3>{{title}}</h3>
+        <div class="pill" v-if="filtered">
+          <mono-icon name="eye" class="pill-icon"/> View only
+        </div>
+      </div>
 
       <div class="actions">
         <div class="action-group">
@@ -58,7 +61,11 @@
             </div>
           </div>
 
-          <div class="action action--archive action__disabled">
+          <div
+            class="action action--archive"
+            :class="{ 'action__active': filters.archived }"
+            @click="toggleArchived"
+          >
             <mono-icon
               name="archive"
               class="action--icon"
@@ -117,33 +124,25 @@
       @input="lazyFetchTask"
     />
 
-    <div
-      class="view--kanban"
-      v-if="isKanban"
-    >
-      <BoardManager
+    <div :class="isKanban ? 'view--kanban' : 'view--list'">
+      <component
+        :is="isKanban ? 'BoardManager' : 'ListManager'"
         :loading="firstLoad"
         :can-drag="!filtered"
         :board="board"
       />
     </div>
 
-    <div
-      class="view--list"
-      v-else
-    >
-      <ListManager
-        :loading="firstLoad"
-        :can-drag="!filtered"
-        :board="board"
-      />
-    </div>
+    <loading :loading="isFetching">
+      Loading...
+    </loading>
   </section>
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins, ProvideReactive, Watch } from 'vue-property-decorator'
 import { debounce } from 'helpful-decorators'
+import { some } from 'lodash'
 import VSelect from 'vue-select'
 import Avatar from 'vue-avatar'
 
@@ -162,7 +161,9 @@ import Popover from '@/components/Popover.vue'
 import VField from '@/components/Field.vue'
 import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Tip from '@/components/Tip.vue'
-import { some } from 'lodash'
+import Loading from '@/components/Loading.vue'
+
+import { FilteredKey, ArchivedViewKey } from './injectionKeys'
 
 @Component({
   name: 'TaskPage',
@@ -175,7 +176,8 @@ import { some } from 'lodash'
     VField,
     ButtonSwitch,
     Avatar,
-    FilterBar
+    FilterBar,
+    Loading
   }
 })
 export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
@@ -183,7 +185,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private filters = {
     tags: [],
     assignees: [],
-    unassigned: false
+    unassigned: false,
+    archived: false
   }
 
   private boardCache: TaskBoardResource | null = null
@@ -193,12 +196,29 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private filterVisible = false
   private searchVisible = false
 
-  private get filtered () {
+  @ProvideReactive(FilteredKey)
+  get filtered () {
     return some([
       this.search.length,
       this.filters.tags.length,
-      this.filters.assignees.length
+      this.filters.assignees.length,
+      this.filters.archived
     ])
+  }
+
+  @ProvideReactive(ArchivedViewKey)
+  get archivedView () {
+    return this.filters.archived
+  }
+
+  get title (): string {
+    if (this.board) {
+      return this.board.title
+    } else if (this.boardCache) {
+      return this.boardCache.title
+    } else {
+      return 'Untitled'
+    }
   }
 
   get tags (): TagResource[] | null {
@@ -238,7 +258,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     this.filters = {
       tags: [],
       assignees: [],
-      unassigned: false
+      unassigned: false,
+      archived: false
     }
     await this.fetchTask()
   }
@@ -331,7 +352,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     this.firstLoad = false
   }
 
-  @debounce(500)
+  @debounce(100)
   async lazyFetchTask () {
     await this.fetchTask()
   }
@@ -380,6 +401,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
     return textColor[getBgPosition]
   }
+
+  async toggleArchived () {
+    this.filters.archived = !this.filters.archived
+
+    await this.lazyFetchTask()
+  }
 }
 </script>
 
@@ -392,6 +419,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
 .header {
   @apply flex flex-row items-center;
+  align-items: center;
+  justify-content: space-between;
   margin-left: 72px;
   margin-right: 24px;
   margin-top: 24px;
@@ -402,16 +431,32 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
 .title {
   display: flex;
-  flex: 1 auto;
-  font-size: 24px;
-  font-weight: 700;
+  align-items: center;
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  margin-left: 8px;
+  border-radius: 8px;
+  background: #37D88B;
+  color: #ffffff;
+
+  .pill-icon {
+    margin-right: 4px;
+  }
 }
 
 .actions {
   display: flex;
   flex-flow: row;
   align-items: center;
-  flex: 0 auto;
 }
 
 .action-group {
@@ -470,11 +515,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 .action__active:hover {
   background-color: #ddf3ff;
   color: #146493;
-}
-
-.action__disabled {
-  pointer-events: none;
-  color: theme("colors.gray.400");
 }
 
 .action--icon {

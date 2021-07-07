@@ -12,7 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" contenteditable @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
+          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -28,7 +28,7 @@
       </div>
     </template>
     <div class="task-modal-body" @dragenter="captureDragFile">
-      <div class="task-drag-capture" v-if="isCapturingFile" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
+      <div class="task-drag-capture" v-if="isCapturingFile && !archivedView" @dragover="prepareDragFile" @dragleave="releaseDragFile" @drop="processDragFile">
         <legacy-icon
           name="upload"
           size="32px"
@@ -37,7 +37,7 @@
         Drop a file to upload as attachment
       </div>
       <div class="task-left">
-        <div class="task-actions">
+        <div class="task-actions" v-if="!archivedView">
           <div class="action-label">
             Add To Card
           </div>
@@ -69,9 +69,9 @@
           </div>
         </div>
         <div class="task-description">
-          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true">
+          <div class="description-title" v-if="!isEditingDescription" @click="isEditingDescription = true && !archivedView">
             <span class="description-title-placeholder">Description</span>
-            <legacy-icon name="edit" size="1rem" viewbox="32"/>
+            <legacy-icon name="edit" size="1rem" viewbox="32" v-if="!archivedView"/>
           </div>
           <Editor
             :readonly="!isEditingDescription"
@@ -87,11 +87,12 @@
           <imageViewer
             v-model="attachmentIndex"
             :images="item.attachments"
+            :archivedView="archivedView"
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
             <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
-              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
+              <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" :archivedView="archivedView" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
           <div v-if="item.attachments.length > 5">
@@ -104,6 +105,7 @@
         <div class="comment-separator"></div>
         <div class="comment-input">
           <textarea-autoresize
+            v-if="!archivedView"
             placeholder="Write a comment…"
             class="comment-textarea"
             v-model="commentInput"
@@ -113,6 +115,9 @@
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
+        <div class="text-gray-400" v-else-if="archivedView">
+          No comments
+        </div>
         <div class="comment-separator"></div>
         <TaskActivities :item="item"></TaskActivities>
       </div>
@@ -144,19 +149,22 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                  <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees">
-                    <template v-slot:trigger>
-                      <li class="addmember-button" content="Add Member" v-tippy>
-                        <span>
-                          <legacy-icon name="plus2" size="1rem" viewbox="16"/>
-                        </span>
-                      </li>
-                    </template>
-                  </MemberPopover>
+                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!archivedView">
+                  <template v-slot:trigger>
+                    <li class="addmember-button" content="Add Member" v-tippy>
+                      <span>
+                        <legacy-icon name="plus2" size="1rem" viewbox="16"/>
+                      </span>
+                    </li>
+                  </template>
+                </MemberPopover>
                 <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
                   <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
+            <template v-if="archivedView">
+              <span>None</span>
+            </template>
             </div>
           </div>
         </div>
@@ -174,9 +182,13 @@
         <div class="right-field">
           <div class="right-field-title">Actions</div>
           <div class="right-field-content">
-            <button class="archive-button" @click="archiveTask(itemCopy.id)">
-              <legacy-icon name="archive" viewbox="18" size="1rem"/>
+            <button class="archive-button" @click="archiveTask(itemCopy.id)" v-if="!archivedView">
+              <mono-icon name="archive"/>
               <span>Archive</span>
+            </button>
+            <button class="archive-button" @click="restoreTask(itemCopy.id)" v-else>
+              <mono-icon name="restore"/>
+              <span>Unrchive</span>
             </button>
           </div>
         </div>
@@ -186,7 +198,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Inject, InjectReactive, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
@@ -243,6 +255,9 @@ export default class TaskModal extends Vue {
 
     @Prop({ type: Object, required: true })
     private readonly item!: TaskItemResource;
+
+    @Prop({ type: Boolean })
+    private archivedView!: boolean
 
     @Ref('attachmentFile')
     private readonly attachmentFileRef!: HTMLInputElement
@@ -554,6 +569,14 @@ export default class TaskModal extends Vue {
       })
     }
 
+    async restoreTask (taskId: number) {
+      this.close()
+
+      await this.$store.dispatch('task/item/restoreTask', {
+        taskId: taskId
+      })
+    }
+
     onUserProfileClose () {
       // Hack, wait a while in case any other process that update current item.
       // It's because this function will be triggered when user open another task modal.
@@ -707,7 +730,7 @@ export default class TaskModal extends Vue {
   }
 
   .task-description {
-    @apply my-6;
+    @apply mb-6;
   }
 
   .description-title {
@@ -892,6 +915,8 @@ export default class TaskModal extends Vue {
   }
 
   .task-actions {
+    @apply mb-6;
+
     .uploading {
       border-color: theme("colors.primary.default");
       color: theme("colors.primary.default");

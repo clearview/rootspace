@@ -55,15 +55,12 @@
         </div>
       </div>
     </div>
-    <TaskModal v-if="showModal" @close="closeModal" :item="item" :visible="showModal"></TaskModal>
-    <div class="drag-block" v-show="isDragBlocked" ref="dragBlock">
-      It's not possible to move tasks and lists in search results
-    </div>
+    <TaskModal v-if="showModal" @close="closeModal" :item="item" :visible="showModal" :archivedView="archivedView"></TaskModal>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Emit, Inject, InjectReactive, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
 import { TaskBoardResource, TaskItemResource, UserResource } from '@/types/resource'
 import { required } from 'vuelidate/lib/validators'
 import { Optional } from '@/types/core'
@@ -71,6 +68,7 @@ import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
+import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
 
 @Component({
   name: 'TaskCard',
@@ -95,9 +93,6 @@ export default class TaskCard extends Vue {
     @Ref('titleEditable')
     private readonly titleEditableRef!: HTMLDivElement;
 
-    @Ref('dragBlock')
-    private readonly dragBlock!: HTMLDivElement;
-
     @Ref('tagLists')
     private readonly tagListsRef!: HTMLDivElement;
 
@@ -107,10 +102,15 @@ export default class TaskCard extends Vue {
     @Inject('modal')
     readonly modal!: ModalInjectedContext
 
+    @InjectReactive(FilteredKey)
+    private readonly boardFiltered!: boolean
+
+    @InjectReactive(ArchivedViewKey)
+    private archivedView!: boolean
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
-    private isDragBlocked = false
     private isShowingPlaceholder = true
     private isTagMoreThanOneLine = false
     private isTitleMoreThanOneLine = false
@@ -129,16 +129,11 @@ export default class TaskCard extends Vue {
     }
 
     tryDrag (e: DragEvent) {
-      e.preventDefault()
-      if (!this.canDrag) {
-        if (!this.isDragBlocked) {
-          this.isDragBlocked = true
-          this.dragBlock.style.top = e.clientY - 5 + 'px'
-          this.dragBlock.style.left = e.clientX - 5 + 'px'
-          setTimeout(() => {
-            this.isDragBlocked = false
-          }, 3000)
-        }
+      if (this.boardFiltered) {
+        e.preventDefault()
+        e.stopPropagation()
+
+        this.$toast.error('Board edit is disabled')
       }
     }
 
