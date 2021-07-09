@@ -10,6 +10,7 @@ import {
 } from '../services/content/storage'
 import { UploadEntity } from '../services/upload'
 import { UploadsFilter } from '../shared/types/UploadsFilter'
+import { QueryOptions } from '../shared/types/DBQueryOptions'
 
 export class StorageCtrl extends BaseCtrl {
   private storageService: StorageService
@@ -22,7 +23,7 @@ export class StorageCtrl extends BaseCtrl {
   }
 
   async view(req: Request, res: Response) {
-    const storage = await this.storageService.getByIdWithUploads(Number(req.params.id))
+    const storage = await this.storageService.requireById(Number(req.params.id))
     this.isSpaceMember(req, storage.spaceId)
 
     res.send(this.responseBody(storage))
@@ -33,12 +34,43 @@ export class StorageCtrl extends BaseCtrl {
     this.isSpaceMember(req, storage.spaceId)
 
     const filter: UploadsFilter = {}
+    const options: QueryOptions = {
+      orderBy: {
+        sort: 'createdAt',
+        order: 'DESC',
+      },
+    }
 
     if (req.query.search) {
       filter.search = String(req.query.search)
     }
 
-    const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter)
+    if (req.query.trashed) {
+      filter.trashed = Boolean(req.query.trashed)
+    }
+
+    if (req.query.offset) {
+      options.offset = Number(req.query.offset)
+    }
+
+    if (req.query.limit) {
+      options.limit = Number(req.query.limit)
+    }
+
+    const files = await this.uploadService.getUploadsByEntity(storage.id, UploadEntity.Storage, filter, options)
+    res.send(this.responseBody(files))
+  }
+
+  async trash(req: Request, res: Response) {
+    const storage = await this.storageService.requireById(Number(req.params.id))
+    this.isSpaceMember(req, storage.spaceId)
+
+    const files = await this.uploadService.getUploadsByEntity(
+      storage.id,
+      UploadEntity.Storage,
+      { trashed: true },
+      { withDeleted: true }
+    )
     res.send(this.responseBody(files))
   }
 

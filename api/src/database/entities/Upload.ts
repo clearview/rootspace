@@ -1,4 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  DeleteDateColumn,
+} from 'typeorm'
+import { User } from './User'
 
 @Entity('uploads')
 export class Upload {
@@ -53,4 +63,10 @@ export class Upload {
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date
+
+  @ManyToOne(() => User)
+  user: User
 }

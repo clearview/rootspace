@@ -20,6 +20,20 @@ export class UploadsCtrl extends BaseCtrl {
     this.entityService = ServiceFactory.getInstance().getEntityService()
   }
 
+  async download(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+
+    res.setHeader('Content-disposition', 'attachment; filename=' + upload.filename)
+    res.setHeader('Content-type', upload.mimetype)
+
+    this.uploadService
+      .getStream(upload)
+      .on('error', (err) => {
+        res.status(500).json(this.responseError(err))
+      })
+      .pipe(res)
+  }
+
   async uploadUserAvatar(req: Request, res: Response, next: NextFunction) {
     if (req.body.type !== UploadType.UserAvatar) {
       return next()
@@ -84,7 +98,7 @@ export class UploadsCtrl extends BaseCtrl {
 
   async update(req: Request, res: Response) {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id))
-    this.isSpaceMember(req, upload.spaceId)
+    await this.authorize(req, upload)
 
     const value = UploadUpdateValue.fromObject(req.body.data)
 
@@ -92,38 +106,47 @@ export class UploadsCtrl extends BaseCtrl {
     res.send(this.responseBody(result))
   }
 
-  async delete(req: Request, res: Response) {
+  async archive(req: Request, res: Response) {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+    await this.authorize(req, upload)
 
-    if (upload.type === UploadType.UserAvatar) {
-      await this.deleteUserAvatar(req, res, upload)
-      return
-    }
+    const result = await this.uploadService.archive(upload, req.user.id)
+    res.send(this.responseBody(result))
+  }
 
-    if (upload.type === UploadType.SpaceLogo) {
-      await this.deleteSpaceLogo(req, res, upload)
-      return
-    }
+  async trash(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id))
+    await this.authorize(req, upload)
 
-    this.isSpaceMember(req, upload.spaceId)
+    const result = await this.uploadService.archive(upload, req.user.id)
+    res.send(this.responseBody(result))
+  }
+
+  async restore(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id), null, { withDeleted: true })
+    await this.authorize(req, upload)
+
+    const result = await this.uploadService.restore(upload, req.user.id)
+    res.send(this.responseBody(result))
+  }
+
+  async delete(req: Request, res: Response) {
+    const upload = await this.uploadService.requireUploadById(Number(req.params.id), null, { withDeleted: true })
+    await this.authorize(req, upload)
 
     const result = await this.uploadService.remove(upload, req.user.id)
     res.send(this.responseBody(result))
   }
 
-  private async deleteUserAvatar(req: Request, res: Response, upload: Upload) {
-    if (req.user.id !== upload.userId) {
+  private async authorize(req: Request, upload: Upload) {
+    if (upload.type === UploadType.UserAvatar && req.user.id !== upload.userId) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
-    const result = await this.uploadService.remove(upload, req.user.id)
-    res.send(this.responseBody(result))
-  }
+    if (upload.type === UploadType.SpaceLogo) {
+      this.isSpaceAdmin(req, upload.spaceId)
+    }
 
-  private async deleteSpaceLogo(req: Request, res: Response, upload: Upload) {
-    this.isSpaceAdmin(req, upload.spaceId)
-
-    const result = await this.uploadService.remove(upload, req.user.id)
-    res.send(this.responseBody(result))
+    this.isSpaceMember(req, upload.spaceId)
   }
 }

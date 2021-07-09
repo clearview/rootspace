@@ -24,6 +24,15 @@ export interface LinkResource {
   newTab: boolean;
   parentId?: number;
 }
+export interface StorageResource extends ApiResource {
+  id: number;
+  userId: number | null;
+  spaceId: number | null;
+  title: string;
+  type: string;
+  uploads: NewUploadResource[] | null;
+  user: UserResource;
+}
 
 /**
  * @deprecated
@@ -47,11 +56,14 @@ export interface NewUploadResource {
   entity: 'Task';
   entityId: number;
   id: number;
+  name: string;
+  filename: string;
+  location: string;
   mimetype: string;
   path: string;
   size: number;
   spaceId: number;
-  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo';
+  type: 'taskAttachment' | 'userAvatar' | 'spaceLogo' | 'storage';
   updatedAt: Date;
   userId: number;
   versions: {
@@ -76,6 +88,11 @@ export enum TaskItemStatus {
 export enum TaskBoardType {
   List = 1,
   Kanban = 2
+}
+
+export enum StorageViewType {
+  List = 1,
+  Grid = 2
 }
 
 export interface TagResource extends Omit<ApiResource, 'createdAt' | 'updatedAt'> {
@@ -193,6 +210,7 @@ export interface SpaceSettingResource {
   treeFolded: Record<string, boolean>;
   taskViewAs: Record<number, TaskBoardType>;
   taskSeenViewTip: boolean;
+  storageViewAs: number;
 }
 
 export interface UserResource {

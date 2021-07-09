@@ -89,6 +89,11 @@ const routes: Array<RouteConfig> = [
         path: '/embed/:id',
         name: 'Embed',
         component: () => import(/* webpackChunkName: "embed" */'../views/Embed.vue')
+      },
+      {
+        path: '/storage/:id',
+        name: 'Storage',
+        component: () => import(/* webpackChunkName: "storage" */'../views/Storage/StoragePage.vue')
       }
     ]
   },
