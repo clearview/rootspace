@@ -127,16 +127,12 @@
       Save
     </button>
 
-    <div></div>
-
     <a
       class="btn w-full mx-0 mt-5 clear-both pointer"
       @click="changePasswordModal(true)"
     >
       {{ passwordModalTitle }}
     </a>
-
-    <div></div>
 
     <a
       v-if="!isOwner"
@@ -315,5 +311,8 @@ export default class FormSettings extends Vue {
 <style lang="postcss" scoped>
 .btn-submit {
   margin-left: 0;
+}
+.btn.w-full {
+  margin-left: 0px;
 }
 </style>
