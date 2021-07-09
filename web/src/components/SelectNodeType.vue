@@ -11,7 +11,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Document</h5>
-        <p>Write notes, thoughts or ideas.</p>
+        <p>Write notes, docs or ideas...</p>
       </div>
 
       <span class="arrow">
@@ -29,7 +29,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Task Board</h5>
-        <p>Create board, list or table view.</p>
+        <p>Create simple Task board...</p>
       </div>
 
       <span class="arrow">
@@ -47,7 +47,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Folder</h5>
-        <p>Groups and organize your files.</p>
+        <p>Groups and organize nodes...</p>
       </div>
 
       <span class="arrow">
@@ -65,7 +65,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Embed</h5>
-        <p>Embed any third-part application.</p>
+        <p>Embed third-part application...</p>
       </div>
 
       <span class="arrow">
@@ -83,7 +83,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Link</h5>
-        <p>Add a link to anything you’d like.</p>
+        <p>Add a Link to external apps...</p>
       </div>
 
       <span class="arrow">
@@ -101,7 +101,7 @@
 
       <div class="SelectNodeType-desc">
         <h5>Storage</h5>
-        <p>Add a storage anything you’d like.</p>
+        <p>Add simple Storage for files...</p>
       </div>
 
       <span class="arrow">
