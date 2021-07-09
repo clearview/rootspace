@@ -119,13 +119,6 @@
       </template>
     </v-field>
 
-    <a
-      class="btn w-full mx-0 mt-5 clear-both pointer"
-      @click="changePasswordModal(true)"
-    >
-      {{ passwordModalTitle }}
-    </a>
-
     <button
       class="btn btn-primary w-full mx-0 mt-5 btn-submit"
       type="submit"
@@ -133,6 +126,25 @@
     >
       Save
     </button>
+
+    <div></div>
+
+    <a
+      class="btn w-full mx-0 mt-5 clear-both pointer"
+      @click="changePasswordModal(true)"
+    >
+      {{ passwordModalTitle }}
+    </a>
+
+    <div></div>
+
+    <a
+      v-if="!isOwner"
+      class="btn w-full mx-0 mt-5 clear-both pointer"
+      @click="leaveCurrentSpace()"
+    >
+      Leave {{ activeSpace.title }} Space
+    </a>
 
     <modal
       :title="passwordModalTitle"
@@ -157,7 +169,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { email, required, maxLength } from 'vuelidate/lib/validators'
 
-import { PasswordResource } from '@/types/resource'
+import { SpaceResource, PasswordResource } from '@/types/resource'
 
 import VField from '@/components/Field.vue'
 import Modal from '@/components/legacy/Modal.vue'
@@ -214,6 +226,14 @@ export default class FormSettings extends Vue {
     return this.user.authProvider === 'local' ? 'Change Password' : 'Set Password'
   }
 
+  get activeSpace (): SpaceResource {
+    return this.$store.getters['space/activeSpace']
+  }
+
+  get isOwner (): boolean {
+    return this.$store.state.auth.user.id === this.activeSpace.userId
+  }
+
   created () {
     this.payload = {
       firstName: this.user.firstName,
@@ -232,6 +252,16 @@ export default class FormSettings extends Vue {
 
   isModalVisible (type: string): boolean {
     return type === 'changePassword' && this.modal.visible
+  }
+
+  leaveCurrentSpace () {
+    window.app.confirm('Confirm', `Are you sure you want to leave "${this.activeSpace.title}" space`, async () => {
+      try {
+        await this.$store.dispatch('space/leave')
+      } catch (e) {
+        this.$toast.error('Oops! something went wrong')
+      }
+    })
   }
 
   changePasswordModal (visible: boolean, type = '') {
