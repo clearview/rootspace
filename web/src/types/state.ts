@@ -7,6 +7,7 @@ import {
   TaskListResource,
   TaskItemResource,
   DocumentResource,
+  StorageResource,
   UserResource
 } from './resource'
 import { TaskSettings } from '@/store/modules/task/settings'
@@ -30,6 +31,7 @@ export interface RootState {
   nav: SidebarState;
   sidebar: SidebarState;
   task: TaskState;
+  storage: StorageState;
   option: OptionState;
   space: SpaceState;
   tree: TreeState;
@@ -56,7 +58,6 @@ export interface TreeState {
 export interface LinkState {
   item: LinkResource | null;
 }
-
 export interface TaskState {
   board: TaskBoardState;
   list: TaskListState;
@@ -92,7 +93,13 @@ export interface DocumentState {
   payload: DocumentResource[];
   deferredParent: NodeResource | null;
 }
-
+export interface StorageState {
+  info: StorageResource | null;
+  item: StorageResource | null;
+  processing: boolean;
+  totalData: number;
+  viewAs: number;
+}
 export interface SpaceState {
   activeIndex: number;
   list: SpaceResource[];

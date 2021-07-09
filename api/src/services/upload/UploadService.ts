@@ -20,6 +20,7 @@ import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
 import { UploadsFilter } from '../../shared/types/UploadsFilter'
+import { QueryOptions } from '../../shared/types/DBQueryOptions'
 
 export class UploadService extends Service {
   private entityService: EntityService
@@ -49,12 +50,12 @@ export class UploadService extends Service {
     return getCustomRepository(UploadRepository)
   }
 
-  getUploadById(id: number): Promise<Upload | undefined> {
-    return this.getUploadRepository().findOne(id)
+  getUploadById(id: number, filter = {}, options: QueryOptions = {}): Promise<Upload | undefined> {
+    return this.getUploadRepository().getUploadById(id, filter, options)
   }
 
-  async requireUploadById(id: number): Promise<Upload> {
-    const upload = await this.getUploadById(id)
+  async requireUploadById(id: number, filter = {}, options: QueryOptions = {}): Promise<Upload> {
+    const upload = await this.getUploadById(id, filter, options)
 
     if (!upload) {
       throw clientError('Can not find uplaod id ' + id, HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
@@ -67,8 +68,18 @@ export class UploadService extends Service {
     return this.getUploadRepository().getUploadByEntity(entity, entityId)
   }
 
-  getUploadsByEntity(entityId: number, entity: string, filter: UploadsFilter = {}): Promise<Upload[]> {
-    return this.getUploadRepository().getUploadsByEntity(entity, entityId, filter)
+  getUploadsByEntity(
+    entityId: number,
+    entity: string,
+    filter: UploadsFilter = {},
+    options: QueryOptions = {}
+  ): Promise<Upload[]> {
+    return this.getUploadRepository().getUploadsByEntity(entity, entityId, filter, options)
+  }
+
+  getStream(upload: Upload) {
+    const { region, bucket, key } = AmazonS3URI(upload.location)
+    return this.getS3Object({ Key: key }).createReadStream()
   }
 
   async upload(data: UploadValue, actorId: number) {
@@ -116,7 +127,7 @@ export class UploadService extends Service {
     return upload
   }
 
-  async obtainUploadEntity(data: UploadValue): Promise<Upload> {
+  private async obtainUploadEntity(data: UploadValue): Promise<Upload> {
     if (this.isUploadUniqueType(data.attributes.type)) {
       const upload = await this.getUploadByEntity(data.attributes.entityId, data.attributes.entity)
 
@@ -129,7 +140,7 @@ export class UploadService extends Service {
     return this.getUploadRepository().create()
   }
 
-  isUploadUniqueType(type: string): boolean {
+  private isUploadUniqueType(type: string): boolean {
     if (UploadUniqueTypes.includes(type)) {
       return true
     }
@@ -137,7 +148,7 @@ export class UploadService extends Service {
     return false
   }
 
-  createFilePath(fileName: string, spaceId: number, entityId: number) {
+  private createFilePath(fileName: string, spaceId: number, entityId: number) {
     if (!spaceId) {
       spaceId = 0
     }
@@ -151,7 +162,7 @@ export class UploadService extends Service {
     )
   }
 
-  async createImageVersions(data: UploadValue): Promise<UploadVersions | null> {
+  private async createImageVersions(data: UploadValue): Promise<UploadVersions | null> {
     const cnfg = this.getUploadImageConfig(data.attributes.type)
 
     if (!cnfg) {
@@ -181,13 +192,13 @@ export class UploadService extends Service {
     return versions
   }
 
-  createVersionFileName(fileName: string, suffix: string) {
+  private createVersionFileName(fileName: string, suffix: string) {
     return [fileName.slice(0, fileName.lastIndexOf('.')), '-' + suffix, fileName.slice(fileName.lastIndexOf('.'))].join(
       ''
     )
   }
 
-  generateImage(file: any, size: UploadImageSize): Promise<Buffer | null> {
+  private generateImage(file: any, size: UploadImageSize): Promise<Buffer | null> {
     return new Promise((resolve, reject) => {
       sharp(file)
         .resize(size.width, size.height)
@@ -201,7 +212,7 @@ export class UploadService extends Service {
     })
   }
 
-  getUploadImageConfig(uploadType: string): UploadImageConfigType | null {
+  private getUploadImageConfig(uploadType: string): UploadImageConfigType | null {
     for (const cnfg of UploadImageConfig) {
       if (cnfg.type === uploadType) {
         return cnfg
@@ -211,22 +222,37 @@ export class UploadService extends Service {
     return null
   }
 
-  async remove(target: number | Upload, actorId: number): Promise<Upload> {
-    const upload = typeof target === 'number' ? await this.requireUploadById(target) : target
-    await this.removeUploadFiles(upload)
+  async archive(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload = typeof idOrUpload === 'number' ? await this.requireUploadById(idOrUpload) : idOrUpload
 
-    // TO DO: implement other upload types activities
     if (upload.type === UploadType.TaskAttachment) {
-      if (upload.type === UploadType.TaskAttachment) {
-        const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
-        await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
-      }
+      const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
+      await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
     }
 
+    return this.getUploadRepository().softRemove(upload)
+  }
+
+  async restore(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload =
+      typeof idOrUpload === 'number'
+        ? await this.requireUploadById(idOrUpload, null, { withDeleted: true })
+        : idOrUpload
+
+    return this.getUploadRepository().recover(upload)
+  }
+
+  async remove(idOrUpload: number | Upload, actorId: number): Promise<Upload> {
+    const upload =
+      typeof idOrUpload === 'number'
+        ? await this.requireUploadById(idOrUpload, null, { withDeleted: true })
+        : idOrUpload
+
+    await this.removeUploadFiles(upload)
     return this.getUploadRepository().remove(upload)
   }
 
-  async removeUploadFiles(upload: Upload): Promise<void> {
+  private async removeUploadFiles(upload: Upload): Promise<void> {
     this.removeUploadFile(upload.location)
 
     if (upload.versions) {
@@ -244,7 +270,7 @@ export class UploadService extends Service {
     await this.S3DeleteObject({ Key: key })
   }
 
-  S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
+  private S3Upload(params: Partial<S3.Types.PutObjectRequest>): Promise<ManagedUpload.SendData> {
     const _parmas = {
       Key: params.Key,
       Bucket: params.Bucket ?? config.s3.bucket,
@@ -264,7 +290,7 @@ export class UploadService extends Service {
     })
   }
 
-  S3DeleteObject(params: Partial<S3.Types.DeleteObjectRequest>) {
+  private S3DeleteObject(params: Partial<S3.Types.DeleteObjectRequest>) {
     const _params = {
       Bucket: params.Bucket ?? config.s3.bucket,
       Key: params.Key,
@@ -279,5 +305,14 @@ export class UploadService extends Service {
         resolve(output)
       })
     })
+  }
+
+  private getS3Object(params: Partial<S3.Types.GetObjectRequest>) {
+    const _params = {
+      Bucket: params.Bucket ?? config.s3.bucket,
+      Key: params.Key,
+    }
+
+    return this.s3.getObject(_params)
   }
 }

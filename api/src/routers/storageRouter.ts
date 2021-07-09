@@ -8,6 +8,7 @@ router.use(authenticate)
 
 router.get('/storages/:id', mapRoute(StorageCtrl, 'view'))
 router.get('/storages/:id/files', mapRoute(StorageCtrl, 'files'))
+router.get('/storages/:id/trash', mapRoute(StorageCtrl, 'trash'))
 router.post('/storages', mapRoute(StorageCtrl, 'create'))
 router.patch('/storages/:id', mapRoute(StorageCtrl, 'update'))
 router.post('/storages/:id/archive', mapRoute(StorageCtrl, 'archive'))

@@ -40,6 +40,21 @@ export const UploadImageConfig: UploadImageConfigType[] = [
       },
     ],
   },
+  {
+    type: UploadType.Storage,
+    sizes: [
+      {
+        name: 'thumbnail',
+        width: 80,
+        height: 64,
+      },
+      {
+        name: 'preview',
+        width: 1024,
+        height: null,
+      },
+    ],
+  },
 ]
 
 export const UploadTypeEntityMap = new Map<string, string>([

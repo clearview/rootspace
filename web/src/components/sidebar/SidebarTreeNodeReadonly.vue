@@ -48,7 +48,8 @@ export enum NodeType {
   Doc = 'doc',
   Task = 'taskBoard',
   Folder = 'folder',
-  Embed = 'embed'
+  Embed = 'embed',
+  Storage = 'storage'
 }
 
 export const nodeRouteNames = {
@@ -56,6 +57,7 @@ export const nodeRouteNames = {
   doc: 'Document',
   taskBoard: 'TaskPage',
   embed: 'Embed',
+  storage: 'storage',
   folder: ''
 } as const
 
@@ -65,7 +67,8 @@ export const nodeIconNames = {
   taskBoard: 'layout',
   embed: 'code',
   folder: 'folder-closed',
-  archive: 'folder-closed'
+  archive: 'folder-closed',
+  storage: 'file-empty'
 } as const
 
 // Types

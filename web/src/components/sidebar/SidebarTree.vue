@@ -68,6 +68,7 @@
             @submit-link="addLink"
             @submit-embed="addEmbed"
             @submit-task="addTask"
+            @submit-storage="addStorage"
             @select="select">
           </component>
         </div>
@@ -175,6 +176,7 @@ import {
 import {
   LinkResource,
   TaskBoardResource,
+  StorageResource,
   SpaceResource,
   NodeResource
 } from '@/types/resource'
@@ -186,6 +188,7 @@ import FolderMenu from '@/components/sidebar/menu/FolderMenu.vue'
 import LinkMenu from '@/components/sidebar/menu/LinkMenu.vue'
 import EmbedMenu from '@/components/sidebar/menu/EmbedMenu.vue'
 import TaskMenu from '@/components/sidebar/menu/TaskMenu.vue'
+import StorageMenu from '@/components/sidebar/menu/StorageMenu.vue'
 
 import SidebarEmptyTree from '@/components/sidebar/SidebarEmptyTree.vue'
 
@@ -197,6 +200,7 @@ import FavoriteNode from '@/components/sidebar/FavoriteNode.vue'
 
 import FormLink from '@/components/form/FormLink.vue'
 import FormTask from '@/components/form/FormTask.vue'
+import FormStorage from '@/components/form/FormStorage.vue'
 import FormEmbed from '@/components/form/FormEmbed.vue'
 
 import DocumentService from '@/services/document'
@@ -208,6 +212,7 @@ enum NodeType {
   Doc = 'doc',
   Task = 'taskBoard',
   Embed = 'embed',
+  Storage = 'storage',
   Folder = 'folder'
 }
 
@@ -218,7 +223,8 @@ enum MenuType {
   TASK = 'task',
   DOCUMENT = 'document',
   NOVADOC = 'novadoc',
-  EMBED = 'embed'
+  EMBED = 'embed',
+  STORAGE = 'storage'
 }
 
 enum ModalType {
@@ -244,9 +250,11 @@ enum ModalType {
     LinkMenu,
     EmbedMenu,
     TaskMenu,
+    StorageMenu,
     FormLink,
     FormTask,
-    FormEmbed
+    FormEmbed,
+    FormStorage
   }
 })
 export default class SidebarTree extends Mixins(ModalMixin) {
@@ -339,6 +347,9 @@ export default class SidebarTree extends Mixins(ModalMixin) {
 
       case MenuType.TASK:
         return 'task-menu'
+
+      case MenuType.STORAGE:
+        return 'storage-menu'
 
       case MenuType.EMBED:
         return 'embed-menu'
@@ -508,6 +519,34 @@ export default class SidebarTree extends Mixins(ModalMixin) {
           name: 'TaskPage',
           params: {
             id: res.contentId.toString()
+          }
+        })
+      }
+    } catch { }
+
+    this.activeMenu.loading = false
+
+    this.setActiveMenu(false)
+    this.$emit('menu-selected', false)
+  }
+
+  async addStorage (data: StorageResource) {
+    this.activeMenu.loading = true
+
+    try {
+      if (this.deferredParent && this.deferredPath) {
+        (data as any).parentId = this.deferredParent.id
+      }
+      const res = await this.$store.dispatch('storage/create', data) as NodeResource
+      await this.fetchTree()
+      if (this.deferredPath) {
+        this.openNodeFold(this.deferredPath)
+      }
+      if (res.data.node.contentId) {
+        await this.$router.push({
+          name: 'Storage',
+          params: {
+            id: res.data.node.contentId.toString()
           }
         })
       }

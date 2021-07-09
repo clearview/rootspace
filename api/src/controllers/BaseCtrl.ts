@@ -36,4 +36,14 @@ export class BaseCtrl {
   protected responseBody(data: object | object[] | string) {
     return new ResponseBody(data)
   }
+
+  protected responseError(err: Error) {
+    return {
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      },
+    }
+  }
 }
