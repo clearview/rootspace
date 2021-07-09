@@ -6,11 +6,7 @@
       @click="$emit('select', 'novadoc')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-document"
-          size="24px"
-          viewbox="24"
-        />
+        <mono-icon name="document" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -19,12 +15,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
 
@@ -33,11 +24,7 @@
       @click="$emit('select', 'task')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-task"
-          size="24px"
-          viewbox="24"
-        />
+        <mono-icon name="board" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -46,12 +33,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
 
@@ -60,11 +42,7 @@
       @click="$emit('select', 'folder')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-folder"
-          size="24px"
-          viewbox="24"
-        />
+        <mono-icon name="folder" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -73,12 +51,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
 
@@ -87,12 +60,7 @@
       @click="$emit('select', 'embed')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-embed"
-          size="24px"
-          viewbox="24"
-          class="SelectNodeType-icon"
-        />
+        <mono-icon name="code-embed" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -101,12 +69,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
 
@@ -115,11 +78,7 @@
       @click="$emit('select', 'link')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-link"
-          size="24px"
-          viewbox="24"
-        />
+        <mono-icon name="link" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -128,12 +87,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
 
@@ -142,11 +96,7 @@
       @click="$emit('select', 'storage')"
     >
       <div class="SelectNodeType-icon">
-        <legacy-icon
-          name="menu-document"
-          size="24px"
-          viewbox="24"
-        />
+        <mono-icon name="database" />
       </div>
 
       <div class="SelectNodeType-desc">
@@ -155,12 +105,7 @@
       </div>
 
       <span class="arrow">
-        <legacy-icon
-          name="down2"
-          size="20px"
-          viewbox="16"
-          class="text-gray-400"
-        />
+        <mono-icon name="arrow-right" />
       </span>
     </a>
   </div>
@@ -209,6 +154,8 @@ export default class SelectNodeype extends Vue { }
   background: #EDEFF3;
   border-radius: 50%;
   transition: all 500ms;
+  font-size: 18px;
+  color: theme('colors.gray.900');;
 
   .SelectNodeType-option:hover & {
     color: white;
