@@ -48,6 +48,11 @@
     margin-top: .8em;
   }
 
+  a {
+    text-decoration: underline;
+    color: #146493;
+  }
+
   code {
     display: inline-block;
     padding: .125em;
