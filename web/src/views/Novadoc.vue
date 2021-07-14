@@ -502,14 +502,11 @@
             <div
               v-if="!isReadonly"
               class="action-line danger"
-              @click="hide();deleteNovadoc()"
+              @click="hide();archiveNovadoc()"
             >
-              <legacy-icon
-                name="trash-archive"
-                viewbox="16"
-              ></legacy-icon>
+              <mono-icon class="action-icon" name="archive"/>
               <div class="action-line-text">
-                Delete
+                Archive
               </div>
             </div>
           </template>
@@ -892,6 +889,7 @@ import {
   TrailingNode,
   Underline
 } from 'tiptap-extensions'
+import { walkTreeData } from '@adityapurwa/he-tree-vue'
 import javascript from 'highlight.js/lib/languages/javascript'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
@@ -1688,13 +1686,13 @@ export default {
       this.preview = null
       this.isHistoryVisible = true
     },
-    deleteNovadoc () {
-      window.app.confirm('Delete document?', `Delete document ${this.doc.title} permanently?`, async () => {
+    archiveNovadoc () {
+      window.app.confirm('Archive Item', `Are you sure you want to archive ${this.title ? this.title : 'Untitled'} ?`, async () => {
         try {
-          await this.$store.dispatch('document/destroy', this.doc)
-          await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
+          await api.post(`docs/${this.doc.id}/archive`)
           this.$router.push({ name: 'Main' })
         } catch (err) {
+          this.$toast.error('Oops! something went wrong')
         }
       })
     },
