@@ -60,7 +60,7 @@
         </button>
       </div>
       <div v-if="!isRenaming">
-        Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} •
+        Added by <a class="file-username" @click="openProfile">{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a> •
         {{ formatDate(fileCopy.createdAt) }} •
         {{ fileCopy.size | formatFileSize }}
       </div>
@@ -164,8 +164,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
+import { Component, Vue, Inject, Prop, Ref, Watch } from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import moment from 'moment'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
@@ -217,6 +218,9 @@ export default class StorageListView extends Vue {
 
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
+
+  @Inject('modal')
+  modal!: ModalInjectedContext
 
   private isRenaming = false;
   private isActionOpened = false;
@@ -323,6 +327,15 @@ export default class StorageListView extends Vue {
   watchFile (file: NewUploadResource) {
     this.fileCopy = { ...file }
   }
+
+  openProfile () {
+    this.modal.open({
+      component: ProfileModal,
+      attrs: {
+        userId: this.fileCopy.userId
+      }
+    })
+  }
 }
 </script>
 
@@ -346,6 +359,10 @@ h3 {
       display: flex;
     }
   }
+}
+.file-username {
+  font-weight: bold;
+  cursor: pointer;
 }
 .file-item--thumbnail {
   cursor: pointer;
