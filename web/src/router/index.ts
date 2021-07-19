@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import store from '@/store'
-import api from '@/utils/api'
 import Space from '@/views/Space.vue'
 import Novadoc from '@/views/Novadoc.vue'
 
