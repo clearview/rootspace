@@ -77,7 +77,7 @@ export default class SpaceInit extends Vue {
       try {
         await this.$store.dispatch('space/create', data)
 
-        await this.$router.push({ name: 'Main' })
+        await this.$router.push({ name: 'Dashboard' })
       } catch (err) {
         if (err.code === 401) {
           this.loadingMessage = `${err.message}. You will redirect to Signin Page.`

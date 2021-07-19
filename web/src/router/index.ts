@@ -18,6 +18,11 @@ const routes: Array<RouteConfig> = [
         component: () => import(/* webpackChunkName: "blank" */ '../views/Blank.vue')
       },
       {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: () => import(/* webpackChunkName: "blank" */ '../views/Blank.vue')
+      },
+      {
         path: '/settings',
         component: () => import(/* webpackChunkName: "settings" */ '../views/Settings/Settings.vue'),
         children: [

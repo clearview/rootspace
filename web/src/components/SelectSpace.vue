@@ -238,6 +238,7 @@ export default class SelectSpace extends Mixins(SpaceMixin) {
 
     this.modal.loading = false
     this.modal.visible = false
+    this.$router.replace({ name: 'Dashboard' })
   }
 }
 </script>
