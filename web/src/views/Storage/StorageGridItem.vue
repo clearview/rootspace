@@ -137,7 +137,7 @@
           <legacy-icon name="close" size="26px 21px" title="Cancel" />
         </button>
       </div>
-      Added by {{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }} •
+      Added by <a class="file-username" @click="openProfile">{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a> •
       {{ formatDate(fileCopy.createdAt) }} •
       {{ fileCopy.size | formatFileSize }}
     </div>
@@ -158,9 +158,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Ref, Watch } from 'vue-property-decorator'
+import { Component, Vue, Inject, Prop, Ref, Watch } from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
 
+import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
@@ -222,6 +223,9 @@ export default class StorageGridView extends Vue {
     id: null,
     alert: null
   };
+
+  @Inject('modal')
+  modal!: ModalInjectedContext
 
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
@@ -318,6 +322,15 @@ export default class StorageGridView extends Vue {
   watchFile (file: NewUploadResource) {
     this.fileCopy = { ...file }
   }
+
+  openProfile () {
+    this.modal.open({
+      component: ProfileModal,
+      attrs: {
+        userId: this.fileCopy.userId
+      }
+    })
+  }
 }
 </script>
 
@@ -337,6 +350,10 @@ export default class StorageGridView extends Vue {
       border-top-right-radius: 4px;
     }
   }
+}
+.file-username {
+  font-weight: bold;
+  cursor: pointer;
 }
 .download-wrapper {
   @apply flex-wrap justify-center content-center w-full h-full absolute;
