@@ -150,6 +150,7 @@
           :isUploading="isUploading"
           :tempItems="tempItems"
           @file:delete="handleDeleteFile"
+          @file:permanentDelete="handlePermanentDeleteFile"
           @file:download="handleDownloadFile"
           @file:restore="handleRestore"
         />
@@ -297,6 +298,11 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   async handleDeleteFile (id: number) {
     await this.$store.dispatch('storage/destroy', id)
+    await this.fetchFiles()
+  }
+
+  async handlePermanentDeleteFile (id: number) {
+    await this.$store.dispatch('storage/permanentDestroy', id)
     await this.fetchFiles()
   }
 

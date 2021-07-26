@@ -98,6 +98,19 @@
               </div>
               <div class="action-line-text">Put Back</div>
             </div>
+            <div class="action-separator"></div>
+            <div
+              class="action-line danger"
+              @click.prevent.stop="
+                hide();
+                permanentDeleteFileActionConfirm();
+              "
+            >
+              <div class="action-line-icon">
+                <mono-icon name="trash" />
+              </div>
+              <div class="action-line-text">Delete</div>
+            </div>
           </template>
         </template>
         <template #trigger="{ visible }">
@@ -151,6 +164,19 @@
     >
       <div class="modal-body text-center">
         Are you sure you want to delete this file?
+        <span class="font-semibold">{{ fileCopy.name }}</span>
+      </div>
+    </v-modal>
+    <v-modal
+      title="Delete File"
+      :visible="permanentDeleteFile.visible"
+      confirmText="Yes"
+      @cancel="permanentDeleteFile.visible = false"
+      @confirm="permanentDeleteFileAction(fileCopy)"
+      portal="secondary"
+    >
+      <div class="modal-body text-center">
+        Are you sure you want to permanently delete this file?
         <span class="font-semibold">{{ fileCopy.name }}</span>
       </div>
     </v-modal>
@@ -227,6 +253,12 @@ export default class StorageGridView extends Vue {
   @Inject('modal')
   modal!: ModalInjectedContext
 
+  private permanentDeleteFile: any = {
+    visible: false,
+    id: null,
+    alert: null
+  };
+
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
   }
@@ -252,9 +284,19 @@ export default class StorageGridView extends Vue {
     this.deleteFile.visible = true
   }
 
+  permanentDeleteFileActionConfirm () {
+    this.closePreview()
+    this.permanentDeleteFile.visible = true
+  }
+
   async deleteFileAction (file: NewUploadResource) {
     this.deleteFile.visible = false
     this.$emit('delete', file.id)
+  }
+
+  async permanentDeleteFileAction (file: NewUploadResource) {
+    this.permanentDeleteFile.visible = false
+    this.$emit('permanentDelete', file.id)
   }
 
   restoreFile (menu: any) {
