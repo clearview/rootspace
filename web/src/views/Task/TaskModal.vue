@@ -198,7 +198,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, InjectReactive, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
