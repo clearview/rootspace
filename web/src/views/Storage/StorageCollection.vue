@@ -26,6 +26,7 @@
           :file="file"
           :index="index"
           @delete="handleDelete"
+          @permanentDelete="handlePermanentDelete"
           @download="handleDownload"
           @restore="handleRestore"
         />
@@ -84,6 +85,10 @@ export default class StorageItem extends Vue {
 
   handleDelete (id: number) {
     this.$emit('file:delete', id)
+  }
+
+  handlePermanentDelete (id: number) {
+    this.$emit('file:permanentDelete', id)
   }
 
   handleDownload (file: NewUploadResource) {

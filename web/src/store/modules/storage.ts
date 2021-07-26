@@ -78,6 +78,14 @@ const FilesModule: Module<StorageState, RootState> = {
       return await UploadService.trash(id)
     },
 
+    async permanentDestroy (_, id: number) {
+      if (!id) {
+        throw new Error('ID is not defined')
+      }
+
+      return await UploadService.delete(id)
+    },
+
     async restore (_, id: number) {
       if (!id) {
         throw new Error('ID is not defined')
