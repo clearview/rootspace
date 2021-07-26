@@ -889,7 +889,6 @@ import {
   TrailingNode,
   Underline
 } from 'tiptap-extensions'
-import { walkTreeData } from '@adityapurwa/he-tree-vue'
 import javascript from 'highlight.js/lib/languages/javascript'
 import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
