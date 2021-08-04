@@ -132,6 +132,11 @@ export class UploadService extends Service {
     Object.assign(upload, data.attributes)
     await this.getUploadRepository().save(upload)
 
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      await this.notifyActivity(StorageActivity.renameFile(storage, actorId, upload))
+    }
+
     return upload
   }
 

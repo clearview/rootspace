@@ -47,6 +47,10 @@ export class StorageActivity extends ContentActivity<Storage> {
     return new StorageActivity(UserStorageActions.Delete_File, entity, actorId).userDeleteFile(upload)
   }
 
+  static renameFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Rename_File, entity, actorId).userRenameFile(upload)
+  }
+
   private userUpload(upload: Upload) {
     this._context = {
       files: upload
@@ -56,6 +60,14 @@ export class StorageActivity extends ContentActivity<Storage> {
   }
 
   private userDeleteFile(upload: Upload) {
+    this._context = {
+      files: upload
+    }
+
+    return this
+  }
+
+  private userRenameFile(upload: Upload) {
     this._context = {
       files: upload
     }
