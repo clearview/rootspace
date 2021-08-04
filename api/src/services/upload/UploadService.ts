@@ -120,7 +120,7 @@ export class UploadService extends Service {
 
     if (upload.type === UploadType.Storage) {
       const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
-      await this.notifyActivity(StorageActivity.upload(storage, actorId, upload))
+      await this.notifyActivity(StorageActivity.uploadFile(storage, actorId, upload))
     }
 
     return upload

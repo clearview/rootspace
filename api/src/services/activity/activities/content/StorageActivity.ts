@@ -39,8 +39,8 @@ export class StorageActivity extends ContentActivity<Storage> {
     return new StorageActivity(ContentActions.Deleted, entity, actorId).deleted()
   }
 
-  static upload(entity: Storage, actorId: number, upload: Upload) {
-    return new StorageActivity(UserStorageActions.Upload_File, entity, actorId).userUpload(upload)
+  static uploadFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Upload_File, entity, actorId).userUploadFile(upload)
   }
 
   static deleteFile(entity: Storage, actorId: number, upload: Upload) {
@@ -51,7 +51,7 @@ export class StorageActivity extends ContentActivity<Storage> {
     return new StorageActivity(UserStorageActions.Rename_File, entity, actorId).userRenameFile(upload)
   }
 
-  private userUpload(upload: Upload) {
+  private userUploadFile(upload: Upload) {
     this._context = {
       files: upload
     }
