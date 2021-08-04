@@ -238,6 +238,11 @@ export class UploadService extends Service {
       await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
     }
 
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      await this.notifyActivity(StorageActivity.deleteFile(storage, actorId, upload))
+    }
+
     return this.getUploadRepository().softRemove(upload)
   }
 

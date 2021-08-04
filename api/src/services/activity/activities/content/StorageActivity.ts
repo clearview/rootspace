@@ -43,10 +43,23 @@ export class StorageActivity extends ContentActivity<Storage> {
     return new StorageActivity(UserStorageActions.Upload_File, entity, actorId).userUpload(upload)
   }
 
+  static deleteFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Delete_File, entity, actorId).userDeleteFile(upload)
+  }
+
   private userUpload(upload: Upload) {
     this._context = {
       files: upload
     }
+
+    return this
+  }
+
+  private userDeleteFile(upload: Upload) {
+    this._context = {
+      files: upload
+    }
+
     return this
   }
 }
