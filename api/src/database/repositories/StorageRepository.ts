@@ -14,4 +14,12 @@ export class StorageRepository extends BaseRepository<Storage> {
 
     return query.getOne()
   }
+
+  getByUserIdAndSpaceId(userId: number, spaceId: number): Promise<Storage | undefined> {
+    const query = this.createQueryBuilder('Storage')
+      .where('Storage.userId = :userId', { userId })
+      .andWhere('Storage.spaceId = :spaceId', { spaceId })
+
+    return query.getOne()
+  }
 }

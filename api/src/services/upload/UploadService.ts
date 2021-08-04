@@ -15,20 +15,23 @@ import { ServiceFactory } from '../factory/ServiceFactory'
 import { Service } from '../Service'
 import { EntityService } from '../'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { TaskActivity } from '../activity/activities/content'
+import { StorageActivity, TaskActivity } from '../activity/activities/content'
 import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
 import { UploadsFilter } from '../../shared/types/UploadsFilter'
 import { QueryOptions } from '../../shared/types/DBQueryOptions'
+import { StorageService } from '../content/storage/StorageService'
 
 export class UploadService extends Service {
   private entityService: EntityService
+  private storageService: StorageService
   private s3: S3
 
   private constructor() {
     super()
     this.entityService = ServiceFactory.getInstance().getEntityService()
+    this.storageService = ServiceFactory.getInstance().getStorageService()
 
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
@@ -113,6 +116,11 @@ export class UploadService extends Service {
     if (upload.type === UploadType.TaskAttachment) {
       const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
       await this.notifyActivity(TaskActivity.attachmentAdded(task, upload, actorId))
+    }
+
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      await this.notifyActivity(StorageActivity.upload(storage, actorId, upload))
     }
 
     return upload

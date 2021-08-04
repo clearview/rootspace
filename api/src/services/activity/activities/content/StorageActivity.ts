@@ -1,6 +1,7 @@
 import { Storage } from '../../../../database/entities/Storage'
 import { ContentActivity } from './ContentActivity'
-import { ContentActions } from './actions'
+import { ContentActions, UserStorageActions } from './actions'
+import { Upload } from '../../../../database/entities/Upload'
 
 export class StorageActivity extends ContentActivity<Storage> {
   constructor(action: string, entity: Storage, actorId: number) {
@@ -36,5 +37,16 @@ export class StorageActivity extends ContentActivity<Storage> {
 
   static deleted(entity: Storage, actorId: number) {
     return new StorageActivity(ContentActions.Deleted, entity, actorId).deleted()
+  }
+
+  static upload(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Upload_File, entity, actorId).userUpload(upload)
+  }
+
+  private userUpload(upload: Upload) {
+    this._context = {
+      files: upload
+    }
+    return this
   }
 }
