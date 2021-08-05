@@ -7,7 +7,8 @@
   "license": "Unlicensed",
   "private": true,
   "scripts": {
-    "deploy": "yarn shipit production deploy"
+    "deploy": "yarn shipit production deploy --branch master",
+    "deploy-branch": "yarn shipit production deploy --branch $1"
   },
   "devDependencies": {
     "minimist": "^1.2.5",
