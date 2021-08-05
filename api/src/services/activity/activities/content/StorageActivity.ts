@@ -53,7 +53,11 @@ export class StorageActivity extends ContentActivity<Storage> {
 
   private userUploadFile(upload: Upload) {
     this._context = {
-      files: upload
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      filename: upload.filename,
+      actorId: this._actorId,
+      spaceId: this._spaceId
     }
 
     return this
@@ -61,7 +65,11 @@ export class StorageActivity extends ContentActivity<Storage> {
 
   private userDeleteFile(upload: Upload) {
     this._context = {
-      files: upload
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      filename: upload.filename,
+      actorId: this._actorId,
+      spaceId: this._spaceId
     }
 
     return this
@@ -69,7 +77,12 @@ export class StorageActivity extends ContentActivity<Storage> {
 
   private userRenameFile(upload: Upload) {
     this._context = {
-      files: upload
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      fromName: upload.filename,
+      toName: upload.name,
+      actorId: this._actorId,
+      spaceId: this._spaceId
     }
 
     return this
