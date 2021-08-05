@@ -10,6 +10,7 @@
     "deploy": "yarn shipit production deploy"
   },
   "devDependencies": {
+    "minimist": "^1.2.5",
     "shipit-cli": "^5.3.0",
     "shipit-deploy": "^5.3.0",
     "shipit-pm2": "^0.0.4",
