@@ -22,17 +22,14 @@ import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
 import { UploadsFilter } from '../../shared/types/UploadsFilter'
 import { QueryOptions } from '../../shared/types/DBQueryOptions'
-import { StorageService } from '../content/storage/StorageService'
 
 export class UploadService extends Service {
   private entityService: EntityService
-  private storageService: StorageService
   private s3: S3
 
   private constructor() {
     super()
     this.entityService = ServiceFactory.getInstance().getEntityService()
-    this.storageService = ServiceFactory.getInstance().getStorageService()
 
     this.s3 = new S3({
       accessKeyId: config.s3.accessKey,
