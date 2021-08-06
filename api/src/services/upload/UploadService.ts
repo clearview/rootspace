@@ -11,6 +11,7 @@ import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
 import { Task } from '../../database/entities/tasks/Task'
+import { Storage } from '../../database/entities/Storage'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { Service } from '../Service'
 import { EntityService } from '../'
@@ -119,7 +120,7 @@ export class UploadService extends Service {
     }
 
     if (upload.type === UploadType.Storage) {
-      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
       await this.notifyActivity(StorageActivity.uploadFile(storage, actorId, upload))
     }
 
@@ -133,7 +134,7 @@ export class UploadService extends Service {
     await this.getUploadRepository().save(upload)
 
     if (upload.type === UploadType.Storage) {
-      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
       await this.notifyActivity(StorageActivity.renameFile(storage, actorId, upload))
     }
 
@@ -244,7 +245,7 @@ export class UploadService extends Service {
     }
 
     if (upload.type === UploadType.Storage) {
-      const storage = await this.storageService.getByUserIdAndSpaceId(actorId, upload.spaceId)
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
       await this.notifyActivity(StorageActivity.deleteFile(storage, actorId, upload))
     }
 
