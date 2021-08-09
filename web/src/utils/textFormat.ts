@@ -323,15 +323,15 @@ export function textFormat (data: ActivityResource, userID?: number) {
       break
 
     case ACTIVITIES_LIST.UploadFile:
-      text += `<span class="action">upload a file <strong>${name}</strong></span>`
+      text += `<span class="action">uploaded a file <strong>${name}</strong></span>`
       break
 
     case ACTIVITIES_LIST.DeleteFile:
-      text += `<span class="action">delete a file <strong>${name}</strong></span>`
+      text += `<span class="action">deleted a file <strong>${name}</strong></span>`
       break
 
     case ACTIVITIES_LIST.RenameFile:
-      text += `<span class="action">rename a file from <strong>${name}</strong> to <strong>${toName}</strong></span>`
+      text += `<span class="action">renamed a file from <strong>${name}</strong> to <strong>${toName}</strong></span>`
       break
 
     default:
