@@ -143,7 +143,8 @@ export function textFormat (data: ActivityResource, userID?: number) {
     ) ||
     data.entity === 'Link' ||
     data.entity === 'Embed' ||
-    data.entity === 'Folder'
+    data.entity === 'Folder' ||
+    data.entity === 'Storage'
   ) {
     name = data.context.entity.title.replace(/(^\s+|\s+$)/g, '') || 'Untitled'
   }
