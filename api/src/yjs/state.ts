@@ -106,9 +106,6 @@ class StateQueue extends EventEmitter {
   }
 }
 
-// seconds
-const saveIdleTime = 30
-
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
 
