@@ -3,6 +3,7 @@ import * as Y from 'yjs'
 import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../services/content/doc'
+import { debounce } from 'lodash'
 
 interface StateAction {
   name: string
@@ -111,6 +112,9 @@ const saveIdleTime = 30
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
 
+// debouncing enqueueSave so that we do not abuse the enqueue function
+const debouncedQueueSave = debounce(({ docName, userId, ydoc }: any) => enqueueSave(docName, userId, ydoc), 2000)
+
 export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
   // console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
 
@@ -125,12 +129,8 @@ export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
 
   updates.get(docName).get(userId).saved = false
 
-  // seconds
-  const timeSpan = (Date.now() - updates.get(docName).get(userId).lastSave) / 1000
-
-  if (timeSpan > saveIdleTime) {
-    enqueueSave(docName, userId, ydoc)
-  }
+  // calling the function which enqueue the save action the document to save the doc in db
+  debouncedQueueSave({ docName, userId, ydoc })
 }
 
 export const onRestore = (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
