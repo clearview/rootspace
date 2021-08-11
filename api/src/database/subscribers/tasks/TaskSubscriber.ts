@@ -30,7 +30,7 @@ export class TaskSubscriber implements EntitySubscriberInterface<Task> {
     }
 
     task.slug = slugify(task.title)
-    task.isOverdue = TaskSubscriber.isOverdue(task)
+    task.isOverdue = TaskSubscriber.isOverdue(task as Task)
   }
 
   private static isOverdue(task: Task): boolean {
