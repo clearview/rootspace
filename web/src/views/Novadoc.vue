@@ -1000,7 +1000,7 @@ export default {
   data () {
     const debouncedSaveTitleOnly = debounce(() => {
       this.saveTitleOnly(this.title)
-    }, 1000)
+    }, 5000)
     return {
       lengthChecked: false,
       provider: null,
