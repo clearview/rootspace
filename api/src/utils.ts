@@ -48,7 +48,7 @@ export function hashPassword(password: string): Promise<string> {
 }
 
 
-export function debounce(func: Function, wait: number) {
+export function debounce(func: any, wait: number) {
   let timeout: any
   return function (...args: any) {
     const context = this
