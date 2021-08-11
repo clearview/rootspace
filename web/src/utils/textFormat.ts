@@ -149,18 +149,20 @@ export function textFormat (data: ActivityResource, userID?: number) {
     name = data.context.entity.title.replace(/(^\s+|\s+$)/g, '') || 'Untitled'
   }
 
-  if (data.entity === 'Storage' &&
-    (data.action === ACTIVITIES_LIST.UploadFile ||
-      data.action === ACTIVITIES_LIST.DeleteFile)
-  ) {
-    name = data.context.filename
-  }
+  if (data.entity === 'Storage') {
+    if (data.action === ACTIVITIES_LIST.UploadFile) {
+      name = data.context.filename
+    } else if (data.action === ACTIVITIES_LIST.DeleteFile) {
+      const oldName = data.context.filename
+      const ext = oldName.split('.')[1]
 
-  if (data.entity === 'Storage' && data.action === ACTIVITIES_LIST.RenameFile) {
-    name = data.context.fromName
+      name = `${data.context.file.name}.${ext}`
+    } else if (data.action === ACTIVITIES_LIST.RenameFile) {
+      name = data.context.fromName
+      const ext = name.split('.')[1]
 
-    const ext = name.split('.')[1]
-    toName = `${data.context.toName}.${ext}`
+      toName = `${data.context.toName}.${ext}`
+    }
   }
 
   switch (data.action) {
