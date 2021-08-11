@@ -3,7 +3,7 @@ import * as Y from 'yjs'
 import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../services/content/doc'
-import { debounce } from 'lodash'
+import { debounce } from '../utils'
 
 interface StateAction {
   name: string
