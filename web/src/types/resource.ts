@@ -118,7 +118,7 @@ export interface TaskItemResource extends ApiResource {
   taskComments: TaskCommentResource[];
 }
 
-export interface TaskCommentResource extends ApiResource{
+export interface TaskCommentResource extends ApiResource {
   userId: number | null;
   user: UserResource | null;
   taskId: number | null;
@@ -246,7 +246,7 @@ export interface ActivityResource {
   actor: UserResource;
   actorId: number;
   createdAt: string;
-  entity: string;
+  entity: string | 'TaskBoard' | 'Doc' | 'TaskList' | 'Task' | 'Link' | 'Embed' | 'Node' | 'Folder' | 'Storage';
   entityId: number;
   id: number;
   spaceId: number;
@@ -254,7 +254,8 @@ export interface ActivityResource {
   context?: any;
   notification?: number[];
 }
-export interface TaskActivityResource extends ActivityResource{
+
+export interface TaskActivityResource extends ActivityResource {
   Task: TaskItemResource;
 }
 

@@ -1,6 +1,7 @@
 import { Storage } from '../../../../database/entities/Storage'
 import { ContentActivity } from './ContentActivity'
-import { ContentActions } from './actions'
+import { ContentActions, UserStorageActions } from './actions'
+import { Upload } from '../../../../database/entities/Upload'
 
 export class StorageActivity extends ContentActivity<Storage> {
   constructor(action: string, entity: Storage, actorId: number) {
@@ -36,5 +37,54 @@ export class StorageActivity extends ContentActivity<Storage> {
 
   static deleted(entity: Storage, actorId: number) {
     return new StorageActivity(ContentActions.Deleted, entity, actorId).deleted()
+  }
+
+  static uploadFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Upload_File, entity, actorId).userUploadFile(upload)
+  }
+
+  static deleteFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Delete_File, entity, actorId).userDeleteFile(upload)
+  }
+
+  static renameFile(entity: Storage, actorId: number, upload: Upload) {
+    return new StorageActivity(UserStorageActions.Rename_File, entity, actorId).userRenameFile(upload)
+  }
+
+  private userUploadFile(upload: Upload) {
+    this._context = {
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      filename: upload.filename,
+      actorId: this._actorId,
+      spaceId: this._spaceId
+    }
+
+    return this
+  }
+
+  private userDeleteFile(upload: Upload) {
+    this._context = {
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      filename: upload.filename,
+      actorId: this._actorId,
+      spaceId: this._spaceId
+    }
+
+    return this
+  }
+
+  private userRenameFile(upload: Upload) {
+    this._context = {
+      entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
+      file: upload,
+      fromName: upload.filename,
+      toName: upload.name,
+      actorId: this._actorId,
+      spaceId: this._spaceId
+    }
+
+    return this
   }
 }
