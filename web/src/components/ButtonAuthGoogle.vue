@@ -1,5 +1,5 @@
 <template>
-  <button class="btn w-full mx-0" type="button" @click="authWithGoogle()">
+  <button class="btn btn-auth-google w-full mx-0" type="button" @click="authWithGoogle()">
     <span class="mr-1">
       <legacy-icon name="google" size="1.1em"/>
     </span>
@@ -40,3 +40,8 @@ export default class ButtonAuthGoogle extends Vue {
     }
 }
 </script>
+<style lang="postcss" scoped>
+.btn-auth-google {
+  white-space: nowrap;
+}
+</style>
