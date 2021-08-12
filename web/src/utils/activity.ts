@@ -8,6 +8,7 @@ export enum ActivityEntity {
   Link = 'Link',
   Task = 'Task',
   TaskBoard = 'TaskBoard',
+  Storage = 'Storage',
 }
 
 export const ActivityRouteName: Record<ActivityEntity, string> = {
@@ -16,7 +17,8 @@ export const ActivityRouteName: Record<ActivityEntity, string> = {
   [ActivityEntity.Folder]: '',
   [ActivityEntity.Link]: 'Link',
   [ActivityEntity.Task]: 'TaskPageWithItem',
-  [ActivityEntity.TaskBoard]: 'TaskPage'
+  [ActivityEntity.TaskBoard]: 'TaskPage',
+  [ActivityEntity.Storage]: 'Storage'
 }
 
 export const getEntityLink = (data: ActivityResource): Location | string => {
