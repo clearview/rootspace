@@ -11,11 +11,12 @@ import { getCustomRepository } from 'typeorm'
 import { UploadRepository } from '../../database/repositories/UploadRepository'
 import { Upload } from '../../database/entities/Upload'
 import { Task } from '../../database/entities/tasks/Task'
+import { Storage } from '../../database/entities/Storage'
 import { ServiceFactory } from '../factory/ServiceFactory'
 import { Service } from '../Service'
 import { EntityService } from '../'
 import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
-import { TaskActivity } from '../activity/activities/content'
+import { StorageActivity, TaskActivity } from '../activity/activities/content'
 import { UploadValue, UploadUpdateValue, UploadType } from '.'
 import { UploadImageConfig, UploadUniqueTypes } from './config'
 import { UploadImageConfigType, UploadImageSize, UploadVersions } from './types'
@@ -115,6 +116,11 @@ export class UploadService extends Service {
       await this.notifyActivity(TaskActivity.attachmentAdded(task, upload, actorId))
     }
 
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
+      await this.notifyActivity(StorageActivity.uploadFile(storage, actorId, upload))
+    }
+
     return upload
   }
 
@@ -123,6 +129,11 @@ export class UploadService extends Service {
 
     Object.assign(upload, data.attributes)
     await this.getUploadRepository().save(upload)
+
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
+      await this.notifyActivity(StorageActivity.renameFile(storage, actorId, upload))
+    }
 
     return upload
   }
@@ -228,6 +239,11 @@ export class UploadService extends Service {
     if (upload.type === UploadType.TaskAttachment) {
       const task = await this.entityService.getEntityByNameAndId<Task>(upload.entity, upload.entityId)
       await this.notifyActivity(TaskActivity.attachmentRemoved(task, upload, actorId))
+    }
+
+    if (upload.type === UploadType.Storage) {
+      const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
+      await this.notifyActivity(StorageActivity.deleteFile(storage, actorId, upload))
     }
 
     return this.getUploadRepository().softRemove(upload)

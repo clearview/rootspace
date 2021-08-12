@@ -84,7 +84,9 @@ export function textFormat (data: ActivityResource, userID?: number) {
     Disabled: 'Disabled',
     RemovedFromSpace: 'Removed_From_Space',
     // FileActivities
-    Uploaded: 'Uploaded'
+    UploadFile: 'Upload_File',
+    DeleteFile: 'Delete_File',
+    RenameFile: 'Rename_File'
   }
 
   const userName = getDisplayName(data.actor, userID)
@@ -92,6 +94,7 @@ export function textFormat (data: ActivityResource, userID?: number) {
   let text = `<span class="actor">${userName}</span>&nbsp;`
   let name = ''
   let actName = ''
+  let toName = ''
 
   switch (data.entity) {
     case 'TaskBoard':
@@ -125,6 +128,9 @@ export function textFormat (data: ActivityResource, userID?: number) {
     case 'Folder':
       actName = 'folder'
       break
+    case 'Storage':
+      actName = 'storage'
+      break
   }
 
   if (data.entity === 'TaskBoard' ||
@@ -137,9 +143,26 @@ export function textFormat (data: ActivityResource, userID?: number) {
     ) ||
     data.entity === 'Link' ||
     data.entity === 'Embed' ||
-    data.entity === 'Folder'
+    data.entity === 'Folder' ||
+    data.entity === 'Storage'
   ) {
     name = data.context.entity.title.replace(/(^\s+|\s+$)/g, '') || 'Untitled'
+  }
+
+  if (data.entity === 'Storage') {
+    if (data.action === ACTIVITIES_LIST.UploadFile) {
+      name = data.context.filename
+    } else if (data.action === ACTIVITIES_LIST.DeleteFile) {
+      const oldName = data.context.filename
+      const ext = oldName.split('.')[1]
+
+      name = `${data.context.file.name}.${ext}`
+    } else if (data.action === ACTIVITIES_LIST.RenameFile) {
+      name = data.context.fromName
+      const ext = name.split('.')[1]
+
+      toName = `${data.context.toName}.${ext}`
+    }
   }
 
   switch (data.action) {
@@ -302,8 +325,17 @@ export function textFormat (data: ActivityResource, userID?: number) {
       // text += '<span class="action">removed <strong>[REMOVED EMAIL]</strong> from <strong>space: [NAME SPACE]</strong></span>'
       break
 
-      // case ACTIVITIES_LIST.Uploaded:
-      //   break
+    case ACTIVITIES_LIST.UploadFile:
+      text += `<span class="action">uploaded a file <strong>${name}</strong></span>`
+      break
+
+    case ACTIVITIES_LIST.DeleteFile:
+      text += `<span class="action">deleted a file <strong>${name}</strong></span>`
+      break
+
+    case ACTIVITIES_LIST.RenameFile:
+      text += `<span class="action">renamed a file from <strong>${name}</strong> to <strong>${toName}</strong></span>`
+      break
 
     default:
       break
