@@ -34,7 +34,8 @@ export const nodeRouteNames: any = {
   TaskBoard: 'TaskPage',
   Task: 'TaskPageWithItem',
   Embed: 'Embed',
-  Folder: ''
+  Folder: '',
+  Storage: 'Storage'
 } as const
 
 @Component(
