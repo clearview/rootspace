@@ -1,7 +1,7 @@
 import { Module } from 'vuex'
 
 import { RootState, StorageState } from '@/types/state'
-import { StorageResource, NewUploadResource } from '@/types/resource'
+import { StorageResource, NewUploadResource, StorageViewType } from '@/types/resource'
 import api from '@/utils/api'
 import StorageService from '@/services/storage'
 import UploadService from '@/services/upload'
@@ -21,7 +21,7 @@ const FilesModule: Module<StorageState, RootState> = {
       item: null,
       processing: false,
       totalData: 0,
-      viewAs: 0
+      viewAs: StorageViewType.Grid
     }
   },
 

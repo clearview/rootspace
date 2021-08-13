@@ -12,7 +12,7 @@ import LayoutMain from '@/components/LayoutMain.vue'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
-import { SpaceSettingResource } from '@/types/resource'
+import { SpaceSettingResource, StorageViewType } from '@/types/resource'
 
 @Component({
   components: {
@@ -44,7 +44,7 @@ export default class Space extends Mixins(SpaceMixin, PageMixin) {
       state.viewAs = data.taskViewAs || {}
       state.seenViewTip = data.taskSeenViewTip || false
     })
-    this.$store.commit('storage/setViewAs', data.storageViewAs)
+    this.$store.commit('storage/setViewAs', data.storageViewAs ? data.storageViewAs : StorageViewType.Grid)
   }
 
   get currentUser () {
