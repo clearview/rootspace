@@ -1023,7 +1023,8 @@ export default {
       isMouseDown: false,
       isPreviewing: false,
       contentAccess: {},
-      permissions: []
+      permissions: [],
+      userColor: null
     }
   },
   beforeDestroy () {
@@ -1084,7 +1085,7 @@ export default {
 
       this.provider = new WebsocketProvider(wsProviderUrl, 'doc_' + this.id, this.ydoc)
       this.provider.awareness.setLocalStateField('user', {
-        color: '#333',
+        color: this.getUserColor(),
         name: this.currentUser?.firstName
       })
 
@@ -1569,12 +1570,20 @@ export default {
       this.isPreviewing = true
       this.previewEditor.setContent(res.data.content)
     },
+    getRandomHexColor () {
+      return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0')
+    },
+    getUserColor () {
+      if (this.userColor) return this.userColor
+      this.userColor = this.getRandomHexColor()
+      return this.userColor
+    },
     async loadEditableDocument () {
       const { id } = this.$route.params
 
       if (this.provider) {
         this.provider.awareness.setLocalStateField('user', {
-          color: '#333',
+          color: this.getUserColor(),
           name: this.currentUser?.firstName
         })
       }
