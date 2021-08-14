@@ -16,3 +16,9 @@ export const TaskActions = {
   Attachment_Added: 'Attachment_Added',
   Attachment_Removed: 'Attachment_Removed',
 }
+
+export const UserStorageActions = {
+  Upload_File: 'Upload_File',
+  Delete_File: 'Delete_File',
+  Rename_File: 'Rename_File',
+}
