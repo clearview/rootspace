@@ -1587,7 +1587,7 @@ export default {
       this.isLocked = res.data.isLocked
       this.setSlug(res.data.slug)
       // Phantom emptiness detected
-      if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
+      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) || this.title.trim().length === 0) {
         this.pageTitle = 'Untitled'
         this.title = ''
         this.$refs.title.focus()
@@ -1617,10 +1617,10 @@ export default {
       })
     },
     async saveTitleOnly () {
-      const title = this.title
-      this.pageTitle = this.title
+      const title = this.title.trim().length === 0 ? null : this.title
+
       const payload = {
-        title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2)
+        title
       }
       await this.createUpdateDocument(payload)
     },

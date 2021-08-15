@@ -5,7 +5,7 @@ import { DocAccess } from '../DocAccess'
 export class DocUpdateValidator extends BaseValidator {
   rules() {
     return {
-      title: 'accepted',
+      title: 'requiredAllowNull',
       content: 'object',
       access: [validations.in(Object.values(DocAccess))],
       isLocked: 'boolean',
