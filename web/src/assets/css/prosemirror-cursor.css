@@ -20,7 +20,8 @@
 }
 /* This renders the username above the caret */
 .ProseMirror-yjs-cursor-2 > div {
-  font-family: sans-serif;
+  font-weight: 200;
+  font-style: normal;
   position: absolute;
   top: -1.05em;
   left: -1px;
