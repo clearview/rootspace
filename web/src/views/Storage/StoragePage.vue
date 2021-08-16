@@ -22,7 +22,7 @@
         {{ storageInfo.title }} <span>({{ files.length }})</span>
       </h3>
       <div class="actions">
-        <div class="action-group" v-if="!isEmpty">
+        <div class="action-group">
           <label
             class="action action--search"
             :class="{ action__active: searchVisible }"
@@ -58,10 +58,10 @@
             }"
             @click="showDeletedOnly = !showDeletedOnly"
           >
-            <mono-icon name="trash" class="mr-1"/> Trash
+            <mono-icon :name="showDeletedOnly ? 'chevron-left' : 'trash'" class="mr-1"/> {{ showDeletedOnly ? 'Back' : 'Trash' }}
           </button>
         </div>
-        <div class="action-group" v-if="!isEmpty">
+        <div class="action-group">
           <div
             class="action mr-3"
             :class="{ 'action__active': isList }"
@@ -89,7 +89,7 @@
             <div class="action--body">Grid</div>
           </div>
         </div>
-        <div class="action-group" v-if="!isEmpty">
+        <div class="action-group">
           <input
             type="file"
             ref="attachmentFile"
@@ -519,6 +519,12 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   flex-flow: row;
   padding: 0 8px;
   position: relative;
+
+  button {
+    &:focus {
+      outline: none;
+    }
+  }
 
   /* to resolve blury border */
   &::after {
