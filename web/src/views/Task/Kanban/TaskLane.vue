@@ -16,7 +16,7 @@
       <header class="header" >
         <input v-model="listCopy.title" v-show="isEditingLane" class="list-input-field header-input" @keyup.enter="save"
                @keyup.esc="cancel" ref="editInput"/>
-        <h4 v-if="!isEditingLane" class="header-title" @click="enterEditMode">{{list.title}}</h4>
+        <h4 v-if="!isEditingLane" class="header-title" :class="{'disabled': archivedView}" @click="enterEditMode">{{list.title}}</h4>
         <Popover top="38px" :with-close="false" @trigger="handleMenuTrigger">
           <template #default="{ hide }">
             <div class="action-line">
@@ -197,6 +197,10 @@ export default class TaskLane extends Vue {
 
     @Emit('drag:disable')
     private enterEditMode () {
+      if (this.archivedView) {
+        return
+      }
+
       this.isInputting = true
       Vue.nextTick().then(() => {
         this.editInput.focus()
@@ -387,6 +391,10 @@ export default class TaskLane extends Vue {
     font-weight: bold;
     color: theme("colors.gray.900");
     flex: 1 1 auto;
+
+    &.disabled {
+      cursor: not-allowed;
+    }
   }
 
   .btn-menu {
