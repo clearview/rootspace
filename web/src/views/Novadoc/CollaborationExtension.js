@@ -18,6 +18,7 @@ export default class CollaborationExtension extends Extension {
         background-color: ${user.color};
         font-family: SF Pro Display;
         padding: 3px 2px;
+        letter-spacing: 0.5px;
     `)
     userDiv.insertBefore(document.createTextNode(user.name), null)
     cursor.insertBefore(userDiv, null)
