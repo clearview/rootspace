@@ -21,8 +21,8 @@
       <h3 class="header-title">
         {{ storageInfo.title }} <span>({{ files.length }})</span>
       </h3>
-      <div class="actions" v-if="!isEmpty">
-        <div class="action-group">
+      <div class="actions">
+        <div class="action-group" v-if="!isEmpty">
           <label
             class="action action--search"
             :class="{ action__active: searchVisible }"
@@ -61,7 +61,7 @@
             <mono-icon name="trash" class="mr-1"/> Trash
           </button>
         </div>
-        <div class="action-group">
+        <div class="action-group" v-if="!isEmpty">
           <div
             class="action mr-3"
             :class="{ 'action__active': isList }"
@@ -89,7 +89,7 @@
             <div class="action--body">Grid</div>
           </div>
         </div>
-        <div class="action-group">
+        <div class="action-group" v-if="!isEmpty">
           <input
             type="file"
             ref="attachmentFile"
@@ -518,6 +518,25 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   display: flex;
   flex-flow: row;
   padding: 0 8px;
+  position: relative;
+
+  /* to resolve blury border */
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border-right: solid 1px #dee2ee;
+  }
+
+  &:nth-last-child(1),
+  &:nth-last-child(2) {
+    &::after {
+      display: none;
+    }
+  }
 
   .btn-upload {
     border-color: #8cd5ff;
@@ -533,12 +552,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   &:last-child {
     padding-right: 0;
-  }
-
-  &.action-group--trash {
-    border: 1px solid #dee2ee;
-    border-top-style: none;
-    border-bottom-style: none;
   }
 }
 
