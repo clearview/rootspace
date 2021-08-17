@@ -1,0 +1,27 @@
+test-build-web:
+  image: node:12.16
+  stage: test
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - web/**/*
+  before_script:
+    - cd web
+    - yarn
+  script:
+    - yarn build
+
+test-lint-web:
+  image: node:12.16
+  stage: test
+  only:
+    refs:
+      - merge_requests
+    changes:
+      - web/**/*
+  before_script:
+    - cd api
+    - yarn
+  script:
+    - yarn lint
