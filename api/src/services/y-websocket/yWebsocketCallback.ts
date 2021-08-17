@@ -1,3 +1,5 @@
+/* tslint:disable */
+
 const http = require('http')
 
 const CALLBACK_URL = process.env.CALLBACK_URL ? new URL(process.env.CALLBACK_URL) : null
