@@ -21,7 +21,7 @@ test-lint-web:
     changes:
       - web/**/*
   before_script:
-    - cd api
+    - cd web
     - yarn
   script:
     - yarn lint
