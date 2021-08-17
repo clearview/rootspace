@@ -17,10 +17,10 @@ export default class CollaborationExtension extends Extension {
     userDiv.setAttribute('style', `
         background-color: ${user.color};
         font-family: SF Pro Display;
-        padding: 3px 2px;
         letter-spacing: 0.5px;
+        padding: 1px 4px;
     `)
-    userDiv.insertBefore(document.createTextNode(user.name), null)
+    userDiv.insertBefore(document.createTextNode(`${user.name}`), null)
     cursor.insertBefore(userDiv, null)
     return cursor
   }

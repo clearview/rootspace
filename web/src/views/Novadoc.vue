@@ -1571,7 +1571,18 @@ export default {
       this.previewEditor.setContent(res.data.content)
     },
     getRandomHexColor () {
-      return '#' + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0')
+      const colors = [
+        '#1d955b',
+        '#cc0000',
+        '#e67e00',
+        '#12b6ed',
+        '#ac49d0',
+        '#d5a410',
+        '#c12282',
+        '#5c6170'
+      ]
+      const index = Math.floor(Math.random() * 8)
+      return colors[index]
     },
     getUserColor () {
       if (this.userColor) return this.userColor
