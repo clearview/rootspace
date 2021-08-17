@@ -13,6 +13,7 @@ variables:
   DOCKER_TLS_CERTDIR: ""
 
 stages:
+  - test
   - build_api
   - build_web
 
