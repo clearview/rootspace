@@ -3,4 +3,5 @@ export const ActivityType = {
   User: 'user',
   Space: 'space',
   Content: 'content',
+  ContentAccess: 'content_access'
 }

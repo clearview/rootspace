@@ -8,11 +8,21 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../response/errors'
 import { ContentEntity } from '../../root/types'
 import { ContentEntityNames, NodeContentType, NodeType, NodeTypeEntityNameMap } from '../../shared/constants'
 import { ContentAccessType } from './ContentAccessType'
+import { Service } from '../Service'
+import { EntityService } from '../'
+import { ServiceFactory } from '../factory/ServiceFactory'
+import { ContentAccessActivity } from '../activity/activities/content/content-access/ContentAccessActivity'
 
-export class ContentAccessService {
+export class ContentAccessService extends Service {
   private nodeContentMediator: NodeContentMediator
+  private entityService: EntityService
 
   private static instance: ContentAccessService
+
+  private constructor() {
+    super()
+    this.entityService = ServiceFactory.getInstance().getEntityService()
+  }
 
   static getInstance() {
     if (!ContentAccessService.instance) {
@@ -96,15 +106,40 @@ export class ContentAccessService {
     return await this.getRepository().save(data.attributes)
   }
 
-  async update(data: ContentAccessUpdateValue, id: number) {
+  async update(data: ContentAccessUpdateValue, id: number, actorId: number) {
     const contentAccess = await this.requireById(id)
 
-    Object.assign(contentAccess, data.attributes)
+    const newAccess = Object.assign({}, contentAccess, data.attributes)
 
-    await this.getRepository().save(contentAccess)
+    await this.getRepository().save(newAccess)
     // await this.nodeContentMediator.contentAccessUpdated(contentAccess)
 
-    return contentAccess
+    // comparing last saved access with newly updated access
+    // sharing type changed from 'restricted' to 'open'
+    if (contentAccess.type === 'restricted' && data.attributes.type === 'open') {
+      console.log("Content acces change to 'Open'")
+      await this.notifyActivity(ContentAccessActivity.open(newAccess, actorId))
+    }
+
+    // sharing type changed from 'open' to 'restricted'
+    if (contentAccess.type === 'open' && data.attributes.type === 'restricted') {
+      console.log("Content acces change to 'Restricted'")
+      await this.notifyActivity(ContentAccessActivity.restricted(newAccess, actorId))
+    }
+
+    // sharing type changed from 'public' to 'private'
+    if (contentAccess.public && !data.attributes.public) {
+      console.log("Content acces change to 'Private'")
+      await this.notifyActivity(ContentAccessActivity.private(newAccess, actorId))
+    }
+
+    // sharing type changed from 'private' to 'public'
+    if (!contentAccess.public && data.attributes.public) {
+      console.log("Content acces change to 'Public'")
+      await this.notifyActivity(ContentAccessActivity.public(newAccess, actorId))
+    }
+
+    return newAccess
   }
 
   async nodeAccessUpdated(node: Node, descendants: Node[], contentAccess?: ContentAccess): Promise<void> {

@@ -34,6 +34,7 @@ export class ActivityService implements IActivityObserver {
 
   async activityNotification(appActivity: AppActivity): Promise<void> {
     const activityObject = appActivity.toObject()
+    console.log("ACT OBJ", activityObject)
 
     if (appActivity.push()) {
       this.eventEmitter.emit(EventName.Activity, appActivity)
