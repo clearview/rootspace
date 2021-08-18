@@ -8,4 +8,4 @@ import { Task } from '../../database/entities/tasks/Task'
 import { TaskBoard } from '../../database/entities/tasks/TaskBoard'
 import { TaskList } from '../../database/entities/tasks/TaskList'
 
-export type ContentEntity = Link | Folder | Doc | Embed | Storage | TaskBoard | TaskList | Task
+export type ContentEntity = Link | Folder | Doc | Embed | Storage | TaskBoard | TaskList | Task | ContentAccess
