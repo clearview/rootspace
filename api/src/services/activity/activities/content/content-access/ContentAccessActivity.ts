@@ -1,19 +1,21 @@
 import { ContentAccess } from '../../../../../database/entities/ContentAccess'
+import { Doc } from '../../../../../database/entities/Doc'
 import { Activity } from '../../Activity'
 import { ActivityType } from '../../types'
 import { ContentAccessActions } from '../actions'
 import { ContentActivity } from '../ContentActivity'
 
-// export class ContentAccessActivity extends ContentActivity<ContentAccess> {
-export class ContentAccessActivity extends Activity {
-  constructor(action: string, entity: ContentAccess, actorId: number) {
-    super(action)
+export class ContentAccessActivity extends ContentActivity<Doc> {
+  constructor(action: string, entity: Doc, actorId: number) {
+    super(action, entity, actorId)
 
     this._actorId = actorId
-    // this._entityAttributes = ['id']
-    // this._entityUpdateAttributes = ['type', 'public']
-    // this._entityName = entity
-    // this._entityId = entityId
+    this._entityAttributes = ['id']
+    this._entityUpdateAttributes = ['type', 'public']
+  }
+
+  getEntityName(): string {
+    return 'Doc'
   }
 
   type(): string {
@@ -32,20 +34,20 @@ export class ContentAccessActivity extends Activity {
     return true
   }
 
-  static public(entity: ContentAccess, actorId: number) {
-    return new ContentAccessActivity(ContentAccessActions.Public, entity, actorId).setData(entity)
+  static public(entity: Doc, actorId: number, newAccess: ContentAccess) {
+    return new ContentAccessActivity(ContentAccessActions.Public, entity, actorId).setData(newAccess)
   }
 
-  static private(entity: ContentAccess, actorId: number) {
-    return new ContentAccessActivity(ContentAccessActions.Private, entity, actorId).setData(entity)
+  static private(entity: Doc, actorId: number, newAccess: ContentAccess) {
+    return new ContentAccessActivity(ContentAccessActions.Private, entity, actorId).setData(newAccess)
   }
 
-  static open(entity: ContentAccess, actorId: number) {
-    return new ContentAccessActivity(ContentAccessActions.Open, entity, actorId).setData(entity)
+  static open(entity: Doc, actorId: number, newAccess: ContentAccess) {
+    return new ContentAccessActivity(ContentAccessActions.Open, entity, actorId).setData(newAccess)
   }
 
-  static restricted(entity: ContentAccess, actorId: number) {
-    return new ContentAccessActivity(ContentAccessActions.Restricted, entity, actorId).setData(entity)
+  static restricted(entity: Doc, actorId: number, newAccess: ContentAccess) {
+    return new ContentAccessActivity(ContentAccessActions.Restricted, entity, actorId).setData(newAccess)
   }
 
   private setData(entity: ContentAccess) {
