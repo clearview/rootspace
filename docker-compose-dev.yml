@@ -1,0 +1,131 @@
+version: "3"
+
+services:
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: root_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  postgres:
+    image: postgres:12
+    container_name: root_postgres
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=root
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  redis:
+    image: redis:6
+    container_name: root_redis
+    volumes:
+      - redis:/data/
+    ports:
+      - "6379:6379"
+    entrypoint: redis-server --appendonly yes
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  y_websocket:
+    image: node:12
+    container_name: root_y_websocket
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project
+    working_dir: /opt/project
+    command: yarn y-websocket
+    ports:
+      - "6001:6001"
+      - "9232:9232"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  queue_activity:
+    image: node:12
+    container_name: root_queue_activity
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project
+    working_dir: /opt/project
+    command: yarn queue:process
+    ports:
+      - "9230:9230"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  queue_cron:
+    image: node:12
+    container_name: root_queue_cron
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project
+    working_dir: /opt/project
+    command: yarn queue:cron
+    ports:
+      - "9231:9231"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+  dozzle:
+    container_name: root_dozzle
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_TAILSIZE=100
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9999:8080"
+
+  api:
+    image: node:12
+    container_name: root_api
+    build: "./api"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project
+    working_dir: /opt/project
+    command: yarn dev:debug
+    ports:
+      - "3001:3001"
+      - "6000:6000"
+      - "9229:9229"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100MB"
+        max-file: "3"
+
+volumes:
+  postgres:
+  redis:
