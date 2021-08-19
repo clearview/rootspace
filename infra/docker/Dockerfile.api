@@ -10,9 +10,13 @@ RUN apt-get -qq update < /dev/null > /dev/null && \
     echo "Installing PM2... $(npm install -g pm2)"
 
 FROM prereq as api
+
+RUN echo ${PWD}
+RUN ls -al
+
 WORKDIR /srv
-COPY ./infra/docker/api/. ${WORKDIR}/docker/api/
-COPY ./api/. ${WORKDIR}/api/
+COPY --from=prereq ./infra/docker/api/. ${WORKDIR}/docker/api/
+COPY --from=prereq ./api/. ${WORKDIR}/api/
 
 
 # RUN printenv && \
@@ -22,13 +26,16 @@ COPY ./api/. ${WORKDIR}/api/
 #     echo "Building... $(yarn build)" && \
 #     echo ${PWD} && \
 #     cat /srv/docker/api/pm2/staging.json
+RUN ls -al
+RUN echo ${PWD}
 RUN printenv
 RUN echo "node version is: $(nodejs -v)"
 RUN echo "yarn version is: $(yarn -v)"
 RUN cd ${WORKDIR}/api
+RUN echo ${PWD}
+RUN ls -al
 RUN echo "Installing packages... $(yarn install --silent)"
 RUN echo "Building... $(yarn build)"
-RUN echo ${PWD}
 RUN ls -al
 RUN cat /srv/docker/api/pm2/staging.json
 
