@@ -15,8 +15,8 @@ RUN echo ${PWD}
 RUN ls -al
 
 WORKDIR /srv
-COPY --from=prereq ./infra/docker/api/. ${WORKDIR}/docker/api/
-COPY --from=prereq ./api/. ${WORKDIR}/api/
+COPY ./infra/docker/api/. ${WORKDIR}/docker/api/
+COPY ./api/. ${WORKDIR}/api/
 
 
 # RUN printenv && \
