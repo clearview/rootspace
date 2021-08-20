@@ -10,6 +10,10 @@ RUN mkdir -p ${WORKDIR}
 WORKDIR ${WORKDIR}
 ADD ./api ${WORKDIR}
 
+RUN apt-get -qq update < /dev/null > /dev/null && \
+    apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
+    echo "Installing PM2... $(npm install -g pm2)"
+
 RUN ls -al
 RUN echo ${PWD}
 RUN echo "node version is: $(nodejs -v)"
@@ -19,12 +23,12 @@ RUN echo "Building... $(yarn build)"
 RUN echo "Removing old node_modules... $(rm -rf node_modules)"
 RUN echo "Installing packages for production... $(yarn install --production --silent)"
 
-FROM base as prereq
-RUN apt-get -qq update < /dev/null > /dev/null && \
-    apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
-    echo "Installing PM2... $(npm install -g pm2)"
+# FROM base as prereq
+# RUN apt-get -qq update < /dev/null > /dev/null && \
+#     apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
+#     echo "Installing PM2... $(npm install -g pm2)"
 
-FROM prereq as api
+FROM base as api
 
 ENV NODE_ENV ${NODE_ENV:-production}
 
