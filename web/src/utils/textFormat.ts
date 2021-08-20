@@ -202,7 +202,7 @@ export function textFormat (data: ActivityResource, userID?: number) {
       } else if (data.entity === 'Doc') {
         const updatedAttributes = data.context.updatedAttributes[0]
         if (updatedAttributes === 'title') {
-          text += `<span class="action">renamed document <strong>${sanitize(data.context.entity.title)}</strong> to <strong>${sanitize(data.context.updatedEntity.title)}</strong></span>`
+          text += `<span class="action">set document title to <strong>${sanitize(data.context.updatedEntity.title)}</strong></span>`
         } else if (updatedAttributes === 'content') {
           text += `<span class="action">updated the content of document <strong>${sanitize(data.context.entity.title)}</strong></span>`
         } else {
