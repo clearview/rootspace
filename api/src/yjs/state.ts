@@ -182,8 +182,10 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
 
   queue.enqueue(action)
 
-  updates.get(docName).get(userId).lastSave = Date.now()
-  updates.get(docName).get(userId).saved = true
+  if (updates.get(docName)) {
+    updates.get(docName).get(userId).lastSave = Date.now()
+    updates.get(docName).get(userId).saved = true
+  }
 }
 
 export const save = async (docName: string, userId: number, state: Uint8Array, json: object) => {
