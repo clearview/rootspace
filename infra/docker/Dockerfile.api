@@ -4,8 +4,9 @@ FROM node:12 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
 
-WORKDIR /srv
-ADD . ${WORKDIR}
+RUN ls -al
+ADD . .
+RUN ls -al
 
 FROM base as prereq
 RUN apt-get -qq update < /dev/null > /dev/null && \
@@ -18,8 +19,8 @@ RUN echo ${PWD}
 RUN ls -al
 
 WORKDIR /srv
-COPY --from=base /srv/infra/docker/api/. ${WORKDIR}/docker/api/
-COPY --from=base /srv/api/. ${WORKDIR}/api/
+COPY ./infra/docker/api/. ./docker/api/
+COPY ./api/. ./api/
 
 
 # RUN printenv && \
