@@ -8,25 +8,19 @@ ENV WORKDIR /srv
 
 RUN mkdir -p ${WORKDIR}
 WORKDIR ${WORKDIR}
+
 ADD ./api ${WORKDIR}
 ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
 
 RUN apt-get -qq update < /dev/null > /dev/null && \
     apt-get install rsync -y < /dev/null > /dev/null
 
-RUN ls -al
-RUN echo ${PWD}
-RUN echo "node version is: $(nodejs -v)"
-RUN echo "yarn version is: $(yarn -v)"
-RUN echo "Installing packages... $(yarn install --silent)"
-RUN echo "Building... $(yarn build)"
-RUN echo "Removing old node_modules... $(rm -rf node_modules)"
-RUN echo "Installing packages for production... $(yarn install --production --silent)"
-
-# FROM base as prereq
-# RUN apt-get -qq update < /dev/null > /dev/null && \
-#     apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
-#     echo "Installing PM2... $(npm install -g pm2)"
+RUN echo "node version is: $(nodejs -v)" && \
+    echo "yarn version is: $(yarn -v)" && \
+    echo "Installing packages... $(yarn install --frozen-lockfile --silent)" && \
+    echo "Building... $(yarn build)" && \
+    echo "Removing old node_modules... $(rm -rf node_modules)" && \
+    echo "Installing packages for production... $(yarn install --production --frozen-lockfile --silent)"
 
 FROM node:12-alpine
 
@@ -37,33 +31,15 @@ RUN apk --no-cache add iputils net-tools curl nano rsync < /dev/null > /dev/null
 
 WORKDIR /srv
 
-RUN echo ${PWD}
-RUN ls -al
-# ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
-# RUN ls -al
-# COPY ./infra/docker/api/. /srv/docker/api/
-# COPY ./api/. /srv/api/
-
-# RUN printenv && \
-#     echo "node version is: $(nodejs -v)" && \
-#     echo "yarn version is: $(yarn -v)" && \
-#     echo "Installing packages... $(yarn install --silent)" && \
-#     echo "Building... $(yarn build)" && \
-#     echo ${PWD} && \
-#     cat /srv/docker/api/pm2/staging.json
 COPY --from=base /srv/. /srv/.
-RUN ls -al 
-RUN echo ${PWD}
-RUN printenv
-RUN echo "node version is: $(nodejs -v)"
-RUN echo "yarn version is: $(yarn -v)"
-# RUN echo "Installing packages... $(yarn install --silent)"
-# RUN echo "Building... $(yarn build)"
-# RUN ls -al
-RUN cat /srv/docker/api/pm2/staging.json
+
+RUN printenv && \
+    echo "node version is: $(nodejs -v)" && \
+    echo "yarn version is: $(yarn -v)" && \
+    cat /srv/docker/api/pm2/staging.json
 
 COPY --from=envconsul /bin/envconsul /bin/envconsul
 
-ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
+# ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 
 CMD ["pm2-runtime", "start", "/srv/docker/api/pm2/staging.json"]
