@@ -10,18 +10,36 @@ RUN apt-get -qq update < /dev/null > /dev/null && \
     echo "Installing PM2... $(npm install -g pm2)"
 
 FROM prereq as api
+
 WORKDIR /srv
-COPY ./infra/docker/api/. ./docker/api/
-COPY ./api/. ./api/
+
+RUN echo ${PWD}
+RUN ls -al
+ADD . .
+RUN ls -al
+COPY ./infra/docker/api/. /srv/docker/api/
+COPY ./api/. /srv/api/
 
 
-RUN printenv && \
-    echo "node version is: $(nodejs -v)" && \
-    echo "yarn version is: $(yarn -v)" && \
-    echo "Installing packages... $(yarn install --silent)" && \
-    echo "Building... $(yarn build)" && \
-    echo ${PWD} && \
-    cat /srv/docker/api/pm2/staging.json
+# RUN printenv && \
+#     echo "node version is: $(nodejs -v)" && \
+#     echo "yarn version is: $(yarn -v)" && \
+#     echo "Installing packages... $(yarn install --silent)" && \
+#     echo "Building... $(yarn build)" && \
+#     echo ${PWD} && \
+#     cat /srv/docker/api/pm2/staging.json
+RUN ls -al
+RUN echo ${PWD}
+RUN printenv
+RUN echo "node version is: $(nodejs -v)"
+RUN echo "yarn version is: $(yarn -v)"
+RUN cd api
+RUN echo ${PWD}
+RUN ls -al
+RUN echo "Installing packages... $(yarn install --silent)"
+RUN echo "Building... $(yarn build)"
+RUN ls -al
+RUN cat /srv/docker/api/pm2/staging.json
 
 COPY --from=envconsul /bin/envconsul /bin/envconsul
 
