@@ -31,7 +31,7 @@ FROM node:12-alpine
 
 ENV NODE_ENV ${NODE_ENV:-production}
 
-RUN apk --no-cache add iputils net-tools curl nano rsync -y < /dev/null > /dev/null && \
+RUN apk --no-cache add iputils net-tools curl nano rsync < /dev/null > /dev/null && \
     echo "Installing PM2... $(npm install -g pm2)"
 
 WORKDIR /srv
