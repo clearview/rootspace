@@ -9,6 +9,7 @@ ENV WORKDIR /srv
 RUN mkdir -p ${WORKDIR}
 WORKDIR ${WORKDIR}
 ADD ./api ${WORKDIR}
+ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
 
 RUN apt-get -qq update < /dev/null > /dev/null && \
     apt-get install rsync -y < /dev/null > /dev/null
@@ -38,8 +39,8 @@ WORKDIR /srv
 
 RUN echo ${PWD}
 RUN ls -al
-ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
-RUN ls -al
+# ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
+# RUN ls -al
 # COPY ./infra/docker/api/. /srv/docker/api/
 # COPY ./api/. /srv/api/
 
