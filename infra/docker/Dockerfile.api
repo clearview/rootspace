@@ -4,10 +4,6 @@ FROM node:12 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
 
-RUN ls -al
-ADD . .
-RUN ls -al
-
 FROM base as prereq
 RUN apt-get -qq update < /dev/null > /dev/null && \
     apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
@@ -15,12 +11,14 @@ RUN apt-get -qq update < /dev/null > /dev/null && \
 
 FROM prereq as api
 
+WORKDIR /srv
+
 RUN echo ${PWD}
 RUN ls -al
-
-WORKDIR /srv
-COPY ./infra/docker/api/. ./docker/api/
-COPY ./api/. ./api/
+ADD . .
+RUN ls -al
+COPY ./infra/docker/api/. /srv/docker/api/
+COPY ./api/. /srv/api/
 
 
 # RUN printenv && \
@@ -35,7 +33,7 @@ RUN echo ${PWD}
 RUN printenv
 RUN echo "node version is: $(nodejs -v)"
 RUN echo "yarn version is: $(yarn -v)"
-RUN cd ${WORKDIR}/api
+RUN cd api
 RUN echo ${PWD}
 RUN ls -al
 RUN echo "Installing packages... $(yarn install --silent)"
