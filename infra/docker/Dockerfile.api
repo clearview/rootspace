@@ -14,8 +14,10 @@ RUN ls -al
 RUN echo ${PWD}
 RUN echo "node version is: $(nodejs -v)"
 RUN echo "yarn version is: $(yarn -v)"
-RUN echo "Installing packages... $(yarn install --production --silent)"
+RUN echo "Installing packages... $(yarn install --silent)"
 RUN echo "Building... $(yarn build)"
+RUN echo "Removing old node_modules... $(rm -rf node_modules)"
+RUN echo "Installing packages for production... $(yarn install --production --silent)"
 
 FROM base as prereq
 RUN apt-get -qq update < /dev/null > /dev/null && \
@@ -48,9 +50,6 @@ RUN echo ${PWD}
 RUN printenv
 RUN echo "node version is: $(nodejs -v)"
 RUN echo "yarn version is: $(yarn -v)"
-RUN cd /srv/api
-RUN echo ${PWD}
-RUN ls -al
 # RUN echo "Installing packages... $(yarn install --silent)"
 # RUN echo "Building... $(yarn build)"
 # RUN ls -al
