@@ -30,14 +30,13 @@ build_api:
     - >
       docker build .
       --cache-from="API_REPOSITORY_URL:latest"
-      -t $API_REPOSITORY_URL:test-build
+      -t $API_REPOSITORY_URL:latest
       --file ./infra/docker/Dockerfile.api
-    # - docker push $API_REPOSITORY_URL:latest
+    - docker push $API_REPOSITORY_URL:latest
 
   tags:
     - docker
   only:
-    - merge_requests
     - master
     - dockerize
 
