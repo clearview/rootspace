@@ -4,6 +4,19 @@ FROM node:12 as base
 MAINTAINER nedim@clearview.team
 LABEL project="root"
 
+ENV WORKDIR /srv
+
+RUN mkdir -p ${WORKDIR}
+WORKDIR ${WORKDIR}
+ADD ./api ${WORKDIR}
+
+RUN ls -al
+RUN echo ${PWD}
+RUN echo "node version is: $(nodejs -v)"
+RUN echo "yarn version is: $(yarn -v)"
+RUN echo "Installing packages... $(yarn install --production --silent)"
+RUN echo "Building... $(yarn build)"
+
 FROM base as prereq
 RUN apt-get -qq update < /dev/null > /dev/null && \
     apt-get install iputils-ping net-tools curl nano rsync -y < /dev/null > /dev/null && \
@@ -11,15 +24,16 @@ RUN apt-get -qq update < /dev/null > /dev/null && \
 
 FROM prereq as api
 
+ENV NODE_ENV ${NODE_ENV:-production}
+
 WORKDIR /srv
 
 RUN echo ${PWD}
 RUN ls -al
-ADD . .
+ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
 RUN ls -al
-COPY ./infra/docker/api/. /srv/docker/api/
-COPY ./api/. /srv/api/
-
+# COPY ./infra/docker/api/. /srv/docker/api/
+# COPY ./api/. /srv/api/
 
 # RUN printenv && \
 #     echo "node version is: $(nodejs -v)" && \
@@ -28,7 +42,8 @@ COPY ./api/. /srv/api/
 #     echo "Building... $(yarn build)" && \
 #     echo ${PWD} && \
 #     cat /srv/docker/api/pm2/staging.json
-RUN ls -al /srv/api
+COPY --from=base /srv/. /srv/.
+RUN ls -al 
 RUN echo ${PWD}
 RUN printenv
 RUN echo "node version is: $(nodejs -v)"
@@ -36,9 +51,9 @@ RUN echo "yarn version is: $(yarn -v)"
 RUN cd /srv/api
 RUN echo ${PWD}
 RUN ls -al
-RUN echo "Installing packages... $(yarn install --silent)"
-RUN echo "Building... $(yarn build)"
-RUN ls -al
+# RUN echo "Installing packages... $(yarn install --silent)"
+# RUN echo "Building... $(yarn build)"
+# RUN ls -al
 RUN cat /srv/docker/api/pm2/staging.json
 
 COPY --from=envconsul /bin/envconsul /bin/envconsul
