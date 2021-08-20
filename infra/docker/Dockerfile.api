@@ -28,12 +28,12 @@ COPY ./api/. /srv/api/
 #     echo "Building... $(yarn build)" && \
 #     echo ${PWD} && \
 #     cat /srv/docker/api/pm2/staging.json
-RUN ls -al
+RUN ls -al /srv/api
 RUN echo ${PWD}
 RUN printenv
 RUN echo "node version is: $(nodejs -v)"
 RUN echo "yarn version is: $(yarn -v)"
-RUN cd api
+RUN cd /srv/api
 RUN echo ${PWD}
 RUN ls -al
 RUN echo "Installing packages... $(yarn install --silent)"
