@@ -1,6 +1,5 @@
 import { ContentAccess } from '../../../../../database/entities/ContentAccess'
 import { ContentEntity } from '../../../../../root/types'
-import { ContentEntityName } from '../../../../../shared/constants'
 import { ContentAccessUpdateAttributes } from '../../../../content-access/values/types'
 import { ActivityType } from '../../types'
 import { ContentAccessActions } from '../actions'
@@ -11,7 +10,7 @@ export class ContentAccessActivity extends ContentActivity<ContentEntity> {
     super(action, entity, actorId)
 
     this._actorId = actorId
-    this._entityAttributes = ['id']
+    this._entityAttributes = ['id', 'title', 'name']
     this._entityUpdateAttributes = ['type', 'public']
     this._entityName = entityType
   }
@@ -37,24 +36,25 @@ export class ContentAccessActivity extends ContentActivity<ContentEntity> {
   }
 
   static public(entity: ContentEntity, actorId: number, newAccess: ContentAccess & ContentAccessUpdateAttributes) {
-    return new ContentAccessActivity(ContentAccessActions.Public, entity, actorId, entity.constructor.name).setData(newAccess)
+    return new ContentAccessActivity(ContentAccessActions.Public, entity, actorId, entity.constructor.name).setData(newAccess, entity)
   }
 
   static private(entity: ContentEntity, actorId: number, newAccess: ContentAccess) {
-    return new ContentAccessActivity(ContentAccessActions.Private, entity, actorId, entity.constructor.name).setData(newAccess)
+    return new ContentAccessActivity(ContentAccessActions.Private, entity, actorId, entity.constructor.name).setData(newAccess, entity)
   }
 
   static open(entity: ContentEntity, actorId: number, newAccess: ContentAccess) {
-    return new ContentAccessActivity(ContentAccessActions.Open, entity, actorId, entity.constructor.name).setData(newAccess)
+    return new ContentAccessActivity(ContentAccessActions.Open, entity, actorId, entity.constructor.name).setData(newAccess, entity)
   }
 
   static restricted(entity: ContentEntity, actorId: number, newAccess: ContentAccess) {
-    return new ContentAccessActivity(ContentAccessActions.Restricted, entity, actorId, entity.constructor.name).setData(newAccess)
+    return new ContentAccessActivity(ContentAccessActions.Restricted, entity, actorId, entity.constructor.name).setData(newAccess, entity)
   }
 
-  private setData(entity: ContentAccess & ContentAccessUpdateAttributes) {
+  private setData(access: ContentAccess & ContentAccessUpdateAttributes, entity: ContentEntity) {
     this._context = {
-      entity
+      access,
+      entity: this._filterEntityAttributes(entity, this._entityAttributes),
     }
 
     return this

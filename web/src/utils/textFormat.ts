@@ -86,7 +86,13 @@ export function textFormat (data: ActivityResource, userID?: number) {
     // FileActivities
     UploadFile: 'Upload_File',
     DeleteFile: 'Delete_File',
-    RenameFile: 'Rename_File'
+    RenameFile: 'Rename_File',
+
+    // Access activities
+    Public: 'Set_Public',
+    Private: 'Set_Private',
+    Open: 'Set_Open',
+    Restricted: 'Set_Restricted'
   }
 
   const userName = getDisplayName(data.actor, userID)
@@ -100,7 +106,6 @@ export function textFormat (data: ActivityResource, userID?: number) {
     case 'TaskBoard':
       actName = 'task board'
       break
-
     case 'Doc':
       actName = 'document'
       break
@@ -108,23 +113,18 @@ export function textFormat (data: ActivityResource, userID?: number) {
     case 'TaskList':
       actName = 'task list'
       break
-
     case 'Task':
       actName = 'task'
       break
-
     case 'Link':
       actName = 'link'
       break
-
     case 'Embed':
       actName = 'embed'
       break
-
     case 'Node':
       actName = 'node'
       break
-
     case 'Folder':
       actName = 'folder'
       break
@@ -163,6 +163,18 @@ export function textFormat (data: ActivityResource, userID?: number) {
 
       toName = `${data.context.toName}.${ext}`
     }
+  }
+
+  if (data.entity === 'Doc') {
+    let access = ''
+
+    if (data.action === ACTIVITIES_LIST.Open || data.action === ACTIVITIES_LIST.Restricted) {
+      access = data.context.access.type
+    } else if (data.action === ACTIVITIES_LIST.Public || data.action === ACTIVITIES_LIST.Private) {
+      access = data.context.access.public ? 'public' : 'private'
+    }
+
+    text += `<span class="action">change ${actName} <strong>${sanitize(name)}</strong> access to <strong>${access}</strong></span>`
   }
 
   switch (data.action) {
