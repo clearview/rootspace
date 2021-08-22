@@ -10,19 +10,14 @@ import { ContentEntityNames, NodeContentType, NodeType, NodeTypeEntityNameMap } 
 import { ContentAccessType } from './ContentAccessType'
 import { Service } from '../Service'
 import { ContentAccessActivity } from '../activity/activities/content/content-access/ContentAccessActivity'
-import { EntityService } from '../EntityService'
-import { ServiceFactory } from '../factory/ServiceFactory'
 
 export class ContentAccessService extends Service {
   private nodeContentMediator: NodeContentMediator
-  private entityService: EntityService
 
   private static instance: ContentAccessService
 
   private constructor() {
     super()
-
-    this.entityService = ServiceFactory.getInstance().getEntityService()
   }
 
   static getInstance() {
