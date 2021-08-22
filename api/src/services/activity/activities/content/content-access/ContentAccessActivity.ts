@@ -10,7 +10,7 @@ export class ContentAccessActivity extends ContentActivity<ContentEntity> {
     super(action, entity, actorId)
 
     this._actorId = actorId
-    this._entityAttributes = ['id', 'title', 'name']
+    this._entityAttributes = ['id', 'title']
     this._entityUpdateAttributes = ['type', 'public']
     this._entityName = entityType
   }
