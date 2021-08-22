@@ -47,7 +47,7 @@ export class ContentAccessCtrl extends BaseCtrl {
     const actorId = req.user.id
 
     const value = ContentAccessUpdateValue.fromObject(data)
-    const result = await this.contentAccessService.update(value, contentAccess.id, actorId)
+    const result = await this.contentAccessService.update(value, contentAccess.id, actorId, entity)
 
     res.send(this.responseData(result))
   }
