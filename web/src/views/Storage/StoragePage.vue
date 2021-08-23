@@ -21,7 +21,7 @@
       <h3 class="header-title">
         {{ storageInfo.title }} <span>({{ files.length }})</span>
       </h3>
-      <div class="actions" v-if="!isEmpty">
+      <div class="actions">
         <div class="action-group">
           <label
             class="action action--search"
@@ -58,7 +58,7 @@
             }"
             @click="showDeletedOnly = !showDeletedOnly"
           >
-            <mono-icon name="trash" class="mr-1"/> Trash
+            <mono-icon :name="showDeletedOnly ? 'chevron-left' : 'trash'" class="mr-1"/> {{ showDeletedOnly ? 'Back' : 'Trash' }}
           </button>
         </div>
         <div class="action-group">
@@ -518,6 +518,31 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   display: flex;
   flex-flow: row;
   padding: 0 8px;
+  position: relative;
+
+  button {
+    &:focus {
+      outline: none;
+    }
+  }
+
+  /* to resolve blury border */
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border-right: solid 1px #dee2ee;
+  }
+
+  &:nth-last-child(1),
+  &:nth-last-child(2) {
+    &::after {
+      display: none;
+    }
+  }
 
   .btn-upload {
     border-color: #8cd5ff;
@@ -533,12 +558,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   &:last-child {
     padding-right: 0;
-  }
-
-  &.action-group--trash {
-    border: 1px solid #dee2ee;
-    border-top-style: none;
-    border-bottom-style: none;
   }
 }
 
