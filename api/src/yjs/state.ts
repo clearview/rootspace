@@ -182,7 +182,7 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
 
   queue.enqueue(action)
 
-  if (updates.get(docName)) {
+  if (updates?.get(docName)) {
     updates.get(docName).get(userId).lastSave = Date.now()
     updates.get(docName).get(userId).saved = true
   }
