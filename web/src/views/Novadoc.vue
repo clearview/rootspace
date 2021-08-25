@@ -817,8 +817,7 @@
             placeholder="Untitled"
             v-model="title"
             @focus="isTitleFocused = true"
-            @blur="isTitleFocused = false"
-            @keyup="debouncedSaveTitleOnly"
+            @blur="handleTitleBlur"
             @keypress.enter="handleTitleEnter"
             :readonly="isReadonly"
           ></textarea>
@@ -998,8 +997,8 @@ export default {
   },
   inject: ['modal'],
   data () {
-    const debouncedSaveTitleOnly = debounce(() => {
-      this.saveTitleOnly(this.title)
+    const debouncedSaveTitleOnly = debounce((id, title) => {
+      this.saveTitleOnly(id, title)
     }, 5000)
     return {
       lengthChecked: false,
@@ -1015,7 +1014,7 @@ export default {
       title: '',
       isLocked: false,
       isHistoryVisible: false,
-      debouncedSaveTitleOnly: debouncedSaveTitleOnly,
+      debouncedSaveTitleOnly,
       pageScrolled: false,
       isBubbleFocused: false,
       isTitleFocused: false,
@@ -1042,6 +1041,10 @@ export default {
   },
   methods:
   {
+    async handleTitleBlur () {
+      this.isTitleFocused = false
+      await this.saveTitleOnly(this.id, this.title)
+    },
     hideBubble () {
       const sel = this.editor.view.state.selection
       const tr = this.editor.view.state.tr
@@ -1587,7 +1590,7 @@ export default {
       this.isLocked = res.data.isLocked
       this.setSlug(res.data.slug)
       // Phantom emptiness detected
-      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) || this.title.trim().length === 0) {
+      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) || this.title.trim().length === 0 || this.title.trim() === 'Untitled') {
         this.pageTitle = 'Untitled'
         this.title = ''
         this.$refs.title.focus()
@@ -1616,17 +1619,18 @@ export default {
         }
       })
     },
-    async saveTitleOnly () {
-      const title = this.title.trim().length === 0 ? null : this.title
+    async saveTitleOnly (id, newTitle) {
+      const title = newTitle.trim().length === 0 ? null : newTitle
 
       const payload = {
         title
       }
-      await this.createUpdateDocument(payload)
+
+      await this.createUpdateDocument(payload, id)
     },
-    async createUpdateDocument (data) {
+    async createUpdateDocument (data, contentId) {
       try {
-        const id = this.$route.params.id
+        const id = contentId || this.$route.params.id
         this.loading = true
 
         if (id) {
@@ -1764,8 +1768,15 @@ export default {
   watch: {
     id: {
       immediate: true,
-      async handler () {
+      async handler (current, prev) {
         this.closeHistory()
+
+        if (prev) {
+          const node = this.$store.getters['tree/getSingleTree']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
+          const title = node.title
+          this.saveTitleOnly(prev, title)
+        }
+
         await this.load()
         if (this.currentUser && this.activeSpace) {
           await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
@@ -1781,7 +1792,7 @@ export default {
       const id = this.id
       this.$store.commit('tree/updateNode', {
         compareFn (node) {
-          return node.type === 'doc' && node.contentId.toString() === id.toString()
+          return node.type === 'doc' && parseInt(node.contentId) === parseInt(id)
         },
         fn (node) {
           return {
