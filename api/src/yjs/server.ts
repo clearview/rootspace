@@ -3,7 +3,7 @@ dotenv.config()
 
 import * as Http from 'http'
 import * as WebSocket from 'ws'
-import * as yWsUtils from 'y-websocket/bin/utils.js'
+import * as yWsUtils from '../services/y-websocket/yWebsocketService'
 import { User } from '../database/entities/User'
 import { authenticate, authorize } from './auth'
 import * as state from './state'
