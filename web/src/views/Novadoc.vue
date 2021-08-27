@@ -1043,16 +1043,16 @@ export default {
   methods:
   {
     handleTitleBlur () {
-      const nextRoute = this.$route.path
-      // const [type] = nextRoute.split('/')
+      // get latest id (contentId) from last active page and only pick it if it's doc
       const activePage = this.$store.getters['space/activeSetting'].activePage
-      const id = activePage.split('/')[2]
+      const [, type, contentId] = activePage.split('/') || this.id
+      let id = this.id
 
-      // check if user change to another content types
-      // if (type === 'doc' && parseInt(id) === parseInt(this.id)) {}
+      if (type === 'doc') {
+        id = contentId
+      }
 
       this.isTitleFocused = false
-      debugger
       this.saveTitleOnly(id, this.title)
     },
     hideBubble () {
@@ -1647,7 +1647,6 @@ export default {
           const res = await DocumentService.update(id, data)
           this.doc = res.data.data
           this.setSlug(res.data.data.slug)
-          debugger
           if (data.title) {
             this.$store.commit('tree/updateNode', {
               compareFn (node) {
@@ -1782,7 +1781,7 @@ export default {
       async handler (current, prev) {
         this.closeHistory()
 
-        if (prev) {
+        if (prev && current !== prev) {
           const node = this.$store.getters['tree/getNode']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
           const title = node.title
           this.saveTitleOnly(prev, title)
