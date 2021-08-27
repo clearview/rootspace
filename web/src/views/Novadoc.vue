@@ -999,7 +999,7 @@ export default {
   data () {
     const debouncedSaveTitleOnly = debounce((id, title) => {
       this.saveTitleOnly(id, title)
-    }, 5000)
+    }, 1000)
     return {
       lengthChecked: false,
       provider: null,
@@ -1043,7 +1043,7 @@ export default {
   {
     async handleTitleBlur () {
       this.isTitleFocused = false
-      await this.saveTitleOnly(this.id, this.title)
+      this.saveTitleOnly(this.id, this.title)
     },
     hideBubble () {
       const sel = this.editor.view.state.selection
@@ -1769,13 +1769,13 @@ export default {
     id: {
       immediate: true,
       async handler (current, prev) {
-        this.closeHistory()
-
         if (prev) {
-          const node = this.$store.getters['tree/getSingleTree']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
+          const node = this.$store.getters['tree/getNode']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
           const title = node.title
           this.saveTitleOnly(prev, title)
         }
+
+        this.closeHistory()
 
         await this.load()
         if (this.currentUser && this.activeSpace) {

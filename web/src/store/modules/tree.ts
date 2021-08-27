@@ -31,7 +31,7 @@ const TreeModule: Module<TreeState, RootState> = {
       }
       return (findIndex(state.favorites, { id: data.id }) >= 0)
     },
-    getSingleTree: state => (fn: (node: NodeResource) => boolean) => {
+    getNode: state => (fn: (node: NodeResource) => boolean) => {
       return state.list.find(fn)
     }
   },
