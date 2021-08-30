@@ -64,7 +64,7 @@
               :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
           <Draggable  handle=".drag" :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
             <ListCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id"
-                      :opacite="!isColorDefault"/>
+                      :opacite="!isColorDefault" :drag="drag" />
           </Draggable>
           <ListCard default-inputting
                     class="card-input"
