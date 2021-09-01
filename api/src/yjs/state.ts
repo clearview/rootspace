@@ -113,7 +113,7 @@ export const updates = new Map<string, Map<number, { lastSave: number; saved: bo
 const debouncedQueueSave = debounce(({ docName, userId, ydoc }: any) => enqueueSave(docName, userId, ydoc), 2000)
 
 export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
-  // console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
+  console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
 
   if (!updates.get(docName)) {
     updates.set(docName, new Map())
@@ -191,16 +191,22 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
 export const save = async (docName: string, userId: number, state: Uint8Array, json: object) => {
   console.log('state save', docName, 'user', userId) // tslint:disable-line
 
-  const docId = Number(docName.split('_').pop())
+  // const docId = Number(docName.split('_').pop())
+  const [type, docId] = docName.split('_')
+  const id = parseInt(docId, 10)
 
-  const data = DocUpdateValue.fromObject({
-    contentState: Array.from(state),
-    content: json,
-  })
+  if (type === 'doc') {
+    const data = DocUpdateValue.fromObject({
+      contentState: Array.from(state),
+      content: json,
+    })
 
-  await ServiceFactory.getInstance()
-    .getDocService()
-    .update(data, docId, userId)
+    await ServiceFactory.getInstance()
+      .getDocService()
+      .update(data, id, userId)
+  } else if (type === 'task') {
+    console.log(state, json)  // tslint:disable-line
+  }
 
   console.log('state saved', docName, 'user', userId) // tslint:disable-line
 }
@@ -219,16 +225,33 @@ export const persistence = {
   bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('bindState for', docName) // tslint:disable-line
 
-    const docId = Number(docName.split('_').pop())
+    // const docId = Number(docName.split('_').pop())
+    const [type, docId] = docName.split('_')
+    const id = parseInt(docId, 10)
 
-    const doc = await ServiceFactory.getInstance()
-      .getDocService()
-      .getById(docId)
+    if (type === 'doc') {
+      const doc = await ServiceFactory.getInstance()
+        .getDocService()
+        .getById(id)
 
-    if (doc && doc.contentState) {
-      const state = new Uint8Array(doc.contentState)
+      if (doc && doc.contentState) {
+        const state = new Uint8Array(doc.contentState)
+        Y.applyUpdate(ydoc, state)
+      }
+    } else if (type === 'task') {
+      // const doc = await ServiceFactory.getInstance()
+      //   .getTaskBoardService()
+      //   .getById(id)
+
+      const items = await ServiceFactory.getInstance()
+        .getTaskBoardService()
+        .getAllTasks(id)
+
+      const b = Buffer.from(items)
+      const state = new Uint8Array(b)
       Y.applyUpdate(ydoc, state)
     }
+
   },
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('writeState for', docName, '(does nothing)') // tslint:disable-line

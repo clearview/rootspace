@@ -6,6 +6,7 @@
   <div
     v-else
     class="board-manager"
+    id="board-manager"
   >
     <div
       v-if="isKanban"
@@ -58,7 +59,7 @@ import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/re
 import TaskLane from './TaskLane.vue'
 import TaskAddLane from './TaskAddLane.vue'
 import TaskGhost from './TaskGhost.vue'
-import { ArchivedViewKey } from '../injectionKeys'
+import { ArchivedViewKey, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'BoardManager',
@@ -73,6 +74,12 @@ export default class BoardManager extends Vue {
 
   @Prop({ type: Boolean })
   private readonly loading!: boolean
+
+  @InjectReactive(YDoc)
+  private readonly doc!: Object
+
+  @InjectReactive(TaskId)
+  private readonly taskId!: string
 
   @InjectReactive(ArchivedViewKey)
   private archivedView!: boolean
@@ -127,6 +134,7 @@ export default class BoardManager extends Vue {
   }
 
   async reorder (data: any) {
+    console.log(data)
     if (data.moved) {
       const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
       const prev = this.orderedLanes[prevIndex]
@@ -135,6 +143,12 @@ export default class BoardManager extends Vue {
       const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.board.taskLists.length, prev.position))
 
       await this.$store.dispatch('task/list/update', {
+        id: data.moved.element.id,
+        position: newPos
+      })
+
+      this.doc.set(this.taskId, {
+        action: 'BoardMoved',
         id: data.moved.element.id,
         position: newPos
       })

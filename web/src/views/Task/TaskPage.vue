@@ -146,7 +146,14 @@ import { some } from 'lodash'
 import VSelect from 'vue-select'
 import Avatar from 'vue-avatar'
 
-import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
+import {
+  TagResource,
+  TaskBoardResource,
+  TaskBoardType,
+  UserResource,
+  TaskItemResource,
+  TaskListResource
+} from '@/types/resource'
 
 import SpaceService from '@/services/space'
 import SpaceMixin from '@/mixins/SpaceMixin'
@@ -154,6 +161,7 @@ import PageMixin from '@/mixins/PageMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
 import EventBus from '@/utils/eventBus'
 import FilterBar from './FilterBar.vue'
+import { ResourceState } from '@/types/state'
 
 import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
@@ -163,7 +171,20 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Tip from '@/components/Tip.vue'
 import Loading from '@/components/Loading.vue'
 
-import { FilteredKey, ArchivedViewKey } from './injectionKeys'
+import { FilteredKey, ArchivedViewKey, TaskId, YDoc } from './injectionKeys'
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 @Component({
   name: 'TaskPage',
@@ -195,6 +216,9 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private isFetching = false
   private filterVisible = false
   private searchVisible = false
+  private provider = null
+  private ydoc = null
+  private id = 'task_' + this.boardId
 
   @ProvideReactive(FilteredKey)
   get filtered () {
@@ -209,6 +233,22 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   @ProvideReactive(ArchivedViewKey)
   get archivedView () {
     return this.filters.archived
+  }
+
+  @ProvideReactive(YDoc)
+  get doc (): Object {
+    if (this.ydoc) {
+      const doc = this.ydoc.getMap(this.taskId)
+
+      return doc
+    }
+
+    this.initProvider()
+  }
+
+  @ProvideReactive(TaskId)
+  get taskId (): string {
+    return this.id
   }
 
   get title (): string {
@@ -383,6 +423,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   async mounted () {
     await this.getSpaceMember()
     await this.fetchTask()
+    this.initProvider()
 
     EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
@@ -406,6 +447,136 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     this.filters.archived = !this.filters.archived
 
     await this.lazyFetchTask()
+  }
+
+  async observeBoard () {
+    const doc = this.ydoc.getMap(this.taskId)
+
+    doc.observe((event) => {
+      const data = this.ydoc.toJSON()
+
+      if (data?.[this.taskId]?.[this.taskId]) {
+        console.log('data', data)
+        const newData = data[this.taskId][this.taskId]
+        this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+          if (board.current) {
+            const list = board.current.taskLists.find(list => list.id === newData.listId)
+            if (list) {
+              let oldItem: TaskItemResource | null = null
+              let oldList: TaskListResource | null = null
+              for (const lst of board.current.taskLists) {
+                for (const tsk of lst.tasks) {
+                  if (tsk.id === newData.id) {
+                    oldItem = tsk
+                    oldList = lst
+                    break
+                  }
+                }
+              }
+              if (oldItem && oldList) {
+                // Moved to another lane
+                if (oldItem.listId !== newData.listId) {
+                  oldList.tasks = oldList.tasks.filter(task => task.id !== newData.id)
+                  const targetList = board.current.taskLists.find(list => list.id === newData.listId)
+                  if (targetList) {
+                    if (!targetList.tasks) {
+                      targetList.tasks = [{ ...oldItem, listId: data.listId, position: data.position }]
+                    } else {
+                      targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                    }
+                  }
+                } else {
+                  list.tasks = list.tasks.map(task => {
+                    if (task.id === data.id) {
+                      return { ...oldItem, listId: data.listId, position: data.position } as TaskItemResource
+                    }
+                    return task
+                  })
+                }
+              }
+            }
+          }
+        }, { root: true })
+      }
+      // const state = Y.encodeStateAsUpdate(this.ydoc)
+      // Y.applyUpdate(this.ydoc, event)
+    })
+  }
+
+  initProvider () {
+    const wsProviderUrl = process.env.VUE_APP_YWS_URL
+
+    if (!wsProviderUrl) {
+      throw new Error('process.env.VUE_APP_YWS_URL is missing')
+    }
+
+    this.ydoc = this.ydoc = new Y.Doc()
+    this.provider = new WebsocketProvider(wsProviderUrl, this.id, this.ydoc)
+
+    const wsAuthenticate = () => {
+      const encoder = encoding.createEncoder()
+      encoding.writeVarUint(encoder, wsMessageType.authenticate)
+      encoding.writeVarString(encoder, this.$store.state.auth.token)
+      this.provider.ws.send(encoding.toUint8Array(encoder))
+    }
+
+    const onConnecting = () => {
+      const providerOnMessage = this.provider.ws.onmessage
+      const providerOnOpen = this.provider.ws.onopen
+
+      this.provider.ws.onmessage = event => {
+        const decoder = decoding.createDecoder(new Uint8Array(event.data))
+        const messageType = decoding.readVarUint(decoder)
+
+        switch (messageType) {
+          case wsMessageType.unauthenticated:
+            // notify user
+            break
+          case wsMessageType.unauthorized:
+            // notify user
+            break
+          // case 'wait':
+          //   // wait next message
+          //   break
+          case wsMessageType.initCollaboration:
+            this.provider.ws.onmessage = event => {
+              const decoder = decoding.createDecoder(new Uint8Array(event.data))
+              const messageType = decoding.readVarUint(decoder)
+
+              if (messageType === wsMessageType.restore) {
+                // notify user
+                // this.closeHistory()
+                // this.initEditor()
+                return
+              }
+
+              // skip our custom messages, don't pass them to yjs to handle
+              if (messageType >= 10) {
+                return
+              }
+
+              providerOnMessage(event)
+            }
+            providerOnOpen()
+            break
+          default:
+            break
+        }
+      }
+
+      this.provider.ws.onopen = () => {
+        wsAuthenticate()
+      }
+    }
+
+    this.provider.on('status', ({ status }) => {
+      if (status === 'connecting') {
+        onConnecting()
+      }
+    })
+
+    onConnecting()
+    this.observeBoard()
   }
 }
 </script>

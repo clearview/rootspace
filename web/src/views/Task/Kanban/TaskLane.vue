@@ -87,7 +87,7 @@ import { Optional } from '@/types/core'
 import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
-import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
+import { ArchivedViewKey, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'TaskLane',
@@ -128,6 +128,12 @@ export default class TaskLane extends Vue {
 
     @InjectReactive(ArchivedViewKey)
     private readonly archivedView!: boolean
+
+    @InjectReactive(YDoc)
+    private readonly doc!: Object
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
 
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
@@ -208,16 +214,22 @@ export default class TaskLane extends Vue {
     }
 
     private async reorder (data: any) {
+      console.log('reorder', data)
+      let newPos: number, id: number, action: string
+      const listId = this.list.id
+
       if (data.added) {
         const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
         const prev = this.orderedCards[prevIndex]
         const next = this.orderedCards[nextIndex]
 
-        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        id = data.added.element.id
+        newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        action = 'addedOnLane'
 
         await this.$store.dispatch('task/item/update', {
-          id: data.added.element.id,
-          listId: this.list.id,
+          id,
+          listId,
           position: newPos
         })
       }
@@ -225,10 +237,23 @@ export default class TaskLane extends Vue {
         const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
         const prev = this.orderedCards[prevIndex]
         const next = this.orderedCards[nextIndex]
-        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+
+        id = data.moved.element.id
+        newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        action = 'movedToLane'
+
         await this.$store.dispatch('task/item/update', {
-          id: data.moved.element.id,
-          listId: this.list.id,
+          id,
+          listId,
+          position: newPos
+        })
+      }
+
+      if (data?.moved || data?.added) {
+        this.doc.set(this.taskId, {
+          action,
+          id,
+          listId,
           position: newPos
         })
       }

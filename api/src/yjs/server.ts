@@ -36,7 +36,7 @@ export default class YjsServer {
       this.wss.handleUpgrade(request, socket, head, this.handleUpgrade)
     })
 
-    this.wss.on('connection', (conn: UserWebSocket, req: Http.IncomingMessage, {} = {}) => {
+    this.wss.on('connection', (conn: UserWebSocket, req: Http.IncomingMessage, { } = {}) => {
       conn.on('message', (message) => {
         onInitMessage(conn, req, message)
       })
