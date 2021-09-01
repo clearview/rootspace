@@ -84,16 +84,39 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
   }
 
   async searchTaskBoard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
-    const taskBoard = await this.createQueryBuilder('taskBoard')
-      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
-      .where('taskBoard.id = :id', { id })
-      .andWhere('taskList.deletedAt IS NULL')
-      .getOne()
+    let taskBoard = null
+
+    if (!filterParam.archived) {
+      taskBoard = await this.createQueryBuilder('taskBoard')
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
+        .where('taskBoard.id = :id', { id })
+        .getOne()
+    }
+
+    if (filterParam.archived) {
+      taskBoard = await this.createQueryBuilder('taskBoard')
+        .withDeleted()
+        .leftJoinAndSelect('taskBoard.taskLists', 'taskList','taskList.deletedAt IS NOT NULL OR taskList.deletedAt IS NULL')
+        .leftJoinAndSelect('taskList.tasks', 'tasks', 'tasks.deletedAt IS NOT NULL')
+        .where('taskBoard.id = :id', { id })
+        .andWhere('taskBoard.deletedAt IS NULL')
+        .getOne()
+    }
 
     const tasks = await this.getTaskRepository().filterByTaskBoardId(taskBoard.id, searchParam, filterParam)
 
     if (tasks.length === 0 || taskBoard.taskLists.length === 0) {
       return taskBoard
+    }
+
+    // making a task object for easier search
+    const taskListsThatAreNotDeleted = {}
+    if (filterParam.archived) {
+      for (const taskList of taskBoard.taskLists) {
+        if (!taskList.deletedAt) {
+          taskListsThatAreNotDeleted[+taskList.id] = true
+        }
+      }
     }
 
     for (const list of taskBoard.taskLists) {
@@ -102,7 +125,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
       }
 
       for (const task of tasks) {
-        if (task.listId === list.id) {
+        if (task.listId === list.id && !taskListsThatAreNotDeleted[task.listId]) {
           list.tasks.push(task)
         }
       }
