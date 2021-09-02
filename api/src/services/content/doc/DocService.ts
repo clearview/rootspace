@@ -13,6 +13,8 @@ import { clientError, HttpErrName, HttpStatusCode } from '../../../response/erro
 import { DocActivity } from '../../activity/activities/content'
 import { DocUpdateSetup } from './DocUpdateSetup'
 import { publicId } from '../../../root/helpers'
+import { debounce } from '../../../utils'
+import { Activity } from '../../activity/activities/Activity'
 
 export class DocService extends NodeContentService {
   private nodeService: NodeService
@@ -137,6 +139,8 @@ export class DocService extends NodeContentService {
     await this._update(value, doc, actorId)
   }
 
+  private debouceNotifyActiviy = debounce((activity: Activity) => this.notifyActivity(activity), 120000)
+
   private async _update(data: DocUpdateValue, doc: Doc, actorId: number): Promise<Doc> {
     let updatedDoc = await this.getById(doc.id)
 
@@ -158,7 +162,7 @@ export class DocService extends NodeContentService {
     updatedDoc = await this.getDocRepository().reload(updatedDoc)
 
     if (setup.registerActivity) {
-      await this.notifyActivity(DocActivity.updated(doc, updatedDoc, setup, actorId))
+      this.debouceNotifyActiviy(DocActivity.updated(doc, updatedDoc, setup, actorId))
     }
 
     return updatedDoc
