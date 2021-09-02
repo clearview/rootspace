@@ -87,7 +87,7 @@ import { Optional } from '@/types/core'
 import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
-import { ArchivedViewKey, FilteredKey, TaskId, YDoc } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'TaskLane',
@@ -134,6 +134,9 @@ export default class TaskLane extends Vue {
 
     @InjectReactive(TaskId)
     private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
 
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
@@ -250,6 +253,7 @@ export default class TaskLane extends Vue {
 
       if (data?.moved || data?.added) {
         this.doc.set(this.taskId, {
+          clientId: this.clientId,
           action,
           id,
           listId,
@@ -278,6 +282,8 @@ export default class TaskLane extends Vue {
       if (!this.canSave) {
         return
       }
+
+      // create new task list / lane
       if (this.listCopy.id === null) {
         await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
       } else {

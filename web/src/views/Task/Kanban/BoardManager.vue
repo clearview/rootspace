@@ -53,13 +53,13 @@
 import Draggable from 'vuedraggable'
 
 import { Component, InjectReactive, Prop, Vue } from 'vue-property-decorator'
-import { TaskBoardResource, TaskListResource } from '@/types/resource'
+import { TaskBoardResource, TaskListResource, UserResource } from '@/types/resource'
 import { Optional } from '@/types/core'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 import TaskLane from './TaskLane.vue'
 import TaskAddLane from './TaskAddLane.vue'
 import TaskGhost from './TaskGhost.vue'
-import { ArchivedViewKey, TaskId, YDoc } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'BoardManager',
@@ -75,14 +75,20 @@ export default class BoardManager extends Vue {
   @Prop({ type: Boolean })
   private readonly loading!: boolean
 
+  @InjectReactive(ArchivedViewKey)
+  private archivedView!: boolean
+
   @InjectReactive(YDoc)
   private readonly doc!: Object
 
   @InjectReactive(TaskId)
   private readonly taskId!: string
 
-  @InjectReactive(ArchivedViewKey)
-  private archivedView!: boolean
+  @InjectReactive(ClientID)
+  private readonly clientId!: Number
+
+  @InjectReactive()
+  private readonly user!: UserResource
 
   private readonly lists!: TaskListResource[];
   private isInputtingNewList = false
@@ -148,6 +154,7 @@ export default class BoardManager extends Vue {
       })
 
       this.doc.set(this.taskId, {
+        clientId: this.clientId,
         action: 'taskLaneMoved',
         id: data.moved.element.id,
         position: newPos

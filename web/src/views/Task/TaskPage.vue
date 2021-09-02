@@ -152,7 +152,8 @@ import {
   TaskBoardType,
   UserResource,
   TaskItemResource,
-  TaskListResource
+  TaskListResource,
+  ResourceState
 } from '@/types/resource'
 
 import SpaceService from '@/services/space'
@@ -161,7 +162,6 @@ import PageMixin from '@/mixins/PageMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
 import EventBus from '@/utils/eventBus'
 import FilterBar from './FilterBar.vue'
-import { ResourceState } from '@/types/state'
 
 import BoardManager from '@/views/Task/Kanban/BoardManager.vue'
 import ListManager from '@/views/Task/List/ListManager.vue'
@@ -171,7 +171,7 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Tip from '@/components/Tip.vue'
 import Loading from '@/components/Loading.vue'
 
-import { FilteredKey, ArchivedViewKey, TaskId, YDoc } from './injectionKeys'
+import { FilteredKey, ArchivedViewKey, TaskId, YDoc, ClientID } from './injectionKeys'
 import * as encoding from 'lib0/encoding.js'
 import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
@@ -219,6 +219,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private searchVisible = false
   private provider = null
   private ydoc = null
+  private clientId = null
   private id = 'task_' + this.boardId
 
   @ProvideReactive(FilteredKey)
@@ -244,12 +245,23 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       return doc
     }
 
-    this.initProvider()
+    // this.initProvider()
+  }
+
+  @ProvideReactive(ClientID)
+  get clientID (): Number {
+    if (this.clientId) return this.clientId
+
+    // this.initProvider()
   }
 
   @ProvideReactive(TaskId)
   get taskId (): string {
     return this.id
+  }
+
+  private currentUser () {
+    return this.$store.state.auth.user
   }
 
   get title (): string {
@@ -434,6 +446,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   beforeDestroy () {
+    this.ydoc.destroy()
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
@@ -453,41 +466,91 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   async observeBoard () {
     const doc = this.ydoc.getMap(this.taskId)
 
+    // this.ydoc.on('update', async (event) => {
+    //   console.log(event)
     doc.observe((event) => {
       const data = this.ydoc.toJSON()
+      console.log(event.changes)
+      // this.doTransact(data)
 
-      if (data?.[this.taskId]?.[this.taskId]) {
-        const newData = data[this.taskId][this.taskId]
-        console.log(newData)
-
-        if (newData.action === 'addedToLane' || newData.action === 'movedToLane') {
-          this.operateTaskList(newData)
-        } else if (newData.action === 'taskLaneMoved') {
-          this.operateTaskBoard(newData)
-        }
-      }
-      // const state = Y.encodeStateAsUpdate(this.ydoc)
-      // Y.applyUpdate(this.ydoc, event)
+      doc.doc.transact(async () => {
+        this.doTransact(data)
+        // event.changes.keys.forEach((change, key) => {
+        //   if (change.action === 'add') {
+        //     console.log(`Property "${key}" was added. Initial value: "${doc.get(key)}".`)
+        //     // this.doTransact(data)
+        //   } else if (change.action === 'update') {
+        //     console.log(`Property "${key}" was updated. New value: "${doc.get(key)}". Previous value: "${change.oldValue}".`)
+        //     this.doTransact(data)
+        //   } else if (change.action === 'delete') {
+        //     this.doTransact(data)
+        //     console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
+        //   }
+        // })
+      })
     })
   }
 
-  private operateTaskBoard (data: any) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        const index = board.current.taskLists.findIndex(list => list.id === data.id)
-        if (index !== -1) {
-          const old = board.current.taskLists[index]
-          if (data.position) {
-            Vue.set(board.current.taskLists, index, { ...old, position: data.position })
-          } else if (data.settings) {
-            Vue.set(board.current.taskLists, index, { ...old, settings: data.settings })
-          }
+  private async doTransact (data) {
+    if (data?.[this.taskId]?.[this.taskId]) {
+      const newData = data[this.taskId][this.taskId]
+      console.log(newData)
+      console.log(this.clientId)
+      // console.log('changes', event)
+
+      // only operate mutation on peers, so the broadcaster don't have to do mutation again
+      if (newData.clientId !== this.clientId) {
+        switch (newData.action) {
+          case 'addedToLane':
+          case 'movedToLane':
+            // await this.$store.dispatch('task/item/update', { ...newData })
+            await this.updateTaskItem(newData)
+            break
+          case 'taskLaneMoved':
+            await this.$store.dispatch('task/list/update', { ...newData })
+            break
+          case 'createNewTaskItem':
+            // await this.$store.dispatch('task/item/create', { ...newData })
+            await this.createTaskItem(newData)
+            break
+          case 'updateTaskItem':
+            // await this.$store.dispatch('task/item/update', { ...newData })
+            await this.updateTaskItem(newData)
+            break
+          default:
+            break
         }
       }
-    }, { root: true })
+    }
   }
 
-  private operateTaskList (data: any) {
+  private async createTaskItem (data) {
+    if (this.board) {
+      const index = this.board.taskLists.findIndex(list => list.id === data.listId)
+      if (index !== -1) {
+        const list = this.board.taskLists[index]
+        if (!list.tasks) {
+          Vue.set(list, 'tasks', [{
+            ...data,
+            taskComments: [],
+            attachments: [],
+            assignees: [],
+            tags: []
+          }])
+        } else {
+          Vue.set(list.tasks, list.tasks.length, {
+            ...data,
+            taskComments: [],
+            attachments: [],
+            assignees: [],
+            tags: []
+          })
+        }
+      }
+    }
+  }
+
+  private async updateTaskItem (data) {
     this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         const list = board.current.taskLists.find(list => list.id === data.listId)
@@ -510,15 +573,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
               const targetList = board.current.taskLists.find(list => list.id === data.listId)
               if (targetList) {
                 if (!targetList.tasks) {
-                  targetList.tasks = [{ ...oldItem, listId: data.listId, position: data.position }]
+                  targetList.tasks = [data]
                 } else {
-                  targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                  targetList.tasks.push(data)
                 }
               }
             } else {
               list.tasks = list.tasks.map(task => {
                 if (task.id === data.id) {
-                  return { ...oldItem, listId: data.listId, position: data.position } as TaskItemResource
+                  return {
+                    ...data
+                  }
                 }
                 return task
               })
@@ -536,7 +601,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       throw new Error('process.env.VUE_APP_YWS_URL is missing')
     }
 
-    this.ydoc = this.ydoc = new Y.Doc()
+    this.ydoc = new Y.Doc()
+    this.clientId = this.currentUser().id
     this.provider = new WebsocketProvider(wsProviderUrl, this.id, this.ydoc)
 
     const wsAuthenticate = () => {

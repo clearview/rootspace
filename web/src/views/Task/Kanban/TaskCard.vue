@@ -68,7 +68,7 @@ import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
-import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'TaskCard',
@@ -108,6 +108,15 @@ export default class TaskCard extends Vue {
     @InjectReactive(ArchivedViewKey)
     private archivedView!: boolean
 
+    @InjectReactive(YDoc)
+    private readonly doc!: Object
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
@@ -141,13 +150,34 @@ export default class TaskCard extends Vue {
       if (!this.canSave) {
         return
       }
+
+      // create new task item
       if (this.itemCopy.id === null) {
+        console.log('create new task item')
         this.titleEditableRef.blur()
         await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
+
+        this.doc.doc.transact(() => {
+          this.doc.set(this.taskId, {
+            ...this.itemCopy,
+            title: this.titleEditableRef.innerText.trim(),
+            list: undefined,
+            action: 'createNewTaskItem',
+            clientId: this.clientId
+          })
+        })
       } else {
+        console.log('update task item')
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
+        })
+
+        this.doc.set(this.taskId, {
+          id: this.item.id,
+          title: this.itemCopy.title,
+          action: 'updateTaskItem',
+          clientId: this.clientId
         })
       }
       this.isInputting = false
