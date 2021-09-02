@@ -30,9 +30,6 @@ const TreeModule: Module<TreeState, RootState> = {
         return false
       }
       return (findIndex(state.favorites, { id: data.id }) >= 0)
-    },
-    getNode: state => (fn: (node: NodeResource) => boolean) => {
-      return state.list.find(fn)
     }
   },
 
