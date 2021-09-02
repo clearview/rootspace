@@ -214,7 +214,6 @@ export default class TaskLane extends Vue {
     }
 
     private async reorder (data: any) {
-      console.log('reorder', data)
       let newPos: number, id: number, action: string
       const listId = this.list.id
 
@@ -225,7 +224,7 @@ export default class TaskLane extends Vue {
 
         id = data.added.element.id
         newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
-        action = 'addedOnLane'
+        action = 'addedToLane'
 
         await this.$store.dispatch('task/item/update', {
           id,

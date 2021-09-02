@@ -176,6 +176,7 @@ import * as encoding from 'lib0/encoding.js'
 import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
+import Vue from 'vue'
 
 const wsMessageType = {
   authenticate: 10,
@@ -456,51 +457,76 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
       const data = this.ydoc.toJSON()
 
       if (data?.[this.taskId]?.[this.taskId]) {
-        console.log('data', data)
         const newData = data[this.taskId][this.taskId]
-        this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-          if (board.current) {
-            const list = board.current.taskLists.find(list => list.id === newData.listId)
-            if (list) {
-              let oldItem: TaskItemResource | null = null
-              let oldList: TaskListResource | null = null
-              for (const lst of board.current.taskLists) {
-                for (const tsk of lst.tasks) {
-                  if (tsk.id === newData.id) {
-                    oldItem = tsk
-                    oldList = lst
-                    break
-                  }
-                }
-              }
-              if (oldItem && oldList) {
-                // Moved to another lane
-                if (oldItem.listId !== newData.listId) {
-                  oldList.tasks = oldList.tasks.filter(task => task.id !== newData.id)
-                  const targetList = board.current.taskLists.find(list => list.id === newData.listId)
-                  if (targetList) {
-                    if (!targetList.tasks) {
-                      targetList.tasks = [{ ...oldItem, listId: newData.listId, position: newData.position }]
-                    } else {
-                      targetList.tasks.push({ ...oldItem, listId: newData.listId, position: newData.position })
-                    }
-                  }
-                } else {
-                  list.tasks = list.tasks.map(task => {
-                    if (task.id === newData.id) {
-                      return { ...oldItem, listId: newData.listId, position: newData.position } as TaskItemResource
-                    }
-                    return task
-                  })
-                }
-              }
-            }
-          }
-        }, { root: true })
+        console.log(newData)
+
+        if (newData.action === 'addedToLane' || newData.action === 'movedToLane') {
+          this.operateTaskList(newData)
+        } else if (newData.action === 'taskLaneMoved') {
+          this.operateTaskBoard(newData)
+        }
       }
       // const state = Y.encodeStateAsUpdate(this.ydoc)
       // Y.applyUpdate(this.ydoc, event)
     })
+  }
+
+  private operateTaskBoard (data: any) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const index = board.current.taskLists.findIndex(list => list.id === data.id)
+        if (index !== -1) {
+          const old = board.current.taskLists[index]
+          if (data.position) {
+            Vue.set(board.current.taskLists, index, { ...old, position: data.position })
+          } else if (data.settings) {
+            Vue.set(board.current.taskLists, index, { ...old, settings: data.settings })
+          }
+        }
+      }
+    }, { root: true })
+  }
+
+  private operateTaskList (data: any) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const list = board.current.taskLists.find(list => list.id === data.listId)
+        if (list) {
+          let oldItem: TaskItemResource | null = null
+          let oldList: TaskListResource | null = null
+          for (const lst of board.current.taskLists) {
+            for (const tsk of lst.tasks) {
+              if (tsk.id === data.id) {
+                oldItem = tsk
+                oldList = lst
+                break
+              }
+            }
+          }
+          if (oldItem && oldList) {
+            // Moved to another lane
+            if (oldItem.listId !== data.listId) {
+              oldList.tasks = oldList.tasks.filter(task => task.id !== data.id)
+              const targetList = board.current.taskLists.find(list => list.id === data.listId)
+              if (targetList) {
+                if (!targetList.tasks) {
+                  targetList.tasks = [{ ...oldItem, listId: data.listId, position: data.position }]
+                } else {
+                  targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                }
+              }
+            } else {
+              list.tasks = list.tasks.map(task => {
+                if (task.id === data.id) {
+                  return { ...oldItem, listId: data.listId, position: data.position } as TaskItemResource
+                }
+                return task
+              })
+            }
+          }
+        }
+      }
+    }, { root: true })
   }
 
   initProvider () {

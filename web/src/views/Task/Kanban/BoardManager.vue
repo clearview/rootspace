@@ -148,7 +148,7 @@ export default class BoardManager extends Vue {
       })
 
       this.doc.set(this.taskId, {
-        action: 'BoardMoved',
+        action: 'taskLaneMoved',
         id: data.moved.element.id,
         position: newPos
       })
