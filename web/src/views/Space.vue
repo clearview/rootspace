@@ -82,7 +82,7 @@ export default class Space extends Mixins(SpaceMixin, PageMixin) {
   }
 
   @Watch('setting', { deep: true })
-  @Debounce(1000)
+  @Debounce(500)
   async watchSetting (data: SpaceSettingResource, prevData: SpaceSettingResource) {
     if (isEqual(data, prevData) && !this.$store.state.space.afterFrozen) return
     if (data.activePage === '/document') return

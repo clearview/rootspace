@@ -6,7 +6,7 @@ export class DocCreateValidator extends BaseValidator {
   rules() {
     return {
       spaceId: 'required|number',
-      title: 'required',
+      title: 'requiredAllowNull',
       content: 'required',
       access: [validations.required(), validations.in(Object.values(DocAccess))],
       isLocked: 'boolean',

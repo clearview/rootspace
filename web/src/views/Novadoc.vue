@@ -817,8 +817,7 @@
             placeholder="Untitled"
             v-model="title"
             @focus="isTitleFocused = true"
-            @blur="isTitleFocused = false"
-            @keyup="debouncedSaveTitleOnly"
+            @blur="handleTitleBlur"
             @keypress.enter="handleTitleEnter"
             :readonly="isReadonly"
           ></textarea>
@@ -902,6 +901,7 @@ import * as Y from 'yjs'
 
 import CollaborationExtension from './Novadoc/CollaborationExtension'
 import Novaschema from '@/views/Novadoc/Novaschema.js'
+import { colors, textColors, colorCombinations } from '@/views/Novadoc/Computed'
 
 import {
   AlignCenterIcon,
@@ -998,8 +998,8 @@ export default {
   },
   inject: ['modal'],
   data () {
-    const debouncedSaveTitleOnly = debounce(() => {
-      this.saveTitleOnly(this.title)
+    const debouncedSaveTitleOnly = debounce((id, title) => {
+      this.saveTitleOnly(id, title)
     }, 1000)
     return {
       lengthChecked: false,
@@ -1015,7 +1015,7 @@ export default {
       title: '',
       isLocked: false,
       isHistoryVisible: false,
-      debouncedSaveTitleOnly: debouncedSaveTitleOnly,
+      debouncedSaveTitleOnly,
       pageScrolled: false,
       isBubbleFocused: false,
       isTitleFocused: false,
@@ -1043,6 +1043,19 @@ export default {
   },
   methods:
   {
+    handleTitleBlur () {
+      // get latest id (contentId) from last active page and only pick it if it's doc
+      const activePage = this.$store.getters['space/activeSetting'].activePage
+      const [, type, contentId] = activePage.split('/') || this.id
+      let id = this.id
+
+      if (type === 'doc') {
+        id = contentId
+      }
+
+      this.isTitleFocused = false
+      this.saveTitleOnly(id, this.title)
+    },
     hideBubble () {
       const sel = this.editor.view.state.selection
       const tr = this.editor.view.state.tr
@@ -1607,7 +1620,7 @@ export default {
       this.isLocked = res.data.isLocked
       this.setSlug(res.data.slug)
       // Phantom emptiness detected
-      if (this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) {
+      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) || this.title.trim().length === 0 || this.title.trim() === 'Untitled') {
         this.pageTitle = 'Untitled'
         this.title = ''
         this.$refs.title.focus()
@@ -1636,17 +1649,18 @@ export default {
         }
       })
     },
-    async saveTitleOnly () {
-      const title = this.title
-      this.pageTitle = this.title
+    async saveTitleOnly (id, newTitle) {
+      const title = newTitle.trim().length === 0 ? null : newTitle
+
       const payload = {
-        title: title && title.trim().length > 0 ? title : String.fromCharCode(1, 2)
+        title
       }
-      await this.createUpdateDocument(payload)
+
+      await this.createUpdateDocument(payload, id)
     },
-    async createUpdateDocument (data) {
+    async createUpdateDocument (data, contentId) {
       try {
-        const id = this.$route.params.id
+        const id = contentId || this.$route.params.id
         this.loading = true
 
         if (id) {
@@ -1656,7 +1670,7 @@ export default {
           if (data.title) {
             this.$store.commit('tree/updateNode', {
               compareFn (node) {
-                return node.contentId.toString() === id
+                return node.type === 'doc' && node.contentId.toString() === id
               },
               fn (node) {
                 return {
@@ -1784,8 +1798,15 @@ export default {
   watch: {
     id: {
       immediate: true,
-      async handler () {
+      async handler (current, prev) {
         this.closeHistory()
+
+        if (prev && current !== prev) {
+          const node = this.$store.getters['tree/getNode']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
+          const title = node.title
+          this.saveTitleOnly(prev, title)
+        }
+
         await this.load()
         if (this.currentUser && this.activeSpace) {
           await this.$store.dispatch('tree/fetch', { spaceId: this.activeSpace.id })
@@ -1801,7 +1822,7 @@ export default {
       const id = this.id
       this.$store.commit('tree/updateNode', {
         compareFn (node) {
-          return node.type === 'doc' && node.contentId.toString() === id.toString()
+          return node.type === 'doc' && parseInt(node.contentId) === parseInt(id)
         },
         fn (node) {
           return {
@@ -1835,95 +1856,9 @@ export default {
       const { id } = this.$route.params
       return isNaN(id) ? id : Number(id) || 0
     },
-    textColors () {
-      return [
-        { border: 'transparent', color: '#212121' },
-        { border: 'transparent', color: '#424242' },
-        { border: 'transparent', color: '#616161' },
-        { border: 'transparent', color: '#757575' },
-        { border: 'transparent', color: '#9E9E9E' },
-
-        { border: 'transparent', color: '#CF3C3C' },
-        { border: 'transparent', color: '#B0611A' },
-        { border: 'transparent', color: '#9C3DBF' },
-        { border: 'transparent', color: '#1D8449' },
-        { border: 'transparent', color: '#3467CE' }
-      ]
-    },
-    colors () {
-      return [
-        '#DED3F8',
-        '#F6DDFF',
-        '#FFE0E0',
-        '#FFEAD2',
-        '#DEFFD9',
-        '#E0EAFF',
-        '#DDF3FF',
-        '#65F3E3',
-        '#F4F5F7',
-        '#FFFFFF'
-      ]
-    },
-    colorCombinations () {
-      return [
-        {
-          border: '#E0E2E7',
-          color: '#2C2B35',
-          background: '#FFFFFF',
-          activeBorder: '#E0E2E7',
-          name: 'Default Example',
-          class: 'white'
-        },
-        {
-          border: 'transparent',
-          color: '#D64141',
-          background: '#FFF3F3',
-          activeBorder: '#FFB6B6',
-          name: 'Red Example',
-          class: 'red'
-        },
-        {
-          border: 'transparent',
-          color: '#2C2B35',
-          background: '#FEFFBA',
-          activeBorder: '#E1E26F',
-          name: 'Yellow Example',
-          class: 'yellow'
-        },
-        {
-          border: 'transparent',
-          color: '#2C2B35',
-          background: '#FFEBD8',
-          activeBorder: '#FFC391',
-          name: 'Orange Example',
-          class: 'orange'
-        },
-        {
-          border: 'transparent',
-          color: '#2C2B35',
-          background: '#FFE4F3',
-          activeBorder: '#FFC2E4',
-          name: 'Pink Example',
-          class: 'pink'
-        },
-        {
-          border: 'transparent',
-          color: '#2C2B35',
-          background: '#E1F8FF',
-          activeBorder: '#93D3E7',
-          name: 'Blue Example',
-          class: 'blue'
-        },
-        {
-          border: 'transparent',
-          color: '#2C2B35',
-          background: '#E1FFBC',
-          activeBorder: '#B8EA7C',
-          name: 'Green Example',
-          class: 'green'
-        }
-      ]
-    },
+    textColors,
+    colors,
+    colorCombinations,
     isOwner () {
       return this.contentAccess.ownerId === this.currentUser.id
     },
