@@ -92,25 +92,6 @@ export abstract class BaseValidator {
         return uuidValidate(fieldValue)
       },
     })
-
-    extend('requiredAllowNull', {
-      async: true,
-
-      compile(args) {
-        return args
-      },
-
-      async validate(data, field, args, config) {
-        const fieldValue = getValue(data, field)
-
-        // allow null to be passed
-        if (fieldValue === null || fieldValue.trim().length > 0) {
-          return true
-        }
-
-        return false
-      },
-    })
   }
 
   abstract rules(): Schema

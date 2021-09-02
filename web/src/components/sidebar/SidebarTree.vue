@@ -414,7 +414,7 @@ export default class SidebarTree extends Mixins(ModalMixin) {
         const payload = {
           spaceId: this.activeSpace.id,
           // API doesn't allow empty title, so we set a "phantom" emptiness
-          title: null,
+          title: String.fromCharCode(1, 2),
           content: { type: 'doc', content: [] },
           access: 2,
           isLocked: false,
