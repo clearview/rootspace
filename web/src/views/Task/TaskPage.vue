@@ -480,15 +480,15 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
                   const targetList = board.current.taskLists.find(list => list.id === newData.listId)
                   if (targetList) {
                     if (!targetList.tasks) {
-                      targetList.tasks = [{ ...oldItem, listId: data.listId, position: data.position }]
+                      targetList.tasks = [{ ...oldItem, listId: newData.listId, position: newData.position }]
                     } else {
-                      targetList.tasks.push({ ...oldItem, listId: data.listId, position: data.position })
+                      targetList.tasks.push({ ...oldItem, listId: newData.listId, position: newData.position })
                     }
                   }
                 } else {
                   list.tasks = list.tasks.map(task => {
-                    if (task.id === data.id) {
-                      return { ...oldItem, listId: data.listId, position: data.position } as TaskItemResource
+                    if (task.id === newData.id) {
+                      return { ...oldItem, listId: newData.listId, position: newData.position } as TaskItemResource
                     }
                     return task
                   })
