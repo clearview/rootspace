@@ -1802,7 +1802,7 @@ export default {
         this.closeHistory()
 
         if (prev && current !== prev) {
-          const node = this.$store.getters['tree/getNode']((node) => node.type === 'doc' && parseInt(node.contentId) === parseInt(prev))
+          const node = this.$store.getters['tree/getNode']('doc', prev)
           const title = node.title
           this.saveTitleOnly(prev, title)
         }

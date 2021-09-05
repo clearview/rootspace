@@ -31,8 +31,19 @@ const TreeModule: Module<TreeState, RootState> = {
       }
       return (findIndex(state.favorites, { id: data.id }) >= 0)
     },
-    getNode: state => (fn: (node: NodeResource) => boolean) => {
-      return state.list.find(fn)
+    getNode: state => (type: string, id: number) => {
+      // copy the whole array to avoid reference to actual state due to value reference to actual object (state)
+      const list = [...state.list]
+
+      while (list.length) {
+        const tree = list.pop()
+
+        if (tree?.contentId === id && tree?.type === type) {
+          return tree
+        } else if (tree?.children.length) {
+          list.push(...tree?.children)
+        }
+      }
     }
   },
 
