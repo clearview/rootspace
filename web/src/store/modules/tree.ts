@@ -1,5 +1,5 @@
 import { Module } from 'vuex'
-import { findIndex } from 'lodash'
+import { findIndex, cloneDeep } from 'lodash'
 
 import { RootState, TreeState } from '@/types/state'
 import { NodeResource } from '@/types/resource'
@@ -32,8 +32,7 @@ const TreeModule: Module<TreeState, RootState> = {
       return (findIndex(state.favorites, { id: data.id }) >= 0)
     },
     getNode: state => (type: string, id: number) => {
-      // deep copy the whole array to remove reference to actual state due to value reference to actual object (state)
-      const list = [...state.list]
+      const list = cloneDeep(state.list)
 
       while (list.length) {
         const tree = list.pop()
