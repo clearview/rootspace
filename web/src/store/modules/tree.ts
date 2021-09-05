@@ -32,7 +32,7 @@ const TreeModule: Module<TreeState, RootState> = {
       return (findIndex(state.favorites, { id: data.id }) >= 0)
     },
     getNode: state => (type: string, id: number) => {
-      // copy the whole array to avoid reference to actual state due to value reference to actual object (state)
+      // deep copy the whole array to remove reference to actual state due to value reference to actual object (state)
       const list = [...state.list]
 
       while (list.length) {
