@@ -1680,7 +1680,7 @@ export default {
           if (data.title) {
             this.$store.commit('tree/updateNode', {
               compareFn (node) {
-                return node.contentId.toString() === id
+                return node.type === 'doc' && +(node.contentId) === +(id)
               },
               fn (node) {
                 return {
