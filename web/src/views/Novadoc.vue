@@ -902,7 +902,6 @@ import * as Y from 'yjs'
 import CollaborationExtension from './Novadoc/CollaborationExtension'
 import Novaschema from '@/views/Novadoc/Novaschema.js'
 import { colors, textColors, colorCombinations } from '@/views/Novadoc/Computed'
-
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -1050,7 +1049,9 @@ export default {
     handleTitleBlur () {
       // get latest id (contentId) from last active page and only pick it if it's doc
       const activePage = this.$store.getters['space/activeSetting'].activePage
-      const [, , id] = activePage.split('/') || this.id
+      const [, , contentId] = activePage.split('/')
+
+      const id = contentId ?? this.id
 
       this.isTitleFocused = false
 
@@ -1626,7 +1627,9 @@ export default {
       this.isLocked = res.data.isLocked
       this.setSlug(res.data.slug)
       // Phantom emptiness detected
-      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) || this.title.trim().length === 0 || this.title.trim() === 'Untitled') {
+      if ((this.title.charCodeAt(0) === 1 && this.title.charCodeAt(1) === 2) ||
+        this.title.trim().length === 0 || this.title.trim() === 'Untitled'
+      ) {
         this.pageTitle = 'Untitled'
         this.title = ''
         this.$refs.title.focus()
@@ -1657,6 +1660,7 @@ export default {
     },
     async saveTitleOnly (id, newTitle) {
       const title = newTitle.trim().length === 0 ? null : newTitle
+      this.pageTitle = title
 
       const payload = {
         title
@@ -1676,7 +1680,7 @@ export default {
           if (data.title) {
             this.$store.commit('tree/updateNode', {
               compareFn (node) {
-                return node.type === 'doc' && node.contentId.toString() === id
+                return node.contentId.toString() === id
               },
               fn (node) {
                 return {
