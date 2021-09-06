@@ -1002,6 +1002,10 @@ export default {
       this.saveTitleOnly(id, title)
     }, 1000)
     return {
+      prevDocs: {
+        id: null,
+        title: null
+      },
       lengthChecked: false,
       provider: null,
       editor: null,
@@ -1046,15 +1050,17 @@ export default {
     handleTitleBlur () {
       // get latest id (contentId) from last active page and only pick it if it's doc
       const activePage = this.$store.getters['space/activeSetting'].activePage
-      const [, type, contentId] = activePage.split('/') || this.id
-      let id = this.id
-
-      if (type === 'doc') {
-        id = contentId
-      }
+      const [, , id] = activePage.split('/') || this.id
 
       this.isTitleFocused = false
-      this.saveTitleOnly(id, this.title)
+
+      // check if user change between docs faster than 500ms (it's debounce time on activePage state)
+      // if current id is not same with prev doc id, we assume user accidentally click the wrong doc and move to other resource
+      if (this.prevDocs.id && this.prevDocs.id !== id) {
+        this.saveTitleOnly(this.prevDocs.id, this.prevDocs.title)
+      } else {
+        this.saveTitleOnly(id, this.title)
+      }
     },
     hideBubble () {
       const sel = this.editor.view.state.selection
@@ -1804,6 +1810,8 @@ export default {
         if (prev && current !== prev) {
           const node = this.$store.getters['tree/getNode']('doc', prev)
           const title = node.title
+          this.prevDocs.id = prev
+          this.prevDocs.title = title
           this.saveTitleOnly(prev, title)
         }
 
@@ -1822,7 +1830,7 @@ export default {
       const id = this.id
       this.$store.commit('tree/updateNode', {
         compareFn (node) {
-          return node.type === 'doc' && parseInt(node.contentId) === parseInt(id)
+          return node.type === 'doc' && +(node.contentId) === +(id)
         },
         fn (node) {
           return {
