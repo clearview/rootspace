@@ -1,6 +1,17 @@
 import { ActivityResource, UserResource } from '@/types/resource'
 import { formatDueDate } from '@/utils/date'
 import sanitizeHtml from 'sanitize-html'
+import {
+  DocFormat,
+  EmbedFormat,
+  FolderFormat,
+  Formatter,
+  FormatterInterface,
+  LinkFormat,
+  StorageFormat,
+  TaskBoardFormat,
+  TaskFormat
+} from './text-formatter'
 
 const sanitizeOpt = {
   allowedTags: [],
@@ -100,12 +111,12 @@ export function textFormat (data: ActivityResource, userID?: number) {
   let text = `<span class="actor">${userName}</span>&nbsp;`
   let name = ''
   let actName = ''
-  let toName = ''
 
   switch (data.entity) {
     case 'TaskBoard':
       actName = 'task board'
       break
+
     case 'Doc':
       actName = 'document'
       break
@@ -113,18 +124,23 @@ export function textFormat (data: ActivityResource, userID?: number) {
     case 'TaskList':
       actName = 'task list'
       break
+
     case 'Task':
       actName = 'task'
       break
+
     case 'Link':
       actName = 'link'
       break
+
     case 'Embed':
       actName = 'embed'
       break
+
     case 'Node':
       actName = 'node'
       break
+
     case 'Folder':
       actName = 'folder'
       break
@@ -147,34 +163,6 @@ export function textFormat (data: ActivityResource, userID?: number) {
     data.entity === 'Storage'
   ) {
     name = data.context.entity.title.replace(/(^\s+|\s+$)/g, '') || 'Untitled'
-  }
-
-  if (data.entity === 'Storage') {
-    if (data.action === ACTIVITIES_LIST.UploadFile) {
-      name = data.context.filename
-    } else if (data.action === ACTIVITIES_LIST.DeleteFile) {
-      const oldName = data.context.filename
-      const ext = oldName.split('.')[1]
-
-      name = `${data.context.file.name}.${ext}`
-    } else if (data.action === ACTIVITIES_LIST.RenameFile) {
-      name = data.context.fromName
-      const ext = name.split('.')[1]
-
-      toName = `${data.context.toName}.${ext}`
-    }
-  }
-
-  if (data.entity === 'Doc') {
-    let access = ''
-
-    if (data.action === ACTIVITIES_LIST.Open || data.action === ACTIVITIES_LIST.Restricted) {
-      access = data.context.access.type
-    } else if (data.action === ACTIVITIES_LIST.Public || data.action === ACTIVITIES_LIST.Private) {
-      access = data.context.access.public ? 'public' : 'private'
-    }
-
-    text += `<span class="action">change ${actName} <strong>${sanitize(name)}</strong> access to <strong>${access}</strong></span>`
   }
 
   switch (data.action) {
@@ -214,7 +202,10 @@ export function textFormat (data: ActivityResource, userID?: number) {
       } else if (data.entity === 'Doc') {
         const updatedAttributes = data.context.updatedAttributes[0]
         if (updatedAttributes === 'title') {
-          text += `<span class="action">set document title to <strong>${sanitize(data.context.updatedEntity.title)}</strong></span>`
+          const updatedTitle = data.context.updatedEntity.title
+          const title = updatedTitle.trim().length === 0 ? 'Untitled' : updatedTitle
+
+          text += `<span class="action">set document title to <strong>${sanitize(title)}</strong></span>`
         } else if (updatedAttributes === 'content') {
           text += `<span class="action">updated the content of document <strong>${sanitize(data.context.entity.title)}</strong></span>`
         } else {
@@ -336,26 +327,36 @@ export function textFormat (data: ActivityResource, userID?: number) {
       text += '<span class="action">removed an email to this space</span>'
       // text += '<span class="action">removed <strong>[REMOVED EMAIL]</strong> from <strong>space: [NAME SPACE]</strong></span>'
       break
-
-    case ACTIVITIES_LIST.UploadFile:
-      text += `<span class="action">uploaded a file <strong>${name}</strong></span>`
-      break
-
-    case ACTIVITIES_LIST.DeleteFile:
-      text += `<span class="action">deleted a file <strong>${name}</strong></span>`
-      break
-
-    case ACTIVITIES_LIST.RenameFile:
-      text += `<span class="action">renamed a file from <strong>${name}</strong> to <strong>${toName}</strong></span>`
-      break
-
     default:
       break
   }
 
+  let newText = text
+  let formatter: FormatterInterface | undefined
+
+  if (data.entity === 'Doc') {
+    formatter = new Formatter(new DocFormat(data, userName, userID))
+  } else if (data.entity === 'TaskBoard') {
+    formatter = new Formatter(new TaskBoardFormat(data, userName, userID))
+  } else if (data.entity === 'Task') {
+    formatter = new Formatter(new TaskFormat(data, userName, userID))
+  } else if (data.entity === 'Storage') {
+    formatter = new Formatter(new StorageFormat(data, userName, userID))
+  } else if (data.entity === 'Folder') {
+    formatter = new Formatter(new FolderFormat(data, userName, userID))
+  } else if (data.entity === 'Link') {
+    formatter = new Formatter(new LinkFormat(data, userName, userID))
+  } else if (data.entity === 'Embed') {
+    formatter = new Formatter(new EmbedFormat(data, userName, userID))
+  }
+
+  if (formatter) {
+    newText = formatter.format()
+  }
+
   return {
     actor: data.actor,
-    text: text,
+    text: newText,
     createdAt: data.createdAt
   }
 }
