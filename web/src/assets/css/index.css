@@ -3,3 +3,4 @@
 @import './components';
 @import './utilities';
 @import './transitions';
+@import './prosemirror-cursor.css';
