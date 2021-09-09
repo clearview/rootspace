@@ -88,6 +88,7 @@ import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
+import Y from 'yjs'
 
 @Component({
   name: 'TaskLane',
@@ -130,7 +131,7 @@ export default class TaskLane extends Vue {
     private readonly archivedView!: boolean
 
     @InjectReactive(YDoc)
-    private readonly doc!: Object
+    private readonly doc!: Y.Map<any>
 
     @InjectReactive(TaskId)
     private readonly taskId!: string
@@ -219,6 +220,7 @@ export default class TaskLane extends Vue {
     private async reorder (data: any) {
       let newPos: number, id: number, action: string
       const listId = this.list.id
+      let taskItem: TaskItemResource
 
       if (data.added) {
         const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
@@ -228,6 +230,7 @@ export default class TaskLane extends Vue {
         id = data.added.element.id
         newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
         action = 'addedToLane'
+        taskItem = data.added.element
 
         await this.$store.dispatch('task/item/update', {
           id,
@@ -243,6 +246,7 @@ export default class TaskLane extends Vue {
         id = data.moved.element.id
         newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
         action = 'movedToLane'
+        taskItem = data.moved.element
 
         await this.$store.dispatch('task/item/update', {
           id,
@@ -253,6 +257,7 @@ export default class TaskLane extends Vue {
 
       if (data?.moved || data?.added) {
         this.doc.set(this.taskId, {
+          ...taskItem,
           clientId: this.clientId,
           action,
           id,

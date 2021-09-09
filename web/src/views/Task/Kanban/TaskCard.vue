@@ -67,6 +67,7 @@ import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
+import Y from 'yjs'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 
@@ -109,7 +110,7 @@ export default class TaskCard extends Vue {
     private archivedView!: boolean
 
     @InjectReactive(YDoc)
-    private readonly doc!: Object
+    private readonly doc!: Y.Map<any>
 
     @InjectReactive(TaskId)
     private readonly taskId!: string
@@ -155,11 +156,11 @@ export default class TaskCard extends Vue {
       if (this.itemCopy.id === null) {
         console.log('create new task item')
         this.titleEditableRef.blur()
-        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
+        const newItem = await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
 
         this.doc.doc.transact(() => {
           this.doc.set(this.taskId, {
-            ...this.itemCopy,
+            ...newItem,
             title: this.titleEditableRef.innerText.trim(),
             list: undefined,
             action: 'createNewTaskItem',
@@ -174,6 +175,7 @@ export default class TaskCard extends Vue {
         })
 
         this.doc.set(this.taskId, {
+          ...this.itemCopy,
           id: this.item.id,
           title: this.itemCopy.title,
           action: 'updateTaskItem',

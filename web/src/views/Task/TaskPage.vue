@@ -218,7 +218,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private filterVisible = false
   private searchVisible = false
   private provider = null
-  private ydoc = null
+  private ydoc: Y.Doc = null
   private clientId = null
   private id = 'task_' + this.boardId
 
@@ -238,21 +238,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   @ProvideReactive(YDoc)
-  get doc (): Object {
+  get doc (): Y.Map<any> {
     if (this.ydoc) {
       const doc = this.ydoc.getMap(this.taskId)
 
       return doc
     }
-
-    // this.initProvider()
   }
 
   @ProvideReactive(ClientID)
   get clientID (): Number {
     if (this.clientId) return this.clientId
-
-    // this.initProvider()
   }
 
   @ProvideReactive(TaskId)
@@ -466,37 +462,36 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   async observeBoard () {
     const doc = this.ydoc.getMap(this.taskId)
 
-    // this.ydoc.on('update', async (event) => {
-    //   console.log(event)
-    doc.observe((event) => {
-      const data = this.ydoc.toJSON()
-      console.log(event.changes)
-      // this.doTransact(data)
+    this.ydoc.on('update', async (event, origin: any) => {
+      const data = doc.toJSON()
+      console.log('data', data)
 
-      doc.doc.transact(async () => {
-        this.doTransact(data)
-        // event.changes.keys.forEach((change, key) => {
-        //   if (change.action === 'add') {
-        //     console.log(`Property "${key}" was added. Initial value: "${doc.get(key)}".`)
-        //     // this.doTransact(data)
-        //   } else if (change.action === 'update') {
-        //     console.log(`Property "${key}" was updated. New value: "${doc.get(key)}". Previous value: "${change.oldValue}".`)
-        //     this.doTransact(data)
-        //   } else if (change.action === 'delete') {
-        //     this.doTransact(data)
-        //     console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
-        //   }
-        // })
-      })
+      if (origin) {
+        doc.doc.transact(async () => {
+          this.doTransact(data)
+          // event.changes.keys.forEach((change, key) => {
+          //   if (change.action === 'add') {
+          //     console.log(`Property "${key}" was added. Initial value: "${doc.get(key)}".`)
+          //     // this.doTransact(data)
+          //   } else if (change.action === 'update') {
+          //     console.log(`Property "${key}" was updated. New value: "${doc.get(key)}". Previous value: "${change.oldValue}".`)
+          //     // this.doTransact(data)
+          //   } else if (change.action === 'delete') {
+          //     // this.doTransact(data)
+          //     console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
+          //   }
+          // })
+          Y.applyUpdate(this.ydoc, event)
+        })
+      }
     })
   }
 
   private async doTransact (data) {
-    if (data?.[this.taskId]?.[this.taskId]) {
-      const newData = data[this.taskId][this.taskId]
+    if (data?.[this.taskId]) {
+      const newData = data[this.taskId]
       console.log(newData)
       console.log(this.clientId)
-      // console.log('changes', event)
 
       // only operate mutation on peers, so the broadcaster don't have to do mutation again
       if (newData.clientId !== this.clientId) {
@@ -525,29 +520,35 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   private async createTaskItem (data) {
-    if (this.board) {
-      const index = this.board.taskLists.findIndex(list => list.id === data.listId)
-      if (index !== -1) {
-        const list = this.board.taskLists[index]
-        if (!list.tasks) {
-          Vue.set(list, 'tasks', [{
-            ...data,
-            taskComments: [],
-            attachments: [],
-            assignees: [],
-            tags: []
-          }])
-        } else {
-          Vue.set(list.tasks, list.tasks.length, {
-            ...data,
-            taskComments: [],
-            attachments: [],
-            assignees: [],
-            tags: []
-          })
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const index = board.current.taskLists.findIndex(list => list.id === data.listId)
+        if (index !== -1) {
+          const list = board.current.taskLists[index]
+          if (!list.tasks) {
+            list.tasks = [{
+              ...data,
+              taskComments: [],
+              attachments: [],
+              assignees: [],
+              tags: []
+            }]
+          } else {
+            // check if item id is exist on current list
+            const isExist = list.tasks.findIndex(task => task.id === data.id)
+            if (isExist < 0) {
+              list.tasks.push({
+                ...data,
+                taskComments: [],
+                attachments: [],
+                assignees: [],
+                tags: []
+              })
+            }
+          }
         }
       }
-    }
+    })
   }
 
   private async updateTaskItem (data) {
