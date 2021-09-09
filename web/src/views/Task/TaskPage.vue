@@ -524,11 +524,57 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
           case 'restoreTaskItem':
             await this.restoreTaskItem(newData)
             break
+          case 'addAssigneeToTask':
+            await this.addAssignee(newData)
+            break
+          case 'removeAssigneeFromTask':
+            await this.removeAssignee(newData)
+            break
           default:
             break
         }
       }
     }
+  }
+
+  private async removeAssignee (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.map(task => {
+            if (task.id === data.taskId) {
+              if (!task.assignees) {
+                task.assignees = []
+              }
+              task.assignees = task.assignees.filter(t => t.id !== data.userId)
+            }
+            return task
+          })
+          return list
+        })
+      }
+    }, { root: true })
+  }
+
+  private async addAssignee (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.map(task => {
+            if (task.id === data.taskId) {
+              if (!task.assignees) {
+                task.assignees = []
+              }
+              if (data.user) {
+                task.assignees.push(data.user)
+              }
+            }
+            return task
+          })
+          return list
+        })
+      }
+    }, { root: true })
   }
 
   private async restoreTaskItem (data) {

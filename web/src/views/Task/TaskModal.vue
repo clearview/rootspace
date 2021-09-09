@@ -149,7 +149,7 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!archivedView">
+                <MemberPopover @input="handleMemberMenu" :selected-members="assignees" v-if="!archivedView">
                   <template v-slot:trigger>
                     <li class="addmember-button" content="Add Member" v-tippy>
                       <span>
@@ -158,7 +158,7 @@
                     </li>
                   </template>
                 </MemberPopover>
-                <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
+                <li class="assignee cursor-pointer" v-for="(assignee, index) in assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
                   <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
@@ -442,11 +442,23 @@ export default class TaskModal extends Vue {
           taskId: this.item.id,
           userId: member.id
         })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          userId: member.id,
+          action: 'removeAssigneeFromTask'
+        })
       } else {
         await this.$store.dispatch('task/item/addAssigneeToTask', {
           taskId: this.item.id,
           userId: member.id,
           user: member
+        })
+
+        this.updateTaskItem({
+          user: member,
+          taskId: this.item.id,
+          action: 'addAssigneeToTask'
         })
       }
       const currentBoard = this.$store.state.task.board.current
@@ -605,6 +617,10 @@ export default class TaskModal extends Vue {
 
     get title () {
       return this.item.title
+    }
+
+    get assignees () {
+      return this.item.assignees
     }
 
     attachmentState () {
