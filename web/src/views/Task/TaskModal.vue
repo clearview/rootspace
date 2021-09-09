@@ -603,6 +603,11 @@ export default class TaskModal extends Vue {
       await this.$store.dispatch('task/item/archiveTask', {
         taskId: taskId
       })
+
+      this.updateTaskItem({
+        taskId,
+        action: 'archiveTaskItem'
+      })
     }
 
     async restoreTask (taskId: number) {

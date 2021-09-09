@@ -515,11 +515,27 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
           case 'createComment':
             await this.createComment(newData)
             break
+          case 'archiveTaskItem':
+            await this.archiveTaskItem(newData)
+            break
           default:
             break
         }
       }
     }
+  }
+
+  private async archiveTaskItem (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.filter(task => {
+            return !(task.id === data.taskId && list.id === task.listId)
+          })
+          return list
+        })
+      }
+    }, { root: true })
   }
 
   private async createComment (data) {
