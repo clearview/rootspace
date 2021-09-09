@@ -510,6 +510,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
             break
           case 'updateTaskItem':
           case 'updateTaskItemTitle':
+          case 'updateTaskItemDescription':
           case 'addDueDate':
           case 'removeDueDate':
             await this.updateTaskItem(newData)

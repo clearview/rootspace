@@ -357,9 +357,17 @@ export default class TaskModal extends Vue {
     }
 
     async saveDescription (description: object) {
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         description
+      })
+
+      this.updateTaskItem({
+        ...item,
+        description,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'updateTaskItemDescription'
       })
 
       this.itemCopy.description = description
