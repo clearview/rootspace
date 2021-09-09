@@ -241,6 +241,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   get doc (): Y.Map<any> {
     if (this.ydoc) {
       const doc = this.ydoc.getMap(this.taskId)
+      const initialState = Y.encodeStateAsUpdate(this.ydoc)
+      Y.applyUpdate(this.ydoc, initialState)
 
       return doc
     }
@@ -498,25 +500,42 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
         switch (newData.action) {
           case 'addedToLane':
           case 'movedToLane':
-            // await this.$store.dispatch('task/item/update', { ...newData })
             await this.updateTaskItem(newData)
             break
           case 'taskLaneMoved':
             await this.$store.dispatch('task/list/update', { ...newData })
             break
           case 'createNewTaskItem':
-            // await this.$store.dispatch('task/item/create', { ...newData })
             await this.createTaskItem(newData)
             break
           case 'updateTaskItem':
-            // await this.$store.dispatch('task/item/update', { ...newData })
+          case 'updateTaskItemTitle':
             await this.updateTaskItem(newData)
+            break
+          case 'createComment':
+            await this.createComment(newData)
             break
           default:
             break
         }
       }
     }
+  }
+
+  private async createComment (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.map(task => {
+            if (task.id === data.taskId) {
+              task.taskComments.push(data)
+            }
+            return task
+          })
+          return list
+        })
+      }
+    }, { root: true })
   }
 
   private async createTaskItem (data) {

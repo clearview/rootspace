@@ -12,7 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
+          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -198,7 +198,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue, InjectReactive, Watch } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
@@ -217,6 +217,7 @@ import TagsPopover from '@/views/Task/TagsPopover.vue'
 import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
+import Y from 'yjs'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
 import TaskActivities from '@/views/Task/TaskActivities.vue'
@@ -224,6 +225,7 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
+import { ClientID, TaskId, YDoc } from './injectionKeys'
 
 @Component({
   name: 'TaskModal',
@@ -267,6 +269,15 @@ export default class TaskModal extends Vue {
 
     @Inject('modal')
     modal!: ModalInjectedContext
+
+    @InjectReactive(YDoc)
+    private readonly doc!: Y.Map<any>
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false
@@ -377,7 +388,13 @@ export default class TaskModal extends Vue {
           content: this.commentInput,
           taskId: this.item.id
         }
-        await this.$store.dispatch('task/comment/create', commentResource)
+        const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
+        this.updateTaskItem({
+          ...commentItem,
+          id: this.item.id,
+          title: this.itemCopy.title,
+          action: 'createComment'
+        })
         this.commentInput = ''
       } catch (e) {
 
@@ -455,9 +472,15 @@ export default class TaskModal extends Vue {
         if (!this.isUpdatingTitle) {
           this.isUpdatingTitle = true
           this.itemCopy.title = this.titleEditableRef.innerText.trim()
-          await this.$store.dispatch('task/item/update', {
+          const updateItem = await this.$store.dispatch('task/item/update', {
             id: this.item.id,
             title: this.itemCopy.title
+          })
+          this.updateTaskItem({
+            ...updateItem,
+            id: this.item.id,
+            title: this.itemCopy.title,
+            action: 'updateTaskItemTitle'
           })
           this.isUpdatingTitle = false
           this.isEditingTitle = false
@@ -466,6 +489,15 @@ export default class TaskModal extends Vue {
         this.titleEditableRef.innerText = this.itemCopy.title.trim()
         this.titleEditableRef.blur()
       }
+    }
+
+    private updateTaskItem (data) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId
+        })
+      })
     }
 
     get colors () {
@@ -547,6 +579,10 @@ export default class TaskModal extends Vue {
       }
 
       return result
+    }
+
+    get title () {
+      return this.item.title
     }
 
     attachmentState () {

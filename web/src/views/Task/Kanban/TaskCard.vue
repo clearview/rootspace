@@ -174,12 +174,14 @@ export default class TaskCard extends Vue {
           title: this.itemCopy.title
         })
 
-        this.doc.set(this.taskId, {
-          ...this.itemCopy,
-          id: this.item.id,
-          title: this.itemCopy.title,
-          action: 'updateTaskItem',
-          clientId: this.clientId
+        this.doc.doc.transact(() => {
+          this.doc.set(this.taskId, {
+            ...this.itemCopy,
+            id: this.item.id,
+            title: this.itemCopy.title,
+            action: 'updateTaskItem',
+            clientId: this.clientId
+          })
         })
       }
       this.isInputting = false
