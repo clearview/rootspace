@@ -510,6 +510,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
             break
           case 'updateTaskItem':
           case 'updateTaskItemTitle':
+          case 'addDueDate':
+          case 'removeDueDate':
             await this.updateTaskItem(newData)
             break
           case 'createComment':
@@ -518,11 +520,27 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
           case 'archiveTaskItem':
             await this.archiveTaskItem(newData)
             break
+          case 'restoreTaskItem':
+            await this.restoreTaskItem(newData)
+            break
           default:
             break
         }
       }
     }
+  }
+
+  private async restoreTaskItem (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          list.tasks = list.tasks.filter(task => {
+            return !(task.id === data.taskId && list.id === task.listId)
+          })
+          return list
+        })
+      }
+    }, { root: true })
   }
 
   private async archiveTaskItem (data) {

@@ -447,17 +447,31 @@ export default class TaskModal extends Vue {
 
     async handleDateMenu (date: Date) {
       this.itemCopy.dueDate = date
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         dueDate: this.itemCopy.dueDate
+      })
+
+      this.updateTaskItem({
+        ...item,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'addDueDate'
       })
     }
 
     async handleDateClear () {
       this.itemCopy.dueDate = null
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         dueDate: null
+      })
+
+      this.updateTaskItem({
+        ...item,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'removeDueDate'
       })
     }
 
@@ -615,6 +629,11 @@ export default class TaskModal extends Vue {
 
       await this.$store.dispatch('task/item/restoreTask', {
         taskId: taskId
+      })
+
+      this.updateTaskItem({
+        taskId,
+        action: 'restoreTaskItem'
       })
     }
 
