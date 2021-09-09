@@ -530,11 +530,53 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
           case 'removeAssigneeFromTask':
             await this.removeAssignee(newData)
             break
+          case 'addTagToTask':
+            await this.addTagFromTask(newData)
+            break
+          case 'removeTagFromTask':
+            await this.removeTagFromTask(newData)
+            break
           default:
             break
         }
       }
     }
+  }
+
+  private async removeTagFromTask (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          const task = list.tasks.find(task => task.id === data.taskId)
+          if (task && task.tags) {
+            task.tags = task.tags.filter(t => t.id !== data.tagId)
+          }
+          return list
+        })
+      }
+    }, { root: true })
+  }
+
+  private async addTagFromTask (data) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.map(list => {
+          const task = list.tasks.find(task => task.id === data.taskId)
+          const tag = this.$store.state.task.tag.data.find(tag => tag.id === data.tagId)
+          if (task && tag) {
+            if (!task.tags) {
+              task.tags = []
+            }
+
+            const isExist = task.tags.some(tag => tag.id === data.tagId)
+            if (!isExist) {
+              task.tags.push(tag)
+            }
+          }
+          return list
+        })
+      }
+    }, { root: true })
   }
 
   private async removeAssignee (data) {
@@ -566,7 +608,10 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
                 task.assignees = []
               }
               if (data.user) {
-                task.assignees.push(data.user)
+                const isExist = task.assignees.some(assignee => assignee.id === data.user.id)
+                if (!isExist) {
+                  task.assignees.push(data.user)
+                }
               }
             }
             return task
@@ -635,8 +680,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
             }]
           } else {
             // check if item id is exist on current list
-            const isExist = list.tasks.findIndex(task => task.id === data.id)
-            if (isExist < 0) {
+            const isExist = list.tasks.some(task => task.id === data.id)
+            if (!isExist) {
               list.tasks.push({
                 ...data,
                 taskComments: [],

@@ -427,10 +427,22 @@ export default class TaskModal extends Vue {
           taskId: this.item.id,
           tagId: tag.id
         })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          tagId: tag.id,
+          action: 'removeTagFromTask'
+        })
       } else {
         await this.$store.dispatch('task/tag/addToTask', {
           taskId: this.item.id,
           tagId: tag.id
+        })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          tagId: tag.id,
+          action: 'addTagToTask'
         })
       }
     }
