@@ -156,16 +156,19 @@ export const onRestore = (docName: string, userId: number, revisionId: number, y
 
 export const onClientClose = (docName: string, userId: number, ydoc: Y.Doc) => {
   console.log('state onClientClose', docName, 'user', userId) // tslint:disable-line
+  const [type, docId] = docName.split('_')
 
-  if (!updates.has(docName) || !updates.get(docName).has(userId)) {
-    return
+  if (type === 'doc') {
+    if (!updates.has(docName) || !updates.get(docName).has(userId)) {
+      return
+    }
+
+    if (updates.get(docName).get(userId).saved === false) {
+      enqueueSave(docName, userId, ydoc)
+    }
+
+    updates.get(docName).delete(userId)
   }
-
-  if (updates.get(docName).get(userId).saved === false) {
-    enqueueSave(docName, userId, ydoc)
-  }
-
-  updates.get(docName).delete(userId)
 }
 
 const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
@@ -243,13 +246,15 @@ export const persistence = {
       //   .getTaskBoardService()
       //   .getById(id)
 
-      const items = await ServiceFactory.getInstance()
-        .getTaskBoardService()
-        .getAllTasks(id)
+      // const items = await ServiceFactory.getInstance()
+      //   .getTaskBoardService()
+      //   .getAllTasks(id)
 
-      const b = Buffer.from(items)
-      const state = new Uint8Array(b)
-      Y.applyUpdate(ydoc, state)
+      // console.log(items)
+
+      // const b = Buffer.from(items)
+      // const state = new Uint8Array(b)
+      // Y.applyUpdate(ydoc, state)
     }
 
   },

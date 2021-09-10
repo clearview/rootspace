@@ -73,8 +73,6 @@ export default class TaskObserverMixin extends Vue {
               task.tags = []
             }
 
-            debugger
-
             const isExist = task.tags.some((tag: TagResource) => tag.id === data.tagId)
             if (!isExist) {
               task.tags.push(tag)
