@@ -290,11 +290,27 @@ export default class TaskLane extends Vue {
 
       // create new task list / lane
       if (this.listCopy.id === null) {
-        await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
+        const lane = await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
+
+        this.doc.doc.transact(() => {
+          this.doc.set(this.taskId, {
+            ...lane,
+            clientId: this.clientId,
+            action: 'createTaskLane'
+          })
+        })
       } else {
-        await this.$store.dispatch('task/list/update', {
+        const lane = await this.$store.dispatch('task/list/update', {
           id: this.list.id,
           title: this.listCopy.title
+        })
+
+        this.doc.doc.transact(() => {
+          this.doc.set(this.taskId, {
+            ...lane,
+            clientId: this.clientId,
+            action: 'updateTaskLane'
+          })
         })
       }
       this.isInputting = false
@@ -351,9 +367,17 @@ export default class TaskLane extends Vue {
     }
 
     async selectColor (color: string) {
-      await this.$store.dispatch('task/list/update', {
+      const lane = await this.$store.dispatch('task/list/update', {
         id: this.list.id,
         settings: { ...this.listCopy.settings, color }
+      })
+
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...lane,
+          clientId: this.clientId,
+          action: 'updateColorTaskLane'
+        })
       })
       this.setScrollColor()
     }
@@ -368,9 +392,19 @@ export default class TaskLane extends Vue {
 
     async handleMenu (value: string) {
       switch (value) {
-        case 'archive':
+        case 'archive': {
           await this.$store.dispatch('task/list/archive', this.listCopy)
+
+          this.doc.doc.transact(() => {
+            this.doc.set(this.taskId, {
+              ...this.listCopy,
+              clientId: this.clientId,
+              action: 'archiveTaskLane'
+            })
+          })
+
           break
+        }
       }
     }
 

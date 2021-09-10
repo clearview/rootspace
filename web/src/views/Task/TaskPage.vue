@@ -533,6 +533,16 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
           case 'removeTagFromTask':
             await this.removeTagFromTask(newData)
             break
+          case 'createTaskLane':
+            await this.createTaskLane(newData)
+            break
+          case 'updateTaskLane':
+          case 'updateColorTaskLane':
+            await this.updateTaskLane(newData)
+            break
+          case 'archiveTaskLane':
+            await this.archiveTaskLane(newData)
+            break
           default:
             break
         }

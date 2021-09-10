@@ -4,6 +4,34 @@ import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class TaskObserverMixin extends Vue {
+  async archiveTaskLane (data: any) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.filter((list: TaskListResource) => list.id !== data.id)
+      }
+    }, { root: true })
+  }
+
+  async createTaskLane (data:any) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists.push({ ...data, tasks: [] })
+      }
+    }, { root: true })
+  }
+
+  async updateTaskLane (data: any) {
+    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        const index = board.current.taskLists.findIndex(list => list.id === data.id)
+        if (index !== -1) {
+          const old = board.current.taskLists[index]
+          Vue.set(board.current.taskLists, index, { ...data, tasks: old.tasks })
+        }
+      }
+    }, { root: true })
+  }
+
   async removeTagFromTask (data: any) {
     this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
@@ -18,7 +46,7 @@ export default class TaskObserverMixin extends Vue {
     }, { root: true })
   }
 
-  async addTagFromTask (data: any) {
+  async addTagToTask (data: any) {
     this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
         board.current.taskLists = board.current.taskLists.map((list: TaskListResource) => {
@@ -28,6 +56,8 @@ export default class TaskObserverMixin extends Vue {
             if (!task.tags) {
               task.tags = []
             }
+
+            debugger
 
             const isExist = task.tags.some((tag: TagResource) => tag.id === data.tagId)
             if (!isExist) {
