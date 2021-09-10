@@ -338,6 +338,11 @@ export default class TaskModal extends Vue {
           }
         }
         this.isUploading = false
+        this.updateTaskItem({
+          ...this.item,
+          id: this.item.id,
+          action: 'uploadFile'
+        })
       }
     }
 
@@ -350,6 +355,12 @@ export default class TaskModal extends Vue {
       if (this.item.attachments?.length === 0) {
         this.attachmentIndex = null
       }
+
+      this.updateTaskItem({
+        ...this.item,
+        id: this.item.id,
+        action: 'deleteUploadFile'
+      })
     }
 
     handleFileClick (index: number|null) {
