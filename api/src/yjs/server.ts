@@ -123,7 +123,7 @@ const setupCollaboration = (conn: UserWebSocket, req: Http.IncomingMessage) => {
 
 const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, message: any) => {
   const docName = req.url.slice(1)
-  const docId = Number(docName.split('_').pop())
+  const [type, docId] = docName.split('_')
   const decoder = decoding.createDecoder(new Uint8Array(message))
   const msgType = decoding.readVarUint(decoder)
 
@@ -139,7 +139,7 @@ const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, mes
     return null
   }
 
-  if (!(await authorize(user.id, docId))) {
+  if (!(await authorize(user.id, +docId, type))) {
     conn.send(encodeMessage(messageType.unauthorized))
     return null
   }
