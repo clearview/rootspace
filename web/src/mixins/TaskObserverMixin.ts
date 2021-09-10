@@ -4,6 +4,22 @@ import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class TaskObserverMixin extends Vue {
+  async createTag (data: any) {
+    if (!this.$store.state.task.tag.data) {
+      this.$store.state.task.tag.data = []
+    }
+    this.$store.state.task.tag.data.push(data)
+  }
+
+  async updateTag (data: any) {
+    this.$store.state.task.tag.data = this.$store.state.task.tag.data.map((tag: TagResource) => {
+      if (tag.id === data.id) {
+        return data
+      }
+      return tag
+    })
+  }
+
   async archiveTaskLane (data: any) {
     this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {

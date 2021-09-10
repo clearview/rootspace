@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue, Prop, Ref, InjectReactive } from 'vue-property-decorator'
+import { Component, Emit, Vue, Prop, Ref } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
 

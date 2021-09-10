@@ -67,7 +67,7 @@ import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
-import Y from 'yjs'
+import * as Y from 'yjs'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 

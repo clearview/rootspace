@@ -88,7 +88,7 @@ import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
-import Y from 'yjs'
+import * as Y from 'yjs'
 
 @Component({
   name: 'TaskLane',

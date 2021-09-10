@@ -199,7 +199,7 @@
 
 <script lang="ts">
 import { ClientID, TaskId, YDoc } from './injectionKeys'
-import { Component, Emit, Inject, Prop, Ref, Vue, InjectReactive, Watch } from 'vue-property-decorator'
+import { Component, Emit, Inject, Prop, Ref, Vue, InjectReactive } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,

@@ -215,7 +215,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   private filterVisible = false
   private searchVisible = false
   private provider = null
-  private ydoc: Y.Doc = null
+  private ydoc: Y.Doc = new Y.Doc()
   private clientId = null
   private id = 'task_' + this.boardId
 
@@ -236,18 +236,20 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
 
   @ProvideReactive(YDoc)
   get doc (): Y.Map<any> {
-    if (this.ydoc) {
-      const doc = this.ydoc.getMap(this.taskId)
-      const initialState = Y.encodeStateAsUpdate(this.ydoc)
-      Y.applyUpdate(this.ydoc, initialState)
-
-      return doc
+    if (!this.ydoc) {
+      this.ydoc = new Y.Doc()
     }
+
+    const doc = this.ydoc.getMap(this.taskId)
+    const initialState = Y.encodeStateAsUpdate(this.ydoc)
+    Y.applyUpdate(this.ydoc, initialState)
+
+    return doc
   }
 
   @ProvideReactive(ClientID)
   get clientID (): Number {
-    if (this.clientId) return this.clientId
+    return this.clientId
   }
 
   @ProvideReactive(TaskId)
@@ -431,6 +433,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   async mounted () {
     await this.getSpaceMember()
     await this.fetchTask()
+    this.clientId = this.currentUser().id
     this.initProvider()
 
     EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
@@ -528,7 +531,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
             await this.removeAssignee(newData)
             break
           case 'addTagToTask':
-            await this.addTagFromTask(newData)
+            await this.addTagToTask(newData)
             break
           case 'removeTagFromTask':
             await this.removeTagFromTask(newData)
@@ -542,6 +545,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
             break
           case 'archiveTaskLane':
             await this.archiveTaskLane(newData)
+            break
+          case 'createTag':
+            await this.createTag(newData)
+            break
+          case 'updateTag':
+            await this.updateTag(newData)
             break
           default:
             break
@@ -557,9 +566,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
       throw new Error('process.env.VUE_APP_YWS_URL is missing')
     }
 
-    this.ydoc = new Y.Doc()
-    this.clientId = this.currentUser().id
-    this.provider = new WebsocketProvider(wsProviderUrl, this.id, this.ydoc)
+    this.provider = new WebsocketProvider(wsProviderUrl, this.taskId, this.ydoc)
 
     const wsAuthenticate = () => {
       const encoder = encoding.createEncoder()

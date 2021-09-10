@@ -60,6 +60,7 @@ import TaskLane from './TaskLane.vue'
 import TaskAddLane from './TaskAddLane.vue'
 import TaskGhost from './TaskGhost.vue'
 import { ArchivedViewKey, ClientID, TaskId, YDoc } from '../injectionKeys'
+import * as Y from 'yjs'
 
 @Component({
   name: 'BoardManager',
@@ -79,7 +80,7 @@ export default class BoardManager extends Vue {
   private archivedView!: boolean
 
   @InjectReactive(YDoc)
-  private readonly doc!: Object
+  private readonly doc!: Y.Map<any>
 
   @InjectReactive(TaskId)
   private readonly taskId!: string
