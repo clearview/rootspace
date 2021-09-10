@@ -150,15 +150,13 @@ import {
   TagResource,
   TaskBoardResource,
   TaskBoardType,
-  UserResource,
-  TaskItemResource,
-  TaskListResource,
-  ResourceState
+  UserResource
 } from '@/types/resource'
 
 import SpaceService from '@/services/space'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
+import TaskObserverMixin from '@/mixins/TaskObserverMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
 import EventBus from '@/utils/eventBus'
 import FilterBar from './FilterBar.vue'
@@ -176,7 +174,6 @@ import * as encoding from 'lib0/encoding.js'
 import * as decoding from 'lib0/decoding.js'
 import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs'
-import Vue from 'vue'
 
 const wsMessageType = {
   authenticate: 10,
@@ -202,7 +199,7 @@ const wsMessageType = {
     Loading
   }
 })
-export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
+export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserverMixin) {
   private search = ''
   private filters = {
     tags: [],
@@ -541,203 +538,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
         }
       }
     }
-  }
-
-  private async removeTagFromTask (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          const task = list.tasks.find(task => task.id === data.taskId)
-          if (task && task.tags) {
-            task.tags = task.tags.filter(t => t.id !== data.tagId)
-          }
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async addTagFromTask (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          const task = list.tasks.find(task => task.id === data.taskId)
-          const tag = this.$store.state.task.tag.data.find(tag => tag.id === data.tagId)
-          if (task && tag) {
-            if (!task.tags) {
-              task.tags = []
-            }
-
-            const isExist = task.tags.some(tag => tag.id === data.tagId)
-            if (!isExist) {
-              task.tags.push(tag)
-            }
-          }
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async removeAssignee (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.map(task => {
-            if (task.id === data.taskId) {
-              if (!task.assignees) {
-                task.assignees = []
-              }
-              task.assignees = task.assignees.filter(t => t.id !== data.userId)
-            }
-            return task
-          })
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async addAssignee (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.map(task => {
-            if (task.id === data.taskId) {
-              if (!task.assignees) {
-                task.assignees = []
-              }
-              if (data.user) {
-                const isExist = task.assignees.some(assignee => assignee.id === data.user.id)
-                if (!isExist) {
-                  task.assignees.push(data.user)
-                }
-              }
-            }
-            return task
-          })
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async restoreTaskItem (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.filter(task => {
-            return !(task.id === data.taskId && list.id === task.listId)
-          })
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async archiveTaskItem (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.filter(task => {
-            return !(task.id === data.taskId && list.id === task.listId)
-          })
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async createComment (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        board.current.taskLists = board.current.taskLists.map(list => {
-          list.tasks = list.tasks.map(task => {
-            if (task.id === data.taskId) {
-              task.taskComments.push(data)
-            }
-            return task
-          })
-          return list
-        })
-      }
-    }, { root: true })
-  }
-
-  private async createTaskItem (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        const index = board.current.taskLists.findIndex(list => list.id === data.listId)
-        if (index !== -1) {
-          const list = board.current.taskLists[index]
-          if (!list.tasks) {
-            list.tasks = [{
-              ...data,
-              taskComments: [],
-              attachments: [],
-              assignees: [],
-              tags: []
-            }]
-          } else {
-            // check if item id is exist on current list
-            const isExist = list.tasks.some(task => task.id === data.id)
-            if (!isExist) {
-              list.tasks.push({
-                ...data,
-                taskComments: [],
-                attachments: [],
-                assignees: [],
-                tags: []
-              })
-            }
-          }
-        }
-      }
-    })
-  }
-
-  private async updateTaskItem (data) {
-    this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
-      if (board.current) {
-        const list = board.current.taskLists.find(list => list.id === data.listId)
-        if (list) {
-          let oldItem: TaskItemResource | null = null
-          let oldList: TaskListResource | null = null
-          for (const lst of board.current.taskLists) {
-            for (const tsk of lst.tasks) {
-              if (tsk.id === data.id) {
-                oldItem = tsk
-                oldList = lst
-                break
-              }
-            }
-          }
-          if (oldItem && oldList) {
-            // Moved to another lane
-            if (oldItem.listId !== data.listId) {
-              oldList.tasks = oldList.tasks.filter(task => task.id !== data.id)
-              const targetList = board.current.taskLists.find(list => list.id === data.listId)
-              if (targetList) {
-                if (!targetList.tasks) {
-                  targetList.tasks = [data]
-                } else {
-                  targetList.tasks.push(data)
-                }
-              }
-            } else {
-              list.tasks = list.tasks.map(task => {
-                if (task.id === data.id) {
-                  return {
-                    ...data
-                  }
-                }
-                return task
-              })
-            }
-          }
-        }
-      }
-    }, { root: true })
   }
 
   initProvider () {
