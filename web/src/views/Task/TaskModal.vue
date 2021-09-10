@@ -50,7 +50,7 @@
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
             </button>
-            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
+            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags" @create="handleCreateTag" @update="handleUpdateTag">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <legacy-icon name="tag" size="1rem" viewbox="20"/>
@@ -198,6 +198,7 @@
 </template>
 
 <script lang="ts">
+import { ClientID, TaskId, YDoc } from './injectionKeys'
 import { Component, Emit, Inject, Prop, Ref, Vue, InjectReactive, Watch } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
@@ -217,7 +218,7 @@ import TagsPopover from '@/views/Task/TagsPopover.vue'
 import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
-import Y from 'yjs'
+import * as Y from 'yjs'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
 import TaskActivities from '@/views/Task/TaskActivities.vue'
@@ -225,7 +226,6 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
-import { ClientID, TaskId, YDoc } from './injectionKeys'
 
 @Component({
   name: 'TaskModal',
@@ -306,6 +306,26 @@ export default class TaskModal extends Vue {
     @Emit('close')
     close () {
       this.cancelDescription()
+    }
+
+    handleCreateTag (data) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId,
+          action: 'createTag'
+        })
+      })
+    }
+
+    handleUpdateTag (data) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId,
+          action: 'updateTag'
+        })
+      })
     }
 
     pickFile () {

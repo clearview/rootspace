@@ -88,7 +88,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue, Prop, Ref } from 'vue-property-decorator'
+import { Component, Emit, Vue, Prop, Ref, InjectReactive } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
 
@@ -138,13 +138,23 @@ export default class TagsPopover extends Vue {
     } as TagResource
     if (this.tagsState === 'edit') {
       const url = 'task/tag/updateTag'
-      await this.$store.dispatch(url, {
+      const item = await this.$store.dispatch(url, {
         tagId: this.idEditedTag,
         data: data
       } as object)
+
+      this.$emit('update', {
+        ...data,
+        ...item
+      })
     } else {
       const url = 'task/tag/create'
-      await this.$store.dispatch(url, data)
+      const item = await this.$store.dispatch(url, data)
+
+      this.$emit('create', {
+        ...data,
+        ...item
+      })
     }
 
     this.tagInput = ''
