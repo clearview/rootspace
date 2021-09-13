@@ -215,7 +215,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   private filterVisible = false
   private searchVisible = false
   private provider = null
-  private ydoc: Y.Doc = new Y.Doc()
+  private ydoc: Y.Doc
   private clientId = null
   private id = 'task_' + this.boardId
 
@@ -284,7 +284,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   }
 
   get boardId (): number {
-    return parseInt(this.$route.params.id)
+    return +(this.$route.params.id)
   }
 
   get prefferedView (): TaskBoardType {
@@ -298,7 +298,24 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     return !this.$store.state.task.settings.seenViewTip
   }
 
-  @Watch('boardId')
+  @Watch('boardId', { immediate: true })
+  async load () {
+    await this.fetchOnSwitchBoard()
+    await this.getSpaceMember()
+    this.initCollaboration()
+
+    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
+  }
+
+  private initCollaboration () {
+    this.destroyCollaboration()
+
+    this.id = `task_${this.boardId.toString()}`
+    this.clientId = this.currentUser().id
+    this.initYdoc()
+    this.initProvider()
+  }
+
   async fetchOnSwitchBoard () {
     this.firstLoad = true
 
@@ -314,7 +331,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     await this.fetchTask()
   }
 
-  @Watch('boardId')
   async getSpaceMember () {
     try {
       const id = this.activeSpace.id
@@ -430,21 +446,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     }
   }
 
-  async mounted () {
-    await this.getSpaceMember()
-    await this.fetchTask()
-    this.clientId = this.currentUser().id
-    this.initProvider()
-
-    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
-  }
-
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
   beforeDestroy () {
-    this.ydoc.destroy()
+    this.destroyCollaboration()
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
@@ -559,14 +566,30 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     }
   }
 
-  initProvider () {
+  private destroyCollaboration () {
+    if (this.ydoc) {
+      this.ydoc.destroy()
+    }
+
+    if (this.provider) {
+      this.provider.destroy()
+    }
+  }
+
+  private initYdoc () {
+    if (!this.ydoc) {
+      this.ydoc = new Y.Doc()
+    }
+  }
+
+  private initProvider () {
     const wsProviderUrl = process.env.VUE_APP_YWS_URL
 
     if (!wsProviderUrl) {
       throw new Error('process.env.VUE_APP_YWS_URL is missing')
     }
 
-    this.provider = new WebsocketProvider(wsProviderUrl, this.taskId, this.ydoc)
+    this.provider = new WebsocketProvider(wsProviderUrl, this.id, this.ydoc)
 
     const wsAuthenticate = () => {
       const encoder = encoding.createEncoder()
