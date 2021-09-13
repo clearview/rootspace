@@ -31,7 +31,11 @@ export default class TaskObserverMixin extends Vue {
   async createTaskLane (data:any) {
     this.$store.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
       if (board.current) {
-        board.current.taskLists.push({ ...data, tasks: [] })
+        const isExist = board.current.taskLists.some((list: TaskListResource) => list.id === data.id)
+
+        if (!isExist) {
+          board.current.taskLists.push({ ...data, tasks: [] })
+        }
       }
     }, { root: true })
   }
