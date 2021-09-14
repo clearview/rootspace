@@ -141,7 +141,6 @@ export default class BoardManager extends Vue {
   }
 
   async reorder (data: any) {
-    console.log(data)
     if (data.moved) {
       const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
       const prev = this.orderedLanes[prevIndex]
@@ -154,12 +153,14 @@ export default class BoardManager extends Vue {
         position: newPos
       })
 
-      this.doc.set(this.taskId, {
-        clientId: this.clientId,
-        action: 'taskLaneMoved',
-        id: data.moved.element.id,
-        position: newPos
-      })
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          clientId: this.clientId,
+          action: 'taskLaneMoved',
+          id: data.moved.element.id,
+          position: newPos
+        })
+      }, this.clientId)
     }
   }
 }

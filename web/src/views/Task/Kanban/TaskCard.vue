@@ -154,39 +154,40 @@ export default class TaskCard extends Vue {
 
       // create new task item
       if (this.itemCopy.id === null) {
-        console.log('create new task item')
         this.titleEditableRef.blur()
         const newItem = await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
 
-        this.doc.doc.transact(() => {
-          this.doc.set(this.taskId, {
-            ...newItem,
-            title: this.titleEditableRef.innerText.trim(),
-            list: undefined,
-            action: 'createNewTaskItem',
-            clientId: this.clientId
-          })
+        this.transact({
+          ...newItem,
+          title: this.titleEditableRef.innerText.trim(),
+          list: undefined,
+          action: 'createNewTaskItem'
         })
       } else {
-        console.log('update task item')
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
         })
 
-        this.doc.doc.transact(() => {
-          this.doc.set(this.taskId, {
-            ...this.itemCopy,
-            id: this.item.id,
-            title: this.itemCopy.title,
-            action: 'updateTaskItem',
-            clientId: this.clientId
-          })
+        this.transact({
+          ...this.itemCopy,
+          id: this.item.id,
+          title: this.itemCopy.title,
+          action: 'updateTaskItem'
         })
       }
       this.isInputting = false
       this.$emit('save', this.itemCopy)
       return this.itemCopy
+    }
+
+    private transact (data: any) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId
+        })
+      }, this.clientId)
     }
 
     @Emit('cancel')

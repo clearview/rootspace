@@ -309,22 +309,16 @@ export default class TaskModal extends Vue {
     }
 
     handleCreateTag (data) {
-      this.doc.doc.transact(() => {
-        this.doc.set(this.taskId, {
-          ...data,
-          clientId: this.clientId,
-          action: 'createTag'
-        })
+      this.updateTaskItem({
+        ...data,
+        action: 'createTag'
       })
     }
 
     handleUpdateTag (data) {
-      this.doc.doc.transact(() => {
-        this.doc.set(this.taskId, {
-          ...data,
-          clientId: this.clientId,
-          action: 'updateTag'
-        })
+      this.updateTaskItem({
+        ...data,
+        action: 'updateTag'
       })
     }
 
@@ -574,7 +568,7 @@ export default class TaskModal extends Vue {
           ...data,
           clientId: this.clientId
         })
-      })
+      }, this.clientId)
     }
 
     get colors () {

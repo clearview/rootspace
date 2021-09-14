@@ -146,9 +146,11 @@ const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, mes
 
   conn.user = user
 
-  if (state.queue.isRunning(docName) === true) {
-    connWait(conn, req)
-    return
+  if (type === 'doc') {
+    if (state.queue.isRunning(docName) === true) {
+      connWait(conn, req)
+      return
+    }
   }
 
   setupCollaboration(conn, req)

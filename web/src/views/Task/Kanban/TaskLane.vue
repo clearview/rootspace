@@ -256,7 +256,7 @@ export default class TaskLane extends Vue {
       }
 
       if (data?.moved || data?.added) {
-        this.doc.set(this.taskId, {
+        this.transact({
           ...taskItem,
           clientId: this.clientId,
           action,
@@ -269,7 +269,6 @@ export default class TaskLane extends Vue {
 
     get dragOptions () {
       return {
-
         delay: 14,
         group: 'cards',
         disabled: false,
@@ -292,12 +291,10 @@ export default class TaskLane extends Vue {
       if (this.listCopy.id === null) {
         const lane = await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
 
-        this.doc.doc.transact(() => {
-          this.doc.set(this.taskId, {
-            ...lane,
-            clientId: this.clientId,
-            action: 'createTaskLane'
-          })
+        this.transact({
+          ...lane,
+          clientId: this.clientId,
+          action: 'createTaskLane'
         })
       } else {
         const lane = await this.$store.dispatch('task/list/update', {
@@ -305,12 +302,10 @@ export default class TaskLane extends Vue {
           title: this.listCopy.title
         })
 
-        this.doc.doc.transact(() => {
-          this.doc.set(this.taskId, {
-            ...lane,
-            clientId: this.clientId,
-            action: 'updateTaskLane'
-          })
+        this.transact({
+          ...lane,
+          clientId: this.clientId,
+          action: 'updateTaskLane'
         })
       }
       this.isInputting = false
@@ -372,12 +367,10 @@ export default class TaskLane extends Vue {
         settings: { ...this.listCopy.settings, color }
       })
 
-      this.doc.doc.transact(() => {
-        this.doc.set(this.taskId, {
-          ...lane,
-          clientId: this.clientId,
-          action: 'updateColorTaskLane'
-        })
+      this.transact({
+        ...lane,
+        clientId: this.clientId,
+        action: 'updateColorTaskLane'
       })
       this.setScrollColor()
     }
@@ -395,12 +388,10 @@ export default class TaskLane extends Vue {
         case 'archive': {
           await this.$store.dispatch('task/list/archive', this.listCopy)
 
-          this.doc.doc.transact(() => {
-            this.doc.set(this.taskId, {
-              ...this.listCopy,
-              clientId: this.clientId,
-              action: 'archiveTaskLane'
-            })
+          this.transact({
+            ...this.listCopy,
+            clientId: this.clientId,
+            action: 'archiveTaskLane'
           })
 
           break
@@ -411,6 +402,14 @@ export default class TaskLane extends Vue {
     handleCardContainerScroll () {
       this.containerShadowTop = this.cardContainerRef.scrollTop > 0
       this.containerShadowBottom = this.cardContainerRef.scrollTop < (this.cardContainerRef.scrollHeight - this.cardContainerRef.offsetHeight)
+    }
+
+    private transact (data: any) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data
+        })
+      }, this.clientId)
     }
 }
 </script>

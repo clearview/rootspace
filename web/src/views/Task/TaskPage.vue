@@ -241,8 +241,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     }
 
     const doc = this.ydoc.getMap(this.taskId)
-    const initialState = Y.encodeStateAsUpdate(this.ydoc)
-    Y.applyUpdate(this.ydoc, initialState)
 
     return doc
   }
@@ -450,7 +448,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
+  beforeCreate () {
+    window.addEventListener('unload', this.destroyCollaboration)
+  }
+
   beforeDestroy () {
+    window.removeEventListener('unload', this.destroyCollaboration)
+
     this.destroyCollaboration()
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
@@ -471,27 +475,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   async observeBoard () {
     const doc = this.ydoc.getMap(this.taskId)
 
-    this.ydoc.on('update', async (event, origin: any) => {
+    this.ydoc.on('update', (event, origin: any) => {
       const data = doc.toJSON()
-      console.log('data', data)
 
-      if (origin) {
-        doc.doc.transact(async () => {
-          this.doTransact(data)
-          // event.changes.keys.forEach((change, key) => {
-          //   if (change.action === 'add') {
-          //     console.log(`Property "${key}" was added. Initial value: "${doc.get(key)}".`)
-          //     // this.doTransact(data)
-          //   } else if (change.action === 'update') {
-          //     console.log(`Property "${key}" was updated. New value: "${doc.get(key)}". Previous value: "${change.oldValue}".`)
-          //     // this.doTransact(data)
-          //   } else if (change.action === 'delete') {
-          //     // this.doTransact(data)
-          //     console.log(`Property "${key}" was deleted. New value: undefined. Previous value: "${change.oldValue}".`)
-          //   }
-          // })
-          Y.applyUpdate(this.ydoc, event)
-        })
+      if (origin !== this.clientId) {
+        this.doTransact(data)
+        Y.applyUpdate(this.ydoc, event)
       }
     })
   }
@@ -499,8 +488,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   private async doTransact (data) {
     if (data?.[this.taskId]) {
       const newData = data[this.taskId]
-      console.log(newData)
-      console.log(this.clientId)
 
       // only operate mutation on peers, so the broadcaster don't have to do mutation again
       if (newData.clientId !== this.clientId) {

@@ -114,20 +114,23 @@ const debouncedQueueSave = debounce(({ docName, userId, ydoc }: any) => enqueueS
 
 export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
   console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
+  const [type, docId] = docName.split('_')
 
-  if (!updates.get(docName)) {
-    updates.set(docName, new Map())
+  if (type === 'doc') {
+    if (!updates.get(docName)) {
+      updates.set(docName, new Map())
+    }
+
+    if (!updates.get(docName).has(userId)) {
+      updates.get(docName).set(userId, { lastSave: Date.now(), saved: false })
+      return
+    }
+
+    updates.get(docName).get(userId).saved = false
+
+    // calling the function which enqueue the save action the document to save the doc in db
+    debouncedQueueSave({ docName, userId, ydoc })
   }
-
-  if (!updates.get(docName).has(userId)) {
-    updates.get(docName).set(userId, { lastSave: Date.now(), saved: false })
-    return
-  }
-
-  updates.get(docName).get(userId).saved = false
-
-  // calling the function which enqueue the save action the document to save the doc in db
-  debouncedQueueSave({ docName, userId, ydoc })
 }
 
 export const onRestore = (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
@@ -208,7 +211,7 @@ export const save = async (docName: string, userId: number, state: Uint8Array, j
       .getDocService()
       .update(data, id, userId)
   } else if (type === 'task') {
-    console.log(state, json)  // tslint:disable-line
+    // console.log(state, json)  // tslint:disable-line
   }
 
   console.log('state saved', docName, 'user', userId) // tslint:disable-line
@@ -252,16 +255,22 @@ export const persistence = {
 
       // console.log(items)
 
-      // const b = Buffer.from(items)
+      // const b = Buffer.from(JSON.stringify({}))
       // const state = new Uint8Array(b)
+      // const state = buffer.from(JSON.stringify({}), 'base64')
+      // const b = Buffer.from('[]').toString('base64')
+      // const state = buffer.fromBase64(b)
       // Y.applyUpdate(ydoc, state)
     }
 
   },
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
+    const [type,] = docName.split('_')
 
-    updates.delete(docName)
-    console.log('state updates', updates) // tslint:disable-line
+    if (type === 'doc') {
+      updates.delete(docName)
+      console.log('state updates', updates) // tslint:disable-line
+    }
   },
 }
