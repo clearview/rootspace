@@ -172,7 +172,7 @@ const onMessage = (conn: UserWebSocket, req: Http.IncomingMessage, message: any)
   if (msgType === messageSync) {
     const syncMessageType = decoding.readVarUint(decoder)
     if (syncMessageType > 0) {
-      state.onUpdate(req.url.slice(1), conn.user.id, sharedDoc)
+      state.onUpdate(docName, conn.user.id, sharedDoc)
     }
   }
 

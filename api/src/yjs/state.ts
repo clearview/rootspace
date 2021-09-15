@@ -136,32 +136,36 @@ export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
 export const onRestore = (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
   console.log('state onRestore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 
-  if (updates.has(docName)) {
-    updates.get(docName).forEach((info, updateBy) => {
-      if (info.saved === false) {
-        enqueueSave(docName, updateBy, ydoc)
-      }
-    })
-  }
+  const [type,] = docName.split('_')
 
-  const action: StateAction = {
-    name: 'restore',
-    lock: true,
-    docName,
-    userId,
-    data: {
-      revisionId,
-    },
-  }
+  if (type === 'doc') {
+    if (updates.has(docName)) {
+      updates.get(docName).forEach((info, updateBy) => {
+        if (info.saved === false) {
+          enqueueSave(docName, updateBy, ydoc)
+        }
+      })
+    }
 
-  queue.enqueue(action)
+    const action: StateAction = {
+      name: 'restore',
+      lock: true,
+      docName,
+      userId,
+      data: {
+        revisionId,
+      },
+    }
+
+    queue.enqueue(action)
+  }
 }
 
 export const onClientClose = (docName: string, userId: number, ydoc: Y.Doc) => {
   console.log('state onClientClose', docName, 'user', userId) // tslint:disable-line
-  const [type, docId] = docName.split('_')
+  const [type,] = docName.split('_')
 
-  if (type === 'doc') {
+  if (type === 'doc' && updates.get(docName).get(userId).saved === false) {
     if (!updates.has(docName) || !updates.get(docName).has(userId)) {
       return
     }
@@ -270,7 +274,6 @@ export const persistence = {
 
     if (type === 'doc') {
       updates.delete(docName)
-      console.log('state updates', updates) // tslint:disable-line
     }
   },
 }
