@@ -490,65 +490,63 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
       const newData = data[this.taskId]
 
       // only operate mutation on peers, so the broadcaster don't have to do mutation again
-      if (newData.clientId !== this.clientId) {
-        switch (newData.action) {
-          case 'addedToLane':
-          case 'movedToLane':
-          case 'updateTaskItem':
-          case 'updateTaskItemTitle':
-          case 'updateTaskItemDescription':
-          case 'addDueDate':
-          case 'removeDueDate':
-          case 'uploadFile':
-          case 'deleteUploadFile':
-            await this.updateTaskItem(newData)
-            break
-          case 'taskLaneMoved':
-            await this.$store.dispatch('task/list/update', { ...newData })
-            break
-          case 'createNewTaskItem':
-            await this.createTaskItem(newData)
-            break
-          case 'createComment':
-            await this.createComment(newData)
-            break
-          case 'archiveTaskItem':
-            await this.archiveTaskItem(newData)
-            break
-          case 'restoreTaskItem':
-            await this.restoreTaskItem(newData)
-            break
-          case 'addAssigneeToTask':
-            await this.addAssignee(newData)
-            break
-          case 'removeAssigneeFromTask':
-            await this.removeAssignee(newData)
-            break
-          case 'addTagToTask':
-            await this.addTagToTask(newData)
-            break
-          case 'removeTagFromTask':
-            await this.removeTagFromTask(newData)
-            break
-          case 'createTaskLane':
-            await this.createTaskLane(newData)
-            break
-          case 'updateTaskLane':
-          case 'updateColorTaskLane':
-            await this.updateTaskLane(newData)
-            break
-          case 'archiveTaskLane':
-            await this.archiveTaskLane(newData)
-            break
-          case 'createTag':
-            await this.createTag(newData)
-            break
-          case 'updateTag':
-            await this.updateTag(newData)
-            break
-          default:
-            break
-        }
+      switch (newData.action) {
+        case 'addedToLane':
+        case 'movedToLane':
+        case 'updateTaskItem':
+        case 'updateTaskItemTitle':
+        case 'updateTaskItemDescription':
+        case 'addDueDate':
+        case 'removeDueDate':
+        case 'uploadFile':
+        case 'deleteUploadFile':
+          await this.updateTaskItem(newData)
+          break
+        case 'taskLaneMoved':
+          await this.$store.dispatch('task/list/update', { ...newData })
+          break
+        case 'createNewTaskItem':
+          await this.createTaskItem(newData)
+          break
+        case 'createComment':
+          await this.createComment(newData)
+          break
+        case 'archiveTaskItem':
+          await this.archiveTaskItem(newData)
+          break
+        case 'restoreTaskItem':
+          await this.restoreTaskItem(newData)
+          break
+        case 'addAssigneeToTask':
+          await this.addAssignee(newData)
+          break
+        case 'removeAssigneeFromTask':
+          await this.removeAssignee(newData)
+          break
+        case 'addTagToTask':
+          await this.addTagToTask(newData)
+          break
+        case 'removeTagFromTask':
+          await this.removeTagFromTask(newData)
+          break
+        case 'createTaskLane':
+          await this.createTaskLane(newData)
+          break
+        case 'updateTaskLane':
+        case 'updateColorTaskLane':
+          await this.updateTaskLane(newData)
+          break
+        case 'archiveTaskLane':
+          await this.archiveTaskLane(newData)
+          break
+        case 'createTag':
+          await this.createTag(newData)
+          break
+        case 'updateTag':
+          await this.updateTag(newData)
+          break
+        default:
+          break
       }
     }
   }
