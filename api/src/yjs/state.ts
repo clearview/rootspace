@@ -4,6 +4,7 @@ import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../services/content/doc'
 import { debounce } from '../utils'
+import TaskState from './task'
 
 interface StateAction {
   name: string
@@ -108,6 +109,7 @@ class StateQueue extends EventEmitter {
 
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
+const task = new TaskState()
 
 // debouncing enqueueSave so that we do not abuse the enqueue function
 const debouncedQueueSave = debounce(({ docName, userId, ydoc }: any) => enqueueSave(docName, userId, ydoc), 2000)
@@ -130,6 +132,8 @@ export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
 
     // calling the function which enqueue the save action the document to save the doc in db
     debouncedQueueSave({ docName, userId, ydoc })
+  } else if (type === 'task') {
+    task.onUpdate(docName, userId, ydoc)
   }
 }
 
@@ -158,6 +162,8 @@ export const onRestore = (docName: string, userId: number, revisionId: number, y
     }
 
     queue.enqueue(action)
+  } else if (type === 'task') {
+    task.onRestore(docName, userId, revisionId, ydoc)
   }
 }
 
@@ -175,6 +181,8 @@ export const onClientClose = (docName: string, userId: number, ydoc: Y.Doc) => {
     }
 
     updates.get(docName).delete(userId)
+  } else if (type === 'task') {
+    task.onClientClose(docName, userId, ydoc)
   }
 }
 
@@ -249,22 +257,7 @@ export const persistence = {
         Y.applyUpdate(ydoc, state)
       }
     } else if (type === 'task') {
-      // const doc = await ServiceFactory.getInstance()
-      //   .getTaskBoardService()
-      //   .getById(id)
-
-      // const items = await ServiceFactory.getInstance()
-      //   .getTaskBoardService()
-      //   .getAllTasks(id)
-
-      // console.log(items)
-
-      // const b = Buffer.from(JSON.stringify({}))
-      // const state = new Uint8Array(b)
-      // const state = buffer.from(JSON.stringify({}), 'base64')
-      // const b = Buffer.from('[]').toString('base64')
-      // const state = buffer.fromBase64(b)
-      // Y.applyUpdate(ydoc, state)
+      task.bindState(docName, ydoc)
     }
 
   },
@@ -274,6 +267,8 @@ export const persistence = {
 
     if (type === 'doc') {
       updates.delete(docName)
+    } else if (type === 'task') {
+      task.writeState(docName, ydoc)
     }
   },
 }
