@@ -9,6 +9,6 @@ export type ContentAccessCreateAttributes = {
 }
 
 export type ContentAccessUpdateAttributes = {
-  readonly type: string
+  readonly type: string | 'Open' | 'Restricted'
   readonly public: boolean
 }
