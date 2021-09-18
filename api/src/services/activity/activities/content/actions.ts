@@ -22,3 +22,10 @@ export const UserStorageActions = {
   Delete_File: 'Delete_File',
   Rename_File: 'Rename_File',
 }
+
+export const ContentAccessActions = {
+  Public: 'Set_Public',
+  Private: 'Set_Private',
+  Open: 'Set_Open',
+  Restricted: 'Set_Restricted',
+}
