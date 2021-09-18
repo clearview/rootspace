@@ -36,7 +36,7 @@ export class ServiceFactory {
   private storageService: StorageService
   private contentAccessService: ContentAccessService
 
-  private constructor() {}
+  private constructor() { }
 
   static instance: ServiceFactory
 
@@ -217,6 +217,7 @@ export class ServiceFactory {
     this.storageService.attachActivityObserver(this.getActivityService())
 
     this.contentAccessService = ContentAccessService.getInstance()
+    this.contentAccessService.attachActivityObserver(this.getActivityService())
 
     const mediator = new NodeContentMediator(this.nodeService, this.contentAccessService)
 
