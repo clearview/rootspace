@@ -58,7 +58,7 @@
       <main class="cards" ref="cardContainer"
       :class="{'top-shadow': containerShadowTop, 'bottom-shadow': containerShadowBottom }">
         <Draggable :disabled="!canDrag" :value="orderedCards" group="cards" v-bind="dragOptions" @start="drag=true" @end="drag=false" @change="reorder">
-            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id" />
+            <TaskCard v-for="item in orderedCards" :can-drag="canDrag" :item="item" :key="item.id" :drag="drag" />
         </Draggable>
 
         <TaskCard default-inputting

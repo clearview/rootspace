@@ -88,6 +88,9 @@ export default class TaskCard extends Vue {
     @Prop({ type: Boolean, default: false })
     private readonly defaultInputting!: boolean
 
+    @Prop({ type: Boolean, default: false })
+    private readonly drag!: boolean
+
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
 
@@ -118,6 +121,17 @@ export default class TaskCard extends Vue {
     @InjectReactive(ClientID)
     private readonly clientId!: Number
 
+    @Watch('drag')
+    private watchDrag () {
+      if (this.drag) {
+        this.dragged = true
+      } else {
+        setTimeout(() => {
+          this.dragged = false
+        })
+      }
+    }
+
     private isInputting = this.defaultInputting
     private itemCopy: Optional<TaskItemResource, 'updatedAt' | 'createdAt' | 'userId'> = { ...this.item }
     private showModal = false
@@ -125,6 +139,7 @@ export default class TaskCard extends Vue {
     private isTagMoreThanOneLine = false
     private isTitleMoreThanOneLine = false
     private titleBackbone = ''
+    private dragged = false
 
     private get isProcessing () {
       return this.$store.state.task.item.processing
@@ -210,6 +225,11 @@ export default class TaskCard extends Vue {
     }
 
     openModal () {
+      // To resolve firefox issue. Modal opened after the card dragged.
+      if (this.dragged) {
+        return
+      }
+
       if (this.board?.id && this.item.id) {
         this.$router.push({
           name: 'TaskPageWithItem',
