@@ -438,6 +438,10 @@ export default class TaskLane extends Vue {
     max-height: 100%;
   }
 
+  .lane:hover {
+    cursor: pointer;
+  }
+
   .header {
     @apply flex items-center;
     margin-bottom: 16px;
