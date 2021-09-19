@@ -298,18 +298,21 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
 
   @Watch('boardId', { immediate: true })
   async load () {
-    await this.fetchOnSwitchBoard()
-    await this.getSpaceMember()
     this.initCollaboration()
+    this.observeBoard()
 
+    await this.getSpaceMember()
+    await this.fetchOnSwitchBoard()
     EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
-  private initCollaboration () {
-    this.destroyCollaboration()
-
+  private async initCollaboration () {
     this.id = `task_${this.boardId.toString()}`
     this.clientId = this.currentUser().id
+
+    this.destroyProvider()
+    this.destroyDoc()
+
     this.initYdoc()
     this.initProvider()
   }
@@ -448,13 +451,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
-  beforeCreate () {
-    window.addEventListener('unload', this.destroyCollaboration)
-  }
-
   beforeDestroy () {
-    window.removeEventListener('unload', this.destroyCollaboration)
-
     this.destroyCollaboration()
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
@@ -561,10 +558,20 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     }
   }
 
-  private initYdoc () {
-    if (!this.ydoc) {
-      this.ydoc = new Y.Doc()
+  private destroyDoc () {
+    if (this.ydoc) {
+      this.ydoc.destroy()
     }
+  }
+
+  private destroyProvider () {
+    if (this.provider) {
+      this.provider.destroy()
+    }
+  }
+
+  private initYdoc () {
+    this.ydoc = new Y.Doc()
   }
 
   private initProvider () {
@@ -639,7 +646,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     })
 
     onConnecting()
-    this.observeBoard()
   }
 }
 </script>
@@ -649,6 +655,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   @apply flex flex-col h-full;
   flex: 1 1 0;
   width: 0;
+
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 .header {
