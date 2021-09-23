@@ -16,6 +16,7 @@ export class DocsUpdatePublicId1619910693969 implements MigrationInterface {
       await queryRunner.manager
         .createQueryBuilder()
         .update('docs', {
+          // @ts-ignore
           publicId: publicId(),
         })
         .where('id = :id', { id: doc.id })
