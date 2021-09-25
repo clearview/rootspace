@@ -490,6 +490,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
       switch (newData.action) {
         case 'addedToLane':
         case 'movedToLane':
+        case 'updateListItem':
         case 'updateTaskItem':
         case 'updateTaskItemTitle':
         case 'updateTaskItemDescription':
@@ -499,9 +500,11 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
         case 'deleteUploadFile':
           await this.updateTaskItem(newData)
           break
+        case 'listLaneMoved':
         case 'taskLaneMoved':
           await this.$store.dispatch('task/list/update', { ...newData })
           break
+        case 'createNewListItem':
         case 'createNewTaskItem':
           await this.createTaskItem(newData)
           break
@@ -526,13 +529,17 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
         case 'removeTagFromTask':
           await this.removeTagFromTask(newData)
           break
+        case 'createListLane':
         case 'createTaskLane':
           await this.createTaskLane(newData)
           break
+        case 'updateListLane':
         case 'updateTaskLane':
+        case 'updateColorListLane':
         case 'updateColorTaskLane':
           await this.updateTaskLane(newData)
           break
+        case 'archiveListLane':
         case 'archiveTaskLane':
           await this.archiveTaskLane(newData)
           break
