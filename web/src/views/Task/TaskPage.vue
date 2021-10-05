@@ -214,10 +214,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   private isFetching = false
   private filterVisible = false
   private searchVisible = false
-  private provider = null
-  private ydoc: Y.Doc
-  private clientId = null
-  private id = 'task_' + this.boardId
+  private provider?: WebsocketProvider
+  private ydoc = new Y.Doc()
 
   @ProvideReactive(FilteredKey)
   get filtered () {
@@ -247,12 +245,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
 
   @ProvideReactive(ClientID)
   get clientID (): Number {
-    return this.clientId
+    return this.currentUser().id
   }
 
   @ProvideReactive(TaskId)
   get taskId (): string {
-    return this.id
+    return 'task_' + this.boardId
   }
 
   private currentUser () {
@@ -298,23 +296,12 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
 
   @Watch('boardId', { immediate: true })
   async load () {
-    this.initCollaboration()
-    this.observeBoard()
-
     await this.getSpaceMember()
     await this.fetchOnSwitchBoard()
     EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
-  }
 
-  private async initCollaboration () {
-    this.id = `task_${this.boardId.toString()}`
-    this.clientId = this.currentUser().id
-
-    this.destroyProvider()
-    this.destroyDoc()
-
-    this.initYdoc()
-    this.initProvider()
+    this.connectWebsocket()
+    this.observeBoard()
   }
 
   async fetchOnSwitchBoard () {
@@ -452,7 +439,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   }
 
   beforeDestroy () {
-    this.destroyCollaboration()
+    this.ydoc.destroy()
+
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
@@ -470,19 +458,18 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
   }
 
   async observeBoard () {
-    const doc = this.ydoc.getMap(this.taskId)
-
-    this.ydoc.on('update', (event, origin: any) => {
+    this.ydoc.on('update', (event: Uint8Array, origin: any, ydoc: Y.Doc) => {
+      const doc = ydoc.getMap(this.taskId)
       const data = doc.toJSON()
 
-      if (origin !== this.clientId) {
+      if (origin !== this.clientID) {
         this.doTransact(data)
-        Y.applyUpdate(this.ydoc, event)
+        Y.applyUpdate(ydoc, event)
       }
     })
   }
 
-  private async doTransact (data) {
+  private async doTransact (data: any) {
     if (data?.[this.taskId]) {
       const newData = data[this.taskId]
 
@@ -555,104 +542,54 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserver
     }
   }
 
-  private destroyCollaboration () {
-    if (this.ydoc) {
-      this.ydoc.destroy()
-    }
+  private connectWebsocket () {
+    const websocketUrl = process.env.VUE_APP_YWS_URL
 
-    if (this.provider) {
-      this.provider.destroy()
-    }
-  }
-
-  private destroyDoc () {
-    if (this.ydoc) {
-      this.ydoc.destroy()
-    }
-  }
-
-  private destroyProvider () {
-    if (this.provider) {
-      this.provider.destroy()
-    }
-  }
-
-  private initYdoc () {
-    this.ydoc = new Y.Doc()
-  }
-
-  private initProvider () {
-    const wsProviderUrl = process.env.VUE_APP_YWS_URL
-
-    if (!wsProviderUrl) {
+    if (!websocketUrl) {
       throw new Error('process.env.VUE_APP_YWS_URL is missing')
     }
 
-    this.provider = new WebsocketProvider(wsProviderUrl, this.id, this.ydoc)
+    if (this.provider) {
+      this.provider.disconnect()
+    }
 
-    const wsAuthenticate = () => {
+    this.provider = new WebsocketProvider(websocketUrl, this.taskId, this.ydoc)
+
+    if (!(this.provider && this.provider.ws)) { return }
+
+    const token = this.$store.state.auth.token
+    const ws = this.provider.ws
+    const providerOnOpen = ws.onopen
+    const providerOnMessage = ws.onmessage
+
+    const authenticate = () => {
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, wsMessageType.authenticate)
-      encoding.writeVarString(encoder, this.$store.state.auth.token)
-      this.provider.ws.send(encoding.toUint8Array(encoder))
+      encoding.writeVarString(encoder, token)
+
+      ws.send(encoding.toUint8Array(encoder))
     }
 
-    const onConnecting = () => {
-      const providerOnMessage = this.provider.ws.onmessage
-      const providerOnOpen = this.provider.ws.onopen
+    this.provider.ws.onopen = (event) => {
+      authenticate()
 
-      this.provider.ws.onmessage = event => {
-        const decoder = decoding.createDecoder(new Uint8Array(event.data))
-        const messageType = decoding.readVarUint(decoder)
-
-        switch (messageType) {
-          case wsMessageType.unauthenticated:
-            // notify user
-            break
-          case wsMessageType.unauthorized:
-            // notify user
-            break
-          // case 'wait':
-          //   // wait next message
-          //   break
-          case wsMessageType.initCollaboration:
-            this.provider.ws.onmessage = event => {
-              const decoder = decoding.createDecoder(new Uint8Array(event.data))
-              const messageType = decoding.readVarUint(decoder)
-
-              if (messageType === wsMessageType.restore) {
-                // notify user
-                // this.closeHistory()
-                // this.initEditor()
-                return
-              }
-
-              // skip our custom messages, don't pass them to yjs to handle
-              if (messageType >= 10) {
-                return
-              }
-
-              providerOnMessage(event)
-            }
-            providerOnOpen()
-            break
-          default:
-            break
-        }
-      }
-
-      this.provider.ws.onopen = () => {
-        wsAuthenticate()
+      if (providerOnOpen) {
+        providerOnOpen.call(ws, event)
       }
     }
 
-    this.provider.on('status', ({ status }) => {
-      if (status === 'connecting') {
-        onConnecting()
-      }
-    })
+    this.provider.ws.onmessage = event => {
+      const decoder = decoding.createDecoder(new Uint8Array(event.data))
+      const messageType = decoding.readVarUint(decoder)
 
-    onConnecting()
+      if (messageType >= 10) {
+        return
+      }
+
+      if (providerOnMessage) {
+        providerOnMessage.call(ws, event)
+      }
+    }
   }
 }
 </script>
