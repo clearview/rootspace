@@ -340,24 +340,31 @@ export default class TaskModal extends Vue {
 
     async handleAttachFile () {
       const files = this.attachmentFileRef.files
-      if (files) {
-        this.isUploading = true
-        for (let i = 0; i < files.length; i++) {
-          const file = files.item(i)
-          if (file) {
-            await this.$store.dispatch('task/item/upload', {
-              task: this.itemCopy,
-              file
-            })
-          }
-        }
-        this.isUploading = false
-        this.updateTaskItem({
-          ...this.item,
-          id: this.item.id,
-          action: 'uploadFile'
-        })
+
+      if (files && files.length > 0) {
+        await this.uploadFiles(files)
       }
+    }
+
+    async uploadFiles (files: FileList) {
+      this.isUploading = true
+
+      await Promise.all(
+        Array.from(files).map(file => (
+          this.$store.dispatch('task/item/upload', {
+            task: this.itemCopy,
+            file
+          })
+        ))
+      )
+
+      this.isUploading = false
+
+      this.updateTaskItem({
+        ...this.item,
+        id: this.item.id,
+        action: 'uploadFile'
+      })
     }
 
     async handleRemoveFile (attachment: NewUploadResource) {
@@ -597,22 +604,15 @@ export default class TaskModal extends Vue {
     }
 
     async processDragFile (e: DragEvent) {
+      const files = e.dataTransfer?.files
+
       e.preventDefault()
       e.stopPropagation()
+
       this.isCapturingFile = false
-      const files = e.dataTransfer?.files
+
       if (files && files.length > 0) {
-        this.isUploading = true
-        for (let i = 0; i < files.length; i++) {
-          const file = files.item(i)
-          if (file) {
-            await this.$store.dispatch('task/item/upload', {
-              task: this.itemCopy,
-              file
-            })
-          }
-        }
-        this.isUploading = false
+        await this.uploadFiles(files)
       }
     }
 
