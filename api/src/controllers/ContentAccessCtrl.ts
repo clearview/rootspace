@@ -44,8 +44,10 @@ export class ContentAccessCtrl extends BaseCtrl {
       throw clientError('Not allowed', HttpErrName.Forbidden, HttpStatusCode.Forbidden)
     }
 
+    const actorId = req.user.id
+
     const value = ContentAccessUpdateValue.fromObject(data)
-    const result = await this.contentAccessService.update(value, contentAccess.id)
+    const result = await this.contentAccessService.update(value, contentAccess.id, actorId, entity)
 
     res.send(this.responseData(result))
   }

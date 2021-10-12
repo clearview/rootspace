@@ -7,7 +7,7 @@
     <div class="content">
       <img src="../assets/images/404.svg" alt="404 Not Found" class="illustration">
       <h3 class="title">
-        The page you're looking for does not exists
+        The page you're looking for does not exist
       </h3>
       <h4 class="subtitle">
         Looks like you stumbled upon the wrong root of the tree
