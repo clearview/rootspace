@@ -122,7 +122,7 @@
         <TaskActivities :item="item"></TaskActivities>
       </div>
       <div class="task-right">
-        <div class="right-field">
+        <div class="right-field" v-if="!archivedView">
           <div class="right-field-title">Created By</div>
           <div class="right-field-content">
             <div class="created-by cursor-pointer" @click="openProfile(item.user)">
@@ -188,7 +188,7 @@
             </button>
             <button class="archive-button" @click="restoreTask(itemCopy.id)" v-else>
               <mono-icon name="restore"/>
-              <span>Unrchive</span>
+              <span>UnArchive</span>
             </button>
           </div>
         </div>
@@ -280,6 +280,7 @@ export default class TaskModal extends Vue {
     private attachmentIndex: number|null = null
 
     get orderedComments () {
+      if (!this.item.taskComments) return []
       return [...this.item.taskComments].sort((a, b) => {
         const x = a.createdAt ? new Date(a.createdAt).getTime() : 0
         const y = b.createdAt ? new Date(b.createdAt).getTime() : 0
