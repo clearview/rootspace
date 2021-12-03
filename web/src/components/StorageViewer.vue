@@ -82,13 +82,13 @@ import Popover from '@/components/Popover.vue'
 import type { NewUploadResource } from '@/types/resource'
 
 @Component({
-  name: 'StorageImageViewer',
+  name: 'StorageViewer',
   components: {
     Modal,
     Popover
   }
 })
-export default class ImageViewer extends Vue {
+export default class StorageViewer extends Vue {
   @Model('change', { type: Number }) readonly index!: number
 
   @Prop({ type: Object })

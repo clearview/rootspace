@@ -30,7 +30,7 @@
           <mono-icon name="download" />
         </a>
         <div v-else class="download-file" @click="handleFileClick(index)">
-          <storage-image-viewer
+          <storage-viewer
             v-model="fileIndex"
             :image="fileCopy"
             @close="closePreview"
@@ -201,7 +201,7 @@ import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
-import StorageImageViewer from '@/components/StorageImageViewer.vue'
+import StorageViewer from '@/components/StorageViewer.vue'
 import moment from 'moment'
 
 @Component({
@@ -210,7 +210,7 @@ import moment from 'moment'
     Popover,
     LabelEditable,
     VModal,
-    StorageImageViewer
+    StorageViewer
   },
   filters: {
     formatFileSize (num: number) {
