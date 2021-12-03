@@ -17,15 +17,15 @@
         <legacy-icon name="close" title="Close" size="32" viewbox="32" />
       </span>
       <div class="image-container">
-        <div class="image-box">
-          <img v-if="isFileImage" :src="image.versions.preview.location" />
-          <iframe
-            v-else
-            :src="`${image.location}`"
-            type="application/pdf"
-            class="pdf-preview"
-          />
+        <div class="image-box" v-if="isFileImage">
+          <img :src="image.versions.preview.location" />
         </div>
+        <iframe
+          v-else
+          :src="`${image.location}`"
+          type="application/pdf"
+          class="pdf-preview"
+        />
         <div class="title">
           <p v-if="image">
             {{ image.name }}
@@ -229,7 +229,8 @@ export default class StorageViewer extends Vue {
 }
 
 .pdf-preview {
-  width: 800px;
-  height: 600px;
+  @apply w-screen px-10;
+  height: 800px;
+  margin-top: -3rem;
 }
 </style>
