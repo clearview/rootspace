@@ -366,17 +366,8 @@ export default class StorageGridView extends Vue {
   }
 
   handleDownload (file: NewUploadResource) {
-    const { mimetype, location } = file
     this.closePreview()
-    switch (mimetype) {
-      case 'application/pdf':
-        window.open(location)
-        break
-
-      default:
-        this.$emit('download', file)
-        break
-    }
+    this.$emit('download', file)
   }
 
   @Watch('file')
