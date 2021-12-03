@@ -231,6 +231,6 @@ export default class StorageViewer extends Vue {
 .pdf-preview {
   @apply w-screen px-10;
   height: 800px;
-  margin-top: -3rem;
+  margin-top: -5rem;
 }
 </style>
