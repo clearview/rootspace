@@ -22,6 +22,16 @@
       />
     </div>
     <div class="file-item--icon" v-else>
+      <storage-viewer
+        v-if="isPreviewable"
+        v-model="fileIndex"
+        :image="fileCopy"
+        @close="closePreview"
+        @remove="deleteFileActionConfirm"
+        @restore="restoreFile"
+        @download="handleDownload"
+      />
+
       <legacy-icon
         class="stroke-0"
         size="4.1em"
@@ -69,7 +79,7 @@
       </div>
     </div>
     <a
-      v-if="!isFileImage"
+      v-if="!isPreviewable"
       href="#"
       class="download-file"
       @click.prevent="handleDownload(fileCopy)"
@@ -273,6 +283,10 @@ export default class StorageListView extends Vue {
 
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
+  }
+
+  get isPreviewable () {
+    return this.isFileImage || this.fileCopy.mimetype === 'application/pdf'
   }
 
   handleFileClick (index: number | null) {

@@ -21,7 +21,7 @@
           <img v-if="isFileImage" :src="image.versions.preview.location" />
           <iframe
             v-else
-            :src="`${image.location}#toolbar=0`"
+            :src="`${image.location}`"
             type="application/pdf"
             class="pdf-preview"
           />
