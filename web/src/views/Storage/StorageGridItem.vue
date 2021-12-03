@@ -20,8 +20,15 @@
         :name="fileIcon(fileCopy.mimetype)"
       />
       <div class="download-wrapper">
-        <a
+        <!-- <a
           v-if="!isFileImage"
+          :download="fileCopy.filename"
+          target="_blank"
+          class="download-file"
+          @click.prevent="handleDownload(fileCopy)"
+        > -->
+        <a
+          v-if="false"
           :download="fileCopy.filename"
           target="_blank"
           class="download-file"
