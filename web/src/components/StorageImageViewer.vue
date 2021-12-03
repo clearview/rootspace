@@ -18,8 +18,9 @@
       </span>
       <div class="image-container">
         <div class="image-box">
-          <!-- <img :src="image.versions.preview.location" /> -->
+          <img v-if="isFileImage" :src="image.versions.preview.location" />
           <iframe
+            v-else
             :src="`${image.location}#toolbar=0`"
             type="application/pdf"
             class="pdf-preview"
@@ -111,6 +112,10 @@ export default class ImageViewer extends Vue {
 
   get visible () {
     return this.index !== null
+  }
+
+  get isFileImage () {
+    return this.image.mimetype.startsWith('image')
   }
 }
 </script>

@@ -20,15 +20,8 @@
         :name="fileIcon(fileCopy.mimetype)"
       />
       <div class="download-wrapper">
-        <!-- <a
-          v-if="!isFileImage"
-          :download="fileCopy.filename"
-          target="_blank"
-          class="download-file"
-          @click.prevent="handleDownload(fileCopy)"
-        > -->
         <a
-          v-if="false"
+          v-if="!isPreviewable"
           :download="fileCopy.filename"
           target="_blank"
           class="download-file"
@@ -278,6 +271,10 @@ export default class StorageGridView extends Vue {
 
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
+  }
+
+  get isPreviewable () {
+    return this.isFileImage || this.fileCopy.mimetype === 'application/pdf'
   }
 
   handleFileClick (index: number | null) {
