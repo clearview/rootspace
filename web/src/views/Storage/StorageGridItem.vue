@@ -21,7 +21,7 @@
       />
       <div class="download-wrapper">
         <a
-          v-if="!isFileImage"
+          v-if="!isPreviewable"
           :download="fileCopy.filename"
           target="_blank"
           class="download-file"
@@ -30,7 +30,7 @@
           <mono-icon name="download" />
         </a>
         <div v-else class="download-file" @click="handleFileClick(index)">
-          <storage-image-viewer
+          <storage-viewer
             v-model="fileIndex"
             :image="fileCopy"
             @close="closePreview"
@@ -53,8 +53,8 @@
             <div
               class="action-line"
               @click.prevent.stop="
-                copyURL(fileCopy.location);
-                hide();
+                copyURL(fileCopy.location)
+                hide()
               "
             >
               <div class="action-line-icon">
@@ -65,8 +65,8 @@
             <div
               class="action-line"
               @click.prevent.stop="
-                hide();
-                rename();
+                hide()
+                rename()
               "
             >
               <div class="action-line-icon">
@@ -78,8 +78,8 @@
             <div
               class="action-line danger"
               @click.prevent.stop="
-                hide();
-                deleteFileActionConfirm();
+                hide()
+                deleteFileActionConfirm()
               "
             >
               <div class="action-line-icon">
@@ -102,8 +102,8 @@
             <div
               class="action-line danger"
               @click.prevent.stop="
-                hide();
-                permanentDeleteFileActionConfirm();
+                hide()
+                permanentDeleteFileActionConfirm()
               "
             >
               <div class="action-line-icon">
@@ -150,8 +150,11 @@
           <legacy-icon name="close" size="26px 21px" title="Cancel" />
         </button>
       </div>
-      Added by <a class="file-username" @click="openProfile">{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a> •
-      {{ formatDate(fileCopy.createdAt) }} •
+      Added by
+      <a class="file-username" @click="openProfile"
+        >{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a
+      >
+      • {{ formatDate(fileCopy.createdAt) }} •
       {{ fileCopy.size | formatFileSize }}
     </div>
     <v-modal
@@ -184,14 +187,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject, Prop, Ref, Watch } from 'vue-property-decorator'
+import {
+  Component,
+  Vue,
+  Inject,
+  Prop,
+  Ref,
+  Watch
+} from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
 
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
-import StorageImageViewer from '@/components/StorageImageViewer.vue'
+import StorageViewer from '@/components/StorageViewer.vue'
 import moment from 'moment'
 
 @Component({
@@ -200,7 +210,7 @@ import moment from 'moment'
     Popover,
     LabelEditable,
     VModal,
-    StorageImageViewer
+    StorageViewer
   },
   filters: {
     formatFileSize (num: number) {
@@ -232,23 +242,23 @@ import moment from 'moment'
 })
 export default class StorageGridView extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly file!: NewUploadResource;
+  private readonly file!: NewUploadResource
 
   @Prop({ type: Number, required: true })
-  private readonly index!: number;
+  private readonly index!: number
 
   @Ref('input')
-  private readonly inputRef!: HTMLInputElement;
+  private readonly inputRef!: HTMLInputElement
 
-  private isRenaming = false;
-  private isActionOpened = false;
-  private fileCopy = { ...this.file };
-  private fileIndex: number | null = null;
+  private isRenaming = false
+  private isActionOpened = false
+  private fileCopy = { ...this.file }
+  private fileIndex: number | null = null
   private deleteFile: any = {
     visible: false,
     id: null,
     alert: null
-  };
+  }
 
   @Inject('modal')
   modal!: ModalInjectedContext
@@ -257,10 +267,14 @@ export default class StorageGridView extends Vue {
     visible: false,
     id: null,
     alert: null
-  };
+  }
 
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
+  }
+
+  get isPreviewable () {
+    return this.isFileImage || this.fileCopy.mimetype === 'application/pdf'
   }
 
   handleFileClick (index: number | null) {
@@ -500,7 +514,7 @@ h3 {
   @apply flex items-center py-2 px-4 my-1 relative;
   font-size: 13px;
   width: 168px;
-  color: theme("colors.gray.900");
+  color: theme('colors.gray.900');
   cursor: pointer;
   &:hover {
     background: #f0f2f5;
@@ -510,7 +524,7 @@ h3 {
     }
   }
   &.danger {
-    color: theme("colors.danger.default");
+    color: theme('colors.danger.default');
   }
 }
 .action-line-icon {
@@ -523,6 +537,6 @@ h3 {
 .action-separator {
   @apply my-1;
   height: 1px;
-  background: theme("colors.gray.100");
+  background: theme('colors.gray.100');
 }
 </style>
