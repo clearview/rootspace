@@ -3,11 +3,11 @@
     v-if="fileCopy"
     class="file-item"
     :class="{
-      isActive: isRenaming || isActionOpened,
+      isActive: isRenaming || isActionOpened
     }"
   >
     <div class="file-item--thumbnail" v-if="isFileImage">
-      <storage-image-viewer
+      <storage-viewer
         v-model="fileIndex"
         :image="fileCopy"
         @close="closePreview"
@@ -22,6 +22,16 @@
       />
     </div>
     <div class="file-item--icon" v-else>
+      <storage-viewer
+        v-if="isPreviewable"
+        v-model="fileIndex"
+        :image="fileCopy"
+        @close="closePreview"
+        @remove="deleteFileActionConfirm"
+        @restore="restoreFile"
+        @download="handleDownload"
+      />
+
       <legacy-icon
         class="stroke-0"
         size="4.1em"
@@ -60,13 +70,16 @@
         </button>
       </div>
       <div v-if="!isRenaming">
-        Added by <a class="file-username" @click="openProfile">{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a> •
-        {{ formatDate(fileCopy.createdAt) }} •
+        Added by
+        <a class="file-username" @click="openProfile"
+          >{{ fileCopy.user.firstName }} {{ fileCopy.user.lastName }}</a
+        >
+        • {{ formatDate(fileCopy.createdAt) }} •
         {{ fileCopy.size | formatFileSize }}
       </div>
     </div>
     <a
-      v-if="!isFileImage"
+      v-if="!isPreviewable"
       href="#"
       class="download-file"
       @click.prevent="handleDownload(fileCopy)"
@@ -94,20 +107,20 @@
           <div
             class="action-line"
             @click.prevent.stop="
-              copyURL(fileCopy.location);
-              hide();
+              copyURL(fileCopy.location)
+              hide()
             "
           >
             <div class="action-line-icon">
-              <mono-icon name="copy"/>
+              <mono-icon name="copy" />
             </div>
             <div class="action-line-text">Copy link</div>
           </div>
           <div
             class="action-line"
             @click.prevent.stop="
-              hide();
-              rename();
+              hide()
+              rename()
             "
           >
             <div class="action-line-icon">
@@ -119,8 +132,8 @@
           <div
             class="action-line danger"
             @click.prevent.stop="
-              hide();
-              deleteFileActionConfirm();
+              hide()
+              deleteFileActionConfirm()
             "
           >
             <div class="action-line-icon">
@@ -130,10 +143,7 @@
           </div>
         </template>
         <template v-else>
-          <div
-            class="action-line"
-            @click.prevent.stop="restoreFile({ hide })"
-          >
+          <div class="action-line" @click.prevent.stop="restoreFile({ hide })">
             <div class="action-line-icon">
               <mono-icon name="restore" />
             </div>
@@ -143,8 +153,8 @@
           <div
             class="action-line danger"
             @click.prevent.stop="
-              hide();
-              permanentDeleteFileActionConfirm();
+              hide()
+              permanentDeleteFileActionConfirm()
             "
           >
             <div class="action-line-icon">
@@ -190,14 +200,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject, Prop, Ref, Watch } from 'vue-property-decorator'
+import {
+  Component,
+  Vue,
+  Inject,
+  Prop,
+  Ref,
+  Watch
+} from 'vue-property-decorator'
 import { NewUploadResource } from '@/types/resource'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import moment from 'moment'
 import VModal from '@/components/legacy/Modal.vue'
 import Popover from '@/components/Popover.vue'
 import LabelEditable from '@/components/LabelEditable.vue'
-import StorageImageViewer from '@/components/StorageImageViewer.vue'
+import StorageViewer from '@/components/StorageViewer.vue'
 
 @Component({
   name: 'StorageListItem',
@@ -205,7 +222,7 @@ import StorageImageViewer from '@/components/StorageImageViewer.vue'
     Popover,
     LabelEditable,
     VModal,
-    StorageImageViewer
+    StorageViewer
   },
   filters: {
     formatFileSize (num: number) {
@@ -237,35 +254,39 @@ import StorageImageViewer from '@/components/StorageImageViewer.vue'
 })
 export default class StorageListView extends Vue {
   @Prop({ type: Object, required: true })
-  private readonly file!: NewUploadResource;
+  private readonly file!: NewUploadResource
 
   @Prop({ type: Number, required: true })
-  private readonly index!: number;
+  private readonly index!: number
 
   @Ref('input')
-  private readonly inputRef!: HTMLInputElement;
+  private readonly inputRef!: HTMLInputElement
 
   @Inject('modal')
   modal!: ModalInjectedContext
 
-  private isRenaming = false;
-  private isActionOpened = false;
-  private fileCopy = { ...this.file };
-  private fileIndex: number | null = null;
+  private isRenaming = false
+  private isActionOpened = false
+  private fileCopy = { ...this.file }
+  private fileIndex: number | null = null
   private deleteFile: any = {
     visible: false,
     id: null,
     alert: null
-  };
+  }
 
   private permanentDeleteFile: any = {
     visible: false,
     id: null,
     alert: null
-  };
+  }
 
   get isFileImage () {
     return this.fileCopy.mimetype.startsWith('image')
+  }
+
+  get isPreviewable () {
+    return this.isFileImage || this.fileCopy.mimetype === 'application/pdf'
   }
 
   handleFileClick (index: number | null) {
@@ -496,7 +517,7 @@ h3 {
   @apply flex items-center py-2 px-4 my-1 relative;
   font-size: 13px;
   width: 168px;
-  color: theme("colors.gray.900");
+  color: theme('colors.gray.900');
   cursor: pointer;
   &:hover {
     background: #f0f2f5;
@@ -506,7 +527,7 @@ h3 {
     }
   }
   &.danger {
-    color: theme("colors.danger.default");
+    color: theme('colors.danger.default');
   }
 }
 .action-line-icon {
@@ -519,6 +540,6 @@ h3 {
 .action-separator {
   @apply my-1;
   height: 1px;
-  background: theme("colors.gray.100");
+  background: theme('colors.gray.100');
 }
 </style>
