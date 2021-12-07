@@ -360,6 +360,9 @@ export default class TaskModal extends Vue {
 
       this.isUploading = false
 
+      // temp solution to get lasted board data
+      await this.$store.dispatch('task/board/search', { boardId: 4, filters: { archived: false, assignees: [], tags: [], unassigned: false }, search: '' })
+
       this.updateTaskItem({
         ...this.item,
         id: this.item.id,
