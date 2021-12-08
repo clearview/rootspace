@@ -202,6 +202,15 @@ export default defineComponent({
       }
     )
 
+    watch(
+      () => props.value,
+      (val) => {
+        if (editor.value) {
+          editor.value.setContent(val)
+        }
+      }
+    )
+
     // Hooks
 
     onMounted(() => {

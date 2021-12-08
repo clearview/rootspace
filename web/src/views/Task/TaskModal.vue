@@ -12,7 +12,7 @@
     <template v-slot:header>
       <div class="task-modal-header">
         <div class="task-modal-title">
-          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="itemCopy.title"></div>
+          <div class="task-modal-title-editable" ref="titleEditable" :contenteditable="!archivedView" @keypress.enter.prevent="saveTitle" @blur="saveTitle(true)" @paste="handlePaste" v-text="title"></div>
           <div class="task-modal-subtitle">
             In list <span class="list-title">{{item.list.title}}</span>
           </div>
@@ -50,7 +50,7 @@
               <span v-if="!isUploading">Attach</span>
               <span v-else>Uploading…</span>
             </button>
-            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags">
+            <TagsPopover @input="handleTagMenu" :selected-tags="item.tags" @create="handleCreateTag" @update="handleUpdateTag">
               <template v-slot:trigger>
                 <button class="btn btn-mute">
                   <legacy-icon name="tag" size="1rem" viewbox="20"/>
@@ -91,7 +91,7 @@
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
-            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? 'taskAttachmentView' + item.attachments[index-1].id : `'taskAttachmentView ${index}`" class="attachments-item">
               <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" :archivedView="archivedView" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
@@ -149,7 +149,7 @@
           <div class="right-field-content">
             <div class="member-list">
               <ul class="assignees">
-                <MemberPopover @input="handleMemberMenu" :selected-members="item.assignees" v-if="!archivedView">
+                <MemberPopover @input="handleMemberMenu" :selected-members="assignees" v-if="!archivedView">
                   <template v-slot:trigger>
                     <li class="addmember-button" content="Add Member" v-tippy>
                       <span>
@@ -158,7 +158,7 @@
                     </li>
                   </template>
                 </MemberPopover>
-                <li class="assignee cursor-pointer" v-for="(assignee, index) in item.assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
+                <li class="assignee cursor-pointer" v-for="(assignee, index) in assignees" :key="assignee.id" :class="{ 'ml-3': (index === 0)}" :content="memberName(assignee)" @click="openProfile(assignee)" v-tippy>
                   <avatar :size="24" :src="assignee.avatar && assignee.avatar.versions ? assignee.avatar.versions.default.location : ''"  :username="memberName(assignee)"></avatar>
                 </li>
               </ul>
@@ -198,7 +198,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { ClientID, TaskId, YDoc } from './injectionKeys'
+import { Component, Emit, Inject, Prop, Ref, Vue, InjectReactive } from 'vue-property-decorator'
 import Modal from '@/components/legacy/Modal.vue'
 import {
   NewUploadResource,
@@ -217,6 +218,7 @@ import TagsPopover from '@/views/Task/TagsPopover.vue'
 import MemberPopover from '@/views/Task/MemberPopover.vue'
 import DueDatePopover from '@/views/Task/DueDatePopover.vue'
 import Avatar from 'vue-avatar'
+import * as Y from 'yjs'
 import TaskAttachmentView from '@/views/Task/TaskAttachmentView.vue'
 
 import TaskActivities from '@/views/Task/TaskActivities.vue'
@@ -268,6 +270,15 @@ export default class TaskModal extends Vue {
     @Inject('modal')
     modal!: ModalInjectedContext
 
+    @InjectReactive(YDoc)
+    private readonly doc!: Y.Map<any>
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
+
     private itemCopy = { ...this.item }
     private isEditingDescription = false
     private commentInput = ''
@@ -297,6 +308,20 @@ export default class TaskModal extends Vue {
       this.cancelDescription()
     }
 
+    handleCreateTag (data) {
+      this.updateTaskItem({
+        ...data,
+        action: 'createTag'
+      })
+    }
+
+    handleUpdateTag (data) {
+      this.updateTaskItem({
+        ...data,
+        action: 'updateTag'
+      })
+    }
+
     pickFile () {
       this.attachmentFileRef.click()
     }
@@ -315,19 +340,33 @@ export default class TaskModal extends Vue {
 
     async handleAttachFile () {
       const files = this.attachmentFileRef.files
-      if (files) {
-        this.isUploading = true
-        for (let i = 0; i < files.length; i++) {
-          const file = files.item(i)
-          if (file) {
-            await this.$store.dispatch('task/item/upload', {
-              task: this.itemCopy,
-              file
-            })
-          }
-        }
-        this.isUploading = false
+
+      if (files && files.length > 0) {
+        await this.uploadFiles(files)
       }
+    }
+
+    async uploadFiles (files: FileList) {
+      this.isUploading = true
+
+      const uploadedFiles : any[] = await Promise.all(
+        Array.from(files).map(file => (
+          this.$store.dispatch('task/item/upload', {
+            task: this.itemCopy,
+            file
+          })
+        ))
+      )
+
+      uploadedFiles.forEach((data: any) => {
+        const file : NewUploadResource = data?.data?.data
+        const attachments = this.item?.attachments
+
+        if (!attachments?.filter((attachment) => attachment.id === file.id).length) attachments?.push(file)
+        this.updateTaskItem({ ...this.item, attachments, action: 'uploadFile' })
+      })
+
+      this.isUploading = false
     }
 
     async handleRemoveFile (attachment: NewUploadResource) {
@@ -339,6 +378,12 @@ export default class TaskModal extends Vue {
       if (this.item.attachments?.length === 0) {
         this.attachmentIndex = null
       }
+
+      this.updateTaskItem({
+        ...this.item,
+        id: this.item.id,
+        action: 'deleteUploadFile'
+      })
     }
 
     handleFileClick (index: number|null) {
@@ -346,9 +391,17 @@ export default class TaskModal extends Vue {
     }
 
     async saveDescription (description: object) {
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         description
+      })
+
+      this.updateTaskItem({
+        ...item,
+        description,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'updateTaskItemDescription'
       })
 
       this.itemCopy.description = description
@@ -377,7 +430,13 @@ export default class TaskModal extends Vue {
           content: this.commentInput,
           taskId: this.item.id
         }
-        await this.$store.dispatch('task/comment/create', commentResource)
+        const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
+        this.updateTaskItem({
+          ...commentItem,
+          id: this.item.id,
+          title: this.itemCopy.title,
+          action: 'createComment'
+        })
         this.commentInput = ''
       } catch (e) {
 
@@ -402,10 +461,22 @@ export default class TaskModal extends Vue {
           taskId: this.item.id,
           tagId: tag.id
         })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          tagId: tag.id,
+          action: 'removeTagFromTask'
+        })
       } else {
         await this.$store.dispatch('task/tag/addToTask', {
           taskId: this.item.id,
           tagId: tag.id
+        })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          tagId: tag.id,
+          action: 'addTagToTask'
         })
       }
     }
@@ -417,11 +488,23 @@ export default class TaskModal extends Vue {
           taskId: this.item.id,
           userId: member.id
         })
+
+        this.updateTaskItem({
+          taskId: this.item.id,
+          userId: member.id,
+          action: 'removeAssigneeFromTask'
+        })
       } else {
         await this.$store.dispatch('task/item/addAssigneeToTask', {
           taskId: this.item.id,
           userId: member.id,
           user: member
+        })
+
+        this.updateTaskItem({
+          user: member,
+          taskId: this.item.id,
+          action: 'addAssigneeToTask'
         })
       }
       const currentBoard = this.$store.state.task.board.current
@@ -430,17 +513,31 @@ export default class TaskModal extends Vue {
 
     async handleDateMenu (date: Date) {
       this.itemCopy.dueDate = date
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         dueDate: this.itemCopy.dueDate
+      })
+
+      this.updateTaskItem({
+        ...item,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'addDueDate'
       })
     }
 
     async handleDateClear () {
       this.itemCopy.dueDate = null
-      await this.$store.dispatch('task/item/update', {
+      const item = await this.$store.dispatch('task/item/update', {
         id: this.item.id,
         dueDate: null
+      })
+
+      this.updateTaskItem({
+        ...item,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'removeDueDate'
       })
     }
 
@@ -455,9 +552,15 @@ export default class TaskModal extends Vue {
         if (!this.isUpdatingTitle) {
           this.isUpdatingTitle = true
           this.itemCopy.title = this.titleEditableRef.innerText.trim()
-          await this.$store.dispatch('task/item/update', {
+          const updateItem = await this.$store.dispatch('task/item/update', {
             id: this.item.id,
             title: this.itemCopy.title
+          })
+          this.updateTaskItem({
+            ...updateItem,
+            id: this.item.id,
+            title: this.itemCopy.title,
+            action: 'updateTaskItemTitle'
           })
           this.isUpdatingTitle = false
           this.isEditingTitle = false
@@ -466,6 +569,15 @@ export default class TaskModal extends Vue {
         this.titleEditableRef.innerText = this.itemCopy.title.trim()
         this.titleEditableRef.blur()
       }
+    }
+
+    private updateTaskItem (data) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId
+        })
+      }, this.clientId)
     }
 
     get colors () {
@@ -494,22 +606,15 @@ export default class TaskModal extends Vue {
     }
 
     async processDragFile (e: DragEvent) {
+      const files = e.dataTransfer?.files
+
       e.preventDefault()
       e.stopPropagation()
+
       this.isCapturingFile = false
-      const files = e.dataTransfer?.files
+
       if (files && files.length > 0) {
-        this.isUploading = true
-        for (let i = 0; i < files.length; i++) {
-          const file = files.item(i)
-          if (file) {
-            await this.$store.dispatch('task/item/upload', {
-              task: this.itemCopy,
-              file
-            })
-          }
-        }
-        this.isUploading = false
+        await this.uploadFiles(files)
       }
     }
 
@@ -549,6 +654,14 @@ export default class TaskModal extends Vue {
       return result
     }
 
+    get title () {
+      return this.item.title
+    }
+
+    get assignees () {
+      return this.item.assignees
+    }
+
     attachmentState () {
       this.isShowAllAttachment = !this.isShowAllAttachment
     }
@@ -567,6 +680,11 @@ export default class TaskModal extends Vue {
       await this.$store.dispatch('task/item/archiveTask', {
         taskId: taskId
       })
+
+      this.updateTaskItem({
+        taskId,
+        action: 'archiveTaskItem'
+      })
     }
 
     async restoreTask (taskId: number) {
@@ -574,6 +692,11 @@ export default class TaskModal extends Vue {
 
       await this.$store.dispatch('task/item/restoreTask', {
         taskId: taskId
+      })
+
+      this.updateTaskItem({
+        taskId,
+        action: 'restoreTaskItem'
       })
     }
 

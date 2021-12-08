@@ -146,11 +146,17 @@ import { some } from 'lodash'
 import VSelect from 'vue-select'
 import Avatar from 'vue-avatar'
 
-import { TagResource, TaskBoardResource, TaskBoardType, UserResource } from '@/types/resource'
+import {
+  TagResource,
+  TaskBoardResource,
+  TaskBoardType,
+  UserResource
+} from '@/types/resource'
 
 import SpaceService from '@/services/space'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import PageMixin from '@/mixins/PageMixin'
+import TaskObserverMixin from '@/mixins/TaskObserverMixin'
 import { TaskSettings } from '@/store/modules/task/settings'
 import EventBus from '@/utils/eventBus'
 import FilterBar from './FilterBar.vue'
@@ -163,7 +169,20 @@ import ButtonSwitch from '@/components/ButtonSwitch.vue'
 import Tip from '@/components/Tip.vue'
 import Loading from '@/components/Loading.vue'
 
-import { FilteredKey, ArchivedViewKey } from './injectionKeys'
+import { FilteredKey, ArchivedViewKey, TaskId, YDoc, ClientID } from './injectionKeys'
+import * as encoding from 'lib0/encoding.js'
+import * as decoding from 'lib0/decoding.js'
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
+
+const wsMessageType = {
+  authenticate: 10,
+  unauthenticated: 11,
+  unauthorized: 12,
+  wait: 13,
+  initCollaboration: 14,
+  restore: 15
+}
 
 @Component({
   name: 'TaskPage',
@@ -180,7 +199,7 @@ import { FilteredKey, ArchivedViewKey } from './injectionKeys'
     Loading
   }
 })
-export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
+export default class TaskPage extends Mixins(SpaceMixin, PageMixin, TaskObserverMixin) {
   private search = ''
   private filters = {
     tags: [],
@@ -195,6 +214,8 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   private isFetching = false
   private filterVisible = false
   private searchVisible = false
+  private provider?: WebsocketProvider
+  private ydoc = new Y.Doc()
 
   @ProvideReactive(FilteredKey)
   get filtered () {
@@ -209,6 +230,31 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   @ProvideReactive(ArchivedViewKey)
   get archivedView () {
     return this.filters.archived
+  }
+
+  @ProvideReactive(YDoc)
+  get doc (): Y.Map<any> {
+    if (!this.ydoc) {
+      this.ydoc = new Y.Doc()
+    }
+
+    const doc = this.ydoc.getMap(this.taskId)
+
+    return doc
+  }
+
+  @ProvideReactive(ClientID)
+  get clientID (): Number {
+    return this.currentUser().id
+  }
+
+  @ProvideReactive(TaskId)
+  get taskId (): string {
+    return 'task_' + this.boardId
+  }
+
+  private currentUser () {
+    return this.$store.state.auth.user
   }
 
   get title (): string {
@@ -234,7 +280,7 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   }
 
   get boardId (): number {
-    return parseInt(this.$route.params.id)
+    return +(this.$route.params.id)
   }
 
   get prefferedView (): TaskBoardType {
@@ -248,7 +294,16 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     return !this.$store.state.task.settings.seenViewTip
   }
 
-  @Watch('boardId')
+  @Watch('boardId', { immediate: true })
+  async load () {
+    await this.getSpaceMember()
+    await this.fetchOnSwitchBoard()
+    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
+
+    this.connectWebsocket()
+    this.observeBoard()
+  }
+
   async fetchOnSwitchBoard () {
     this.firstLoad = true
 
@@ -264,7 +319,6 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     await this.fetchTask()
   }
 
-  @Watch('boardId')
   async getSpaceMember () {
     try {
       const id = this.activeSpace.id
@@ -380,18 +434,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
     }
   }
 
-  async mounted () {
-    await this.getSpaceMember()
-    await this.fetchTask()
-
-    EventBus.$on('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
-  }
-
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
   beforeDestroy () {
+    this.ydoc.destroy()
+
     EventBus.$off('BUS_TASKBOARD_UPDATE', this.syncTaskAttr)
   }
 
@@ -407,6 +456,141 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
 
     await this.lazyFetchTask()
   }
+
+  async observeBoard () {
+    this.ydoc.on('update', (event: Uint8Array, origin: any, ydoc: Y.Doc) => {
+      const doc = ydoc.getMap(this.taskId)
+      const data = doc.toJSON()
+
+      if (origin !== this.clientID) {
+        this.doTransact(data)
+        Y.applyUpdate(ydoc, event)
+      }
+    })
+  }
+
+  private async doTransact (data: any) {
+    if (data?.[this.taskId]) {
+      const newData = data[this.taskId]
+
+      // only operate mutation on peers, so the broadcaster don't have to do mutation again
+      switch (newData.action) {
+        case 'addedToLane':
+        case 'movedToLane':
+        case 'updateListItem':
+        case 'updateTaskItem':
+        case 'updateTaskItemTitle':
+        case 'updateTaskItemDescription':
+        case 'addDueDate':
+        case 'removeDueDate':
+        case 'uploadFile':
+        case 'deleteUploadFile':
+          await this.updateTaskItem(newData)
+          break
+        case 'listLaneMoved':
+        case 'taskLaneMoved':
+          await this.$store.dispatch('task/list/update', { ...newData })
+          break
+        case 'createNewListItem':
+        case 'createNewTaskItem':
+          await this.createTaskItem(newData)
+          break
+        case 'createComment':
+          await this.createComment(newData)
+          break
+        case 'archiveTaskItem':
+          await this.archiveTaskItem(newData)
+          break
+        case 'restoreTaskItem':
+          await this.restoreTaskItem(newData)
+          break
+        case 'addAssigneeToTask':
+          await this.addAssignee(newData)
+          break
+        case 'removeAssigneeFromTask':
+          await this.removeAssignee(newData)
+          break
+        case 'addTagToTask':
+          await this.addTagToTask(newData)
+          break
+        case 'removeTagFromTask':
+          await this.removeTagFromTask(newData)
+          break
+        case 'createListLane':
+        case 'createTaskLane':
+          await this.createTaskLane(newData)
+          break
+        case 'updateListLane':
+        case 'updateTaskLane':
+        case 'updateColorListLane':
+        case 'updateColorTaskLane':
+          await this.updateTaskLane(newData)
+          break
+        case 'archiveListLane':
+        case 'archiveTaskLane':
+          await this.archiveTaskLane(newData)
+          break
+        case 'createTag':
+          await this.createTag(newData)
+          break
+        case 'updateTag':
+          await this.updateTag(newData)
+          break
+        default:
+          break
+      }
+    }
+  }
+
+  private connectWebsocket () {
+    const websocketUrl = process.env.VUE_APP_YWS_URL
+
+    if (!websocketUrl) {
+      throw new Error('process.env.VUE_APP_YWS_URL is missing')
+    }
+
+    if (this.provider) {
+      this.provider.disconnect()
+    }
+
+    this.provider = new WebsocketProvider(websocketUrl, this.taskId, this.ydoc)
+
+    if (!(this.provider && this.provider.ws)) { return }
+
+    const token = this.$store.state.auth.token
+    const ws = this.provider.ws
+    const providerOnOpen = ws.onopen
+    const providerOnMessage = ws.onmessage
+
+    const authenticate = () => {
+      const encoder = encoding.createEncoder()
+      encoding.writeVarUint(encoder, wsMessageType.authenticate)
+      encoding.writeVarString(encoder, token)
+
+      ws.send(encoding.toUint8Array(encoder))
+    }
+
+    this.provider.ws.onopen = (event) => {
+      authenticate()
+
+      if (providerOnOpen) {
+        providerOnOpen.call(ws, event)
+      }
+    }
+
+    this.provider.ws.onmessage = event => {
+      const decoder = decoding.createDecoder(new Uint8Array(event.data))
+      const messageType = decoding.readVarUint(decoder)
+
+      if (messageType >= 10) {
+        return
+      }
+
+      if (providerOnMessage) {
+        providerOnMessage.call(ws, event)
+      }
+    }
+  }
 }
 </script>
 
@@ -415,6 +599,13 @@ export default class TaskPage extends Mixins(SpaceMixin, PageMixin) {
   @apply flex flex-col h-full;
   flex: 1 1 0;
   width: 0;
+
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
 }
 
 .header {
