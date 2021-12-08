@@ -1,14 +1,25 @@
 <template>
-  <div class="uploadable-image" :style="{width, height, borderRadius: radius}" @click="pickFile">
-    <input type="file" ref="file" class="file" @change="processFile" accept=".jpg,.png,.jpeg,.gif,image/jpg,image/jpeg,image/png,image/gif">
-    <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default.location" alt="" class="img" :style="{width, height, borderRadius: radius}">
-    <img v-if="isUploadingImage" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
-    <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
-    </slot>
-    <div class="edit" v-if="!isUploadingImage" :style="{top: editOffset, right: editOffset}">
-      <legacy-icon name="edit2" size="18px" viewbox="18"></legacy-icon>
+  <div class="uploadable-image">
+    <div
+      class="btn-remove cursor-pointer"
+      :style="{bottom: editOffset, right: editOffset}"
+      v-if="withRemove && uploadCopy && !isUploadingImage"
+      @click="onRemove"
+    >
+      <legacy-icon name="trash" size="18px" />
     </div>
-    <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage"/>
+
+    <div :style="{width, height, borderRadius: radius}" @click="pickFile">
+      <input type="file" ref="file" class="file" @change="processFile" accept=".jpg,.png,.jpeg,.gif,image/jpg,image/jpeg,image/png,image/gif">
+      <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default.location" alt="" class="img" :style="{width, height, borderRadius: radius}">
+      <img v-if="isUploadingImage" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
+      <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
+      </slot>
+      <div class="edit" v-if="!isUploadingImage" :style="{top: editOffset, right: editOffset}">
+        <legacy-icon name="edit2" size="18px" viewbox="18"></legacy-icon>
+      </div>
+      <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage"/>
+    </div>
   </div>
 </template>
 
@@ -49,6 +60,9 @@ export default class UploadableImage extends Vue {
 
   @Prop(Object)
   private readonly upload?: NewUploadResource;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly withRemove?: Boolean;
 
   private uploadCopy?: NewUploadResource
 
@@ -95,6 +109,10 @@ export default class UploadableImage extends Vue {
       this.fakeImage = ''
     }
   }
+
+  onRemove () {
+    alert('removed')
+  }
 }
 </script>
 
@@ -121,6 +139,7 @@ export default class UploadableImage extends Vue {
       }
     }
   }
+
   .edit {
     display: none;
     position: absolute;
@@ -134,6 +153,21 @@ export default class UploadableImage extends Vue {
       fill: none;
     }
   }
+
+  .btn-remove {
+    z-index: 10;
+    position: absolute;
+    background: theme("colors.danger.default");
+    border-radius: 100px;
+    padding: 5px;
+    .stroke-current {
+      stroke: theme("colors.danger.invert");
+    }
+    .fill-current {
+      fill: none;
+    }
+  }
+
   .loading {
     position: absolute;
 
