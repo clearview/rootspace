@@ -91,7 +91,7 @@
             @remove="handleRemoveFile"
           ></imageViewer>
           <ul class="attachments" v-if="item.attachments">
-            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? item.attachments[index-1].id : `i${index}`" class="attachments-item">
+            <li v-for="index in maxShownAttachment" :key="item.attachments[index-1] ? 'taskAttachmentView' + item.attachments[index-1].id : `'taskAttachmentView ${index}`" class="attachments-item">
               <TaskAttachmentView v-if="item.attachments[index-1]" :attachment="item.attachments[index-1]" :index="index-1" :archivedView="archivedView" @remove="handleRemoveFile" @attachmentClick="handleFileClick"/>
             </li>
           </ul>
@@ -362,13 +362,8 @@ export default class TaskModal extends Vue {
         const file : NewUploadResource = data?.data?.data
         const attachments = this.item?.attachments
 
-        if (attachments?.find((attachment) => attachment.id !== file.id)) {
-          attachments?.push(file)
-          const files = attachments
-          this.updateTaskItem({ ...this.item, attachments: files, action: 'uploadFile' })
-        } else {
-          this.updateTaskItem({ ...this.item, action: 'uploadFile' })
-        }
+        if (!attachments?.filter((attachment) => attachment.id === file.id).length) attachments?.push(file)
+        this.updateTaskItem({ ...this.item, attachments, action: 'uploadFile' })
       })
 
       this.isUploading = false
