@@ -349,7 +349,7 @@ export default class TaskModal extends Vue {
     async uploadFiles (files: FileList) {
       this.isUploading = true
 
-      await Promise.all(
+      const uploadedFiles : any[] = await Promise.all(
         Array.from(files).map(file => (
           this.$store.dispatch('task/item/upload', {
             task: this.itemCopy,
@@ -358,16 +358,20 @@ export default class TaskModal extends Vue {
         ))
       )
 
-      this.isUploading = false
+      uploadedFiles.forEach((data: any) => {
+        const file : NewUploadResource = data?.data?.data
+        const attachments = this.item?.attachments
 
-      // temp solution to get lasted board data
-      await this.$store.dispatch('task/board/search', { boardId: 4, filters: { archived: false, assignees: [], tags: [], unassigned: false }, search: '' })
-
-      this.updateTaskItem({
-        ...this.item,
-        id: this.item.id,
-        action: 'uploadFile'
+        if (attachments?.find((attachment) => attachment.id !== file.id)) {
+          attachments?.push(file)
+          const files = attachments
+          this.updateTaskItem({ ...this.item, attachments: files, action: 'uploadFile' })
+        } else {
+          this.updateTaskItem({ ...this.item, action: 'uploadFile' })
+        }
       })
+
+      this.isUploading = false
     }
 
     async handleRemoveFile (attachment: NewUploadResource) {
