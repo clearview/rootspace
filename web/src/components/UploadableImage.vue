@@ -12,13 +12,13 @@
     <div :style="{width, height, borderRadius: radius}" @click="pickFile">
       <input type="file" ref="file" class="file" @change="processFile" accept=".jpg,.png,.jpeg,.gif,image/jpg,image/jpeg,image/png,image/gif">
       <img v-if="uploadCopy && !isUploadingImage" :src="uploadCopy.versions.default.location" alt="" class="img" :style="{width, height, borderRadius: radius}">
-      <img v-if="isUploadingImage" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
+      <img v-if="isUploadingImage && !withRemove" :src="fakeImage" alt="" class="img img-fake" :style="{width, height, borderRadius: radius}">
       <slot name="fallback" v-if="!uploadCopy && !isUploadingImage">
       </slot>
       <div class="edit" v-if="!isUploadingImage" :style="{top: editOffset, right: editOffset}">
-        <legacy-icon name="edit2" size="18px" viewbox="18"></legacy-icon>
+        <legacy-icon name="edit2" size="18px" viewbox="18" />
       </div>
-      <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage"/>
+      <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage" />
     </div>
   </div>
 </template>
@@ -110,8 +110,14 @@ export default class UploadableImage extends Vue {
     }
   }
 
-  onRemove () {
-    alert('removed')
+  async onRemove () {
+    this.isUploadingImage = true
+    const id: number | undefined = this.uploadCopy?.id
+
+    await store.dispatch('storage/permanentDestroy', id)
+    await store.dispatch('auth/whoami', { updateSpace: true })
+
+    this.isUploadingImage = false
   }
 }
 </script>
