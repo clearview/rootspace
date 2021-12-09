@@ -18,7 +18,7 @@
       <div class="edit" v-if="!isUploadingImage" :style="{top: editOffset, right: editOffset}">
         <legacy-icon name="edit2" size="18px" viewbox="18" />
       </div>
-      <legacy-icon class="loading" name="loading" size="3em" viewbox="100" v-if="isUploadingImage" />
+      <legacy-icon class="m-auto" name="loading" size="3em" viewbox="100" v-if="isUploadingImage" />
     </div>
   </div>
 </template>
@@ -174,10 +174,6 @@ export default class UploadableImage extends Vue {
     }
   }
 
-  .loading {
-    position: absolute;
-
-  }
   .file {
     display: none;
   }
