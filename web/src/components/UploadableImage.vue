@@ -118,6 +118,7 @@ export default class UploadableImage extends Vue {
     await store.dispatch('auth/whoami', { updateSpace: true })
 
     this.isUploadingImage = false
+    this.fakeImage = ''
   }
 }
 </script>
