@@ -124,7 +124,7 @@ export class UploadService extends Service {
     return upload
   }
 
-  async update(data: UploadUpdateValue, target: number | Upload, actorId: number): Promise<Upload> {
+  async update(data: UploadUpdateValue, target: number | Upload, actorId: number, oldFilename: string): Promise<Upload> {
     const upload = typeof target === 'number' ? await this.requireUploadById(target) : target
 
     Object.assign(upload, data.attributes)
@@ -132,7 +132,9 @@ export class UploadService extends Service {
 
     if (upload.type === UploadType.Storage) {
       const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
-      await this.notifyActivity(StorageActivity.renameFile(storage, actorId, upload))
+      await this.notifyActivity(
+        StorageActivity.renameFile(storage, actorId, upload, oldFilename)
+      );
     }
 
     return upload
