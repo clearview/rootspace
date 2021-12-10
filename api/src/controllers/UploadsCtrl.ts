@@ -100,8 +100,8 @@ export class UploadsCtrl extends BaseCtrl {
     const upload = await this.uploadService.requireUploadById(Number(req.params.id))
     await this.authorize(req, upload)
 
-    const fileType = upload.filename.split(".")[upload.filename.split(".").length - 1];
-    const oldFilename = `${upload.name}.${fileType}`;
+    const fileType = upload.filename.split('.')[upload.filename.split('').length - 1]
+    const oldFilename = `${upload.name}.${fileType}`
     const value = UploadUpdateValue.fromObject(req.body.data)
 
     const result = await this.uploadService.update(value, upload, req.user.id, oldFilename)

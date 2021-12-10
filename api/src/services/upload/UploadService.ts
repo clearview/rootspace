@@ -134,7 +134,7 @@ export class UploadService extends Service {
       const storage = await this.entityService.getEntityByNameAndId<Storage>(upload.entity, upload.entityId)
       await this.notifyActivity(
         StorageActivity.renameFile(storage, actorId, upload, oldFilename)
-      );
+      )
     }
 
     return upload
