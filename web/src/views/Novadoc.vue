@@ -2088,9 +2088,13 @@ export default {
 }
 
 .paper-content {
-  @apply px-6 my-auto mx-0
-  /* width: 60%; */
-  /* margin: 0 auto; */
+  @apply px-6 my-auto mx-0;
+    @media (min-width: 768px) {
+      @apply px-10 mx-auto;
+    }
+    @media (min-width: 1024px) {
+      @apply w-3/5 mx-auto;
+    }
 }
 
 .menu-separator {
