@@ -67,8 +67,9 @@ import { Optional } from '@/types/core'
 import TaskModal from '@/views/Task/TaskModal.vue'
 import moment from 'moment'
 import Avatar from 'vue-avatar'
+import * as Y from 'yjs'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
-import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
 
 @Component({
   name: 'TaskCard',
@@ -110,6 +111,15 @@ export default class TaskCard extends Vue {
 
     @InjectReactive(ArchivedViewKey)
     private archivedView!: boolean
+
+    @InjectReactive(YDoc)
+    private readonly doc!: Y.Map<any>
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
 
     @Watch('drag')
     private watchDrag () {
@@ -156,18 +166,43 @@ export default class TaskCard extends Vue {
       if (!this.canSave) {
         return
       }
+
+      // create new task item
       if (this.itemCopy.id === null) {
         this.titleEditableRef.blur()
-        await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
+        const newItem = await this.$store.dispatch('task/item/create', { ...this.itemCopy, title: this.titleEditableRef.innerText.trim(), list: undefined })
+
+        this.transact({
+          ...newItem,
+          title: this.titleEditableRef.innerText.trim(),
+          list: undefined,
+          action: 'createNewTaskItem'
+        })
       } else {
         await this.$store.dispatch('task/item/update', {
           id: this.item.id,
           title: this.itemCopy.title
         })
+
+        this.transact({
+          ...this.itemCopy,
+          id: this.item.id,
+          title: this.itemCopy.title,
+          action: 'updateTaskItem'
+        })
       }
       this.isInputting = false
       this.$emit('save', this.itemCopy)
       return this.itemCopy
+    }
+
+    private transact (data: any) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data,
+          clientId: this.clientId
+        })
+      }, this.clientId)
     }
 
     @Emit('cancel')

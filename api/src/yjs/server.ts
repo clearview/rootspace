@@ -36,7 +36,7 @@ export default class YjsServer {
       this.wss.handleUpgrade(request, socket, head, this.handleUpgrade)
     })
 
-    this.wss.on('connection', (conn: UserWebSocket, req: Http.IncomingMessage, {} = {}) => {
+    this.wss.on('connection', (conn: UserWebSocket, req: Http.IncomingMessage, { } = {}) => {
       conn.on('message', (message) => {
         onInitMessage(conn, req, message)
       })
@@ -123,7 +123,7 @@ const setupCollaboration = (conn: UserWebSocket, req: Http.IncomingMessage) => {
 
 const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, message: any) => {
   const docName = req.url.slice(1)
-  const docId = Number(docName.split('_').pop())
+  const [type, docId] = docName.split('_')
   const decoder = decoding.createDecoder(new Uint8Array(message))
   const msgType = decoding.readVarUint(decoder)
 
@@ -139,16 +139,18 @@ const onInitMessage = async (conn: UserWebSocket, req: Http.IncomingMessage, mes
     return null
   }
 
-  if (!(await authorize(user.id, docId))) {
+  if (!(await authorize(user.id, +docId, type))) {
     conn.send(encodeMessage(messageType.unauthorized))
     return null
   }
 
   conn.user = user
 
-  if (state.queue.isRunning(docName) === true) {
-    connWait(conn, req)
-    return
+  if (type === 'doc') {
+    if (state.queue.isRunning(docName) === true) {
+      connWait(conn, req)
+      return
+    }
   }
 
   setupCollaboration(conn, req)
@@ -170,7 +172,7 @@ const onMessage = (conn: UserWebSocket, req: Http.IncomingMessage, message: any)
   if (msgType === messageSync) {
     const syncMessageType = decoding.readVarUint(decoder)
     if (syncMessageType > 0) {
-      state.onUpdate(req.url.slice(1), conn.user.id, sharedDoc)
+      state.onUpdate(docName, conn.user.id, sharedDoc)
     }
   }
 
