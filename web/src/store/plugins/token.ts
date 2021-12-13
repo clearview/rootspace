@@ -17,14 +17,20 @@ function init (store: Store<RootState>) {
 
   store.subscribe((mutation, state) => {
     if (mutation.type === 'auth/setToken') {
-      const { token, refreshToken } = state.auth
-      console.log('auth', state.auth)
+      const { token } = state.auth
 
       if (token) {
         Cookie.set(name, token)
-        if (refreshToken) Cookie.set(refreshTokenName, refreshToken)
       } else {
         Cookie.remove(name)
+      }
+    }
+    if (mutation.type === 'auth/setRefreshToken') {
+      const { refreshToken } = state.auth
+
+      if (refreshToken) {
+        Cookie.set(refreshTokenName, refreshToken)
+      } else {
         Cookie.remove(refreshTokenName)
       }
     }
