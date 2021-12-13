@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import TaskActivity from './TaskActivity.vue'
 import { TaskActivityResource, TaskItemResource } from '@/types/resource'
 import api from '@/utils/api'
@@ -40,6 +40,11 @@ export default class TaskActivities extends Vue {
 
   addLimit () {
     this.limit += 10
+  }
+
+  @Watch('item')
+  async onItemChanged () {
+    await this.fetchActivities()
   }
 
   async mounted () {
