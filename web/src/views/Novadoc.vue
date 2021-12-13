@@ -2212,6 +2212,7 @@ export default {
 }
 
 .editor-title-input {
+  @apply h-full;
   color: #2C2B35;
   font-weight: bold;
   font-size: 36px;
@@ -2222,7 +2223,6 @@ export default {
   display: block;
   width: 100%;
   resize: none;
-  height: auto;
 }
 
 .bubble {
