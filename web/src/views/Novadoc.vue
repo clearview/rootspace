@@ -1946,9 +1946,11 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
-
 #app > div > .page {
-  @apply p-0
+  @apply p-0;
+    @media (min-width: 1024px) {
+      padding: 0 152px;
+    }
 }
 
 .color-combo {
@@ -2093,7 +2095,7 @@ export default {
       @apply px-10 mx-auto;
     }
     @media (min-width: 1024px) {
-      @apply w-3/5 mx-auto;
+      @apply w-3/5 mx-auto px-0;
     }
 }
 
