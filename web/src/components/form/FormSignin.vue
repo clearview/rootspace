@@ -103,7 +103,7 @@ import { Component, Vue } from 'vue-property-decorator'
       email: { required, email },
       password: {
         required,
-        minLength: minLength(8)
+        minLength: minLength(2)
       }
     }
   }

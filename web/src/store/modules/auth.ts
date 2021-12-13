@@ -14,6 +14,7 @@ const AuthModule: Module<AuthState, RootState> = {
   state () {
     return {
       token: null,
+      refreshToken: null,
       user: null,
       spaces: null,
       currentSpace: null
@@ -23,6 +24,9 @@ const AuthModule: Module<AuthState, RootState> = {
   mutations: {
     setToken (state, token) {
       state.token = token
+    },
+    setRefreshToken (state, refreshToken) {
+      state.refreshToken = refreshToken
     },
     setUser (state, user) {
       state.user = user
@@ -49,9 +53,11 @@ const AuthModule: Module<AuthState, RootState> = {
       const { data } = await AuthService.signin(type, payload)
 
       commit('setToken', data.token)
+      commit('setRefreshToken', data.refreshToken)
     },
     async signout ({ commit }) {
       commit('setToken', null)
+      commit('setRefreshToken', null)
       commit('setUser', null)
     },
     async recoverPassword (_, payload) {
