@@ -1948,7 +1948,7 @@ export default {
 <style lang="postcss" scoped>
 
 #app > div > .page {
-  padding: 0 152px;
+  @apply p-0
 }
 
 .color-combo {
@@ -2088,8 +2088,9 @@ export default {
 }
 
 .paper-content {
-  width: 60%;
-  margin: 0 auto;
+  @apply px-6 my-auto mx-0
+  /* width: 60%; */
+  /* margin: 0 auto; */
 }
 
 .menu-separator {
