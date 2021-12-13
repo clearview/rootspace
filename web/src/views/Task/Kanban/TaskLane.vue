@@ -87,7 +87,8 @@ import { Optional } from '@/types/core'
 import Popover from '@/components/Popover.vue'
 import PopoverList from '@/components/PopoverList.vue'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
-import { ArchivedViewKey, FilteredKey } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, FilteredKey, TaskId, YDoc } from '../injectionKeys'
+import * as Y from 'yjs'
 
 @Component({
   name: 'TaskLane',
@@ -128,6 +129,15 @@ export default class TaskLane extends Vue {
 
     @InjectReactive(ArchivedViewKey)
     private readonly archivedView!: boolean
+
+    @InjectReactive(YDoc)
+    private readonly doc!: Y.Map<any>
+
+    @InjectReactive(TaskId)
+    private readonly taskId!: string
+
+    @InjectReactive(ClientID)
+    private readonly clientId!: Number
 
     private isInputting = this.defaultInputting
     private listCopy: Optional<TaskListResource, 'createdAt' | 'updatedAt' | 'userId'> = { ...this.list }
@@ -208,16 +218,23 @@ export default class TaskLane extends Vue {
     }
 
     private async reorder (data: any) {
+      let newPos: number, id: number, action: string
+      const listId = this.list.id
+      let taskItem: TaskItemResource
+
       if (data.added) {
         const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
         const prev = this.orderedCards[prevIndex]
         const next = this.orderedCards[nextIndex]
 
-        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        id = data.added.element.id
+        newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        action = 'addedToLane'
+        taskItem = data.added.element
 
         await this.$store.dispatch('task/item/update', {
-          id: data.added.element.id,
-          listId: this.list.id,
+          id,
+          listId,
           position: newPos
         })
       }
@@ -225,10 +242,26 @@ export default class TaskLane extends Vue {
         const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
         const prev = this.orderedCards[prevIndex]
         const next = this.orderedCards[nextIndex]
-        const newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+
+        id = data.moved.element.id
+        newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+        action = 'movedToLane'
+        taskItem = data.moved.element
+
         await this.$store.dispatch('task/item/update', {
-          id: data.moved.element.id,
-          listId: this.list.id,
+          id,
+          listId,
+          position: newPos
+        })
+      }
+
+      if (data?.moved || data?.added) {
+        this.transact({
+          ...taskItem,
+          clientId: this.clientId,
+          action,
+          id,
+          listId,
           position: newPos
         })
       }
@@ -236,7 +269,6 @@ export default class TaskLane extends Vue {
 
     get dragOptions () {
       return {
-
         delay: 14,
         group: 'cards',
         disabled: false,
@@ -254,12 +286,26 @@ export default class TaskLane extends Vue {
       if (!this.canSave) {
         return
       }
+
+      // create new task list / lane
       if (this.listCopy.id === null) {
-        await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
+        const lane = await this.$store.dispatch('task/list/create', { ...this.listCopy, board: undefined })
+
+        this.transact({
+          ...lane,
+          clientId: this.clientId,
+          action: 'createTaskLane'
+        })
       } else {
-        await this.$store.dispatch('task/list/update', {
+        const lane = await this.$store.dispatch('task/list/update', {
           id: this.list.id,
           title: this.listCopy.title
+        })
+
+        this.transact({
+          ...lane,
+          clientId: this.clientId,
+          action: 'updateTaskLane'
         })
       }
       this.isInputting = false
@@ -316,9 +362,15 @@ export default class TaskLane extends Vue {
     }
 
     async selectColor (color: string) {
-      await this.$store.dispatch('task/list/update', {
+      const lane = await this.$store.dispatch('task/list/update', {
         id: this.list.id,
         settings: { ...this.listCopy.settings, color }
+      })
+
+      this.transact({
+        ...lane,
+        clientId: this.clientId,
+        action: 'updateColorTaskLane'
       })
       this.setScrollColor()
     }
@@ -333,15 +385,31 @@ export default class TaskLane extends Vue {
 
     async handleMenu (value: string) {
       switch (value) {
-        case 'archive':
+        case 'archive': {
           await this.$store.dispatch('task/list/archive', this.listCopy)
+
+          this.transact({
+            ...this.listCopy,
+            clientId: this.clientId,
+            action: 'archiveTaskLane'
+          })
+
           break
+        }
       }
     }
 
     handleCardContainerScroll () {
       this.containerShadowTop = this.cardContainerRef.scrollTop > 0
       this.containerShadowBottom = this.cardContainerRef.scrollTop < (this.cardContainerRef.scrollHeight - this.cardContainerRef.offsetHeight)
+    }
+
+    private transact (data: any) {
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          ...data
+        })
+      }, this.clientId)
     }
 }
 </script>
@@ -368,6 +436,10 @@ export default class TaskLane extends Vue {
     display: flex;
     flex-direction: column;
     max-height: 100%;
+  }
+
+  .lane:hover {
+    cursor: pointer;
   }
 
   .header {

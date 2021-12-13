@@ -4,6 +4,7 @@ import { yDocToProsemirrorJSON } from 'y-prosemirror'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { DocUpdateValue } from '../services/content/doc'
 import { debounce } from '../utils'
+import TaskState from './task'
 
 interface StateAction {
   name: string
@@ -108,64 +109,81 @@ class StateQueue extends EventEmitter {
 
 export const queue = new StateQueue()
 export const updates = new Map<string, Map<number, { lastSave: number; saved: boolean }>>()
+const task = new TaskState()
 
 // debouncing enqueueSave so that we do not abuse the enqueue function
 const debouncedQueueSave = debounce(({ docName, userId, ydoc }: any) => enqueueSave(docName, userId, ydoc), 2000)
 
 export const onUpdate = (docName: string, userId: number, ydoc: Y.Doc) => {
-  // console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
+  console.log('state onUpdate', docName, 'user', userId) // tslint:disable-line
+  const [type, docId] = docName.split('_')
 
-  if (!updates.get(docName)) {
-    updates.set(docName, new Map())
+  if (type === 'doc') {
+    if (!updates.get(docName)) {
+      updates.set(docName, new Map())
+    }
+
+    if (!updates.get(docName).has(userId)) {
+      updates.get(docName).set(userId, { lastSave: Date.now(), saved: false })
+      return
+    }
+
+    updates.get(docName).get(userId).saved = false
+
+    // calling the function which enqueue the save action the document to save the doc in db
+    debouncedQueueSave({ docName, userId, ydoc })
+  } else if (type === 'task') {
+    task.onUpdate(docName, userId, ydoc)
   }
-
-  if (!updates.get(docName).has(userId)) {
-    updates.get(docName).set(userId, { lastSave: Date.now(), saved: false })
-    return
-  }
-
-  updates.get(docName).get(userId).saved = false
-
-  // calling the function which enqueue the save action the document to save the doc in db
-  debouncedQueueSave({ docName, userId, ydoc })
 }
 
 export const onRestore = (docName: string, userId: number, revisionId: number, ydoc: Y.Doc) => {
   console.log('state onRestore', docName, 'user', userId, 'revisionId', revisionId) // tslint:disable-line
 
-  if (updates.has(docName)) {
-    updates.get(docName).forEach((info, updateBy) => {
-      if (info.saved === false) {
-        enqueueSave(docName, updateBy, ydoc)
-      }
-    })
-  }
+  const [type,] = docName.split('_')
 
-  const action: StateAction = {
-    name: 'restore',
-    lock: true,
-    docName,
-    userId,
-    data: {
-      revisionId,
-    },
-  }
+  if (type === 'doc') {
+    if (updates.has(docName)) {
+      updates.get(docName).forEach((info, updateBy) => {
+        if (info.saved === false) {
+          enqueueSave(docName, updateBy, ydoc)
+        }
+      })
+    }
 
-  queue.enqueue(action)
+    const action: StateAction = {
+      name: 'restore',
+      lock: true,
+      docName,
+      userId,
+      data: {
+        revisionId,
+      },
+    }
+
+    queue.enqueue(action)
+  } else if (type === 'task') {
+    task.onRestore(docName, userId, revisionId, ydoc)
+  }
 }
 
 export const onClientClose = (docName: string, userId: number, ydoc: Y.Doc) => {
   console.log('state onClientClose', docName, 'user', userId) // tslint:disable-line
+  const [type,] = docName.split('_')
 
-  if (!updates.has(docName) || !updates.get(docName).has(userId)) {
-    return
+  if (type === 'doc' && updates.get(docName).get(userId).saved === false) {
+    if (!updates.has(docName) || !updates.get(docName).has(userId)) {
+      return
+    }
+
+    if (updates.get(docName).get(userId).saved === false) {
+      enqueueSave(docName, userId, ydoc)
+    }
+
+    updates.get(docName).delete(userId)
+  } else if (type === 'task') {
+    task.onClientClose(docName, userId, ydoc)
   }
-
-  if (updates.get(docName).get(userId).saved === false) {
-    enqueueSave(docName, userId, ydoc)
-  }
-
-  updates.get(docName).delete(userId)
 }
 
 const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
@@ -182,7 +200,7 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
 
   queue.enqueue(action)
 
-  if (updates?.get(docName)) {
+  if (updates?.get(docName)?.get(userId)) {
     updates.get(docName).get(userId).lastSave = Date.now()
     updates.get(docName).get(userId).saved = true
   }
@@ -191,16 +209,22 @@ const enqueueSave = (docName: string, userId: number, ydoc: Y.Doc) => {
 export const save = async (docName: string, userId: number, state: Uint8Array, json: object) => {
   console.log('state save', docName, 'user', userId) // tslint:disable-line
 
-  const docId = Number(docName.split('_').pop())
+  // const docId = Number(docName.split('_').pop())
+  const [type, docId] = docName.split('_')
+  const id = parseInt(docId, 10)
 
-  const data = DocUpdateValue.fromObject({
-    contentState: Array.from(state),
-    content: json,
-  })
+  if (type === 'doc') {
+    const data = DocUpdateValue.fromObject({
+      contentState: Array.from(state),
+      content: json,
+    })
 
-  await ServiceFactory.getInstance()
-    .getDocService()
-    .update(data, docId, userId)
+    await ServiceFactory.getInstance()
+      .getDocService()
+      .update(data, id, userId)
+  } else if (type === 'task') {
+    // console.log(state, json)  // tslint:disable-line
+  }
 
   console.log('state saved', docName, 'user', userId) // tslint:disable-line
 }
@@ -219,21 +243,32 @@ export const persistence = {
   bindState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('bindState for', docName) // tslint:disable-line
 
-    const docId = Number(docName.split('_').pop())
+    // const docId = Number(docName.split('_').pop())
+    const [type, docId] = docName.split('_')
+    const id = parseInt(docId, 10)
 
-    const doc = await ServiceFactory.getInstance()
-      .getDocService()
-      .getById(docId)
+    if (type === 'doc') {
+      const doc = await ServiceFactory.getInstance()
+        .getDocService()
+        .getById(id)
 
-    if (doc && doc.contentState) {
-      const state = new Uint8Array(doc.contentState)
-      Y.applyUpdate(ydoc, state)
+      if (doc && doc.contentState) {
+        const state = new Uint8Array(doc.contentState)
+        Y.applyUpdate(ydoc, state)
+      }
+    } else if (type === 'task') {
+      task.bindState(docName, ydoc)
     }
+
   },
   writeState: async (docName: string, ydoc: Y.Doc): Promise<void> => {
     console.log('writeState for', docName, '(does nothing)') // tslint:disable-line
+    const [type,] = docName.split('_')
 
-    updates.delete(docName)
-    console.log('state updates', updates) // tslint:disable-line
+    if (type === 'doc') {
+      updates.delete(docName)
+    } else if (type === 'task') {
+      task.writeState(docName, ydoc)
+    }
   },
 }
