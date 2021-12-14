@@ -1,8 +1,12 @@
 import { Module } from 'vuex'
-
+import Cookie from 'js-cookie'
 import { RootState, AuthState } from '@/types/state'
-
+import store from '@/store'
 import AuthService from '@/services/auth'
+// import { setAPIToken } from '@/utils/api'
+
+const tokenName = 'root_session'
+const refreshTokenName = 'root_session_refresh_token'
 
 type SigninContext = {
   type: string;
@@ -68,6 +72,16 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     async passwordResetVerify (_, payload) {
       await AuthService.passwordResetVerify(payload)
+    },
+    async refreshToken ({ commit }) {
+      const persistedRefreshToken = Cookie.get(refreshTokenName) || ''
+      const { data } = await AuthService.refreshToken(persistedRefreshToken)
+
+      Cookie.set(tokenName, data.token)
+      Cookie.set(refreshTokenName, data.refreshToken)
+
+      commit('setToken', data.token)
+      commit('setRefreshToken', data.refreshToken)
     }
   }
 }
