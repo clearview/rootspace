@@ -27,9 +27,11 @@ api.interceptors.response.use((response) => {
 })
 
 export function setAPIToken (token: string | null) {
-  api.defaults.headers.common.Authorization = token
-    ? `Bearer ${token}`
-    : null
+  if (api?.defaults) {
+    api.defaults.headers.common.Authorization = token
+      ? `Bearer ${token}`
+      : null
+  }
 }
 
 export function baseURL (path = '/') {

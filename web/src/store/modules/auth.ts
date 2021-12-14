@@ -1,9 +1,7 @@
 import { Module } from 'vuex'
 import Cookie from 'js-cookie'
 import { RootState, AuthState } from '@/types/state'
-import store from '@/store'
 import AuthService from '@/services/auth'
-// import { setAPIToken } from '@/utils/api'
 
 const tokenName = 'root_session'
 const refreshTokenName = 'root_session_refresh_token'
@@ -73,7 +71,7 @@ const AuthModule: Module<AuthState, RootState> = {
     async passwordResetVerify (_, payload) {
       await AuthService.passwordResetVerify(payload)
     },
-    async refreshToken ({ commit }) {
+    async refreshToken ({ commit, dispatch }) {
       const persistedRefreshToken = Cookie.get(refreshTokenName) || ''
       const { data } = await AuthService.refreshToken(persistedRefreshToken)
 
@@ -82,6 +80,8 @@ const AuthModule: Module<AuthState, RootState> = {
 
       commit('setToken', data.token)
       commit('setRefreshToken', data.refreshToken)
+
+      await dispatch('whoami')
     }
   }
 }
