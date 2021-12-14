@@ -16,7 +16,7 @@ api.interceptors.response.use((response) => {
       originalConfig._retry = true
 
       try {
-        store.dispatch('auth/refreshToken')
+        await store.dispatch('auth/refreshToken')
 
         return api(originalConfig)
       } catch (_error) {
