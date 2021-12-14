@@ -147,6 +147,10 @@ export default class TagsPopover extends Vue {
         ...data,
         ...item
       })
+
+      this.tagInput = ''
+      this.tagsTitle = 'Manage Tags'
+      this.tagsState = 'manage'
     } else {
       const url = 'task/tag/create'
       const item = await this.$store.dispatch(url, data)
@@ -155,11 +159,11 @@ export default class TagsPopover extends Vue {
         ...data,
         ...item
       })
-    }
 
-    this.tagInput = ''
-    this.tagsTitle = 'Manage Tags'
-    this.tagsState = 'manage'
+      this.tagInput = ''
+      this.tagsState = 'list'
+      this.tagsTitle = 'Select Tag'
+    }
   }
 
   selectColor (color: string) {
