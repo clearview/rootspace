@@ -70,7 +70,6 @@ import { Component, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
 import { TaskCommentResource, UserResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
-import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import Popover from '@/components/Popover.vue'
 import VModal from '@/components/legacy/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
@@ -81,7 +80,6 @@ import Editor from '@/components/editor'
     name: 'TaskComment',
     components: {
       Avatar,
-      TextareaAutoresize,
       Popover,
       VModal,
       Editor
