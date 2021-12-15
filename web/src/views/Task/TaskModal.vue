@@ -417,7 +417,7 @@ export default class TaskModal extends Vue {
       if (JSON.stringify(comment).trim().length <= 0) {
         return
       }
-      console.log('comment input', comment)
+
       try {
         const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
           id: null,
@@ -433,7 +433,7 @@ export default class TaskModal extends Vue {
         })
         this.commentInput = null
       } catch (e) {
-        console.log('error save comment', e)
+
       }
     }
 
