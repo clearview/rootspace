@@ -103,13 +103,18 @@
           </div>
         </div>
         <div class="comment-separator"></div>
+        <p class="uppercase font-bold text-xs mb-2">Write a Comment</p>
         <div class="comment-input">
-          <textarea-autoresize
+          <!-- <textarea-autoresize
             v-if="!archivedView"
             placeholder="Write a comment…"
             class="comment-textarea"
             v-model="commentInput"
             @submit-comment="commentHandler"
+          /> -->
+          <Editor
+            v-model="comment"
+            @save="commentHandler"
           />
         </div>
         <ul class="comments" v-if="orderedComments.length > 0">
@@ -281,7 +286,7 @@ export default class TaskModal extends Vue {
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false
-    private commentInput = ''
+    private commentInput: Object|null = null
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
@@ -308,14 +313,14 @@ export default class TaskModal extends Vue {
       this.cancelDescription()
     }
 
-    handleCreateTag (data) {
+    handleCreateTag (data: any) {
       this.updateTaskItem({
         ...data,
         action: 'createTag'
       })
     }
 
-    handleUpdateTag (data) {
+    handleUpdateTag (data: any) {
       this.updateTaskItem({
         ...data,
         action: 'updateTag'
@@ -412,22 +417,20 @@ export default class TaskModal extends Vue {
       this.isEditingDescription = false
     }
 
-    commentHandler (e: any) {
-      if (e.keyCode === 13 && !e.shiftKey) {
-        e.preventDefault()
-        this.saveComment()
-      }
+    async commentHandler (comment: object) {
+      this.commentInput = comment
+      this.saveComment(comment)
     }
 
-    async saveComment () {
-      if (this.commentInput.trim().length <= 0 || this.isCommenting) {
+    async saveComment (comment: object) {
+      if (JSON.stringify(comment).trim().length <= 0) {
         return
       }
+      console.log('comment input', comment)
       try {
-        this.isCommenting = true
         const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
           id: null,
-          content: this.commentInput,
+          content: JSON.stringify(comment),
           taskId: this.item.id
         }
         const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
@@ -437,11 +440,9 @@ export default class TaskModal extends Vue {
           title: this.itemCopy.title,
           action: 'createComment'
         })
-        this.commentInput = ''
+        this.commentInput = null
       } catch (e) {
-
-      } finally {
-        this.isCommenting = false
+        console.log('error save comment', e)
       }
     }
 
@@ -571,7 +572,7 @@ export default class TaskModal extends Vue {
       }
     }
 
-    private updateTaskItem (data) {
+    private updateTaskItem (data: any) {
       this.doc.doc.transact(() => {
         this.doc.set(this.taskId, {
           ...data,
@@ -660,6 +661,21 @@ export default class TaskModal extends Vue {
 
     get assignees () {
       return this.item.assignees
+    }
+
+    get comment () {
+      const raw = this.commentInput
+
+      let result
+      try {
+        if (!raw || typeof raw !== 'string') throw new Error()
+
+        result = JSON.parse(raw)
+      } catch (e) {
+        result = raw || ''
+      }
+
+      return result
     }
 
     attachmentState () {
