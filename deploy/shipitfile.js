@@ -1,4 +1,8 @@
 const path = require('path')
+const minimist = require('minimist')
+
+var args = minimist(process.argv.slice(2));
+console.log(args)
 
 module.exports = shipit => {
   require('shipit-deploy')(shipit)
@@ -28,7 +32,6 @@ module.exports = shipit => {
     production: {
       deployTo: '/srv/root',
       servers: 'rut@rootspace.app',
-      branch: 'master',
       pm2: {
         json: '/srv/root/current/api/pm2/production.json'
       }
@@ -37,6 +40,18 @@ module.exports = shipit => {
 
   shipit.on('fetched', () => {
     console.log('\n')
+    if (args.branch) {
+        shipit.config.branch = args.branch;
+    }
+    console.log(args.branch)
+    console.log('\n')
+
+  });
+
+  shipit.on('deploy', function() {
+      if (args.branch) {
+          shipit.config.branch = args.branch;
+      }
   });
 
   shipit.on('updated', function () {
