@@ -208,7 +208,6 @@ import {
 } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
-import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
@@ -236,7 +235,6 @@ import Editor from '@/components/editor'
     MemberPopover,
     TaskComment,
     PopoverList,
-    TextareaAutoresize,
     Modal,
     Field,
     Avatar,
