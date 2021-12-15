@@ -45,6 +45,14 @@ export default class App extends Vue {
         this.$router.push({ name: 'SignIn' })
       }
     })
+    window.addEventListener('offline', () => {
+      this.$toast.error('Looks like you\'re not connected to a network. Check your connection and try again.', {
+        timeout: false
+      })
+    })
+    window.addEventListener('online', () => {
+      this.$toast.success('Your connection is back')
+    })
     window.app = this
   }
 
