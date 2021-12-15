@@ -49,6 +49,7 @@
           :readonly="!isEditMode"
           v-model="commentContent"
           @cancel="exitEditMode"
+          @save="updateComment"
         />
       </div>
       <!-- <div v-show="isEditMode" class="comment-input">
@@ -144,12 +145,12 @@ export default class TaskComment extends Vue {
       await this.$store.dispatch('task/comment/destroy', comment)
     }
 
-    async updateComment () {
-      this.comment.content = this.commentCopy.content
+    async updateComment (comment: object) {
+      this.comment.content = JSON.stringify(comment)
       this.exitEditMode()
       await this.$store.dispatch('task/comment/update', {
         id: this.comment.id,
-        content: this.commentCopy.content
+        content: JSON.stringify(comment)
       })
     }
 
