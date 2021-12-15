@@ -105,13 +105,6 @@
         <div class="comment-separator"></div>
         <p class="uppercase font-bold text-xs mb-2">Write a Comment</p>
         <div class="comment-input">
-          <!-- <textarea-autoresize
-            v-if="!archivedView"
-            placeholder="Write a comment…"
-            class="comment-textarea"
-            v-model="commentInput"
-            @submit-comment="commentHandler"
-          /> -->
           <Editor
             v-model="comment"
             @save="commentHandler"

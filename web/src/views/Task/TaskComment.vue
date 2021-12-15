@@ -40,8 +40,18 @@
           </Popover>
         </div>
       </header>
-      <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div>
-      <div v-show="isEditMode" class="comment-input">
+      <!-- <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div> -->
+      <!-- <div v-if="!isEditMode" class="comment-content">
+        {{commentContent}}
+      </div> -->
+      <div :class="`${isEditMode ? 'mt-2' : '-mt-4'}`">
+        <Editor
+          :readonly="!isEditMode"
+          v-model="commentContent"
+          @cancel="exitEditMode"
+        />
+      </div>
+      <!-- <div v-show="isEditMode" class="comment-input">
         <textarea-autoresize
           placeholder="Write a comment…"
           class="comment-textarea"
@@ -49,11 +59,11 @@
           @cancel-comment="exitEditMode"
           ref="commentTextarea"
         />
-      </div>
-      <div v-if="isEditMode" class="comment-actions">
+      </div> -->
+      <!-- <div v-if="isEditMode" class="comment-actions">
         <span class="cancel" @click="exitEditMode">Cancel</span>
         <span class="save" @click="updateComment">Save</span>
-      </div>
+      </div> -->
     </div>
 
     <v-modal
@@ -81,6 +91,7 @@ import Popover from '@/components/Popover.vue'
 import VModal from '@/components/legacy/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
 import { ProfileModal, ModalInjectedContext } from '@/components/modal'
+import Editor from '@/components/editor'
 
   @Component({
     name: 'TaskComment',
@@ -88,7 +99,8 @@ import { ProfileModal, ModalInjectedContext } from '@/components/modal'
       Avatar,
       TextareaAutoresize,
       Popover,
-      VModal
+      VModal,
+      Editor
     },
     computed: {
       ...mapState('auth', {
@@ -141,11 +153,26 @@ export default class TaskComment extends Vue {
       })
     }
 
+    get commentContent () {
+      const raw = this.comment.content
+
+      let result
+      try {
+        if (!raw || typeof raw !== 'string') throw new Error()
+
+        result = JSON.parse(raw)
+      } catch (e) {
+        result = raw || ''
+      }
+
+      return result
+    }
+
     enterEditMode () {
       this.isEditMode = true
-      Vue.nextTick().then(() => {
-        this.commentRef.focus()
-      })
+      // Vue.nextTick().then(() => {
+      //   this.commentRef.focus()
+      // })
     }
 
     exitEditMode () {
