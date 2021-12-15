@@ -46,12 +46,12 @@ export default class App extends Vue {
       }
     })
     window.addEventListener('offline', () => {
-      this.$toast.error('Looks like you\'re not connected to a network. Check your connection and try again.', {
+      this.$toast.error('You are currently offline.', {
         timeout: false
       })
     })
     window.addEventListener('online', () => {
-      this.$toast.success('Your connection is back')
+      this.$toast.success('Your Internet connection was restored.')
     })
     window.app = this
   }
