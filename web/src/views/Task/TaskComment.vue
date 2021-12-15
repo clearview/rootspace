@@ -40,10 +40,6 @@
           </Popover>
         </div>
       </header>
-      <!-- <div v-if="!isEditMode" class="comment-content" v-html="formatURL(comment.content)"></div> -->
-      <!-- <div v-if="!isEditMode" class="comment-content">
-        {{commentContent}}
-      </div> -->
       <div :class="`${isEditMode ? 'mt-2' : '-mt-4'}`">
         <Editor
           :readonly="!isEditMode"
@@ -52,19 +48,6 @@
           @save="updateComment"
         />
       </div>
-      <!-- <div v-show="isEditMode" class="comment-input">
-        <textarea-autoresize
-          placeholder="Write a comment…"
-          class="comment-textarea"
-          v-model="commentCopy.content"
-          @cancel-comment="exitEditMode"
-          ref="commentTextarea"
-        />
-      </div> -->
-      <!-- <div v-if="isEditMode" class="comment-actions">
-        <span class="cancel" @click="exitEditMode">Cancel</span>
-        <span class="save" @click="updateComment">Save</span>
-      </div> -->
     </div>
 
     <v-modal
@@ -171,22 +154,10 @@ export default class TaskComment extends Vue {
 
     enterEditMode () {
       this.isEditMode = true
-      // Vue.nextTick().then(() => {
-      //   this.commentRef.focus()
-      // })
     }
 
     exitEditMode () {
       this.isEditMode = false
-    }
-
-    formatURL (comment: string) {
-      // eslint-disable-next-line
-      const URLMatcher = /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm // es
-
-      const withLinks = comment.replace(URLMatcher, match => `<a href="${match}" target="_blank">${match}</a>`)
-
-      return withLinks
     }
 
     openProfile (user: UserResource) {
@@ -226,37 +197,6 @@ export default class TaskComment extends Vue {
 
     img {
       @apply rounded-full;
-    }
-  }
-
-  .comment-content {
-    @apply p-2 leading-tight rounded;
-
-    font-size: 14px;
-    line-height: 17px;
-    color: theme("colors.gray.900");
-    background: rgba(theme("colors.gray.100"), 0.3);
-    white-space: pre-line;
-    word-break: break-word;
-  }
-  .comment-actions {
-    @apply flex items-center justify-end;
-
-    .save, .cancel {
-      cursor: pointer;
-      font-weight: 500;
-      font-size: 14px;
-      line-height: 17px;
-      text-align: right;
-    }
-
-    .save {
-      color: theme("colors.primary.default");
-      margin-left: 16px;
-    }
-
-    .cancel {
-      color: theme("colors.gray.400");
     }
   }
 
