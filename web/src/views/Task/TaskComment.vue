@@ -40,13 +40,16 @@
           </Popover>
         </div>
       </header>
-      <div :class="`${isEditMode ? 'mt-2' : '-mt-4 mb-4'}`">
-        <Editor
-          :readonly="!isEditMode"
-          v-model="commentContent"
-          @cancel="exitEditMode"
-          @save="updateComment"
-        />
+      <div :class="`${isEditMode ? 'mt-2' : '-mt-4 mb-4'}`"  @mouseenter="commentEditorheight = 150" @mouseleave="commentEditorheight = 50">
+        <div>
+          <Editor
+            :readonly="!isEditMode"
+            v-model="commentContent"
+            @cancel="exitEditMode"
+            @save="updateComment"
+            :contentHeight="isEditMode ? commentEditorheight : 50"
+          />
+        </div>
       </div>
     </div>
 
@@ -107,7 +110,7 @@ export default class TaskComment extends Vue {
 
     private isEditMode = false
     private commentCopy = { ...this.comment }
-
+    private commentEditorheight = 50
     private deleteComment: any = {
       visible: false,
       id: null,
@@ -156,6 +159,7 @@ export default class TaskComment extends Vue {
 
     exitEditMode () {
       this.isEditMode = false
+      this.commentEditorheight = 50
     }
 
     openProfile (user: UserResource) {
