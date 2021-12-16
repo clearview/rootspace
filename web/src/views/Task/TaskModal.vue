@@ -415,28 +415,24 @@ export default class TaskModal extends Vue {
       this.saveComment(comment)
     }
 
-    async saveComment (comment: object) {
-      if (JSON.stringify(comment).trim().length <= 0) {
+    async saveComment (comment: object | any) {
+      if (!comment.content[0].content) {
         return
       }
 
-      try {
-        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
-          id: null,
-          content: JSON.stringify(comment),
-          taskId: this.item.id
-        }
-        const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
-        this.updateTaskItem({
-          ...commentItem,
-          id: this.item.id,
-          title: this.itemCopy.title,
-          action: 'createComment'
-        })
-        this.commentInput = null
-      } catch (e) {
-
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
+        id: null,
+        content: JSON.stringify(comment),
+        taskId: this.item.id
       }
+      const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
+      this.updateTaskItem({
+        ...commentItem,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'createComment'
+      })
+      this.commentInput = null
     }
 
     async handleMenu (value: string) {
