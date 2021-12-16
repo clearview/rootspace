@@ -102,12 +102,13 @@
             </p>
           </div>
         </div>
-        <div class="comment-separator"></div>
+        <div class="comment-separator my-2"></div>
         <p class="uppercase font-bold text-xs mb-2">Write a Comment</p>
-        <div class="comment-input">
+        <div class="comment-input h-64" @mouseenter="commentEditorheight = 150" @mouseleave="commentEditorheight = 50">
           <Editor
             v-model="comment"
             @save="commentHandler"
+            :contentHeight="commentEditorheight"
           />
         </div>
         <ul class="comments" v-if="orderedComments.length > 0">
@@ -285,6 +286,7 @@ export default class TaskModal extends Vue {
     private isCapturingFile = false
     private isShowAllAttachment = false
     private attachmentIndex: number|null = null
+    private commentEditorheight = 50
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
@@ -732,7 +734,6 @@ export default class TaskModal extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-
   .task-modal-header {
     @apply flex items-start pr-12 pb-2;
     width: 750px;
@@ -1187,7 +1188,6 @@ export default class TaskModal extends Vue {
     line-height: 17px;
     color: theme("colors.gray.800");
   }
-
 </style>
 
 <style lang="postcss">

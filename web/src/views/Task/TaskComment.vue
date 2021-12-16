@@ -40,7 +40,7 @@
           </Popover>
         </div>
       </header>
-      <div :class="`${isEditMode ? 'mt-2' : '-mt-4'}`">
+      <div :class="`${isEditMode ? 'mt-2' : '-mt-4 mb-4'}`">
         <Editor
           :readonly="!isEditMode"
           v-model="commentContent"
