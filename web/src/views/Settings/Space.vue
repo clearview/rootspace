@@ -16,6 +16,7 @@
               edit-offset="-12px"
               key="space"
               @uploaded="fetch"
+              withRemove
             >
               <template #fallback>
                 <img

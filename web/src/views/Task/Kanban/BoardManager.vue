@@ -6,6 +6,7 @@
   <div
     v-else
     class="board-manager"
+    id="board-manager"
   >
     <div
       v-if="isKanban"
@@ -52,13 +53,14 @@
 import Draggable from 'vuedraggable'
 
 import { Component, InjectReactive, Prop, Vue } from 'vue-property-decorator'
-import { TaskBoardResource, TaskListResource } from '@/types/resource'
+import { TaskBoardResource, TaskListResource, UserResource } from '@/types/resource'
 import { Optional } from '@/types/core'
 import { getNextPosition, getReorderIndex, getReorderPosition } from '@/utils/reorder'
 import TaskLane from './TaskLane.vue'
 import TaskAddLane from './TaskAddLane.vue'
 import TaskGhost from './TaskGhost.vue'
-import { ArchivedViewKey } from '../injectionKeys'
+import { ArchivedViewKey, ClientID, TaskId, YDoc } from '../injectionKeys'
+import * as Y from 'yjs'
 
 @Component({
   name: 'BoardManager',
@@ -76,6 +78,18 @@ export default class BoardManager extends Vue {
 
   @InjectReactive(ArchivedViewKey)
   private archivedView!: boolean
+
+  @InjectReactive(YDoc)
+  private readonly doc!: Y.Map<any>
+
+  @InjectReactive(TaskId)
+  private readonly taskId!: string
+
+  @InjectReactive(ClientID)
+  private readonly clientId!: Number
+
+  @InjectReactive()
+  private readonly user!: UserResource
 
   private readonly lists!: TaskListResource[];
   private isInputtingNewList = false
@@ -138,6 +152,15 @@ export default class BoardManager extends Vue {
         id: data.moved.element.id,
         position: newPos
       })
+
+      this.doc.doc.transact(() => {
+        this.doc.set(this.taskId, {
+          clientId: this.clientId,
+          action: 'taskLaneMoved',
+          id: data.moved.element.id,
+          position: newPos
+        })
+      }, this.clientId)
     }
   }
 }

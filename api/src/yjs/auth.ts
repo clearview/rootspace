@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken'
 import { ServiceFactory } from '../services/factory/ServiceFactory'
 import { UserService } from '../services'
 import { User } from '../database/entities/User'
+import { Doc } from '../database/entities/Doc'
+import { TaskBoard } from '../database/entities/tasks/TaskBoard'
 
 export const authenticate = async (token: string): Promise<User | null> => {
   try {
@@ -24,10 +26,19 @@ export const authenticate = async (token: string): Promise<User | null> => {
   }
 }
 
-export const authorize = async (userId: number, docId: number): Promise<boolean> => {
-  const doc = await ServiceFactory.getInstance()
-    .getDocService()
-    .getById(docId)
+export const authorize = async (userId: number, docId: number, type: string): Promise<boolean> => {
+  let doc: Doc | TaskBoard
+
+  if (type === 'doc') {
+    doc = await ServiceFactory.getInstance()
+      .getDocService()
+      .getById(docId)
+
+  } else if (type === 'task') {
+    doc = await ServiceFactory.getInstance()
+      .getTaskBoardService()
+      .getById(docId)
+  }
 
   if (!doc) {
     return false
@@ -40,6 +51,5 @@ export const authorize = async (userId: number, docId: number): Promise<boolean>
   if (inSpace) {
     return true
   }
-
   return false
 }

@@ -138,18 +138,32 @@ export default class TagsPopover extends Vue {
     } as TagResource
     if (this.tagsState === 'edit') {
       const url = 'task/tag/updateTag'
-      await this.$store.dispatch(url, {
+      const item = await this.$store.dispatch(url, {
         tagId: this.idEditedTag,
         data: data
       } as object)
+
+      this.$emit('update', {
+        ...data,
+        ...item
+      })
+
+      this.tagInput = ''
+      this.tagsTitle = 'Manage Tags'
+      this.tagsState = 'manage'
     } else {
       const url = 'task/tag/create'
-      await this.$store.dispatch(url, data)
-    }
+      const item = await this.$store.dispatch(url, data)
 
-    this.tagInput = ''
-    this.tagsTitle = 'Manage Tags'
-    this.tagsState = 'manage'
+      this.$emit('create', {
+        ...data,
+        ...item
+      })
+
+      this.tagInput = ''
+      this.tagsState = 'list'
+      this.tagsTitle = 'Select Tag'
+    }
   }
 
   selectColor (color: string) {
