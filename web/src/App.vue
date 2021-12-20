@@ -48,10 +48,6 @@ export default class App extends Vue {
     window.app = this
   }
 
-  updated () {
-    this.$store.dispatch('page/checkVersion')
-  }
-
   private confirmData: {
     title?: string;
     text?: string;
