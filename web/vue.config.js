@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
+process.env.VUE_APP_VERSION = process.env.npm_package_version
 
 module.exports = {
   runtimeCompiler: true,
