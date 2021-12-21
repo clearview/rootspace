@@ -3,9 +3,9 @@
     id="app"
     class="relative h-screen overflow-y-auto"
   >
-  <button v-if="updateExists" @click="refreshApp">
+  <!-- <button v-if="updateExists" @click="refreshApp">
       New version available! Click to update
-    </button>
+    </button> -->
 
     <access-provider>
       <modal-provider>
@@ -71,6 +71,7 @@ export default class App extends Vue {
   showRefreshUI (e: any) {
     this.registration = e.detail
     this.updateExists = true
+    this.refreshApp()
   }
 
   refreshApp () {
@@ -78,7 +79,13 @@ export default class App extends Vue {
     if (!this.registration || !this.registration.waiting) {
       return
     }
-    this.registration.waiting.postMessage('skipWaiting')
+
+    this.$toast.info('New version available! This page will refresh in 3 seconds', {
+      timeout: 3000,
+      onClose: () => {
+        this.registration.waiting.postMessage('skipWaiting')
+      }
+    })
   }
 
   private confirmData: {
