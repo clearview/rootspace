@@ -34,5 +34,12 @@ module.exports = {
   chainWebpack: config => config.resolve.symlinks(false),
   transpileDependencies: [
     /[\\/]node_modules[\\/]tiptap.*/
-  ]
+  ],
+  pwa: {
+    workboxPluginMode: 'InjectManifest',
+    workboxOptions: {
+      swSrc: './src/sw.js',
+      swDest: 'service-worker.js'
+    }
+  }
 }

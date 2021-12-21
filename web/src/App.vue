@@ -3,6 +3,10 @@
     id="app"
     class="relative h-screen overflow-y-auto"
   >
+  <button v-if="updateExists" @click="refreshApp">
+      New version available! Click to update
+    </button>
+
     <access-provider>
       <modal-provider>
         <router-view />
@@ -39,6 +43,10 @@ import AccessProvider from '@/components/access'
   components: { VModal, AccessProvider, ModalProvider }
 })
 export default class App extends Vue {
+  refreshing = false
+  registration: any = null
+  updateExists = false
+
   async created () {
     this.$store.subscribe(async (mutation, state) => {
       if (mutation.type === 'auth/setToken' && !state.auth.token) {
@@ -46,6 +54,31 @@ export default class App extends Vue {
       }
     })
     window.app = this
+    document.addEventListener(
+      'swUpdated', this.showRefreshUI, { once: true }
+    )
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener(
+        'controllerchange', () => {
+          if (this.refreshing) return
+          this.refreshing = true
+          window.location.reload()
+        }
+      )
+    }
+  }
+
+  showRefreshUI (e: any) {
+    this.registration = e.detail
+    this.updateExists = true
+  }
+
+  refreshApp () {
+    this.updateExists = false
+    if (!this.registration || !this.registration.waiting) {
+      return
+    }
+    this.registration.waiting.postMessage('skipWaiting')
   }
 
   private confirmData: {
