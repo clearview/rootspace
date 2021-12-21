@@ -3,10 +3,6 @@
     id="app"
     class="relative h-screen overflow-y-auto"
   >
-  <!-- <button v-if="updateExists" @click="refreshApp">
-      New version available! Click to update
-    </button> -->
-
     <access-provider>
       <modal-provider>
         <router-view />
