@@ -36,6 +36,8 @@ module.exports = {
     /[\\/]node_modules[\\/]tiptap.*/
   ],
   pwa: {
+    themeColor: '#D64141',
+    msTileColor: '#ffffff',
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
       swSrc: './src/sw.js',
