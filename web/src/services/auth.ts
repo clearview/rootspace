@@ -182,4 +182,32 @@ export default class AuthService {
       }
     }
   }
+
+  static async refreshToken (token: string) {
+    try {
+      const res = await api.get('/users/token', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (!res.data) {
+        throw new Error('Invalid response from server')
+      }
+
+      if (res.data.status === 'error') {
+        throw new Error(res.data.msg)
+      }
+
+      return res
+    } catch (err) {
+      const { response } = err
+
+      if (response) {
+        throw new Error(response.data.error.message)
+      } else {
+        throw err
+      }
+    }
+  }
 }
