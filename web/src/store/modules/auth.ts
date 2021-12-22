@@ -1,8 +1,10 @@
 import { Module } from 'vuex'
-
+import Cookie from 'js-cookie'
 import { RootState, AuthState } from '@/types/state'
-
 import AuthService from '@/services/auth'
+
+const tokenName = 'root_session'
+const refreshTokenName = 'root_session_refresh_token'
 
 type SigninContext = {
   type: string;
@@ -14,6 +16,7 @@ const AuthModule: Module<AuthState, RootState> = {
   state () {
     return {
       token: null,
+      refreshToken: null,
       user: null,
       spaces: null,
       currentSpace: null
@@ -23,6 +26,9 @@ const AuthModule: Module<AuthState, RootState> = {
   mutations: {
     setToken (state, token) {
       state.token = token
+    },
+    setRefreshToken (state, refreshToken) {
+      state.refreshToken = refreshToken
     },
     setUser (state, user) {
       state.user = user
@@ -49,9 +55,11 @@ const AuthModule: Module<AuthState, RootState> = {
       const { data } = await AuthService.signin(type, payload)
 
       commit('setToken', data.token)
+      commit('setRefreshToken', data.refreshToken)
     },
     async signout ({ commit }) {
       commit('setToken', null)
+      commit('setRefreshToken', null)
       commit('setUser', null)
     },
     async recoverPassword (_, payload) {
@@ -62,6 +70,18 @@ const AuthModule: Module<AuthState, RootState> = {
     },
     async passwordResetVerify (_, payload) {
       await AuthService.passwordResetVerify(payload)
+    },
+    async refreshToken ({ commit, dispatch }) {
+      const persistedRefreshToken = Cookie.get(refreshTokenName) || ''
+      const { data } = await AuthService.refreshToken(persistedRefreshToken)
+
+      Cookie.set(tokenName, data.token)
+      Cookie.set(refreshTokenName, data.refreshToken)
+
+      commit('setToken', data.token)
+      commit('setRefreshToken', data.refreshToken)
+
+      await dispatch('whoami')
     }
   }
 }
