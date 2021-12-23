@@ -105,11 +105,12 @@
         <div class="comment-separator my-2"></div>
         <p class="uppercase font-bold text-xs mb-2">Write a Comment</p>
         <div class="comment-input h-64" @mouseenter="commentEditorheight = 150" @mouseleave="commentEditorheight = 50">
-          <Editor
+          <!-- <SimpleEditor
             v-model="comment"
             @save="commentHandler"
             :contentHeight="commentEditorheight"
-          />
+          /> -->
+          <SimpleEditor />
         </div>
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
@@ -224,6 +225,7 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
+import SimpleEditor from '@/components/editor/SimpleEditor.vue'
 
 @Component({
   name: 'TaskModal',
@@ -239,7 +241,8 @@ import Editor from '@/components/editor'
     Modal,
     Field,
     Avatar,
-    ImageViewer
+    ImageViewer,
+    SimpleEditor
   },
   filters: {
     formatDate (date: Date | string) {
