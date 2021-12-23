@@ -28,15 +28,19 @@
 
         <button
           class="menububble__button"
-          :class="{ 'is-active': isActive.code() }"
-          @click="commands.code"
+          :class="{ 'is-active': isActive.underline() }"
+          @click="commands.underline"
         >
-          <mono-icon name="code" />
+          <mono-icon name="underline" />
         </button>
       </div>
     </EditorMenuBubble>
 
-    <EditorContent class="editor__content" :editor="editor" />
+    <EditorContent
+      class="editor__content"
+      :editor="editor"
+      @keydown.native="onKeydown"
+    />
   </div>
 </template>
 
@@ -101,46 +105,68 @@ export default {
   },
   beforeDestroy () {
     this.editor.destroy()
+  },
+  methods: {
+    save (e) {
+      console.log({ e })
+    },
+    onKeydown (e) {
+      if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
+        console.log('enter')
+        this.save(e)
+      }
+    }
   }
 }
 </script>
 
 <style lang="scss" scope>
 .menububble {
-    position: absolute;
-    display: -webkit-box;
-    display: flex;
-    z-index: 20;
-    background: #000;
-    border-radius: 5px;
-    padding: 0.3rem;
-    margin-bottom: 0.5rem;
-    -webkit-transform: translateX(-50%);
-    transform: translateX(-50%);
-    visibility: hidden;
-    opacity: 0;
-    -webkit-transition: opacity .2s,visibility .2s;
-    transition: opacity .2s,visibility .2s;
+  position: absolute;
+  display: -webkit-box;
+  display: flex;
+  z-index: 20;
+  background: #000;
+  border-radius: 5px;
+  padding: 0.3rem;
+  margin-bottom: 0.5rem;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: opacity 0.2s, visibility 0.2s;
+  transition: opacity 0.2s, visibility 0.2s;
 
-    &.is-active {
-        opacity: 1;
-        visibility: visible;
-    }
+  &.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .menububble__button {
-    display: -webkit-inline-box;
-    display: inline-flex;
-    background: transparent;
-    border: 0;
-    color: #fff;
-    padding: 0.2rem 0.5rem;
-    margin-right: 0.2rem;
-    border-radius: 3px;
-    cursor: pointer;
+  display: -webkit-inline-box;
+  display: inline-flex;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  margin-right: 0.2rem;
+  border-radius: 3px;
+  cursor: pointer;
 
-    &.is-active {
-        background-color: hsla(0,0%,100%,.2);
-    }
+  &.is-active {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 16px;
+  .btn {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
 }
 </style>
