@@ -101,9 +101,8 @@
       </div>
     </header>
     <div
-      class="content overflow-y-auto"
+      class="content"
       v-if="editor"
-      :style="`height: ${contentHeight}px`"
     >
       <EditorContent
         key="editor"
@@ -157,10 +156,6 @@ export default defineComponent({
     value: {
       type: [Object, String],
       default: () => ({})
-    },
-    contentHeight: {
-      type: [Number, Boolean],
-      default: false
     }
   },
   setup (props, { emit }) {

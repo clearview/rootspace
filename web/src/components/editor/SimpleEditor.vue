@@ -95,7 +95,6 @@ export default {
     save () {
       const content = this.editor.getJSON()
       this.$emit('save', content)
-      //   this.editor.setContent(null)
     },
     onKeydown (e) {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {

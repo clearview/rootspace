@@ -281,7 +281,6 @@ export default class TaskModal extends Vue {
     private isCapturingFile = false
     private isShowAllAttachment = false
     private attachmentIndex: number|null = null
-    private commentEditorheight = 50
 
     get orderedComments () {
       return [...this.item.taskComments].sort((a, b) => {
