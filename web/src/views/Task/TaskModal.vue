@@ -103,15 +103,7 @@
           </div>
         </div>
         <div class="comment-separator my-2"></div>
-        <p class="uppercase font-bold text-xs mb-2">Write a Comment</p>
-        <div class="comment-input h-64" @mouseenter="commentEditorheight = 150" @mouseleave="commentEditorheight = 50">
-          <!-- <SimpleEditor
-            v-model="comment"
-            @save="commentHandler"
-            :contentHeight="commentEditorheight"
-          /> -->
-          <SimpleEditor />
-        </div>
+        <SimpleEditor class="mb-10" @save="commentHandler" placeholder="Write a comment ..." />
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>

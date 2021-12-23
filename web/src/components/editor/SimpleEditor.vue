@@ -1,10 +1,6 @@
 <template>
-  <div class="editor">
-    <EditorMenuBubble
-      :editor="editor"
-      :keep-in-bounds="keepInBounds"
-      v-slot="{ commands, isActive, menu }"
-    >
+  <div class="simple-editor">
+    <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, menu }">
       <div
         class="menububble"
         :class="{ 'is-active': menu.isActive }"
@@ -46,81 +42,90 @@
 
 <script>
 import { Editor, EditorContent, EditorMenuBubble } from 'tiptap'
-import {
-  Blockquote,
-  BulletList,
-  CodeBlock,
-  HardBreak,
-  Heading,
-  ListItem,
-  OrderedList,
-  TodoItem,
-  TodoList,
-  Bold,
-  Code,
-  Italic,
-  Link,
-  Strike,
-  Underline,
-  History
-} from 'tiptap-extensions'
+import { Bold, Italic, Underline, Placeholder } from 'tiptap-extensions'
 
 export default {
   components: {
     EditorContent,
     EditorMenuBubble
   },
+  props: {
+    placeholder: {
+      type: String,
+      default: 'Write something ...'
+    }
+  },
   data () {
     return {
-      keepInBounds: true,
       editor: new Editor({
         extensions: [
-          new Blockquote(),
-          new BulletList(),
-          new CodeBlock(),
-          new HardBreak(),
-          new Heading({ levels: [1, 2, 3] }),
-          new ListItem(),
-          new OrderedList(),
-          new TodoItem(),
-          new TodoList(),
-          new Link(),
           new Bold(),
-          new Code(),
           new Italic(),
-          new Strike(),
           new Underline(),
-          new History()
+          new Placeholder({
+            emptyEditorClass: 'is-editor-empty',
+            emptyNodeClass: 'is-empty',
+            emptyNodeText: 'Write something ...',
+            showOnlyWhenEditable: true,
+            showOnlyCurrent: true
+          })
         ],
-        content: `
-          <h2>
-            Menu Bubble
-          </h2>
-          <p>
-            Hey, try to select some text here. There will popup a menu for selecting some inline styles. <em>Remember:</em> you have full control about content and styling of this menu.
-          </p>
-        `
+        content: null
       })
     }
+  },
+  created () {
+    this.editor.extensions.options.placeholder.emptyNodeText = this.placeholder
   },
   beforeDestroy () {
     this.editor.destroy()
   },
   methods: {
-    save (e) {
-      console.log({ e })
+    save () {
+      const content = this.editor.getJSON()
+      this.$emit('save', content)
+      this.editor.setContent(null)
     },
     onKeydown (e) {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
-        console.log('enter')
-        this.save(e)
+        this.save()
       }
     }
   }
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="postcss" scope>
+.simple-editor {
+  .ProseMirror {
+    @apply bg-white border-secondary border-2 p-2 rounded-md;
+    min-height: 41px;
+
+    &.ProseMirror-focused {
+        @apply bg-white border-secondary border-2 p-2 rounded-md;
+        min-height: 75px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+    }
+  }
+
+  .ProseMirror p:first-child {
+    margin-top: 0px !important;
+  }
+}
+
+p.is-editor-empty:first-child::before {
+  content: attr(data-empty-text);
+  float: left;
+  color: #aaa;
+  pointer-events: none;
+  height: 0;
+  font-size: 14px;
+}
+
+p.is-editor-empty {
+  margin-top: 0px !important;
+}
+
 .menububble {
   position: absolute;
   display: -webkit-box;
