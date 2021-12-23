@@ -103,7 +103,7 @@
           </div>
         </div>
         <div class="comment-separator my-2"></div>
-        <SimpleEditor class="mb-10" @save="commentHandler" placeholder="Write a comment ..." />
+        <SimpleEditor class="mb-10" v-model="commentInput" @save="commentHandler" placeholder="Write a comment ..." />
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>

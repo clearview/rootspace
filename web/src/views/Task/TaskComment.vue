@@ -1,55 +1,81 @@
 <template>
   <li class="comment">
     <div class="comment-left">
-      <div class="comment-avatar cursor-pointer" @click="openProfile(comment.user)">
-        <avatar :src="comment.user.avatar && comment.user.avatar.versions ? comment.user.avatar.versions.default.location : ''" :username="`${comment.user.firstName} ${comment.user.lastName}`"
-                :size="32"
-                :alt="`${comment.user.firstName} ${comment.user.lastName}`"></avatar>
+      <div
+        class="comment-avatar cursor-pointer"
+        @click="openProfile(comment.user)"
+      >
+        <avatar
+          :src="
+            comment.user.avatar && comment.user.avatar.versions
+              ? comment.user.avatar.versions.default.location
+              : ''
+          "
+          :username="`${comment.user.firstName} ${comment.user.lastName}`"
+          :size="32"
+          :alt="`${comment.user.firstName} ${comment.user.lastName}`"
+        ></avatar>
       </div>
     </div>
     <div class="comment-right">
       <header class="comment-header">
-        <div class="header-name cursor-pointer" @click="openProfile(comment.user)">
-          {{comment.user.firstName}} {{comment.user.lastName}}
+        <div
+          class="header-name cursor-pointer"
+          @click="openProfile(comment.user)"
+        >
+          {{ comment.user.firstName }} {{ comment.user.lastName }}
         </div>
         <div class="header-date">
-          {{comment.createdAt | formatDate}}
+          {{ comment.createdAt | formatDate }}
         </div>
-        <div class="header-actions" v-if="user.id === comment.userId && !isEditMode">
+        <div
+          class="header-actions"
+          v-if="user.id === comment.userId && !isEditMode"
+        >
           <Popover :z-index="1001" :with-close="false" position="bottom-start">
             <template #default="{ hide }">
-              <div class="action-line" @click="hide();enterEditMode()">
+              <div
+                class="action-line"
+                @click="
+                  hide()
+                  enterEditMode()
+                "
+              >
                 <legacy-icon name="edit"></legacy-icon>
-                <div class="action-line-text">
-                  Edit
-                </div>
+                <div class="action-line-text">Edit</div>
               </div>
               <div class="action-separator"></div>
-              <div class="action-line danger" @click="hide();deleteCommentActionConfirm()">
+              <div
+                class="action-line danger"
+                @click="
+                  hide()
+                  deleteCommentActionConfirm()
+                "
+              >
                 <legacy-icon name="trash"></legacy-icon>
-                <div class="action-line-text">
-                  Delete
-                </div>
+                <div class="action-line-text">Delete</div>
               </div>
             </template>
             <template #trigger="{ visible }">
-              <button class="btn btn-link" :class="{'btn-link-primary': visible}">
-                <legacy-icon name="ellipsis" viewbox="20" size="1.25rem"/>
+              <button
+                class="btn btn-link"
+                :class="{ 'btn-link-primary': visible }"
+              >
+                <legacy-icon name="ellipsis" viewbox="20" size="1.25rem" />
               </button>
             </template>
           </Popover>
         </div>
       </header>
-      <div :class="`${isEditMode ? 'mt-2' : '-mt-4 mb-4'}`"  @mouseenter="commentEditorheight = 150" @mouseleave="commentEditorheight = 50">
-        <div>
-          <Editor
-            :readonly="!isEditMode"
-            v-model="commentContent"
-            @cancel="exitEditMode"
-            @save="updateComment"
-            :contentHeight="isEditMode ? commentEditorheight : 50"
-          />
-        </div>
+      <SimpleEditor
+        ref="simpleEditor"
+        :editable="isEditMode"
+        v-model="commentContent"
+        @save="updateComment"
+      />
+      <div v-if="isEditMode" class="comment-actions">
+        <span class="cancel" @click="exitEditMode">Cancel</span>
+        <span class="save" @click="this.$refs.simpleEditor.save">Save</span>
       </div>
     </div>
 
@@ -77,217 +103,235 @@ import Popover from '@/components/Popover.vue'
 import VModal from '@/components/legacy/Modal.vue'
 import { formatRelativeTo } from '@/utils/date'
 import { ProfileModal, ModalInjectedContext } from '@/components/modal'
-import Editor from '@/components/editor'
+import SimpleEditor from '@/components/editor/SimpleEditor.vue'
 
-  @Component({
-    name: 'TaskComment',
-    components: {
-      Avatar,
-      Popover,
-      VModal,
-      Editor
-    },
-    computed: {
-      ...mapState('auth', {
-        user: 'user'
-      })
-    },
-    filters: {
-      formatDate (date: Date | string) {
-        const dueDate = date instanceof Date ? date : new Date(date)
-        return formatRelativeTo(dueDate, new Date())
-      }
+@Component({
+  name: 'TaskComment',
+  components: {
+    Avatar,
+    Popover,
+    VModal,
+    SimpleEditor
+  },
+  computed: {
+    ...mapState('auth', {
+      user: 'user'
+    })
+  },
+  filters: {
+    formatDate (date: Date | string) {
+      const dueDate = date instanceof Date ? date : new Date(date)
+      return formatRelativeTo(dueDate, new Date())
     }
-  })
+  }
+})
 export default class TaskComment extends Vue {
-    @Prop({ type: Object, required: true })
-    private readonly comment!: TaskCommentResource;
+  @Prop({ type: Object, required: true })
+  private readonly comment!: TaskCommentResource
 
-    @Inject('modal')
-    modal!: ModalInjectedContext
+  @Inject('modal')
+  modal!: ModalInjectedContext
 
-    private readonly user!: Record<string, string>;
+  private readonly user!: Record<string, string>
 
-    private isEditMode = false
-    private commentCopy = { ...this.comment }
-    private commentEditorheight = 50
-    private deleteComment: any = {
-      visible: false,
-      id: null,
-      alert: null
+  private isEditMode = false
+  private commentCopy = { ...this.comment }
+  private commentEditorheight = 50
+  private deleteComment: any = {
+    visible: false,
+    id: null,
+    alert: null
+  }
+
+  @Ref('commentTextarea')
+  private readonly commentRef!: HTMLInputElement
+
+  deleteCommentActionConfirm () {
+    this.deleteComment.visible = true
+  }
+
+  async deleteCommentAction (comment: TaskCommentResource) {
+    this.deleteComment.visible = false
+    await this.$store.dispatch('task/comment/destroy', comment)
+  }
+
+  async updateComment (comment: object) {
+    this.exitEditMode()
+    await this.$store.dispatch('task/comment/update', {
+      id: this.comment.id,
+      content: JSON.stringify(comment)
+    })
+  }
+
+  get commentContent () {
+    const raw = this.commentCopy.content
+
+    let result
+    try {
+      if (!raw || typeof raw !== 'string') throw new Error()
+
+      result = JSON.parse(raw)
+    } catch (e) {
+      result = raw || ''
     }
 
-    @Ref('commentTextarea')
-    private readonly commentRef!: HTMLInputElement
+    return result
+  }
 
-    deleteCommentActionConfirm () {
-      this.deleteComment.visible = true
-    }
+  enterEditMode () {
+    this.isEditMode = true
+  }
 
-    async deleteCommentAction (comment: TaskCommentResource) {
-      this.deleteComment.visible = false
-      await this.$store.dispatch('task/comment/destroy', comment)
-    }
+  exitEditMode () {
+    this.isEditMode = false
+    this.commentCopy = this.comment
+  }
 
-    async updateComment (comment: object) {
-      this.comment.content = JSON.stringify(comment)
-      this.exitEditMode()
-      await this.$store.dispatch('task/comment/update', {
-        id: this.comment.id,
-        content: JSON.stringify(comment)
-      })
-    }
-
-    get commentContent () {
-      const raw = this.comment.content
-
-      let result
-      try {
-        if (!raw || typeof raw !== 'string') throw new Error()
-
-        result = JSON.parse(raw)
-      } catch (e) {
-        result = raw || ''
+  openProfile (user: UserResource) {
+    this.modal.open({
+      component: ProfileModal,
+      attrs: {
+        userId: user.id
       }
-
-      return result
-    }
-
-    enterEditMode () {
-      this.isEditMode = true
-    }
-
-    exitEditMode () {
-      this.isEditMode = false
-      this.commentEditorheight = 50
-    }
-
-    openProfile (user: UserResource) {
-      this.modal.open({
-        component: ProfileModal,
-        attrs: {
-          userId: user.id
-        }
-      })
-    }
+    })
+  }
 }
 </script>
 
 <style lang="postcss" scoped>
-  .comment {
-    @apply flex items-start;
+.comment {
+  @apply flex items-start;
 
-    & ~ & {
-      @apply mt-6;
+  & ~ & {
+    @apply mt-6;
+  }
+}
+
+.comment-left {
+  flex: 0 0 auto;
+}
+
+.comment-right {
+  @apply ml-2;
+  flex: 1 1 auto;
+}
+
+.comment-avatar {
+  @apply flex items-center justify-center rounded-full;
+  width: 32px;
+  height: 32px;
+  background: theme('colors.gray.100');
+
+  img {
+    @apply rounded-full;
+  }
+}
+
+.input {
+  @apply w-full;
+
+  height: auto;
+  resize: none;
+  overflow: hidden;
+  line-height: 17px;
+}
+
+.comment-header {
+  @apply mb-1;
+  display: flex;
+}
+.header-name {
+  font-weight: bold;
+  font-size: 14px;
+  flex: 0 0 auto;
+  color: theme('colors.gray.900');
+  line-height: 20px;
+}
+.header-date {
+  @apply ml-2;
+  flex: 0 0 auto;
+  color: theme('colors.gray.800');
+  font-size: 13px;
+  line-height: 19px;
+}
+.header-actions {
+  @apply ml-auto;
+  flex: 0 0 auto;
+
+  button {
+    width: 20px;
+    height: 19px;
+  }
+
+  .btn {
+    @apply p-0;
+    color: theme('colors.gray.400');
+  }
+
+  .btn-link-primary {
+    color: theme('colors.primary.default');
+    background: none !important;
+  }
+}
+.action-line {
+  @apply flex items-center py-2 px-4 my-1;
+  min-width: 168px;
+  color: theme('colors.gray.900');
+  stroke-width: 3px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+
+  &:hover {
+    background: #f0f2f5;
+  }
+  &.danger {
+    color: theme('colors.danger.default');
+  }
+}
+.action-line-text {
+  @apply ml-2;
+  flex: 1 1 auto;
+}
+.action-separator {
+  @apply my-1;
+  height: 1px;
+  background: theme('colors.gray.100');
+}
+
+.btn-link {
+  background-color: unset !important;
+  padding: 0;
+  height: 20px;
+
+  &:hover {
+    background-color: unset;
+
+    .stroke-current {
+      color: theme('colors.primary.default');
     }
   }
+}
 
-  .comment-left {
-    flex: 0 0 auto;
-  }
-
-  .comment-right {
-    @apply ml-2;
-    flex: 1 1 auto;
-  }
-
-  .comment-avatar {
-    @apply flex items-center justify-center rounded-full;
-    width: 32px;
-    height: 32px;
-    background: theme("colors.gray.100");
-
-    img {
-      @apply rounded-full;
-    }
-  }
-
-  .input {
-    @apply w-full;
-
-    height: auto;
-    resize: none;
-    overflow: hidden;
-    line-height: 17px;
-  }
-
-  .comment-header {
-    @apply mb-1;
-    display: flex;
-  }
-  .header-name {
-    font-weight: bold;
-    font-size: 14px;
-    flex: 0 0 auto;
-    color: theme("colors.gray.900");
-    line-height: 20px;
-  }
-  .header-date {
-    @apply ml-2;
-    flex: 0 0 auto;
-    color: theme("colors.gray.800");
-    font-size: 13px;
-    line-height: 19px;
-  }
-  .header-actions {
-    @apply ml-auto;
-    flex: 0 0 auto;
-
-    button {
-      width: 20px;
-      height: 19px;
-    }
-
-    .btn {
-      @apply p-0;
-      color: theme("colors.gray.400");
-    }
-
-    .btn-link-primary {
-      color: theme("colors.primary.default");
-      background: none !important;
-    }
-  }
-  .action-line {
-    @apply flex items-center py-2 px-4 my-1;
-    min-width: 168px;
-    color: theme("colors.gray.900");
-    stroke-width: 3px;
+.comment-actions {
+  @apply flex items-center justify-end mt-4;
+  .save,
+  .cancel {
     cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-    line-height: 16px;
-
-    &:hover{
-      background: #F0F2F5;
-    }
-    &.danger {
-      color: theme("colors.danger.default");
-    }
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 17px;
+    text-align: right;
   }
-  .action-line-text {
-    @apply ml-2;
-    flex: 1 1 auto;
+  .save {
+    color: theme('colors.primary.default');
+    margin-left: 16px;
   }
-  .action-separator{
-    @apply my-1;
-    height:1px;
-    background: theme("colors.gray.100");
+  .cancel {
+    color: theme('colors.gray.400');
   }
-
-  .btn-link {
-    background-color: unset !important;
-    padding: 0;
-    height: 20px;
-
-    &:hover {
-      background-color: unset;
-
-      .stroke-current {
-        color: theme("colors.primary.default");
-      }
-    }
-  }
+}
 </style>
 
 <style lang="postcss">

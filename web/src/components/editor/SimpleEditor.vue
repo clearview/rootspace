@@ -1,5 +1,5 @@
 <template>
-  <div class="simple-editor">
+  <div class="simple-editor" :class="{ editable }">
     <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, menu }">
       <div
         class="menububble"
@@ -53,6 +53,14 @@ export default {
     placeholder: {
       type: String,
       default: 'Write something ...'
+    },
+    value: {
+      type: [String, Object],
+      default: () => ({})
+    },
+    editable: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -70,12 +78,15 @@ export default {
             showOnlyCurrent: true
           })
         ],
-        content: null
+        content: null,
+        editable: true
       })
     }
   },
   created () {
     this.editor.extensions.options.placeholder.emptyNodeText = this.placeholder
+    this.editor.setContent(this.value)
+    this.editor.setOptions({ editable: this.editable })
   },
   beforeDestroy () {
     this.editor.destroy()
@@ -84,12 +95,20 @@ export default {
     save () {
       const content = this.editor.getJSON()
       this.$emit('save', content)
-      this.editor.setContent(null)
+      //   this.editor.setContent(null)
     },
     onKeydown (e) {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
         this.save()
       }
+    }
+  },
+  watch: {
+    value (val) {
+      this.editor.setContent(val)
+    },
+    editable (val) {
+      this.editor.setOptions({ editable: val })
     }
   }
 }
@@ -97,14 +116,17 @@ export default {
 
 <style lang="postcss" scope>
 .simple-editor {
-  .ProseMirror {
+  &.editable {
     @apply bg-white border-secondary border-2 p-2 rounded-md;
-    min-height: 41px;
 
-    &.ProseMirror-focused {
-        @apply bg-white border-secondary border-2 p-2 rounded-md;
+    .ProseMirror {
+      min-height: 41px;
+
+      &.ProseMirror-focused {
+        @apply p-2 -m-2;
         min-height: 75px;
         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+      }
     }
   }
 
