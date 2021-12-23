@@ -184,15 +184,4 @@ p.is-editor-empty {
     background-color: hsla(0, 0%, 100%, 0.2);
   }
 }
-
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 16px;
-  .btn {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-}
 </style>

@@ -74,7 +74,7 @@
         @save="updateComment"
       />
       <div v-if="isEditMode" class="comment-actions">
-        <span class="cancel" @click="exitEditMode">Cancel</span>
+        <span class="cancel" @click="resetComment">Cancel</span>
         <span class="save" @click="this.$refs.simpleEditor.save">Save</span>
       </div>
     </div>
@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Inject, Prop, Ref, Vue } from 'vue-property-decorator'
+import { Component, Inject, Prop, Vue } from 'vue-property-decorator'
 import { TaskCommentResource, UserResource } from '@/types/resource'
 import { mapState } from 'vuex'
 import Avatar from 'vue-avatar'
@@ -136,15 +136,11 @@ export default class TaskComment extends Vue {
 
   private isEditMode = false
   private commentCopy = { ...this.comment }
-  private commentEditorheight = 50
   private deleteComment: any = {
     visible: false,
     id: null,
     alert: null
   }
-
-  @Ref('commentTextarea')
-  private readonly commentRef!: HTMLInputElement
 
   deleteCommentActionConfirm () {
     this.deleteComment.visible = true
@@ -184,7 +180,12 @@ export default class TaskComment extends Vue {
 
   exitEditMode () {
     this.isEditMode = false
+  }
+
+  resetComment () {
     this.commentCopy = this.comment
+    this.$refs.simpleEditor?.editor.setContent(this.commentContent)
+    this.exitEditMode()
   }
 
   openProfile (user: UserResource) {
