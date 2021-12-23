@@ -3,7 +3,7 @@
     <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, menu }">
       <div
         class="menububble"
-        :class="{ 'is-active': menu.isActive }"
+        :class="{ 'is-active': menu.isActive && editable }"
         :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
       >
         <button
@@ -99,6 +99,8 @@ export default {
     onKeydown (e) {
       if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
         this.save()
+      } else if (e.keyCode === 27) {
+        this.$emit('reset')
       }
     }
   },

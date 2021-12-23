@@ -72,6 +72,7 @@
         :editable="isEditMode"
         v-model="commentContent"
         @save="updateComment"
+        @reset="resetComment"
       />
       <div v-if="isEditMode" class="comment-actions">
         <span class="cancel" @click="resetComment">Cancel</span>
