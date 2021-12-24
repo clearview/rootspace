@@ -206,14 +206,13 @@ export default {
   &.editable {
     @apply bg-white border-secondary border-2 p-2 rounded-md;
 
+    &:focus-within {
+      min-height: 75px;
+      resize: none;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+    }
     .ProseMirror {
       min-height: 41px;
-
-      &.ProseMirror-focused {
-        /* @apply p-2 -m-2;
-        min-height: 75px;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%); */
-      }
     }
   }
 
