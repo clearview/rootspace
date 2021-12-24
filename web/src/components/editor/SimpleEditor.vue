@@ -1,6 +1,6 @@
 <template>
   <div class="simple-editor" :class="{ editable }">
-    <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, menu }">
+    <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, getMarkAttrs, menu }">
       <div
         class="menububble"
         :class="{ 'is-active': menu.isActive && editable }"
@@ -29,6 +29,54 @@
         >
           <mono-icon name="underline" />
         </button>
+
+        <button
+          class="menububble__button"
+          :class="{ 'is-active': isActive.strike() }"
+          @click="commands.strike"
+        >
+          <mono-icon name="strikethrough" />
+        </button>
+
+        <button
+          class="menububble__button"
+          :class="{ 'is-active': isActive.code() }"
+          @click="commands.code"
+        >
+          <mono-icon name="code" />
+        </button>
+
+        <form
+          class="menububble__form"
+          v-if="linkMenuIsActive"
+          @submit.prevent="setLinkUrl(commands.link, linkUrl)"
+        >
+          <input
+            class="menububble__input"
+            type="text"
+            v-model="linkUrl"
+            placeholder="https://"
+            ref="linkInput"
+            @keydown.esc="hideLinkMenu"
+          />
+          <button
+            class="menububble__button"
+            @click="setLinkUrl(commands.link, null)"
+            type="button"
+          >
+            <mono-icon name="trash" />
+          </button>
+        </form>
+
+        <template v-else>
+          <button
+            class="menububble__button"
+            @click="showLinkMenu(getMarkAttrs('link'))"
+            :class="{ 'is-active': isActive.link() }"
+          >
+            <mono-icon name="link" />
+          </button>
+        </template>
       </div>
     </EditorMenuBubble>
 
@@ -42,7 +90,15 @@
 
 <script>
 import { Editor, EditorContent, EditorMenuBubble } from 'tiptap'
-import { Bold, Italic, Underline, Placeholder } from 'tiptap-extensions'
+import {
+  Bold,
+  Italic,
+  Underline,
+  Strike,
+  Code,
+  Link,
+  Placeholder
+} from 'tiptap-extensions'
 
 export default {
   components: {
@@ -70,6 +126,9 @@ export default {
           new Bold(),
           new Italic(),
           new Underline(),
+          new Strike(),
+          new Code(),
+          new Link(),
           new Placeholder({
             emptyEditorClass: 'is-editor-empty',
             emptyNodeClass: 'is-empty',
@@ -80,7 +139,9 @@ export default {
         ],
         content: null,
         editable: true
-      })
+      }),
+      linkUrl: null,
+      linkMenuIsActive: false
     }
   },
   created () {
@@ -102,6 +163,21 @@ export default {
       } else if (e.keyCode === 27) {
         this.$emit('reset')
       }
+    },
+    showLinkMenu (attrs) {
+      this.linkUrl = attrs.href
+      this.linkMenuIsActive = true
+      this.$nextTick(() => {
+        this.$refs.linkInput.focus()
+      })
+    },
+    hideLinkMenu () {
+      this.linkUrl = null
+      this.linkMenuIsActive = false
+    },
+    setLinkUrl (command, url) {
+      command({ href: url })
+      this.hideLinkMenu()
     }
   },
   watch: {
@@ -124,9 +200,9 @@ export default {
       min-height: 41px;
 
       &.ProseMirror-focused {
-        @apply p-2 -m-2;
+        /* @apply p-2 -m-2;
         min-height: 75px;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%); */
       }
     }
   }
