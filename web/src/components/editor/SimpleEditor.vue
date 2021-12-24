@@ -1,6 +1,9 @@
 <template>
   <div class="simple-editor" :class="{ editable }">
-    <EditorMenuBubble :editor="editor" v-slot="{ commands, isActive, getMarkAttrs, menu }">
+    <EditorMenuBubble
+      :editor="editor"
+      v-slot="{ commands, isActive, getMarkAttrs, menu }"
+    >
       <div
         class="menububble"
         :class="{ 'is-active': menu.isActive && editable }"
@@ -97,7 +100,9 @@ import {
   Strike,
   Code,
   Link,
-  Placeholder
+  Placeholder,
+  History,
+  HardBreak
 } from 'tiptap-extensions'
 
 export default {
@@ -135,7 +140,9 @@ export default {
             emptyNodeText: 'Write something ...',
             showOnlyWhenEditable: true,
             showOnlyCurrent: true
-          })
+          }),
+          new History(),
+          new HardBreak()
         ],
         content: null,
         editable: true
@@ -158,7 +165,10 @@ export default {
       this.$emit('save', content)
     },
     onKeydown (e) {
-      if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
+      if (e.shiftKey && e.keyCode === 13) {
+        this.editor.commands.hard_break()
+      } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
+        this.editor.commands.undo()
         this.save()
       } else if (e.keyCode === 27) {
         this.$emit('reset')
