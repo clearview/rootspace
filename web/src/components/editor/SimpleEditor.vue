@@ -1,85 +1,290 @@
 <template>
-  <div class="simple-editor" :class="{ editable }">
+  <div class="simple-editor" :class="{ editable }" ref="simpleEditorContainer">
     <EditorMenuBubble
       :editor="editor"
-      v-slot="{ commands, isActive, getMarkAttrs, menu }"
+      v-slot="{ isActive, commands, menu, getMarkAttrs }"
     >
-      <div
-        class="menububble"
-        :class="{ 'is-active': menu.isActive && editable }"
-        :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
+      <div>
+        <!-- <div
+        class="link-bubble bubble"
+        ref="linkBubble"
+        v-if="
+          !canShowBubble(isActive, menu) &&
+          isActive.link() &&
+          !isCellSelection()
+        "
+        :style="getBubblePosition()"
+        @mousedown.stop.prevent="consume"
       >
-        <button
-          class="menububble__button"
-          :class="{ 'is-active': isActive.bold() }"
-          @click="commands.bold"
-        >
-          <mono-icon name="bold" />
-        </button>
-
-        <button
-          class="menububble__button"
-          :class="{ 'is-active': isActive.italic() }"
-          @click="commands.italic"
-        >
-          <mono-icon name="italic" />
-        </button>
-
-        <button
-          class="menububble__button"
-          :class="{ 'is-active': isActive.underline() }"
-          @click="commands.underline"
-        >
-          <mono-icon name="underline" />
-        </button>
-
-        <button
-          class="menububble__button"
-          :class="{ 'is-active': isActive.strike() }"
-          @click="commands.strike"
-        >
-          <mono-icon name="strikethrough" />
-        </button>
-
-        <button
-          class="menububble__button"
-          :class="{ 'is-active': isActive.code() }"
-          @click="commands.code"
-        >
-          <mono-icon name="code" />
-        </button>
-
-        <form
-          class="menububble__form"
-          v-if="linkMenuIsActive"
-          @submit.prevent="setLinkUrl(commands.link, linkUrl)"
-        >
-          <input
-            class="menububble__input"
-            type="text"
-            v-model="linkUrl"
-            placeholder="https://"
-            ref="linkInput"
-            @keydown.esc="hideLinkMenu"
-          />
-          <button
-            class="menububble__button"
-            @click="setLinkUrl(commands.link, null)"
-            type="button"
+        <div class="bubble-wrap">
+          <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
+            <template #default>
+              <legacy-icon
+                name="link-edit"
+                viewbox="16"
+                size="16"
+                v-tippy="{ placement: 'top', arrow: true }"
+                content="Edit Link"
+              ></legacy-icon>
+            </template>
+            <template #options="{ hide }">
+              <NovadocLinkInput
+                @cancel="hide()"
+                @submit="
+                  commands.link({ href: $event })
+                  hide()
+                "
+                :value="getMarkAttrs('link').href"
+              ></NovadocLinkInput>
+            </template>
+          </MenuGroup>
+          <NovadocMenuButton
+            @click="commands.link({})"
+            v-tippy="{ placement: 'top', arrow: true }"
+            content="Unlink"
+            no-margin
           >
-            <mono-icon name="trash" />
-          </button>
-        </form>
-
-        <template v-else>
-          <button
-            class="menububble__button"
-            @click="showLinkMenu(getMarkAttrs('link'))"
-            :class="{ 'is-active': isActive.link() }"
+            <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
+          </NovadocMenuButton>
+          <NovadocMenuSeparator></NovadocMenuSeparator>
+          <NovadocMenuButton
+            @click="openLink(getMarkAttrs('link').href)"
+            v-tippy="{ placement: 'top', arrow: true }"
+            :content="getMarkAttrs('link').href"
           >
-            <mono-icon name="link" />
-          </button>
-        </template>
+            <legacy-icon name="open-link" viewbox="16" size="16"></legacy-icon>
+          </NovadocMenuButton>
+        </div>
+      </div> -->
+        <div
+          class="bubble"
+          :class="{ 'is-active': menu.isActive && editable }"
+          :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
+          @mousedown.stop.prevent="consume"
+        >
+          <!-- <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)"> -->
+          <div class="bubble-wrap">
+            <button
+              class="menu"
+              :class="{ active: isActive.bold() }"
+              v-if="canBeBold(isActive, true)"
+              @click="commands.bold"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Bold"
+            >
+              <legacy-icon name="bold" viewbox="16" size="16"></legacy-icon>
+            </button>
+            <button
+              class="menu"
+              :class="{ active: isActive.italic() }"
+              v-if="canBeItalic(isActive, true)"
+              @click="commands.italic"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Italic"
+            >
+              <legacy-icon name="italic" viewbox="16" size="16"></legacy-icon>
+            </button>
+            <button
+              class="menu"
+              :class="{ active: isActive.underline() }"
+              v-if="canBeUnderline(isActive, true)"
+              @click="commands.underline"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Underline"
+            >
+              <legacy-icon
+                name="underline"
+                viewbox="16"
+                size="16"
+              ></legacy-icon>
+            </button>
+            <button
+              class="menu"
+              :class="{ active: isActive.strike() }"
+              v-if="canBeStrikethrough(isActive, true)"
+              @click="commands.strike"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Strikethrough"
+            >
+              <span>
+                <legacy-icon name="strike" viewbox="16" size="16"></legacy-icon>
+              </span>
+            </button>
+            <button
+              class="menu"
+              :class="{ active: isActive.code() }"
+              v-if="canBeInlineCode(isActive, true)"
+              @click="commands.code"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Inline Code"
+            >
+              <TerminalIcon size="16"></TerminalIcon>
+            </button>
+            <!-- <MenuGroup
+            value="#000"
+            v-if="canBeTextColored(isActive, true)"
+            :show-arrow="false"
+            v-tippy="{ placement: 'top', arrow: true }"
+            content="Text Color"
+            :background="
+              getMarkAttrs('text_color').color === '#EEEEEE' ||
+              getMarkAttrs('text_color').color === '#F5F5F5' ||
+              getMarkAttrs('text_color').color === '#FAFAFA'
+                ? '#333'
+                : ''
+            "
+          >
+            <template #default>
+              <legacy-icon
+                name="text-color"
+                viewbox="16"
+                size="16"
+                :style="{ color: getMarkAttrs('text_color').color }"
+              ></legacy-icon>
+            </template>
+            <template #options="{ select, hide }">
+              <div class="color-blocks text-color-blocks">
+                <div
+                  v-for="textColor in textColors"
+                  :key="textColor.color"
+                  class="color-block"
+                  :style="{
+                    background: textColor.color,
+                    border: `solid 1px ${textColor.border}`
+                  }"
+                  @click="
+                    select(textColor.color)
+                    hide()
+                    commands.text_color({ color: textColor.color })
+                    hideBubble()
+                  "
+                >
+                  <legacy-icon
+                    v-if="textColor.color === getMarkAttrs('text_color').color"
+                    name="checkmark3"
+                    viewbox="16"
+                    size="16"
+                    class="check"
+                    :style="{ color: blackOrWhite(textColor.color) }"
+                  ></legacy-icon>
+                </div>
+              </div>
+            </template>
+          </MenuGroup> -->
+            <!-- <MenuGroup
+            value="#000"
+            v-if="canBeBgColored(isActive, true)"
+            :show-arrow="false"
+            v-tippy="{ placement: 'top', arrow: true }"
+            content="Highlight Color"
+            :background="
+              getMarkAttrs('bg_color').color
+                ? getMarkAttrs('bg_color').color
+                : ''
+            "
+            no-margin
+          >
+            <template #default>
+              <legacy-icon
+                name="highlight"
+                viewbox="16"
+                size="16"
+                :style="{
+                  background: getMarkAttrs('bg_color').color
+                    ? getMarkAttrs('bg_color').color
+                    : '',
+                  color: getMarkAttrs('bg_color').color
+                    ? getMarkAttrs('text_color').color
+                    : ''
+                }"
+              ></legacy-icon>
+            </template>
+            <template #options="{ select, hide }">
+              <div class="color-combo-title">select combination</div>
+              <div
+                class="color-combo"
+                v-for="combo in colorCombinations"
+                :key="combo.background"
+                :style="{ background: combo.background, color: combo.color }"
+                :class="[
+                  combo.class,
+                  getMarkAttrs('bg_color').color === combo.background
+                    ? 'active'
+                    : ''
+                ]"
+                @click="
+                  select(combo)
+                  hide()
+                  commands.bg_color({ color: combo.background })
+                  commands.text_color({ color: combo.color })
+                  hideBubble()
+                "
+              >
+                {{ combo.name }}
+              </div>
+            </template>
+          </MenuGroup> -->
+            <NovadocMenuSeparator
+              v-if="canBeLinked(isActive, true)"
+            ></NovadocMenuSeparator>
+            <MenuGroup
+              :value="getMarkAttrs('link').href"
+              :show-arrow="false"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Link"
+              v-if="canBeLinked(isActive, true)"
+            >
+              <template #default>
+                <legacy-icon
+                  name="edit2"
+                  viewbox="16"
+                  size="12"
+                  v-if="isActive.link()"
+                ></legacy-icon>
+                <legacy-icon
+                  v-else
+                  name="link2"
+                  viewbox="16"
+                  size="16"
+                ></legacy-icon>
+              </template>
+              <template #options="{ hide }">
+                <NovadocLinkInput
+                  @cancel="hide()"
+                  @submit="
+                    commands.link({ href: $event })
+                    hide()
+                  "
+                  :value="getMarkAttrs('link').href"
+                ></NovadocLinkInput>
+              </template>
+            </MenuGroup>
+            <NovadocMenuButton
+              @click="commands.link({})"
+              v-if="isActive.link()"
+              v-tippy="{ placement: 'top', arrow: true }"
+              content="Unlink"
+              no-margin
+            >
+              <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
+            </NovadocMenuButton>
+            <NovadocMenuSeparator
+              v-if="getMarkAttrs('link').href"
+            ></NovadocMenuSeparator>
+            <NovadocMenuButton
+              @click="openLink(getMarkAttrs('link').href)"
+              v-if="isActive.link()"
+              v-tippy="{ placement: 'top', arrow: true }"
+              :content="getMarkAttrs('link').href"
+            >
+              <legacy-icon
+                name="open-link"
+                viewbox="16"
+                size="16"
+              ></legacy-icon>
+            </NovadocMenuButton>
+          </div>
+        </div>
       </div>
     </EditorMenuBubble>
 
@@ -99,16 +304,36 @@ import {
   Underline,
   Strike,
   Code,
+  CodeBlockHighlight,
   Link,
   Placeholder,
   History,
   HardBreak
 } from 'tiptap-extensions'
+import Divider from '@/views/Novadoc/Divider'
+import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
+import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
+import NovadocMenuSeparator from '@/views/Novadoc/Menu/NovadocMenuSeparator'
+import TextColor from '@/views/Novadoc/TextColor'
+import BgColor from '@/views/Novadoc/BgColor'
+import MenuGroup from '@/views/Novadoc/MenuGroup'
+
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import xml from 'highlight.js/lib/languages/xml'
+import bash from 'highlight.js/lib/languages/bash'
+
+import { TerminalIcon } from 'vue-feather-icons'
 
 export default {
   components: {
     EditorContent,
-    EditorMenuBubble
+    EditorMenuBubble,
+    NovadocMenuSeparator,
+    NovadocMenuButton,
+    NovadocLinkInput,
+    MenuGroup,
+    TerminalIcon
   },
   props: {
     placeholder: {
@@ -133,6 +358,17 @@ export default {
           new Underline(),
           new Strike(),
           new Code(),
+          new CodeBlockHighlight({
+            languages: {
+              javascript,
+              typescript,
+              bash,
+              xml
+            }
+          }),
+          new TextColor(),
+          new BgColor(),
+          new Divider(),
           new Link(),
           new Placeholder({
             emptyEditorClass: 'is-editor-empty',
@@ -161,6 +397,7 @@ export default {
   },
   methods: {
     save () {
+      console.log(this.$refs.simpleEditorContainer.offsetLeft)
       const content = this.editor.getJSON()
       this.$emit('save', content)
     },
@@ -188,6 +425,104 @@ export default {
     setLinkUrl (command, url) {
       command({ href: url })
       this.hideLinkMenu()
+    },
+    consume () {
+      // NOTE: Any event that want to be consumed without action should be put here
+    },
+    canShowBubble (isActive, menu) {
+      return (
+        menu.isActive &&
+        !this.isTitleFocused &&
+        !isActive.code_block() &&
+        !isActive.divider()
+      )
+    },
+    getBubblePosition (menu) {
+      const sel = this.editor.state.selection
+      const coords = this.editor.view.coordsAtPos(sel.$from.pos)
+
+      if (this.$refs.simpleEditorContainer) {
+        const left =
+        coords.left - this.$refs.simpleEditorContainer.offsetLeft - menu.left
+        console.log({ offset: this.$refs.simpleEditorContainer.offsetLeft, menu, left, coords })
+        return {
+          left: left + 'px',
+          bottom:
+            menu.bottom +
+            'px'
+        }
+      }
+      return {
+        left: menu.left + 'px',
+        bottom: menu.bottom + 'px'
+      }
+    },
+    canBeBold (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeItalic (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeUnderline (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeStrikethrough (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeInlineCode (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeTextColored (isActive, focused) {
+      if (isActive.paragraph() && focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeBgColored (isActive, focused) {
+      if (isActive.paragraph() && focused && !this.isLocked) {
+        return true
+      }
+      if (this.isCellSelection() && focused && !this.isLocked) {
+        return true
+      }
+    },
+    canBeLinked (focused) {
+      if (focused && !this.isLocked) {
+        return true
+      }
+    },
+    isCellSelection () {
+      if (
+        this.editor &&
+        this.editor.state.selection.$anchorCell &&
+        this.editor.state.selection.$headCell
+      ) {
+        return true
+      }
     }
   },
   watch: {
@@ -234,12 +569,12 @@ p.is-editor-empty {
   margin-top: 0px !important;
 }
 
-.menububble {
+.bubble {
   position: absolute;
+  z-index: 5;
+
   display: -webkit-box;
   display: flex;
-  z-index: 20;
-  background: #000;
   border-radius: 5px;
   padding: 0.3rem;
   margin-bottom: 0.5rem;
@@ -254,21 +589,195 @@ p.is-editor-empty {
     opacity: 1;
     visibility: visible;
   }
+
+  .bubble-wrap {
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16);
+    border-radius: 4px;
+    padding: 4px;
+    box-sizing: border-box;
+    max-width: 100%;
+    font-size: 12px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    overflow: visible;
+  }
 }
 
-.menububble__button {
-  display: -webkit-inline-box;
-  display: inline-flex;
-  background: transparent;
-  border: 0;
-  color: #fff;
-  padding: 0.2rem 0.5rem;
-  margin-right: 0.2rem;
-  border-radius: 3px;
-  cursor: pointer;
+.color-combo {
+  padding: 6px;
+  border-radius: 4px;
+  border: solid 1px transparent;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 14px;
+  margin: 16px 8px;
+  width: 160px;
 
-  &.is-active {
-    background-color: hsla(0, 0%, 100%, 0.2);
+  &.white {
+    border: 1px solid #e0e2e7;
   }
+  &:not(.white) {
+    border: 2px solid transparent;
+  }
+  &:hover,
+  &.active {
+    &.white {
+      border: 1px solid #bcbfc8;
+    }
+    &.red {
+      border: 2px solid #ffb6b6;
+    }
+    &.yellow {
+      border: 2px solid #c7c879;
+    }
+    &.orange {
+      border: 2px solid #dbbc9e;
+    }
+    &.pink {
+      border: 2px solid #bc8aa6;
+    }
+    &.blue {
+      border: 2px solid #86b3c1;
+    }
+    &.green {
+      border: 2px solid #b0d287;
+    }
+  }
+}
+
+.menu-separator {
+  width: 1px;
+  height: 24px;
+  background: #e0e2e7;
+  margin: 0 8px;
+  margin-block: auto;
+  display: inline-block;
+}
+
+.menu {
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 4px;
+  outline: none;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  margin-right: 4px;
+
+  &.no-margin {
+    margin-right: 0;
+  }
+
+  &-big {
+    padding: 8px;
+  }
+
+  .stroke-current {
+    stroke: transparent;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:hover {
+    background: #f4f5f7;
+  }
+
+  &.active,
+  &:active {
+    background: #ddf3ff;
+    color: #146493;
+  }
+
+  &[disabled] {
+    opacity: 0.5;
+  }
+}
+
+.color-blocks {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 8px;
+  padding: 24px;
+}
+
+.color-block {
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .check {
+  }
+
+  &:hover {
+    transform: scale(0.9);
+  }
+}
+
+.bg-color,
+.text-color {
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+.bg-color-display,
+.text-color-display {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-line {
+  @apply flex items-center py-2 px-4 my-1;
+  min-width: 168px;
+  color: theme('colors.gray.900');
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 16px;
+
+  &:hover {
+    background: #f0f2f5;
+  }
+
+  &.danger {
+    color: theme('colors.danger.default');
+  }
+}
+
+.action-line-text {
+  @apply ml-2;
+  flex: 1 1 auto;
+  font-weight: normal;
+}
+
+.action-separator {
+  @apply my-1;
+  height: 1px;
+  background: theme('colors.gray.100');
+}
+
+.title-separator {
+  border: 1px solid #edeff3;
+  margin: 24px 0;
+}
+
+.color-combo-title {
+  margin: 20px 8px 16px 8px;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 12px;
+  text-transform: uppercase;
+  color: #444754;
 }
 </style>
