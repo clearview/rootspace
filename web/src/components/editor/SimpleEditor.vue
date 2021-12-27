@@ -5,65 +5,13 @@
       v-slot="{ isActive, commands, menu, getMarkAttrs }"
     >
       <div>
-        <!-- <div
-        class="link-bubble bubble"
-        ref="linkBubble"
-        v-if="
-          !canShowBubble(isActive, menu) &&
-          isActive.link() &&
-          !isCellSelection()
-        "
-        :style="getBubblePosition()"
-        @mousedown.stop.prevent="consume"
-      >
-        <div class="bubble-wrap">
-          <MenuGroup :value="getMarkAttrs('link').href" :show-arrow="false">
-            <template #default>
-              <legacy-icon
-                name="link-edit"
-                viewbox="16"
-                size="16"
-                v-tippy="{ placement: 'top', arrow: true }"
-                content="Edit Link"
-              ></legacy-icon>
-            </template>
-            <template #options="{ hide }">
-              <NovadocLinkInput
-                @cancel="hide()"
-                @submit="
-                  commands.link({ href: $event })
-                  hide()
-                "
-                :value="getMarkAttrs('link').href"
-              ></NovadocLinkInput>
-            </template>
-          </MenuGroup>
-          <NovadocMenuButton
-            @click="commands.link({})"
-            v-tippy="{ placement: 'top', arrow: true }"
-            content="Unlink"
-            no-margin
-          >
-            <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
-          </NovadocMenuButton>
-          <NovadocMenuSeparator></NovadocMenuSeparator>
-          <NovadocMenuButton
-            @click="openLink(getMarkAttrs('link').href)"
-            v-tippy="{ placement: 'top', arrow: true }"
-            :content="getMarkAttrs('link').href"
-          >
-            <legacy-icon name="open-link" viewbox="16" size="16"></legacy-icon>
-          </NovadocMenuButton>
-        </div>
-      </div> -->
         <div
           class="bubble"
           :class="{ 'is-active': menu.isActive && editable }"
           :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
           @mousedown.stop.prevent="consume"
         >
-          <!-- <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)"> -->
-          <div class="bubble-wrap">
+          <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
             <button
               class="menu"
               :class="{ active: isActive.bold() }"
@@ -120,7 +68,7 @@
             >
               <TerminalIcon size="16"></TerminalIcon>
             </button>
-            <!-- <MenuGroup
+            <MenuGroup
             value="#000"
             v-if="canBeTextColored(isActive, true)"
             :show-arrow="false"
@@ -170,7 +118,7 @@
                 </div>
               </div>
             </template>
-          </MenuGroup> -->
+          </MenuGroup>
             <!-- <MenuGroup
             value="#000"
             v-if="canBeBgColored(isActive, true)"
@@ -297,7 +245,7 @@
 </template>
 
 <script>
-import { Editor, EditorContent, EditorMenuBubble } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBubble, TextSelection } from 'tiptap'
 import {
   Bold,
   Italic,
@@ -324,6 +272,7 @@ import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 
 import { TerminalIcon } from 'vue-feather-icons'
+import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 export default {
   components: {
@@ -523,6 +472,14 @@ export default {
       ) {
         return true
       }
+    },
+    hideBubble () {
+      const sel = this.editor.view.state.selection
+      const tr = this.editor.view.state.tr
+      this.editor.view.dispatch(tr.setSelection(TextSelection.create(tr.doc, sel.to)))
+    },
+    blackOrWhite (color) {
+      return blackOrWhite(hexToHsl(color))
     }
   },
   watch: {
@@ -531,6 +488,23 @@ export default {
     },
     editable (val) {
       this.editor.setOptions({ editable: val })
+    }
+  },
+  computed: {
+    textColors () {
+      return [
+        { border: 'transparent', color: '#212121' },
+        { border: 'transparent', color: '#424242' },
+        { border: 'transparent', color: '#616161' },
+        { border: 'transparent', color: '#757575' },
+        { border: 'transparent', color: '#9E9E9E' },
+
+        { border: 'transparent', color: '#CF3C3C' },
+        { border: 'transparent', color: '#B0611A' },
+        { border: 'transparent', color: '#9C3DBF' },
+        { border: 'transparent', color: '#1D8449' },
+        { border: 'transparent', color: '#3467CE' }
+      ]
     }
   }
 }
