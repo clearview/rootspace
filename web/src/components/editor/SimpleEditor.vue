@@ -7,15 +7,14 @@
       <div>
         <div
           class="bubble"
-          :class="{ 'is-active': menu.isActive && editable }"
-          :style="`left: ${menu.left}px; bottom: ${menu.bottom}px;`"
+          :class="{ 'is-active': true }"
+          :style="`left: ${menu.left <= 210 ? menu.left - 40 : menu.left}px; bottom: ${menu.bottom}px;`"
           @mousedown.stop.prevent="consume"
         >
           <div class="bubble-wrap" v-if="canShowBubble(isActive, menu)">
             <button
               class="menu"
               :class="{ active: isActive.bold() }"
-              v-if="canBeBold(isActive, true)"
               @click="commands.bold"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Bold"
@@ -25,7 +24,6 @@
             <button
               class="menu"
               :class="{ active: isActive.italic() }"
-              v-if="canBeItalic(isActive, true)"
               @click="commands.italic"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Italic"
@@ -35,7 +33,6 @@
             <button
               class="menu"
               :class="{ active: isActive.underline() }"
-              v-if="canBeUnderline(isActive, true)"
               @click="commands.underline"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Underline"
@@ -49,7 +46,6 @@
             <button
               class="menu"
               :class="{ active: isActive.strike() }"
-              v-if="canBeStrikethrough(isActive, true)"
               @click="commands.strike"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Strikethrough"
@@ -61,7 +57,6 @@
             <button
               class="menu"
               :class="{ active: isActive.code() }"
-              v-if="canBeInlineCode(isActive, true)"
               @click="commands.code"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Inline Code"
@@ -70,7 +65,6 @@
             </button>
             <MenuGroup
             value="#000"
-            v-if="canBeTextColored(isActive, true)"
             :show-arrow="false"
             v-tippy="{ placement: 'top', arrow: true }"
             content="Text Color"
@@ -121,7 +115,6 @@
           </MenuGroup>
             <MenuGroup
             value="#000"
-            v-if="canBeBgColored(isActive, true)"
             :show-arrow="false"
             v-tippy="{ placement: 'top', arrow: true }"
             content="Highlight Color"
@@ -173,14 +166,12 @@
             </template>
           </MenuGroup>
             <NovadocMenuSeparator
-              v-if="canBeLinked(isActive, true)"
             ></NovadocMenuSeparator>
             <MenuGroup
               :value="getMarkAttrs('link').href"
               :show-arrow="false"
               v-tippy="{ placement: 'top', arrow: true }"
               content="Link"
-              v-if="canBeLinked(isActive, true)"
             >
               <template #default>
                 <legacy-icon
@@ -385,93 +376,6 @@ export default {
         !isActive.divider()
       )
     },
-    getBubblePosition (menu) {
-      const sel = this.editor.state.selection
-      const coords = this.editor.view.coordsAtPos(sel.$from.pos)
-
-      if (this.$refs.simpleEditorContainer) {
-        const left =
-        coords.left - this.$refs.simpleEditorContainer.offsetLeft - menu.left
-        console.log({ offset: this.$refs.simpleEditorContainer.offsetLeft, menu, left, coords })
-        return {
-          left: left + 'px',
-          bottom:
-            menu.bottom +
-            'px'
-        }
-      }
-      return {
-        left: menu.left + 'px',
-        bottom: menu.bottom + 'px'
-      }
-    },
-    canBeBold (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeItalic (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeUnderline (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeStrikethrough (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeInlineCode (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeTextColored (isActive, focused) {
-      if (isActive.paragraph() && focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeBgColored (isActive, focused) {
-      if (isActive.paragraph() && focused && !this.isLocked) {
-        return true
-      }
-      if (this.isCellSelection() && focused && !this.isLocked) {
-        return true
-      }
-    },
-    canBeLinked (focused) {
-      if (focused && !this.isLocked) {
-        return true
-      }
-    },
-    isCellSelection () {
-      if (
-        this.editor &&
-        this.editor.state.selection.$anchorCell &&
-        this.editor.state.selection.$headCell
-      ) {
-        return true
-      }
-    },
     hideBubble () {
       const sel = this.editor.view.state.selection
       const tr = this.editor.view.state.tr
@@ -479,6 +383,9 @@ export default {
     },
     blackOrWhite (color) {
       return blackOrWhite(hexToHsl(color))
+    },
+    openLink (url) {
+      window.open(url, '_blank')
     }
   },
   watch: {
@@ -758,51 +665,6 @@ p.is-editor-empty {
 .text-color {
   box-sizing: border-box;
   font-size: 12px;
-}
-
-.bg-color-display,
-.text-color-display {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-line {
-  @apply flex items-center py-2 px-4 my-1;
-  min-width: 168px;
-  color: theme('colors.gray.900');
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 16px;
-
-  &:hover {
-    background: #f0f2f5;
-  }
-
-  &.danger {
-    color: theme('colors.danger.default');
-  }
-}
-
-.action-line-text {
-  @apply ml-2;
-  flex: 1 1 auto;
-  font-weight: normal;
-}
-
-.action-separator {
-  @apply my-1;
-  height: 1px;
-  background: theme('colors.gray.100');
-}
-
-.title-separator {
-  border: 1px solid #edeff3;
-  margin: 24px 0;
 }
 
 .color-combo-title {
