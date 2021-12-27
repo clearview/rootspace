@@ -119,7 +119,7 @@
               </div>
             </template>
           </MenuGroup>
-            <!-- <MenuGroup
+            <MenuGroup
             value="#000"
             v-if="canBeBgColored(isActive, true)"
             :show-arrow="false"
@@ -171,7 +171,7 @@
                 {{ combo.name }}
               </div>
             </template>
-          </MenuGroup> -->
+          </MenuGroup>
             <NovadocMenuSeparator
               v-if="canBeLinked(isActive, true)"
             ></NovadocMenuSeparator>
@@ -346,7 +346,6 @@ export default {
   },
   methods: {
     save () {
-      console.log(this.$refs.simpleEditorContainer.offsetLeft)
       const content = this.editor.getJSON()
       this.$emit('save', content)
     },
@@ -504,6 +503,66 @@ export default {
         { border: 'transparent', color: '#9C3DBF' },
         { border: 'transparent', color: '#1D8449' },
         { border: 'transparent', color: '#3467CE' }
+      ]
+    },
+    colorCombinations () {
+      return [
+        {
+          border: '#E0E2E7',
+          color: '#2C2B35',
+          background: '#FFFFFF',
+          activeBorder: '#E0E2E7',
+          name: 'Default Example',
+          class: 'white'
+        },
+        {
+          border: 'transparent',
+          color: '#D64141',
+          background: '#FFF3F3',
+          activeBorder: '#FFB6B6',
+          name: 'Red Example',
+          class: 'red'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FEFFBA',
+          activeBorder: '#E1E26F',
+          name: 'Yellow Example',
+          class: 'yellow'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFEBD8',
+          activeBorder: '#FFC391',
+          name: 'Orange Example',
+          class: 'orange'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#FFE4F3',
+          activeBorder: '#FFC2E4',
+          name: 'Pink Example',
+          class: 'pink'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1F8FF',
+          activeBorder: '#93D3E7',
+          name: 'Blue Example',
+          class: 'blue'
+        },
+        {
+          border: 'transparent',
+          color: '#2C2B35',
+          background: '#E1FFBC',
+          activeBorder: '#B8EA7C',
+          name: 'Green Example',
+          class: 'green'
+        }
       ]
     }
   }
