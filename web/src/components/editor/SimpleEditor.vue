@@ -1,5 +1,5 @@
 <template>
-  <div class="simple-editor" :class="{ editable, 'has-content': hasContent, 'no-content': !hasContent }">
+  <div class="simple-editor" :class="{ editable, 'has-content': hasContent, 'no-content': !hasContent }" @click="focusOnEditor">
     <EditorMenuBubble
       :editor="editor"
       v-slot="{ isActive, commands, menu, getMarkAttrs }"
@@ -386,6 +386,9 @@ export default {
     },
     openLink (url) {
       window.open(url, '_blank')
+    },
+    focusOnEditor () {
+      this.editor.view.dom.focus()
     }
   },
   watch: {
@@ -483,7 +486,7 @@ export default {
 
 <style lang="postcss" scope>
 .simple-editor {
-  @apply p-2 rounded text-sm;
+  @apply p-2 rounded text-sm cursor-text;
   color: #444754;
   background: rgba(222,226,238,.3);
 
