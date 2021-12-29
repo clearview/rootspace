@@ -1,5 +1,5 @@
 <template>
-  <div class="simple-editor" :class="{ editable }" ref="simpleEditorContainer">
+  <div class="simple-editor" :class="{ editable, 'has-content': hasContent, 'no-content': !hasContent }" ref="simpleEditorContainer">
     <EditorMenuBubble
       :editor="editor"
       v-slot="{ isActive, commands, menu, getMarkAttrs }"
@@ -471,6 +471,11 @@ export default {
           class: 'green'
         }
       ]
+    },
+    hasContent () {
+      const currentContent = JSON.stringify(this.editor.getJSON())
+      const emptyContent = '{"type":"doc","content":[{"type":"paragraph"}]}'
+      return currentContent !== emptyContent
     }
   }
 }
@@ -483,7 +488,6 @@ export default {
     --border-opacity: 1;
     border-width: 1px;
     border-color: rgba(170,177,197,var(--border-opacity));
-    min-height: 41px;
 
     &:focus-within {
       min-height: 75px;
@@ -499,6 +503,14 @@ export default {
   .ProseMirror p:first-child {
     margin-top: 0px !important;
   }
+}
+
+.has-content {
+  min-height: 75px;
+}
+
+.no-content {
+  min-height: 41px;
 }
 
 p.is-editor-empty:first-child::before {
