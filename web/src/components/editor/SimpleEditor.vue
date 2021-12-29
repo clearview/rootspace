@@ -475,7 +475,7 @@ export default {
     hasContent () {
       const currentContent = JSON.stringify(this.editor.getJSON())
       const emptyContent = '{"type":"doc","content":[{"type":"paragraph"}]}'
-      return currentContent !== emptyContent
+      return currentContent !== emptyContent && this.editable
     }
   }
 }
