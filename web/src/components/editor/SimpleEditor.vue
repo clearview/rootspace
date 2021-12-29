@@ -7,7 +7,7 @@
       <div>
         <div
           class="bubble"
-          :class="{ 'is-active': true }"
+          :class="{ 'is-active': menu.isActive && editable }"
           :style="`left: ${menu.left <= 210 ? menu.left - 40 : menu.left}px; bottom: ${menu.bottom}px;`"
           @mousedown.stop.prevent="consume"
         >
@@ -505,6 +505,10 @@ export default {
 
   .ProseMirror p:first-child {
     margin-top: 0px !important;
+  }
+
+  .ProseMirror p {
+    @apply text-sm;
   }
 }
 
