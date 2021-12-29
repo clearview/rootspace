@@ -40,6 +40,7 @@ export interface RootState {
 
 export interface AuthState {
   token: string | null;
+  refreshToken: string | null;
   user: UserResource | null;
   spaces: SpaceResource[] | null;
   currentSpace: SpaceResource | null;

@@ -45,6 +45,14 @@ export default class App extends Vue {
         this.$router.push({ name: 'SignIn' })
       }
     })
+    window.addEventListener('offline', () => {
+      this.$toast.error('You are currently offline.', {
+        timeout: false
+      })
+    })
+    window.addEventListener('online', () => {
+      this.$toast.success('Your Internet connection was restored.')
+    })
     window.app = this
   }
 

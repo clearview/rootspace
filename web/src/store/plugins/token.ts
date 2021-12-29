@@ -6,11 +6,14 @@ import { RootState } from '@/types/state'
 import { setAPIToken } from '@/utils/api'
 
 const name = 'root_session'
+const refreshTokenName = 'root_session_refresh_token'
 
 function init (store: Store<RootState>) {
   const persistedToken = Cookie.get(name) || null
+  const persistedRefreshToken = Cookie.get(refreshTokenName) || null
 
   store.commit('auth/setToken', persistedToken)
+  store.commit('auth/setRefreshToken', persistedRefreshToken)
 
   store.subscribe((mutation, state) => {
     if (mutation.type === 'auth/setToken') {
@@ -20,6 +23,15 @@ function init (store: Store<RootState>) {
         Cookie.set(name, token)
       } else {
         Cookie.remove(name)
+      }
+    }
+    if (mutation.type === 'auth/setRefreshToken') {
+      const { refreshToken } = state.auth
+
+      if (refreshToken) {
+        Cookie.set(refreshTokenName, refreshToken)
+      } else {
+        Cookie.remove(refreshTokenName)
       }
     }
   })
