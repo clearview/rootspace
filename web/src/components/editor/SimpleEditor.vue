@@ -1,5 +1,5 @@
 <template>
-  <div class="simple-editor" :class="{ editable, 'has-content': hasContent, 'no-content': !hasContent }" ref="simpleEditorContainer">
+  <div class="simple-editor" :class="{ editable, 'has-content': hasContent, 'no-content': !hasContent }">
     <EditorMenuBubble
       :editor="editor"
       v-slot="{ isActive, commands, menu, getMarkAttrs }"
@@ -483,6 +483,10 @@ export default {
 
 <style lang="postcss" scope>
 .simple-editor {
+  @apply p-2 rounded text-sm;
+  color: #444754;
+  background: rgba(222,226,238,.3);
+
   &.editable {
     @apply bg-white p-2 rounded;
     --border-opacity: 1;
@@ -496,7 +500,6 @@ export default {
     }
     .ProseMirror {
       min-height: 19px;
-      font-size: 14px;
     }
   }
 

@@ -71,6 +71,7 @@
         ref="simpleEditor"
         :editable="isEditMode"
         v-model="commentContent"
+        placeholder="Write a comment ..."
         @save="updateComment"
         @reset="resetComment"
       />
