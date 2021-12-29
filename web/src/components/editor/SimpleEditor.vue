@@ -479,15 +479,20 @@ export default {
 <style lang="postcss" scope>
 .simple-editor {
   &.editable {
-    @apply bg-white border-secondary border-2 p-2 rounded-md;
+    @apply bg-white p-2 rounded;
+    --border-opacity: 1;
+    border-width: 1px;
+    border-color: rgba(170,177,197,var(--border-opacity));
+    min-height: 41px;
 
     &:focus-within {
       min-height: 75px;
       resize: none;
-      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%), 0 1px 2px 0 rgb(0 0 0 / 6%);
+      box-shadow: 0 0 0 3px rgb(170 177 197 / 50%);
     }
     .ProseMirror {
-      min-height: 41px;
+      min-height: 19px;
+      font-size: 14px;
     }
   }
 
@@ -499,7 +504,7 @@ export default {
 p.is-editor-empty:first-child::before {
   content: attr(data-empty-text);
   float: left;
-  color: #aaa;
+  color: #a4b0c2;
   pointer-events: none;
   height: 0;
   font-size: 14px;
