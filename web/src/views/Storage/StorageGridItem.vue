@@ -353,12 +353,10 @@ export default class StorageGridView extends Vue {
       this.isRenaming = false
     } else {
       this.fileCopy.name = title.replace(/\s+/g, '-').replace(/\.[^/.]+$/, '')
-      this.fileCopy.filename = title.replace(/\s+/g, '-')
       await this.$store.dispatch('storage/update', {
         id: this.fileCopy.id,
         data: {
-          name: this.fileCopy.name,
-          filename: this.fileCopy.filename
+          name: this.fileCopy.name
         }
       })
       this.isRenaming = false
