@@ -63,7 +63,8 @@
             >
               <TerminalIcon size="16"></TerminalIcon>
             </button>
-            <MenuGroup
+          <NovadocMenuSeparator />
+          <MenuGroup
             value="#000"
             :show-arrow="false"
             v-tippy="{ placement: 'top', arrow: true }"
@@ -113,7 +114,7 @@
               </div>
             </template>
           </MenuGroup>
-            <MenuGroup
+          <MenuGroup
             value="#000"
             :show-arrow="false"
             v-tippy="{ placement: 'top', arrow: true }"
@@ -165,63 +166,84 @@
               </div>
             </template>
           </MenuGroup>
-            <NovadocMenuSeparator
-            ></NovadocMenuSeparator>
-            <MenuGroup
-              :value="getMarkAttrs('link').href"
-              :show-arrow="false"
-              v-tippy="{ placement: 'top', arrow: true }"
-              content="Link"
-            >
-              <template #default>
-                <legacy-icon
-                  name="edit2"
-                  viewbox="16"
-                  size="12"
-                  v-if="isActive.link()"
-                ></legacy-icon>
-                <legacy-icon
-                  v-else
-                  name="link2"
-                  viewbox="16"
-                  size="16"
-                ></legacy-icon>
-              </template>
-              <template #options="{ hide }">
-                <NovadocLinkInput
-                  @cancel="hide()"
-                  @submit="
-                    commands.link({ href: $event })
-                    hide()
-                  "
-                  :value="getMarkAttrs('link').href"
-                ></NovadocLinkInput>
-              </template>
-            </MenuGroup>
-            <NovadocMenuButton
-              @click="commands.link({})"
-              v-if="isActive.link()"
-              v-tippy="{ placement: 'top', arrow: true }"
-              content="Unlink"
-              no-margin
-            >
-              <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
-            </NovadocMenuButton>
-            <NovadocMenuSeparator
-              v-if="getMarkAttrs('link').href"
-            ></NovadocMenuSeparator>
-            <NovadocMenuButton
-              @click="openLink(getMarkAttrs('link').href)"
-              v-if="isActive.link()"
-              v-tippy="{ placement: 'top', arrow: true }"
-              :content="getMarkAttrs('link').href"
-            >
+          <NovadocMenuSeparator />
+          <MenuGroup
+            :value="getMarkAttrs('link').href"
+            :show-arrow="false"
+            v-tippy="{ placement: 'top', arrow: true }"
+            content="Link"
+          >
+            <template #default>
               <legacy-icon
-                name="open-link"
+                name="edit2"
+                viewbox="16"
+                size="12"
+                v-if="isActive.link()"
+              ></legacy-icon>
+              <legacy-icon
+                v-else
+                name="link2"
                 viewbox="16"
                 size="16"
               ></legacy-icon>
-            </NovadocMenuButton>
+            </template>
+            <template #options="{ hide }">
+              <NovadocLinkInput
+                @cancel="hide()"
+                @submit="
+                  commands.link({ href: $event })
+                  hide()
+                "
+                :value="getMarkAttrs('link').href"
+              ></NovadocLinkInput>
+            </template>
+          </MenuGroup>
+          <NovadocMenuButton
+            @click="commands.link({})"
+            v-if="isActive.link()"
+            v-tippy="{ placement: 'top', arrow: true }"
+            content="Unlink"
+            no-margin
+          >
+            <legacy-icon name="unlink" viewbox="16" size="16"></legacy-icon>
+          </NovadocMenuButton>
+          <NovadocMenuSeparator
+            v-if="getMarkAttrs('link').href"
+          ></NovadocMenuSeparator>
+          <NovadocMenuButton
+            @click="openLink(getMarkAttrs('link').href)"
+            v-if="isActive.link()"
+            v-tippy="{ placement: 'top', arrow: true }"
+            :content="getMarkAttrs('link').href"
+          >
+            <legacy-icon
+              name="open-link"
+              viewbox="16"
+              size="16"
+            ></legacy-icon>
+          </NovadocMenuButton>
+          <button
+            class="menu menu-big"
+            @click="commands.bullet_list"
+            v-tippy="{ placement : 'top',  arrow: true }"
+            content="Bullet List"
+          >
+            <ListIcon size="16"></ListIcon>
+          </button>
+          <!-- <button
+            class="menu menu-big"
+            :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
+            :disabled="!canBeConvertedToList(isActive, focused)"
+            @click="commands.ordered_list();"
+            v-tippy="{ placement : 'top',  arrow: true }"
+            content="Numbered List"
+          >
+            <legacy-icon
+              name="ordered-list"
+              viewbox="16"
+              size="16"
+            ></legacy-icon>
+          </button> -->
           </div>
         </div>
       </div>
@@ -247,7 +269,10 @@ import {
   Link,
   Placeholder,
   History,
-  HardBreak
+  HardBreak,
+  ListItem,
+  BulletList,
+  OrderedList
 } from 'tiptap-extensions'
 import Divider from '@/views/Novadoc/Divider'
 import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
@@ -262,7 +287,7 @@ import typescript from 'highlight.js/lib/languages/typescript'
 import xml from 'highlight.js/lib/languages/xml'
 import bash from 'highlight.js/lib/languages/bash'
 
-import { TerminalIcon } from 'vue-feather-icons'
+import { TerminalIcon, ListIcon } from 'vue-feather-icons'
 import { blackOrWhite, hexToHsl } from '@/utils/colors'
 
 export default {
@@ -273,7 +298,8 @@ export default {
     NovadocMenuButton,
     NovadocLinkInput,
     MenuGroup,
-    TerminalIcon
+    TerminalIcon,
+    ListIcon
   },
   props: {
     placeholder: {
@@ -318,7 +344,10 @@ export default {
             showOnlyCurrent: true
           }),
           new History(),
-          new HardBreak()
+          new HardBreak(),
+          new ListItem(),
+          new BulletList(),
+          new OrderedList()
         ],
         content: null,
         editable: true
@@ -342,9 +371,7 @@ export default {
     },
     onKeydown (e) {
       const content = this.editor.getJSON()
-      if (e.shiftKey && e.keyCode === 13) {
-        this.editor.commands.hard_break()
-      } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
+      if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
         content.content.pop() // remove last enter
         this.editor.setContent(content)
         this.save()
