@@ -341,10 +341,12 @@ export default {
       this.$emit('save', content)
     },
     onKeydown (e) {
+      const content = this.editor.getJSON()
       if (e.shiftKey && e.keyCode === 13) {
         this.editor.commands.hard_break()
       } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
-        this.editor.commands.undo()
+        content.content.pop() // remove last enter
+        this.editor.setContent(content)
         this.save()
       } else if (e.keyCode === 27) {
         this.$emit('reset')
