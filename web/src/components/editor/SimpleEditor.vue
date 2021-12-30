@@ -257,7 +257,7 @@
 </template>
 
 <script>
-import { Editor, EditorContent, EditorMenuBubble, TextSelection } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBubble, TextSelection, Extension } from 'tiptap'
 import {
   Bold,
   Italic,
@@ -318,6 +318,7 @@ export default {
     return {
       editor: new Editor({
         extensions: [
+          this.keysExtension(),
           new Bold(),
           new Italic(),
           new Underline(),
@@ -343,9 +344,7 @@ export default {
             showOnlyCurrent: true
           }),
           new History(),
-          new HardBreak({
-            keepMarks: false
-          }),
+          new HardBreak(),
           new ListItem(),
           new BulletList(),
           new OrderedList()
@@ -366,6 +365,30 @@ export default {
     this.editor.destroy()
   },
   methods: {
+    keysExtension () {
+      const save = () => this.save()
+      return new class extends Extension {
+        keys () {
+          return {
+            Enter () {
+              save()
+              return true
+            },
+            'Shift-Enter' (state, dispatch, view) {
+              const { schema, tr } = state
+              const paragraph = schema.nodes.paragraph
+
+              const transaction = tr
+                .deleteSelection()
+                .replaceSelectionWith(paragraph.create(), true)
+                .scrollIntoView()
+              if (dispatch) dispatch(transaction)
+              return true
+            }
+          }
+        }
+      }()
+    },
     save () {
       const content = this.editor.getJSON()
       // console.log('save', content)
@@ -373,11 +396,16 @@ export default {
     },
     onKeydown (e) {
       const content = this.editor.getJSON()
-      console.log('onKeydown', { content })
+      // console.log('onKeydown', { content })
       if (e.shiftKey && e.keyCode === 13) {
         // this.editor.commands.hard_break()
         // content.content.pop() // remove last enter
         // this.editor.setContent(content)
+        // content.conttent.push({ type: 'paragraph' })
+        // this.editor.setContent(content)
+        console.log({ content })
+        console.log(this.editor)
+        // this.editor.commands.addNewline()
       } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
         // content.content.pop() // remove last enter
         // this.editor.setContent(content)
@@ -386,8 +414,6 @@ export default {
         if (content.content.at(-1).type !== 'bullet_list' && content.content.at(-1).type !== 'ordered_list') content.content.pop() // remove last enter
         this.editor.setContent(content)
         this.save()
-      } else if (e.keyCode === 27) {
-        this.$emit('reset')
       }
     },
     showLinkMenu (attrs) {
@@ -551,7 +577,7 @@ export default {
   }
 
   .ProseMirror p {
-    @apply text-sm;
+    @apply text-sm mb-0;
   }
 }
 
