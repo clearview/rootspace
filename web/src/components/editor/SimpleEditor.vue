@@ -167,6 +167,27 @@
             </template>
           </MenuGroup>
           <NovadocMenuSeparator />
+          <button
+            class="menu menu-big"
+            @click="(e) => {commands.bullet_list(); onKeydown(e)}"
+            v-tippy="{ placement : 'top',  arrow: true }"
+            content="Bullet List"
+          >
+            <ListIcon size="16"></ListIcon>
+          </button>
+          <button
+            class="menu menu-big"
+            @click="commands.ordered_list();"
+            v-tippy="{ placement : 'top',  arrow: true }"
+            content="Numbered List"
+          >
+            <legacy-icon
+              name="ordered-list"
+              viewbox="16"
+              size="16"
+            ></legacy-icon>
+          </button>
+          <NovadocMenuSeparator />
           <MenuGroup
             :value="getMarkAttrs('link').href"
             :show-arrow="false"
@@ -222,28 +243,6 @@
               size="16"
             ></legacy-icon>
           </NovadocMenuButton>
-          <button
-            class="menu menu-big"
-            @click="commands.bullet_list"
-            v-tippy="{ placement : 'top',  arrow: true }"
-            content="Bullet List"
-          >
-            <ListIcon size="16"></ListIcon>
-          </button>
-          <!-- <button
-            class="menu menu-big"
-            :class="{ 'active': getCurrentActiveNode(2) === 'ordered_list' }"
-            :disabled="!canBeConvertedToList(isActive, focused)"
-            @click="commands.ordered_list();"
-            v-tippy="{ placement : 'top',  arrow: true }"
-            content="Numbered List"
-          >
-            <legacy-icon
-              name="ordered-list"
-              viewbox="16"
-              size="16"
-            ></legacy-icon>
-          </button> -->
           </div>
         </div>
       </div>
@@ -344,7 +343,9 @@ export default {
             showOnlyCurrent: true
           }),
           new History(),
-          new HardBreak(),
+          new HardBreak({
+            keepMarks: false
+          }),
           new ListItem(),
           new BulletList(),
           new OrderedList()
@@ -367,12 +368,22 @@ export default {
   methods: {
     save () {
       const content = this.editor.getJSON()
+      // console.log('save', content)
       this.$emit('save', content)
     },
     onKeydown (e) {
       const content = this.editor.getJSON()
-      if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
-        content.content.pop() // remove last enter
+      console.log('onKeydown', { content })
+      if (e.shiftKey && e.keyCode === 13) {
+        // this.editor.commands.hard_break()
+        // content.content.pop() // remove last enter
+        // this.editor.setContent(content)
+      } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
+        // content.content.pop() // remove last enter
+        // this.editor.setContent(content)
+        // this.save()
+      } else if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
+        if (content.content.at(-1).type !== 'bullet_list' && content.content.at(-1).type !== 'ordered_list') content.content.pop() // remove last enter
         this.editor.setContent(content)
         this.save()
       } else if (e.keyCode === 27) {
