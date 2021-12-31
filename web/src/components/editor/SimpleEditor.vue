@@ -257,7 +257,7 @@
 </template>
 
 <script>
-import { Editor, EditorContent, EditorMenuBubble, TextSelection, Extension } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBubble, TextSelection, Extension, Node } from 'tiptap'
 import {
   Bold,
   Italic,
@@ -269,10 +269,11 @@ import {
   Placeholder,
   History,
   HardBreak,
-  ListItem,
+  // ListItem,
   BulletList,
   OrderedList
 } from 'tiptap-extensions'
+import ListItem from './lib/ListItem'
 import Divider from '@/views/Novadoc/Divider'
 import NovadocLinkInput from '@/views/Novadoc/Menu/NovadocLinkInput'
 import NovadocMenuButton from '@/views/Novadoc/Menu/NovadocMenuButton'
@@ -367,6 +368,8 @@ export default {
   methods: {
     keysExtension () {
       const save = () => this.save()
+      const reset = () => this.$emit('reset')
+
       return new class extends Extension {
         keys () {
           return {
@@ -374,14 +377,21 @@ export default {
               save()
               return true
             },
+            Escape () {
+              reset()
+              return true
+            },
             'Shift-Enter' (state, dispatch, view) {
+              console.log({ state, view })
               const { schema, tr } = state
               const paragraph = schema.nodes.paragraph
+              const listItem = schema.nodes.list_item
 
               const transaction = tr
                 .deleteSelection()
                 .replaceSelectionWith(paragraph.create(), true)
                 .scrollIntoView()
+
               if (dispatch) dispatch(transaction)
               return true
             }
@@ -391,29 +401,18 @@ export default {
     },
     save () {
       const content = this.editor.getJSON()
-      // console.log('save', content)
       this.$emit('save', content)
     },
     onKeydown (e) {
-      const content = this.editor.getJSON()
-      // console.log('onKeydown', { content })
       if (e.shiftKey && e.keyCode === 13) {
         // this.editor.commands.hard_break()
         // content.content.pop() // remove last enter
         // this.editor.setContent(content)
         // content.conttent.push({ type: 'paragraph' })
         // this.editor.setContent(content)
-        console.log({ content })
-        console.log(this.editor)
+        // this.editor.chain().focus().splitListItem('listItem').run()
+        // console.log(this.editor)
         // this.editor.commands.addNewline()
-      } else if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.keyCode === 13) {
-        // content.content.pop() // remove last enter
-        // this.editor.setContent(content)
-        // this.save()
-      } else if ((e.metaKey || e.ctrlKey) && e.keyCode === 13) {
-        if (content.content.at(-1).type !== 'bullet_list' && content.content.at(-1).type !== 'ordered_list') content.content.pop() // remove last enter
-        this.editor.setContent(content)
-        this.save()
       }
     },
     showLinkMenu (attrs) {
@@ -576,7 +575,7 @@ export default {
     margin-top: 0px !important;
   }
 
-  .ProseMirror p {
+  .ProseMirror p, .ProseMirror ul, .ProseMirror ol {
     @apply text-sm mb-0;
   }
 }
