@@ -169,7 +169,7 @@
           <NovadocMenuSeparator />
           <button
             class="menu menu-big"
-            @click="(e) => {commands.bullet_list(); onKeydown(e)}"
+            @click="(e) => {commands.bullet_list();}"
             v-tippy="{ placement : 'top',  arrow: true }"
             content="Bullet List"
           >
@@ -251,13 +251,12 @@
     <EditorContent
       class="editor__content"
       :editor="editor"
-      @keydown.native="onKeydown"
     />
   </div>
 </template>
 
 <script>
-import { Editor, EditorContent, EditorMenuBubble, TextSelection, Extension, Node } from 'tiptap'
+import { Editor, EditorContent, EditorMenuBubble, TextSelection, Extension } from 'tiptap'
 import {
   Bold,
   Italic,
@@ -269,7 +268,6 @@ import {
   Placeholder,
   History,
   HardBreak,
-  // ListItem,
   BulletList,
   OrderedList
 } from 'tiptap-extensions'
@@ -380,20 +378,6 @@ export default {
             Escape () {
               reset()
               return true
-            },
-            'Shift-Enter' (state, dispatch, view) {
-              console.log({ state, view })
-              const { schema, tr } = state
-              const paragraph = schema.nodes.paragraph
-              const listItem = schema.nodes.list_item
-
-              const transaction = tr
-                .deleteSelection()
-                .replaceSelectionWith(paragraph.create(), true)
-                .scrollIntoView()
-
-              if (dispatch) dispatch(transaction)
-              return true
             }
           }
         }
@@ -402,18 +386,6 @@ export default {
     save () {
       const content = this.editor.getJSON()
       this.$emit('save', content)
-    },
-    onKeydown (e) {
-      if (e.shiftKey && e.keyCode === 13) {
-        // this.editor.commands.hard_break()
-        // content.content.pop() // remove last enter
-        // this.editor.setContent(content)
-        // content.conttent.push({ type: 'paragraph' })
-        // this.editor.setContent(content)
-        // this.editor.chain().focus().splitListItem('listItem').run()
-        // console.log(this.editor)
-        // this.editor.commands.addNewline()
-      }
     },
     showLinkMenu (attrs) {
       this.linkUrl = attrs.href
