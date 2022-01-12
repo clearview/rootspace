@@ -20,7 +20,7 @@ export class SpaceRepository extends Repository<Space> {
 
   async getJointByUsers(userId1: number, userId2: number): Promise<Space[]> {
     return this.createQueryBuilder('space')
-      .where(UserToSpace)
+      .where(new UserToSpace())
       .innerJoin(UserToSpace, 'userSpace1', 'space.id = userSpace1.spaceId AND userSpace1.userId = :userId1', {
         userId1,
       })
