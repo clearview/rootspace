@@ -22,7 +22,6 @@
       <select
         class="input input-role"
         v-model.trim="$v.invitation.$model.role"
-        @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model.email, $v.invitation.$model.role)"
       >
         <option
           :value="undefined"
@@ -39,7 +38,7 @@
           'btn-white': $v.invitation.$invalid,
           'btn-success': !$v.invitation.$invalid,
         }"
-        :disabled="$v.invitation.$invalid"
+        :disabled="!isInvitationValid"
         @click="addInvitationList($v.invitation.$model.email, $v.invitation.$model.role)"
       >
         Add
@@ -268,6 +267,11 @@ export default class FormSpace extends Vue {
     return this.$store.state.auth.user
   }
 
+  get isInvitationValid () {
+    const invitation = this.$v.invitation
+    return !invitation.$invalid && !invitation?.email?.$invalid && !invitation?.role?.$invalid
+  }
+
   private invitation = {};
   private invitationList = [];
   private isFormError = false;
@@ -279,23 +283,14 @@ export default class FormSpace extends Vue {
       invites: []
     }
 
-    console.log(newVal.invites)
-
     this.invitationList = newVal.invites
   }
 
-  addInvitationList (email: string, role: number, bypassValidation = false): void {
-    if (!bypassValidation && !email) {
-      this.isFormError = true
-      return
-    } else if (!bypassValidation && this.$v.invitation.$error) {
-      this.isFormError = true
-      return
-    } else if (!bypassValidation && (role === undefined || role < 0)) {
+  addInvitationList (email: string, role: number): void {
+    if (!this.isInvitationValid) {
       this.isFormError = true
       return
     }
-
     this.invitation = {}
     this.isFormError = false
 
