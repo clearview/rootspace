@@ -29,11 +29,11 @@
       </template>
     </v-field>
 
-    <v-field label="Team" name="team" id="team-field" has-addon has-icon-left>
-      <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+    <v-field label="Team" name="team" id="team-field">
       <input
         type="email"
         class="input"
+        placeholder="Email Address"
         v-model.trim="$v.invitation.$model.email"
         @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model.email, $v.invitation.$model.role)"
       />
