@@ -2,12 +2,17 @@ import { EntityRepository, getCustomRepository } from 'typeorm'
 import { BaseRepository } from '../BaseRepository'
 import { TaskBoard } from '../../entities/tasks/TaskBoard'
 import { TaskRepository } from './TaskRepository'
+import { TaskListRepository } from './TaskListRepository'
 import { Upload } from '../../entities/Upload'
 
 @EntityRepository(TaskBoard)
 export class TaskBoardRepository extends BaseRepository<TaskBoard> {
   getTaskRepository(): TaskRepository {
     return getCustomRepository(TaskRepository)
+  }
+
+  getTaskListRepository(): TaskListRepository {
+    return getCustomRepository(TaskListRepository)
   }
 
   getById(id: number, options: any = {}): Promise<TaskBoard | undefined> {
@@ -85,10 +90,10 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
 
   async searchTaskBoard(id: number, searchParam?: string, filterParam?: any): Promise<TaskBoard> {
     const taskBoard = await this.createQueryBuilder('taskBoard')
-      .leftJoinAndSelect('taskBoard.taskLists', 'taskList')
       .where('taskBoard.id = :id', { id })
-      .andWhere('taskList.deletedAt IS NULL')
       .getOne()
+
+    taskBoard.taskLists = await this.getTaskListRepository().getByTaskBoardId(taskBoard.id);
 
     const tasks = await this.getTaskRepository().filterByTaskBoardId(taskBoard.id, searchParam, filterParam)
 
