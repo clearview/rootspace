@@ -59,7 +59,7 @@ export class NotificationsCtrl extends BaseCtrl {
     const entityId = Number(req.params.entityId)
     const entityName = this.entityService.convertEntityName(req.params.entityName)
 
-    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
+    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId, { withDeleted: true })
     ForbiddenError.from(req.user.ability).throwUnlessCan(Actions.Manage, entity)
 
     const result = await this.notificationService.seenForEntity(userId, entityName, entityId)
