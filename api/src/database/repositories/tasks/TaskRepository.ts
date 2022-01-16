@@ -138,6 +138,7 @@ export class TaskRepository extends BaseRepository<Task> {
 
     if (filterParam?.archived === true) {
       searchQuery.andWhere('task.deletedAt IS NOT NULL')
+      searchQuery.andWhere('taskList.deletedAt IS NOT NULL')
     } else {
       searchQuery.andWhere('task.deletedAt IS NULL')
     }
