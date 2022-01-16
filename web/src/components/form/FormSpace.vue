@@ -29,18 +29,17 @@
       </template>
     </v-field>
 
-    <v-field label="Team" name="team" id="team-field" has-addon has-icon-left>
-      <legacy-icon class="icon is-left" name="plus" size="1.3em" viewbox="32"/>
+    <v-field label="Team" name="team" id="team-field">
       <input
         type="email"
         class="input"
+        placeholder="Email Address"
         v-model.trim="$v.invitation.$model.email"
         @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model.email, $v.invitation.$model.role)"
       />
       <select
         class="input input-role"
         v-model.trim="$v.invitation.$model.role"
-        @keypress.enter.stop.prevent="addInvitationList($v.invitation.$model.email, $v.invitation.$model.role)"
         >
         <option :value="undefined" disabled>Select Role</option>
         <option :value="0">Admin</option>
@@ -240,6 +239,11 @@ export default class FormSpace extends Vue {
       return this.$store.state.auth.user
     }
 
+    get isInvitationValid () {
+      const invitation = this.$v.invitation
+      return !invitation.$invalid && !invitation?.email?.$invalid && !invitation?.role?.$invalid
+    }
+
     private invitation = {};
     private invitationList = [];
     private isFormError = false;
@@ -261,14 +265,8 @@ export default class FormSpace extends Vue {
       this.invitationList = newVal.invites
     }
 
-    addInvitationList (email: string, role: number, bypassValidation = false): void {
-      if (!bypassValidation && !email) {
-        this.isFormError = true
-        return
-      } else if (!bypassValidation && this.$v.invitation.$error) {
-        this.isFormError = true
-        return
-      } else if (!bypassValidation && (role === undefined || role < 0)) {
+    addInvitationList (email: string, role: number): void {
+      if (!this.isInvitationValid) {
         this.isFormError = true
         return
       }
