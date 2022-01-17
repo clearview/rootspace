@@ -12,6 +12,7 @@ export interface ApiService<T, TFetch> {
   update(id: number, data: T): Promise<T>;
   destroy(id: number): Promise<void>;
   archive(id: number): Promise<void>;
+  restore(id: number): Promise<void>;
 }
 
 export interface ChildApiService<T, TFetch> {
@@ -55,6 +56,10 @@ function createService<T, TFetch> (url: string): ApiService<T, TFetch> {
 
     async archive (id: number): Promise<void> {
       await api.post(`${url}/${id}/archive`)
+    }
+
+    async restore (id: number): Promise<void> {
+      await api.post(`${url}/${id}/restore`)
     }
 
     async fetch (params: TFetch): Promise<T[]> {

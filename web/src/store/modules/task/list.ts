@@ -51,6 +51,13 @@ const list = createServiceModule(ListService, {
         board.current.taskLists = board.current.taskLists.filter(list => list.id !== data.id)
       }
     }, { root: true })
+  },
+  afterRestore (context, data: TaskListResource) {
+    context.commit('task/board/operate', (board: ResourceState<TaskBoardResource>) => {
+      if (board.current) {
+        board.current.taskLists = board.current.taskLists.filter(list => list.id !== data.id)
+      }
+    }, { root: true })
   }
 })
 export default list

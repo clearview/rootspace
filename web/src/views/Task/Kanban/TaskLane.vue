@@ -41,7 +41,7 @@
                 Archive
               </div>
             </div>
-            <div class="action-line" @click="hide();handleMenu('unarchive')" v-else>
+            <div class="action-line" @click="hide();handleMenu('restore')" v-else>
               <legacy-icon name="archive" viewbox="16" size="18px" class="text-success"></legacy-icon>
               <div class="action-line-text text-success">
                 Unarchive
@@ -402,15 +402,14 @@ export default class TaskLane extends Vue {
 
           break
         }
-        case 'unarchive': {
-          alert('do unarchive')
-          // await this.$store.dispatch('task/list/archive', this.listCopy)
+        case 'restore': {
+          await this.$store.dispatch('task/list/restore', this.listCopy)
 
-          // this.transact({
-          //   ...this.listCopy,
-          //   clientId: this.clientId,
-          //   action: 'archiveTaskLane'
-          // })
+          this.transact({
+            ...this.listCopy,
+            clientId: this.clientId,
+            action: 'archiveTaskLane'
+          })
 
           break
         }

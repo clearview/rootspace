@@ -12,6 +12,7 @@ export interface Hooks<TResource> {
   beforeUpdate?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterDestroy?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
   afterArchive?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
+  afterRestore?(context: ActionContext<ResourceState<TResource>, RootState>, data: TResource): void;
 }
 
 export function createServiceModule<TResource extends ApiResource, TParams> (service: ApiService<TResource, TParams>, hooks?: Hooks<TResource>): Module<ResourceState<TResource>, RootState> {
@@ -131,6 +132,19 @@ export function createServiceModule<TResource extends ApiResource, TParams> (ser
 
         if (hooks && hooks.afterArchive) {
           hooks.afterArchive(context, data)
+        }
+      },
+
+      async restore (context, data: TResource): Promise<void> {
+        if (data.id === null) {
+          throw new Error('Unable to restore data without ID')
+        }
+        context.commit('setProcessing', true)
+        await service.restore(data.id)
+        context.commit('setProcessing', false)
+
+        if (hooks && hooks.afterRestore) {
+          hooks.afterRestore(context, data)
         }
       }
     }
