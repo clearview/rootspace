@@ -34,14 +34,14 @@
                 </div>
               </div>
             </div>
-            <div class="action-separator"></div>
-            <div class="action-line danger" @click="hide();handleMenu('archive')" v-if="!listCopy.deletedAt">
+            <div class="action-separator" />
+            <div class="action-line danger" @click="hide();handleMenu('archive')" v-if="!isArchived">
               <legacy-icon name="archive" viewbox="16" size="18px"></legacy-icon>
               <div class="action-line-text">
                 Archive
               </div>
             </div>
-            <div class="action-line" @click="hide();handleMenu('restore')" v-else>
+            <div class="action-line" @click="handleMenu('restore')" v-else>
               <legacy-icon name="archive" viewbox="16" size="18px" class="text-success"></legacy-icon>
               <div class="action-line-text text-success">
                 Unarchive
@@ -120,6 +120,9 @@ export default class TaskLane extends Vue {
 
     @Prop({ type: Boolean, default: true })
     private readonly canDrag!: boolean
+
+    @Prop({ type: Boolean, default: false })
+    private readonly isArchived!: boolean
 
     @Ref('newInput')
     private readonly newInput!: HTMLInputElement;
