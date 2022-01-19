@@ -47,8 +47,8 @@ export class StorageActivity extends ContentActivity<Storage> {
     return new StorageActivity(UserStorageActions.Delete_File, entity, actorId).userDeleteFile(upload)
   }
 
-  static renameFile(entity: Storage, actorId: number, upload: Upload) {
-    return new StorageActivity(UserStorageActions.Rename_File, entity, actorId).userRenameFile(upload)
+  static renameFile(entity: Storage, actorId: number, upload: Upload, oldFilename: string) {
+    return new StorageActivity(UserStorageActions.Rename_File, entity, actorId).userRenameFile(upload, oldFilename)
   }
 
   private userUploadFile(upload: Upload) {
@@ -75,11 +75,11 @@ export class StorageActivity extends ContentActivity<Storage> {
     return this
   }
 
-  private userRenameFile(upload: Upload) {
+  private userRenameFile(upload: Upload, oldFilename: string) {
     this._context = {
       entity: this._filterEntityAttributes(this._entity, this._entityAttributes),
       file: upload,
-      fromName: upload.filename,
+      fromName: oldFilename,
       toName: upload.name,
       actorId: this._actorId,
       spaceId: this._spaceId

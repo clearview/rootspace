@@ -364,13 +364,11 @@ export default class StorageListView extends Vue {
     if (title.trim().length === 0) {
       this.isRenaming = false
     } else {
-      this.fileCopy.name = title.replace(/\s+/g, '-').replace(/\.[^/.]+$/, '')
-      this.fileCopy.filename = title.replace(/\s+/g, '-')
+      this.fileCopy.name = title
       await this.$store.dispatch('storage/update', {
         id: this.fileCopy.id,
         data: {
-          name: this.fileCopy.name,
-          filename: this.fileCopy.filename
+          name: this.fileCopy.name
         }
       })
       this.isRenaming = false
