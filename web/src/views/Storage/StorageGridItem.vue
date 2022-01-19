@@ -352,7 +352,7 @@ export default class StorageGridView extends Vue {
     if (title.trim().length === 0) {
       this.isRenaming = false
     } else {
-      this.fileCopy.name = title.replace(/\s+/g, '-').replace(/\.[^/.]+$/, '')
+      this.fileCopy.name = title
       await this.$store.dispatch('storage/update', {
         id: this.fileCopy.id,
         data: {
