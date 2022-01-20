@@ -11,11 +11,12 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
-      <Draggable  handle=".drag" :value="filteredTags" :disabled="!canDrag" group="tags" @start="drag = true" @end="drag = false" @change="reorder">
+    <!-- <ul class="tags" v-if="['list', 'manage'].includes(tagsState)"> -->
+      <!-- <Draggable tag="ul" class="tags" handle=".drag" :value="filteredTags" v-bind="dragOptions" group="tags" @start="drag = true" @end="drag = false" @change="reorder" v-if="['list', 'manage'].includes(tagsState)"> -->
+      <Draggable tag="ul" class="tags" handle=".tag" :value="filteredTags" v-bind="dragOptions" group="tags" @start="drag = true" @end="drag = false" @change="reorder" v-if="['list', 'manage'].includes(tagsState)">
         <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
-          <div class="container-tag" :draggable="tagsState === 'manage'">
-            <div class="drag" v-if="tagsState === 'manage'">
+          <div class="container-tag" :draggable="canDrag">
+            <div class="drag" v-if="canDrag">
               <mono-icon name="drag"/>
             </div>
             <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
@@ -36,7 +37,7 @@
           </div>
         </li>
       </Draggable>
-    </ul>
+    <!-- </ul> -->
     <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
         You don’t have any tags, please click “Add Tag” to create one
@@ -118,7 +119,6 @@ export default class TagsPopover extends Vue {
   private tagsState = 'list'
   private saveButtonText = 'Add Tag'
   private drag = false
-  private canDrag = false
 
   get tags (): TagResource[] {
     return this.$store.state.task.tag.data || []
@@ -134,16 +134,19 @@ export default class TagsPopover extends Vue {
   }
 
   get dragOptions () {
+    const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1
     return {
-      delay: 14,
       group: 'tags',
-      disabled: false,
+      disabled: !this.canDrag,
       ghostClass: 'ghost',
-      forceFallback: true,
-      fallbackClass: 'ghost-floating',
+      forceFallback: !isFirefox,
       fallbackOnBody: true,
-      emptyInsertThreshold: 64
+      fallbackClass: 'ghost-floating'
     }
+  }
+
+  get canDrag () {
+    return this.tagsState === 'manage'
   }
 
   // get isIntentNewTag () {
@@ -511,13 +514,25 @@ export default class TagsPopover extends Vue {
   }
 
   .drag {
-    margin-left: 8px;
     cursor: grab;
     font-size: 20px;
     color: #a7b2cf;
     opacity: 25%;
   }
+
   .drag .stroke-current{
     stroke: none;
+  }
+
+  .ghost {
+    opacity: 0.5;
+    background: theme("colors.gray.100");
+    .action {
+      opacity: 0;
+    }
+  }
+
+  .ghost-floating {
+    opacity: 0 !important;
   }
 </style>
