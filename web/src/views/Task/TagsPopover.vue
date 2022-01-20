@@ -12,25 +12,30 @@
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
     <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
-      <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
-      <div class="container-tag">
-        <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
-          @click="tagsState !== 'manage' ? input(tag) : null">
-          {{tag.label}}
-          <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
-            <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
-          </span>
-        </div>
-        <div class="action" v-if="tagsState === 'manage'">
-        <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-            <legacy-icon size="1rem" viewbox="32" name="edit"/>
-        </span>
-        <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-          <legacy-icon size="1rem" viewbox="32" name="trash"/>
-        </span>
-        </div>
-      </div>
-      </li>
+      <Draggable  handle=".drag" :value="filteredTags" :disabled="!canDrag" group="tags" @start="drag = true" @end="drag = false" @change="reorder">
+        <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
+          <div class="container-tag">
+            <div class="drag opacity-25 hover:opacity-100" v-if="tagsState === 'manage'">
+              <mono-icon name="drag"/>
+            </div>
+            <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
+              @click="tagsState !== 'manage' ? input(tag) : null">
+              {{tag.label}}
+              <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
+                <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+              </span>
+            </div>
+            <div class="action" v-if="tagsState === 'manage'">
+            <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
+                <legacy-icon size="1rem" viewbox="32" name="edit"/>
+            </span>
+            <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
+              <legacy-icon size="1rem" viewbox="32" name="trash"/>
+            </span>
+            </div>
+          </div>
+        </li>
+      </Draggable>
     </ul>
     <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
@@ -88,13 +93,15 @@
 </template>
 
 <script lang="ts">
+import Draggable from 'vuedraggable'
+
 import { Component, Emit, Vue, Prop, Ref } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
 
 @Component({
   name: 'TagsPopover',
-  components: { Popover }
+  components: { Popover, Draggable }
 })
 export default class TagsPopover extends Vue {
   @Prop({ type: Array, required: true })
@@ -110,6 +117,8 @@ export default class TagsPopover extends Vue {
   private tagsTitle = 'Select Tag'
   private tagsState = 'list'
   private saveButtonText = 'Add Tag'
+  private drag = false
+  private canDrag = false
 
   get tags (): TagResource[] {
     return this.$store.state.task.tag.data || []
@@ -122,6 +131,19 @@ export default class TagsPopover extends Vue {
   get filteredTags () {
     // return this.tags.filter(tag => tag.label.toLowerCase().indexOf(this.tagInput.toLowerCase()) !== -1)
     return this.tags
+  }
+
+  get dragOptions () {
+    return {
+      delay: 14,
+      group: 'tags',
+      disabled: false,
+      ghostClass: 'ghost',
+      forceFallback: true,
+      fallbackClass: 'ghost-floating',
+      fallbackOnBody: true,
+      emptyInsertThreshold: 64
+    }
   }
 
   // get isIntentNewTag () {
@@ -164,6 +186,59 @@ export default class TagsPopover extends Vue {
       this.tagsState = 'list'
       this.tagsTitle = 'Select Tag'
     }
+  }
+
+  private async reorder (data: any) {
+    console.log('reorder', { data })
+    alert('dragged')
+    // let newPos: number, id: number, action: string
+    // const listId = this.list.id
+    // let taskItem: TaskItemResource
+
+    // if (data.added) {
+    //   const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
+    //   const prev = this.orderedCards[prevIndex]
+    //   const next = this.orderedCards[nextIndex]
+
+    //   id = data.added.element.id
+    //   newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+    //   action = 'addedToLane'
+    //   taskItem = data.added.element
+
+    //   await this.$store.dispatch('task/item/update', {
+    //     id,
+    //     listId,
+    //     position: newPos
+    //   })
+    // }
+
+    // if (data.moved) {
+    //   const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
+    //   const prev = this.orderedCards[prevIndex]
+    //   const next = this.orderedCards[nextIndex]
+
+    //   id = data.moved.element.id
+    //   newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
+    //   action = 'movedToLane'
+    //   taskItem = data.moved.element
+
+    //   await this.$store.dispatch('task/item/update', {
+    //     id,
+    //     listId,
+    //     position: newPos
+    //   })
+    // }
+
+    // if (data?.moved || data?.added) {
+    //   this.transact({
+    //     ...taskItem,
+    //     clientId: this.clientId,
+    //     action,
+    //     id,
+    //     listId,
+    //     position: newPos
+    //   })
+    // }
   }
 
   selectColor (color: string) {
@@ -428,5 +503,15 @@ export default class TagsPopover extends Vue {
   @apply my-4;
 
   float: right
+  }
+
+  .drag {
+    margin-left: 8px;
+    cursor: grab;
+    font-size: 20px;
+    color: #a7b2cf;
+  }
+  .drag .stroke-current{
+    stroke: none;
   }
 </style>
