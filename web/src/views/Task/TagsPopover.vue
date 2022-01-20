@@ -14,8 +14,8 @@
     <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
       <Draggable  handle=".drag" :value="filteredTags" :disabled="!canDrag" group="tags" @start="drag = true" @end="drag = false" @change="reorder">
         <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
-          <div class="container-tag">
-            <div class="drag opacity-25 hover:opacity-100" v-if="tagsState === 'manage'">
+          <div class="container-tag" :draggable="tagsState === 'manage'">
+            <div class="drag" v-if="tagsState === 'manage'">
               <mono-icon name="drag"/>
             </div>
             <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
@@ -374,7 +374,6 @@ export default class TagsPopover extends Vue {
     line-height: 12px;
     letter-spacing: 0.03em;
     text-align: left;
-    cursor: pointer;
     color: #FFF;
     position: relative;
     text-transform: uppercase;
@@ -395,7 +394,7 @@ export default class TagsPopover extends Vue {
     }
 
     &.manage {
-      cursor: default;
+      cursor: grab;
     }
   }
 
@@ -485,6 +484,12 @@ export default class TagsPopover extends Vue {
         pointer-events: none;
       }
     }
+
+    &:hover {
+      .drag {
+        opacity: 100%;
+      }
+    }
   }
 
   .input {
@@ -510,6 +515,7 @@ export default class TagsPopover extends Vue {
     cursor: grab;
     font-size: 20px;
     color: #a7b2cf;
+    opacity: 25%;
   }
   .drag .stroke-current{
     stroke: none;
