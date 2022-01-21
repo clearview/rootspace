@@ -308,7 +308,9 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   async handleDownloadFile (file: NewUploadResource) {
     const url = baseURL(`/uploads/${file.id}/download`)
-    const fileStream = StreamSaver.createWriteStream(file.filename)
+    const fileType = file.filename.split('.').pop()
+    const fileName = `${file.name}.${fileType}`
+    const fileStream = StreamSaver.createWriteStream(fileName)
     const config = {
       headers: {
         Authorization: `Bearer ${this.$store.state.auth.token}`
