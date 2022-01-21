@@ -11,33 +11,30 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <!-- <ul class="tags" v-if="['list', 'manage'].includes(tagsState)"> -->
-      <!-- <Draggable tag="ul" class="tags" handle=".drag" :value="filteredTags" v-bind="dragOptions" group="tags" @start="drag = true" @end="drag = false" @change="reorder" v-if="['list', 'manage'].includes(tagsState)"> -->
-      <Draggable tag="ul" class="tags" handle=".tag" :value="filteredTags" v-bind="dragOptions" group="tags" @start="drag = true" @end="drag = false" @change="reorder" v-if="['list', 'manage'].includes(tagsState)">
-        <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
-          <div class="container-tag" :draggable="canDrag">
-            <div class="drag" v-if="canDrag">
-              <mono-icon name="drag"/>
-            </div>
-            <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
-              @click="tagsState !== 'manage' ? input(tag) : null">
-              {{tag.label}}
-              <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
-                <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
-              </span>
-            </div>
-            <div class="action" v-if="tagsState === 'manage'">
-            <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-                <legacy-icon size="1rem" viewbox="32" name="edit"/>
-            </span>
-            <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-              <legacy-icon size="1rem" viewbox="32" name="trash"/>
-            </span>
-            </div>
+    <Draggable tag="ul" class="tags" handle=".tag" v-model="testTags" @change="reorder" v-bind="dragOptions" v-if="['list', 'manage'].includes(tagsState)">
+      <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
+        <div class="container-tag" :draggable="canDrag">
+          <div class="drag" v-if="canDrag">
+            <mono-icon name="drag"/>
           </div>
-        </li>
-      </Draggable>
-    <!-- </ul> -->
+          <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
+            @click="tagsState !== 'manage' ? input(tag) : null">
+            {{tag.label}}
+            <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
+              <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+            </span>
+          </div>
+          <div class="action" v-if="tagsState === 'manage'">
+          <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
+              <legacy-icon size="1rem" viewbox="32" name="edit"/>
+          </span>
+          <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
+            <legacy-icon size="1rem" viewbox="32" name="trash"/>
+          </span>
+          </div>
+        </div>
+      </li>
+    </Draggable>
     <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
         You don’t have any tags, please click “Add Tag” to create one
@@ -118,7 +115,29 @@ export default class TagsPopover extends Vue {
   private tagsTitle = 'Select Tag'
   private tagsState = 'list'
   private saveButtonText = 'Add Tag'
-  private drag = false
+  private testTags = [
+    {
+      boardId: 8,
+      color: '#DEFFD9',
+      id: 1,
+      label: 'Tag 1',
+      position: 0
+    },
+    {
+      boardId: 8,
+      color: '#FFE8E8',
+      id: 2,
+      label: 'Tag 2',
+      position: 0
+    },
+    {
+      boardId: 8,
+      color: '#DBF8FF',
+      id: 3,
+      label: 'Tag 3',
+      position: 0
+    }
+  ]
 
   get tags (): TagResource[] {
     return this.$store.state.task.tag.data || []
@@ -129,8 +148,7 @@ export default class TagsPopover extends Vue {
   }
 
   get filteredTags () {
-    // return this.tags.filter(tag => tag.label.toLowerCase().indexOf(this.tagInput.toLowerCase()) !== -1)
-    return this.tags
+    return [...this.testTags].sort((a: any, b: any) => a.position - b.position)
   }
 
   get dragOptions () {
@@ -191,57 +209,24 @@ export default class TagsPopover extends Vue {
     }
   }
 
-  private async reorder (data: any) {
-    console.log('reorder', { data })
-    alert('dragged')
-    // let newPos: number, id: number, action: string
-    // const listId = this.list.id
-    // let taskItem: TaskItemResource
+  private async reorder () {
+    // fill position by actual array index
+    this.testTags = this.testTags.map((tag: any, index: number) => ({ ...tag, position: index }))
 
-    // if (data.added) {
-    //   const [prevIndex, nextIndex] = getReorderIndex(getNextPosition(this.list.tasks.length), data.added.newIndex)
-    //   const prev = this.orderedCards[prevIndex]
-    //   const next = this.orderedCards[nextIndex]
+    // await this.$store.dispatch('task/item/update', {
+    //   id,
+    //   listId,
+    //   position: newPos
+    // })
 
-    //   id = data.added.element.id
-    //   newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
-    //   action = 'addedToLane'
-    //   taskItem = data.added.element
-
-    //   await this.$store.dispatch('task/item/update', {
-    //     id,
-    //     listId,
-    //     position: newPos
-    //   })
-    // }
-
-    // if (data.moved) {
-    //   const [prevIndex, nextIndex] = getReorderIndex(data.moved.oldIndex, data.moved.newIndex)
-    //   const prev = this.orderedCards[prevIndex]
-    //   const next = this.orderedCards[nextIndex]
-
-    //   id = data.moved.element.id
-    //   newPos = getReorderPosition(prev ? prev.position : 0, next ? next.position : getNextPosition(this.list.tasks.length, prev ? prev.position : 0))
-    //   action = 'movedToLane'
-    //   taskItem = data.moved.element
-
-    //   await this.$store.dispatch('task/item/update', {
-    //     id,
-    //     listId,
-    //     position: newPos
-    //   })
-    // }
-
-    // if (data?.moved || data?.added) {
-    //   this.transact({
-    //     ...taskItem,
+    // this.doc.doc.transact(() => {
+    //   this.doc.set(this.taskId, {
     //     clientId: this.clientId,
-    //     action,
-    //     id,
-    //     listId,
+    //     action: 'listLaneMoved',
+    //     id: data.moved.element.id,
     //     position: newPos
     //   })
-    // }
+    // }, this.clientId)
   }
 
   selectColor (color: string) {
