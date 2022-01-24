@@ -33,16 +33,13 @@
                 />
               </span>
 
-              <div class="image-box">
+              <div class="image-box" v-if="images[index] && isAttachmentImage(images[index].mimetype)">
                 <img
                   :key="images[index].versions.preview.location || images[index] || ''"
                   :src="images[index].versions.preview.location || images[index] || ''"
-                  v-if="images[index] &&
-                    images[index].versions.preview.location &&
-                    isAttachmentImage(images[index].mimetype)"
                   @click.stop="next"
                 >
-                <div v-else class="others-file">
+                <!-- <div v-else class="others-file">
                   <span class="file">
                     <legacy-icon
                       name="file-document"
@@ -58,8 +55,14 @@
                     />
                     Download file
                   </span>
-                </div>
+                </div> -->
               </div>
+              <iframe
+                v-else
+                :src="`${images[index].location}`"
+                type="application/pdf"
+                class="pdf-preview"
+              />
 
               <span class="next" @click="next">
                 <legacy-icon
@@ -303,9 +306,9 @@ export default class ImageViewer extends Vue {
 
   .image-container {
     .image-nav {
-      @apply flex items-center;
-
-      width: 943px;
+      @apply w-screen flex items-center;
+      max-width: 100%;
+      justify-content: center;
 
       .image-box {
         @apply mx-6 items-center flex;
@@ -346,6 +349,12 @@ export default class ImageViewer extends Vue {
           }
         }
       }
+
+      .pdf-preview {
+        @apply w-full px-10;
+        height: 800px;
+        margin-top: -5rem;
+      }
     }
 
     .title {
@@ -355,14 +364,12 @@ export default class ImageViewer extends Vue {
       color: #fff;
       margin-top: 8px;
       /* position: absolute; */
-      width: 943px;
       word-break: break-word;
     }
 
     .images-count {
       text-align: center;
       color: rgb(255 255 255 / .7);
-      width: 943px;
     }
   }
 
