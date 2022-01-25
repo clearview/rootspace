@@ -30,6 +30,7 @@
           :key="list.id"
           @drag:enable="childDragEnable = true"
           @drag:disable="childDragEnable = false"
+          :isArchived="!canDrag"
         ></TaskLane>
       </Draggable>
 
@@ -40,6 +41,7 @@
         :list="newList"
         @save="clearNewList"
         @cancel="clearNewList"
+        :isArchived="!canDrag"
       />
       <TaskAddLane
         v-else-if="!archivedView"

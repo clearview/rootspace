@@ -52,7 +52,7 @@ export class ActivitiesCtrl extends BaseCtrl {
     const entityName = this.entityService.convertEntityName(req.params.entity)
     const entityId = Number(req.params.entityId)
 
-    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId)
+    const entity = await this.entityService.requireEntityByNameAndId<any>(entityName, entityId, { withDeleted: true })
 
     if (this.isSpaceMember(req, entity.spaceId, false) === false) {
       throw clientError('Entity not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
