@@ -35,35 +35,34 @@
 
               <div class="image-box" v-if="images[index] && isAttachmentImage(images[index].mimetype)">
                 <img
-                  :key="images[index].versions.preview.location || images[index] || ''"
-                  :src="images[index].versions.preview.location || images[index] || ''"
+                  :key="images[index].id"
+                  :src="previewImage"
                   @click.stop="next"
                 >
-                <!-- <div v-else class="others-file">
-                  <span class="file">
-                    <legacy-icon
-                      name="file-document"
-                      size="100px"
-                      viewbox="120"
-                    />
-                  </span>
-                  <span class="download-file pointer" @click="open(images[index].path)">
-                    <legacy-icon
-                      name="download"
-                      size="16px"
-                      viewbox="16"
-                    />
-                    Download file
-                  </span>
-                </div> -->
               </div>
               <iframe
-                v-else
+                v-else-if="images[index]  && isAttachmentPdf(images[index].mimetype)"
                 :src="`${images[index].location}`"
                 type="application/pdf"
                 class="pdf-preview"
               />
-
+              <div v-else class="others-file">
+                <span class="file">
+                  <legacy-icon
+                    name="file-document"
+                    size="100px"
+                    viewbox="120"
+                  />
+                </span>
+                <span class="download-file pointer" @click="open(images[index].path)">
+                  <legacy-icon
+                    name="download"
+                    size="16px"
+                    viewbox="16"
+                  />
+                  Download file
+                </span>
+              </div>
               <span class="next" @click="next">
                 <legacy-icon
                   name="right"
@@ -227,8 +226,16 @@ export default class ImageViewer extends Vue {
     return this.index
   }
 
+  get previewImage () {
+    return this.images[this.index]?.versions?.preview?.location
+  }
+
   isAttachmentImage (attachmentType: string) {
     return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(attachmentType) !== -1
+  }
+
+  isAttachmentPdf (attachmentType: string) {
+    return attachmentType === 'application/pdf'
   }
 
   prev () {
