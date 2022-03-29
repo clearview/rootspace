@@ -22,7 +22,7 @@
           />
         </span>
         <div class="image-container">
-          <div class="image-nav">
+          <div class="image-nav" v-if="images[index]">
               <span class="previous" @click="prev">
                 <legacy-icon
                   name="left"
@@ -33,7 +33,7 @@
                 />
               </span>
 
-              <div class="image-box" v-if="images[index] && isAttachmentImage(images[index].mimetype)">
+              <div class="image-box" v-if="isAttachmentImage(images[index].mimetype)">
                 <img
                   :key="images[index].id"
                   :src="previewImage"
@@ -41,19 +41,18 @@
                 >
               </div>
               <iframe
-                v-else-if="images[index]  && isAttachmentPdf(images[index].mimetype)"
+                v-else-if="isAttachmentPdf(images[index].mimetype)"
                 :src="`${images[index].location}`"
                 type="application/pdf"
                 class="pdf-preview"
               />
               <div v-else class="others-file">
-                <span class="file">
-                  <legacy-icon
-                    name="file-document"
-                    size="100px"
-                    viewbox="120"
-                  />
-                </span>
+                <legacy-icon
+                  :name="fileIcon(images[index].mimetype)"
+                  size="100"
+                  viewbox="75"
+                  class="file-icon"
+                />
                 <span class="download-file pointer" @click="open(images[index].path)">
                   <legacy-icon
                     name="download"
@@ -285,6 +284,17 @@ export default class ImageViewer extends Vue {
 
     return `${currentImage} / ${totalImages}`
   }
+
+  fileIcon (type: string) {
+    switch (type) {
+      case 'application/pdf':
+        return 'filePdf'
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'fileDocx'
+      default:
+        return 'fileDefault'
+    }
+  }
 }
 </script>
 
@@ -499,6 +509,9 @@ export default class ImageViewer extends Vue {
     }
   }
 
+  .file-icon {
+    margin: 32px 80px;
+  }
 </style>
 
 <style lang="postcss">
