@@ -220,7 +220,6 @@ export default class TagsPopover extends Vue {
   private async reorder () {
     // fill position by actual array index
     const tagsPosition: TagResource[] = this.tags.map((tag: TagResource, index: number) => ({ ...tag, position: index }))
-    // const changedTags = this.tags.filter((tag: TagResource) => !this.originTags.some((originTag: TagResource) => tag === originTag))
 
     await this.$store.dispatch('task/tag/reorderTags', { data: tagsPosition })
 
