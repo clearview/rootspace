@@ -96,9 +96,12 @@ export enum StorageViewType {
 }
 
 export interface TagResource extends Omit<ApiResource, 'createdAt' | 'updatedAt'> {
+  id: number
   board: TaskBoardResource | null;
+  boardId: number;
   label: string;
   color: string;
+  position?: number
 }
 
 export interface TaskItemResource extends ApiResource {

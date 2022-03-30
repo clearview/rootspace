@@ -117,6 +117,9 @@ if (tag.actions) {
     }, { root: true })
     return res
   }
+  tag.actions.reorderTags = async ({ state }, params: { data: TagResource[] }) => {
+    state.data = params.data
+  }
 }
 
 export default tag

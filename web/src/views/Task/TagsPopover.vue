@@ -11,7 +11,7 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <Draggable tag="ul" class="tags" handle=".tag" v-model="testTags" @change="reorder" v-bind="dragOptions" v-if="['list', 'manage'].includes(tagsState)">
+    <Draggable tag="ul" class="tags" handle=".tag" v-model="tags" @change="reorder" v-bind="dragOptions" v-if="['list', 'manage'].includes(tagsState)">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
         <div class="container-tag" :draggable="canDrag">
           <div class="drag" v-if="canDrag">
@@ -108,6 +108,7 @@ export default class TagsPopover extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
+  private tags: TagResource[] = []
   private tagInput = ''
   private idEditedTag: number | null = null
   private colorInput = this.colors[0]
@@ -139,16 +140,12 @@ export default class TagsPopover extends Vue {
     }
   ]
 
-  get tags (): TagResource[] {
-    return this.$store.state.task.tag.data || []
-  }
-
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
   get filteredTags () {
-    return [...this.testTags].sort((a: any, b: any) => a.position - b.position)
+    return this.tags.sort((a: any, b: any) => a.position - b.position)
   }
 
   get dragOptions () {
@@ -171,6 +168,17 @@ export default class TagsPopover extends Vue {
   //   const match = this.filteredTags.find(tag => tag.label.toLowerCase() === this.tagInput.toLowerCase())
   //   return !match && this.tagInput.trim().length > 0
   // }
+
+  get originTags () {
+    return this.$store.state.task.tag.data.map((tag: TagResource) => ({
+      ...tag,
+      position: tag.position || 0
+    }))
+  }
+
+  mounted () {
+    this.tags = this.originTags
+  }
 
   async saveTag () {
     if (!this.tagInput) return
@@ -211,7 +219,10 @@ export default class TagsPopover extends Vue {
 
   private async reorder () {
     // fill position by actual array index
-    this.testTags = this.testTags.map((tag: any, index: number) => ({ ...tag, position: index }))
+    const tagsPosition: TagResource[] = this.tags.map((tag: TagResource, index: number) => ({ ...tag, position: index }))
+    // const changedTags = this.tags.filter((tag: TagResource) => !this.originTags.some((originTag: TagResource) => tag === originTag))
+
+    await this.$store.dispatch('task/tag/reorderTags', { data: tagsPosition })
 
     // await this.$store.dispatch('task/item/update', {
     //   id,
