@@ -119,10 +119,18 @@ if (tag.actions) {
   }
   tag.actions.reorderTags = async ({ state, commit }, params: { data: TagResource[] }) => {
     commit('setProcessing', true)
-    const changedTags = difference(state.data, params.data)
-    await changedTags.forEach(async (tag: TagResource) => {
-      api.patch(`tasks/board/tags/${tag.id}`, { data: tag })
+
+    // get the difference between the current state and the new state
+    const changedTags = difference(params.data, state.data)
+    const promises: any[] = []
+    changedTags.forEach(async (tag: TagResource) => {
+      promises.push(api.patch(`tasks/board/tags/${tag.id}`, { data: tag }))
     })
+
+    // update the differences data
+    await Promise.all(promises)
+
+    // update currenr state
     state.data = params.data
     commit('setProcessing', false)
   }

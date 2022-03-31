@@ -108,7 +108,7 @@ export default class TagsPopover extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
-  private tags: TagResource[] = []
+  private tags: TagResource[] = this.$store.state.task.tag.data
   private tagInput = ''
   private idEditedTag: number | null = null
   private colorInput = this.colors[0]
@@ -116,36 +116,15 @@ export default class TagsPopover extends Vue {
   private tagsTitle = 'Select Tag'
   private tagsState = 'list'
   private saveButtonText = 'Add Tag'
-  private testTags = [
-    {
-      boardId: 8,
-      color: '#DEFFD9',
-      id: 1,
-      label: 'Tag 1',
-      position: 0
-    },
-    {
-      boardId: 8,
-      color: '#FFE8E8',
-      id: 2,
-      label: 'Tag 2',
-      position: 0
-    },
-    {
-      boardId: 8,
-      color: '#DBF8FF',
-      id: 3,
-      label: 'Tag 3',
-      position: 0
-    }
-  ]
 
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
   get filteredTags () {
-    return this.tags.sort((a: any, b: any) => a.position - b.position)
+    const sorted = this.tags.sort((a: any, b: any) => a.position - b.position)
+    this.tags = sorted.map((tag: TagResource) => ({ ...tag, position: 0 }))
+    return this.tags
   }
 
   get dragOptions () {
@@ -168,17 +147,6 @@ export default class TagsPopover extends Vue {
   //   const match = this.filteredTags.find(tag => tag.label.toLowerCase() === this.tagInput.toLowerCase())
   //   return !match && this.tagInput.trim().length > 0
   // }
-
-  get originTags () {
-    return this.$store.state.task.tag.data.map((tag: TagResource) => ({
-      ...tag,
-      position: tag.position || 0
-    }))
-  }
-
-  mounted () {
-    this.tags = this.originTags
-  }
 
   async saveTag () {
     if (!this.tagInput) return
@@ -222,12 +190,6 @@ export default class TagsPopover extends Vue {
     const tagsPosition: TagResource[] = this.tags.map((tag: TagResource, index: number) => ({ ...tag, position: index }))
 
     await this.$store.dispatch('task/tag/reorderTags', { data: tagsPosition })
-
-    // await this.$store.dispatch('task/item/update', {
-    //   id,
-    //   listId,
-    //   position: newPos
-    // })
 
     // this.doc.doc.transact(() => {
     //   this.doc.set(this.taskId, {
