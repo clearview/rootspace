@@ -122,7 +122,10 @@ export default class TagsPopover extends Vue {
   }
 
   get filteredTags () {
+    // sort the tags by origin position
     const sorted = this.tags.sort((a: any, b: any) => a.position - b.position)
+
+    // set position to 0 because Draggable won't work if the position is not 0
     this.tags = sorted.map((tag: TagResource) => ({ ...tag, position: 0 }))
     return this.tags
   }
@@ -190,15 +193,6 @@ export default class TagsPopover extends Vue {
     const tagsPosition: TagResource[] = this.tags.map((tag: TagResource, index: number) => ({ ...tag, position: index }))
 
     await this.$store.dispatch('task/tag/reorderTags', { data: tagsPosition })
-
-    // this.doc.doc.transact(() => {
-    //   this.doc.set(this.taskId, {
-    //     clientId: this.clientId,
-    //     action: 'listLaneMoved',
-    //     id: data.moved.element.id,
-    //     position: newPos
-    //   })
-    // }, this.clientId)
   }
 
   selectColor (color: string) {
