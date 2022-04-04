@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm"
+import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class AddPositionOnTaskBoardTagsTable1648699125503 implements MigrationInterface {
     name = 'AddPositionOnTaskBoardTagsTable1648699125503'
