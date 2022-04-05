@@ -151,7 +151,17 @@ export default class TaskLane extends Vue {
       if (!this.list.tasks) {
         return []
       }
-      return [...this.list.tasks].sort((a, b) => a.position - b.position).map(item => ({ ...item, list: this.list }))
+
+      const sortedTask = this.list.tasks
+      if (this.archivedView) {
+        // sorting by deleted at
+        sortedTask.sort((a: TaskItemResource, b: TaskItemResource) => new Date(b.deletedAt || 0).getTime() - new Date(a.deletedAt || 0).getTime())
+      } else {
+        // sorting by position
+        sortedTask.sort((a, b) => a.position - b.position)
+      }
+
+      return sortedTask.map(item => ({ ...item, list: this.list }))
     }
 
     private get canSave () {
