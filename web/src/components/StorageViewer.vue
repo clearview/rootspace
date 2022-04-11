@@ -10,7 +10,7 @@
     :z-index="2000"
     @cancel="close"
     :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
-    :contentStyle="{ 'background-color': 'unset', height: '60%', boxShadow: 'none' }"
+    :contentStyle="{ 'background-color': 'unset', height: '65%', boxShadow: 'none' }"
   >
     <div class="task-modal-body">
       <span class="close" @click="close">

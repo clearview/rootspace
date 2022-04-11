@@ -10,7 +10,7 @@
     :z-index="2000"
     @cancel="close"
     :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
-    :contentStyle="{ 'background-color': 'unset', height: '60%', boxShadow: 'none' }"
+    :contentStyle="{ 'background-color': 'unset', height: '65%', boxShadow: 'none' }"
   >
       <div class="task-modal-body">
         <span class="close" @click="close">
@@ -329,7 +329,6 @@ export default class ImageViewer extends Vue {
 
       .image-box {
         @apply mx-6 items-center flex;
-        width: 800px;
 
         img {
           cursor: pointer;
@@ -338,6 +337,7 @@ export default class ImageViewer extends Vue {
           /* left: 50px; */
           /* position: absolute; */
           max-width: 800px;
+          max-height: 600px;
         }
 
         .others-file {
