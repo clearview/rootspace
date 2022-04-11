@@ -23,7 +23,7 @@
         </span>
         <div class="image-container">
           <div class="image-nav" v-if="images[index]">
-              <span class="previous" @click="prev">
+              <span class="previous" :class="{'cursor-not-allowed': index === 0}" @click="prev">
                 <legacy-icon
                   name="left"
                   size="40px"
@@ -62,7 +62,7 @@
                   Download file
                 </span>
               </div>
-              <span class="next" @click="next">
+              <span class="next" :class="{'cursor-not-allowed': index === images.length - 1}" @click="next">
                 <legacy-icon
                   name="right"
                   size="40px"
@@ -401,6 +401,10 @@ export default class ImageViewer extends Vue {
 
     &:hover {
       background-color: rgb(255 255 255 / 40%);
+    }
+
+    &.cursor-not-allowed {
+      cursor: not-allowed !important;
     }
   }
 
