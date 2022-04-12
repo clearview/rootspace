@@ -14,7 +14,7 @@
     <Draggable tag="ul" class="tags" handle=".tag" v-model="tags" @change="reorder" v-bind="dragOptions" v-if="['list', 'manage'].includes(tagsState)">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
         <div class="container-tag" :draggable="canDrag">
-          <div class="drag" v-if="canDrag">
+          <div class="drag mt-1" v-if="canDrag">
             <mono-icon name="drag"/>
           </div>
           <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
