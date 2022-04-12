@@ -130,7 +130,7 @@ if (tag.actions) {
     // update the differences data
     await Promise.all(promises)
 
-    // update currenr state
+    // update current state
     state.data = params.data
     commit('setProcessing', false)
   }
