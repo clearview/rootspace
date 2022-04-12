@@ -146,6 +146,10 @@ export default class TagsPopover extends Vue {
     return this.tagsState === 'manage'
   }
 
+  updateLocalTags () {
+    this.tags = this.$store.state.task.tag.data
+  }
+
   // get isIntentNewTag () {
   //   const match = this.filteredTags.find(tag => tag.label.toLowerCase() === this.tagInput.toLowerCase())
   //   return !match && this.tagInput.trim().length > 0
@@ -158,7 +162,10 @@ export default class TagsPopover extends Vue {
       color: this.colorInput,
       label: this.tagInput
     } as TagResource
+
     if (this.tagsState === 'edit') {
+      const editedTag = this.$store.state.task.tag.data.find((tag: TagResource) => tag.id === this.idEditedTag)
+      data.position = editedTag.position
       const url = 'task/tag/updateTag'
       const item = await this.$store.dispatch(url, {
         tagId: this.idEditedTag,
@@ -174,6 +181,7 @@ export default class TagsPopover extends Vue {
       this.tagsTitle = 'Manage Tags'
       this.tagsState = 'manage'
     } else {
+      data.position = this.tags.length
       const url = 'task/tag/create'
       const item = await this.$store.dispatch(url, data)
 
@@ -186,6 +194,8 @@ export default class TagsPopover extends Vue {
       this.tagsState = 'list'
       this.tagsTitle = 'Select Tag'
     }
+
+    this.updateLocalTags()
   }
 
   private async reorder () {
@@ -244,6 +254,7 @@ export default class TagsPopover extends Vue {
     } as object)
     await this.$store.dispatch('task/tag/fetch', null)
     await this.$store.dispatch('task/board/refresh')
+    this.updateLocalTags()
   }
 
   backButtonAction (val: boolean) {
