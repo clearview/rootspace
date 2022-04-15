@@ -10,7 +10,7 @@
     :z-index="2000"
     @cancel="close"
     :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
-    :contentStyle="{ 'background-color': 'unset', height: '65%', boxShadow: 'none' }"
+    :contentStyle="{ 'background-color': 'unset', height: '65%', boxShadow: 'none', overflowY: 'visible' }"
   >
     <div class="task-modal-body">
       <span class="close" @click="close">
@@ -150,15 +150,20 @@ export default class StorageViewer extends Vue {
 }
 
 .image-container {
-  @apply flex flex-col items-center;
+  @apply flex flex-col items-center w-screen;
   .image-box {
-    @apply items-center flex;
+    @apply flex;
     img {
       cursor: pointer;
       margin: 0 auto;
       border-radius: 4px;
-      max-width: 800px;
+      max-width: 100%;
       max-height: 600px;
+
+      @media (min-width: 1200px) {
+        max-width: 100vw;
+        max-height: 75vh;
+      }
     }
   }
 
@@ -230,7 +235,7 @@ export default class StorageViewer extends Vue {
 
 .pdf-preview {
   @apply w-screen px-10;
-  height: 800px;
+  height: 80vh;
   margin-top: -5rem;
 }
 </style>

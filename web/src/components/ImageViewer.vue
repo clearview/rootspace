@@ -374,7 +374,7 @@ export default class ImageViewer extends Vue {
 
       .pdf-preview {
         @apply w-full px-10;
-        height: 800px;
+        height: 80vh;
         margin-top: -5rem;
       }
     }
