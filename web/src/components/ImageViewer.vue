@@ -338,6 +338,11 @@ export default class ImageViewer extends Vue {
           /* position: absolute; */
           max-width: 800px;
           max-height: 600px;
+
+          @media (min-width: 1200px) {
+            max-width: 100vw;
+            max-height: 75vh;
+          }
         }
 
         .others-file {
