@@ -6,9 +6,9 @@
       </div>
       <div v-else class="attachment-media others">
         <legacy-icon
-          name="file"
-          size="3.5em"
-          class="SelectNodeType-icon"
+          :name="fileIcon(attachment.mimetype)"
+          size="4.1em"
+          viewbox="65"
         />
       </div>
     </div>
@@ -141,6 +141,17 @@ export default class TaskAttachmentView extends Vue {
     open (src: string) {
       window.open(src, '_blank')
     }
+
+    fileIcon (type: string) {
+      switch (type) {
+        case 'application/pdf':
+          return 'filePdf'
+        case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+          return 'fileDocx'
+        default:
+          return 'fileDefault'
+      }
+    }
 }
 </script>
 
@@ -164,11 +175,14 @@ export default class TaskAttachmentView extends Vue {
 
       width: 80px;
       height: 64px;
-      background: rgba(theme("colors.gray.100"), 0.3);
 
       svg {
         color: theme("colors.gray.800");
       }
+    }
+
+    .stroke-current {
+      stroke: none;
     }
   }
 

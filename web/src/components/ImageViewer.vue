@@ -10,7 +10,7 @@
     :z-index="2000"
     @cancel="close"
     :modalStyle="{ 'background-color': 'rgb(68 71 84 / 0.97)' }"
-    :contentStyle="{ 'background-color': 'unset', height: '60%' }"
+    :contentStyle="{ 'background-color': 'unset', height: '65%', boxShadow: 'none' }"
   >
       <div class="task-modal-body">
         <span class="close" @click="close">
@@ -22,8 +22,8 @@
           />
         </span>
         <div class="image-container">
-          <div class="image-nav">
-              <span class="previous" @click="prev">
+          <div class="image-nav" v-if="images[index]">
+              <span class="previous" :class="{'cursor-not-allowed': index === 0}" @click="prev">
                 <legacy-icon
                   name="left"
                   size="40px"
@@ -33,35 +33,36 @@
                 />
               </span>
 
-              <div class="image-box">
+              <div class="image-box" v-if="isAttachmentImage(images[index].mimetype)">
                 <img
-                  :key="images[index].versions.preview.location || images[index] || ''"
-                  :src="images[index].versions.preview.location || images[index] || ''"
-                  v-if="images[index] &&
-                    images[index].versions.preview.location &&
-                    isAttachmentImage(images[index].mimetype)"
+                  :key="images[index].id"
+                  :src="previewImage"
                   @click.stop="next"
                 >
-                <div v-else class="others-file">
-                  <span class="file">
-                    <legacy-icon
-                      name="file-document"
-                      size="100px"
-                      viewbox="120"
-                    />
-                  </span>
-                  <span class="download-file pointer" @click="open(images[index].path)">
-                    <legacy-icon
-                      name="download"
-                      size="16px"
-                      viewbox="16"
-                    />
-                    Download file
-                  </span>
-                </div>
               </div>
-
-              <span class="next" @click="next">
+              <iframe
+                v-else-if="isAttachmentPdf(images[index].mimetype)"
+                :src="`${images[index].location}`"
+                type="application/pdf"
+                class="pdf-preview"
+              />
+              <div v-else class="others-file">
+                <legacy-icon
+                  :name="fileIcon(images[index].mimetype)"
+                  size="100"
+                  viewbox="75"
+                  class="file-icon"
+                />
+                <span class="download-file pointer" @click="open(images[index].path)">
+                  <legacy-icon
+                    name="download"
+                    size="16px"
+                    viewbox="16"
+                  />
+                  Download file
+                </span>
+              </div>
+              <span class="next" :class="{'cursor-not-allowed': index === images.length - 1}" @click="next">
                 <legacy-icon
                   name="right"
                   size="40px"
@@ -224,8 +225,16 @@ export default class ImageViewer extends Vue {
     return this.index
   }
 
+  get previewImage () {
+    return this.images[this.index]?.versions?.preview?.location
+  }
+
   isAttachmentImage (attachmentType: string) {
     return ['image/jpg', 'image/jpeg', 'image/png'].indexOf(attachmentType) !== -1
+  }
+
+  isAttachmentPdf (attachmentType: string) {
+    return attachmentType === 'application/pdf'
   }
 
   prev () {
@@ -275,6 +284,17 @@ export default class ImageViewer extends Vue {
 
     return `${currentImage} / ${totalImages}`
   }
+
+  fileIcon (type: string) {
+    switch (type) {
+      case 'application/pdf':
+        return 'filePdf'
+      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return 'fileDocx'
+      default:
+        return 'fileDefault'
+    }
+  }
 }
 </script>
 
@@ -303,15 +323,12 @@ export default class ImageViewer extends Vue {
 
   .image-container {
     .image-nav {
-      @apply flex items-center;
-
-      width: 943px;
-      height: 600px;
+      @apply w-screen flex items-center;
+      max-width: 100%;
+      justify-content: center;
 
       .image-box {
         @apply mx-6 items-center flex;
-        width: 800px;
-        height: 600px;
 
         img {
           cursor: pointer;
@@ -321,6 +338,11 @@ export default class ImageViewer extends Vue {
           /* position: absolute; */
           max-width: 800px;
           max-height: 600px;
+
+          @media (min-width: 1200px) {
+            max-width: 100vw;
+            max-height: 75vh;
+          }
         }
 
         .others-file {
@@ -349,6 +371,12 @@ export default class ImageViewer extends Vue {
           }
         }
       }
+
+      .pdf-preview {
+        @apply w-full px-10;
+        height: 80vh;
+        margin-top: -5rem;
+      }
     }
 
     .title {
@@ -358,14 +386,12 @@ export default class ImageViewer extends Vue {
       color: #fff;
       margin-top: 8px;
       /* position: absolute; */
-      width: 943px;
       word-break: break-word;
     }
 
     .images-count {
       text-align: center;
       color: rgb(255 255 255 / .7);
-      width: 943px;
     }
   }
 
@@ -380,6 +406,10 @@ export default class ImageViewer extends Vue {
 
     &:hover {
       background-color: rgb(255 255 255 / 40%);
+    }
+
+    &.cursor-not-allowed {
+      cursor: not-allowed !important;
     }
   }
 
@@ -488,6 +518,9 @@ export default class ImageViewer extends Vue {
     }
   }
 
+  .file-icon {
+    margin: 32px 80px;
+  }
 </style>
 
 <style lang="postcss">
