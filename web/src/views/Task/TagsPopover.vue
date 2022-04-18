@@ -487,7 +487,6 @@ export default class TagsPopover extends Vue {
   }
 
   .ghost {
-    opacity: 0.5;
     background: theme("colors.gray.100");
     .action {
       opacity: 0;
