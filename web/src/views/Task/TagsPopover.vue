@@ -11,27 +11,30 @@
     <!-- <div class="tag-input">
       <input type="text" placeholder="Search for tags…" class="input" v-model="tagInput"/>
     </div> -->
-    <ul class="tags" v-if="['list', 'manage'].includes(tagsState)">
+    <Draggable tag="ul" class="tags" handle=".tag" v-model="tags" @change="reorder" v-bind="dragOptions" v-if="['list', 'manage'].includes(tagsState)">
       <li class="tag" v-for="(tag, index) in filteredTags" :key="`${tag.label}-new-${index}`">
-      <div class="container-tag">
-        <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
-          @click="tagsState !== 'manage' ? input(tag) : null">
-          {{tag.label}}
-          <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
-            <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+        <div class="container-tag" :draggable="canDrag">
+          <div class="drag mt-1" v-if="canDrag">
+            <mono-icon name="drag"/>
+          </div>
+          <div :style="{background: tag.color, color: textColor(tag.color)}" :class="{ 'manage': tagsState === 'manage'}" class="tag-color"
+            @click="tagsState !== 'manage' ? input(tag) : null">
+            {{tag.label}}
+            <span class="icon-checkmark" v-if="isSelectedTag(tag) && tagsState !== 'manage'">
+              <legacy-icon size="9.33 6.67" name="checkmark" viewbox="12 9" />
+            </span>
+          </div>
+          <div class="action" v-if="tagsState === 'manage'">
+          <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
+              <legacy-icon size="1rem" viewbox="32" name="edit"/>
           </span>
+          <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
+            <legacy-icon size="1rem" viewbox="32" name="trash"/>
+          </span>
+          </div>
         </div>
-        <div class="action" v-if="tagsState === 'manage'">
-        <span id="edit-button" @click="editTagButton(tag)" content="Edit" v-tippy>
-            <legacy-icon size="1rem" viewbox="32" name="edit"/>
-        </span>
-        <span id="delete-button" @click="deleteTagButton(tag)" class="delete" content="Delete" v-tippy>
-          <legacy-icon size="1rem" viewbox="32" name="trash"/>
-        </span>
-        </div>
-      </div>
       </li>
-    </ul>
+    </Draggable>
     <div class="tag-empty" v-if="filteredTags.length === 0 && tagsState !== 'add' && tagsState !== 'edit'">
       <div class="tag tag-null">
         You don’t have any tags, please click “Add Tag” to create one
@@ -88,13 +91,15 @@
 </template>
 
 <script lang="ts">
+import Draggable from 'vuedraggable'
+
 import { Component, Emit, Vue, Prop, Ref } from 'vue-property-decorator'
 import Popover from '@/components/Popover.vue'
 import { TagResource } from '@/types/resource'
 
 @Component({
   name: 'TagsPopover',
-  components: { Popover }
+  components: { Popover, Draggable }
 })
 export default class TagsPopover extends Vue {
   @Prop({ type: Array, required: true })
@@ -103,6 +108,7 @@ export default class TagsPopover extends Vue {
   @Ref('input')
   private readonly inputRef!: HTMLInputElement;
 
+  private tags: TagResource[] = this.$store.state.task.tag.data
   private tagInput = ''
   private idEditedTag: number | null = null
   private colorInput = this.colors[0]
@@ -111,17 +117,37 @@ export default class TagsPopover extends Vue {
   private tagsState = 'list'
   private saveButtonText = 'Add Tag'
 
-  get tags (): TagResource[] {
-    return this.$store.state.task.tag.data || []
-  }
-
   get colors () {
     return ['#DEFFD9', '#FFE8E8', '#FFEAD2', '#DBF8FF', '#F6DDFF', '#FFF2CC', '#FFDDF1', '#DFE7FF', '#D5D1FF', '#D2E4FF']
   }
 
   get filteredTags () {
-    // return this.tags.filter(tag => tag.label.toLowerCase().indexOf(this.tagInput.toLowerCase()) !== -1)
+    // sort the tags by origin position
+    const sorted = this.tags.sort((a: any, b: any) => a.position - b.position)
+
+    // set position to 0 because Draggable won't work if the position is not 0
+    this.tags = sorted.map((tag: TagResource) => ({ ...tag, position: 0 }))
     return this.tags
+  }
+
+  get dragOptions () {
+    const isFirefox = navigator.userAgent.indexOf('Firefox') !== -1
+    return {
+      group: 'tags',
+      disabled: !this.canDrag,
+      ghostClass: 'ghost',
+      forceFallback: !isFirefox,
+      fallbackOnBody: true,
+      fallbackClass: 'ghost-floating'
+    }
+  }
+
+  get canDrag () {
+    return this.tagsState === 'manage'
+  }
+
+  updateLocalTags () {
+    this.tags = this.$store.state.task.tag.data
   }
 
   // get isIntentNewTag () {
@@ -136,7 +162,10 @@ export default class TagsPopover extends Vue {
       color: this.colorInput,
       label: this.tagInput
     } as TagResource
+
     if (this.tagsState === 'edit') {
+      const editedTag = this.$store.state.task.tag.data.find((tag: TagResource) => tag.id === this.idEditedTag)
+      data.position = editedTag.position
       const url = 'task/tag/updateTag'
       const item = await this.$store.dispatch(url, {
         tagId: this.idEditedTag,
@@ -152,6 +181,7 @@ export default class TagsPopover extends Vue {
       this.tagsTitle = 'Manage Tags'
       this.tagsState = 'manage'
     } else {
+      data.position = this.tags.length
       const url = 'task/tag/create'
       const item = await this.$store.dispatch(url, data)
 
@@ -164,6 +194,15 @@ export default class TagsPopover extends Vue {
       this.tagsState = 'list'
       this.tagsTitle = 'Select Tag'
     }
+
+    this.updateLocalTags()
+  }
+
+  private async reorder () {
+    // fill position by actual array index
+    const tagsPosition: TagResource[] = this.tags.map((tag: TagResource, index: number) => ({ ...tag, position: index }))
+
+    await this.$store.dispatch('task/tag/reorderTags', { data: tagsPosition })
   }
 
   selectColor (color: string) {
@@ -215,6 +254,7 @@ export default class TagsPopover extends Vue {
     } as object)
     await this.$store.dispatch('task/tag/fetch', null)
     await this.$store.dispatch('task/board/refresh')
+    this.updateLocalTags()
   }
 
   backButtonAction (val: boolean) {
@@ -299,7 +339,6 @@ export default class TagsPopover extends Vue {
     line-height: 12px;
     letter-spacing: 0.03em;
     text-align: left;
-    cursor: pointer;
     color: #FFF;
     position: relative;
     text-transform: uppercase;
@@ -320,7 +359,7 @@ export default class TagsPopover extends Vue {
     }
 
     &.manage {
-      cursor: default;
+      cursor: grab;
     }
   }
 
@@ -410,6 +449,12 @@ export default class TagsPopover extends Vue {
         pointer-events: none;
       }
     }
+
+    &:hover {
+      .drag {
+        opacity: 100%;
+      }
+    }
   }
 
   .input {
@@ -428,5 +473,27 @@ export default class TagsPopover extends Vue {
   @apply my-4;
 
   float: right
+  }
+
+  .drag {
+    cursor: grab;
+    font-size: 20px;
+    color: #a7b2cf;
+    opacity: 25%;
+  }
+
+  .drag .stroke-current{
+    stroke: none;
+  }
+
+  .ghost {
+    background: theme("colors.gray.100");
+    .action {
+      opacity: 0;
+    }
+  }
+
+  .ghost-floating {
+    opacity: 0 !important;
   }
 </style>

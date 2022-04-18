@@ -25,4 +25,7 @@ export class Tag {
 
   @Column('varchar')
   color: string
+
+  @Column('integer')
+  position: number
 }

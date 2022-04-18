@@ -4,7 +4,7 @@ import { ResourceState, RootState } from '@/types/state'
 import api from '@/utils/api'
 import { ActionContext } from 'vuex'
 import { TagResource, TaskBoardResource } from '@/types/resource'
-import { merge, remove } from 'lodash'
+import { merge, remove, difference } from 'lodash'
 
 const tag = createChildServiceModule(TagService, (root: RootState) => root.task.board.current?.id, {
   afterCreate (context: ActionContext<ResourceState<TagResource>, RootState>, data: TagResource) {
@@ -116,6 +116,23 @@ if (tag.actions) {
       }
     }, { root: true })
     return res
+  }
+  tag.actions.reorderTags = async ({ state, commit }, params: { data: TagResource[] }) => {
+    commit('setProcessing', true)
+
+    // get the difference between the current state and the new state
+    const changedTags = difference(params.data, state.data)
+    const promises: any[] = []
+    changedTags.forEach(async (tag: TagResource) => {
+      promises.push(api.patch(`tasks/board/tags/${tag.id}`, { data: tag }))
+    })
+
+    // update the differences data
+    await Promise.all(promises)
+
+    // update current state
+    state.data = params.data
+    commit('setProcessing', false)
   }
 }
 

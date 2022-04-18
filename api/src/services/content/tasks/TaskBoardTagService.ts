@@ -30,6 +30,7 @@ export class TaskBoardTagService {
     tag.board = data.taskBoard
     tag.label = data.label
     tag.color = data.color
+    tag.position = data.position
 
     await this.getTagRepository().save(tag)
 
