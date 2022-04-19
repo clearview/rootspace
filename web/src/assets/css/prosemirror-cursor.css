@@ -7,6 +7,11 @@
   margin-top: 16px
 }
 
+/* remove margin for paragraph inside the table. */
+td > .novadoc-paragraph {
+  margin: 0 !important;
+}
+
 /* This gives the remote user caret. The colors are automatically overwritten*/
 .ProseMirror-yjs-cursor-2 {
   position: relative;
