@@ -202,3 +202,18 @@ export default class BoardManager extends Vue {
   opacity: 1 !important;
 }
 </style>
+
+<style lang="postcss">
+  .layout {
+    ::-webkit-scrollbar {
+      -webkit-appearance: none;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: rgba(51,51,51,.5);
+      -webkit-box-shadow: 0 0 0px rgba(255,255,255,.5);
+    }
+  }
+</style>
