@@ -96,7 +96,7 @@ export class TaskBoardRepository extends BaseRepository<TaskBoard> {
     taskBoard.taskLists = await this.getTaskListRepository().getByTaskBoardId(
       taskBoard.id,
       { withDeleted: filterParam?.archived }
-    );
+    )
 
     const tasks = await this.getTaskRepository().filterByTaskBoardId(taskBoard.id, searchParam, filterParam)
 
