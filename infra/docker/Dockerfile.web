@@ -1,22 +1,23 @@
-FROM hashicorp/envconsul:latest as envconsul
-
-FROM node:12 as base
+FROM node:12 as build
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
-COPY ./web/. .
 
-FROM base as nginx
-RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && < /dev/null > /dev/null \
-    DEBIAN_FRONTEND=noninteractive apt-get install nginx iputils-ping net-tools curl nano -y < /dev/null > /dev/null
+COPY ./web/. ./web/
+COPY ./infra/. ./infra/
 
-COPY ./infra/docker/web/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY ./infra/docker/web/nginx/default /etc/nginx/sites-available/default
-COPY ./infra/docker/web/nginx/conf.d/* /etc/nginx/conf.d/
+RUN echo "Installing packages... $(yarn install)" \
+    echo "Building web...  $(NODE_OPTIONS="--max-old-space-size=200" VUE_MEMORY_LIMIT=200 yarn build)"
 
-FROM nginx as web
-COPY ./infra/docker/web/entrypoint.sh /entrypoint.sh
+FROM nginx:1.22 as infra
+WORKDIR /srv
 
-COPY --from=envconsul /bin/envconsul /bin/envconsul
+COPY --from=build /srv/infra/docker/web/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /srv/infra/docker/web/nginx/default /etc/nginx/sites-available/default
+COPY --from=build /srv/infra/docker/web/nginx/conf.d/* /etc/nginx/conf.d/
+COPY --from=build /srv/infra/docker/web/entrypoint.sh /entrypoint.sh
+
+FROM infra as nginx
+COPY --from=build /srv/web /srv/web
 
 RUN ["chmod", "+x", "/entrypoint.sh"]
 
