@@ -4,13 +4,12 @@ services:
     command: ["dockerd-entrypoint.sh"]
 
 variables:
-  API_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/api
-  PROXY_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/proxy
-  WEB_REPOSITORY_URL: 207259804926.dkr.ecr.us-east-1.amazonaws.com/root/web
-  DOCKER_HOST: tcp://docker:2375/
-  DOCKER_DRIVER: overlay2
-  # See https://github.com/docker-library/docker/pull/166
-  DOCKER_TLS_CERTDIR: ""
+  AWS_ECR_REPO: 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
+  API_REPOSITORY: rootspace_ecr/api
+  WEB_REPOSITORY: rootspace_ecr/web
+  API_REPOSITORY_URL: $AWS_ECR_REPO/$API_REPOSITORY
+  WEB_REPOSITORY_URL: $AWS_ECR_REPO/$WEB_REPOSITORY
+  DOCKER_HOST: tcp://docker:2375
 
 stages:
   - test
@@ -18,50 +17,44 @@ stages:
   - build_web
 
 build_api:
-  image: docker:latest
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   stage: build_api
   before_script:
-    - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
-    - curl -O https://bootstrap.pypa.io/get-pip.py
-    - python3 get-pip.py
-    - pip install awscli
+    - aws --version
+    - docker --version
   script:
-    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
-    - >
-      docker build .
-      --cache-from="API_REPOSITORY_URL:latest"
-      -t $API_REPOSITORY_URL:latest
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPO
+    - aws ecr create-repository --repository-name $API_REPOSITORY --region $AWS_REGION || true
+    - docker build .
+      --cache-from="$API_REPOSITORY_URL:latest"
+      --tag $API_REPOSITORY_URL:latest
       --file ./infra/docker/Dockerfile.api
     - docker push $API_REPOSITORY_URL:latest
-
   tags:
     - docker
   only:
     - master
-    - dockerize
+    - ecr_cicd_fix
 
 build_web:
-  image: docker:latest
+  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   stage: build_web
   before_script:
-    - apk add --update --no-cache build-base python3-dev python3 libffi-dev libressl-dev bash git gettext curl jq
-    - curl -O https://bootstrap.pypa.io/get-pip.py
-    - python3 get-pip.py
-    - pip install awscli
+    - aws --version
+    - docker --version
   script:
-    - $(aws ecr get-login --registry-ids 207259804926 --no-include-email --region us-east-1)
-    - >
-      docker build .
-      --cache-from="WEB_REPOSITORY_URL:latest"
-      -t $WEB_REPOSITORY_URL:latest
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPO
+    - aws ecr create-repository --repository-name $API_REPOSITORY --region $AWS_REGION || true
+    - docker build .
+      --cache-from="$WEB_REPOSITORY_URL:latest"
+      --tag $WEB_REPOSITORY_URL:latest
       --file ./infra/docker/Dockerfile.web
     - docker push $WEB_REPOSITORY_URL:latest
-
   tags:
     - docker
   only:
     - master
-    - dockerize
+    - ecr_cicd_fix
 
 include:
   - "/api/.gitlab-ci.yml"
