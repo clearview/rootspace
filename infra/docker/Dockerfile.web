@@ -1,4 +1,4 @@
-FROM node:12 as build
+FROM node:16 as build
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
 
