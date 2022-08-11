@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-pwd && ls && echo "Starting the command from entrypoint.sh"
+pwd && ls && ls web && echo "Starting the command from entrypoint.sh"
 exec "$@"
