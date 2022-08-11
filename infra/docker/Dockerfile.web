@@ -5,14 +5,15 @@ WORKDIR /srv
 COPY ./web/. ./web/
 COPY ./infra/. ./infra/
 
-RUN echo "Installing packages... $(yarn install)" \
+RUN cd web && \
+    echo "Installing packages... $(yarn install)" && \
     echo "Building web...  $(NODE_OPTIONS="--max-old-space-size=200" VUE_MEMORY_LIMIT=200 yarn build)"
 
 FROM nginx:1.22 as infra
 WORKDIR /srv
 
 COPY --from=build /srv/infra/docker/web/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY --from=build /srv/infra/docker/web/nginx/default /etc/nginx/sites-available/default
+COPY --from=build /srv/infra/docker/web/nginx/default /etc/nginx/conf.d/default
 COPY --from=build /srv/infra/docker/web/nginx/conf.d/* /etc/nginx/conf.d/
 COPY --from=build /srv/infra/docker/web/entrypoint.sh /entrypoint.sh
 
@@ -20,6 +21,8 @@ FROM infra as nginx
 COPY --from=build /srv/web /srv/web
 
 RUN ["chmod", "+x", "/entrypoint.sh"]
+
+RUN ls web
 
 ENTRYPOINT ["/entrypoint.sh"]
 
