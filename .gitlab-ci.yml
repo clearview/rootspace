@@ -44,7 +44,7 @@ build_web:
     - docker --version
   script:
     - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPO
-    - aws ecr create-repository --repository-name $API_REPOSITORY --region $AWS_REGION || true
+    - aws ecr create-repository --repository-name $WEB_REPOSITORY --region $AWS_REGION || true
     - docker build .
       --cache-from="$WEB_REPOSITORY_URL:latest"
       --tag $WEB_REPOSITORY_URL:latest

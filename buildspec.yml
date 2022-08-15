@@ -1,0 +1,33 @@
+version: 0.2
+env:
+  variables:
+    AWS_REGION: eu-west-1
+    API_REPOSITORY: rootspace_ecr/api
+    WEB_REPOSITORY: rootspace_ecr/web
+#   parameter-store:
+#     ENV: "ENV"
+#   # Export vars to CodePipeline
+#   exported-variables:
+#     - ENV
+#     - API_URL
+phases:
+    # install:
+    #     commands:
+    #         - echo Starting the Docker daemon...
+    #         - /usr/local/bin/dockerd-entrypoint.sh
+    pre_build:
+        commands:
+            - aws --version
+            - docker --version
+    build:
+        commands:
+            - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
+            - aws ecr create-repository --repository-name $WEB_REPOSITORY --region $AWS_REGION || true
+            - docker build .
+              --cache-from="207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest"
+              --tag 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
+              --file ./infra/docker/Dockerfile.web
+            - docker push 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
+    post_build:
+        commands:
+            - 'pwd'
