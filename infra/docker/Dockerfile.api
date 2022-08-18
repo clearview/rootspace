@@ -21,7 +21,7 @@ COPY --from=base /srv/. /srv/.
 
 RUN printenv && \
     echo "node version is: $(nodejs -v)" && \
-    echo "yarn version is: $(yarn -v)" && \
+    echo "yarn version is: $(yarn -v)"
 
 # ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 
