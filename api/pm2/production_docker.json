@@ -1,0 +1,53 @@
+{
+  "apps": [
+    {
+      "name": "root_api",
+      "script": "dist/index.js",
+      "args": "",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    {
+      "name": "root_queue_cron_processor",
+      "script": "dist/queueCronProcessor.js",
+      "args": "",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    {
+      "name": "root_queue_activity_processor",
+      "script": "dist/queueActivityProcessor.js",
+      "args": "",
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    {
+      "name": "root_y_websocket",
+      "script": "dist/yjs/run.js",
+      "args": "",
+      "instances"  : 1,
+      "watch": false,
+      "node_args": "",
+      "merge_logs": true,
+      "cwd": "/srv",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}
