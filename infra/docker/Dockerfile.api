@@ -1,19 +1,8 @@
-FROM hashicorp/envconsul:latest as envconsul
-
-FROM node:12 as base
+FROM node:16 as base
 MAINTAINER nedim@clearview.team
-LABEL project="root"
+WORKDIR /srv
 
-ENV WORKDIR /srv
-
-RUN mkdir -p ${WORKDIR}
-WORKDIR ${WORKDIR}
-
-ADD ./api ${WORKDIR}
-ADD ./infra/docker/api/. ${WORKDIR}/docker/api/
-
-RUN apt-get -qq update < /dev/null > /dev/null && \
-    apt-get install rsync -y < /dev/null > /dev/null
+ADD ./api .
 
 RUN echo "node version is: $(nodejs -v)" && \
     echo "yarn version is: $(yarn -v)" && \
@@ -22,12 +11,9 @@ RUN echo "node version is: $(nodejs -v)" && \
     echo "Removing old node_modules... $(rm -rf node_modules)" && \
     echo "Installing packages for production... $(yarn install --production --frozen-lockfile --silent)"
 
-FROM node:12-alpine
+FROM node:16-alpine
 
-ENV NODE_ENV ${NODE_ENV:-production}
-
-RUN apk --no-cache add iputils net-tools curl nano rsync < /dev/null > /dev/null && \
-    echo "Installing PM2... $(npm install -g pm2)"
+RUN echo "Installing PM2... $(npm install -g pm2)"
 
 WORKDIR /srv
 
@@ -35,11 +21,8 @@ COPY --from=base /srv/. /srv/.
 
 RUN printenv && \
     echo "node version is: $(nodejs -v)" && \
-    echo "yarn version is: $(yarn -v)" && \
-    cat /srv/docker/api/pm2/staging.json
-
-COPY --from=envconsul /bin/envconsul /bin/envconsul
+    echo "yarn version is: $(yarn -v)"
 
 # ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 
-CMD ["pm2-runtime", "start", "/srv/docker/api/pm2/staging.json"]
+CMD ["pm2-runtime", "start", "/srv/pm2/production_docker.json"]
