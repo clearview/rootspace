@@ -5,7 +5,7 @@ WORKDIR /srv
 COPY ./infra/docker/api/entrypoint.sh /entrypoint.sh
 ADD ./api .
 
-RUN apk add --update python3 make g++ && \
+RUN apk add --update python3 make g++ netcat-openbsd && \
     rm -rf /var/cache/apk/* && \
     export NODE_ENV=development && \
     echo "node version is: $(nodejs -v)" && \

@@ -2,6 +2,7 @@
 set -e
 
 cd /srv && \
+echo "Check connection to REDIS... $(nc -zv $REDIS_HOST $REDIS_PORT)"
 echo "Writing GOOGLE_CLIENT_ID to .env file... $(echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env)"
 echo "Writing GOOGLE_CLIENT_SECRET to .env file... $(echo "GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET" >> .env)"
 echo "Writing POSTGRES to .env file... $(echo "POSTGRES=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB" >> .env)"
