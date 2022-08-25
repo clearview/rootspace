@@ -25,4 +25,4 @@ RUN printenv && \
 
 # ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 
-CMD ["yarn", "start"]
+CMD ["yarn", "dev:debug"]
