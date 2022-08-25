@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-cd /srv/api && \
+cd /srv && \
 printenv | sort && \
-echo "Installing packages... $(yarn install)"
-echo "Building... $(yarn build)"
+echo "Writing GOOGLE_CLIENT_ID to .env file... $(echo "GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env)"
 exec "$@"

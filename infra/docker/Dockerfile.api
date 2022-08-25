@@ -2,6 +2,7 @@ FROM node:16-alpine as base
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
 
+COPY ./infra/docker/api/entrypoint.sh /entrypoint.sh
 ADD ./api .
 
 RUN apk add --update python3 make g++ && \
@@ -19,6 +20,6 @@ RUN printenv && \
     echo "node version is: $(nodejs -v)" && \
     echo "yarn version is: $(yarn -v)"
 
-# ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
 CMD ["yarn", "dev:debug"]
