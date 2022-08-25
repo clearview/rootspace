@@ -34,7 +34,7 @@ build_api:
     - docker
   only:
     - master
-    - ecr_cicd_fix
+    - optimize_docker
 
 build_web:
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
