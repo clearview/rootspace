@@ -25,4 +25,4 @@ RUN printenv && \
 
 # ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
 
-CMD ["pm2-runtime", "start", "/srv/pm2/production_docker.json"]
+CMD ["yarn", "start"]
