@@ -53,4 +53,4 @@ phases:
         commands:
             - pwd
             - cd $CODEBUILD_SRC_DIR/web
-            - aws s3 sync ./dist s3://rootspace_web
+            - aws s3 sync ./dist s3://rootspace-web
