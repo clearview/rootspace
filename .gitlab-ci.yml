@@ -6,15 +6,12 @@ services:
 variables:
   AWS_ECR_REPO: 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
   API_REPOSITORY: rootspace_ecr/api
-  WEB_REPOSITORY: rootspace_ecr/web
   API_REPOSITORY_URL: $AWS_ECR_REPO/$API_REPOSITORY
-  WEB_REPOSITORY_URL: $AWS_ECR_REPO/$WEB_REPOSITORY
   DOCKER_HOST: tcp://docker:2375
 
 stages:
   - test
   - build_api
-  - build_web
 
 build_api:
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
@@ -35,26 +32,6 @@ build_api:
   only:
     - master
     - optimize_docker
-
-build_web:
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  stage: build_web
-  before_script:
-    - aws --version
-    - docker --version
-  script:
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPO
-    - aws ecr create-repository --repository-name $WEB_REPOSITORY --region $AWS_REGION || true
-    - docker build .
-      --cache-from="$WEB_REPOSITORY_URL:latest"
-      --tag $WEB_REPOSITORY_URL:latest
-      --file ./infra/docker/Dockerfile.web
-    - docker push $WEB_REPOSITORY_URL:latest
-  tags:
-    - docker
-  only:
-    - master
-    - ecr_cicd_fix
 
 include:
   - "/api/.gitlab-ci.yml"
