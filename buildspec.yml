@@ -4,12 +4,10 @@ env:
     AWS_REGION: eu-west-1
     API_REPOSITORY: rootspace_ecr/api
     WEB_REPOSITORY: rootspace_ecr/web
-#   parameter-store:
-#     ENV: "ENV"
-#   # Export vars to CodePipeline
-#   exported-variables:
-#     - ENV
-#     - API_URL
+  parameter-store:
+    API_ENDPOINT: "api_app_runner_endpoint"
+  exported-variables: # Export vars to CodePipeline
+    - API_ENDPOINT
 phases:
     # install:
     #     commands:
@@ -19,6 +17,9 @@ phases:
         commands:
             - aws --version
             - docker --version
+            - mkdir test
+            - touch test/test.txt
+            - aws s3 sync test s3://rootspace-web/test/
     build:
         commands:
             #
@@ -26,9 +27,21 @@ phases:
             #
             - pwd
             - cd web
-            - 'echo VUE_APP_API_URL=https//api:3001>>./.env'
+            - 'echo API_ENDPOINT=$API_ENDPOINT>>./.env'
             - 'echo VUE_APP_PORT=3000>>./.env'
             - 'echo VUE_APP_YWS_URL=ws://localhost:6001>>./.env'
+            #
+            # Docker for WEB
+            #
+            - cd $CODEBUILD_SRC_DIR
+            - pwd
+            - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
+            - aws ecr create-repository --repository-name $WEB_REPOSITORY --region $AWS_REGION || true
+            - docker build .
+              --cache-from="207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest"
+              --tag 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
+              --file ./infra/docker/Dockerfile.web
+            - docker push 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
             #
             # Build for WEB
             #
