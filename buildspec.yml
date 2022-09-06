@@ -42,6 +42,15 @@ phases:
               --file ./infra/docker/Dockerfile.web
             - docker push 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
             #
+            # Build for WEB, needed for S3
+            #
+            - cd $CODEBUILD_SRC_DIR
+            - pwd
+            - cd web
+            - echo "Installing packages... $(yarn install)"
+            - echo "Building web...  $(yarn build)"
+            #
+            #
             # Docker for API
             #
             - cd $CODEBUILD_SRC_DIR
