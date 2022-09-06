@@ -23,8 +23,6 @@ COPY --from=build /srv/web /srv/web
 
 RUN ["chmod", "+x", "/entrypoint.sh"]
 
-RUN ls web
-
 ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["nginx", "-g", "daemon off;"]
