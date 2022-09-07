@@ -37,7 +37,6 @@ phases:
             - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
             - aws ecr create-repository --repository-name $WEB_REPOSITORY --region $AWS_REGION || true
             - docker build .
-              --cache-from="207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest"
               --tag 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
               --file ./infra/docker/Dockerfile.web
             - docker push 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/web:latest
@@ -58,7 +57,6 @@ phases:
             - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
             - aws ecr create-repository --repository-name $API_REPOSITORY --region $AWS_REGION || true
             - docker build .
-              --cache-from="207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/api:latest"
               --tag 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/api:latest
               --file ./infra/docker/Dockerfile.api
             - docker push 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com/rootspace_ecr/api:latest
