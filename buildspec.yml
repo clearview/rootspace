@@ -6,12 +6,12 @@ env:
     WEB_REPOSITORY: rootspace_ecr/web
   parameter-store:
     API_ENDPOINT: "api_app_runner_endpoint"
-    SENDGRID_API_KEY: "sendgrid_api_key"
-    S3_ACCESS_KEY: "s3_access_key"
-    S3_SECRET_KEY: "s3_secret_key"
-    SENTRY_DSN: "sentry_dsn"
-    ARENA_USERNAME: "SENDGRID_API_KEY"
-    ARENA_PASSWORD: "SENDGRID_API_KEY"
+    SENDGRID_API_KEY: "/.env/sendgrid_api_key"
+    S3_ACCESS_KEY: "/.env/aws/s3/s3_access_key"
+    S3_SECRET_KEY: "/.env/aws/s3/s3_secret_key"
+    SENTRY_DSN: "/.env/sentry_dsn	"
+    ARENA_USERNAME: "/.env/arena_username"
+    ARENA_PASSWORD: "/.env/arena_password"
   exported-variables: # Export vars to CodePipeline
     - API_ENDPOINT
     - SENDGRID_API_KEY
