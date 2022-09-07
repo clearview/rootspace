@@ -6,12 +6,12 @@ COPY ./web/. ./web/
 COPY ./infra/. ./infra/
 
 RUN cd web && \
-    echo "Installing packages... $(NODE_ENV=production yarn install)" && \
+    echo "Installing packages... $(NODE_ENV=development yarn install)" && \
     echo "Building web...  $(NODE_ENV=production yarn build)"
 
 FROM nginx:1.22 as infra
 WORKDIR /srv
-RUN apt-get -qq update && apt-get install netcat -yq
+RUN apt-get update -qq -o=Dpkg::Use-Pty=0 && apt-get install netcat -yqq -o=Dpkg::Use-Pty=0
 
 COPY --from=build /srv/infra/docker/web/nginx/nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /srv/infra/docker/web/nginx/default.conf /etc/nginx/conf.d/default.conf

@@ -46,7 +46,7 @@ phases:
             - cd $CODEBUILD_SRC_DIR
             - pwd
             - cd web
-            - echo "Installing packages... $(NODE_ENV=production yarn install)"
+            - echo "Installing packages... $(NODE_ENV=development yarn install)"
             - echo "Building web...  $(NODE_ENV=production yarn build)"
             #
             #
