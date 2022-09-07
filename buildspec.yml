@@ -46,8 +46,8 @@ phases:
             - cd $CODEBUILD_SRC_DIR
             - pwd
             - cd web
-            - echo "Installing packages... $(yarn install)"
-            - echo "Building web...  $(yarn build)"
+            - echo "Installing packages... $(NODE_ENV=${env} yarn install)"
+            - echo "Building web...  $(NODE_ENV=${env} yarn build)"
             #
             #
             # Docker for API

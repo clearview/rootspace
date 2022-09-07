@@ -6,8 +6,8 @@ COPY ./web/. ./web/
 COPY ./infra/. ./infra/
 
 RUN cd web && \
-    echo "Installing packages... $(yarn install)" && \
-    echo "Building web...  $(yarn build)"
+    echo "Installing packages... $(NODE_ENV=production yarn install)" && \
+    echo "Building web...  $(NODE_ENV=production yarn build)"
 
 FROM nginx:1.22 as infra
 WORKDIR /srv
