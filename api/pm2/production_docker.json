@@ -6,7 +6,6 @@
       "args": "",
       "watch": false,
       "node_args": "",
-      "merge_logs": true,
       "cwd": "/srv",
       "env": {
         "NODE_ENV": "production"
@@ -18,7 +17,6 @@
       "args": "",
       "watch": false,
       "node_args": "",
-      "merge_logs": true,
       "cwd": "/srv",
       "env": {
         "NODE_ENV": "production"
@@ -30,7 +28,6 @@
       "args": "",
       "watch": false,
       "node_args": "",
-      "merge_logs": true,
       "cwd": "/srv",
       "env": {
         "NODE_ENV": "production"
@@ -43,7 +40,6 @@
       "instances"  : 1,
       "watch": false,
       "node_args": "",
-      "merge_logs": true,
       "cwd": "/srv",
       "env": {
         "NODE_ENV": "production"
