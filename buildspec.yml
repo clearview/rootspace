@@ -6,8 +6,20 @@ env:
     WEB_REPOSITORY: rootspace_ecr/web
   parameter-store:
     API_ENDPOINT: "api_app_runner_endpoint"
+    SENDGRID_API_KEY: "sendgrid_api_key"
+    S3_ACCESS_KEY: "s3_access_key"
+    S3_SECRET_KEY: "s3_secret_key"
+    SENTRY_DSN: "sentry_dsn"
+    ARENA_USERNAME: "SENDGRID_API_KEY"
+    ARENA_PASSWORD: "SENDGRID_API_KEY"
   exported-variables: # Export vars to CodePipeline
     - API_ENDPOINT
+    - SENDGRID_API_KEY
+    - S3_ACCESS_KEY
+    - S3_SECRET_KEY
+    - SENTRY_DSN
+    - ARENA_USERNAME
+    - ARENA_PASSWORD
 phases:
     # install:
     #     commands:
@@ -23,7 +35,7 @@ phases:
     build:
         commands:
             #
-            # .ENV foe WEB
+            # .ENV for WEB
             #
             - pwd
             - cd web
