@@ -23,4 +23,4 @@ RUN printenv && \
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
 #CMD ["yarn", "dev:debug"]
-CMD ["pm2-runtime", "pm2/production_docker.json"]
+CMD ["pm2-runtime", "--raw", "pm2/production_docker.json"]
