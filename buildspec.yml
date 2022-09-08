@@ -42,7 +42,7 @@ phases:
             - pwd
             - cd web
             - 'echo VUE_APP_API_URL=https://$API_ENDPOINT>>./.env'
-            - 'echo VUE_APP_YWS_URL=https://$WS_ENDPOINT>>./.env'
+            - 'echo VUE_APP_YWS_URL=wss://$WS_ENDPOINT>>./.env'
             #
             # Docker for WEB
             #
