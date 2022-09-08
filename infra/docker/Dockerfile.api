@@ -1,28 +1,26 @@
-FROM node:16 as base
+FROM node:16-alpine as base
 MAINTAINER nedim@clearview.team
 WORKDIR /srv
 
+COPY ./infra/docker/api/entrypoint.sh /entrypoint.sh
 ADD ./api .
 
-RUN echo "node version is: $(nodejs -v)" && \
+RUN apk add --update python3 make g++ netcat-openbsd net-tools && \
+    rm -rf /var/cache/apk/* && \
+    export NODE_ENV=development && \
+    echo "node version is: $(nodejs -v)" && \
     echo "yarn version is: $(yarn -v)" && \
     echo "Installing packages... $(yarn install --frozen-lockfile --silent)" && \
     echo "Building... $(yarn build)" && \
-    echo "Removing old node_modules... $(rm -rf node_modules)" && \
-    echo "Installing packages for production... $(yarn install --production --frozen-lockfile --silent)"
-
-FROM node:16-alpine
+    echo "Installing packages... $(yarn install --frozen-lockfile --silent)"
 
 RUN echo "Installing PM2... $(npm install -g pm2)"
-
-WORKDIR /srv
-
-COPY --from=base /srv/. /srv/.
 
 RUN printenv && \
     echo "node version is: $(nodejs -v)" && \
     echo "yarn version is: $(yarn -v)"
 
-# ENTRYPOINT ["/bin/sh", "/srv/docker/api/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
-CMD ["yarn", "dev:debug"]
+#CMD ["node", "dist/index.js"]
+CMD ["pm2-runtime", "--raw", "pm2/production_docker.json"]
