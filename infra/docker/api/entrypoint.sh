@@ -15,4 +15,5 @@ echo "Writing S3_SECRET_KEY to .env file... $(echo "S3_SECRET_KEY=$S3_SECRET_KEY
 echo "Writing SENTRY_DSN to .env file... $(echo "SENTRY_DSN=$SENTRY_DSN" >> .env)"
 echo "Writing ARENA_USERNAME to .env file... $(echo "ARENA_USERNAME=$ARENA_USERNAME" >> .env)"
 echo "Writing ARENA_PASSWORD to .env file... $(echo "ARENA_PASSWORD=$ARENA_PASSWORD" >> .env)"
+echo "Running NETSTAT................. $(netstat -tnlp)"
 exec "$@"

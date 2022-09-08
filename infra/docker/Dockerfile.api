@@ -5,7 +5,7 @@ WORKDIR /srv
 COPY ./infra/docker/api/entrypoint.sh /entrypoint.sh
 ADD ./api .
 
-RUN apk add --update python3 make g++ netcat-openbsd && \
+RUN apk add --update python3 make g++ netcat-openbsd net-tools && \
     rm -rf /var/cache/apk/* && \
     export NODE_ENV=development && \
     echo "node version is: $(nodejs -v)" && \
@@ -22,5 +22,5 @@ RUN printenv && \
 
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
 
-CMD ["node", "dist/index.js"]
-#CMD ["pm2-runtime", "--raw", "pm2/production_docker.json"]
+#CMD ["node", "dist/index.js"]
+CMD ["pm2-runtime", "--raw", "pm2/production_docker.json"]
