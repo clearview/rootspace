@@ -57,7 +57,7 @@ services:
     volumes:
       - ./api:/opt/project/
     working_dir: /opt/project
-    command: yarn dev:debug
+    command: yarn start
     networks:
       - backend
       - frontend
