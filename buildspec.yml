@@ -6,6 +6,7 @@ env:
     WEB_REPOSITORY: rootspace_ecr/web
   parameter-store:
     API_ENDPOINT: "api_app_runner_endpoint"
+    WS_ENDPOINT: "web_socket_app_runner_endpoint"
     SENDGRID_API_KEY: "/.env/sendgrid_api_key"
     S3_ACCESS_KEY: "/.env/aws/s3/s3_access_key"
     S3_SECRET_KEY: "/.env/aws/s3/s3_secret_key"
@@ -14,6 +15,7 @@ env:
     ARENA_PASSWORD: "/.env/arena_password"
   exported-variables: # Export vars to CodePipeline
     - API_ENDPOINT
+    - WS_ENDPOINT
     - SENDGRID_API_KEY
     - S3_ACCESS_KEY
     - S3_SECRET_KEY
@@ -40,7 +42,7 @@ phases:
             - pwd
             - cd web
             - 'echo VUE_APP_API_URL=https://$API_ENDPOINT>>./.env'
-            - 'echo VUE_APP_YWS_URL=ws://localhost:6001>>./.env'
+            - 'echo VUE_APP_YWS_URL=https://$WS_ENDPOINT>>./.env'
             #
             # Docker for WEB
             #
