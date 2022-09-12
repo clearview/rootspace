@@ -51,7 +51,9 @@ export default class Server {
     }
 
     this.app.use(express.json())
-    this.app.use(cors())
+    this.app.use(cors({
+      origin: config.cors.origin || '*'
+    }))
     this.app.use(passport.initialize())
     this.app.use(...routers)
 

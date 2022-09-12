@@ -44,5 +44,8 @@
                 }
             }
         }
+    },
+    "cors": {
+        "origin": "@@CORS_ORIGIN"
     }
 }
