@@ -54,5 +54,8 @@
       "className": "MarkOverdueTasks",
       "repeatableOptions": {}
     }
+  },
+  "cors": {
+    "origin": "@@CORS_ORIGIN"
   }
 }
