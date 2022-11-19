@@ -1,6 +1,6 @@
 {
   "env": "@@ENV",
-  "port": 3001,
+  "port": "@@PORT",
   "postgres": "@@POSTGRES",
   "jwt": {
     "accessToken": {
