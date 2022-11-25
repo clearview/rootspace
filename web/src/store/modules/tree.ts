@@ -1,5 +1,5 @@
 import { Module } from 'vuex'
-import { findIndex } from 'lodash'
+import { findIndex, cloneDeep } from 'lodash'
 
 import { RootState, TreeState } from '@/types/state'
 import { NodeResource } from '@/types/resource'
@@ -30,6 +30,19 @@ const TreeModule: Module<TreeState, RootState> = {
         return false
       }
       return (findIndex(state.favorites, { id: data.id }) >= 0)
+    },
+    getNode: state => (type: string, id: number) => {
+      const list = cloneDeep(state.list)
+
+      while (list.length) {
+        const tree = list.pop()
+
+        if (tree?.contentId === id && tree?.type === type) {
+          return tree
+        } else if (tree?.children.length) {
+          list.push(...tree?.children)
+        }
+      }
     }
   },
 

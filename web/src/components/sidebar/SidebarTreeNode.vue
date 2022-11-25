@@ -191,7 +191,7 @@ export default class SidebarTreeNode extends Vue {
   }
 
   get title (): string {
-    if (this.payload.title && this.payload.title.charCodeAt(0) === 1 && this.payload.title.charCodeAt(1) === 2) {
+    if ((this.payload.title && this.payload.title.charCodeAt(0) === 1 && this.payload.title.charCodeAt(1) === 2) || this.payload?.title.trim().length === 0) {
       return 'Untitled'
     }
     return this.payload.title || 'Untitled'
