@@ -10,7 +10,7 @@ api.interceptors.response.use((response) => {
 }, async (error) => {
   const originalConfig = error.config
 
-  if (originalConfig.url !== '/auth/signin' && error.response) {
+  if (originalConfig.url !== 'auth' && error.response) {
     // Refresh Token was expired
     if (originalConfig.url === '/users/token' && error?.response?.status === 401 && !originalConfig._retry) {
       originalConfig._retry = true
@@ -37,6 +37,8 @@ api.interceptors.response.use((response) => {
       }
     }
   }
+
+  return Promise.reject(error)
 })
 
 export function setAPIToken (token: string | null) {
