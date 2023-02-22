@@ -13,7 +13,7 @@
             size="1.5em"
           />
         </span>
-        <p>{{ value.message }}.</p>
+        <p>{{ value.message }}</p>
       </div>
 
       <ul v-if="value.fields">
