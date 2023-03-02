@@ -10,17 +10,17 @@ export class DevSeeder implements Seeder {
         firstName: 'Root',
         lastName: 'Space',
         email: 'rootspace@example.com',
-        password: '$2a$16$hM3EoLYubAYokIL4odHn9uygGVmZuXzCA0L084M3FCH5EE56AD.8K' //rootspace
-  };
+        password: '$2a$16$hM3EoLYubAYokIL4odHn9uygGVmZuXzCA0L084M3FCH5EE56AD.8K' // rootspace
+  }
 
   public async run(factory: Factory, connection: Connection): Promise<any> {
     this.factory = factory
-    let userCount = await connection.manager.count(User, {email: this.demoUserData.email})
-    if (userCount==0){
+    const userCount = await connection.manager.count(User, {email: this.demoUserData.email})
+    if (userCount===0){
       await this.createUser()
     }
   }
-  
+
   private async createUser() {
     return this.factory(User)().create(this.demoUserData)
   }
