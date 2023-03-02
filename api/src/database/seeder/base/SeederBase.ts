@@ -11,7 +11,7 @@ export class SeederBase {
   public space: Space
   public rootNode: Node
 
-  private static instance: SeederBase
+  private static instance: Promise<SeederBase>
 
   private constructor(factory: Factory) {
     this.factory = factory
@@ -22,7 +22,7 @@ export class SeederBase {
       return SeederBase.instance
     }
 
-    return (SeederBase.instance = await SeederBase.create(factory))
+    return (SeederBase.instance = SeederBase.create(factory))
   }
 
   static create(factory: Factory) {
