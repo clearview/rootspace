@@ -4,7 +4,7 @@ module.exports = [{
   name: 'default',
   type: 'postgres',
   url: process.env.POSTGRES,
-  logging: true,
+  logging: false,
   synchronize: false,
   migrationsRun: true,
   seeds: [`${__dirname}/src/database/seeder/seeds/**/*{.ts,.js}`],
