@@ -125,7 +125,7 @@ export interface TaskCommentResource extends ApiResource {
   userId: number | null;
   user: UserResource | null;
   taskId: number | null;
-  content: string;
+  content: string | object;
   task: TaskItemResource | null;
 }
 

@@ -102,16 +102,8 @@
             </p>
           </div>
         </div>
-        <div class="comment-separator"></div>
-        <div class="comment-input">
-          <textarea-autoresize
-            v-if="!archivedView"
-            placeholder="Write a comment…"
-            class="comment-textarea"
-            v-model="commentInput"
-            @submit-comment="commentHandler"
-          />
-        </div>
+        <div class="comment-separator my-2"></div>
+        <SimpleEditor class="mb-10" v-model="commentInput" @save="commentHandler" placeholder="Write a comment ..." />
         <ul class="comments" v-if="orderedComments.length > 0">
           <TaskComment v-for="comment in orderedComments" :comment="comment" :key="comment.id"/>
         </ul>
@@ -210,7 +202,6 @@ import {
 } from '@/types/resource'
 import Field from '@/components/Field.vue'
 import PopoverList from '@/components/PopoverList.vue'
-import TextareaAutoresize from '@/components/TextareaAutoresize.vue'
 import ImageViewer from '@/components/ImageViewer.vue'
 import { Optional } from '@/types/core'
 import TaskComment from '@/views/Task/TaskComment.vue'
@@ -226,6 +217,7 @@ import { formatDueDate } from '@/utils/date'
 import api from '@/utils/api'
 import { ModalInjectedContext, ProfileModal } from '@/components/modal'
 import Editor from '@/components/editor'
+import SimpleEditor from '@/components/editor/SimpleEditor.vue'
 
 @Component({
   name: 'TaskModal',
@@ -238,11 +230,11 @@ import Editor from '@/components/editor'
     MemberPopover,
     TaskComment,
     PopoverList,
-    TextareaAutoresize,
     Modal,
     Field,
     Avatar,
-    ImageViewer
+    ImageViewer,
+    SimpleEditor
   },
   filters: {
     formatDate (date: Date | string) {
@@ -281,7 +273,7 @@ export default class TaskModal extends Vue {
 
     private itemCopy = { ...this.item }
     private isEditingDescription = false
-    private commentInput = ''
+    private commentInput: Object|null = null
     private isUploading = false
     private isUpdatingTitle = false
     private isEditingTitle = false
@@ -308,14 +300,14 @@ export default class TaskModal extends Vue {
       this.cancelDescription()
     }
 
-    handleCreateTag (data) {
+    handleCreateTag (data: any) {
       this.updateTaskItem({
         ...data,
         action: 'createTag'
       })
     }
 
-    handleUpdateTag (data) {
+    handleUpdateTag (data: any) {
       this.updateTaskItem({
         ...data,
         action: 'updateTag'
@@ -412,37 +404,29 @@ export default class TaskModal extends Vue {
       this.isEditingDescription = false
     }
 
-    commentHandler (e: any) {
-      if (e.keyCode === 13 && !e.shiftKey) {
-        e.preventDefault()
-        this.saveComment()
-      }
+    async commentHandler (comment: object) {
+      this.commentInput = comment
+      this.saveComment(comment)
     }
 
-    async saveComment () {
-      if (this.commentInput.trim().length <= 0 || this.isCommenting) {
+    async saveComment (comment: object | any) {
+      if (!comment.content[0].content) {
         return
       }
-      try {
-        this.isCommenting = true
-        const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
-          id: null,
-          content: this.commentInput,
-          taskId: this.item.id
-        }
-        const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
-        this.updateTaskItem({
-          ...commentItem,
-          id: this.item.id,
-          title: this.itemCopy.title,
-          action: 'createComment'
-        })
-        this.commentInput = ''
-      } catch (e) {
 
-      } finally {
-        this.isCommenting = false
+      const commentResource: Optional<TaskCommentResource, 'userId' | 'user' | 'createdAt' | 'updatedAt' | 'task'> = {
+        id: null,
+        content: JSON.stringify(comment),
+        taskId: this.item.id
       }
+      const commentItem = await this.$store.dispatch('task/comment/create', commentResource)
+      this.updateTaskItem({
+        ...commentItem,
+        id: this.item.id,
+        title: this.itemCopy.title,
+        action: 'createComment'
+      })
+      this.commentInput = null
     }
 
     async handleMenu (value: string) {
@@ -571,7 +555,7 @@ export default class TaskModal extends Vue {
       }
     }
 
-    private updateTaskItem (data) {
+    private updateTaskItem (data: any) {
       this.doc.doc.transact(() => {
         this.doc.set(this.taskId, {
           ...data,
@@ -662,6 +646,21 @@ export default class TaskModal extends Vue {
       return this.item.assignees
     }
 
+    get comment () {
+      const raw = this.commentInput
+
+      let result
+      try {
+        if (!raw || typeof raw !== 'string') throw new Error()
+
+        result = JSON.parse(raw)
+      } catch (e) {
+        result = raw || ''
+      }
+
+      return result
+    }
+
     attachmentState () {
       this.isShowAllAttachment = !this.isShowAllAttachment
     }
@@ -725,7 +724,6 @@ export default class TaskModal extends Vue {
 </script>
 
 <style lang="postcss" scoped>
-
   .task-modal-header {
     @apply flex items-start pr-12 pb-2;
     width: 750px;
@@ -1180,7 +1178,6 @@ export default class TaskModal extends Vue {
     line-height: 17px;
     color: theme("colors.gray.800");
   }
-
 </style>
 
 <style lang="postcss">
