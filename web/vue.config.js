@@ -34,5 +34,14 @@ module.exports = {
   chainWebpack: config => config.resolve.symlinks(false),
   transpileDependencies: [
     /[\\/]node_modules[\\/]tiptap.*/
-  ]
+  ],
+  pwa: {
+    themeColor: '#D64141',
+    msTileColor: '#ffffff',
+    workboxPluginMode: 'InjectManifest',
+    workboxOptions: {
+      swSrc: './src/sw.js',
+      swDest: 'service-worker.js'
+    }
+  }
 }

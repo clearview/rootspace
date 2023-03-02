@@ -10,6 +10,7 @@ import Toast from 'vue-toastification'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import './registerServiceWorker'
 
 import LegacyIcon from '@/components/legacy/icon/Icon.vue'
 import { ColorIcon, MonoIcon } from '@/components/icon'
