@@ -119,6 +119,7 @@ export interface TaskItemResource extends ApiResource {
   position: number;
   list: TaskListResource | null;
   taskComments: TaskCommentResource[];
+  deletedAt: Date | null;
 }
 
 export interface TaskCommentResource extends ApiResource {

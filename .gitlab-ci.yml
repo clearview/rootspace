@@ -4,34 +4,10 @@ services:
     command: ["dockerd-entrypoint.sh"]
 
 variables:
-  AWS_ECR_REPO: 207259804926.dkr.ecr.$AWS_REGION.amazonaws.com
-  API_REPOSITORY: rootspace_ecr/api
-  API_REPOSITORY_URL: $AWS_ECR_REPO/$API_REPOSITORY
   DOCKER_HOST: tcp://docker:2375
 
 stages:
   - test
-#  - build_api # disabled, this has been moved to AWS CodeBuild
-
-build_api:
-  image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
-  stage: build_api
-  before_script:
-    - aws --version
-    - docker --version
-  script:
-    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPO
-    - aws ecr create-repository --repository-name $API_REPOSITORY --region $AWS_REGION || true
-    - docker build .
-      --cache-from="$API_REPOSITORY_URL:latest"
-      --tag $API_REPOSITORY_URL:latest
-      --file ./infra/docker/Dockerfile.api
-    - docker push $API_REPOSITORY_URL:latest
-  tags:
-    - docker
-  only:
-    - master
-    - optimize_docker
 
 include:
   - "/api/.gitlab-ci.yml"
