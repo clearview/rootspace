@@ -90,23 +90,7 @@
           </div>
         </div>
         <div class="action-group">
-          <input
-            type="file"
-            ref="attachmentFile"
-            class="attachment-file"
-            @input="handleSubmitFile"
-            multiple
-          />
-          <button
-            class="btn btn-upload"
-            @click="pickFile"
-            :disabled="isUploading"
-            :class="{ uploading: isUploading }"
-            v-if="!showDeletedOnly"
-          >
-            <legacy-icon class="mr-2" name="plus2" size="13" viewbox="15" />
-            Upload File
-          </button>
+          <button-upload-file :isDisabled="isUploading" :handleUploadFile="handleSubmitFile" text="Upload file" />
         </div>
       </div>
     </header>
@@ -125,22 +109,7 @@
             You can drag and drop or click on the button below
           </h4>
           <div class="actions">
-            <input
-              type="file"
-              ref="attachmentFile"
-              class="attachment-file"
-              @input="handleSubmitFile"
-              multiple
-            />
-            <button
-              class="btn btn-upload"
-              @click="pickFile"
-              :disabled="isUploading"
-              :class="{ uploading: isUploading }"
-            >
-              <mono-icon class="icon is-left" name="plus" />
-              Upload File
-            </button>
+            <button-upload-file :isDisabled="isUploading" :handleUploadFile="handleSubmitFile" text="Upload file" />
           </div>
         </div>
       </div>
@@ -170,6 +139,7 @@ import PageMixin from '@/mixins/PageMixin'
 import SpaceMixin from '@/mixins/SpaceMixin'
 import { baseURL } from '@/utils/api'
 
+import ButtonUploadFile from '@/components/ButtonUploadFile.vue'
 import StorageCollection from '@/views/Storage/StorageCollection.vue'
 import Loading from '@/components/Loading.vue'
 
@@ -184,13 +154,11 @@ StreamSaver.WritableStream = ponyfill.WritableStream
 @Component({
   components: {
     StorageCollection,
-    Loading
+    Loading,
+    ButtonUploadFile
   }
 })
 export default class File extends Mixins(PageMixin, SpaceMixin) {
-  @Ref('attachmentFile')
-  private readonly attachmentFileRef!: HTMLInputElement;
-
   private isUploading = false;
   private isDownloading = false;
   private isCapturingFile = false;
@@ -226,10 +194,6 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
 
   get isEmpty () {
     return !(this.totalData || this.tempItems.length || this.search || this.showDeletedOnly)
-  }
-
-  pickFile () {
-    this.attachmentFileRef.click()
   }
 
   captureDragFile () {
@@ -288,8 +252,8 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
     }
   }
 
-  async handleSubmitFile () {
-    const files = this.attachmentFileRef.files
+  async handleSubmitFile (event: Event) {
+    const files = (event.target as HTMLInputElement).files
 
     if (files) {
       await this.uploadFiles(files)
@@ -350,7 +314,7 @@ export default class File extends Mixins(PageMixin, SpaceMixin) {
   }
 
   async uploadFiles (files: FileList) {
-    if (!files) return
+    if (!files || files.length === 0) return
 
     this.isUploading = true
 
