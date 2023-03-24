@@ -1,0 +1,32 @@
+@import 'tailwindcss/utilities';
+
+.separator {
+  @apply w-full text-center;
+  @apply border-b border-secondary;
+
+  line-height: 0.1em;
+  margin: 10px 0 20px;
+
+  & .separator-text {
+    @apply bg-white;
+
+    padding: 0 10px;
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.icon-checkmark {
+  @apply rounded-full;
+  @apply flex justify-center items-center;
+
+  background: theme("colors.primary.default");
+  position: absolute;
+  right: 16px;
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #FFFFFF;
+}

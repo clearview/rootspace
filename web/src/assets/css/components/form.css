@@ -1,0 +1,38 @@
+form {
+  .form-group {
+    position: relative;
+
+      .icon {
+        position: absolute;
+        top: calc(30%);
+        right: 8px;
+        color: theme('colors.gray.800');
+      }
+  }
+
+  .form-border {
+    @apply border rounded border-gray-100;
+
+    color: theme('colors.gray.900');
+  }
+
+  label {
+    color: theme('colors.gray.800');
+  }
+
+  .error-group {
+    @apply ml-2 mt-1;
+
+    font-size: 0.75rem;
+    line-height: 1;
+    color: theme('colors.primary.default');
+  }
+
+  .success-group {
+    @apply ml-2 mt-1;
+
+    font-size: 0.75rem;
+    line-height: 1;
+    color: theme('colors.success.default');
+  }
+}

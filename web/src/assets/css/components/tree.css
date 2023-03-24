@@ -1,0 +1,156 @@
+.tree {
+  @apply w-full h-auto;
+}
+
+.tree-node-back {
+  @apply relative w-full;
+  margin: 6px auto;
+}
+.readonly .tree-node-back {
+  margin: 0;
+}
+
+.tree-placeholder-node{
+  @apply relative cursor-pointer;
+
+  border-radius: 4px;
+  height: 0;
+  width: 100%;
+  overflow: visible;
+  padding-left: 56px;
+  padding-right: 16px;
+  box-sizing: border-box;
+  /*Red Line*/
+  &::after {
+    content: '';
+    display: block;
+    background: #D83750;
+    height: 2px;
+    width: calc(100% - 64px);
+    box-sizing: border-box;
+    position: absolute;
+    top: -2px;
+  }
+  /*Red Ricle*/
+  &::before {
+     content: '';
+     display: block;
+     width: 10px;
+     height: 10px;
+     border:solid 2px #D83750;
+     border-radius: 100%;
+     position: absolute;
+     top: -6px;
+     left: 48px;
+   }
+}
+
+.tree-node-content {
+  @apply flex flex-row flex-1;
+
+  padding: 9px 0 9px 8px;
+  border-radius: 4px;
+  margin: 0 16px;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover,
+  &.is-active {
+    background: #EFF1F6;
+    .tree-node-icon {
+      color: #2C2B35;
+    }
+  }
+  &.is-context-open {
+    background: #EFF1F6;
+  }
+}
+
+.tree-node-handle,
+.tree-node-arrow,
+.tree-node-icon,
+.tree-node-actions {
+  @apply flex flex-initial items-center;
+  color: #AAB1C5;
+  fill: transparent;
+
+  margin-right: 8px;
+}
+
+.tree-node-handle {
+  @apply invisible cursor-pointer;
+  @apply mr-0;
+}
+
+.tree-node-label {
+  @apply flex flex-row flex-1 cursor-pointer;
+}
+
+.tree-node-arrow {
+  @apply cursor-pointer;
+
+  transition: transform .3s;
+
+  &.is-hidden {
+    @apply invisible;
+  }
+
+  &.is-folded {
+    transform: rotate(-90deg);
+  }
+}
+
+.tree-node-text {
+  @apply block;
+  @apply overflow-hidden leading-tight;
+  font-weight: 500;
+
+  input {
+    @apply outline-none;
+
+    width: calc(100% - 2em - 6px);
+  }
+}
+
+.tree-node-actions {
+  @apply invisible ml-1;
+
+  height: 1em;
+}
+
+.tree-node-content.is-editable {
+  @apply cursor-auto;
+
+  .tree-node-handle {
+    @apply visible;
+  }
+
+  .tree-node-actions {
+    @apply block;
+  }
+}
+
+.tree-node-content:hover,
+.tree-node-content.is-context-open {
+  .tree-node-actions {
+    visibility: visible;
+  }
+}
+
+.tree.tree--dragging {
+  .tree-node-content {
+    &:hover,
+    &.is-active {
+      @apply bg-transparent;
+    }
+  }
+
+  /*.tree-branch:hover:not(.tree-placeholder) > .tree-node-back > .tree-node:hover:first-child > .tree-node-content:first-child {*/
+  /*  background: #F9DFE3;*/
+  /*  border: 1px solid #D83750;*/
+  /*}*/
+
+  .dragging > .tree-node-back > .tree-node > .tree-node-content {
+    @apply bg-gray-100;
+  }
+}

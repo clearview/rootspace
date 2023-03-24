@@ -1,0 +1,18 @@
+@import 'tailwindcss/components';
+
+@import './alert';
+@import './btn';
+@import './editor';
+@import './field';
+@import './input';
+/* @import './modal'; */
+@import './nav';
+@import './select';
+@import './sidebar';
+@import './layout';
+@import './list';
+@import './textarea';
+@import './tree';
+@import './tooltip';
+@import './calendar';
+@import './checkbox';

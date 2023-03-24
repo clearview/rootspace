@@ -1,0 +1,30 @@
+.alert {
+  @apply flex flex-row items-center;
+  @apply p-3 my-2;
+  @apply bg-gray-100 text-gray-900;
+  @apply leading-none font-medium;
+
+  line-height: 1.5;
+
+  .message {
+    @apply flex flex-row;
+  }
+
+  &.alert-primary {
+    @apply text-primary;
+
+    background-color: rgba(theme('colors.primary.default'), 0.1);
+  }
+
+  &.alert-success {
+    @apply text-success;
+
+    background-color: rgba(theme('colors.success.default'), 0.1);
+  }
+
+  &.alert-danger {
+    @apply text-danger;
+
+    background-color: rgba(theme('colors.danger.default'), 0.1);
+  }
+}

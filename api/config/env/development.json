@@ -1,0 +1,51 @@
+{
+    "port": "@@PORT",
+    "postgres": "@@POSTGRES",
+    "google": {
+        "clientID": "@@GOOGLE_CLIENT_ID",
+        "clientSecret": "@@GOOGLE_CLIENT_SECRET",
+        "callbackPath": "/auth/google/callback"
+    },
+    "mail": {
+        "client": "@@MAIL_CLIENT",
+        "from": "root@example.com",
+        "sendgrid": {
+            "api_key": "@@SENDGRID_API_KEY"
+        }
+    },
+    "s3": {
+        "bucket": "cv-root-staging",
+        "accessKey": "@@S3_ACCESS_KEY",
+        "secretKey": "@@S3_SECRET_KEY"
+    },
+    "uploadDir": "../uploads",
+    "domain": "http://localhost:3000",
+    "domainSignupPath": "/signup",
+    "domainEmailConfirmationPath": "/confirm-email",
+    "domainPasswordResetPath": "/password-reset",
+    "domainInviteAcceptPath": "/invitation",
+    "sentry": {
+        "dsn": null
+    },
+    "redis": {
+        "host": "@@REDIS_HOST",
+        "port": "@@REDIS_PORT"
+    },
+    "arena": {
+        "username": "@@ARENA_USERNAME",
+        "password": "@@ARENA_PASSWORD"
+    },
+    "cron": {
+        "markOverdueTask": {
+            "className": "MarkOverdueTasks",
+            "repeatableOptions": {
+                "repeat": {
+                    "every": 10000
+                }
+            }
+        }
+    },
+    "cors": {
+        "origin": "@@CORS_ORIGIN"
+    }
+}

@@ -1,0 +1,89 @@
+.select {
+  @apply relative;
+  @apply flex flex-1 flex-col;
+  @apply py-2 px-3 my-2;
+  @apply border rounded border-gray-400;
+
+  .vs__dropdown-toggle {
+    @apply flex flex-1 flex-row items-center;
+  }
+
+  &.grid {
+    .vs__selected-options {
+      @apply mr-4;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-gap: 8px;
+    }
+  }
+
+  .vs__selected-options {
+    @apply flex flex-row flex-1;
+
+    .vs__selected {
+      @apply flex flex-auto;
+    }
+
+    .vs__search {
+      @apply flex flex-1;
+
+      &:focus {
+        @apply outline-none;
+      }
+    }
+  }
+
+  .vs__dropdown-menu {
+    @apply absolute left-0;
+    @apply m-0 p-2 w-full;
+    @apply bg-white shadow;
+    @apply overflow-scroll z-10;
+
+    top: calc(100% + 1px);
+    max-height: 300px;
+  }
+
+  .vs__dropdown-option {
+    @apply py-2 px-3;
+    @apply cursor-pointer;
+  }
+
+  .vs__dropdown-option--highlight {
+    background-color: rgba(theme('colors.gray.100'), .5)
+  }
+
+  .vs__actions {
+    @apply flex flex-row items-center;
+    @apply text-gray-400;
+  }
+
+  .vs__clear {
+    @apply border-none pr-1;
+
+    svg {
+      @apply fill-current;
+    }
+  }
+
+  .vs__open-indicator {
+    @apply fill-current;
+  }
+
+  /* Modifier */
+  &.vs--open,
+  &.vs--loading {
+    .vs__dropdown-toggle {
+      @apply rounded-b-none;
+    }
+
+    .vs__selected {
+      @apply absolute opacity-50;
+    }
+  }
+
+  &.vs--searching {
+    .vs__selected {
+      @apply hidden;
+    }
+  }
+}

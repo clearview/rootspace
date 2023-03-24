@@ -1,0 +1,31 @@
+version: "3.3"
+
+services:
+  dozzle:
+    container_name: root_dozzle
+    image: amir20/dozzle:latest
+    environment:
+      - DOZZLE_TAILSIZE=100
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9999:8080"
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: root_mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - frontend
+      - backend
+
+networks:
+  backend:
+  frontend:
+
+
+volumes:
+  postgres:
+  redis:

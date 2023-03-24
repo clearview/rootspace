@@ -1,0 +1,5 @@
+version: "3.3"
+
+services:
+  api:
+    command: sh -c "yarn typeorm migration:run && yarn seed:run:dev"

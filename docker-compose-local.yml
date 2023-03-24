@@ -1,0 +1,82 @@
+version: "3.3"
+
+services:
+
+  api:
+    container_name: root_api
+    image: root_api
+    volumes:
+      - ./api:/opt/project/
+      - /opt/project/node_modules
+    command: sh -c "yarn typeorm migration:run && yarn start"
+      - "9229:9229"
+    environment:
+      NODE_ENV: development
+
+  y_websocket:
+    image: root_api
+    container_name: root_y_websocket
+    volumes:
+      - ./api:/opt/project/
+      - /opt/project/node_modules
+    command: yarn y-websocket
+    networks:
+      - backend
+    ports:
+      - "6001:6001"
+      - "9232:9232"
+    environment:
+      NODE_ENV: development
+
+  queue_activity:
+    image: root_api
+    container_name: root_queue_activity
+    volumes:
+      - ./api:/opt/project/
+      - /opt/project/node_modules
+    command: yarn queue:process
+    networks:
+      - backend
+    ports:
+      - "9230:9230"
+    environment:
+      NODE_ENV: development
+
+  queue_cron:
+    image: root_api
+    container_name: root_queue_cron
+    depends_on:
+      - api
+      - postgres
+      - redis
+    volumes:
+      - ./api:/opt/project/
+      - /opt/project/node_modules
+    command: yarn queue:cron
+    networks:
+      - backend
+    ports:
+      - "9231:9231"
+    environment:
+      NODE_ENV: development
+
+  web:
+    container_name: root_web
+    image: root_web
+    depends_on:
+      - api
+    networks:
+      - frontend
+    ports:
+      - "3000:3000"
+      - "8080:3000"
+    environment:
+      NODE_ENV: production
+
+networks:
+  backend:
+  frontend:
+
+volumes:
+  postgres:
+  redis:

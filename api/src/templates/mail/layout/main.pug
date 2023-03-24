@@ -1,0 +1,47 @@
+doctype html
+html
+    head
+        style.
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                color: #414141;
+            }
+
+            .content {
+                padding: 10px 40px 10px 40px;
+                box-sizing: border-box;
+                font-size: 12px;
+            }
+
+            .header {
+                padding: 16px;
+                text-align: center;
+            }
+
+            .title {
+                margin: 5px 0 5px 0;
+                font-size: 14px;
+            }
+
+            .footer {
+                padding: 24px 40px;
+                font-size: 12px;
+                opacity: 0.75;
+            }
+
+            .footer span {
+                margin-bottom: 8px;
+            }
+
+            .note {
+                padding-top: 20px;
+            }
+    body
+        section(class="email")
+            main(class="content")
+                block content
+            footer(class="footer")
+                span This email was sent automatically by Rootspace |
+                span  Copyright &copy; #{new Date().getFullYear()} Rootspace. All rights reserved.
