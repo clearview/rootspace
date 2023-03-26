@@ -90,20 +90,41 @@ docker compose up
 > Other values filled at your discretion, please check the api/.env.example
 
 ## :brain: Debug & Test Options  
-  
+
 * Set `logging: true` in `api/db/db.ts` to see in console all SQL queries sent to PostgreSQL server  
-  
+
 * You can also run `docker-compose up` or `docker-compose up -d` from `tests` directory to bring up ephemeral testing postgres database.  
-  
+
 * If you need Mailhog, Dozzle or Arena containers, you can also spin those in addition to previous  
 
 ```bash
-$ docker compose -f docker-compose.yml -f docker-compose-dev.yml up
+docker compose -f docker-compose.yml -f docker-compose-dev.yml up
 ```
-  
+
   > Access Arena at (use user/pass from api/.env file) at http://localhost:3001/arena  
   > Access Dozzle to watch container logs in realtime at http://localhost:9999  
   > Access sent emails with Mailhog at http://localhost:8025  
+
+To test the Docker images locally use the following command
+
+```bash
+docker buildx bake local --load
+docker compose -f docker-compose.yml -f docker-compose-local.yml up --force-recreate
+```
+
+## :hammer_and_wrench: Build the Docker images
+
+Build and push to Dockerhub.
+
+```bash
+docker buildx bake --push
+```
+
+Build for local use.
+
+```bash
+docker buildx bake local --load
+```
 
 ## :card_index_dividers: API docs
 
@@ -113,5 +134,5 @@ You can use [Insomnia](https://insomnia.rest/) and a file `assets/insomnia.json`
 ![GitHub](https://img.shields.io/github/license/clearview/rootspace)  
 
 ## :man_technologist: Developed at <img width="22" src="https://github.com/clearview/rootspace/blob/main/assets/cv.jpeg?raw=true" /> [Clearview](https://www.clearview.team)  
-  
+
 **Team**: Adi Utama, Aditya Purwa, Adnan Puzic, Aid Arslanagic, Arfan Fudyartanto, Jasmin Ihtijarevic, Januar Fonti, Mirza Eka, Mujo Kodro, Nedim Hadzimahmutovic, Taufan Fadhilah Iskandar, Vedran Alajbegovic  
