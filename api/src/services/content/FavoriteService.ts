@@ -21,7 +21,7 @@ export class FavoriteService {
   }
 
   getById(id: number): Promise<Favorite | undefined> {
-    return this.getFavoriteRepository().findOne(id)
+    return this.getFavoriteRepository().findOne({where: {id}})
   }
 
   async requireById(id: number): Promise<Favorite> {

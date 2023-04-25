@@ -30,7 +30,7 @@ export class NotificationService {
       throw clientError('Notification not found', HttpErrName.EntityNotFound, HttpStatusCode.NotFound)
     }
 
-    return this.getNotificationRepository().findOne(id)
+    return this.getNotificationRepository().findOne({where: {id}})
   }
 
   async create(activity: Activity, userId: number): Promise<Notification> {

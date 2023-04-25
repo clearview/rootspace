@@ -19,7 +19,7 @@ describe('Database', () => {
 
         const userRepository = getCustomRepository(UserRepository)
 
-        const loadedUser = await userRepository.findOne({ email })
+        const loadedUser = await userRepository.findOne({ where: { email } })
         expect(loadedUser.email).toBe(user.email)
     })
 

@@ -50,7 +50,7 @@ export class ActivityService implements IActivityObserver {
   }
 
   getById(id: number): Promise<Activity | undefined> {
-    return this.getActivityRepository().findOne(id)
+    return this.getActivityRepository().findOne({where: {id}})
   }
 
   async getBySpaceId(spaceId: number, filter: any = {}, options: any = {}): Promise<Activity[]> {
