@@ -1,12 +1,12 @@
-# <img width="25" src="https://github.com/clearview/rootspace/blob/main/web/src/assets/logo.png?raw=true" /> Rootspace app
+# <img width="25" src="https://github.com/clearview/rootspace/blob/main/web/src/assets/logo.png?raw=true" /> Rootspace
 
-Rootspace is an innovative and lightweight work management software that offers important features for projects that require online collaboration and task management.  
-<br>
-It consists of features such as file-sharing, task boards, document editing, and other powerful integrations. Additionally, we have used this platform as a means of encouraging knowledge-sharing and experimentation with emerging technologies among Clearview LLC's team members.  
-<br>
+Rootspace is an open-source, lightweight work management software equipped with essential features, perfect for projects requiring online collaboration and task management.
+
+It consists of features such as file-sharing, task boards, document editing, and other powerful features. Additionally, we have used this platform as a means of encouraging knowledge-sharing and experimentation with emerging technologies among Clearview.team members.  
+
 One of Rootspace's strongest attributes is its user-friendly design, as well as its ease of deployment and maintenance. The interface is highly intuitive and user-friendly, making it accessible even to the least-experienced team members. It also has the capability to expand its functionality, with new features easily.  
-<br>
-Rootspace provides a centralized repository for all project information, eliminating the need to search for scattered emails containing URLs, files, access tokens, keys, passwords, and file links, allowing everyone to quickly jump into the project without wasting time searching for information.  
+
+Rootspace provides a centralized repository for all project information, eliminating the need to search for scattered emails containing URLs, files, docs, and file links, allowing everyone to quickly jump into the project without wasting time searching for information.  
 
 #### To start exploring Rootspace immediately, simply follow the link:  :link: <a href="https://rootspace.app/" target="_blank">https://rootspace.app/</a>
 
