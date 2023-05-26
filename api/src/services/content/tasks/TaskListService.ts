@@ -40,7 +40,7 @@ export class TaskListService extends Service {
   }
 
   async getById(id: number): Promise<TaskList | undefined> {
-    return this.getTaskListRepository().findOne(id)
+    return this.getTaskListRepository().findOne({where: {id}})
   }
 
   async requireById(id: number): Promise<TaskList> {
@@ -71,8 +71,8 @@ export class TaskListService extends Service {
   }
 
   async create(data: any): Promise<TaskList> {
-    data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
-    data.board = await this.getTaskBoardRepository().findOneOrFail(data.boardId)
+    data.space = await this.getSpaceRepository().findOneOrFail({where: {id: data.spaceId}})
+    data.board = await this.getTaskBoardRepository().findOneOrFail({where: {id: data.boardId}})
 
     const taskList = await this.getTaskListRepository().save(data)
     await this.notifyActivity(TaskListActivity.created(taskList, taskList.userId))

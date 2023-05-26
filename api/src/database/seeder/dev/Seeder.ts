@@ -15,7 +15,7 @@ export class DevSeeder implements Seeder {
 
   public async run(factory: Factory, connection: Connection): Promise<any> {
     this.factory = factory
-    const userCount = await connection.manager.count(User, {email: this.demoUserData.email})
+    const userCount = await connection.manager.count(User, {where:{ email: this.demoUserData.email}})
     if (userCount===0){
       await this.createUser()
     }

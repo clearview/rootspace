@@ -1,9 +1,9 @@
-import { Repository } from 'typeorm'
+import { FindOptionsWhere, Repository } from 'typeorm'
 
 interface WithId { id: number }
 
-export abstract class BaseRepository<T> extends Repository<T> {
-    public reload<ET extends WithId>(entity: ET): Promise<ET> {
-        return this.findOneOrFail(entity.id) as any
+export abstract class BaseRepository<T extends WithId> extends Repository<T> {
+    public reload(entity: T): Promise<T> {
+        return this.findOneByOrFail({id:entity.id} as FindOptionsWhere<T>) as any
     }
 }

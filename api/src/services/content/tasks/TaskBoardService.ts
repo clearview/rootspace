@@ -101,7 +101,7 @@ export class TaskBoardService extends NodeContentService {
   }
 
   async save(data: any, parentId?: number): Promise<TaskBoard & Node> {
-    data.space = await this.getSpaceRepository().findOneOrFail(data.spaceId)
+    data.space = await this.getSpaceRepository().findOneOrFail({where: {id: data.spaceId}})
     let taskBoard = await this.getTaskBoardRepository().save(data)
 
     let value = NodeCreateValue.fromObject({

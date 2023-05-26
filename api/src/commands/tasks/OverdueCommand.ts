@@ -24,14 +24,14 @@ export class OverdueCommand {
   private static async updateTasks() {
     // tslint:disable-next-line:no-console
     console.log(chalk.yellow('Updating isOverdue...'))
-    const yesterday = moment().subtract(1, 'days')
+    const yesterday = moment().subtract(1, 'days').toDate()
 
     const repository = getCustomRepository(TaskRepository)
-    const tasks = await repository.find(
-      {
+    const tasks = await repository.find({
+      where: {
         isOverdue: false,
         dueDate: LessThan(yesterday)
-      })
+      }})
 
     for (const task of tasks) {
       task.isOverdue = OverdueCommand.isOverdue(task)

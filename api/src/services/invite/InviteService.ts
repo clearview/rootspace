@@ -24,7 +24,7 @@ export class InviteService extends Service {
   }
 
   getInviteById(id: number): Promise<Invite | undefined> {
-    return this.getInviteRepository().findOne(id)
+    return this.getInviteRepository().findOne({where: {id}})
   }
 
   async requireInviteById(id: number): Promise<Invite> {

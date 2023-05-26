@@ -27,14 +27,14 @@ export class FollowService {
   }
 
   async getById(id: number): Promise<Follow> {
-    return this.getFollowRepository().findOneOrFail(id)
+    return this.getFollowRepository().findOneOrFail({where: {id}})
   }
 
   async getFollowsForActivity(activity: Activity): Promise<Follow[]> {
-    const follows = await this.getFollowRepository().find({
+    const follows = await this.getFollowRepository().find({where:{
       entityId: activity.entityId,
       entity: activity.entity,
-    })
+    }})
 
     return follows.filter((follow) => {
       return follow.userId !== activity.actorId
@@ -50,31 +50,31 @@ export class FollowService {
   }
 
   async followFromRequest(userId: number, entity: any): Promise<Follow> {
-    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const user = await this.userService.getUserRepository().findOneOrFail({where: {id: userId}})
     return this.follow(user, entity)
   }
 
   async unfollowFromRequest(userId: number, entity: any): Promise<Follow> {
-    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const user = await this.userService.getUserRepository().findOneOrFail({where: {id: userId}})
     return this.unfollow(user, entity)
   }
 
   async followEntity(userId: number, entity: any): Promise<Follow> {
-    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const user = await this.userService.getUserRepository().findOneOrFail({where: {id: userId}})
     return this.follow(user, entity)
   }
 
   async unfollowEntity(userId: number, entity: any): Promise<Follow> {
-    const user = await this.userService.getUserRepository().findOneOrFail(userId)
+    const user = await this.userService.getUserRepository().findOneOrFail({where: {id: userId}})
     return this.unfollow(user, entity)
   }
 
   async follow(user: User, entity: any): Promise<Follow> {
-    const follow = await this.getFollowRepository().findOne({
+    const follow = await this.getFollowRepository().findOne({where: {
       userId: user.id,
       entityId: entity.id,
       entity: entity.constructor.name,
-    })
+    }})
 
     if (follow) {
       return follow
@@ -91,11 +91,11 @@ export class FollowService {
   }
 
   async unfollow(user: User, entity: any): Promise<Follow> {
-    const follow = await this.getFollowRepository().findOne({
+    const follow = await this.getFollowRepository().findOne({where: {
       userId: user.id,
       entityId: entity.id,
       entity: entity.constructor.name,
-    })
+    }})
 
     if (!follow) {
       return

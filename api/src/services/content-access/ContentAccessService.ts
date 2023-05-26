@@ -37,7 +37,7 @@ export class ContentAccessService extends Service {
   }
 
   getById(id: number): Promise<ContentAccess> {
-    return this.getRepository().findOne(id)
+    return this.getRepository().findOne({where: {id}})
   }
 
   async requireById(id: number): Promise<ContentAccess> {
