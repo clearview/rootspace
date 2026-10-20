@@ -8,9 +8,6 @@ One of Rootspace's strongest attributes is its user-friendly design, as well as 
 
 Rootspace provides a centralized repository for all project information, eliminating the need to search for scattered emails containing URLs, files, docs, and file links, allowing everyone to quickly jump into the project without wasting time searching for information.  
 
-#### To start exploring Rootspace immediately, simply follow the link:  :link: <a href="https://rootspace.app/" target="_blank">https://rootspace.app/</a>
-
-
 <!-- ABOUT THE PROJECT -->
 <h2 id="about-the-project"> :computer: Rootspace runs with</h2>
 
