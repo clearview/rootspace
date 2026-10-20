@@ -5,12 +5,12 @@ import moment from 'moment'
 
 export class MarkOverdueTasks {
   static async run() {
-    const yesterday = moment().subtract(1, 'days')
-    const tasks = await getCustomRepository(TaskRepository).find(
-      {
+    const yesterday = moment().subtract(1, 'days').toDate();
+    const tasks = await getCustomRepository(TaskRepository).find({
+      where: {
         isOverdue: false,
         dueDate: LessThan(yesterday)
-      }
+      }}
     )
 
     for (const task of tasks) {

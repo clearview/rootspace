@@ -74,7 +74,7 @@ export class UserService extends Service {
   }
 
   getUserByTokenAndId(token: string, userId: number): Promise<User | undefined> {
-    return this.getUserRepository().findOne(userId, { where: { token } })
+    return this.getUserRepository().findOne({ where: { id: userId, token } })
   }
 
   getPasswordResetByToken(token: string): Promise<PasswordReset | undefined> {
@@ -82,7 +82,7 @@ export class UserService extends Service {
   }
 
   getPasswordResetById(id: number): Promise<PasswordReset | undefined> {
-    return this.getPasswordResetRepository().findOne(id)
+    return this.getPasswordResetRepository().findOne({where: {id}})
   }
 
   async confirmEmail(token: string, userId: number): Promise<User> {

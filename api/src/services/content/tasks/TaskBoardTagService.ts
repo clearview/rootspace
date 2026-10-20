@@ -18,11 +18,11 @@ export class TaskBoardTagService {
   }
 
   async getById(id: number): Promise<Tag> {
-    return this.getTagRepository().findOneOrFail(id)
+    return this.getTagRepository().findOneOrFail({where: {id}})
   }
 
   async getByTaskBoardId(id: number): Promise<Tag[]> {
-    return this.getTagRepository().find({ boardId: id })
+    return this.getTagRepository().find({where: { boardId: id }})
   }
 
   async create(data: any): Promise<Tag> {

@@ -36,7 +36,7 @@ export class DeleteCommand {
 
   private static async deleteSpace(id: number) {
     const spaceRepository = getCustomRepository(SpaceRepository)
-    const space = await spaceRepository.findOne(id)
+    const space = await spaceRepository.findOne({where: {id}})
 
     if (space) {
       // tslint:disable-next-line:no-console
@@ -54,7 +54,7 @@ export class DeleteCommand {
 
     // Docs
     const docsRepository = getCustomRepository(DocRepository)
-    const docs = await docsRepository.find({spaceId: id})
+    const docs = await docsRepository.find({where: {spaceId: id}})
     if (docs) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting docs ...`))
@@ -64,7 +64,7 @@ export class DeleteCommand {
 
     // Docs Revisions
     const docsRevisionsRepository = getCustomRepository(DocRevisionRepository)
-    const docsRevisions = await docsRevisionsRepository.find({spaceId: id})
+    const docsRevisions = await docsRevisionsRepository.find({where: {spaceId: id}})
     if (docsRevisions) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting doc revisions ...`))
@@ -74,7 +74,7 @@ export class DeleteCommand {
 
     // Embeds
     const embedsRepository = getCustomRepository(EmbedRepository)
-    const embeds = await embedsRepository.find({spaceId: id})
+    const embeds = await embedsRepository.find({where: {spaceId: id}})
     if (embeds) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting embeds ...`))
@@ -84,7 +84,7 @@ export class DeleteCommand {
 
     // Favorites
     const favoritesRepository = getCustomRepository(FavoriteRepository)
-    const favorites = await favoritesRepository.find({spaceId: id})
+    const favorites = await favoritesRepository.find({where: {spaceId: id}})
     if (favorites) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting favorites ...`))
@@ -94,7 +94,7 @@ export class DeleteCommand {
 
     // Folders
     const foldersRepository = getCustomRepository(FolderRepository)
-    const folders = await foldersRepository.find({spaceId: id})
+    const folders = await foldersRepository.find({where: {spaceId: id}})
     if (folders) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting folders ...`))
@@ -107,7 +107,7 @@ export class DeleteCommand {
 
     // Invites
     const invitesRepository = getCustomRepository(InviteRepository)
-    const invites = await invitesRepository.find({spaceId: id})
+    const invites = await invitesRepository.find({where: {spaceId: id}})
     if (invites) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting invites ...`))
@@ -117,7 +117,7 @@ export class DeleteCommand {
 
     // Links
     const linksRepository = getCustomRepository(LinkRepository)
-    const links = await linksRepository.find({spaceId: id})
+    const links = await linksRepository.find({where: {spaceId: id}})
     if (links) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting links ...`))
@@ -127,7 +127,7 @@ export class DeleteCommand {
 
     // Nodes
     const nodesRepository = getCustomRepository(NodeRepository)
-    const nodes = await nodesRepository.find({spaceId: id})
+    const nodes = await nodesRepository.find({where: {spaceId: id}})
     if (nodes) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting nodes ...`))
@@ -137,7 +137,7 @@ export class DeleteCommand {
 
     // Notifications
     const notificationsRepository = getCustomRepository(NotificationRepository)
-    const notifications = await notificationsRepository.find({spaceId: id})
+    const notifications = await notificationsRepository.find({where: {spaceId: id}})
     if (notifications) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting notifications ...`))
@@ -148,7 +148,7 @@ export class DeleteCommand {
     // Uploads
     // Todo: Delete files from remote storage
     const uploadsRepository = getCustomRepository(UploadRepository)
-    const uploads = await uploadsRepository.find({spaceId: id})
+    const uploads = await uploadsRepository.find({where: {spaceId: id}})
     if (uploads) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting uploads ...`))
@@ -158,7 +158,7 @@ export class DeleteCommand {
 
     // User Settings
     const userSettingsRepository = getCustomRepository(UserSettingRepository)
-    const settings = await userSettingsRepository.find({spaceId: id})
+    const settings = await userSettingsRepository.find({where: {spaceId: id}})
     if (settings) {
       // tslint:disable-next-line:no-console
       console.log(chalk.yellow(`Deleting user settings ...`))

@@ -29,7 +29,7 @@ export class TaskCommentService extends Service {
   }
 
   async getById(id: number): Promise<TaskComment> {
-    return this.getTaskCommentRepository().findOneOrFail(id)
+    return this.getTaskCommentRepository().findOneOrFail({where: {id}})
   }
 
   async create(data: any): Promise<TaskComment> {

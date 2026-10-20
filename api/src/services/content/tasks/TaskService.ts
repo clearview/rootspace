@@ -53,9 +53,9 @@ export class TaskService extends Service {
   }
 
   async create(data: any): Promise<Task> {
-    data.list = await this.getTaskListRepository().findOneOrFail(data.listId)
-    data.board = await this.getTaskBoardRepository().findOneOrFail(data.list.boardId)
-    data.space = await this.getSpaceRepository().findOneOrFail(data.board.spaceId)
+    data.list = await this.getTaskListRepository().findOneOrFail({where: {id: data.listId}})
+    data.board = await this.getTaskBoardRepository().findOneOrFail({where: {id: data.list.boardId}})
+    data.space = await this.getSpaceRepository().findOneOrFail({where: {id: data.board.spaceId}})
 
     const task = await this.getTaskRepository().save(data)
     await this.notifyActivity(TaskActivity.created(task, task.userId))
@@ -78,8 +78,8 @@ export class TaskService extends Service {
     await this.notifyActivity(TaskActivity.updated(task, updatedTask, actorId))
 
     if (task.listId !== updatedTask.listId) {
-      const oldList = await this.getTaskListRepository().findOne(task.listId)
-      const newList = await this.getTaskListRepository().findOne(updatedTask.listId)
+      const oldList = await this.getTaskListRepository().findOne({where: {id: task.listId}})
+      const newList = await this.getTaskListRepository().findOne({where: {id: updatedTask.listId}})
 
       this.notifyActivity(TaskActivity.listMoved(updatedTask, oldList, newList, actorId))
     }
@@ -126,7 +126,7 @@ export class TaskService extends Service {
   }
 
   async remove(taskId: number, actorId: number) {
-    const task = await this.getTaskRepository().findOneOrFail(taskId, { withDeleted: true })
+    const task = await this.getTaskRepository().findOneOrFail({where: {id: taskId}, withDeleted: true})
 
     await this.notifyActivity(TaskActivity.deleted(task, actorId))
     return this.getTaskRepository().remove(task)

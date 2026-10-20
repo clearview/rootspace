@@ -15,6 +15,7 @@
   "exclude": [
     "node_modules",
     "dist",
-    "test"
+    "test",
+    "./src/database/seeder/**/*.ts"
   ]
 }

@@ -30,7 +30,7 @@ export class BoardIdCommand {
       .getMany()
 
     for (const task of tasks) {
-      const taskList = await getCustomRepository(TaskListRepository).findOne(task.listId)
+      const taskList = await getCustomRepository(TaskListRepository).findOne({where: {id: task.listId}})
 
       task.boardId = taskList.boardId
     }

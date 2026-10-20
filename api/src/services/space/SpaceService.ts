@@ -20,7 +20,7 @@ export class SpaceService {
   }
 
   getSpaceById(id: number): Promise<Space | undefined> {
-    return this.getSpaceRepository().findOne(id)
+    return this.getSpaceRepository().findOne({where: {id}})
   }
 
   async requireSpaceById(id: number): Promise<Space> {
@@ -47,7 +47,7 @@ export class SpaceService {
   }
 
   async update(data: SpaceUpdateValue, id: number): Promise<Space> {
-    const space = await this.getSpaceRepository().findOne(id)
+    const space = await this.getSpaceRepository().findOne({where: {id}})
 
     if (!space) {
       throw clientError('Invalid request')

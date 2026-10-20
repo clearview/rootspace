@@ -61,7 +61,7 @@ export class DocService extends NodeContentService {
   }
 
   getDocRevisionById(id: number): Promise<DocRevision | undefined> {
-    return this.getDocRevisionRepository().findOne(id)
+    return this.getDocRevisionRepository().findOne({where: {id}})
   }
 
   async requireDocRevisionById(id: number): Promise<DocRevision> {

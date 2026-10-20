@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm'
 import { User } from './User'
 import { Space } from './Space'
 
@@ -29,15 +29,15 @@ export class UserToSpace {
 
   @ManyToOne(
     (type) => User,
-    (user) => user.userSpaces,
-    { primary: true }
+    (user) => user.userSpaces
   )
+  @JoinColumn({ name: 'userId' })
   user: User
 
   @ManyToOne(
     (type) => Space,
-    (space) => space.userSpaces,
-    { primary: true }
+    (space) => space.userSpaces
   )
+  @JoinColumn({ name: 'spaceId' })
   space: Space
 }
